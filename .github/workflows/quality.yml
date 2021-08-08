@@ -1,0 +1,54 @@
+name: Quality
+
+on:
+  push:
+    branches:
+      - '*'
+  workflow_dispatch:
+
+jobs:
+  quality:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+      with:
+        fetch-depth: 0  # no shallow clone for better relevancy of Sonar analysis
+    - name: Set up JDK 11
+      uses: actions/setup-java@v2
+      with:
+        java-version: '11'
+        distribution: 'adopt'
+    - name: Cache SonarCloud packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.sonar/cache
+        key: ${{ runner.os }}-sonar
+        restore-keys: ${{ runner.os }}-sonar
+    - name: Cache Gradle packages
+      uses: actions/cache@v1
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+        restore-keys: ${{ runner.os }}-gradle
+    - name: Make gradlew executable
+      run: chmod +x gradlew
+
+    - name: Jacoco test coverage
+      run: ./gradlew test
+
+    - name: Checkstyle
+      run: ./gradlew checkstyleMain checkstyleTest
+
+    - name: Sonar
+      env:
+        GITHUB_TOKEN: ${{ secrets.GH_TOKEN_FOR_SONAR }}  # needed to get PR information, if any
+        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      run: |
+        ./gradlew sonarqube --info \
+          -Dsonar.host.url=https://sonarcloud.io \
+          -Dsonar.organization=hei-school \
+          -Dsonar.projectKey=hei-admin-api \
+          -Dsonar.coverage.jacoco.xmlReportPaths=build/reports/jacoco/test/jacocoTestReport.xml \
+          -Dsonar.java.checkstyle.reportPaths=build/reports/checkstyle/main.xml,build/reports/checkstyle/test.xml
