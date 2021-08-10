@@ -1,7 +1,9 @@
-<a name="0.1.0"></a>
-## 0.1.0 (2021/08/08)
+# 0.1.0 (2021-08-10)
 
 
-## Features
+### Features
 
-* ping-pong endpoint (#ab386f58)
+* ping-pong endpoint ([9193076](https://github.com/hei-school/hei-admin-api/commit/91930769a08d93b29b795201c438f464e7697018))
+
+
+
