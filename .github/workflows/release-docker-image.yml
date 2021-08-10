@@ -1,0 +1,89 @@
+name: Release docker image
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release-docker-image:
+
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: eu-west-3
+      ECR_REPOSITORY: hei-admin-api
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+
+      #######################################################
+      ############## DETERMINE NEXT VERSION #################
+      #######################################################
+
+      # conventional-ch increments the patch version even when
+      # it skipped commiting due to empty changelog. In such a case,
+      # we have to retrieve the old (unchanged) version using our own means.
+      # https://github.com/conventional-changelog/standard-version/issues/730
+
+      - name: Read old version file
+        id: read-old-version
+        uses: madhead/read-java-properties@latest
+        with:
+          file: gradle.properties
+          all: true
+      - name: Conventional changelog
+        id: conventional-ch
+        uses: TriPSs/conventional-changelog-action@v3
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          release-count: '10'
+          version-file: './gradle.properties'
+          version-path: 'version'
+          skip-on-empty: 'true'
+          skip-version-file: 'false'
+          skip-commit: 'false'
+      - name: Read new version file
+        id: read-new-version
+        uses: madhead/read-java-properties@latest
+        with:
+          file: gradle.properties
+          all: true
+      - name: Put correct version into GITHUB_ENV
+        run: |
+          if [ ${{ steps.conventional-ch.outputs.skipped }} ]
+          then
+            echo "image_version=${{ steps.read-old-version.outputs.version }}" >> $GITHUB_ENV
+          else
+            echo "image_version=${{ steps.read-new-version.outputs.version }}" >> $GITHUB_ENV
+          fi
+
+
+      #######################################################
+      ############### RELEASE TO AWS ECR ####################
+      #######################################################
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - name: Login to AWS ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
+      - name: Build, tag, and push image to AWS ECR
+        # do NOT skip step based on conventional-ch output
+        # because we want to be able to re-publish image
+        # when previous release attempt succeeded commiting but failed publishing
+        # if: ${{ steps.conventional-ch.outputs.skipped }}
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          # do NOT use steps.conventional-ch.outputs.version|tag because
+          # (1) they are NOT set when previous release attempt succeeded commiting but failed publishing
+          # (2) version is still incremented even if release was skipped due to empty changelog
+          IMAGE_TAG: ${{ env.image_version }}
+        run: |
+          docker build --build-arg version=$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
