@@ -1,0 +1,1079 @@
+openapi: "3.0.3"
+info:
+  version: "1.0"
+  title: "HEI Admin API"
+paths:
+  /groups:
+    get:
+      tags:
+        - "Groups"
+      summary: "Find groups based on search criteria"
+      parameters:
+        - name: "id"
+          in: "query"
+          description: "Identifier of the group to find"
+          required: false
+          schema:
+            type: string
+        - name: offset
+          in: query
+          required: false
+          description: "Zero-based offset for pagination. Defaults to `0`."
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          description: "Pagination limit, that is the maximum number of elements that can be retrieved. Defaults to `1000` and cannot exceed `1000`."
+          schema:
+            type: integer
+
+      operationId: "findGroups"
+      responses:
+        200:
+          description: "List of groups"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+    post:
+      tags:
+        - "Groups"
+      summary: "Create new groups"
+      operationId: "createGroups"
+      requestBody:
+        description: "Collection of groups to create"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateGroup'
+      responses:
+        200:
+          description: "Collection of created groups"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+    patch:
+      tags:
+        - "Groups"
+      summary: "Update existing groups"
+      description: |
+
+        Possible udpates on:
+        * Name: change
+
+      operationId: "updateGroups"
+      requestBody:
+        description: "Groups to update"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Group'
+            examples:
+              changeName:
+                summary: Change name
+                value:
+                  resources:
+                    - id : "uuid"
+                    - id : "uuid"
+                  name: "Groupe A"
+      responses:
+        200:
+          description: "The updated groups"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+    delete:
+      tags:
+        - "Groups"
+      summary: "Delete existing groups"
+      operationId: "deleteGroups"
+      parameters:
+        - name: "ids"
+          in: "query"
+          description: "Identifiers of the groups that need to be deleted separated by coma"
+          example:
+            "uuid,uuid"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: "#/components/responses/200Delete"
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+  /students:
+    get:
+      tags:
+        - "Students"
+      summary: "Find students based on search criteria"
+      description: "  Please notice that CourseHours are generated automatically, based on the availabilites of the teachers."
+      parameters:
+        - name: "id"
+          in: "query"
+          description: "Identifier of the student to find"
+          required: false
+          schema:
+            type: string
+        - name: offset
+          in: query
+          required: false
+          description: "Zero-based offset for pagination. Defaults to `0`."
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          description: "Pagination limit, that is the maximum number of elements that can be retrieved. Defaults to `1000` and cannot exceed `1000`."
+          schema:
+            type: integer
+
+      operationId: "findStudents"
+      responses:
+        200:
+          description: "List of students"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+    post:
+      tags:
+        - "Students"
+      summary: "Create new students"
+      description: ""
+      operationId: "createStudents"
+      requestBody:
+        description: "Collection of students to create"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateStudent'
+      responses:
+        200:
+          description: "Collection of created students"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+    patch:
+      tags:
+        - "Students"
+      summary: "Update existing students"
+      description: |
+        Possible udpates on:
+        * Group: change
+        * Status: change
+        * EnrolledCourses: add
+        * Grades : add
+      operationId: "updateStudents"
+      requestBody:
+        description: "Students to update"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+            examples:
+              addGroup:
+                summary: Change group
+                value:
+                  resources:
+                    - id : "uuid"
+                    - id : "uuid"
+                  group:
+                    id: "uuid"
+              changeStatus:
+                summary: Change status
+                value:
+                  resources:
+                    - id : "uuid"
+                    - id : "uuid"
+                  status: "ENABLED"
+              addEnrolledCourse:
+                summary: Add enrolled course
+                value:
+                  resources:
+                    - id : "uuid"
+                    - id : "uuid"
+                  course_id: "uuid"
+                  course_name: "Architecture logicielle"
+              addGrade:
+                summary: Add grade
+                value:
+                  resources:
+                    - id : "uuid"
+                    - id : "uuid"
+                  value: "0"
+                  enrolled_course_id: "uuid"
+                  enrolled_course_name: "Architecture logicielle"
+
+      responses:
+        200:
+          description: "The updated Students"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+    delete:
+      tags:
+        - "Students"
+      summary: "Delete existing students"
+      operationId: "deleteStudents"
+      parameters:
+        - name: "ids"
+          in: "query"
+          description : "Identifiers of the students that need to be deleted separated by coma"
+          required: true
+          example:
+            "uuid,uuid"
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: "#/components/responses/200Delete"
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+  /courses:
+    get:
+      tags:
+        - "Courses"
+      summary: "Find courses based on search criteria"
+      parameters:
+        - name: "id"
+          in: "query"
+          description: "Identifier of the course to find"
+          required: false
+          schema:
+            type: string
+        - name: offset
+          in: query
+          required: false
+          description: "Zero-based offset for pagination. Defaults to `0`."
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          description: "Pagination limit, that is the maximum number of elements that can be retrieved. Defaults to `1000` and cannot exceed `1000`."
+          schema:
+            type: integer
+
+      operationId: "findCourses"
+      responses:
+        200:
+          description: "List of courses"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+    post:
+      tags:
+        - "Courses"
+      summary: "Create new courses"
+      description: ""
+      operationId: "createCourses"
+      requestBody:
+        description: "Collection of courses to create"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateCourse'
+      responses:
+        200:
+          description: "Collection of created courses"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+    patch:
+      tags:
+        - "Courses"
+      summary: "Update existing courses"
+
+      description: |
+        Possible udpates on:
+        * Name: change
+        * TotalHours : change
+        * Teacher: change
+      operationId: "updateCourses"
+      requestBody:
+        description: "Course to update"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+            examples:
+              changeName:
+                summary: Change name
+                value:
+                  resources:
+                    - id : "uuid"
+                    - id : "uuid"
+                  name: "Architectures logicielles"
+              changeTotalHours:
+                summary: Change total hours
+                value:
+                  resources:
+                    - id : "uuid"
+                    - id : "uuid"
+                  total_hours: "0"
+              changeTecaher:
+                summary: Change teacher
+                value:
+                  resources:
+                    - id : "uuid"
+                    - id : "uuid"
+                  main_teacher_id: "uuid"
+                  main_teacher_name: "Lou"
+      responses:
+        200:
+          description: "The updated Course"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+    delete:
+      tags:
+        - "Courses"
+      summary: "Delete existing courses"
+      operationId: "deleteCourses"
+      parameters:
+        - name: "ids"
+          in: "query"
+          description : "Identifiers of the courses that need to be deleted"
+          example:
+            "uuid,uuid"
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: "#/components/responses/200Delete"
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+  /teachers:
+    get:
+      tags:
+        - "Teachers"
+      summary: "Find teachers based on search criteria"
+      description: |
+        Please notice that TaughtHours are generated automatically, based on the availabilites of the teacher.
+      parameters:
+        - name: "id"
+          in: "query"
+          description: "Identifier of the teacher to find"
+          required: false
+          schema:
+            type: string
+        - name: offset
+          in: query
+          required: false
+          description: "Zero-based offset for pagination. Defaults to `0`."
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          description: "Pagination limit, that is the maximum number of elements that can be retrieved. Defaults to `1000` and cannot exceed `1000`."
+          schema:
+            type: integer
+
+      operationId: "findTeachers"
+      responses:
+        200:
+          description: "List of teachers"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+    post:
+      tags:
+        - "Teachers"
+      summary: "Create new teachers"
+      description: ""
+      operationId: "createTeachers"
+      requestBody:
+        description: "Collection of teachers to create"
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateTeacher'
+      responses:
+        200:
+          description: "Collection of created teachers"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+    patch:
+      tags:
+        - "Teachers"
+      summary: "Update existing teachers"
+      description: |
+        Possible udpates on:
+        * Interventions: add
+        * TaughtCourses: add
+        * Status: change
+      operationId: "updateTeachers"
+      requestBody:
+        description: ""
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Teacher'
+            examples:
+              changeStatus:
+                summary: Change Status
+                value:
+                  resources:
+                    - id : "uuid"
+                    - id : "uuid"
+                  status: "ENABLED"
+              addTaughtCourse:
+                summary: Add Taught Course
+                value:
+                  resources:
+                    - id : "uuid"
+                    - id : "uuid"
+                  course_id: "uuid"
+                  required_teaching_hours: 0
+              addIntervention:
+                summary: Add Intervention
+                value:
+                  resources:
+                    - id : "uuid"
+                    - id : "uuid"
+                  start: "2021-08-12T12:38:33.098Z"
+                  end: "2021-08-12T12:38:33.098Z"
+      responses:
+        200:
+          description: "The updated teachers"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+    delete:
+      tags:
+        - "Teachers"
+      summary: "Delete existing teachers"
+      operationId: "deleteTeachers"
+      parameters:
+        - name: "ids"
+          in: "query"
+          description : "Identifiers of the teachers that need to be deleted separated by coma"
+          required: true
+          example:
+            "uuid,uuid"
+          schema:
+            type: string
+      responses:
+        200:
+          $ref: "#/components/responses/200Delete"
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+components:
+  responses:
+    200Delete:
+      description : Resources deleted
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/200DeleteResponse'
+    400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BadRequestException"
+    403:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/NotAuthorizedException"
+    404:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResourceNotFoundException"
+    429:
+      description: Too many requests to the API
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TooManyRequestsException"
+    500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/InternalServerException"
+
+  schemas:
+    ######################################################
+    ####################### STUDENT ######################
+    ######################################################
+
+    Student:
+      type: object
+      properties:
+        id:
+          type: string
+        ref:
+          type: string
+          example: "STD000001"
+        first_name:
+          type: string
+        last_name:
+          type: string
+        sex:
+          type: string
+          enum:
+            - M
+            - F
+        birth_date:
+          type: "string"
+          format: "date"
+        address:
+          type : string
+        phone_number:
+          type: string
+        email:
+          type: string
+        entrance_date:
+          type: "string"
+          format: "date"
+        status:
+          type: string
+          description: "Defaults to ENABLED"
+          enum:
+            - ENABLED
+            - DISABLED
+        group:
+          $ref: '#/components/schemas/Group'
+        enrolled_courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrolledCourse'
+
+    CreateStudent:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        sex:
+          type: string
+          enum:
+            - M
+            - F
+        birth_date:
+          type: "string"
+          format: "date"
+        address:
+          type : string
+        phone_number:
+          type: string
+        email:
+          type: string
+        entrance_date:
+          type: "string"
+          format: "date"
+        status:
+          type: string
+          enum:
+            - ENABLED
+            - DISABLED
+        group:
+          $ref: '#/components/schemas/Group'
+        enrolled_courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnrolledCourse'
+
+    ######################################################
+    ####################### TEACHER ######################
+    ######################################################
+
+    CreateTeacher:
+      type: object
+      properties:
+        first_name:
+          type: string
+        last_name:
+          type: string
+        sex:
+          type: string
+          enum:
+            - M
+            - F
+        address:
+          type : string
+        phone_number:
+          type: integer
+        email:
+          type: string
+        mariage_status:
+          type: string
+        status:
+          type: string
+          description: "Defaults to ENABLED"
+          enum:
+            - ENABLED
+            - DISABLED
+        birth_date:
+          type: "string"
+          format: "date"
+        hire_date:
+          type: "string"
+          format: "date"
+        taught_courses:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaughtCourse"
+        availabilities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Availability"
+
+    Teacher:
+      type: object
+      properties:
+        id:
+          type: string
+        ref:
+          type: string
+          example: "TCH001"
+        first_name:
+          type: string
+        last_name:
+          type: string
+        sex:
+          type: string
+          enum:
+            - M
+            - F
+        address:
+          type : string
+        phone_number:
+          type: integer
+        email:
+          type: string
+        mariage_status:
+          type: string
+        status:
+          type: string
+          description: "Defaults to ENABLED"
+          enum:
+            - ENABLED
+            - DISABLED
+        birth_date:
+          type: "string"
+          format: "date"
+        hire_date:
+          type: "string"
+          format: "date"
+        taught_courses:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaughtCourse"
+        availabilities:
+          type: array
+          items:
+            $ref: "#/components/schemas/Availability"
+
+    Availability:
+      type: object
+      properties:
+        start:
+          type: "string"
+          format: "date-time"
+        end:
+          type: "string"
+          format: "date-time"
+
+    ######################################################
+    ####################### GROUP ########################
+    ######################################################
+
+    Group:
+      type: object
+      properties:
+        id:
+          type: string
+        ref:
+          type: string
+          example: "GRP001"
+        name:
+          type: string
+        creation_date:
+          type: string
+          format: "date"
+    CreateGroup:
+      type: object
+      properties:
+        name:
+          type: string
+
+    ######################################################
+    ####################### COURSE #######################
+    ######################################################
+
+
+    CreateCourse:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Architecture logicielle"
+        code:
+          type: string
+          example:
+            "PROG1"
+        total_hours:
+          type: integer
+        main_teacher_id:
+          type: string
+        main_teacher_name:
+          type: string
+
+    Course:
+      type: object
+      properties:
+        id:
+          type: string
+        ref:
+          type: string
+          example: "CRS001"
+        name:
+          type: string
+          example: "Architecture logicielle"
+        code:
+          type: string
+          example:
+            "PROG1"
+        total_hours:
+          type: integer
+        main_teacher_id:
+          type: string
+        main_teacher_name:
+          type: string
+
+    TaughtCourse :
+      type: object
+      properties:
+        course_id:
+          type: string
+        course_name:
+          type: string
+        required_teaching_hours:
+          type: integer
+        timetable:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaughtHours"
+
+    EnrolledCourse:
+      type: object
+      properties:
+        course_id:
+          type: string
+        course_name:
+          type: string
+        timetable:
+          type: array
+          items:
+            $ref: '#/components/schemas/CourseHours'
+        exams:
+          type: array
+          items:
+            type: object
+            properties:
+              grade:
+                type: integer
+              creation_date:
+                type: "string"
+                format: "date"
+    ######################################################
+    ####################### TIMETABLE ####################
+    ######################################################
+
+    TaughtHours:
+      type: object
+      properties:
+        group:
+          $ref: "#/components/schemas/Group"
+        start:
+          type: "string"
+          format: "date-time"
+        end:
+          type: "string"
+          format: "date-time"
+        creation_date:
+          type: "string"
+          format: "date"
+
+    CourseHours:
+      type: object
+      properties:
+        teacher_id:
+          type: string
+        teacher_name:
+          type: string
+        start:
+          type: "string"
+          format: "date-time"
+        end:
+          type: "string"
+          format: "date-time"
+
+    ######################################################
+    #################### Responses ######################
+    ######################################################
+
+    Response:
+      type: object
+      properties:
+        code :
+          type: integer
+        message:
+          type: string
+
+    200DeleteResponse:
+      allOf:
+        - $ref: '#/components/schemas/Response'
+      example:
+        code: 200
+        message: 'Resources deleted'
+
+    ######################################################
+    #################### Exceptions ######################
+    ######################################################
+
+    Exception:
+      type: object
+      properties:
+        type:
+          type: string
+        message:
+          type: string
+    BadRequestException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: 'BadRequestException'
+        message: 'bad request'
+    NotAuthorizedException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: 'NotAuthorizedException'
+        message: 'Not authorized'
+    ResourceNotFoundException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: 'ResourceNotFoundException'
+        message: 'Resource of type <T> identified by <I> not found'
+    TooManyRequestsException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: 'TooManyRequestsException'
+        message: 'Too many requests'
+    InternalServerException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: 'InternalServerException'
+        message: 'Unexpected error'
