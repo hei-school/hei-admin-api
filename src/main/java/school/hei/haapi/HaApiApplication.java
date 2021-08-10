@@ -5,9 +5,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 
 @SpringBootApplication
 public class HaApiApplication {
-
-    public static void main(String[] args) {
-        SpringApplication.run(HaApiApplication.class, args);
-    }
-
+  public static void main(String[] args) {
+    SpringApplication.run(HaApiApplication.class, args);
+  }
 }
