@@ -1,0 +1,621 @@
+openapi: "3.0.3"
+info:
+  description: |
+    * To complete
+
+  version: "1.0.0"
+  title: "HEI Admin API"
+  contact:
+    email: "contact@hei.school"
+
+servers:
+  - description: To complete
+    url: example.com
+
+paths:
+  /students/{id}/grades:
+    get:
+      tags:
+        - "Grade"
+      summary: "Find all grades of a student"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "Identifier of the student to look at the grades"
+          required: true
+          schema:
+            type: integer
+      operationId: "findGrades"
+      responses:
+        200:
+          description: "List of all grades of a student"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Grade'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+  /students/{id}/schedule:
+    get:
+      tags:
+        - "Schedule"
+      summary: "Find the schedule of a student by his group"
+      parameters:
+        - name: "id"
+          in: "path"
+          description: "Identifier of the student to look at the schedule"
+          required: true
+          schema:
+            type: integer
+      operationId: "findSchedule"
+      responses:
+        200:
+          description: "List of teaching units with their schedules for a student"
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Schedule'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+  /teachers/grades:
+    post:
+      tags:
+        - "Grade"
+      summary: "Create new grade of a student's teaching unit"
+      description: ""
+      operationId: "createGrade"
+      requestBody:
+        description: "The grade to attribute to the student and his teaching unit"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Grade'
+      responses:
+        200:
+          description: "The created grade"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+  /teachers/interventions:
+    post:
+      tags:
+        - "Teacher"
+      summary: "Create new intervention hour"
+      description: ""
+      operationId: "createIntervention"
+      requestBody:
+        description: "The interval of the intervention hours of the teacher"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Intervention'
+      responses:
+        200:
+          description: "The created intervention"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Intervention'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+  /administrations/studentGroups:
+    patch:
+      tags:
+        - "Student"
+      summary: "Attribute a group to a student by updating his group"
+      description: ""
+      operationId: "attributeGroup"
+      requestBody:
+        description: "The student and the group to attribute him"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        200:
+          description: "The updated Student"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+  /administrations/studentCourses:
+    post:
+      tags:
+        - "Student"
+      summary: "Attribute a teaching unit to a student"
+      description: "Create a new relation between student and a teaching unit"
+      operationId: "attributeStudentCourse"
+      requestBody:
+        description: "The student and the teaching unit to attribute him"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/StudentCourse'
+      responses:
+        200:
+          description: "The created StudentCourse"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentCourse'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+  /administrations/teacherCourses:
+    post:
+      tags:
+        - "Teacher"
+      summary: "Attribute a teaching unit to a teacher"
+      description: "Create a new relation between a teacher and a teaching unit"
+      operationId: "attributeTeacherCourse"
+      requestBody:
+        description: "The teacher and the teaching unit to attribute him"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TeacherCourse'
+      responses:
+        200:
+          description: "The created TeacherCourse"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TeacherCourse'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+  /administrations/activation:
+    patch:
+      tags:
+        - "Student"
+      summary: "Change activation status of a student"
+      description: ""
+      operationId: "changeActivation"
+      requestBody:
+        description: "The activation status of a student"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        200:
+          description: "The updated Student"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+  /administrations/impersionation:
+    patch:
+      tags:
+        - "Student"
+      summary: "Allow a student to make changes or not"
+      description: ""
+      operationId: "allowChanges"
+      requestBody:
+        description: "The mode allowed to the student"
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Student'
+      responses:
+        200:
+          description: "The updated Student"
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        400:
+          $ref: "#/components/responses/400"
+        403:
+          $ref: "#/components/responses/403"
+        404:
+          $ref: "#/components/responses/404"
+        429:
+          $ref: "#/components/responses/429"
+        500:
+          $ref: "#/components/responses/500"
+
+components:
+  #securitySchemes:
+  # bearerAuth:
+  # type: http
+  # scheme: bearer
+  responses:
+    400:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/BadRequestException"
+    403:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/NotAuthorizedException"
+    404:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/ResourceNotFoundException"
+    429:
+      description: Too many requests to the API
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/TooManyRequestsException"
+    500:
+      description: Internal server error
+      content:
+        application/json:
+          schema:
+            $ref: "#/components/schemas/InternalServerException"
+
+  schemas:
+    ######################################################
+    ####################### GRADE ########################
+    ######################################################
+
+    Grade:
+      type: object
+      properties:
+        id:
+          type: integer
+        value:
+          type: number
+        studentCourse:
+          $ref: '#/components/schemas/StudentCourse'
+        creationDate:
+          type: "string"
+          format: "date"
+
+    ######################################################
+    ####################### STUDENT ######################
+    ######################################################
+
+    Student:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        address:
+          type : string
+        birthDate:
+          type: "string"
+          format: "date"
+        registrationDate:
+          type: "string"
+          format: "date"
+        phoneNumber:
+          type: integer
+        email:
+          type: string
+        isActivated:
+          type: boolean
+        isReadOnly:
+          type: boolean
+        studentGroup:
+          $ref: '#/components/schemas/StudentGroup'
+
+    StudentCourse:
+      type: object
+      properties:
+        id:
+          type: integer
+        student:
+          $ref: '#/components/schemas/Student'
+        teachingUnit:
+          $ref: '#/components/schemas/TeachingUnit'
+        assignmentDate:
+          type: "string"
+          format: "date"
+
+    ######################################################
+    ####################### TEACHER ######################
+    ######################################################
+
+    Teacher:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        address:
+          type : string
+        phoneNumber:
+          type: integer
+        email:
+          type: string
+        mariageStatus:
+          type: string
+        isActivated:
+          type: boolean
+        isReadOnly:
+          type: boolean
+        birthDate:
+          type: "string"
+          format: "date"
+        hireDate:
+          type: "string"
+          format: "date"
+
+    Intervention:
+      type: object
+      properties:
+        id:
+          type: integer
+        teacher:
+          $ref: '#/components/schemas/Teacher'
+        start:
+          type: "string"
+          format: "date-time"
+        end:
+          type: "string"
+          format: "date-time"
+        creationDate:
+          type: "string"
+          format: "date-time"
+
+    TeacherCourse :
+      type: object
+      properties:
+        id:
+          type: integer
+        teacher:
+          $ref: '#/components/schemas/Teacher'
+        teachingUnit:
+          $ref: '#/components/schemas/TeachingUnit'
+        courseHours:
+          type: number
+        creationDate:
+          type: "string"
+          format: "date-time"
+
+    ######################################################
+    ####################### ADMINISTRATIVE STAFF #########
+    ######################################################
+
+    AdministrativeStaff:
+      type: object
+      properties:
+        id:
+          type: integer
+        firstName:
+          type: string
+        lastName:
+          type: string
+        address:
+          type : string
+        phoneNumber:
+          type: integer
+        email:
+          type: string
+        mariageStatus:
+          type: string
+        birthDate:
+          type: "string"
+          format: "date"
+        hireDate:
+          type: "string"
+          format: "date"
+
+    ######################################################
+    ####################### GROUP ########################
+    ######################################################
+
+    StudentGroup:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        creationDate:
+          type: "string"
+          format: "date"
+
+    ######################################################
+    ####################### TEACHING UNIT ################
+    ######################################################
+
+    TeachingUnit:
+      type: object
+      properties:
+        id:
+          type: integer
+        code:
+          type: string
+          example: "DONNEES1"
+        description:
+          type: string
+        teacher:
+          $ref: '#/components/schemas/Teacher'
+        creationDate:
+          type: "string"
+          format: "date"
+
+    ######################################################
+    ####################### SCHEDULE #####################
+    ######################################################
+
+    Schedule:
+      type: object
+      properties:
+        id:
+          type: integer
+        studentGroup:
+          $ref: '#/components/schemas/StudentGroup'
+        description:
+          type: string
+        tuSchedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/TuSchedule'
+        creationDate:
+          type: "string"
+          format: "date"
+
+    TuSchedule:
+      type: object
+      properties:
+        teachingUnit:
+          $ref: '#/components/schemas/TeachingUnit'
+        schedule:
+          type: "string"
+          format: "date-time"
+
+    ######################################################
+    #################### Exceptions ######################
+    ######################################################
+
+    Exception:
+      type: object
+      properties:
+        type:
+          type: string
+        message:
+          type: string
+    BadRequestException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: 'BadRequestException'
+        message: 'bad request'
+    NotAuthorizedException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: 'NotAuthorizedException'
+        message: 'Not authorized'
+    ResourceNotFoundException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: 'ResourceNotFoundException'
+        message: 'Resource of type <T> identified by <I> not found'
+    TooManyRequestsException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: 'TooManyRequestsException'
+        message: 'Too many requests'
+    InternalServerException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: 'InternalServerException'
+        message: 'Unexpected error'
+
+    ######################################################
+    ###################### OTHERS ########################
+    ######################################################
+
+    Semester:
+      type: object
+      properties:
+        id:
+          type: integer
+        description:
+          type: string
+        start:
+          type: "string"
+          format: "date"
+        end:
+          type: "string"
+          format: "date"
