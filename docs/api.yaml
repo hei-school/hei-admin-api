@@ -341,6 +341,7 @@ components:
             $ref: "#/components/schemas/InternalServerException"
 
   schemas:
+
     ######################################################
     ####################### GRADE ########################
     ######################################################
@@ -349,11 +350,11 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         value:
-          type: number
-        studentCourse:
-          $ref: '#/components/schemas/StudentCourse'
+          type: integer
+        enroledCourseId:
+          type: string
         creationDate:
           type: "string"
           format: "date"
@@ -366,39 +367,61 @@ components:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         firstName:
           type: string
         lastName:
           type: string
-        address:
-          type : string
+        sex:
+          type: string
+          enum:
+            - M
+            - F
         birthDate:
           type: "string"
           format: "date"
-        registrationDate:
-          type: "string"
-          format: "date"
+        address:
+          type : string
         phoneNumber:
-          type: integer
+          type: string
         email:
           type: string
-        isActivated:
-          type: boolean
-        isReadOnly:
-          type: boolean
-        studentGroup:
-          $ref: '#/components/schemas/StudentGroup'
+        entranceDate:
+          type: "string"
+          format: "date"
+        status:
+          type: string
+          enum:
+            - ACTIVATED
+            - DEACTIVATED
+        group:
+          $ref: '#/components/schemas/Group'
+        enroledCourses:
+          type: array
+          items:
+            $ref: '#/components/schemas/EnroledCourse'
+        grades:
+          type: array
+          items:
+            $ref: '#/components/schemas/Grade'
 
-    StudentCourse:
+    EnroledCourse:
       type: object
       properties:
         id:
-          type: integer
-        student:
-          $ref: '#/components/schemas/Student'
-        teachingUnit:
-          $ref: '#/components/schemas/TeachingUnit'
+          type: string
+        courseId:
+          type: string
+        courseName:
+          type: string
+        timetables:
+          type: array
+          items:
+            $ref: '#/components/schemas/Timetable'
+        teacherId:
+          type: string
+        teacherName:
+          type: string
         assignmentDate:
           type: "string"
           format: "date"
@@ -416,6 +439,11 @@ components:
           type: string
         lastName:
           type: string
+        sex:
+          type: string
+          enum:
+            - M
+            - F
         address:
           type : string
         phoneNumber:
@@ -424,22 +452,27 @@ components:
           type: string
         mariageStatus:
           type: string
-        isActivated:
-          type: boolean
-        isReadOnly:
-          type: boolean
+        status:
+          type: string
+          enum:
+            - ACTIVATED
+            - DEACTIVATED
         birthDate:
           type: "string"
           format: "date"
         hireDate:
           type: "string"
           format: "date"
+        taughtCourses:
+          type: array
+          items:
+            $ref: "#/components/schemas/TaughtCourse"
 
     Intervention:
       type: object
       properties:
         id:
-          type: integer
+          type: string
         teacher:
           $ref: '#/components/schemas/Teacher'
         start:
@@ -452,54 +485,30 @@ components:
           type: "string"
           format: "date-time"
 
-    TeacherCourse :
+    TaughtCourse :
       type: object
       properties:
         id:
+          type: string
+        courseId:
+          type: string
+        courseName:
+          type: string
+        requiredTeachingHours:
           type: integer
-        teacher:
-          $ref: '#/components/schemas/Teacher'
-        teachingUnit:
-          $ref: '#/components/schemas/TeachingUnit'
-        courseHours:
-          type: number
+        timetables:
+          type: array
+          items:
+            $ref: "#/components/schemas/Timetable"
         creationDate:
           type: "string"
           format: "date-time"
 
     ######################################################
-    ####################### ADMINISTRATIVE STAFF #########
-    ######################################################
-
-    AdministrativeStaff:
-      type: object
-      properties:
-        id:
-          type: integer
-        firstName:
-          type: string
-        lastName:
-          type: string
-        address:
-          type : string
-        phoneNumber:
-          type: integer
-        email:
-          type: string
-        mariageStatus:
-          type: string
-        birthDate:
-          type: "string"
-          format: "date"
-        hireDate:
-          type: "string"
-          format: "date"
-
-    ######################################################
     ####################### GROUP ########################
     ######################################################
 
-    StudentGroup:
+    Group:
       type: object
       properties:
         id:
@@ -511,54 +520,53 @@ components:
           format: "date"
 
     ######################################################
-    ####################### TEACHING UNIT ################
+    ####################### COURSE #######################
     ######################################################
 
-    TeachingUnit:
+    Course:
       type: object
       properties:
         id:
-          type: integer
-        code:
+          type: string
+        name:
           type: string
           example: "DONNEES1"
-        description:
+        totalHours:
+          type: integer
+        mainTeacherId:
           type: string
-        teacher:
-          $ref: '#/components/schemas/Teacher'
+        mainTeacherName:
+          type: string
         creationDate:
           type: "string"
           format: "date"
 
     ######################################################
-    ####################### SCHEDULE #####################
+    ####################### TIMETABLE ####################
     ######################################################
 
-    Schedule:
+    Timetable:
       type: object
       properties:
         id:
-          type: integer
-        studentGroup:
-          $ref: '#/components/schemas/StudentGroup'
-        description:
           type: string
-        tuSchedules:
-          type: array
-          items:
-            $ref: '#/components/schemas/TuSchedule'
+        groupId:
+          type: string
+        groupName:
+          type: string
+        courseId:
+          type: string
+        courseName:
+          type: string
+        start:
+          type: "string"
+          format: "date-time"
+        end:
+          type: "string"
+          format: "date-time"
         creationDate:
           type: "string"
           format: "date"
-
-    TuSchedule:
-      type: object
-      properties:
-        teachingUnit:
-          $ref: '#/components/schemas/TeachingUnit'
-        schedule:
-          type: "string"
-          format: "date-time"
 
     ######################################################
     #################### Exceptions ######################
