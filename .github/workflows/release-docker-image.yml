@@ -10,6 +10,7 @@ jobs:
 
     env:
       AWS_REGION: eu-west-3
+      ECR_PUBLIC_REGISTRY: public.ecr.aws/q6i6y5o4
       ECR_REPOSITORY: hei-admin-api
 
     steps:
@@ -63,8 +64,7 @@ jobs:
           version: version
       - name: Put correct version into GITHUB_ENV
         run: |
-          if [ ${{ steps.conventional-ch.outputs.skipped == 'false' }} ]
-          then
+          if ${{ steps.conventional-ch.outputs.skipped == 'false' }}; then
             echo "image_version=${{ steps.read-new-version.outputs.version }}" >> $GITHUB_ENV
           else
             echo "image_version=${{ steps.read-old-version.outputs.version }}" >> $GITHUB_ENV
@@ -96,31 +96,42 @@ jobs:
         with:
           java-version: '11'
           distribution: 'adopt'
-      - name: Build
+      - name: Build Gradle project
         run: ./gradlew build
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
         with:
           aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      - name: Login to AWS ECR
+
+      # Push to the private repository first before pushing to the public one.
+      # Indeed (1) only private repositories benefit from tag immutability (2) public ones are all in us-east-1
+      # Pushing to private repo will
+      # (a) prevent publishing to public one in case of mutation attempt
+      # (b) be more efficient for internal use as private repo can be put in our desired region
+      - name: Set up crendetials for private ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
-      - name: Build, tag, and push image to AWS ECR
+      - name: Build, tag and push Docker image to AWS private ECR
         # do NOT skip step based on conventional-ch output
         # because we want to be able to re-publish image
         # when previous release attempt succeeded commiting but failed publishing
         # if: ${{ steps.conventional-ch.outputs.skipped }}
         env:
-          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          # do NOT use steps.conventional-ch.outputs.version|tag because
-          # (1) they are NOT set when previous release attempt succeeded commiting but failed publishing
-          # (2) version is still incremented even if release was skipped due to empty changelog
+          ECR_PRIVATE_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ env.image_version }}
         run: |
-          ls build/libs/
-          docker build --build-arg version=$IMAGE_TAG -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+          docker build --build-arg version=$IMAGE_TAG -t $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
+          docker push $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+      - name: Set up crendetials for public ECR
+        run: aws ecr-public get-login-password --region us-east-1 | docker login --username AWS --password-stdin $ECR_PUBLIC_REGISTRY
+      - name: Re-tag and push Docker image to AWS public ECR
+        env:
+          ECR_PRIVATE_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ env.image_version }}
+        run: |
+          docker tag $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG $ECR_PUBLIC_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG 
+          docker push $ECR_PUBLIC_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          echo "::set-output name=image::$ECR_PUBLIC_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
