@@ -1,10 +1,11 @@
-name: Release docker image
+name: Release
 
 on:
   workflow_dispatch:
 
 jobs:
-  release-docker-image:
+  release:
+    if: github.ref == 'refs/heads/staging'
 
     runs-on: ubuntu-latest
 
