@@ -1,4 +1,4 @@
-name: Continuous deployment
+name: CD
 
 on:
   push:
@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
 
 jobs:
-  continuous-deployment:
+  cd:
     if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'
 
     runs-on: ubuntu-latest
@@ -42,13 +42,18 @@ jobs:
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
         with:
-          aws-access-key-id: ${{ secrets.AWS_ECR_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_ECR_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
       - name: Set up crendetials for private ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
-      - name: Build, tag and push Docker image to AWS private ECR
+      - name: Build, tag and push Docker image to AWS private ECR (continue-on-error)
+        # Assume dev and staging point to the same commit.
+        # Assume dev finished publishing the (immutable) image.
+        # In such a case, staging publication will end in an error since image already exists:
+        # Ignore the error and pursue to stack update.
+        continue-on-error: true
         env:
           ECR_PRIVATE_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
           IMAGE_TAG: ${{ github.sha }}
@@ -56,4 +61,18 @@ jobs:
           docker build --build-arg version=${{ steps.read-semver.outputs.version }} \
             -t $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-          echo "::set-output name=image::$ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG"
+  
+      - name: Put branch_env into GITHUB_ENV
+        run: |
+          if ${{ github.ref == 'refs/heads/dev' }}; then
+            echo "branch_env=dev" >> $GITHUB_ENV
+          elif ${{ github.ref == 'refs/heads/staging' }}; then
+            echo "branch_env=staging" >> $GITHUB_ENV
+          fi
+      - name: Deploy with AWS CloudFormation
+        uses: aws-actions/aws-cloudformation-github-deploy@v1        
+        with:
+          name: ${{ env.branch_env }}-hei-admin-api
+          template: cloudformation-stack.yml
+          capabilities: CAPABILITY_NAMED_IAM
+          parameter-overrides: "Env=${{ env.branch_env }},Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
