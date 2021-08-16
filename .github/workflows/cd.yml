@@ -62,12 +62,14 @@ jobs:
             -t $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
   
-      - name: Put branch_env into GITHUB_ENV
+      - name: Put branch_env and subnet into GITHUB_ENV
         run: |
           if ${{ github.ref == 'refs/heads/dev' }}; then
             echo "branch_env=dev" >> $GITHUB_ENV
+            echo "subnet=${{ secrets.DEV_SUBNET }}" >> $GITHUB_ENV
           elif ${{ github.ref == 'refs/heads/staging' }}; then
             echo "branch_env=staging" >> $GITHUB_ENV
+            echo "subnet=${{ secrets.STAGING_SUBNET }}" >> $GITHUB_ENV
           fi
       - name: Deploy with AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1        
@@ -75,4 +77,7 @@ jobs:
           name: ${{ env.branch_env }}-hei-admin-api
           template: cloudformation-stack.yml
           capabilities: CAPABILITY_NAMED_IAM
-          parameter-overrides: "Env=${{ env.branch_env }},Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
+          parameter-overrides:
+            "Env=${{ env.branch_env }},
+            Subnet=${{ env.subnet }},
+            Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"

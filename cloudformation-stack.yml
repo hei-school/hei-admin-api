@@ -4,6 +4,8 @@ Description: Stack for HEI Admin API
 Parameters:
   Env:
     Type: String
+  Subnet:
+    Type: AWS::EC2::Subnet::Id
   Image:
     Type: String
 
@@ -74,53 +76,6 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: 'ENABLED'
           SecurityGroups:
-            - !Ref SecurityGroup
+            - '{{resolve:ssm:/hei-admin-api/security-group:1}}'
           Subnets:
-            - !Ref Subnet1
-  VPC:
-    Type: AWS::EC2::VPC
-    Properties:
-      CidrBlock: 10.0.0.0/24
-  Subnet1:
-    Type: AWS::EC2::Subnet
-    Properties:
-      VpcId: !Ref VPC
-      CidrBlock: 10.0.0.0/25
-  InternetGateway:
-    Type: AWS::EC2::InternetGateway
-  GatewayAttachment:
-    Type: AWS::EC2::VPCGatewayAttachment
-    Properties:
-      InternetGatewayId: !Ref InternetGateway
-      VpcId: !Ref VPC
-  SecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupName: !Join ['', [!Ref Env, -hei-admin-api, -SecurityGroup]]
-      GroupDescription: !Join [' ', [sg-hei-admin-api, for, Env=, !Ref Env]]
-      SecurityGroupEgress:
-        - IpProtocol: -1
-          CidrIp: 0.0.0.0/0
-      SecurityGroupIngress:
-        - IpProtocol: tcp
-          CidrIp: 0.0.0.0/0
-          FromPort: 8080
-          ToPort: 8080
-      VpcId: !Ref VPC
-
-  RouteTable:
-    Type: AWS::EC2::RouteTable
-    Properties:
-      VpcId: !Ref VPC
-  Route1:
-    Type: AWS::EC2::Route
-    DependsOn: GatewayAttachment
-    Properties:
-      RouteTableId: !Ref RouteTable
-      DestinationCidrBlock: 0.0.0.0/0
-      GatewayId: !Ref InternetGateway
-  Subnet1RouteTableAssociation:
-    Type: AWS::EC2::SubnetRouteTableAssociation
-    Properties:
-      SubnetId: !Ref Subnet1
-      RouteTableId: !Ref RouteTable
+            - !Ref Subnet
