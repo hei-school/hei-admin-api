@@ -1,4 +1,4 @@
-package school.hei.haapi.controller;
+package school.hei.haapi.web.rest;
 
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;

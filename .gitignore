@@ -1,4 +1,5 @@
 HELP.md
+application-local.properties
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
