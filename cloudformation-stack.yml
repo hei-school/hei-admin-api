@@ -76,6 +76,6 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: 'ENABLED'
           SecurityGroups:
-            - '{{resolve:ssm:/hei-admin-api/security-group:1}}'
+            - '{{resolve:ssm:/hei-admin-api/web-sg:1}}'
           Subnets:
             - !Ref Subnet
