@@ -14,6 +14,11 @@ Parameters:
   ContainerPort:
     Type: Number
     Default: 8080
+  TasksDesiredCount:
+    Type: Number
+    Default: 1
+  ListenerRuleAvailablePriority:
+    Type: Number
 
 Resources:
   Cluster:
@@ -75,7 +80,7 @@ Resources:
     Properties:
       Cluster: !Ref Cluster
       ServiceName: hei-admin-api
-      DesiredCount: 1
+      DesiredCount: !Ref TasksDesiredCount
       TaskDefinition: !Ref TaskDefinition
       LaunchType: 'FARGATE'
       NetworkConfiguration:
@@ -113,7 +118,7 @@ Resources:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
       ListenerArn: '{{resolve:ssm:/hei-admin-api/alb-https-listener-arn:1}}'
-      Priority: 1
+      Priority: !Ref ListenerRuleAvailablePriority
       Conditions:
         - Field: http-header
           HttpHeaderConfig: 
