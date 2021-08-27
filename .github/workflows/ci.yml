@@ -27,7 +27,11 @@ jobs:
         run: chmod +x gradlew
 
       - name: Jacoco test coverage
-        run: ./gradlew test
+        run: |
+          export COGNITO_JWT_REGION=${{ secrets.TEST_COGNITO_JWT_REGION }}
+          export COGNITO_JWT_USERPOOLID=${{ secrets.TEST_COGNITO_JWT_USERPOOLID }}
+          export TEST_COGNITO_JWT_STUDENTTOKEN=${{ secrets.TEST_COGNITO_JWT_STUDENTTOKEN }}
+          ./gradlew test
 
       - name: Checkstyle
         run: ./gradlew checkstyleMain checkstyleTest
