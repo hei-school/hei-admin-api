@@ -46,6 +46,16 @@ Resources:
           Image: !Ref Image
           PortMappings:
             - ContainerPort: !Ref ContainerPort
+          Environment:
+            #TODO: make env-specific
+            - Name: COGNITO_JWT_REGION
+              Value: '{{resolve:ssm:/hei-admin-api/dev/cognito/region:1}}'
+            - Name: COGNITO_JWT_USERPOOLID
+              Value: '{{resolve:ssm:/hei-admin-api/dev/cognito/userpool-id:1}}'
+            - Name: SPRING_DATASOURCE_URL
+              Value: '{{resolve:ssm:/hei-admin-api/dev/db/url:1}}'
+            - Name: SPRING_DATASOURCE_PASSWORD
+              Value: '{{resolve:ssm:/hei-admin-api/dev/db/password:1}}'
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -87,7 +97,7 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: 'ENABLED'
           SecurityGroups:
-            - '{{resolve:ssm:/hei-admin-api/web-sg:2}}'
+            - '{{resolve:ssm:/hei-admin-api/sg:1}}'
           Subnets:
             - !Ref Subnet
       LoadBalancers:
