@@ -47,15 +47,14 @@ Resources:
           PortMappings:
             - ContainerPort: !Ref ContainerPort
           Environment:
-            #TODO: make env-specific
             - Name: COGNITO_JWT_REGION
-              Value: '{{resolve:ssm:/hei-admin-api/dev/cognito/region:1}}'
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/region:1}}'
             - Name: COGNITO_JWT_USERPOOLID
-              Value: '{{resolve:ssm:/hei-admin-api/dev/cognito/userpool-id:1}}'
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-id:1}}'
             - Name: SPRING_DATASOURCE_URL
-              Value: '{{resolve:ssm:/hei-admin-api/dev/db/url:1}}'
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/url:1}}'
             - Name: SPRING_DATASOURCE_PASSWORD
-              Value: '{{resolve:ssm:/hei-admin-api/dev/db/password:1}}'
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/password:1}}'
           LogConfiguration:
             LogDriver: awslogs
             Options:
