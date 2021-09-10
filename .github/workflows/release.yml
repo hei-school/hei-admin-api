@@ -96,7 +96,11 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Build Gradle project
-        run: ./gradlew build
+        run: | 
+          export COGNITO_JWT_REGION=${{ secrets.TEST_COGNITO_JWT_REGION }}
+          export COGNITO_JWT_USERPOOLID=${{ secrets.TEST_COGNITO_JWT_USERPOOLID }}
+          export TEST_COGNITO_JWT_STUDENTTOKEN=${{ secrets.TEST_COGNITO_JWT_STUDENTTOKEN }}
+          ./gradlew build
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
         with:
