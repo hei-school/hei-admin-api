@@ -5,8 +5,6 @@ on:
 
 jobs:
   release:
-    if: github.ref == 'refs/heads/staging'
-
     runs-on: ubuntu-latest
 
     env:
