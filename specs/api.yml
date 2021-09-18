@@ -853,6 +853,53 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+
+  /managers:
+    get:
+      tags:
+        - Managers
+      summary: Find managers based on search criteria
+      parameters:
+        - name: school
+          in: header
+          required: true
+          schema:
+            type: string
+        - name: offset
+          in: query
+          required: false
+          description: Zero-based offset for pagination. Defaults to `0`.
+          schema:
+            type: integer
+        - name: limit
+          in: query
+          required: false
+          description: >-
+            Pagination limit, that is the maximum number of elements that can be
+            retrieved. Defaults to `1000` and cannot exceed `1000`.
+          schema:
+            type: integer
+      operationId: findManagers
+      responses:
+        '200':
+          description: List of managers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Manager'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
 components:
   responses:
     '400':
@@ -1062,6 +1109,37 @@ components:
         end:
           type: string
           format: date-time
+    Manager:
+      type: object
+      properties:
+        id:
+          type: string
+        ref:
+          type: string
+          example: TCH001
+        first_name:
+          type: string
+        last_name:
+          type: string
+        sex:
+          type: string
+          enum:
+            - M
+            - F
+        address:
+          type: string
+        phone_number:
+          type: integer
+        email:
+          type: string
+        mariage_status:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        hire_date:
+          type: string
+          format: date
     Group:
       type: object
       properties:
