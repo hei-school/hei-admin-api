@@ -78,10 +78,11 @@ jobs:
             echo "subnet=${{ secrets.STAGING_SUBNET }}" >> $GITHUB_ENV
           fi
       - name: Deploy with AWS CloudFormation
-        uses: aws-actions/aws-cloudformation-github-deploy@v1        
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: ${{ env.branch_env }}-hei-admin-api
           template: cloudformation-stack.yml
+          tags: "[ { 'Key': 'App', 'Value': 'hei-admin' }, { 'Key': 'Env', 'Value': '${{ env.branch_env }}' } ]"
           capabilities: CAPABILITY_NAMED_IAM
           parameter-overrides:
             "Env=${{ env.branch_env }},
