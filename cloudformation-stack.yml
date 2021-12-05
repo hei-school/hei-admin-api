@@ -28,7 +28,7 @@ Resources:
   LogGroup:
     Type: AWS::Logs::LogGroup
     Properties:
-      LogGroupName: !Join ['', [/ecs/, !Ref Env, -hei-admin-api, -TaskDefinition]]
+      LogGroupName: !Join ['', [/ecs/, !Ref Env, -hei-admin-api]]
   TaskDefinition:
     Type: AWS::ECS::TaskDefinition
     DependsOn: LogGroup
