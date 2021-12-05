@@ -9,12 +9,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.boot.web.server.LocalServerPort;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.client.HaHttpClient;
 import school.hei.haapi.exception.ForbiddenException;
-import school.hei.haapi.integration.conf.AuthorizationContextInitializer;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.CallerData;
 import school.hei.haapi.security.cognito.CognitoComponent;
 import school.hei.haapi.web.model.StudentResource;
@@ -22,19 +21,23 @@ import school.hei.haapi.web.model.TeacherResource;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = AuthorizationContextInitializer.class)
+@ContextConfiguration(initializers = AuthorizationIntegrationTest.ContextInitializer.class)
 @AutoConfigureMockMvc
 class AuthorizationIntegrationTest {
 
-  private final int serverPort;
-  @MockBean private CognitoComponent cognitoComponent;
+  static class ContextInitializer extends AbstractContextInitializer {
+    public static final int SERVER_PORT = 8081;
 
-  public AuthorizationIntegrationTest(@LocalServerPort int serverPort) {
-    this.serverPort = serverPort;
+    @Override
+    public int getServerPort() {
+      return SERVER_PORT;
+    }
   }
 
+  @MockBean private CognitoComponent cognitoComponent;
+
   private HaHttpClient clientFromToken(String token) {
-    return new HaHttpClient("http://localhost:" + serverPort, token);
+    return new HaHttpClient("http://localhost:" + AuthorizationIntegrationTest.ContextInitializer.SERVER_PORT, token);
   }
 
   @Test
