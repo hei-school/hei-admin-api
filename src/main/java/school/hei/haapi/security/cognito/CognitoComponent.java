@@ -2,12 +2,9 @@ package school.hei.haapi.security.cognito;
 
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.proc.BadJOSEException;
-import com.nimbusds.jose.proc.SecurityContext;
 import com.nimbusds.jwt.JWTClaimsSet;
 import java.net.MalformedURLException;
 import java.text.ParseException;
-
-import com.nimbusds.jwt.proc.ConfigurableJWTProcessor;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.exception.ApiException;
@@ -38,7 +35,7 @@ public class CognitoComponent {
   }
 
   private void verifyToken(JWTClaimsSet claims) {
-    if (!claims.getIssuer().equals(this.jwtConfiguration.getCognitoIdentityPoolUrlFormat())) {
+    if (!claims.getIssuer().equals(this.jwtConfiguration.getCognitoUserPoolUrl())) {
       throw new ForbiddenException("Not a valid Token");
     }
   }
