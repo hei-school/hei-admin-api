@@ -11,13 +11,13 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.client.HaHttpClient;
-import school.hei.haapi.exception.ForbiddenException;
+import school.hei.haapi.endpoint.rest.client.HaHttpClient;
+import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.CallerData;
-import school.hei.haapi.security.cognito.CognitoComponent;
-import school.hei.haapi.web.model.StudentResource;
-import school.hei.haapi.web.model.TeacherResource;
+import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.endpoint.model.StudentResource;
+import school.hei.haapi.endpoint.model.TeacherResource;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers

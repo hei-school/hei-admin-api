@@ -11,10 +11,10 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.exception.ForbiddenException;
+import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.CallerData;
-import school.hei.haapi.security.cognito.CognitoComponent;
+import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
