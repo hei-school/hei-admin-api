@@ -11,13 +11,14 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import school.hei.haapi.endpoint.model.ErrorResource;
+import school.hei.haapi.endpoint.rest.mapper.ErrorMapper;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.model.exception.TooManyRequestsException;
-import school.hei.haapi.endpoint.rest.mapper.ErrorMapper;
-import school.hei.haapi.endpoint.model.ErrorResource;
+
 
 @RestControllerAdvice
 @Slf4j
