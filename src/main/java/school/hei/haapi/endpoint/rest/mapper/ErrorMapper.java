@@ -8,12 +8,12 @@ import static school.hei.haapi.endpoint.model.ErrorResource.Type.NOT_IMPLEMENTED
 import static school.hei.haapi.endpoint.model.ErrorResource.Type.TOO_MANY_REQUESTS;
 
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.model.ErrorResource;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.model.exception.TooManyRequestsException;
-import school.hei.haapi.endpoint.model.ErrorResource;
 
 @Component
 public class ErrorMapper {

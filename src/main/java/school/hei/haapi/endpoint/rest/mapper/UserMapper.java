@@ -1,9 +1,9 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import org.springframework.stereotype.Component;
-import school.hei.haapi.model.User;
 import school.hei.haapi.endpoint.model.StudentResource;
 import school.hei.haapi.endpoint.model.TeacherResource;
+import school.hei.haapi.model.User;
 
 @Component
 public class UserMapper {

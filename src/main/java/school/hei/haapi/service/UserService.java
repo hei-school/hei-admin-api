@@ -5,8 +5,6 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
 
-import java.util.List;
-
 @Service
 @AllArgsConstructor
 public class UserService {
