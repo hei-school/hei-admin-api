@@ -10,6 +10,8 @@ import java.time.Duration;
 import java.util.List;
 import lombok.SneakyThrows;
 import org.springframework.http.HttpStatus;
+import school.hei.haapi.endpoint.model.StudentResource;
+import school.hei.haapi.endpoint.model.TeacherResource;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.ApiException.ExceptionType;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -17,8 +19,6 @@ import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.model.exception.TooManyRequestsException;
-import school.hei.haapi.endpoint.model.StudentResource;
-import school.hei.haapi.endpoint.model.TeacherResource;
 
 public class HaHttpClient {
 
@@ -65,16 +65,16 @@ public class HaHttpClient {
   }
 
   @SneakyThrows
-  private <R> List<R> getList(String resourceUri, Class<R> clazz) {
-    HttpResponse<String> httpResponse = get(resourceUri);
-    return parseHttpListResponse(httpResponse, clazz);
-  }
-
-  @SneakyThrows
   private HttpResponse<String> get(String resourceUri) {
     return httpClient.send(
         newRequestBuilder().uri(URI.create(baseUrl + resourceUri)).GET().build(),
         HttpResponse.BodyHandlers.ofString());
+  }
+
+  @SneakyThrows
+  private <R> List<R> getList(String resourceUri, Class<R> clazz) {
+    HttpResponse<String> httpResponse = get(resourceUri);
+    return parseHttpListResponse(httpResponse, clazz);
   }
 
   @SneakyThrows

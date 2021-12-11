@@ -5,13 +5,13 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
-import school.hei.haapi.model.exception.ForbiddenException;
+import school.hei.haapi.endpoint.model.StudentResource;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
-import school.hei.haapi.model.User;
 import school.hei.haapi.endpoint.rest.security.model.ApiClient;
 import school.hei.haapi.endpoint.rest.security.model.Role;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.UserService;
-import school.hei.haapi.endpoint.model.StudentResource;
 
 @RestController
 @AllArgsConstructor
