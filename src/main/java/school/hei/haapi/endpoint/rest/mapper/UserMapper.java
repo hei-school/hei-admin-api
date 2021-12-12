@@ -1,27 +1,28 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.model.StudentResource;
-import school.hei.haapi.endpoint.model.TeacherResource;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
 
 @Component
 public class UserMapper {
-  public StudentResource toExternalStudent(User user) {
-    return StudentResource.builder()
-        .id(user.getId())
-        .firstName(user.getFirstName())
-        .lastName(user.getLastName())
-        .email(user.getEmail())
-        .build();
+
+  public Student toRestStudent(User user) {
+    Student student = new Student();
+    student.setId(user.getId());
+    student.setFirstName(user.getFirstName());
+    student.setLastName(user.getLastName());
+    student.setEmail(user.getEmail());
+    return student;
   }
 
-  public TeacherResource toExternalTeacher(User user) {
-    return TeacherResource.builder()
-        .id(user.getId())
-        .firstName(user.getFirstName())
-        .lastName(user.getLastName())
-        .email(user.getEmail())
-        .build();
+  public Teacher toRestTeacher(User user) {
+    Teacher teacher = new Teacher();
+    teacher.setId(user.getId());
+    teacher.setFirstName(user.getFirstName());
+    teacher.setLastName(user.getLastName());
+    teacher.setEmail(user.getEmail());
+    return teacher;
   }
 }
