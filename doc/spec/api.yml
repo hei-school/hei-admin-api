@@ -2,8 +2,13 @@ openapi: 3.0.3
 info:
   version: '1.0'
   title: HEI Admin API
+
 servers:
   - url: 'https://api.hei-admin.cloud'
+
+security:
+  - BearerAuth: []
+
 paths:
   '/groups/{id}':
     get:
@@ -653,7 +658,7 @@ paths:
           required: true
           schema:
             type: string
-      operationId: findTeachersById
+      operationId: findTeacherById
       responses:
         '200':
           description: The identified teacher
@@ -901,6 +906,11 @@ paths:
           $ref: '#/components/responses/500'
 
 components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+
   responses:
     '400':
       description: Bad request

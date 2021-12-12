@@ -1,7 +1,20 @@
+buildscript {
+    repositories {
+        maven {
+            url "https://plugins.gradle.org/m2/"
+        }
+    }
+    dependencies {
+        classpath "org.openapitools:openapi-generator-gradle-plugin:5.3.0"
+    }
+}
+
 plugins {
     id 'java'
     id 'org.springframework.boot' version '2.5.3'
     id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+
+    id 'org.openapi.generator' version '5.3.0'
 
     id 'org.sonarqube' version '3.3'
     id 'jacoco'
@@ -18,8 +31,31 @@ configurations {
 }
 
 repositories {
+    mavenLocal()
     mavenCentral()
 }
+
+task generateRestObjects(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+    generatorName = "java"
+    inputSpec = "$rootDir/doc/spec/api.yml".toString()
+    outputDir = "$buildDir/gen".toString()
+    apiPackage = "school.hei.haapi.endpoint.rest.api"
+    invokerPackage = "school.hei.haapi.endpoint.rest.client"
+    modelPackage = "school.hei.haapi.endpoint.rest.model"
+    configOptions = [
+            dateLibrary: "java11"
+    ]
+    groupId = 'school.hei'
+    id = 'haapi-gen'
+    skipValidateSpec = false
+    logToStderr = true
+    generateAliasAsModel = false
+    enablePostProcessFile = false
+}
+task publishGeneratedRestObjectsToMavenLocal(type: Exec, dependsOn: generateRestObjects) {
+    commandLine './publish_gen_to_maven_local.sh'
+}
+tasks.compileJava.dependsOn publishGeneratedRestObjectsToMavenLocal
 
 apply plugin: 'checkstyle'
 checkstyle {
@@ -56,9 +92,14 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'com.nimbusds:nimbus-jose-jwt'
+
+    implementation 'com.google.code.gson:gson'
+
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.postgresql:postgresql'
+
+    implementation 'school.hei:haapi-gen:1.0'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

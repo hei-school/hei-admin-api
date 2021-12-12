@@ -30,9 +30,6 @@ public class BearerAuthProvider extends AbstractUserDetailsAuthenticationProvide
   protected UserDetails retrieveUser(
       String username, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
     String bearer = getBearer(usernamePasswordAuthenticationToken);
-    if (bearer == null) {
-      throw new ForbiddenException("Bearer can't be null");
-    }
     try {
       String email = cognitoComponent.findEmailByBearer(bearer);
       User user = userService.findByEmail(email);
