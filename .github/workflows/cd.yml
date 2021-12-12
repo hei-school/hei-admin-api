@@ -82,7 +82,7 @@ jobs:
         with:
           name: ${{ env.branch_env }}-hei-admin-api
           template: cloudformation-stack.yml
-          tags: "[ { 'Key': 'App', 'Value': 'hei-admin' }, { 'Key': 'Env', 'Value': '${{ env.branch_env }}' } ]"
+          tags: "[ { \"Key\": \"App\", \"Value\": \"hei-admin\" }, { \"Key\": \"Env\", \"Value\": \"${{ env.branch_env }}\" } ]"
           capabilities: CAPABILITY_NAMED_IAM
           parameter-overrides:
             "Env=${{ env.branch_env }},
