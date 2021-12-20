@@ -12,7 +12,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.ClientUtils;
+import school.hei.haapi.integration.conf.TestUtils;
 
 import static java.time.Instant.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -27,7 +27,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 public class GroupIT {
 
   static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = 8082;
+    public static final int SERVER_PORT = 8081;
 
     @Override
     public int getServerPort() {
@@ -36,7 +36,7 @@ public class GroupIT {
   }
 
   private static ApiClient aClient(String token) {
-    return ClientUtils.aClient(token, ContextInitializer.SERVER_PORT);
+    return TestUtils.aClient(token, ContextInitializer.SERVER_PORT);
   }
 
   @MockBean
@@ -44,12 +44,12 @@ public class GroupIT {
 
   @Test
   void student_can_get_group1() throws ApiException {
-    ApiClient student1Client = aClient(ClientUtils.STUDENT1_TOKEN);
-    when(cognitoComponent.findEmailByBearer(ClientUtils.STUDENT1_TOKEN))
+    ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
+    when(cognitoComponent.findEmailByBearer(TestUtils.STUDENT1_TOKEN))
         .thenReturn("ryan@hei.school");
 
     GroupsApi api = new GroupsApi(student1Client);
-    Group group = api.findGroupById("TODO:school1", ClientUtils.GROUP1_ID);
+    Group group = api.findGroupById("TODO:school1", TestUtils.GROUP1_ID);
 
     assertEquals("Name of G1", group.getName());
     assertEquals("G1", group.getRef());

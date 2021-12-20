@@ -13,7 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.ClientUtils;
+import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -43,7 +43,7 @@ class AuthenticationIT {
 
   @Test
   void user_is_unauthenticated() {
-    String bearer = ClientUtils.BAD_TOKEN; // null, invalid or expired
+    String bearer = TestUtils.BAD_TOKEN; // null, invalid or expired
 
     assertThrows(
         ForbiddenException.class,
