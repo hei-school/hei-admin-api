@@ -42,9 +42,19 @@ task generateRestObjects(type: org.openapitools.generator.gradle.plugin.tasks.Ge
     apiPackage = "school.hei.haapi.endpoint.rest.api"
     invokerPackage = "school.hei.haapi.endpoint.rest.client"
     modelPackage = "school.hei.haapi.endpoint.rest.model"
+
     configOptions = [
-            dateLibrary: "java11"
+            serializationLibrary: "jackson",
+            dateLibrary: "custom"
     ]
+    typeMappings = [
+            DateTime: "Instant",
+    ]
+    importMappings = [
+            Instant: "java.time.Instant",
+    ]
+    library = "native"
+
     groupId = 'school.hei'
     id = 'haapi-gen'
     skipValidateSpec = false
@@ -92,8 +102,6 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
     implementation 'org.springframework.boot:spring-boot-starter-security'
     implementation 'com.nimbusds:nimbus-jose-jwt'
-
-    implementation 'com.google.code.gson:gson'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     implementation 'org.flywaydb:flyway-core'

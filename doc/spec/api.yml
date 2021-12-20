@@ -1160,9 +1160,9 @@ components:
           example: GRP001
         name:
           type: string
-        creation_date:
+        creation_datetime:
           type: string
-          format: date
+          format: date-time
     CreateGroup:
       type: object
       properties:
