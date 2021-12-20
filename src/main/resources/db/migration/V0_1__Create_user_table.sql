@@ -1,6 +1,11 @@
-create type "role" as enum ('STUDENT','TEACHER','MANAGER');
+do $$
+begin
+    if not exists (select from pg_type where typname = 'role') then
+        create type "role" as enum ('STUDENT','TEACHER','MANAGER');
+    end if;
+end $$;
 
-create table "user" (
+create table if not exists "user" (
     id         varchar constraint user_pk primary key,
     first_name varchar not null,
     last_name  varchar not null,
