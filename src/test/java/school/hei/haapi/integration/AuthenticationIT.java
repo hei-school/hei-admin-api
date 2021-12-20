@@ -13,14 +13,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.CallerData;
+import school.hei.haapi.integration.conf.ClientUtils;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = AuthenticationIntegrationTest.ContextInitializer.class)
+@ContextConfiguration(initializers = AuthenticationIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class AuthenticationIntegrationTest {
+class AuthenticationIT {
 
   static class ContextInitializer extends AbstractContextInitializer {
     @Override
@@ -43,7 +43,7 @@ class AuthenticationIntegrationTest {
 
   @Test
   void user_is_unauthenticated() {
-    String bearer = CallerData.BAD_TOKEN; // null, invalid or expired
+    String bearer = ClientUtils.BAD_TOKEN; // null, invalid or expired
 
     assertThrows(
         ForbiddenException.class,
