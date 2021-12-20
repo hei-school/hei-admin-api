@@ -1,4 +1,4 @@
-create table "group" (
+create table if not exists "group" (
     id                varchar constraint group_pk primary key,
     name              varchar not null,
     ref               varchar not null,
