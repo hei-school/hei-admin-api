@@ -1,8 +1,13 @@
 package school.hei.haapi.integration.conf;
 
+import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
 
-public class ClientUtils {
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+
+public class TestUtils {
   public static final String STUDENT1_ID = "student1_id";
   public static final String STUDENT2_ID = "student2_id";
   public static final String TEACHER1_ID = "teacher1_id";
@@ -20,5 +25,10 @@ public class ClientUtils {
     client.setRequestInterceptor(httpRequestBuilder ->
         httpRequestBuilder.header("Authorization", "Bearer " + token));
     return client;
+  }
+
+  public static void assertThrowsApiException(Executable executable, String expectedBody) {
+    ApiException apiException = assertThrows(ApiException.class, executable);
+    assertEquals(apiException.getResponseBody(), expectedBody);
   }
 }
