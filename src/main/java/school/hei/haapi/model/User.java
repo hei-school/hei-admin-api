@@ -3,6 +3,8 @@ package school.hei.haapi.model;
 import static javax.persistence.GenerationType.IDENTITY;
 
 import java.io.Serializable;
+import java.time.Instant;
+import java.util.Date;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -33,6 +35,13 @@ public class User implements Serializable {
   private String firstName;
   private String lastName;
   private String email;
+  private String ref;
+  private String status;
+  private String phone;
+  private Date birthDate;
+  private Instant entranceDatetime;
+  private String sex;
+  private String address;
 
   @Column(name = "\"role\"")
   private String role;

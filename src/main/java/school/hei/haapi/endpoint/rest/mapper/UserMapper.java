@@ -8,13 +8,25 @@ import school.hei.haapi.model.User;
 @Component
 public class UserMapper {
 
-  public Student toRestStudent(User user) {
-    Student student = new Student();
-    student.setId(user.getId());
-    student.setFirstName(user.getFirstName());
-    student.setLastName(user.getLastName());
-    student.setEmail(user.getEmail());
-    return student;
+  public Student toRestStudent(school.hei.haapi.model.Student student) {
+    Student restStudent = new Student();
+    restStudent.setId(student.getId());
+
+    var user = student.getUser();
+    restStudent.setFirstName(user.getFirstName());
+    restStudent.setLastName(user.getLastName());
+    restStudent.setEmail(user.getEmail());
+    restStudent.setRef(user.getRef());
+    restStudent.setStatus(Student.StatusEnum.fromValue(user.getStatus()));
+    restStudent.setPhone(user.getPhone());
+    restStudent.setEntranceDatetime(user.getEntranceDatetime());
+    restStudent.setBirthDate(user.getBirthDate());
+    restStudent.setSex(Student.SexEnum.fromValue(user.getSex()));
+    restStudent.setAddress(user.getAddress());
+
+    restStudent.setGroupId(student.getGroup().getId());
+
+    return restStudent;
   }
 
   public Teacher toRestTeacher(User user) {
