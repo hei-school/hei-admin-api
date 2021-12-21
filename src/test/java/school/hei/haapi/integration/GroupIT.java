@@ -58,7 +58,7 @@ public class GroupIT {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     GroupsApi api = new GroupsApi(student1Client);
-    Group group = api.findGroupById("TODO:school1", TestUtils.GROUP1_ID);
+    Group group = api.findGroupById(TestUtils.GROUP1_ID);
 
     assertEquals("Name of G1", group.getName());
     assertEquals("G1", group.getRef());
@@ -70,7 +70,7 @@ public class GroupIT {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     GroupsApi api = new GroupsApi(student1Client);
-    List<Group> groups = api.findGroups("TODO:school1");
+    List<Group> groups = api.findGroups();
 
     assertEquals(2, groups.size());
     assertEquals("group1_id", groups.get(0).getId());
@@ -83,7 +83,7 @@ public class GroupIT {
 
     GroupsApi api = new GroupsApi(student1Client);
     assertThrowsApiException(
-        () ->  api.createOrUpdateGroups("TODO:school1", List.of()),
+        () ->  api.createOrUpdateGroups(List.of()),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write groups\"}");
   }
 
@@ -93,7 +93,7 @@ public class GroupIT {
 
     GroupsApi api = new GroupsApi(teacher1Client);
     assertThrowsApiException(
-        () ->  api.createOrUpdateGroups("TODO:school1", List.of()),
+        () ->  api.createOrUpdateGroups(List.of()),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write groups\"}");
   }
 
@@ -108,7 +108,7 @@ public class GroupIT {
     createGroup4.setRef("G4");
 
     GroupsApi api = new GroupsApi(manager1Client);
-    List<Group> createdGroups = api.createOrUpdateGroups("TODO:school1", List.of(createGroup3, createGroup4));
+    List<Group> createdGroups = api.createOrUpdateGroups(List.of(createGroup3, createGroup4));
 
     assertEquals(2, createdGroups.size());
     Group createdGroup3 = createdGroups.get(0);
@@ -140,7 +140,7 @@ public class GroupIT {
     updateGroup2.setCreationDatetime(now2);
 
     GroupsApi api = new GroupsApi(manager1Client);
-    List<Group> updatedGroups = api.createOrUpdateGroups("TODO:school1", List.of(updateGroup1, updateGroup2));
+    List<Group> updatedGroups = api.createOrUpdateGroups(List.of(updateGroup1, updateGroup2));
 
     assertEquals(2, updatedGroups.size());
     Group updatedGroup1 = updatedGroups.get(0);
