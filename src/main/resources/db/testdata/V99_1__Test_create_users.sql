@@ -3,4 +3,5 @@ values
   ('student1_id', 'Ryan', 'Andria', 'ryan@hei.school', 'STUDENT'),
   ('student2_id', 'Student', 'Two', 'student2@hei.school', 'STUDENT'),
   ('teacher1_id', 'Teacher', 'One', 'teacher1@hei.school', 'TEACHER'),
-  ('teacher2_id', 'Teacher', 'Two', 'teacher2@hei.school', 'TEACHER');
+  ('teacher2_id', 'Teacher', 'Two', 'teacher2@hei.school', 'TEACHER'),
+  ('manager1_id', 'Manager', 'One', 'manager1@hei.school', 'MANAGER');

@@ -7,8 +7,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.GroupMapper;
+import school.hei.haapi.endpoint.rest.model.CreateGroup;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.security.model.ApiClient;
 import school.hei.haapi.endpoint.rest.security.model.Role;
@@ -36,12 +39,31 @@ public class GroupController {
         .collect(toUnmodifiableList());
   }
 
+  @PostMapping(value = "/groups")
+  public List<Group> createGroups(
+      @AuthenticationPrincipal ApiClient client, @RequestBody List<CreateGroup> createGroups) {
+    checkWriteAuthorization(client);
+    var createdGroups = groupService.saveAll(createGroups.stream()
+        .map(groupMapper::toDomain)
+        .collect(toUnmodifiableList()));
+    return createdGroups.stream()
+        .map(groupMapper::toRest)
+        .collect(toUnmodifiableList());
+  }
+
   private void checkReadAuthorization(ApiClient client) {
     String clientRole = client.getRole();
     if (!Role.STUDENT.getRole().equals(clientRole)
         && !Role.TEACHER.getRole().equals(clientRole)
         && !Role.MANAGER.getRole().equals(clientRole)) {
-      throw new ForbiddenException("Only students/teachers/managers can read group info");
+      throw new ForbiddenException("Only students/teachers/managers can read groups");
+    }
+  }
+
+  private void checkWriteAuthorization(ApiClient client) {
+    String clientRole = client.getRole();
+    if (!Role.MANAGER.getRole().equals(clientRole)) {
+      throw new ForbiddenException("Only managers can write groups");
     }
   }
 }
