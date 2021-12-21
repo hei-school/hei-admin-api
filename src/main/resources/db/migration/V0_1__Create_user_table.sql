@@ -5,8 +5,10 @@ begin
     end if;
 end $$;
 
+create extension if not exists "uuid-ossp";
+
 create table if not exists "user" (
-    id         varchar constraint user_pk primary key,
+    id         varchar constraint user_pk primary key default uuid_generate_v4(),
     first_name varchar not null,
     last_name  varchar not null,
     email      varchar not null constraint email_unique unique,

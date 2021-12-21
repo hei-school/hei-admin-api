@@ -15,6 +15,7 @@ paths:
       tags:
         - Groups
       summary: Find group by identifier
+      description: Authorized for students, teachers and managers.
       parameters:
         - name: school
           in: header
@@ -49,6 +50,7 @@ paths:
       tags:
         - Groups
       summary: Find all groups
+      description: Authorized for students, teachers and managers.
       parameters:
         - name: school
           in: header
@@ -79,6 +81,7 @@ paths:
       tags:
         - Groups
       summary: Create new groups
+      description: Authorized for managers only.
       parameters:
         - name: school
           in: header
@@ -92,14 +95,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateGroup'
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateGroup'
       responses:
         '200':
           description: Collection of created groups
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Group'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -110,20 +117,17 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    patch:
+    put:
       tags:
         - Groups
       summary: Update existing groups
+      description: Authorized for managers only.
       parameters:
         - name: school
           in: header
           schema:
             type: string
           required: true
-      description: |
-
-        Possible udpates on:
-        * Name: change
       operationId: updateGroups
       requestBody:
         description: Groups to update
@@ -131,15 +135,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Group'
-            examples:
-              changeName:
-                summary: Change name
-                value:
-                  resources:
-                    - id: uuid
-                    - id: uuid
-                  name: Groupe A
+              $ref: '#/components/schemas/UpdateGroup'
       responses:
         '200':
           description: The updated groups
@@ -1106,23 +1102,31 @@ components:
           type: string
           format: date
     Group:
+      allOf:
+        - $ref: '#/components/schemas/CreateGroup'
       type: object
       properties:
         id:
           type: string
-        ref:
-          type: string
-          example: GRP001
-        name:
-          type: string
         creation_datetime:
           type: string
           format: date-time
+    UpdateGroup:
+      allOf:
+        - $ref: '#/components/schemas/CreateGroup'
+      type: object
+      properties:
+        id:
+          type: string
     CreateGroup:
       type: object
       properties:
         name:
           type: string
+          example: The group number one
+        ref:
+          type: string
+          example: G1
     CreateCourse:
       type: object
       properties:
