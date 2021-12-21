@@ -51,7 +51,7 @@ class StudentIT {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     StudentsApi api = new StudentsApi(student1Client);
-    Student student = api.findStudentById("TODO:school1", TestUtils.STUDENT1_ID);
+    Student student = api.findStudentById(TestUtils.STUDENT1_ID);
 
     assertEquals("Ryan", student.getFirstName());
   }
@@ -62,7 +62,7 @@ class StudentIT {
 
     StudentsApi api = new StudentsApi(student1Client);
     assertThrowsApiException(
-        () -> api.findStudentById("TODO:school1", TestUtils.STUDENT2_ID),
+        () -> api.findStudentById(TestUtils.STUDENT2_ID),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students can only get their own information\"}");
   }
 
@@ -71,7 +71,7 @@ class StudentIT {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
 
     StudentsApi api = new StudentsApi(teacher1Client);
-    Student student = api.findStudentById("TODO:school1", TestUtils.STUDENT1_ID);
+    Student student = api.findStudentById(TestUtils.STUDENT1_ID);
 
     assertEquals("Ryan", student.getFirstName());
   }

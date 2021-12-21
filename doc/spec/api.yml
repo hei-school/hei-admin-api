@@ -17,11 +17,6 @@ paths:
       summary: Find group by identifier
       description: Authorized for students, teachers and managers.
       parameters:
-        - name: school
-          in: header
-          schema:
-            type: string
-          required: true
         - name: id
           in: path
           required: true
@@ -51,12 +46,6 @@ paths:
         - Groups
       summary: Find all groups
       description: Authorized for students, teachers and managers.
-      parameters:
-        - name: school
-          in: header
-          schema:
-            type: string
-          required: true
       operationId: findGroups
       responses:
         '200':
@@ -82,12 +71,6 @@ paths:
         - Groups
       summary: Create new groups or update existing groups
       description: Update groups when `id` are provided, create them otherwise. Authorized for managers only.
-      parameters:
-        - name: school
-          in: header
-          schema:
-            type: string
-          required: true
       operationId: createOrUpdateGroups
       requestBody:
         description: Groups to update
@@ -123,11 +106,6 @@ paths:
         - Students
       summary: Find student by identifier
       parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
         - name: id
           in: path
           required: true
@@ -160,11 +138,6 @@ paths:
         Note that CourseHours are generated automatically, based on the
         availabilities of the teachers.
       parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
         - name: offset
           in: query
           required: false
@@ -203,12 +176,6 @@ paths:
       tags:
         - Students
       summary: Create new students
-      parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
       description: ''
       operationId: createStudents
       requestBody:
@@ -242,12 +209,6 @@ paths:
       tags:
         - Students
       summary: Update existing students
-      parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
       description: |
         Possible udpates on:
         * Group: change
@@ -317,11 +278,6 @@ paths:
       summary: Delete existing students
       operationId: deleteStudents
       parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
         - name: ids
           in: query
           description: >-
@@ -350,11 +306,6 @@ paths:
         - Courses
       summary: Find course by identifier
       parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
         - name: id
           in: path
           required: true
@@ -384,11 +335,6 @@ paths:
         - Courses
       summary: Find courses based on search criteria
       parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
         - name: offset
           in: query
           required: false
@@ -427,12 +373,6 @@ paths:
       tags:
         - Courses
       summary: Create new courses
-      parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
       description: ''
       operationId: createCourses
       requestBody:
@@ -467,12 +407,6 @@ paths:
       tags:
         - Courses
       summary: Update existing courses
-      parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
       description: |
         Possible udpates on:
         * Name: change
@@ -532,11 +466,6 @@ paths:
       summary: Delete existing courses
       operationId: deleteCourses
       parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
         - name: ids
           in: query
           description: Identifiers of the courses that need to be deleted
@@ -563,11 +492,6 @@ paths:
         - Teachers
       summary: Find teacher by identifier
       parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
         - name: id
           in: path
           required: true
@@ -597,11 +521,6 @@ paths:
         - Teachers
       summary: Find teachers based on search criteria
       parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
         - name: offset
           in: query
           required: false
@@ -640,12 +559,6 @@ paths:
       tags:
         - Teachers
       summary: Create new teachers
-      parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
       description: ''
       operationId: createTeachers
       requestBody:
@@ -680,12 +593,6 @@ paths:
       tags:
         - Teachers
       summary: Update existing teachers
-      parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
       description: |
         Possible udpates on:
         * Interventions: add
@@ -746,11 +653,6 @@ paths:
       summary: Delete existing teachers
       operationId: deleteTeachers
       parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
         - name: ids
           in: query
           description: >-
@@ -780,11 +682,6 @@ paths:
         - Managers
       summary: Find managers based on search criteria
       parameters:
-        - name: school
-          in: header
-          required: true
-          schema:
-            type: string
         - name: offset
           in: query
           required: false
