@@ -7,11 +7,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.GroupMapper;
-import school.hei.haapi.endpoint.rest.model.CreateGroup;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.security.model.ApiClient;
 import school.hei.haapi.endpoint.rest.security.model.Role;
@@ -39,11 +38,11 @@ public class GroupController {
         .collect(toUnmodifiableList());
   }
 
-  @PostMapping(value = "/groups")
-  public List<Group> createGroups(
-      @AuthenticationPrincipal ApiClient client, @RequestBody List<CreateGroup> createGroups) {
+  @PutMapping(value = "/groups")
+  public List<Group> createOrUpdateGroups(
+      @AuthenticationPrincipal ApiClient client, @RequestBody List<Group> newRestGroups) {
     checkWriteAuthorization(client);
-    var createdGroups = groupService.saveAll(createGroups.stream()
+    var createdGroups = groupService.saveAll(newRestGroups.stream()
         .map(groupMapper::toDomain)
         .collect(toUnmodifiableList()));
     return createdGroups.stream()

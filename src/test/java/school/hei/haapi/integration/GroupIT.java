@@ -10,12 +10,12 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.GroupsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CreateGroup;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
+import java.time.Instant;
 import java.util.List;
 
 import static java.time.Instant.now;
@@ -83,7 +83,7 @@ public class GroupIT {
 
     GroupsApi api = new GroupsApi(student1Client);
     assertThrowsApiException(
-        () ->  api.createGroups("TODO:school1", List.of()),
+        () ->  api.createOrUpdateGroups("TODO:school1", List.of()),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write groups\"}");
   }
 
@@ -93,22 +93,22 @@ public class GroupIT {
 
     GroupsApi api = new GroupsApi(teacher1Client);
     assertThrowsApiException(
-        () ->  api.createGroups("TODO:school1", List.of()),
+        () ->  api.createOrUpdateGroups("TODO:school1", List.of()),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write groups\"}");
   }
 
   @Test
   void manager_can_create_groups() throws ApiException {
     ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
-    CreateGroup createGroup3 = new CreateGroup();
+    Group createGroup3 = new Group();
     createGroup3.setName("Name of group three");
     createGroup3.setRef("G3");
-    CreateGroup createGroup4 = new CreateGroup();
+    Group createGroup4 = new Group();
     createGroup4.setName("Name of group four");
     createGroup4.setRef("G4");
 
     GroupsApi api = new GroupsApi(manager1Client);
-    List<Group> createdGroups = api.createGroups("TODO:school1", List.of(createGroup3, createGroup4));
+    List<Group> createdGroups = api.createOrUpdateGroups("TODO:school1", List.of(createGroup3, createGroup4));
 
     assertEquals(2, createdGroups.size());
     Group createdGroup3 = createdGroups.get(0);
@@ -121,5 +121,37 @@ public class GroupIT {
     assertEquals("Name of group four", createdGroup4.getName());
     assertEquals("G4", createdGroup4.getRef());
     assertTrue(createdGroup4.getCreationDatetime().isBefore(now()));
+  }
+
+  @Test
+  void manager_can_update_groups() throws ApiException {
+    ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
+    Group updateGroup1 = new Group();
+    updateGroup1.setId("group1_id");
+    updateGroup1.setName("New name of group one");
+    updateGroup1.setRef("G1p");
+    Instant now1 = now();
+    updateGroup1.setCreationDatetime(now1);
+    Group updateGroup2 = new Group();
+    updateGroup2.setId("group2_id");
+    updateGroup2.setName("New name of group two");
+    updateGroup2.setRef("G2p");
+    Instant now2 = now();
+    updateGroup2.setCreationDatetime(now2);
+
+    GroupsApi api = new GroupsApi(manager1Client);
+    List<Group> updatedGroups = api.createOrUpdateGroups("TODO:school1", List.of(updateGroup1, updateGroup2));
+
+    assertEquals(2, updatedGroups.size());
+    Group updatedGroup1 = updatedGroups.get(0);
+    assertEquals("group1_id", updatedGroup1.getId());
+    assertEquals("New name of group one", updatedGroup1.getName());
+    assertEquals("G1p", updatedGroup1.getRef());
+    assertEquals(now1, updatedGroup1.getCreationDatetime());
+    Group updatedGroup2 = updatedGroups.get(1);
+    assertEquals("group2_id", updatedGroup2.getId());
+    assertEquals("New name of group two", updatedGroup2.getName());
+    assertEquals("G2p", updatedGroup2.getRef());
+    assertEquals(now2, updatedGroup2.getCreationDatetime());
   }
 }

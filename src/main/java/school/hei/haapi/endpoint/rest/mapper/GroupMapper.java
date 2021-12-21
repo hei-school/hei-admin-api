@@ -1,7 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.CreateGroup;
 import school.hei.haapi.model.Group;
 
 @Component
@@ -16,10 +15,12 @@ public class GroupMapper {
     return restGroup;
   }
 
-  public Group toDomain(CreateGroup createGroup) {
+  public Group toDomain(school.hei.haapi.endpoint.rest.model.Group restGroup) {
     return Group.builder()
-        .name(createGroup.getName())
-        .ref(createGroup.getRef())
+        .id(restGroup.getId())
+        .name(restGroup.getName())
+        .ref(restGroup.getRef())
+        .creationDatetime(restGroup.getCreationDatetime())
         .build();
   }
 }

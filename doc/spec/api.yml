@@ -77,72 +77,36 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    post:
-      tags:
-        - Groups
-      summary: Create new groups
-      description: Authorized for managers only.
-      parameters:
-        - name: school
-          in: header
-          schema:
-            type: string
-          required: true
-      operationId: createGroups
-      requestBody:
-        description: Collection of groups to create
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateGroup'
-      responses:
-        '200':
-          description: Collection of created groups
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Group'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
     put:
       tags:
         - Groups
-      summary: Update existing groups
-      description: Authorized for managers only.
+      summary: Create new groups or update existing groups
+      description: Update groups when `id` are provided, create them otherwise. Authorized for managers only.
       parameters:
         - name: school
           in: header
           schema:
             type: string
           required: true
-      operationId: updateGroups
+      operationId: createOrUpdateGroups
       requestBody:
         description: Groups to update
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UpdateGroup'
+              type: array
+              items:
+                $ref: '#/components/schemas/Group'
       responses:
         '200':
           description: The updated groups
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Group'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1102,31 +1066,19 @@ components:
           type: string
           format: date
     Group:
-      allOf:
-        - $ref: '#/components/schemas/CreateGroup'
       type: object
       properties:
         id:
           type: string
-        creation_datetime:
-          type: string
-          format: date-time
-    UpdateGroup:
-      allOf:
-        - $ref: '#/components/schemas/CreateGroup'
-      type: object
-      properties:
-        id:
-          type: string
-    CreateGroup:
-      type: object
-      properties:
         name:
           type: string
           example: The group number one
         ref:
           type: string
           example: G1
+        creation_datetime:
+          type: string
+          format: date-time
     CreateCourse:
       type: object
       properties:
