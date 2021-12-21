@@ -43,6 +43,7 @@ public class GroupController {
     if (!Role.MANAGER.getRole().equals(clientRole)) {
       throw new ForbiddenException("Only managers can write groups");
     }
+
     var createdGroups = groupService.saveAll(newRestGroups.stream()
         .map(groupMapper::toDomain)
         .collect(toUnmodifiableList()));

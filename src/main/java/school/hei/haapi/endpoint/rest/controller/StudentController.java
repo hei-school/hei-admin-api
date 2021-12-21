@@ -30,6 +30,7 @@ public class StudentController {
         throw new ForbiddenException("Students can only read their own information");
       }
     }
+
     return userMapper.toRestStudent(student);
   }
 }

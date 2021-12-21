@@ -23,18 +23,15 @@ public class TeacherController {
   @GetMapping(value = "/teachers/{id}")
   public Teacher getTeacherById(
       @AuthenticationPrincipal ApiClient client, @PathVariable String id) {
-    User user = userService.getById(id);
     String clientRole = client.getRole();
-    String userRole = user.getRole();
     if (Role.STUDENT.getRole().equals(clientRole)) {
-      throw new ForbiddenException("Students are not allowed to access teacher information");
+      throw new ForbiddenException("Students cannot read teachers");
     }
-    if (Role.TEACHER.getRole().equals(clientRole)
-        && !id.equals(client.getUserId())
-        && !Role.STUDENT.getRole().equals(userRole)) {
-      throw new ForbiddenException(
-          "A teacher cannot access information of another teacher");
+    if (Role.TEACHER.getRole().equals(clientRole) && !id.equals(client.getUserId())) {
+      throw new ForbiddenException("Teachers can only read their own information");
     }
+
+    User user = userService.getById(id);
     return userMapper.toRestTeacher(user);
   }
 }
