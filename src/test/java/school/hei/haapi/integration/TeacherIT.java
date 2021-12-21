@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,9 +16,9 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -40,11 +41,14 @@ class TeacherIT {
 
   @MockBean private CognitoComponent cognitoComponent;
 
+  @BeforeEach
+  public void setUp() {
+    setUpCognito(cognitoComponent);
+  }
+
   @Test
   void student1_can_not_get_teacher1_information() {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
-    when(cognitoComponent.findEmailByBearer(TestUtils.STUDENT1_TOKEN))
-        .thenReturn("ryan@hei.school");
 
     TeachersApi api = new TeachersApi(student1Client);
     assertThrowsApiException(
@@ -55,8 +59,6 @@ class TeacherIT {
   @Test
   void teacher1_can_not_get_teacher2_information() {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
-    when(cognitoComponent.findEmailByBearer(TestUtils.TEACHER1_TOKEN))
-        .thenReturn("teacher1@hei.school");
 
     TeachersApi api = new TeachersApi(teacher1Client);
     assertThrowsApiException(
@@ -66,8 +68,6 @@ class TeacherIT {
   @Test
   void teacher1_can_get_his_information() throws ApiException {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
-    when(cognitoComponent.findEmailByBearer(TestUtils.TEACHER1_TOKEN))
-        .thenReturn("teacher1@hei.school");
 
     TeachersApi api = new TeachersApi(teacher1Client);
     Teacher teacher = api.findTeacherById("TODO:school1", TestUtils.TEACHER1_ID);

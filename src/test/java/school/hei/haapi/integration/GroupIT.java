@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -14,11 +15,13 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
+import java.util.List;
+
 import static java.time.Instant.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -42,11 +45,14 @@ public class GroupIT {
   @MockBean
   private CognitoComponent cognitoComponent;
 
+  @BeforeEach
+  public void setUp() {
+    setUpCognito(cognitoComponent);
+  }
+
   @Test
   void student_can_get_group1() throws ApiException {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
-    when(cognitoComponent.findEmailByBearer(TestUtils.STUDENT1_TOKEN))
-        .thenReturn("ryan@hei.school");
 
     GroupsApi api = new GroupsApi(student1Client);
     Group group = api.findGroupById("TODO:school1", TestUtils.GROUP1_ID);
@@ -54,5 +60,17 @@ public class GroupIT {
     assertEquals("Name of G1", group.getName());
     assertEquals("G1", group.getRef());
     assertTrue(group.getCreationDatetime().isBefore(now()));
+  }
+
+  @Test
+  void student_can_get_groups() throws ApiException {
+    ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
+
+    GroupsApi api = new GroupsApi(student1Client);
+    List<Group> groups = api.findGroups("TODO:school1");
+
+    assertEquals(2, groups.size());
+    assertEquals("group1_id", groups.get(0).getId());
+    assertEquals("group2_id", groups.get(1).getId());
   }
 }

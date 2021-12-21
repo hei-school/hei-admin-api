@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.Group;
@@ -13,5 +14,9 @@ public class GroupService {
 
   public Group getById(String groupId) {
     return repository.getById(groupId);
+  }
+
+  public List<Group> findAll() {
+    return repository.findAll();
   }
 }
