@@ -32,9 +32,18 @@ public class UserMapper {
   public Teacher toRestTeacher(User user) {
     Teacher teacher = new Teacher();
     teacher.setId(user.getId());
+
     teacher.setFirstName(user.getFirstName());
     teacher.setLastName(user.getLastName());
     teacher.setEmail(user.getEmail());
+    teacher.setRef(user.getRef());
+    teacher.setStatus(Teacher.StatusEnum.fromValue(user.getStatus()));
+    teacher.setPhone(user.getPhone());
+    teacher.setEntranceDatetime(user.getEntranceDatetime());
+    teacher.setBirthDate(user.getBirthDate());
+    teacher.setSex(Teacher.SexEnum.fromValue(user.getSex()));
+    teacher.setAddress(user.getAddress());
+
     return teacher;
   }
 }

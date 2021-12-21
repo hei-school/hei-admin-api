@@ -32,4 +32,3 @@ create table if not exists student (
     user_id  varchar not null references "user" on update restrict on delete restrict,
     group_id varchar not null references "group" on update restrict on delete restrict
 );
-
