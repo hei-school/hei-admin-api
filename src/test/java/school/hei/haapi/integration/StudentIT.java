@@ -1,10 +1,11 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,11 +41,14 @@ class StudentIT {
 
   @MockBean private CognitoComponent cognitoComponent;
 
+  @BeforeEach
+  public void setUp() {
+    setUpCognito(cognitoComponent);
+  }
+
   @Test
   void student1_can_get_his_information() throws ApiException {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
-    when(cognitoComponent.findEmailByBearer(TestUtils.STUDENT1_TOKEN))
-        .thenReturn("ryan@hei.school");
 
     StudentsApi api = new StudentsApi(student1Client);
     Student student = api.findStudentById("TODO:school1", TestUtils.STUDENT1_ID);
@@ -55,8 +59,6 @@ class StudentIT {
   @Test
   void student1_can_not_get_student2_information() {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
-    when(cognitoComponent.findEmailByBearer(TestUtils.STUDENT1_TOKEN))
-        .thenReturn("ryan@hei.school");
 
     StudentsApi api = new StudentsApi(student1Client);
     assertThrowsApiException(
@@ -67,8 +69,6 @@ class StudentIT {
   @Test
   void teacher1_can_get_student1_information() throws ApiException {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
-    when(cognitoComponent.findEmailByBearer(TestUtils.TEACHER1_TOKEN))
-        .thenReturn("teacher1@hei.school");
 
     StudentsApi api = new StudentsApi(teacher1Client);
     Student student = api.findStudentById("TODO:school1", TestUtils.STUDENT1_ID);

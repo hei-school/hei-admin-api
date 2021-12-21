@@ -48,27 +48,13 @@ paths:
     get:
       tags:
         - Groups
-      summary: Find groups based on search criteria
+      summary: Find all groups
       parameters:
         - name: school
           in: header
           schema:
             type: string
           required: true
-        - name: offset
-          in: query
-          required: false
-          description: Zero-based offset for pagination. Defaults to `0`.
-          schema:
-            type: integer
-        - name: limit
-          in: query
-          required: false
-          description: >-
-            Pagination limit, that is the maximum number of elements that can be
-            retrieved. Defaults to `1000` and cannot exceed `1000`.
-          schema:
-            type: integer
       operationId: findGroups
       responses:
         '200':

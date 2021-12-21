@@ -1,5 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -20,14 +23,25 @@ public class GroupController {
   private final GroupMapper groupMapper;
 
   @GetMapping(value = "/groups/{id}")
-  public Group getGroupById(
-      @AuthenticationPrincipal ApiClient client, @PathVariable String id) {
+  public Group getGroupById(@AuthenticationPrincipal ApiClient client, @PathVariable String id) {
+    checkReadAuthorization(client);
+    return groupMapper.toRest(groupService.getById(id));
+  }
+
+  @GetMapping(value = "/groups")
+  public List<Group> getGroups(@AuthenticationPrincipal ApiClient client) {
+    checkReadAuthorization(client);
+    return groupService.findAll().stream()
+        .map(groupMapper::toRest)
+        .collect(toUnmodifiableList());
+  }
+
+  private void checkReadAuthorization(ApiClient client) {
     String clientRole = client.getRole();
     if (!Role.STUDENT.getRole().equals(clientRole)
         && !Role.TEACHER.getRole().equals(clientRole)
         && !Role.MANAGER.getRole().equals(clientRole)) {
-      throw new ForbiddenException("Only students/teachers/managers can get group info");
+      throw new ForbiddenException("Only students/teachers/managers can read group info");
     }
-    return groupMapper.toRest(groupService.getById(id));
   }
 }

@@ -3,9 +3,11 @@ package school.hei.haapi.integration.conf;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.Mockito.when;
 
 public class TestUtils {
   public static final String STUDENT1_ID = "student1_id";
@@ -25,6 +27,11 @@ public class TestUtils {
     client.setRequestInterceptor(httpRequestBuilder ->
         httpRequestBuilder.header("Authorization", "Bearer " + token));
     return client;
+  }
+
+  public static void setUpCognito(CognitoComponent cognitoComponent) {
+    when(cognitoComponent.findEmailByBearer(TestUtils.STUDENT1_TOKEN)).thenReturn("ryan@hei.school");
+    when(cognitoComponent.findEmailByBearer(TestUtils.TEACHER1_TOKEN)).thenReturn("teacher1@hei.school");
   }
 
   public static void assertThrowsApiException(Executable executable, String expectedBody) {
