@@ -157,37 +157,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    delete:
-      tags:
-        - Groups
-      summary: Delete existing groups
-      operationId: deleteGroups
-      parameters:
-        - name: school
-          in: header
-          schema:
-            type: string
-          required: true
-        - name: ids
-          in: query
-          description: Identifiers of the groups that need to be deleted separated by coma
-          example: 'uuid1,uuid2'
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/200Delete'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
   '/students/{id}':
     get:
       tags:
