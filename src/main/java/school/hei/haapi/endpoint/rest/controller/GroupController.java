@@ -25,15 +25,13 @@ public class GroupController {
   private final GroupMapper groupMapper;
 
   @GetMapping(value = "/groups/{id}")
-  public Group getGroupById(@AuthenticationPrincipal ApiClient client, @PathVariable String id) {
-    checkReadAuthorization(client);
+  public Group getGroupById(@PathVariable String id) {
     return groupMapper.toRest(groupService.getById(id));
   }
 
   @GetMapping(value = "/groups")
-  public List<Group> getGroups(@AuthenticationPrincipal ApiClient client) {
-    checkReadAuthorization(client);
-    return groupService.findAll().stream()
+  public List<Group> getGroups() {
+    return groupService.getAll().stream()
         .map(groupMapper::toRest)
         .collect(toUnmodifiableList());
   }
@@ -41,28 +39,15 @@ public class GroupController {
   @PutMapping(value = "/groups")
   public List<Group> createOrUpdateGroups(
       @AuthenticationPrincipal ApiClient client, @RequestBody List<Group> newRestGroups) {
-    checkWriteAuthorization(client);
+    String clientRole = client.getRole();
+    if (!Role.MANAGER.getRole().equals(clientRole)) {
+      throw new ForbiddenException("Only managers can write groups");
+    }
     var createdGroups = groupService.saveAll(newRestGroups.stream()
         .map(groupMapper::toDomain)
         .collect(toUnmodifiableList()));
     return createdGroups.stream()
         .map(groupMapper::toRest)
         .collect(toUnmodifiableList());
-  }
-
-  private void checkReadAuthorization(ApiClient client) {
-    String clientRole = client.getRole();
-    if (!Role.STUDENT.getRole().equals(clientRole)
-        && !Role.TEACHER.getRole().equals(clientRole)
-        && !Role.MANAGER.getRole().equals(clientRole)) {
-      throw new ForbiddenException("Only students/teachers/managers can read groups");
-    }
-  }
-
-  private void checkWriteAuthorization(ApiClient client) {
-    String clientRole = client.getRole();
-    if (!Role.MANAGER.getRole().equals(clientRole)) {
-      throw new ForbiddenException("Only managers can write groups");
-    }
   }
 }

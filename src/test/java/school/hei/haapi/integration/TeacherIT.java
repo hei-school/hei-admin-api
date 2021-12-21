@@ -52,7 +52,7 @@ class TeacherIT {
 
     TeachersApi api = new TeachersApi(student1Client);
     assertThrowsApiException(
-        () -> api.findTeacherById(TestUtils.TEACHER1_ID),
+        () -> api.getTeacherById(TestUtils.TEACHER1_ID),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students are not allowed to access teacher information\"}");
   }
 
@@ -62,7 +62,7 @@ class TeacherIT {
 
     TeachersApi api = new TeachersApi(teacher1Client);
     assertThrowsApiException(
-        () -> api.findTeacherById(TestUtils.TEACHER2_ID),
+        () -> api.getTeacherById(TestUtils.TEACHER2_ID),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"A teacher cannot access information of another teacher\"}");  }
 
   @Test
@@ -70,8 +70,9 @@ class TeacherIT {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
 
     TeachersApi api = new TeachersApi(teacher1Client);
-    Teacher teacher = api.findTeacherById(TestUtils.TEACHER1_ID);
+    Teacher teacher = api.getTeacherById(TestUtils.TEACHER1_ID);
 
-    assertEquals("One", teacher.getLastName());
+    assertEquals("One", teacher.getFirstName());
+    assertEquals("Teacher", teacher.getLastName());
   }
 }

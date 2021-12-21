@@ -20,6 +20,9 @@ import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.endpoint.rest.model.Student;
 
+import java.sql.Date;
+import java.time.Instant;
+
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = StudentIT.ContextInitializer.class)
@@ -51,9 +54,22 @@ class StudentIT {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     StudentsApi api = new StudentsApi(student1Client);
-    Student student = api.findStudentById(TestUtils.STUDENT1_ID);
+    Student student1 = api.getStudentById(TestUtils.STUDENT1_ID);
 
-    assertEquals("Ryan", student.getFirstName());
+    Student expectedStudent1 = new Student();
+    expectedStudent1.setId("student1_id");
+    expectedStudent1.setFirstName("Ryan");
+    expectedStudent1.setLastName("Andria");
+    expectedStudent1.setEmail("ryan@hei.school");
+    expectedStudent1.setRef("STD21001");
+    expectedStudent1.setPhone("0322411123");
+    expectedStudent1.setStatus(Student.StatusEnum.ENABLED);
+    expectedStudent1.setSex(Student.SexEnum.M);
+    expectedStudent1.setBirthDate(Date.valueOf("2000-01-01"));
+    expectedStudent1.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    expectedStudent1.setAddress("Adr 1");
+    expectedStudent1.setGroupId("group1_id");
+    assertEquals(expectedStudent1, student1);
   }
 
   @Test
@@ -62,8 +78,8 @@ class StudentIT {
 
     StudentsApi api = new StudentsApi(student1Client);
     assertThrowsApiException(
-        () -> api.findStudentById(TestUtils.STUDENT2_ID),
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students can only get their own information\"}");
+        () -> api.getStudentById(TestUtils.STUDENT2_ID),
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students can only read their own information\"}");
   }
 
   @Test
@@ -71,7 +87,7 @@ class StudentIT {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
 
     StudentsApi api = new StudentsApi(teacher1Client);
-    Student student = api.findStudentById(TestUtils.STUDENT1_ID);
+    Student student = api.getStudentById(TestUtils.STUDENT1_ID);
 
     assertEquals("Ryan", student.getFirstName());
   }

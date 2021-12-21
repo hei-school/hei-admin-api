@@ -58,11 +58,14 @@ public class GroupIT {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     GroupsApi api = new GroupsApi(student1Client);
-    Group group = api.findGroupById(TestUtils.GROUP1_ID);
+    Group group1 = api.getGroupById(TestUtils.GROUP1_ID);
 
-    assertEquals("Name of G1", group.getName());
-    assertEquals("G1", group.getRef());
-    assertTrue(group.getCreationDatetime().isBefore(now()));
+    Group expectedGroup1 = new Group();
+    expectedGroup1.setId("group1_id");
+    expectedGroup1.setName("Name of group one");
+    expectedGroup1.setRef("GRP21001");
+    expectedGroup1.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    assertEquals(expectedGroup1, group1);
   }
 
   @Test
@@ -70,7 +73,7 @@ public class GroupIT {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     GroupsApi api = new GroupsApi(student1Client);
-    List<Group> groups = api.findGroups();
+    List<Group> groups = api.getGroups();
 
     assertEquals(2, groups.size());
     assertEquals("group1_id", groups.get(0).getId());

@@ -16,7 +16,7 @@ public class GroupService {
     return repository.getById(groupId);
   }
 
-  public List<Group> findAll() {
+  public List<Group> getAll() {
     return repository.findAll();
   }
 

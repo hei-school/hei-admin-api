@@ -32,7 +32,7 @@ public class BearerAuthProvider extends AbstractUserDetailsAuthenticationProvide
     String bearer = getBearer(usernamePasswordAuthenticationToken);
     try {
       String email = cognitoComponent.findEmailByBearer(bearer);
-      User user = userService.findByEmail(email);
+      User user = userService.getByEmail(email);
       return new ApiClient(user);
     } catch (NotFoundException e) {
       throw new ForbiddenException("Bearer does not correspond to any user");

@@ -14,15 +14,15 @@ paths:
     get:
       tags:
         - Groups
-      summary: Find group by identifier
-      description: Authorized for students, teachers and managers.
+      summary: Get group by identifier
+      description: Authorized for all authenticated users.
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-      operationId: findGroupById
+      operationId: getGroupById
       responses:
         '200':
           description: The identified group
@@ -44,9 +44,9 @@ paths:
     get:
       tags:
         - Groups
-      summary: Find all groups
-      description: Authorized for students, teachers and managers.
-      operationId: findGroups
+      summary: Get all groups
+      description: Authorized for all authenticated users.
+      operationId: getGroups
       responses:
         '200':
           description: List of groups
@@ -83,7 +83,7 @@ paths:
                 $ref: '#/components/schemas/Group'
       responses:
         '200':
-          description: The updated groups
+          description: The created or updated groups
           content:
             application/json:
               schema:
@@ -104,14 +104,14 @@ paths:
     get:
       tags:
         - Students
-      summary: Find student by identifier
+      summary: Get student by identifier
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-      operationId: findStudentById
+      operationId: getStudentById
       responses:
         '200':
           description: The identified student
@@ -133,29 +133,11 @@ paths:
     get:
       tags:
         - Students
-      summary: Find students based on search criteria
-      description: >-
-        Note that CourseHours are generated automatically, based on the
-        availabilities of the teachers.
-      parameters:
-        - name: offset
-          in: query
-          required: false
-          description: Zero-based offset for pagination. Defaults to `0`.
-          schema:
-            type: integer
-        - name: limit
-          in: query
-          required: false
-          description: >-
-            Pagination limit, that is the maximum number of elements that can be
-            retrieved. Defaults to `1000` and cannot exceed `1000`.
-          schema:
-            type: integer
-      operationId: findStudents
+      summary: Get all students
+      operationId: getStudents
       responses:
         '200':
-          description: List of students
+          description: List of all students
           content:
             application/json:
               schema:
@@ -172,12 +154,12 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    post:
+    put:
       tags:
         - Students
-      summary: Create new students
-      description: ''
-      operationId: createStudents
+      summary: Create new students or update existing students
+      description: Update students when `id` are provided, create them otherwise. Authorized for managers only.
+      operationId: createOrUpdateStudents
       requestBody:
         required: true
         content:
@@ -185,111 +167,17 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/CreateStudent'
+                $ref: '#/components/schemas/Student'
       responses:
         '200':
-          description: Collection of created students
+          description: The created or updated students
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Student'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    patch:
-      tags:
-        - Students
-      summary: Update existing students
-      description: |
-        Possible udpates on:
-        * Group: change
-        * Status: change
-        * EnrolledCourses: add
-        * Grades : add
-      operationId: updateStudents
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Student'
-            examples:
-              addGroup:
-                summary: Change group
-                value:
-                  resources:
-                    - id: uuid
-                    - id: uuid
-                  group:
-                    id: uuid
-              changeStatus:
-                summary: Change status
-                value:
-                  resources:
-                    - id: uuid
-                    - id: uuid
-                  status: ENABLED
-              addEnrolledCourse:
-                summary: Add enrolled course
-                value:
-                  resources:
-                    - id: uuid
-                    - id: uuid
-                  course_id: uuid
-                  course_name: Architecture logicielle
-              addGrade:
-                summary: Add grade
-                value:
-                  resources:
-                    - id: uuid
-                    - id: uuid
-                  value: '0'
-                  enrolled_course_id: uuid
-                  enrolled_course_name: Architecture logicielle
-      responses:
-        '200':
-          description: The updated Students
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Student'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    delete:
-      tags:
-        - Students
-      summary: Delete existing students
-      operationId: deleteStudents
-      parameters:
-        - name: ids
-          in: query
-          description: >-
-            Identifiers of the students that need to be deleted separated by
-            coma
-          required: true
-          example: 'uuid1,uuid2'
-          schema:
-            type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/200Delete'
+                  allOf:
+                    - $ref: '#/components/schemas/Student'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -304,14 +192,14 @@ paths:
     get:
       tags:
         - Courses
-      summary: Find course by identifier
+      summary: Get course by identifier
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-      operationId: findCourseById
+      operationId: getCourseById
       responses:
         '200':
           description: The identified course
@@ -333,26 +221,11 @@ paths:
     get:
       tags:
         - Courses
-      summary: Find courses based on search criteria
-      parameters:
-        - name: offset
-          in: query
-          required: false
-          description: Zero-based offset for pagination. Defaults to `0`.
-          schema:
-            type: integer
-        - name: limit
-          in: query
-          required: false
-          description: >-
-            Pagination limit, that is the maximum number of elements that can be
-            retrieved. Defaults to `1000` and cannot exceed `1000`.
-          schema:
-            type: integer
-      operationId: findCourses
+      summary: Get all courses
+      operationId: getCourses
       responses:
         '200':
-          description: List of courses
+          description: List of all courses
           content:
             application/json:
               schema:
@@ -369,83 +242,21 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    post:
+    put:
       tags:
         - Courses
-      summary: Create new courses
-      description: ''
-      operationId: createCourses
+      summary: Create new courses or update existing courses
+      description: Update courses when id are provided, create them otherwise. Authorized for managers only.
+      operationId: createOrUpdateCourses
       requestBody:
-        description: Collection of courses to create
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateCourse'
-      responses:
-        '200':
-          description: Collection of created courses
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Course'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    patch:
-      tags:
-        - Courses
-      summary: Update existing courses
-      description: |
-        Possible udpates on:
-        * Name: change
-        * TotalHours : change
-        * Teacher: change
-      operationId: updateCourses
-      requestBody:
-        description: Course to update
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Course'
-            examples:
-              changeName:
-                summary: Change name
-                value:
-                  resources:
-                    - id: uuid
-                    - id: uuid
-                  name: Architectures logicielles
-              changeTotalHours:
-                summary: Change total hours
-                value:
-                  resources:
-                    - id: uuid
-                    - id: uuid
-                  total_hours: '0'
-              changeTecaher:
-                summary: Change teacher
-                value:
-                  resources:
-                    - id: uuid
-                    - id: uuid
-                  main_teacher_id: uuid
-                  main_teacher_name: Lou
       responses:
         '200':
-          description: The updated Course
+          description: The created or updated courses
           content:
             application/json:
               schema:
@@ -460,44 +271,18 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    delete:
-      tags:
-        - Courses
-      summary: Delete existing courses
-      operationId: deleteCourses
-      parameters:
-        - name: ids
-          in: query
-          description: Identifiers of the courses that need to be deleted
-          example: 'uuid1,uuid2'
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/200Delete'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
   '/teachers/{id}':
     get:
       tags:
         - Teachers
-      summary: Find teacher by identifier
+      summary: Get teacher by identifier
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-      operationId: findTeacherById
+      operationId: getTeacherById
       responses:
         '200':
           description: The identified teacher
@@ -519,26 +304,11 @@ paths:
     get:
       tags:
         - Teachers
-      summary: Find teachers based on search criteria
-      parameters:
-        - name: offset
-          in: query
-          required: false
-          description: Zero-based offset for pagination. Defaults to `0`.
-          schema:
-            type: integer
-        - name: limit
-          in: query
-          required: false
-          description: >-
-            Pagination limit, that is the maximum number of elements that can be
-            retrieved. Defaults to `1000` and cannot exceed `1000`.
-          schema:
-            type: integer
-      operationId: findTeachers
+      summary: Get all teachers
+      operationId: getTeachers
       responses:
         '200':
-          description: List of teachers
+          description: List of all teachers
           content:
             application/json:
               schema:
@@ -555,84 +325,21 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    post:
+    put:
       tags:
         - Teachers
-      summary: Create new teachers
-      description: ''
-      operationId: createTeachers
+      summary: Create new teachers or update existing teachers
+      description: Update teachers when `id` are provided, create them otherwise. Authorized for managers only.
+      operationId: createOrUpdateTeachers
       requestBody:
-        description: Collection of teachers to create
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateTeacher'
-      responses:
-        '200':
-          description: Collection of created teachers
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Teacher'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    patch:
-      tags:
-        - Teachers
-      summary: Update existing teachers
-      description: |
-        Possible udpates on:
-        * Interventions: add
-        * TaughtCourses: add
-        * Status: change
-      operationId: updateTeachers
-      requestBody:
-        description: ''
         required: true
         content:
           application/json:
             schema:
               $ref: '#/components/schemas/Teacher'
-            examples:
-              changeStatus:
-                summary: Change Status
-                value:
-                  resources:
-                    - id: uuid
-                    - id: uuid
-                  status: ENABLED
-              addTaughtCourse:
-                summary: Add Taught Course
-                value:
-                  resources:
-                    - id: uuid
-                    - id: uuid
-                  course_id: uuid
-                  required_teaching_hours: 0
-              addIntervention:
-                summary: Add Intervention
-                value:
-                  resources:
-                    - id: uuid
-                    - id: uuid
-                  start: '2021-08-12T12:38:33.098Z'
-                  end: '2021-08-12T12:38:33.098Z'
       responses:
         '200':
-          description: The updated teachers
+          description: The created or updated teachers
           content:
             application/json:
               schema:
@@ -647,59 +354,15 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    delete:
-      tags:
-        - Teachers
-      summary: Delete existing teachers
-      operationId: deleteTeachers
-      parameters:
-        - name: ids
-          in: query
-          description: >-
-            Identifiers of the teachers that need to be deleted separated by
-            coma
-          required: true
-          example: 'uuid1,uuid2'
-          schema:
-            type: string
-      responses:
-        '200':
-          $ref: '#/components/responses/200Delete'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-
   /managers:
     get:
       tags:
         - Managers
-      summary: Find managers based on search criteria
-      parameters:
-        - name: offset
-          in: query
-          required: false
-          description: Zero-based offset for pagination. Defaults to `0`.
-          schema:
-            type: integer
-        - name: limit
-          in: query
-          required: false
-          description: >-
-            Pagination limit, that is the maximum number of elements that can be
-            retrieved. Defaults to `1000` and cannot exceed `1000`.
-          schema:
-            type: integer
-      operationId: findManagers
+      summary: Get all managers
+      operationId: getManagers
       responses:
         '200':
-          description: List of managers
+          description: List of all managers
           content:
             application/json:
               schema:
@@ -761,8 +424,7 @@ components:
           schema:
             $ref: '#/components/schemas/200DeleteResponse'
   schemas:
-    Student:
-      type: object
+    User:
       properties:
         id:
           type: string
@@ -783,185 +445,33 @@ components:
           format: date
         address:
           type: string
-        phone_number:
+        phone:
           type: string
         email:
           type: string
-        entrance_date:
+        entrance_datetime:
           type: string
-          format: date
+          format: date-time
         status:
           type: string
-          description: Defaults to ENABLED
           enum:
             - ENABLED
             - DISABLED
-        group:
-          $ref: '#/components/schemas/Group'
-        enrolled_courses:
-          type: array
-          items:
-            $ref: '#/components/schemas/EnrolledCourse'
-    CreateStudent:
-      type: object
+    Student:
+      allOf:
+        - $ref: '#/components/schemas/StudentSpecifics'
+        - $ref: '#/components/schemas/User'
+    StudentSpecifics:
       properties:
-        first_name:
+        group_id:
           type: string
-        last_name:
-          type: string
-        sex:
-          type: string
-          enum:
-            - M
-            - F
-        birth_date:
-          type: string
-          format: date
-        address:
-          type: string
-        phone_number:
-          type: string
-        email:
-          type: string
-        entrance_date:
-          type: string
-          format: date
-        status:
-          type: string
-          enum:
-            - ENABLED
-            - DISABLED
-        group:
-          $ref: '#/components/schemas/Group'
-        enrolled_courses:
-          type: array
-          items:
-            $ref: '#/components/schemas/EnrolledCourse'
-    CreateTeacher:
-      type: object
-      properties:
-        first_name:
-          type: string
-        last_name:
-          type: string
-        sex:
-          type: string
-          enum:
-            - M
-            - F
-        address:
-          type: string
-        phone_number:
-          type: integer
-        email:
-          type: string
-        mariage_status:
-          type: string
-        status:
-          type: string
-          description: Defaults to ENABLED
-          enum:
-            - ENABLED
-            - DISABLED
-        birth_date:
-          type: string
-          format: date
-        hire_date:
-          type: string
-          format: date
-        taught_courses:
-          type: array
-          items:
-            $ref: '#/components/schemas/TaughtCourse'
-        availabilities:
-          type: array
-          items:
-            $ref: '#/components/schemas/Availability'
+          example: GRP21001
     Teacher:
-      type: object
-      properties:
-        id:
-          type: string
-        ref:
-          type: string
-          example: TCH001
-        first_name:
-          type: string
-        last_name:
-          type: string
-        sex:
-          type: string
-          enum:
-            - M
-            - F
-        address:
-          type: string
-        phone_number:
-          type: integer
-        email:
-          type: string
-        mariage_status:
-          type: string
-        status:
-          type: string
-          description: Defaults to ENABLED
-          enum:
-            - ENABLED
-            - DISABLED
-        birth_date:
-          type: string
-          format: date
-        hire_date:
-          type: string
-          format: date
-        taught_courses:
-          type: array
-          items:
-            $ref: '#/components/schemas/TaughtCourse'
-        availabilities:
-          type: array
-          items:
-            $ref: '#/components/schemas/Availability'
-    Availability:
-      type: object
-      properties:
-        start:
-          type: string
-          format: date-time
-        end:
-          type: string
-          format: date-time
+      allOf:
+        - $ref: '#/components/schemas/User'
     Manager:
-      type: object
-      properties:
-        id:
-          type: string
-        ref:
-          type: string
-          example: TCH001
-        first_name:
-          type: string
-        last_name:
-          type: string
-        sex:
-          type: string
-          enum:
-            - M
-            - F
-        address:
-          type: string
-        phone_number:
-          type: integer
-        email:
-          type: string
-        mariage_status:
-          type: string
-        birth_date:
-          type: string
-          format: date
-        hire_date:
-          type: string
-          format: date
+      allOf:
+        - $ref: '#/components/schemas/User'
     Group:
       type: object
       properties:
@@ -976,21 +486,6 @@ components:
         creation_datetime:
           type: string
           format: date-time
-    CreateCourse:
-      type: object
-      properties:
-        name:
-          type: string
-          example: Architecture logicielle
-        code:
-          type: string
-          example: PROG1
-        total_hours:
-          type: integer
-        main_teacher_id:
-          type: string
-        main_teacher_name:
-          type: string
     Course:
       type: object
       properties:
@@ -1009,69 +504,6 @@ components:
           type: integer
         main_teacher_id:
           type: string
-        main_teacher_name:
-          type: string
-    TaughtCourse:
-      type: object
-      properties:
-        course_id:
-          type: string
-        course_name:
-          type: string
-        required_teaching_hours:
-          type: integer
-        timetable:
-          type: array
-          items:
-            $ref: '#/components/schemas/TaughtHours'
-    EnrolledCourse:
-      type: object
-      properties:
-        course_id:
-          type: string
-        course_name:
-          type: string
-        timetable:
-          type: array
-          items:
-            $ref: '#/components/schemas/CourseHours'
-        exams:
-          type: array
-          items:
-            type: object
-            properties:
-              grade:
-                type: integer
-              creation_date:
-                type: string
-                format: date
-    TaughtHours:
-      type: object
-      properties:
-        group:
-          $ref: '#/components/schemas/Group'
-        start:
-          type: string
-          format: date-time
-        end:
-          type: string
-          format: date-time
-        creation_date:
-          type: string
-          format: date
-    CourseHours:
-      type: object
-      properties:
-        teacher_id:
-          type: string
-        teacher_name:
-          type: string
-        start:
-          type: string
-          format: date-time
-        end:
-          type: string
-          format: date-time
     Response:
       type: object
       properties:
