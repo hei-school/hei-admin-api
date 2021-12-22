@@ -19,7 +19,7 @@ public class ApiClient implements UserDetails {
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
-    return List.of(Role.valueOf(user.getRole()));
+    return List.of(Role.valueOf(user.getRole().toString()));
   }
 
   @Override
@@ -57,6 +57,6 @@ public class ApiClient implements UserDetails {
   }
 
   public String getRole() {
-    return user.getRole();
+    return user.getRole().toString();
   }
 }

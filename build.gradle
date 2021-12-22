@@ -48,10 +48,9 @@ task generateRestObjects(type: org.openapitools.generator.gradle.plugin.tasks.Ge
             dateLibrary: "custom"
     ]
     typeMappings = [
-            DateTime: "Instant",
-    ]
-    importMappings = [
-            Instant: "java.time.Instant",
+            // What date-time type to use when? https://i.stack.imgur.com/QPhGW.png
+            Date: "java.time.LocalDate",
+            DateTime: "java.time.Instant",
     ]
     library = "native"
 
@@ -104,6 +103,7 @@ dependencies {
     implementation 'com.nimbusds:nimbus-jose-jwt'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'com.vladmihalcea:hibernate-types-52:1.0.0'
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.postgresql:postgresql'
 

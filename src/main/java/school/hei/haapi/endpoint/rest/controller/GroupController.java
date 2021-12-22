@@ -38,16 +38,15 @@ public class GroupController {
 
   @PutMapping(value = "/groups")
   public List<Group> createOrUpdateGroups(
-      @AuthenticationPrincipal ApiClient client, @RequestBody List<Group> newRestGroups) {
-    String clientRole = client.getRole();
-    if (!Role.MANAGER.getRole().equals(clientRole)) {
+      @AuthenticationPrincipal ApiClient client, @RequestBody List<Group> toWrite) {
+    if (!Role.MANAGER.getRole().equals(client.getRole())) {
       throw new ForbiddenException("Only managers can write groups");
     }
 
-    var createdGroups = groupService.saveAll(newRestGroups.stream()
+    var saved = groupService.saveAll(toWrite.stream()
         .map(groupMapper::toDomain)
         .collect(toUnmodifiableList()));
-    return createdGroups.stream()
+    return saved.stream()
         .map(groupMapper::toRest)
         .collect(toUnmodifiableList());
   }
