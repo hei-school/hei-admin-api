@@ -8,11 +8,10 @@ import school.hei.haapi.model.User;
 @Component
 public class UserMapper {
 
-  public Student toRestStudent(school.hei.haapi.model.Student student) {
+  public Student toRestStudent(User user) {
     Student restStudent = new Student();
-    restStudent.setId(student.getId());
+    restStudent.setId(user.getId());
 
-    var user = student.getUser();
     restStudent.setFirstName(user.getFirstName());
     restStudent.setLastName(user.getLastName());
     restStudent.setEmail(user.getEmail());

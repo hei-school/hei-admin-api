@@ -22,14 +22,12 @@ public class StudentController {
   @GetMapping(value = "/students/{id}")
   public Student getStudentById(
       @AuthenticationPrincipal ApiClient client, @PathVariable String id) {
-    var student = userService.getStudentById(id);
     if (Role.STUDENT.getRole().equals(client.getRole())) {
-      var principalStudent = userService.getStudentByUserId(client.getUserId());
-      if (!student.getId().equals(principalStudent.getId())) {
+      if (!id.equals(client.getUser().getId())) {
         throw new ForbiddenException("Students can only read their own information");
       }
     }
 
-    return userMapper.toRestStudent(student);
+    return userMapper.toRestStudent(userService.getById(id));
   }
 }
