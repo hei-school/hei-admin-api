@@ -525,17 +525,14 @@ components:
           type: string
         ref:
           type: string
-          example: CRS001
+          example: PROG1
         name:
           type: string
-          example: Architecture logicielle
-        code:
-          type: string
-          example: PROG1
+          example: Algorithmics
+        credits:
+          type: integer
         total_hours:
           type: integer
-        main_teacher_id:
-          type: string
     Response:
       type: object
       properties:
