@@ -20,6 +20,7 @@ import java.util.List;
 
 import static java.time.Instant.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
@@ -103,58 +104,51 @@ public class GroupIT {
   @Test
   void manager_can_create_groups() throws ApiException {
     ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
-    Group createGroup3 = new Group();
-    createGroup3.setName("Name of group three");
-    createGroup3.setRef("G3");
-    Group createGroup4 = new Group();
-    createGroup4.setName("Name of group four");
-    createGroup4.setRef("G4");
+    Group toCreate3 = new Group();
+    toCreate3.setName("Name of group three");
+    toCreate3.setRef("G3");
+    Group toCreate4 = new Group();
+    toCreate4.setName("Name of group four");
+    toCreate4.setRef("G4");
 
     GroupsApi api = new GroupsApi(manager1Client);
-    List<Group> createdGroups = api.createOrUpdateGroups(List.of(createGroup3, createGroup4));
+    List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
 
-    assertEquals(2, createdGroups.size());
-    Group createdGroup3 = createdGroups.get(0);
-    assertTrue(isValidUUID(createdGroup3.getId()));
-    assertEquals("Name of group three", createdGroup3.getName());
-    assertEquals("G3", createdGroup3.getRef());
-    assertTrue(createdGroup3.getCreationDatetime().isBefore(now()));
-    Group createdGroup4 = createdGroups.get(1);
-    assertTrue(isValidUUID(createdGroup4.getId()));
-    assertEquals("Name of group four", createdGroup4.getName());
-    assertEquals("G4", createdGroup4.getRef());
-    assertTrue(createdGroup4.getCreationDatetime().isBefore(now()));
+    assertEquals(2, created.size());
+    Group created3 = created.get(0);
+    assertTrue(isValidUUID(created3.getId()));
+    toCreate3.setId(created3.getId());
+    assertNotNull(created3.getCreationDatetime());
+    toCreate3.setCreationDatetime(created3.getCreationDatetime());
+    //
+    assertEquals(created3, toCreate3);
+    Group created4 = created.get(0);
+    assertTrue(isValidUUID(created4.getId()));
+    toCreate4.setId(created4.getId());
+    assertNotNull(created4.getCreationDatetime());
+    toCreate4.setCreationDatetime(created4.getCreationDatetime());
+    assertEquals(created4, toCreate3);
   }
 
   @Test
   void manager_can_update_groups() throws ApiException {
     ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
-    Group updateGroup1 = new Group();
-    updateGroup1.setId("group1_id");
-    updateGroup1.setName("New name of group one");
-    updateGroup1.setRef("G1p");
-    Instant now1 = now();
-    updateGroup1.setCreationDatetime(now1);
-    Group updateGroup2 = new Group();
-    updateGroup2.setId("group2_id");
-    updateGroup2.setName("New name of group two");
-    updateGroup2.setRef("G2p");
-    Instant now2 = now();
-    updateGroup2.setCreationDatetime(now2);
+    Group toUpdate1 = new Group();
+    toUpdate1.setId("group1_id");
+    toUpdate1.setName("New name of group one");
+    toUpdate1.setRef("G1p");
+    toUpdate1.setCreationDatetime(now());
+    Group toUpdate2 = new Group();
+    toUpdate2.setId("group2_id");
+    toUpdate2.setName("New name of group two");
+    toUpdate2.setRef("G2p");
+    toUpdate2.setCreationDatetime(now());
 
     GroupsApi api = new GroupsApi(manager1Client);
-    List<Group> updatedGroups = api.createOrUpdateGroups(List.of(updateGroup1, updateGroup2));
+    List<Group> updated = api.createOrUpdateGroups(List.of(toUpdate1, toUpdate2));
 
-    assertEquals(2, updatedGroups.size());
-    Group updatedGroup1 = updatedGroups.get(0);
-    assertEquals("group1_id", updatedGroup1.getId());
-    assertEquals("New name of group one", updatedGroup1.getName());
-    assertEquals("G1p", updatedGroup1.getRef());
-    assertEquals(now1, updatedGroup1.getCreationDatetime());
-    Group updatedGroup2 = updatedGroups.get(1);
-    assertEquals("group2_id", updatedGroup2.getId());
-    assertEquals("New name of group two", updatedGroup2.getName());
-    assertEquals("G2p", updatedGroup2.getRef());
-    assertEquals(now2, updatedGroup2.getCreationDatetime());
+    assertEquals(2, updated.size());
+    assertEquals(toUpdate1, updated.get(0));
+    assertEquals(toUpdate2, updated.get(1));
   }
 }
