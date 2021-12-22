@@ -24,4 +24,8 @@ public class UserService {
   public List<User> saveAll(List<User> users) {
     return userRepository.saveAll(users);
   }
+
+  public List<User> getByRole(User.Role role) {
+    return userRepository.getByRole(role);
+  }
 }

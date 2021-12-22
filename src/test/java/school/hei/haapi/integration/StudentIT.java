@@ -1,6 +1,7 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -22,6 +23,7 @@ import school.hei.haapi.endpoint.rest.model.Student;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -50,44 +52,83 @@ class StudentIT {
   }
 
   @Test
-  void student1_can_read_his_own_information() throws ApiException {
+  void student_read_own_ok() throws ApiException {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     StudentsApi api = new StudentsApi(student1Client);
-    Student student1 = api.getStudentById(TestUtils.STUDENT1_ID);
+    Student actual = api.getStudentById(TestUtils.STUDENT1_ID);
 
-    Student expectedStudent1 = new Student();
-    expectedStudent1.setId("student1_id");
-    expectedStudent1.setFirstName("Ryan");
-    expectedStudent1.setLastName("Andria");
-    expectedStudent1.setEmail("ryan@hei.school");
-    expectedStudent1.setRef("STD21001");
-    expectedStudent1.setPhone("0322411123");
-    expectedStudent1.setStatus(Student.StatusEnum.ENABLED);
-    expectedStudent1.setSex(Student.SexEnum.M);
-    expectedStudent1.setBirthDate(LocalDate.parse("2000-01-01"));
-    expectedStudent1.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    expectedStudent1.setAddress("Adr 1");
-    assertEquals(expectedStudent1, student1);
+    assertEquals(student1(), actual);
   }
 
   @Test
-  void student1_can_not_read_student2() {
+  void student_read_ko() {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     StudentsApi api = new StudentsApi(student1Client);
     assertThrowsApiException(
         () -> api.getStudentById(TestUtils.STUDENT2_ID),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students can only read their own information\"}");
+    assertThrowsApiException(
+        api::getStudents,
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students can only read their own information\"}");
   }
 
   @Test
-  void teacher_can_read_students() throws ApiException {
+  void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
 
     StudentsApi api = new StudentsApi(teacher1Client);
-    Student student = api.getStudentById(TestUtils.STUDENT1_ID);
+    Student actualStudent1 = api.getStudentById(TestUtils.STUDENT1_ID);
+    List<Student> actualStudents = api.getStudents();
 
-    assertEquals("Ryan", student.getFirstName());
+    assertEquals(student1(), actualStudent1);
+    assertTrue(actualStudents.contains(student1()));
+    assertTrue(actualStudents.contains(student2()));
+  }
+
+  @Test
+  void manager_read_ok() throws ApiException {
+    ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
+
+    StudentsApi api = new StudentsApi(manager1Client);
+    Student actualStudent1 = api.getStudentById(TestUtils.STUDENT1_ID);
+    List<Student> actualStudents = api.getStudents();
+
+    assertEquals(student1(), actualStudent1);
+    assertTrue(actualStudents.contains(student1()));
+    assertTrue(actualStudents.contains(student2()));
+  }
+
+  public static Student student1() {
+    Student student = new Student();
+    student.setId("student1_id");
+    student.setFirstName("Ryan");
+    student.setLastName("Andria");
+    student.setEmail("ryan@hei.school");
+    student.setRef("STD21001");
+    student.setPhone("0322411123");
+    student.setStatus(Student.StatusEnum.ENABLED);
+    student.setSex(Student.SexEnum.M);
+    student.setBirthDate(LocalDate.parse("2000-01-01"));
+    student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    student.setAddress("Adr 1");
+    return student;
+  }
+
+  public static Student student2() {
+    Student student = new Student();
+    student.setId("student2_id");
+    student.setFirstName("Two");
+    student.setLastName("Student");
+    student.setEmail("student2@hei.school");
+    student.setRef("STD21002");
+    student.setPhone("0322411124");
+    student.setStatus(Student.StatusEnum.ENABLED);
+    student.setSex(Student.SexEnum.F);
+    student.setBirthDate(LocalDate.parse("2000-01-02"));
+    student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+    student.setAddress("Adr 2");
+    return student;
   }
 }
