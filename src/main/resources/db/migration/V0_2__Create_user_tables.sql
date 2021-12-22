@@ -26,9 +26,3 @@ create table if not exists "user" (
     role              role not null
 );
 create index if not exists user_last_name_index on "user" (last_name);
-
-create table if not exists student (
-    id       varchar constraint student_pk primary key default uuid_generate_v4(),
-    user_id  varchar not null references "user" on update restrict on delete restrict,
-    group_id varchar not null references "group" on update restrict on delete restrict
-);
