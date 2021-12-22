@@ -6,6 +6,8 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 
+import java.io.IOException;
+import java.net.ServerSocket;
 import java.time.Instant;
 import java.util.UUID;
 
@@ -24,7 +26,7 @@ public class TestUtils {
   public static final String MANAGER1_TOKEN = "manager1_token";
   public static final String GROUP1_ID = "group1_id";
 
-  public static ApiClient aClient(String token, int serverPort) {
+  public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
     client.setScheme("http");
     client.setHost("localhost");
@@ -51,6 +53,14 @@ public class TestUtils {
       return true;
     } catch (Exception e){
       return false;
+    }
+  }
+
+  public static int anAvailableRandomPort() {
+    try {
+      return new ServerSocket(0).getLocalPort();
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 }

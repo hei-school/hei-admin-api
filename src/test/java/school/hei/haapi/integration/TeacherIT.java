@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
@@ -34,7 +35,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 class TeacherIT {
 
   static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = 8083;
+    public static final int SERVER_PORT = anAvailableRandomPort();
 
     @Override
     public int getServerPort() {
@@ -42,8 +43,8 @@ class TeacherIT {
     }
   }
 
-  private static ApiClient aClient(String token) {
-    return TestUtils.aClient(token, ContextInitializer.SERVER_PORT);
+  private static ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
   @MockBean private CognitoComponent cognitoComponent;
@@ -55,7 +56,7 @@ class TeacherIT {
 
   @Test
   void student_read_ko() {
-    ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
+    ApiClient student1Client = anApiClient(TestUtils.STUDENT1_TOKEN);
 
     TeachersApi api = new TeachersApi(student1Client);
     assertThrowsApiException(
@@ -68,7 +69,7 @@ class TeacherIT {
 
   @Test
   void teacher_read_ko() {
-    ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
+    ApiClient teacher1Client = anApiClient(TestUtils.TEACHER1_TOKEN);
 
     TeachersApi api = new TeachersApi(teacher1Client);
     assertThrowsApiException(
@@ -81,7 +82,7 @@ class TeacherIT {
 
   @Test
   void student_write_ko() {
-    ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
+    ApiClient student1Client = anApiClient(TestUtils.STUDENT1_TOKEN);
 
     TeachersApi api = new TeachersApi(student1Client);
     assertThrowsApiException(
@@ -91,7 +92,7 @@ class TeacherIT {
 
   @Test
   void teacher_write_ko() {
-    ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
+    ApiClient teacher1Client = anApiClient(TestUtils.TEACHER1_TOKEN);
 
     TeachersApi api = new TeachersApi(teacher1Client);
     assertThrowsApiException(
@@ -101,7 +102,7 @@ class TeacherIT {
 
   @Test
   void teacher_read_own_ok() throws ApiException {
-    ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
+    ApiClient teacher1Client = anApiClient(TestUtils.TEACHER1_TOKEN);
 
     TeachersApi api = new TeachersApi(teacher1Client);
     Teacher actual = api.getTeacherById(TestUtils.TEACHER1_ID);
@@ -111,7 +112,7 @@ class TeacherIT {
 
   @Test
   void manager_read_ok() throws ApiException {
-    ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
+    ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
 
     TeachersApi api = new TeachersApi(manager1Client);
     List<Teacher> teachers = api.getTeachers();
@@ -122,7 +123,7 @@ class TeacherIT {
 
   @Test
   void manager_write_create_ok() throws ApiException {
-    ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
+    ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
     Teacher toCreate = aCreatableTeacher();
 
     TeachersApi api = new TeachersApi(manager1Client);
@@ -137,7 +138,7 @@ class TeacherIT {
 
   @Test
   void manager_write_update_ok() throws ApiException {
-    ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
+    ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
     TeachersApi api = new TeachersApi(manager1Client);
     Teacher toUpdate = api
         .createOrUpdateTeachers(List.of(aCreatableTeacher()))

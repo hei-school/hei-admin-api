@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -32,7 +33,7 @@ import java.util.List;
 class StudentIT {
 
   static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = 8082;
+    public static final int SERVER_PORT = anAvailableRandomPort();
 
     @Override
     public int getServerPort() {
@@ -40,8 +41,8 @@ class StudentIT {
     }
   }
 
-  private static ApiClient aClient(String token) {
-    return TestUtils.aClient(token, ContextInitializer.SERVER_PORT);
+  private static ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
   @MockBean private CognitoComponent cognitoComponent;
@@ -53,7 +54,7 @@ class StudentIT {
 
   @Test
   void student_read_own_ok() throws ApiException {
-    ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
+    ApiClient student1Client = anApiClient(TestUtils.STUDENT1_TOKEN);
 
     StudentsApi api = new StudentsApi(student1Client);
     Student actual = api.getStudentById(TestUtils.STUDENT1_ID);
@@ -63,7 +64,7 @@ class StudentIT {
 
   @Test
   void student_read_ko() {
-    ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
+    ApiClient student1Client = anApiClient(TestUtils.STUDENT1_TOKEN);
 
     StudentsApi api = new StudentsApi(student1Client);
     assertThrowsApiException(
@@ -76,7 +77,7 @@ class StudentIT {
 
   @Test
   void teacher_read_ok() throws ApiException {
-    ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
+    ApiClient teacher1Client = anApiClient(TestUtils.TEACHER1_TOKEN);
 
     StudentsApi api = new StudentsApi(teacher1Client);
     Student actualStudent1 = api.getStudentById(TestUtils.STUDENT1_ID);
@@ -89,7 +90,7 @@ class StudentIT {
 
   @Test
   void manager_read_ok() throws ApiException {
-    ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
+    ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
 
     StudentsApi api = new StudentsApi(manager1Client);
     Student actualStudent1 = api.getStudentById(TestUtils.STUDENT1_ID);
