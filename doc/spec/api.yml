@@ -4,12 +4,36 @@ info:
   title: HEI Admin API
 
 servers:
-  - url: 'https://api.hei-admin.cloud'
+  - url: 'https://api.admin.hei.school'
 
 security:
   - BearerAuth: []
 
 paths:
+  '/whoami':
+    get:
+      tags:
+        - Who am I?
+      summary: Tells you who you are
+      description: Authorized for all authenticated users.
+      operationId: whoami
+      responses:
+        '200':
+          description: Who you are
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Whoami'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/groups/{id}':
     get:
       tags:
@@ -428,6 +452,16 @@ components:
           schema:
             $ref: '#/components/schemas/200DeleteResponse'
   schemas:
+    Whoami:
+      properties:
+        id:
+          type: string
+        role:
+          type: string
+          enum:
+            - STUDENT
+            - TEACHER
+            - MANAGER
     User:
       properties:
         id:

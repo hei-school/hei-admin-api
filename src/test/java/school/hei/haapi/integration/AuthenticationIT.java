@@ -43,7 +43,7 @@ class AuthenticationIT {
 
   @Test
   void unauthenticated_user_is_forbidden() {
-    String bearer = TestUtils.BAD_TOKEN; // null, invalid or expired
+    String bearer = TestUtils.BAD_TOKEN;
 
     assertThrows(
         ForbiddenException.class,
