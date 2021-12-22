@@ -41,6 +41,17 @@ public class TeacherController {
     return userMapper.toRestTeacher(user);
   }
 
+  @GetMapping(value = "/teachers")
+  public List<Teacher> getTeachers(@AuthenticationPrincipal ApiClient client) {
+    if (!Role.MANAGER.getRole().equals(client.getRole())) {
+      throw new ForbiddenException("Only managers can read all teachers");
+    }
+
+    return userService.getByRole(User.Role.TEACHER).stream()
+        .map(userMapper::toRestTeacher)
+        .collect(toUnmodifiableList());
+  }
+
   @PutMapping(value = "/teachers")
   public List<Teacher> createOrUpdateTeachers(
       @AuthenticationPrincipal ApiClient client, @RequestBody List<Teacher> toWrite) {

@@ -54,26 +54,33 @@ class TeacherIT {
   }
 
   @Test
-  void student_can_not_read_teachers() {
+  void student_read_ko() {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     TeachersApi api = new TeachersApi(student1Client);
     assertThrowsApiException(
         () -> api.getTeacherById(TestUtils.TEACHER1_ID),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students cannot read teachers\"}");
+    assertThrowsApiException(
+        api::getTeachers,
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can read all teachers\"}");
   }
 
   @Test
-  void teacher1_can_not_read_teacher2() {
+  void teacher_read_ko() {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
 
     TeachersApi api = new TeachersApi(teacher1Client);
     assertThrowsApiException(
         () -> api.getTeacherById(TestUtils.TEACHER2_ID),
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Teachers can only read their own information\"}");  }
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Teachers can only read their own information\"}");
+    assertThrowsApiException(
+        api::getTeachers,
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can read all teachers\"}");
+  }
 
   @Test
-  void student_can_not_write_teachers() {
+  void student_write_ko() {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     TeachersApi api = new TeachersApi(student1Client);
@@ -83,7 +90,7 @@ class TeacherIT {
   }
 
   @Test
-  void teacher_can_not_write_teachers() {
+  void teacher_write_ko() {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
 
     TeachersApi api = new TeachersApi(teacher1Client);
@@ -93,29 +100,28 @@ class TeacherIT {
   }
 
   @Test
-  void teacher_can_read_his_own_information() throws ApiException {
+  void teacher_read_own_ok() throws ApiException {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
 
     TeachersApi api = new TeachersApi(teacher1Client);
-    Teacher teacher1 = api.getTeacherById(TestUtils.TEACHER1_ID);
+    Teacher actual = api.getTeacherById(TestUtils.TEACHER1_ID);
 
-    Teacher expectedTeacher1 = new Teacher();
-    expectedTeacher1.setId("teacher1_id");
-    expectedTeacher1.setFirstName("One");
-    expectedTeacher1.setLastName("Teacher");
-    expectedTeacher1.setEmail("teacher1@hei.school");
-    expectedTeacher1.setRef("TCR21001");
-    expectedTeacher1.setPhone("0322411125");
-    expectedTeacher1.setStatus(Teacher.StatusEnum.ENABLED);
-    expectedTeacher1.setSex(Teacher.SexEnum.F);
-    expectedTeacher1.setBirthDate(LocalDate.parse("1990-01-01"));
-    expectedTeacher1.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
-    expectedTeacher1.setAddress("Adr 3");
-    assertEquals(expectedTeacher1, teacher1);
+    assertEquals(teacher1(), actual);
   }
 
   @Test
-  void manager_can_create_teachers() throws ApiException {
+  void manager_read_ok() throws ApiException {
+    ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
+
+    TeachersApi api = new TeachersApi(manager1Client);
+    List<Teacher> teachers = api.getTeachers();
+
+    assertTrue(teachers.contains(teacher1()));
+    assertTrue(teachers.contains(teacher2()));
+  }
+
+  @Test
+  void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
     Teacher toCreate = aCreatableTeacher();
 
@@ -130,18 +136,50 @@ class TeacherIT {
   }
 
   @Test
-  void manager_can_update_teachers() throws ApiException {
+  void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
     TeachersApi api = new TeachersApi(manager1Client);
-    Teacher updateTeacher1 = api
+    Teacher toUpdate = api
         .createOrUpdateTeachers(List.of(aCreatableTeacher()))
         .get(0);
-    updateTeacher1.setLastName("New last name");
+    toUpdate.setLastName("New last name");
 
-    List<Teacher> updated = api.createOrUpdateTeachers(List.of(updateTeacher1));
+    List<Teacher> updated = api.createOrUpdateTeachers(List.of(toUpdate));
 
     assertEquals(1, updated.size());
-    assertEquals(updateTeacher1, updated.get(0));
+    assertEquals(toUpdate, updated.get(0));
+  }
+
+  public static Teacher teacher1() {
+    Teacher teacher = new Teacher();
+    teacher.setId("teacher1_id");
+    teacher.setFirstName("One");
+    teacher.setLastName("Teacher");
+    teacher.setEmail("teacher1@hei.school");
+    teacher.setRef("TCR21001");
+    teacher.setPhone("0322411125");
+    teacher.setStatus(Teacher.StatusEnum.ENABLED);
+    teacher.setSex(Teacher.SexEnum.F);
+    teacher.setBirthDate(LocalDate.parse("1990-01-01"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
+    teacher.setAddress("Adr 3");
+    return teacher;
+  }
+
+  public static Teacher teacher2() {
+    Teacher teacher = new Teacher();
+    teacher.setId("teacher2_id");
+    teacher.setFirstName("Two");
+    teacher.setLastName("Teacher");
+    teacher.setEmail("teacher2@hei.school");
+    teacher.setRef("TCR21002");
+    teacher.setPhone("0322411126");
+    teacher.setStatus(Teacher.StatusEnum.ENABLED);
+    teacher.setSex(Teacher.SexEnum.M);
+    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
+    teacher.setAddress("Adr 4");
+    return teacher;
   }
 
   public static Teacher aCreatableTeacher() {

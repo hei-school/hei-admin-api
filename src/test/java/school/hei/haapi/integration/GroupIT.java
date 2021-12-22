@@ -18,7 +18,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 import java.time.Instant;
 import java.util.List;
 
-import static java.time.Instant.now;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -55,34 +55,20 @@ public class GroupIT {
   }
 
   @Test
-  void student_can_read_group1() throws ApiException {
+  void student_read_ok() throws ApiException {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     GroupsApi api = new GroupsApi(student1Client);
-    Group group1 = api.getGroupById(TestUtils.GROUP1_ID);
+    Group actual1 = api.getGroupById(TestUtils.GROUP1_ID);
+    List<Group> actualGroups = api.getGroups();
 
-    Group expectedGroup1 = new Group();
-    expectedGroup1.setId("group1_id");
-    expectedGroup1.setName("Name of group one");
-    expectedGroup1.setRef("GRP21001");
-    expectedGroup1.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    assertEquals(expectedGroup1, group1);
+    assertEquals(group1(), actual1);
+    assertTrue(actualGroups.contains(group1()));
+    assertTrue(actualGroups.contains(group2()));
   }
 
   @Test
-  void student_can_read_groups() throws ApiException {
-    ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
-
-    GroupsApi api = new GroupsApi(student1Client);
-    List<Group> groups = api.getGroups();
-
-    assertEquals(2, groups.size());
-    assertEquals("group1_id", groups.get(0).getId());
-    assertEquals("group2_id", groups.get(1).getId());
-  }
-
-  @Test
-  void student_can_not_write_groups() {
+  void student_write_ko() {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     GroupsApi api = new GroupsApi(student1Client);
@@ -92,7 +78,7 @@ public class GroupIT {
   }
 
   @Test
-  void teacher_can_not_write_groups() {
+  void teacher_write_ko() {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
 
     GroupsApi api = new GroupsApi(teacher1Client);
@@ -102,14 +88,10 @@ public class GroupIT {
   }
 
   @Test
-  void manager_can_create_groups() throws ApiException {
+  void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
-    Group toCreate3 = new Group();
-    toCreate3.setName("Name of group three");
-    toCreate3.setRef("G3");
-    Group toCreate4 = new Group();
-    toCreate4.setName("Name of group four");
-    toCreate4.setRef("G4");
+    Group toCreate3 = aCreatableGroup();
+    Group toCreate4 = aCreatableGroup();
 
     GroupsApi api = new GroupsApi(manager1Client);
     List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
@@ -131,24 +113,46 @@ public class GroupIT {
   }
 
   @Test
-  void manager_can_update_groups() throws ApiException {
+  void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
-    Group toUpdate1 = new Group();
-    toUpdate1.setId("group1_id");
-    toUpdate1.setName("New name of group one");
-    toUpdate1.setRef("G1p");
-    toUpdate1.setCreationDatetime(now());
-    Group toUpdate2 = new Group();
-    toUpdate2.setId("group2_id");
-    toUpdate2.setName("New name of group two");
-    toUpdate2.setRef("G2p");
-    toUpdate2.setCreationDatetime(now());
-
     GroupsApi api = new GroupsApi(manager1Client);
-    List<Group> updated = api.createOrUpdateGroups(List.of(toUpdate1, toUpdate2));
+    List<Group> toUpdate = api.createOrUpdateGroups(List.of(
+        aCreatableGroup(),
+        aCreatableGroup()));
+    Group toUpdate0 = toUpdate.get(0);
+    toUpdate0.setName("A new name zero");
+    Group toUpdate1 = toUpdate.get(1);
+    toUpdate1.setName("A new name one");
+
+    List<Group> updated = api.createOrUpdateGroups(toUpdate);
 
     assertEquals(2, updated.size());
-    assertEquals(toUpdate1, updated.get(0));
-    assertEquals(toUpdate2, updated.get(1));
+    assertTrue(updated.contains(toUpdate0));
+    assertTrue(updated.contains(toUpdate1));
+  }
+
+  public static Group group1() {
+    Group group = new Group();
+    group.setId("group1_id");
+    group.setName("Name of group one");
+    group.setRef("GRP21001");
+    group.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    return group;
+  }
+
+  public static Group group2() {
+    Group group = new Group();
+    group.setId("group2_id");
+    group.setName("Name of group two");
+    group.setRef("GRP21002");
+    group.setCreationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
+    return group;
+  }
+
+  public static Group aCreatableGroup() {
+    Group group = new Group();
+    group.setName("Some name");
+    group.setRef("GRP21-" + randomUUID());
+    return group;
   }
 }
