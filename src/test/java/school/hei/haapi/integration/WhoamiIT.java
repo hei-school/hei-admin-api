@@ -17,6 +17,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -26,7 +27,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 class WhoamiIT {
 
   static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = 8084;
+    public static final int SERVER_PORT = anAvailableRandomPort();
 
     @Override
     public int getServerPort() {
@@ -34,8 +35,8 @@ class WhoamiIT {
     }
   }
 
-  private static ApiClient aClient(String token) {
-    return TestUtils.aClient(token, ContextInitializer.SERVER_PORT);
+  private static ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
   @MockBean private CognitoComponent cognitoComponent;
@@ -47,7 +48,7 @@ class WhoamiIT {
 
   @Test
   void student_read_own_ok() throws ApiException {
-    ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
+    ApiClient student1Client = anApiClient(TestUtils.STUDENT1_TOKEN);
 
     WhoAmIApi api = new WhoAmIApi(student1Client);
     Whoami actual = api.whoami();
@@ -57,7 +58,7 @@ class WhoamiIT {
 
   @Test
   void teacher_read_own_ok() throws ApiException {
-    ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
+    ApiClient teacher1Client = anApiClient(TestUtils.TEACHER1_TOKEN);
 
     WhoAmIApi api = new WhoAmIApi(teacher1Client);
     Whoami actual = api.whoami();
@@ -67,7 +68,7 @@ class WhoamiIT {
 
   @Test
   void manager_read_own_ok() throws ApiException {
-    ApiClient manager1Client = aClient(TestUtils.MANAGER1_TOKEN);
+    ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
 
     WhoAmIApi api = new WhoAmIApi(manager1Client);
     Whoami actual = api.whoami();
