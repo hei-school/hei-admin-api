@@ -7,6 +7,8 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.repository.StudentRepository;
 import school.hei.haapi.repository.UserRepository;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class UserService {
@@ -27,5 +29,9 @@ public class UserService {
   }
   public Student getStudentById(String studentId) {
     return studentRepository.getById(studentId);
+  }
+
+  public List<User> saveAll(List<User> users) {
+    return userRepository.saveAll(users);
   }
 }

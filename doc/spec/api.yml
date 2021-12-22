@@ -336,14 +336,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Teacher'
+              type: array
+              items:
+                $ref: '#/components/schemas/Teacher'
       responses:
         '200':
           description: The created or updated teachers
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Teacher'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Teacher'
         '400':
           $ref: '#/components/responses/400'
         '403':

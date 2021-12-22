@@ -33,7 +33,7 @@ class AuthenticationIT {
 
   @Test
   @Disabled("no test Cognito")
-  void user_is_authenticated() {
+  void authenticated_user_has_known_email() {
     String bearer = "TODO: get bearer by really authenticating against Cognito";
 
     String email = cognitoComponent.findEmailByBearer(bearer);
@@ -42,7 +42,7 @@ class AuthenticationIT {
   }
 
   @Test
-  void user_is_unauthenticated() {
+  void unauthenticated_user_is_forbidden() {
     String bearer = TestUtils.BAD_TOKEN; // null, invalid or expired
 
     assertThrows(

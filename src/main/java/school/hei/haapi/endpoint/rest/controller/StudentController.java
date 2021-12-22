@@ -23,8 +23,7 @@ public class StudentController {
   public Student getStudentById(
       @AuthenticationPrincipal ApiClient client, @PathVariable String id) {
     var student = userService.getStudentById(id);
-    String clientRole = client.getRole();
-    if (Role.STUDENT.getRole().equals(clientRole)) {
+    if (Role.STUDENT.getRole().equals(client.getRole())) {
       var principalStudent = userService.getStudentByUserId(client.getUserId());
       if (!student.getId().equals(principalStudent.getId())) {
         throw new ForbiddenException("Students can only read their own information");

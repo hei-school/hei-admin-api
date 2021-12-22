@@ -20,8 +20,8 @@ import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.endpoint.rest.model.Student;
 
-import java.sql.Date;
 import java.time.Instant;
+import java.time.LocalDate;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -50,7 +50,7 @@ class StudentIT {
   }
 
   @Test
-  void student1_can_get_his_information() throws ApiException {
+  void student1_can_read_his_own_information() throws ApiException {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     StudentsApi api = new StudentsApi(student1Client);
@@ -65,14 +65,14 @@ class StudentIT {
     expectedStudent1.setPhone("0322411123");
     expectedStudent1.setStatus(Student.StatusEnum.ENABLED);
     expectedStudent1.setSex(Student.SexEnum.M);
-    expectedStudent1.setBirthDate(Date.valueOf("2000-01-01"));
+    expectedStudent1.setBirthDate(LocalDate.parse("2000-01-01"));
     expectedStudent1.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     expectedStudent1.setAddress("Adr 1");
     assertEquals(expectedStudent1, student1);
   }
 
   @Test
-  void student1_can_not_get_student2_information() {
+  void student1_can_not_read_student2() {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     StudentsApi api = new StudentsApi(student1Client);
@@ -82,7 +82,7 @@ class StudentIT {
   }
 
   @Test
-  void teacher1_can_get_student1_information() throws ApiException {
+  void teacher_can_read_students() throws ApiException {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
 
     StudentsApi api = new StudentsApi(teacher1Client);

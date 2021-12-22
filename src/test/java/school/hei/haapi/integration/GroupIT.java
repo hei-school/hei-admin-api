@@ -54,7 +54,7 @@ public class GroupIT {
   }
 
   @Test
-  void student_can_get_group1() throws ApiException {
+  void student_can_read_group1() throws ApiException {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     GroupsApi api = new GroupsApi(student1Client);
@@ -69,7 +69,7 @@ public class GroupIT {
   }
 
   @Test
-  void student_can_get_groups() throws ApiException {
+  void student_can_read_groups() throws ApiException {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     GroupsApi api = new GroupsApi(student1Client);
@@ -81,7 +81,7 @@ public class GroupIT {
   }
 
   @Test
-  void student_cannot_create_groups() {
+  void student_can_not_write_groups() {
     ApiClient student1Client = aClient(TestUtils.STUDENT1_TOKEN);
 
     GroupsApi api = new GroupsApi(student1Client);
@@ -91,7 +91,7 @@ public class GroupIT {
   }
 
   @Test
-  void teacher_cannot_create_groups() {
+  void teacher_can_not_write_groups() {
     ApiClient teacher1Client = aClient(TestUtils.TEACHER1_TOKEN);
 
     GroupsApi api = new GroupsApi(teacher1Client);
