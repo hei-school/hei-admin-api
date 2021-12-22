@@ -24,8 +24,6 @@ public class UserMapper {
     restStudent.setSex(Student.SexEnum.fromValue(user.getSex()));
     restStudent.setAddress(user.getAddress());
 
-    restStudent.setGroupId(student.getGroup().getId());
-
     return restStudent;
   }
 

@@ -459,13 +459,7 @@ components:
             - DISABLED
     Student:
       allOf:
-        - $ref: '#/components/schemas/StudentSpecifics'
         - $ref: '#/components/schemas/User'
-    StudentSpecifics:
-      properties:
-        group_id:
-          type: string
-          example: GRP21001
     Teacher:
       allOf:
         - $ref: '#/components/schemas/User'
@@ -529,7 +523,7 @@ components:
         - $ref: '#/components/schemas/Exception'
       example:
         type: BadRequestException
-        message: bad request
+        message: Bad request
     NotAuthorizedException:
       allOf:
         - $ref: '#/components/schemas/Exception'

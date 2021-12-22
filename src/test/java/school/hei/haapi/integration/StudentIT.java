@@ -68,7 +68,6 @@ class StudentIT {
     expectedStudent1.setBirthDate(Date.valueOf("2000-01-01"));
     expectedStudent1.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     expectedStudent1.setAddress("Adr 1");
-    expectedStudent1.setGroupId("group1_id");
     assertEquals(expectedStudent1, student1);
   }
 
