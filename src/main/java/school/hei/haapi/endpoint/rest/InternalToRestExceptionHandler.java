@@ -1,4 +1,4 @@
-package school.hei.haapi.endpoint.rest.advice;
+package school.hei.haapi.endpoint.rest;
 
 import javax.persistence.OptimisticLockException;
 import lombok.extern.slf4j.Slf4j;
