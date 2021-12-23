@@ -22,6 +22,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -56,7 +57,7 @@ class SecurityIT {
   }
 
   @Test
-  void student_read_own_ok() throws ApiException {
+  void student_read_whoami_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     SecurityApi api = new SecurityApi(student1Client);
@@ -66,7 +67,7 @@ class SecurityIT {
   }
 
   @Test
-  void teacher_read_own_ok() throws ApiException {
+  void teacher_read_whoami_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     SecurityApi api = new SecurityApi(teacher1Client);
@@ -76,13 +77,28 @@ class SecurityIT {
   }
 
   @Test
-  void manager_read_own_ok() throws ApiException {
+  void manager_read_whoami_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     SecurityApi api = new SecurityApi(manager1Client);
     Whoami actual = api.whoami();
 
     assertEquals(whoisManager1(), actual);
+  }
+
+  @Test
+  void manager_read_unknown_ko() throws IOException, InterruptedException {
+    HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
+
+    HttpResponse<String> response = unauthenticatedClient.send(
+        HttpRequest.newBuilder()
+            .uri(URI.create(basePath + "/unknown"))
+            .header("Authorization", "Bearer " + MANAGER1_TOKEN)
+            .build(),
+        HttpResponse.BodyHandlers.ofString());
+
+    assertTrue(response.body().contains("\"status\":404,\"error\":\"Not Found\""));
   }
 
   @Test
