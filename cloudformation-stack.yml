@@ -128,11 +128,10 @@ Resources:
       ListenerArn: '{{resolve:ssm:/hei-admin-api/alb-https-listener-arn:1}}'
       Priority: !Ref ListenerRuleAvailablePriority
       Conditions:
-        - Field: http-header
-          HttpHeaderConfig: 
-            HttpHeaderName: school
-            Values: 
-              - !Ref Env
+        - Field: host-header
+          HostHeaderConfig:
+            Values:
+              - !Join ['', [api-, !Ref Env, .hei.school]]
       Actions:
         - Type: forward
           TargetGroupArn: !Ref TargetGroup
