@@ -17,7 +17,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.StudentsApi;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -59,7 +59,7 @@ class StudentIT {
   void student_read_own_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
-    StudentsApi api = new StudentsApi(student1Client);
+    UsersApi api = new UsersApi(student1Client);
     Student actual = api.getStudentById(STUDENT1_ID);
 
     assertEquals(student1(), actual);
@@ -69,7 +69,7 @@ class StudentIT {
   void student_read_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
-    StudentsApi api = new StudentsApi(student1Client);
+    UsersApi api = new UsersApi(student1Client);
     assertThrowsApiException(
         () -> api.getStudentById(TestUtils.STUDENT2_ID),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students can only read their own information\"}");
@@ -82,7 +82,7 @@ class StudentIT {
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
-    StudentsApi api = new StudentsApi(teacher1Client);
+    UsersApi api = new UsersApi(teacher1Client);
     Student actualStudent1 = api.getStudentById(STUDENT1_ID);
     List<Student> actualStudents = api.getStudents();
 
@@ -95,7 +95,7 @@ class StudentIT {
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
 
-    StudentsApi api = new StudentsApi(manager1Client);
+    UsersApi api = new UsersApi(manager1Client);
     Student actualStudent1 = api.getStudentById(STUDENT1_ID);
     List<Student> actualStudents = api.getStudents();
 

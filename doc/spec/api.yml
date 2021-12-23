@@ -21,8 +21,8 @@ paths:
   '/whoami':
     get:
       tags:
-        - Who am I?
-      summary: Tells you who you are
+        - Security
+      summary: Who am I? Tells you who you are.
       description: Authorized for all authenticated users.
       operationId: whoami
       responses:
@@ -45,7 +45,7 @@ paths:
   '/ping':
     get:
       tags:
-        - Health
+        - Security
       summary: pong
       description: Publicly authorized.
       operationId: ping
@@ -70,7 +70,7 @@ paths:
   '/groups/{id}':
     get:
       tags:
-        - Groups
+        - Teaching
       summary: Get group by identifier
       description: Authorized for all authenticated users.
       parameters:
@@ -100,7 +100,7 @@ paths:
   /groups:
     get:
       tags:
-        - Groups
+        - Teaching
       summary: Get all groups
       description: Authorized for all authenticated users.
       operationId: getGroups
@@ -125,7 +125,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Groups
+        - Teaching
       summary: Create new groups or update existing groups
       description: Update groups when `id` are provided, create them otherwise. Authorized for managers only.
       operationId: createOrUpdateGroups
@@ -160,7 +160,7 @@ paths:
   '/students/{id}':
     get:
       tags:
-        - Students
+        - Users
       summary: Get student by identifier
       parameters:
         - name: id
@@ -189,7 +189,7 @@ paths:
   /students:
     get:
       tags:
-        - Students
+        - Users
       summary: Get all students
       operationId: getStudents
       responses:
@@ -213,7 +213,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Students
+        - Users
       summary: Create new students or update existing students
       description: Update students when `id` are provided, create them otherwise. Authorized for managers only.
       operationId: createOrUpdateStudents
@@ -248,7 +248,7 @@ paths:
   '/courses/{id}':
     get:
       tags:
-        - Courses
+        - Teaching
       summary: Get course by identifier
       parameters:
         - name: id
@@ -277,7 +277,7 @@ paths:
   /courses:
     get:
       tags:
-        - Courses
+        - Teaching
       summary: Get all courses
       operationId: getCourses
       responses:
@@ -301,7 +301,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Courses
+        - Teaching
       summary: Create new courses or update existing courses
       description: Update courses when id are provided, create them otherwise. Authorized for managers only.
       operationId: createOrUpdateCourses
@@ -331,7 +331,7 @@ paths:
   '/teachers/{id}':
     get:
       tags:
-        - Teachers
+        - Users
       summary: Get teacher by identifier
       parameters:
         - name: id
@@ -360,7 +360,7 @@ paths:
   /teachers:
     get:
       tags:
-        - Teachers
+        - Users
       summary: Get all teachers
       operationId: getTeachers
       responses:
@@ -384,7 +384,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Teachers
+        - Users
       summary: Create new teachers or update existing teachers
       description: Update teachers when `id` are provided, create them otherwise. Authorized for managers only.
       operationId: createOrUpdateTeachers
@@ -418,7 +418,7 @@ paths:
   /managers:
     get:
       tags:
-        - Managers
+        - Users
       summary: Get all managers
       operationId: getManagers
       responses:

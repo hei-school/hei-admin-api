@@ -7,13 +7,19 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.WhoAmIApi;
+import school.hei.haapi.endpoint.rest.api.SecurityApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Whoami;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -25,9 +31,9 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = WhoamiIT.ContextInitializer.class)
+@ContextConfiguration(initializers = SecurityIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class WhoamiIT {
+class SecurityIT {
 
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
@@ -53,7 +59,7 @@ class WhoamiIT {
   void student_read_own_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
-    WhoAmIApi api = new WhoAmIApi(student1Client);
+    SecurityApi api = new SecurityApi(student1Client);
     Whoami actual = api.whoami();
 
     assertEquals(whoisStudent1(), actual);
@@ -63,7 +69,7 @@ class WhoamiIT {
   void teacher_read_own_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
-    WhoAmIApi api = new WhoAmIApi(teacher1Client);
+    SecurityApi api = new SecurityApi(teacher1Client);
     Whoami actual = api.whoami();
 
     assertEquals(whoisTeacher1(), actual);
@@ -73,10 +79,25 @@ class WhoamiIT {
   void manager_read_own_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
-    WhoAmIApi api = new WhoAmIApi(manager1Client);
+    SecurityApi api = new SecurityApi(manager1Client);
     Whoami actual = api.whoami();
 
     assertEquals(whoisManager1(), actual);
+  }
+
+  @Test
+  void _ping() throws IOException, InterruptedException {
+    // /!\ The HttpClient produced by openapi-generator SEEMS to not support text/plain
+    HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
+
+    HttpResponse<String> pong = unauthenticatedClient.send(
+        HttpRequest.newBuilder()
+            .uri(URI.create(basePath + "/ping"))
+            .build(),
+        HttpResponse.BodyHandlers.ofString());
+
+    assertEquals("pong", pong.body());
   }
 
   public static Whoami whoisStudent1() {

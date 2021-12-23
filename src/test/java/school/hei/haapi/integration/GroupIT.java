@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.GroupsApi;
+import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Group;
@@ -63,7 +63,7 @@ public class GroupIT {
   void student_read_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
-    GroupsApi api = new GroupsApi(student1Client);
+    TeachingApi api = new TeachingApi(student1Client);
     Group actual1 = api.getGroupById(GROUP1_ID);
     List<Group> actualGroups = api.getGroups();
 
@@ -76,7 +76,7 @@ public class GroupIT {
   void student_write_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
-    GroupsApi api = new GroupsApi(student1Client);
+    TeachingApi api = new TeachingApi(student1Client);
     assertThrowsApiException(
         () ->  api.createOrUpdateGroups(List.of()),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write groups\"}");
@@ -86,7 +86,7 @@ public class GroupIT {
   void teacher_write_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
-    GroupsApi api = new GroupsApi(teacher1Client);
+    TeachingApi api = new TeachingApi(teacher1Client);
     assertThrowsApiException(
         () ->  api.createOrUpdateGroups(List.of()),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write groups\"}");
@@ -98,7 +98,7 @@ public class GroupIT {
     Group toCreate3 = aCreatableGroup();
     Group toCreate4 = aCreatableGroup();
 
-    GroupsApi api = new GroupsApi(manager1Client);
+    TeachingApi api = new TeachingApi(manager1Client);
     List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
 
     assertEquals(2, created.size());
@@ -120,7 +120,7 @@ public class GroupIT {
   @Test
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    GroupsApi api = new GroupsApi(manager1Client);
+    TeachingApi api = new TeachingApi(manager1Client);
     List<Group> toUpdate = api.createOrUpdateGroups(List.of(
         aCreatableGroup(),
         aCreatableGroup()));

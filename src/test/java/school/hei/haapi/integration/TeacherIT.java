@@ -7,7 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.TeachersApi;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Teacher;
@@ -61,7 +61,7 @@ class TeacherIT {
   void student_read_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
-    TeachersApi api = new TeachersApi(student1Client);
+    UsersApi api = new UsersApi(student1Client);
     assertThrowsApiException(
         () -> api.getTeacherById(TEACHER1_ID),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students cannot read teachers\"}");
@@ -74,7 +74,7 @@ class TeacherIT {
   void teacher_read_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
-    TeachersApi api = new TeachersApi(teacher1Client);
+    UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
         () -> api.getTeacherById(TestUtils.TEACHER2_ID),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Teachers can only read their own information\"}");
@@ -87,7 +87,7 @@ class TeacherIT {
   void student_write_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
-    TeachersApi api = new TeachersApi(student1Client);
+    UsersApi api = new UsersApi(student1Client);
     assertThrowsApiException(
         () -> api.createOrUpdateTeachers(List.of()),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write teachers\"}");
@@ -97,7 +97,7 @@ class TeacherIT {
   void teacher_write_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
-    TeachersApi api = new TeachersApi(teacher1Client);
+    UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
         () -> api.createOrUpdateTeachers(List.of()),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write teachers\"}");
@@ -107,7 +107,7 @@ class TeacherIT {
   void teacher_read_own_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
-    TeachersApi api = new TeachersApi(teacher1Client);
+    UsersApi api = new UsersApi(teacher1Client);
     Teacher actual = api.getTeacherById(TEACHER1_ID);
 
     assertEquals(teacher1(), actual);
@@ -117,7 +117,7 @@ class TeacherIT {
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
 
-    TeachersApi api = new TeachersApi(manager1Client);
+    UsersApi api = new UsersApi(manager1Client);
     List<Teacher> teachers = api.getTeachers();
 
     assertTrue(teachers.contains(teacher1()));
@@ -129,7 +129,7 @@ class TeacherIT {
     ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
     Teacher toCreate = aCreatableTeacher();
 
-    TeachersApi api = new TeachersApi(manager1Client);
+    UsersApi api = new UsersApi(manager1Client);
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toCreate));
 
     assertEquals(1, created.size());
@@ -142,7 +142,7 @@ class TeacherIT {
   @Test
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
-    TeachersApi api = new TeachersApi(manager1Client);
+    UsersApi api = new UsersApi(manager1Client);
     Teacher toUpdate = api
         .createOrUpdateTeachers(List.of(aCreatableTeacher()))
         .get(0);
