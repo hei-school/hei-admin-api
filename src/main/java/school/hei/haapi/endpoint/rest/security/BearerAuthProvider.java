@@ -6,7 +6,7 @@ import org.springframework.security.authentication.dao.AbstractUserDetailsAuthen
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.endpoint.rest.security.model.ApiClient;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -33,7 +33,7 @@ public class BearerAuthProvider extends AbstractUserDetailsAuthenticationProvide
     try {
       String email = cognitoComponent.findEmailByBearer(bearer);
       User user = userService.getByEmail(email);
-      return new ApiClient(user);
+      return new Principal(user, bearer);
     } catch (NotFoundException e) {
       throw new ForbiddenException("Bearer does not correspond to any user");
     } catch (ForbiddenException e) {

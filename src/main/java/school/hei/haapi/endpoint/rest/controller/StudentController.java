@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.security.model.ApiClient;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.endpoint.rest.security.model.Role;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ForbiddenException;
@@ -27,9 +27,9 @@ public class StudentController {
 
   @GetMapping(value = "/students/{id}")
   public Student getStudentById(
-      @AuthenticationPrincipal ApiClient client, @PathVariable String id) {
-    if (Role.STUDENT.getRole().equals(client.getRole())) {
-      if (!id.equals(client.getUser().getId())) {
+      @AuthenticationPrincipal Principal principal, @PathVariable String id) {
+    if (Role.STUDENT.getRole().equals(principal.getRole())) {
+      if (!id.equals(principal.getUser().getId())) {
         throw new ForbiddenException("Students can only read their own information");
       }
     }
@@ -38,8 +38,8 @@ public class StudentController {
   }
 
   @GetMapping(value = "/students")
-  public List<Teacher> getStudents(@AuthenticationPrincipal ApiClient client) {
-    if (Role.STUDENT.getRole().equals(client.getRole())) {
+  public List<Teacher> getStudents(@AuthenticationPrincipal Principal principal) {
+    if (Role.STUDENT.getRole().equals(principal.getRole())) {
       throw new ForbiddenException("Students can only read their own information");
     }
 

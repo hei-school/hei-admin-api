@@ -9,7 +9,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.security.model.ApiClient;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.endpoint.rest.security.model.Role;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ForbiddenException;
@@ -28,12 +28,12 @@ public class TeacherController {
 
   @GetMapping(value = "/teachers/{id}")
   public Teacher getTeacherById(
-      @AuthenticationPrincipal ApiClient client, @PathVariable String id) {
-    String clientRole = client.getRole();
-    if (Role.STUDENT.getRole().equals(clientRole)) {
+      @AuthenticationPrincipal Principal principal, @PathVariable String id) {
+    String principalRole = principal.getRole();
+    if (Role.STUDENT.getRole().equals(principalRole)) {
       throw new ForbiddenException("Students cannot read teachers");
     }
-    if (Role.TEACHER.getRole().equals(clientRole) && !id.equals(client.getUserId())) {
+    if (Role.TEACHER.getRole().equals(principalRole) && !id.equals(principal.getUserId())) {
       throw new ForbiddenException("Teachers can only read their own information");
     }
 
@@ -42,8 +42,8 @@ public class TeacherController {
   }
 
   @GetMapping(value = "/teachers")
-  public List<Teacher> getTeachers(@AuthenticationPrincipal ApiClient client) {
-    if (!Role.MANAGER.getRole().equals(client.getRole())) {
+  public List<Teacher> getTeachers(@AuthenticationPrincipal Principal principal) {
+    if (!Role.MANAGER.getRole().equals(principal.getRole())) {
       throw new ForbiddenException("Only managers can read all teachers");
     }
 
@@ -54,8 +54,8 @@ public class TeacherController {
 
   @PutMapping(value = "/teachers")
   public List<Teacher> createOrUpdateTeachers(
-      @AuthenticationPrincipal ApiClient client, @RequestBody List<Teacher> toWrite) {
-    if (!Role.MANAGER.getRole().equals(client.getRole())) {
+      @AuthenticationPrincipal Principal principal, @RequestBody List<Teacher> toWrite) {
+    if (!Role.MANAGER.getRole().equals(principal.getRole())) {
       throw new ForbiddenException("Only managers can write teachers");
     }
 

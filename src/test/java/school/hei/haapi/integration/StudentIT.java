@@ -3,6 +3,9 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -54,17 +57,17 @@ class StudentIT {
 
   @Test
   void student_read_own_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(TestUtils.STUDENT1_TOKEN);
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     StudentsApi api = new StudentsApi(student1Client);
-    Student actual = api.getStudentById(TestUtils.STUDENT1_ID);
+    Student actual = api.getStudentById(STUDENT1_ID);
 
     assertEquals(student1(), actual);
   }
 
   @Test
   void student_read_ko() {
-    ApiClient student1Client = anApiClient(TestUtils.STUDENT1_TOKEN);
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     StudentsApi api = new StudentsApi(student1Client);
     assertThrowsApiException(
@@ -77,10 +80,10 @@ class StudentIT {
 
   @Test
   void teacher_read_ok() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TestUtils.TEACHER1_TOKEN);
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     StudentsApi api = new StudentsApi(teacher1Client);
-    Student actualStudent1 = api.getStudentById(TestUtils.STUDENT1_ID);
+    Student actualStudent1 = api.getStudentById(STUDENT1_ID);
     List<Student> actualStudents = api.getStudents();
 
     assertEquals(student1(), actualStudent1);
@@ -93,7 +96,7 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
 
     StudentsApi api = new StudentsApi(manager1Client);
-    Student actualStudent1 = api.getStudentById(TestUtils.STUDENT1_ID);
+    Student actualStudent1 = api.getStudentById(STUDENT1_ID);
     List<Student> actualStudents = api.getStudents();
 
     assertEquals(student1(), actualStudent1);

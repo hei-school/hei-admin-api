@@ -13,9 +13,10 @@ import school.hei.haapi.model.User;
 @Getter
 @AllArgsConstructor
 @ToString
-public class ApiClient implements UserDetails {
+public class Principal implements UserDetails {
 
   private final User user;
+  private final String bearer;
 
   @Override
   public Collection<? extends GrantedAuthority> getAuthorities() {
@@ -24,7 +25,7 @@ public class ApiClient implements UserDetails {
 
   @Override
   public String getPassword() {
-    return null;
+    return bearer;
   }
 
   @Override
@@ -34,22 +35,22 @@ public class ApiClient implements UserDetails {
 
   @Override
   public boolean isAccountNonExpired() {
-    return true;
+    return isEnabled();
   }
 
   @Override
   public boolean isAccountNonLocked() {
-    return true;
+    return isEnabled();
   }
 
   @Override
   public boolean isCredentialsNonExpired() {
-    return true;
+    return isEnabled();
   }
 
   @Override
   public boolean isEnabled() {
-    return true;
+    return User.Status.ENABLED.equals(user.getStatus());
   }
 
   public String getUserId() {

@@ -3,6 +3,7 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
 
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -43,10 +44,8 @@ class AuthenticationIT {
 
   @Test
   void unauthenticated_user_is_forbidden() {
-    String bearer = TestUtils.BAD_TOKEN;
-
     assertThrows(
         ForbiddenException.class,
-        () -> cognitoComponent.findEmailByBearer(bearer));
+        () -> cognitoComponent.findEmailByBearer(BAD_TOKEN));
   }
 }

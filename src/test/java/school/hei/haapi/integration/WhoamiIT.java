@@ -17,6 +17,9 @@ import school.hei.haapi.integration.conf.TestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
@@ -48,7 +51,7 @@ class WhoamiIT {
 
   @Test
   void student_read_own_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(TestUtils.STUDENT1_TOKEN);
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     WhoAmIApi api = new WhoAmIApi(student1Client);
     Whoami actual = api.whoami();
@@ -58,7 +61,7 @@ class WhoamiIT {
 
   @Test
   void teacher_read_own_ok() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TestUtils.TEACHER1_TOKEN);
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     WhoAmIApi api = new WhoAmIApi(teacher1Client);
     Whoami actual = api.whoami();
@@ -68,7 +71,7 @@ class WhoamiIT {
 
   @Test
   void manager_read_own_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     WhoAmIApi api = new WhoAmIApi(manager1Client);
     Whoami actual = api.whoami();
@@ -79,6 +82,7 @@ class WhoamiIT {
   public static Whoami whoisStudent1() {
     Whoami whoami = new Whoami();
     whoami.setId("student1_id");
+    whoami.setBearer(STUDENT1_TOKEN);
     whoami.setRole(Whoami.RoleEnum.STUDENT);
     return whoami;
   }
@@ -86,6 +90,7 @@ class WhoamiIT {
   public static Whoami whoisTeacher1() {
     Whoami whoami = new Whoami();
     whoami.setId("teacher1_id");
+    whoami.setBearer(TEACHER1_TOKEN);
     whoami.setRole(Whoami.RoleEnum.TEACHER);
     return whoami;
   }
@@ -93,6 +98,7 @@ class WhoamiIT {
   public static Whoami whoisManager1() {
     Whoami whoami = new Whoami();
     whoami.setId("manager1_id");
+    whoami.setBearer(MANAGER1_TOKEN);
     whoami.setRole(Whoami.RoleEnum.MANAGER);
     return whoami;
   }

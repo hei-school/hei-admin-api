@@ -12,7 +12,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.GroupMapper;
 import school.hei.haapi.endpoint.rest.model.Group;
-import school.hei.haapi.endpoint.rest.security.model.ApiClient;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.endpoint.rest.security.model.Role;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.GroupService;
@@ -38,8 +38,8 @@ public class GroupController {
 
   @PutMapping(value = "/groups")
   public List<Group> createOrUpdateGroups(
-      @AuthenticationPrincipal ApiClient client, @RequestBody List<Group> toWrite) {
-    if (!Role.MANAGER.getRole().equals(client.getRole())) {
+      @AuthenticationPrincipal Principal principal, @RequestBody List<Group> toWrite) {
+    if (!Role.MANAGER.getRole().equals(principal.getRole())) {
       throw new ForbiddenException("Only managers can write groups");
     }
 

@@ -42,6 +42,31 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/ping':
+    get:
+      tags:
+        - Health
+      summary: pong
+      description: Publicly authorized.
+      operationId: ping
+      responses:
+        '200':
+          description: pong
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/groups/{id}':
     get:
       tags:
@@ -470,6 +495,8 @@ components:
             - STUDENT
             - TEACHER
             - MANAGER
+        bearer:
+          type: string
     User:
       properties:
         id:

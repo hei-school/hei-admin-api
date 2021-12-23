@@ -23,6 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
@@ -57,10 +61,10 @@ public class GroupIT {
 
   @Test
   void student_read_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(TestUtils.STUDENT1_TOKEN);
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     GroupsApi api = new GroupsApi(student1Client);
-    Group actual1 = api.getGroupById(TestUtils.GROUP1_ID);
+    Group actual1 = api.getGroupById(GROUP1_ID);
     List<Group> actualGroups = api.getGroups();
 
     assertEquals(group1(), actual1);
@@ -70,7 +74,7 @@ public class GroupIT {
 
   @Test
   void student_write_ko() {
-    ApiClient student1Client = anApiClient(TestUtils.STUDENT1_TOKEN);
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     GroupsApi api = new GroupsApi(student1Client);
     assertThrowsApiException(
@@ -80,7 +84,7 @@ public class GroupIT {
 
   @Test
   void teacher_write_ko() {
-    ApiClient teacher1Client = anApiClient(TestUtils.TEACHER1_TOKEN);
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     GroupsApi api = new GroupsApi(teacher1Client);
     assertThrowsApiException(
@@ -90,7 +94,7 @@ public class GroupIT {
 
   @Test
   void manager_write_create_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     Group toCreate3 = aCreatableGroup();
     Group toCreate4 = aCreatableGroup();
 
@@ -115,7 +119,7 @@ public class GroupIT {
 
   @Test
   void manager_write_update_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     GroupsApi api = new GroupsApi(manager1Client);
     List<Group> toUpdate = api.createOrUpdateGroups(List.of(
         aCreatableGroup(),

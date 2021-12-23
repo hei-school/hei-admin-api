@@ -23,6 +23,9 @@ import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
@@ -56,11 +59,11 @@ class TeacherIT {
 
   @Test
   void student_read_ko() {
-    ApiClient student1Client = anApiClient(TestUtils.STUDENT1_TOKEN);
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     TeachersApi api = new TeachersApi(student1Client);
     assertThrowsApiException(
-        () -> api.getTeacherById(TestUtils.TEACHER1_ID),
+        () -> api.getTeacherById(TEACHER1_ID),
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students cannot read teachers\"}");
     assertThrowsApiException(
         api::getTeachers,
@@ -69,7 +72,7 @@ class TeacherIT {
 
   @Test
   void teacher_read_ko() {
-    ApiClient teacher1Client = anApiClient(TestUtils.TEACHER1_TOKEN);
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     TeachersApi api = new TeachersApi(teacher1Client);
     assertThrowsApiException(
@@ -82,7 +85,7 @@ class TeacherIT {
 
   @Test
   void student_write_ko() {
-    ApiClient student1Client = anApiClient(TestUtils.STUDENT1_TOKEN);
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     TeachersApi api = new TeachersApi(student1Client);
     assertThrowsApiException(
@@ -92,7 +95,7 @@ class TeacherIT {
 
   @Test
   void teacher_write_ko() {
-    ApiClient teacher1Client = anApiClient(TestUtils.TEACHER1_TOKEN);
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     TeachersApi api = new TeachersApi(teacher1Client);
     assertThrowsApiException(
@@ -102,10 +105,10 @@ class TeacherIT {
 
   @Test
   void teacher_read_own_ok() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TestUtils.TEACHER1_TOKEN);
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     TeachersApi api = new TeachersApi(teacher1Client);
-    Teacher actual = api.getTeacherById(TestUtils.TEACHER1_ID);
+    Teacher actual = api.getTeacherById(TEACHER1_ID);
 
     assertEquals(teacher1(), actual);
   }
