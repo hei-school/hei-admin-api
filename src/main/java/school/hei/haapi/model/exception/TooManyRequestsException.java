@@ -2,7 +2,7 @@ package school.hei.haapi.model.exception;
 
 public class TooManyRequestsException extends ApiException {
   public TooManyRequestsException(String message) {
-    super(message, ExceptionType.CLIENT_EXCEPTION);
+    super(ExceptionType.CLIENT_EXCEPTION, message);
   }
 
   public TooManyRequestsException(Exception source) {

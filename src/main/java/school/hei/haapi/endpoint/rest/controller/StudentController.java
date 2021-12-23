@@ -28,24 +28,16 @@ public class StudentController {
   @GetMapping(value = "/students/{id}")
   public Student getStudentById(
       @AuthenticationPrincipal Principal principal, @PathVariable String id) {
-    if (Role.STUDENT.getRole().equals(principal.getRole())) {
-      if (!id.equals(principal.getUser().getId())) {
-        throw new ForbiddenException("Students can only read their own information");
-      }
+    if (Role.STUDENT.getRole().equals(principal.getRole()) && !id.equals(principal.getUser().getId())) {
+      throw new ForbiddenException();
     }
-
     return userMapper.toRestStudent(userService.getById(id));
   }
 
   @GetMapping(value = "/students")
-  public List<Teacher> getStudents(@AuthenticationPrincipal Principal principal) {
-    if (Role.STUDENT.getRole().equals(principal.getRole())) {
-      throw new ForbiddenException("Students can only read their own information");
-    }
-
+  public List<Teacher> getStudents() {
     return userService.getByRole(User.Role.STUDENT).stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());
   }
-
 }

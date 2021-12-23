@@ -7,6 +7,7 @@ import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -66,9 +67,10 @@ public class InternalToRestExceptionHandler {
     return handleTooManyRequests(new TooManyRequestsException(e));
   }
 
-  @ExceptionHandler(value = {BadCredentialsException.class, ForbiddenException.class})
+  @ExceptionHandler(value = {AccessDeniedException.class, BadCredentialsException.class, ForbiddenException.class})
   ResponseEntity<school.hei.haapi.endpoint.rest.model.Exception> handleForbidden(Exception e) {
-    /* _not_ HttpsStatus.UNAUTHORIZED because, counter-intuitively, it's just for authentication
+    /* We want rest.model.Exception.Type.FORBIDDEN to designate both authentication and authorization errors.
+     * Hece do _not_ HttpsStatus.UNAUTHORIZED because, counter-intuitively, it's just for authentication.
      * https://stackoverflow.com/questions/3297048/403-forbidden-vs-401-unauthorized-http-responses */
     log.info("Forbidden", e);
     var restException = new school.hei.haapi.endpoint.rest.model.Exception();

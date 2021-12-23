@@ -27,7 +27,7 @@ public class CognitoComponent {
          JOSEException – If an internal processing exception is encountered. */
       return null;
     } catch (MalformedURLException e) {
-      throw new ApiException(e.getMessage(), ApiException.ExceptionType.SERVER_EXCEPTION);
+      throw new ApiException(ApiException.ExceptionType.SERVER_EXCEPTION, e.getMessage());
     }
 
     return isClaimsSetValid(claims) ? getEmail(claims) : null;

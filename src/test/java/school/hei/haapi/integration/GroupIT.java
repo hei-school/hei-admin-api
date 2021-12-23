@@ -66,7 +66,7 @@ public class GroupIT {
 
     TeachingApi api = new TeachingApi(anonymousClient);
     assertThrowsApiException(
-        "{\"type\":\"401 UNAUTHORIZED\",\"message\":\"Bad credentials\"}",
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Bad credentials\"}",
         api::getGroups
     );
   }
@@ -77,7 +77,7 @@ public class GroupIT {
 
     TeachingApi api = new TeachingApi(anonymousClient);
     assertThrowsApiException(
-        "{\"type\":\"401 UNAUTHORIZED\",\"message\":\"Bad credentials\"}",
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Bad credentials\"}",
         () ->  api.createOrUpdateGroups(List.of())
     );
   }
@@ -101,7 +101,7 @@ public class GroupIT {
 
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write groups\"}",
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () ->  api.createOrUpdateGroups(List.of())
     );
   }
@@ -112,7 +112,7 @@ public class GroupIT {
 
     TeachingApi api = new TeachingApi(teacher1Client);
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write groups\"}",
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () ->  api.createOrUpdateGroups(List.of())
     );
   }

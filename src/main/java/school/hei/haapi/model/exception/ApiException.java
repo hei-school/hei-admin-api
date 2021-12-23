@@ -6,7 +6,7 @@ public class ApiException extends RuntimeException {
 
   @Getter private final ExceptionType type;
 
-  public ApiException(String message, ExceptionType type) {
+  public ApiException(ExceptionType type, String message) {
     super(message);
     this.type = type;
   }

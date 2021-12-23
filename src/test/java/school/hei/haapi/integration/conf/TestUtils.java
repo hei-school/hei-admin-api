@@ -45,7 +45,7 @@ public class TestUtils {
 
   public static void assertThrowsApiException(String expectedBody, Executable executable) {
     ApiException apiException = assertThrows(ApiException.class, executable);
-    assertEquals(expectedBody.trim(), apiException.getResponseBody().trim());
+    assertEquals(expectedBody, apiException.getResponseBody());
   }
 
   public static boolean isValidUUID(String candidate) {

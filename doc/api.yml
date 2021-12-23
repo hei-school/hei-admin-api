@@ -23,7 +23,6 @@ paths:
       tags:
         - Security
       summary: Who am I? Tells you who you are.
-      description: Authorized for all authenticated users.
       operationId: whoami
       responses:
         '200':
@@ -47,7 +46,6 @@ paths:
       tags:
         - Security
       summary: pong
-      description: Publicly authorized.
       operationId: ping
       responses:
         '200':
@@ -72,7 +70,6 @@ paths:
       tags:
         - Teaching
       summary: Get group by identifier
-      description: Authorized for all authenticated users.
       parameters:
         - name: id
           in: path
@@ -102,7 +99,6 @@ paths:
       tags:
         - Teaching
       summary: Get all groups
-      description: Authorized for all authenticated users.
       operationId: getGroups
       responses:
         '200':
@@ -478,12 +474,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/InternalServerException'
-    200Delete:
-      description: Resources deleted
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/200DeleteResponse'
   schemas:
     Whoami:
       properties:
@@ -575,12 +565,6 @@ components:
           type: integer
         message:
           type: string
-    200DeleteResponse:
-      allOf:
-        - $ref: '#/components/schemas/Response'
-      example:
-        code: 200
-        message: Resources deleted
     Exception:
       type: object
       properties:

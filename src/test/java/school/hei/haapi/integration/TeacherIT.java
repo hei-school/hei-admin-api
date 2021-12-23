@@ -63,11 +63,11 @@ class TeacherIT {
 
     UsersApi api = new UsersApi(student1Client);
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students cannot read teachers\"}",
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getTeacherById(TEACHER1_ID)
     );
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can read all teachers\"}",
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         api::getTeachers
     );
   }
@@ -78,11 +78,11 @@ class TeacherIT {
 
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Teachers can only read their own information\"}",
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getTeacherById(TestUtils.TEACHER2_ID)
     );
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can read all teachers\"}",
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         api::getTeachers
     );
   }
@@ -93,7 +93,7 @@ class TeacherIT {
 
     UsersApi api = new UsersApi(student1Client);
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write teachers\"}",
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateTeachers(List.of())
     );
   }
@@ -104,7 +104,7 @@ class TeacherIT {
 
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write teachers\"}",
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateTeachers(List.of())
     );
   }

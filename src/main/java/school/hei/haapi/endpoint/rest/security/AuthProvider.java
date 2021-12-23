@@ -14,7 +14,7 @@ import school.hei.haapi.service.UserService;
 
 @Component
 @AllArgsConstructor
-public class BearerAuthProvider extends AbstractUserDetailsAuthenticationProvider {
+public class AuthProvider extends AbstractUserDetailsAuthenticationProvider {
 
   private static final String BEARER_PREFIX = "Bearer ";
   private final UserService userService;
@@ -31,12 +31,12 @@ public class BearerAuthProvider extends AbstractUserDetailsAuthenticationProvide
       String username, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
     String bearer = getBearer(usernamePasswordAuthenticationToken);
     if (bearer == null) {
-      throw new UsernameNotFoundException("Bearer is missing");
+      throw new UsernameNotFoundException("Bad credentials");
     }
 
     String email = cognitoComponent.getEmailByBearer(bearer);
     if (email == null) {
-      throw new UsernameNotFoundException("Bearer does not correspond to any known email");
+      throw new UsernameNotFoundException("Bad credentials");
     }
 
     return new Principal(userService.getByEmail(email), bearer);

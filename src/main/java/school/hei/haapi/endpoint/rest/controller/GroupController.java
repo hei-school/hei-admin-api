@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -12,9 +11,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.GroupMapper;
 import school.hei.haapi.endpoint.rest.model.Group;
-import school.hei.haapi.endpoint.rest.security.model.Principal;
-import school.hei.haapi.endpoint.rest.security.model.Role;
-import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.GroupService;
 
 @RestController
@@ -37,12 +33,7 @@ public class GroupController {
   }
 
   @PutMapping(value = "/groups")
-  public List<Group> createOrUpdateGroups(
-      @AuthenticationPrincipal Principal principal, @RequestBody List<Group> toWrite) {
-    if (!Role.MANAGER.getRole().equals(principal.getRole())) {
-      throw new ForbiddenException("Only managers can write groups");
-    }
-
+  public List<Group> createOrUpdateGroups(@RequestBody List<Group> toWrite) {
     var saved = groupService.saveAll(toWrite.stream()
         .map(groupMapper::toDomain)
         .collect(toUnmodifiableList()));

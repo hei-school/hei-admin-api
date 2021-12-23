@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.SecurityApi;
@@ -22,7 +23,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -98,7 +98,8 @@ class SecurityIT {
             .build(),
         HttpResponse.BodyHandlers.ofString());
 
-    assertTrue(response.body().contains("\"status\":404,\"error\":\"Not Found\""));
+    assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
+    assertEquals("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}", response.body());
   }
 
   @Test
@@ -107,13 +108,14 @@ class SecurityIT {
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
     String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
 
-    HttpResponse<String> pong = unauthenticatedClient.send(
+    HttpResponse<String> response = unauthenticatedClient.send(
         HttpRequest.newBuilder()
             .uri(URI.create(basePath + "/ping"))
             .build(),
         HttpResponse.BodyHandlers.ofString());
 
-    assertEquals("pong", pong.body());
+    assertEquals(HttpStatus.OK.value(), response.statusCode());
+    assertEquals("pong", response.body());
   }
 
   public static Whoami whoisStudent1() {

@@ -29,36 +29,21 @@ public class TeacherController {
   @GetMapping(value = "/teachers/{id}")
   public Teacher getTeacherById(
       @AuthenticationPrincipal Principal principal, @PathVariable String id) {
-    String principalRole = principal.getRole();
-    if (Role.STUDENT.getRole().equals(principalRole)) {
-      throw new ForbiddenException("Students cannot read teachers");
+    if (Role.TEACHER.getRole().equals(principal.getRole()) && !id.equals(principal.getUserId())) {
+      throw new ForbiddenException();
     }
-    if (Role.TEACHER.getRole().equals(principalRole) && !id.equals(principal.getUserId())) {
-      throw new ForbiddenException("Teachers can only read their own information");
-    }
-
-    User user = userService.getById(id);
-    return userMapper.toRestTeacher(user);
+    return userMapper.toRestTeacher(userService.getById(id));
   }
 
   @GetMapping(value = "/teachers")
-  public List<Teacher> getTeachers(@AuthenticationPrincipal Principal principal) {
-    if (!Role.MANAGER.getRole().equals(principal.getRole())) {
-      throw new ForbiddenException("Only managers can read all teachers");
-    }
-
+  public List<Teacher> getTeachers() {
     return userService.getByRole(User.Role.TEACHER).stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());
   }
 
   @PutMapping(value = "/teachers")
-  public List<Teacher> createOrUpdateTeachers(
-      @AuthenticationPrincipal Principal principal, @RequestBody List<Teacher> toWrite) {
-    if (!Role.MANAGER.getRole().equals(principal.getRole())) {
-      throw new ForbiddenException("Only managers can write teachers");
-    }
-
+  public List<Teacher> createOrUpdateTeachers(@RequestBody List<Teacher> toWrite) {
     var saved = userService.saveAll(toWrite.stream()
         .map(userMapper::toDomain)
         .collect(toUnmodifiableList()));

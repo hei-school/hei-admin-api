@@ -37,7 +37,7 @@ repositories {
 
 task generateRestObjects(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
     generatorName = "java"
-    inputSpec = "$rootDir/doc/spec/api.yml".toString()
+    inputSpec = "$rootDir/doc/api.yml".toString()
     outputDir = "$buildDir/gen".toString()
     apiPackage = "school.hei.haapi.endpoint.rest.api"
     invokerPackage = "school.hei.haapi.endpoint.rest.client"

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.Nullable;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,8 +15,6 @@ import school.hei.haapi.endpoint.rest.security.model.Principal;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-
-import java.util.List;
 
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
@@ -38,10 +37,20 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
     private static final int REQUEST_ID_LENGTH = 8;
     private static final String REQUEST_START_TIME = "startTime";
 
-    private static final List<String> doNotLogPaths = List.of("/ping");
+    private static boolean shouldLog() {
+      return isAuthenticated();
+    }
 
-    private static boolean shouldLog(String path) {
-      return !doNotLogPaths.contains(path);
+    private static boolean isAuthenticated() {
+      var securityContext = SecurityContextHolder.getContext();
+      return securityContext != null
+          && !(securityContext.getAuthentication() instanceof AnonymousAuthenticationToken);
+    }
+
+    private static Principal getPrincipal() {
+      SecurityContext context = SecurityContextHolder.getContext();
+      Authentication authentication = context.getAuthentication();
+      return (Principal) authentication.getPrincipal();
     }
 
     @Override
@@ -56,12 +65,11 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
       String parameters = request.getParameterMap().entrySet().stream()
           .map(entry -> entry.getKey() + "=" + String.join(",", entry.getValue()))
           .collect(joining(";"));
-      String uri = request.getRequestURI();
-      if (shouldLog(uri)) {
+      if (shouldLog()) {
         Principal principal = getPrincipal();
         log.info("preHandle: userId={}, role={}, method={}, uri={}, parameters=[{}], handler={}, oldThreadName={}",
             principal.getUserId(), principal.getRole(),
-            request.getMethod(), uri, parameters, handler,
+            request.getMethod(), request.getRequestURI(), parameters, handler,
             oldThreadName);
       }
       return true;
@@ -71,17 +79,10 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
     public void afterCompletion(
         HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) {
       long duration = currentTimeMillis() - (long) request.getAttribute(REQUEST_START_TIME);
-      if (shouldLog(request.getRequestURI())) {
-        log.info("afterCompletion: status={}, duration={}ms",
-            response.getStatus(), duration, ex);
+      if (shouldLog()) {
+        log.info("afterCompletion: status={}, duration={}ms", response.getStatus(), duration, ex);
       }
       currentThread().setName(request.getAttribute(THREAD_OLD_NAME).toString());
-    }
-
-    private static Principal getPrincipal() {
-      SecurityContext context = SecurityContextHolder.getContext();
-      Authentication authentication = context.getAuthentication();
-      return (Principal) authentication.getPrincipal();
     }
   }
 }
