@@ -8,7 +8,6 @@ import java.text.ParseException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.model.exception.ApiException;
-import school.hei.haapi.model.exception.ForbiddenException;
 
 @Component
 @AllArgsConstructor
@@ -17,26 +16,28 @@ public class CognitoComponent {
   private final JwtConfiguration jwtConfiguration;
   private final JwtProcessor jwtProcessor;
 
-  public String findEmailByBearer(String bearer) {
-    JWTClaimsSet claims = null;
+  public String getEmailByBearer(String bearer) {
+    JWTClaimsSet claims;
     try {
       claims = jwtProcessor.configurableJwtProcessor().process(bearer, null);
-    } catch (BadJOSEException | ParseException | JOSEException e) {
-      throw new ForbiddenException(e.getMessage());
+    } catch (ParseException | BadJOSEException | JOSEException e) {
+      /* From Javadoc:
+         ParseException – If the string couldn't be parsed to a valid JWT.
+         BadJOSEException – If the JWT is rejected.
+         JOSEException – If an internal processing exception is encountered. */
+      return null;
     } catch (MalformedURLException e) {
       throw new ApiException(e.getMessage(), ApiException.ExceptionType.SERVER_EXCEPTION);
     }
-    verifyToken(claims);
-    return getEmail(claims);
+
+    return isClaimsSetValid(claims) ? getEmail(claims) : null;
+  }
+
+  private boolean isClaimsSetValid(JWTClaimsSet claims) {
+    return claims.getIssuer().equals(this.jwtConfiguration.getCognitoUserPoolUrl());
   }
 
   private String getEmail(JWTClaimsSet claims) {
     return claims.getClaims().get(JwtConfiguration.EMAIL_FIELD).toString();
-  }
-
-  private void verifyToken(JWTClaimsSet claims) {
-    if (!claims.getIssuer().equals(this.jwtConfiguration.getCognitoUserPoolUrl())) {
-      throw new ForbiddenException("Not a valid Token");
-    }
   }
 }

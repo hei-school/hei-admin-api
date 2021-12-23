@@ -4,13 +4,13 @@ import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
 import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
 import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.core.annotation.Order;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
-import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -19,53 +19,51 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 public class BearerConf extends WebSecurityConfigurerAdapter {
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
+
   private final BearerAuthProvider bearerAuthProvider;
-  private final AuthenticationFailureHandler failureHandler;
+  private final HandlerExceptionResolver exceptionResolver;
+  private final ObjectMapper om;
 
   public BearerConf(
-      final BearerAuthProvider bearerAuthProvider,
-      @Qualifier("handlerExceptionResolver") // InternalToExternalErrorHandler behind
-          HandlerExceptionResolver exceptionResolver) {
+      BearerAuthProvider bearerAuthProvider,
+      ObjectMapper om,
+      // InternalToExternalErrorHandler behind
+      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
     this.bearerAuthProvider = bearerAuthProvider;
-    this.failureHandler = (req, res, e) -> exceptionResolver.resolveException(req, res, null, e);
+    this.exceptionResolver = exceptionResolver;
+    this.om = om;
   }
 
   @Override
   protected void configure(HttpSecurity http) throws Exception {
     // @formatter:off
-    BearerAuthFilter apikeyFilter =
-        new BearerAuthFilter(new AntPathRequestMatcher("/**"), AUTHORIZATION_HEADER);
-    apikeyFilter.setAuthenticationManager(authenticationManager());
-    apikeyFilter.setAuthenticationSuccessHandler(
+    BearerAuthFilter bearerFilter = new BearerAuthFilter(
+        new AntPathRequestMatcher("/**"),
+        AUTHORIZATION_HEADER,
+        om);
+    bearerFilter.setAuthenticationManager(authenticationManager());
+    bearerFilter.setAuthenticationSuccessHandler(
         (httpServletRequest, httpServletResponse, authentication) -> {});
-    apikeyFilter.setAuthenticationFailureHandler(failureHandler);
+    bearerFilter.setAuthenticationFailureHandler(
+        (req, res, e) -> exceptionResolver.resolveException(req, res, null, e));
 
     http
         // authenticate
-        .addFilterBefore(apikeyFilter, AnonymousAuthenticationFilter.class)
+        .addFilterBefore(bearerFilter, AnonymousAuthenticationFilter.class)
         .authenticationProvider(bearerAuthProvider)
         .exceptionHandling()
+
         // authorize
         .and()
         .authorizeRequests()
-
-        // Let /ping be callable anonymously (see AnonymousConf)
-        // However, /health should be callable by monitor system only as it gives system info (cpu,
-        // memory...)
-        // .antMatchers("/health").hasAnyRole(MONITOR.getRole())
-
         .antMatchers("/**")
         .hasAnyRole(STUDENT.getRole(), TEACHER.getRole(), MANAGER.getRole())
+
         // disable superfluous protections
         .and()
-
-        // https://docs.spring.io/spring-security/site/docs/3.2.0.CI-SNAPSHOT/reference/html/csrf.html, Sec 13.3
-        .csrf()
-        .disable() // NOSONAR(csrf): if all clients are non-browser then no csrf
-        .formLogin()
-        .disable()
-        .logout()
-        .disable();
+        .csrf().disable() // NOSONAR(csrf): if all clients are non-browser then no csrf (TODO)
+        .formLogin().disable()
+        .logout().disable();
     // formatter:on
   }
 }

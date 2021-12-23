@@ -71,11 +71,13 @@ class StudentIT {
 
     UsersApi api = new UsersApi(student1Client);
     assertThrowsApiException(
-        () -> api.getStudentById(TestUtils.STUDENT2_ID),
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students can only read their own information\"}");
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students can only read their own information\"}",
+        () -> api.getStudentById(TestUtils.STUDENT2_ID)
+    );
     assertThrowsApiException(
-        api::getStudents,
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students can only read their own information\"}");
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Students can only read their own information\"}",
+        api::getStudents
+    );
   }
 
   @Test

@@ -23,6 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -60,6 +61,28 @@ public class GroupIT {
   }
 
   @Test
+  void badtoken_read_ko() {
+    ApiClient anonymousClient = anApiClient(BAD_TOKEN);
+
+    TeachingApi api = new TeachingApi(anonymousClient);
+    assertThrowsApiException(
+        "{\"type\":\"401 UNAUTHORIZED\",\"message\":\"Bad credentials\"}",
+        api::getGroups
+    );
+  }
+
+  @Test
+  void badtoken_write_ko() {
+    ApiClient anonymousClient = anApiClient(BAD_TOKEN);
+
+    TeachingApi api = new TeachingApi(anonymousClient);
+    assertThrowsApiException(
+        "{\"type\":\"401 UNAUTHORIZED\",\"message\":\"Bad credentials\"}",
+        () ->  api.createOrUpdateGroups(List.of())
+    );
+  }
+
+  @Test
   void student_read_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
@@ -78,8 +101,9 @@ public class GroupIT {
 
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsApiException(
-        () ->  api.createOrUpdateGroups(List.of()),
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write groups\"}");
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write groups\"}",
+        () ->  api.createOrUpdateGroups(List.of())
+    );
   }
 
   @Test
@@ -88,8 +112,9 @@ public class GroupIT {
 
     TeachingApi api = new TeachingApi(teacher1Client);
     assertThrowsApiException(
-        () ->  api.createOrUpdateGroups(List.of()),
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write groups\"}");
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Only managers can write groups\"}",
+        () ->  api.createOrUpdateGroups(List.of())
+    );
   }
 
   @Test

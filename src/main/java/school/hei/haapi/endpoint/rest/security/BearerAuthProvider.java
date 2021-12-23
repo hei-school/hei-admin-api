@@ -4,11 +4,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.UserService;
 
@@ -30,22 +30,23 @@ public class BearerAuthProvider extends AbstractUserDetailsAuthenticationProvide
   protected UserDetails retrieveUser(
       String username, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
     String bearer = getBearer(usernamePasswordAuthenticationToken);
-    try {
-      String email = cognitoComponent.findEmailByBearer(bearer);
-      User user = userService.getByEmail(email);
-      return new Principal(user, bearer);
-    } catch (NotFoundException e) {
-      throw new ForbiddenException("Bearer does not correspond to any user");
-    } catch (ForbiddenException e) {
-      throw new ForbiddenException(e.getMessage());
+    if (bearer == null) {
+      throw new UsernameNotFoundException("Bearer is missing");
     }
+
+    String email = cognitoComponent.getEmailByBearer(bearer);
+    if (email == null) {
+      throw new UsernameNotFoundException("Bearer does not correspond to any known email");
+    }
+
+    return new Principal(userService.getByEmail(email), bearer);
   }
 
   private String getBearer(
       UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
     Object tokenObject = usernamePasswordAuthenticationToken.getCredentials();
     if (!(tokenObject instanceof String) || !((String) tokenObject).startsWith(BEARER_PREFIX)) {
-      throw new ForbiddenException("Bearer required but missing");
+      return null;
     }
     return ((String) tokenObject).substring(BEARER_PREFIX.length()).trim();
   }

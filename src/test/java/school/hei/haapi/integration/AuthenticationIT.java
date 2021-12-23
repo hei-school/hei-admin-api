@@ -1,7 +1,7 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
 
@@ -12,9 +12,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -37,15 +35,13 @@ class AuthenticationIT {
   void authenticated_user_has_known_email() {
     String bearer = "TODO: get bearer by really authenticating against Cognito";
 
-    String email = cognitoComponent.findEmailByBearer(bearer);
+    String email = cognitoComponent.getEmailByBearer(bearer);
 
     assertEquals("ryan@hei.school", email);
   }
 
   @Test
   void unauthenticated_user_is_forbidden() {
-    assertThrows(
-        ForbiddenException.class,
-        () -> cognitoComponent.findEmailByBearer(BAD_TOKEN));
+    assertNull(cognitoComponent.getEmailByBearer(BAD_TOKEN));
   }
 }
