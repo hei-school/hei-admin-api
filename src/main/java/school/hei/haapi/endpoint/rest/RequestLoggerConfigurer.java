@@ -1,14 +1,21 @@
 package school.hei.haapi.endpoint.rest;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.lang.Nullable;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import java.util.List;
 
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
@@ -23,26 +30,40 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
     registry.addInterceptor(new RequestLogger());
   }
 
+  @AllArgsConstructor
   @Slf4j
   private static class RequestLogger implements HandlerInterceptor {
 
     private static final String THREAD_OLD_NAME = "threadOldName";
-    private static final int REQUEST_ID_LENGTH = 10;
+    private static final int REQUEST_ID_LENGTH = 8;
     private static final String REQUEST_START_TIME = "startTime";
+
+    private static final List<String> doNotLogPaths = List.of("/ping");
+
+    private static boolean shouldLog(String path) {
+      return !doNotLogPaths.contains(path);
+    }
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
       request.setAttribute(REQUEST_START_TIME, currentTimeMillis());
 
       Thread current = currentThread();
-      request.setAttribute(THREAD_OLD_NAME, current.getName());
+      String oldThreadName = current.getName();
+      request.setAttribute(THREAD_OLD_NAME, oldThreadName);
       current.setName(randomUUID().toString().substring(0, REQUEST_ID_LENGTH));
 
       String parameters = request.getParameterMap().entrySet().stream()
           .map(entry -> entry.getKey() + "=" + String.join(",", entry.getValue()))
           .collect(joining(";"));
-      log.info("preHandle: method={}, uri={}, parameters=[{}], handler={}",
-          request.getMethod(), request.getRequestURI(), parameters, handler);
+      String uri = request.getRequestURI();
+      if (shouldLog(uri)) {
+        Principal principal = getPrincipal();
+        log.info("preHandle: userId={}, role={}, method={}, uri={}, parameters=[{}], handler={}, oldThreadName={}",
+            principal.getUserId(), principal.getRole(),
+            request.getMethod(), uri, parameters, handler,
+            oldThreadName);
+      }
       return true;
     }
 
@@ -50,9 +71,17 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
     public void afterCompletion(
         HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) {
       long duration = currentTimeMillis() - (long) request.getAttribute(REQUEST_START_TIME);
-      log.info("afterCompletion: status={}, duration={}ms",
-          response.getStatus(), duration, ex);
+      if (shouldLog(request.getRequestURI())) {
+        log.info("afterCompletion: status={}, duration={}ms",
+            response.getStatus(), duration, ex);
+      }
       currentThread().setName(request.getAttribute(THREAD_OLD_NAME).toString());
+    }
+
+    private static Principal getPrincipal() {
+      SecurityContext context = SecurityContextHolder.getContext();
+      Authentication authentication = context.getAuthentication();
+      return (Principal) authentication.getPrincipal();
     }
   }
 }
