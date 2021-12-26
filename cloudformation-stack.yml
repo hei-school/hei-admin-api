@@ -48,7 +48,7 @@ Resources:
             - ContainerPort: !Ref ContainerPort
           Environment:
             - Name: COGNITO_USERPOOL_URL
-              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-url:1}}'
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-url:2}}'
             - Name: SPRING_DATASOURCE_URL
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/url:1}}'
             - Name: SPRING_DATASOURCE_PASSWORD
