@@ -1,8 +1,10 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
@@ -94,16 +96,63 @@ class StudentIT {
   }
 
   @Test
+  void student_write_ko() {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+
+    UsersApi api = new UsersApi(student1Client);
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.createOrUpdateStudents(List.of())
+    );
+  }
+
+  @Test
+  void teacher_write_ko() {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+
+    UsersApi api = new UsersApi(teacher1Client);
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.createOrUpdateStudents(List.of())
+    );
+  }
+
+  @Test
   void manager_read_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     UsersApi api = new UsersApi(manager1Client);
-    Student actualStudent1 = api.getStudentById(STUDENT1_ID);
     List<Student> actualStudents = api.getStudents();
 
-    assertEquals(student1(), actualStudent1);
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
+  }
+
+  @Test
+  void manager_write_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    List<Student> toUpdate = api.createOrUpdateStudents(List.of(
+        aCreatableStudent(),
+        aCreatableStudent()));
+    Student toUpdate0 = toUpdate.get(0);
+    toUpdate0.setLastName("A new name zero");
+    Student toUpdate1 = toUpdate.get(1);
+    toUpdate1.setLastName("A new name one");
+
+    List<Student> updated = api.createOrUpdateStudents(toUpdate);
+
+    assertEquals(2, updated.size());
+    assertTrue(updated.contains(toUpdate0));
+    assertTrue(updated.contains(toUpdate1));
+  }
+
+  public static Student aCreatableStudent() {
+    Student student = student1();
+    student.setId(null);
+    student.setRef("STD21_" + randomUUID());
+    student.setEmail(randomUUID() + "@hei.school");
+    return student;
   }
 
   public static Student student1() {
