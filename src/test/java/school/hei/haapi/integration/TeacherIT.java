@@ -23,9 +23,11 @@ import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
@@ -79,7 +81,7 @@ class TeacherIT {
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getTeacherById(TestUtils.TEACHER2_ID)
+        () -> api.getTeacherById(TEACHER2_ID)
     );
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
@@ -121,7 +123,7 @@ class TeacherIT {
 
   @Test
   void manager_read_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     UsersApi api = new UsersApi(manager1Client);
     List<Teacher> teachers = api.getTeachers();
@@ -132,7 +134,7 @@ class TeacherIT {
 
   @Test
   void manager_write_create_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     Teacher toCreate = aCreatableTeacher();
 
     UsersApi api = new UsersApi(manager1Client);
@@ -147,7 +149,7 @@ class TeacherIT {
 
   @Test
   void manager_write_update_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(TestUtils.MANAGER1_TOKEN);
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
     Teacher toUpdate = api
         .createOrUpdateTeachers(List.of(aCreatableTeacher()))

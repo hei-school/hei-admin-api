@@ -127,7 +127,7 @@ paths:
       tags:
         - Teaching
       summary: Create new groups or update existing groups
-      description: Update groups when `id` are provided, create them otherwise. Authorized for managers only.
+      description: Update groups when `id` are provided, create them otherwise.
       operationId: createOrUpdateGroups
       requestBody:
         description: Groups to update
@@ -215,7 +215,7 @@ paths:
       tags:
         - Users
       summary: Create new students or update existing students
-      description: Update students when `id` are provided, create them otherwise. Authorized for managers only.
+      description: Update students when `id` are provided, create them otherwise.
       operationId: createOrUpdateStudents
       requestBody:
         required: true
@@ -303,7 +303,7 @@ paths:
       tags:
         - Teaching
       summary: Create new courses or update existing courses
-      description: Update courses when id are provided, create them otherwise. Authorized for managers only.
+      description: Update courses when id are provided, create them otherwise.
       operationId: createOrUpdateCourses
       requestBody:
         required: true
@@ -386,7 +386,7 @@ paths:
       tags:
         - Users
       summary: Create new teachers or update existing teachers
-      description: Update teachers when `id` are provided, create them otherwise. Authorized for managers only.
+      description: Update teachers when `id` are provided, create them otherwise.
       operationId: createOrUpdateTeachers
       requestBody:
         required: true
