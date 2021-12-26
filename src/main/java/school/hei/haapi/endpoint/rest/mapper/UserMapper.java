@@ -60,4 +60,21 @@ public class UserMapper {
         .address(teacher.getAddress())
         .build();
   }
+
+  public User toDomain(Student student) {
+    return User.builder()
+        .role(User.Role.STUDENT)
+        .id(student.getId())
+        .firstName(student.getFirstName())
+        .lastName(student.getLastName())
+        .email(student.getEmail())
+        .ref(student.getRef())
+        .status(User.Status.valueOf(student.getStatus().toString()))
+        .phone(student.getPhone())
+        .entranceDatetime(student.getEntranceDatetime())
+        .birthDate(student.getBirthDate())
+        .sex(User.Sex.valueOf(student.getSex().toString()))
+        .address(student.getAddress())
+        .build();
+  }
 }
