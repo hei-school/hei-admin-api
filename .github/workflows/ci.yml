@@ -28,9 +28,7 @@ jobs:
 
       - name: Jacoco test coverage
         run: |
-          export COGNITO_JWT_REGION=${{ secrets.TEST_COGNITO_JWT_REGION }}
-          export COGNITO_JWT_USERPOOLID=${{ secrets.TEST_COGNITO_JWT_USERPOOLID }}
-          export TEST_COGNITO_JWT_STUDENTTOKEN=${{ secrets.TEST_COGNITO_JWT_STUDENTTOKEN }}
+          export TEST_COGNITO_IDTOKEN=${{ secrets.TEST_COGNITO_IDTOKEN }}
           ./gradlew test
 
       - name: Checkstyle

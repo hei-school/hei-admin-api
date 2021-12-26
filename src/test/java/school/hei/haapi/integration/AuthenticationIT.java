@@ -4,10 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
@@ -21,23 +22,20 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 @AutoConfigureMockMvc
 class AuthenticationIT {
 
-  static class ContextInitializer extends AbstractContextInitializer {
+  public static class ContextInitializer extends AbstractContextInitializer {
     @Override
     public int getServerPort() {
-      return 8080;
+      return anAvailableRandomPort();
     }
   }
 
   @Autowired private CognitoComponent cognitoComponent;
+  @Value("${test.cognito.idToken}") private String bearer;
 
   @Test
-  @Disabled("no test Cognito")
   void authenticated_user_has_known_email() {
-    String bearer = "TODO: get bearer by really authenticating against Cognito";
-
     String email = cognitoComponent.getEmailByBearer(bearer);
-
-    assertEquals("ryan@hei.school", email);
+    assertEquals("lou@hei.school", email);
   }
 
   @Test
