@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.security;
 
 import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.PUT;
 import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
 import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
@@ -12,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.WebSecur
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
+import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
@@ -45,7 +47,12 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .and()
         .authenticationProvider(authProvider)
         .addFilterBefore(
-            aBearerFilter(new NegatedRequestMatcher(new AntPathRequestMatcher("/ping"))),
+            aBearerFilter(new NegatedRequestMatcher(
+                new OrRequestMatcher(
+                    new AntPathRequestMatcher("/ping"),
+                    new AntPathRequestMatcher("/**",  OPTIONS.toString())
+                )
+            )),
             AnonymousAuthenticationFilter.class)
         .anonymous()
 
@@ -53,6 +60,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers("/ping").permitAll()
+        .antMatchers(OPTIONS, "/**").permitAll()
         .antMatchers("/whoami/**").authenticated()
         .antMatchers(GET, "/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/students/**").authenticated()

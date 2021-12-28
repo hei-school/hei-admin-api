@@ -102,30 +102,6 @@ class SecurityIT {
     assertEquals("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}", response.body());
   }
 
-  @Test
-  void _ping_with_cors() throws IOException, InterruptedException {
-    // /!\ The HttpClient produced by openapi-generator SEEMS to not support text/plain
-    HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
-
-    HttpResponse<String> response = unauthenticatedClient.send(
-        HttpRequest.newBuilder()
-            .uri(URI.create(basePath + "/ping"))
-            // cors
-            .header("Access-Control-Request-Method", "GET")
-            .header("Origin", "http://localhost:3000")
-            .build(),
-        HttpResponse.BodyHandlers.ofString());
-
-    assertEquals(HttpStatus.OK.value(), response.statusCode());
-    assertEquals("pong", response.body());
-    // cors
-    var headers = response.headers();
-    var origins = headers.allValues("Access-Control-Allow-Origin");
-    assertEquals(1, origins.size());
-    assertEquals("*", origins.get(0));
-  }
-
   public static Whoami whoisStudent1() {
     Whoami whoami = new Whoami();
     whoami.setId("student1_id");
