@@ -160,7 +160,7 @@ class StudentIT {
     student.setId("student1_id");
     student.setFirstName("Ryan");
     student.setLastName("Andria");
-    student.setEmail("ryan@hei.school");
+    student.setEmail("test+ryan@hei.school");
     student.setRef("STD21001");
     student.setPhone("0322411123");
     student.setStatus(Student.StatusEnum.ENABLED);
@@ -176,7 +176,7 @@ class StudentIT {
     student.setId("student2_id");
     student.setFirstName("Two");
     student.setLastName("Student");
-    student.setEmail("student2@hei.school");
+    student.setEmail("test+student2@hei.school");
     student.setRef("STD21002");
     student.setPhone("0322411124");
     student.setStatus(Student.StatusEnum.ENABLED);

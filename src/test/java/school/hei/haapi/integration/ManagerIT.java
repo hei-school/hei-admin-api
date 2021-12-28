@@ -92,7 +92,7 @@ class ManagerIT {
     manager.setId("manager1_id");
     manager.setFirstName("One");
     manager.setLastName("Manager");
-    manager.setEmail("manager1@hei.school");
+    manager.setEmail("test+manager1@hei.school");
     manager.setRef("MGR21001");
     manager.setPhone("0322411127");
     manager.setStatus(Manager.StatusEnum.ENABLED);

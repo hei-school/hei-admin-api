@@ -38,9 +38,9 @@ public class TestUtils {
 
   public static void setUpCognito(CognitoComponent cognitoComponent) {
     when(cognitoComponent.getEmailByBearer(BAD_TOKEN)).thenReturn(null);
-    when(cognitoComponent.getEmailByBearer(STUDENT1_TOKEN)).thenReturn("ryan@hei.school");
-    when(cognitoComponent.getEmailByBearer(TEACHER1_TOKEN)).thenReturn("teacher1@hei.school");
-    when(cognitoComponent.getEmailByBearer(MANAGER1_TOKEN)).thenReturn("manager1@hei.school");
+    when(cognitoComponent.getEmailByBearer(STUDENT1_TOKEN)).thenReturn("test+ryan@hei.school");
+    when(cognitoComponent.getEmailByBearer(TEACHER1_TOKEN)).thenReturn("test+teacher1@hei.school");
+    when(cognitoComponent.getEmailByBearer(MANAGER1_TOKEN)).thenReturn("test+manager1@hei.school");
   }
 
   public static void assertThrowsApiException(String expectedBody, Executable executable) {
