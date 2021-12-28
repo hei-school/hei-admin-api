@@ -167,7 +167,7 @@ class TeacherIT {
     teacher.setId("teacher1_id");
     teacher.setFirstName("One");
     teacher.setLastName("Teacher");
-    teacher.setEmail("teacher1@hei.school");
+    teacher.setEmail("test+teacher1@hei.school");
     teacher.setRef("TCR21001");
     teacher.setPhone("0322411125");
     teacher.setStatus(Teacher.StatusEnum.ENABLED);
@@ -183,7 +183,7 @@ class TeacherIT {
     teacher.setId("teacher2_id");
     teacher.setFirstName("Two");
     teacher.setLastName("Teacher");
-    teacher.setEmail("teacher2@hei.school");
+    teacher.setEmail("test+teacher2@hei.school");
     teacher.setRef("TCR21002");
     teacher.setPhone("0322411126");
     teacher.setStatus(Teacher.StatusEnum.ENABLED);
