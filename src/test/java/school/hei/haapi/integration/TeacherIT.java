@@ -1,5 +1,8 @@
 package school.hei.haapi.integration;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,10 +18,6 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
-
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -28,8 +27,8 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
@@ -39,20 +38,59 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @AutoConfigureMockMvc
 class TeacherIT {
 
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
-  }
+  @MockBean
+  private CognitoComponent cognitoComponent;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  @MockBean private CognitoComponent cognitoComponent;
+  public static Teacher teacher1() {
+    Teacher teacher = new Teacher();
+    teacher.setId("teacher1_id");
+    teacher.setFirstName("One");
+    teacher.setLastName("Teacher");
+    teacher.setEmail("test+teacher1@hei.school");
+    teacher.setRef("TCR21001");
+    teacher.setPhone("0322411125");
+    teacher.setStatus(Teacher.StatusEnum.ENABLED);
+    teacher.setSex(Teacher.SexEnum.F);
+    teacher.setBirthDate(LocalDate.parse("1990-01-01"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
+    teacher.setAddress("Adr 3");
+    return teacher;
+  }
+
+  public static Teacher teacher2() {
+    Teacher teacher = new Teacher();
+    teacher.setId("teacher2_id");
+    teacher.setFirstName("Two");
+    teacher.setLastName("Teacher");
+    teacher.setEmail("test+teacher2@hei.school");
+    teacher.setRef("TCR21002");
+    teacher.setPhone("0322411126");
+    teacher.setStatus(Teacher.StatusEnum.ENABLED);
+    teacher.setSex(Teacher.SexEnum.M);
+    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
+    teacher.setAddress("Adr 4");
+    return teacher;
+  }
+
+  public static Teacher aCreatableTeacher() {
+    Teacher teacher = new Teacher();
+    teacher.setFirstName("Some");
+    teacher.setLastName("User");
+    teacher.setEmail(randomUUID() + "@hei.school");
+    teacher.setRef("TCR21-" + randomUUID());
+    teacher.setPhone("0332511129");
+    teacher.setStatus(Teacher.StatusEnum.ENABLED);
+    teacher.setSex(Teacher.SexEnum.M);
+    teacher.setBirthDate(LocalDate.parse("2000-01-01"));
+    teacher.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    teacher.setAddress("Adr X");
+    return teacher;
+  }
 
   @BeforeEach
   public void setUp() {
@@ -162,50 +200,12 @@ class TeacherIT {
     assertEquals(toUpdate, updated.get(0));
   }
 
-  public static Teacher teacher1() {
-    Teacher teacher = new Teacher();
-    teacher.setId("teacher1_id");
-    teacher.setFirstName("One");
-    teacher.setLastName("Teacher");
-    teacher.setEmail("test+teacher1@hei.school");
-    teacher.setRef("TCR21001");
-    teacher.setPhone("0322411125");
-    teacher.setStatus(Teacher.StatusEnum.ENABLED);
-    teacher.setSex(Teacher.SexEnum.F);
-    teacher.setBirthDate(LocalDate.parse("1990-01-01"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
-    teacher.setAddress("Adr 3");
-    return teacher;
-  }
+  static class ContextInitializer extends AbstractContextInitializer {
+    public static final int SERVER_PORT = anAvailableRandomPort();
 
-  public static Teacher teacher2() {
-    Teacher teacher = new Teacher();
-    teacher.setId("teacher2_id");
-    teacher.setFirstName("Two");
-    teacher.setLastName("Teacher");
-    teacher.setEmail("test+teacher2@hei.school");
-    teacher.setRef("TCR21002");
-    teacher.setPhone("0322411126");
-    teacher.setStatus(Teacher.StatusEnum.ENABLED);
-    teacher.setSex(Teacher.SexEnum.M);
-    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
-    teacher.setAddress("Adr 4");
-    return teacher;
-  }
-
-  public static Teacher aCreatableTeacher() {
-    Teacher teacher = new Teacher();
-    teacher.setFirstName("Some");
-    teacher.setLastName("User");
-    teacher.setEmail(randomUUID() + "@hei.school");
-    teacher.setRef("TCR21-" + randomUUID());
-    teacher.setPhone("0332511129");
-    teacher.setStatus(Teacher.StatusEnum.ENABLED);
-    teacher.setSex(Teacher.SexEnum.M);
-    teacher.setBirthDate(LocalDate.parse("2000-01-01"));
-    teacher.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    teacher.setAddress("Adr X");
-    return teacher;
+    @Override
+    public int getServerPort() {
+      return SERVER_PORT;
+    }
   }
 }

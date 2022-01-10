@@ -1,13 +1,12 @@
 package school.hei.haapi.integration.conf;
 
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.UUID;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -52,7 +51,7 @@ public class TestUtils {
     try {
       UUID.fromString(candidate);
       return true;
-    } catch (Exception e){
+    } catch (Exception e) {
       return false;
     }
   }

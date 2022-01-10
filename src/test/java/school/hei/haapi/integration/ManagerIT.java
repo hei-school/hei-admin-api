@@ -1,5 +1,8 @@
 package school.hei.haapi.integration;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,10 +17,6 @@ import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -34,20 +33,28 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @AutoConfigureMockMvc
 class ManagerIT {
 
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
-  }
+  @MockBean
+  private CognitoComponent cognitoComponent;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  @MockBean private CognitoComponent cognitoComponent;
+  public static Manager manager1() {
+    Manager manager = new Manager();
+    manager.setId("manager1_id");
+    manager.setFirstName("One");
+    manager.setLastName("Manager");
+    manager.setEmail("test+manager1@hei.school");
+    manager.setRef("MGR21001");
+    manager.setPhone("0322411127");
+    manager.setStatus(Manager.StatusEnum.ENABLED);
+    manager.setSex(Manager.SexEnum.M);
+    manager.setBirthDate(LocalDate.parse("1890-01-01"));
+    manager.setEntranceDatetime(Instant.parse("2021-09-08T08:25:29Z"));
+    manager.setAddress("Adr 5");
+    return manager;
+  }
 
   @BeforeEach
   public void setUp() {
@@ -87,19 +94,12 @@ class ManagerIT {
     assertEquals(manager1(), managers.get(0));
   }
 
-  public static Manager manager1() {
-    Manager manager = new Manager();
-    manager.setId("manager1_id");
-    manager.setFirstName("One");
-    manager.setLastName("Manager");
-    manager.setEmail("test+manager1@hei.school");
-    manager.setRef("MGR21001");
-    manager.setPhone("0322411127");
-    manager.setStatus(Manager.StatusEnum.ENABLED);
-    manager.setSex(Manager.SexEnum.M);
-    manager.setBirthDate(LocalDate.parse("1890-01-01"));
-    manager.setEntranceDatetime(Instant.parse("2021-09-08T08:25:29Z"));
-    manager.setAddress("Adr 5");
-    return manager;
+  static class ContextInitializer extends AbstractContextInitializer {
+    public static final int SERVER_PORT = anAvailableRandomPort();
+
+    @Override
+    public int getServerPort() {
+      return SERVER_PORT;
+    }
   }
 }

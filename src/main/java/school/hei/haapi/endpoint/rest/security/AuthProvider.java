@@ -8,8 +8,6 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
-import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.UserService;
 
 @Component

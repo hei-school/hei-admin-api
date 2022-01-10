@@ -1,11 +1,5 @@
 package school.hei.haapi.endpoint.rest.security;
 
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.OPTIONS;
-import static org.springframework.http.HttpMethod.PUT;
-import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
-import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
-
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -16,6 +10,12 @@ import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.OPTIONS;
+import static org.springframework.http.HttpMethod.PUT;
+import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
+import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 
 @Configuration
 public class SecurityConf extends WebSecurityConfigurerAdapter {
@@ -38,9 +38,11 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
     // @formatter:off
     http
         .exceptionHandling()
-        .authenticationEntryPoint( // handle authentication errors
+        .authenticationEntryPoint(
+            // handle authentication errors
             (req, res, e) -> exceptionResolver.resolveException(req, res, null, e))
-        .accessDeniedHandler( // handle authorization errors
+        .accessDeniedHandler(
+            // handle authorization errors
             (req, res, e) -> exceptionResolver.resolveException(req, res, null, e))
 
         // authenticate
@@ -50,7 +52,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
             aBearerFilter(new NegatedRequestMatcher(
                 new OrRequestMatcher(
                     new AntPathRequestMatcher("/ping"),
-                    new AntPathRequestMatcher("/**",  OPTIONS.toString())
+                    new AntPathRequestMatcher("/**", OPTIONS.toString())
                 )
             )),
             AnonymousAuthenticationFilter.class)
@@ -87,7 +89,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
     BearerAuthFilter bearerFilter = new BearerAuthFilter(requestMatcher, AUTHORIZATION_HEADER);
     bearerFilter.setAuthenticationManager(authenticationManager());
     bearerFilter.setAuthenticationSuccessHandler(
-        (httpServletRequest, httpServletResponse, authentication) -> {});
+        (httpServletRequest, httpServletResponse, authentication) -> {
+        });
     bearerFilter.setAuthenticationFailureHandler(
         (req, res, e) -> exceptionResolver.resolveException(req, res, null, e));
     return bearerFilter;

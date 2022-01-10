@@ -1,7 +1,5 @@
 package school.hei.haapi.model;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -23,6 +21,8 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
+
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "\"user\"")
@@ -62,18 +62,6 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Role role;
 
-  public enum Sex {
-    M, F
-  }
-
-  public enum Status {
-    ENABLED, DISABLED
-  }
-
-  public enum Role {
-    STUDENT, TEACHER, MANAGER
-  }
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {
@@ -89,5 +77,17 @@ public class User implements Serializable {
   @Override
   public int hashCode() {
     return getClass().hashCode();
+  }
+
+  public enum Sex {
+    M, F
+  }
+
+  public enum Status {
+    ENABLED, DISABLED
+  }
+
+  public enum Role {
+    STUDENT, TEACHER, MANAGER
   }
 }

@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +16,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.UserService;
 
-import java.util.List;
-
 import static java.util.stream.Collectors.toUnmodifiableList;
 
 @RestController
@@ -26,16 +25,17 @@ public class StudentController {
   private final UserService userService;
   private final UserMapper userMapper;
 
-  @GetMapping( "/students/{id}")
+  @GetMapping("/students/{id}")
   public Student getStudentById(
       @AuthenticationPrincipal Principal principal, @PathVariable String id) {
-    if (Role.STUDENT.getRole().equals(principal.getRole()) && !id.equals(principal.getUser().getId())) {
+    if (Role.STUDENT.getRole().equals(principal.getRole())
+        && !id.equals(principal.getUser().getId())) {
       throw new ForbiddenException();
     }
     return userMapper.toRestStudent(userService.getById(id));
   }
 
-  @GetMapping( "/students")
+  @GetMapping("/students")
   public List<Student> getStudents() {
     return userService.getByRole(User.Role.STUDENT).stream()
         .map(userMapper::toRestStudent)

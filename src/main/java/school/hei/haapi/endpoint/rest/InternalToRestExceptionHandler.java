@@ -1,7 +1,6 @@
 package school.hei.haapi.endpoint.rest;
 
 import javax.persistence.OptimisticLockException;
-
 import lombok.extern.slf4j.Slf4j;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.dao.CannotAcquireLockException;
@@ -57,9 +56,9 @@ public class InternalToRestExceptionHandler {
 
   @ExceptionHandler(
       value = {
-        LockAcquisitionException.class,
-        CannotAcquireLockException.class,
-        OptimisticLockException.class
+          LockAcquisitionException.class,
+          CannotAcquireLockException.class,
+          OptimisticLockException.class
       })
   ResponseEntity<school.hei.haapi.endpoint.rest.model.Exception> handleLockAcquisitionException(
       Exception e) {
@@ -67,10 +66,14 @@ public class InternalToRestExceptionHandler {
     return handleTooManyRequests(new TooManyRequestsException(e));
   }
 
-  @ExceptionHandler(value = {AccessDeniedException.class, BadCredentialsException.class, ForbiddenException.class})
+  @ExceptionHandler(value = {
+      AccessDeniedException.class,
+      BadCredentialsException.class,
+      ForbiddenException.class})
   ResponseEntity<school.hei.haapi.endpoint.rest.model.Exception> handleForbidden(Exception e) {
-    /* We want rest.model.Exception.Type.FORBIDDEN to designate both authentication and authorization errors.
-     * Hece do _not_ HttpsStatus.UNAUTHORIZED because, counter-intuitively, it's just for authentication.
+    /* rest.model.Exception.Type.FORBIDDEN designates both authentication and authorization errors.
+     * Hence do _not_ HttpsStatus.UNAUTHORIZED because, counter-intuitively,
+     * it's just for authentication.
      * https://stackoverflow.com/questions/3297048/403-forbidden-vs-401-unauthorized-http-responses */
     log.info("Forbidden", e);
     var restException = new school.hei.haapi.endpoint.rest.model.Exception();

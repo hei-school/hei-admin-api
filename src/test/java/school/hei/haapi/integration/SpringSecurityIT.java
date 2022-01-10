@@ -1,11 +1,10 @@
 package school.hei.haapi.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,14 +13,14 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -29,17 +28,10 @@ import java.net.http.HttpResponse;
 @AutoConfigureMockMvc
 class SpringSecurityIT {
 
-  public static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
-  }
-
-  @Autowired private CognitoComponent cognitoComponent;
-  @Value("${test.cognito.idToken}") private String bearer;
+  @Autowired
+  private CognitoComponent cognitoComponent;
+  @Value("${test.cognito.idToken}")
+  private String bearer;
 
   @Test
   void authenticated_user_has_known_email() {
@@ -98,5 +90,14 @@ class SpringSecurityIT {
     var headersList = headers.allValues("Access-Control-Allow-Headers");
     assertEquals(1, headersList.size());
     assertEquals("authorization", headersList.get(0));
+  }
+
+  public static class ContextInitializer extends AbstractContextInitializer {
+    public static final int SERVER_PORT = anAvailableRandomPort();
+
+    @Override
+    public int getServerPort() {
+      return SERVER_PORT;
+    }
   }
 }

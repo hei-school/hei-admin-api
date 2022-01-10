@@ -1,5 +1,10 @@
 package school.hei.haapi.integration;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,12 +21,6 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -36,20 +35,36 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @AutoConfigureMockMvc
 class SecurityIT {
 
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
-  }
+  @MockBean
+  private CognitoComponent cognitoComponent;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  @MockBean private CognitoComponent cognitoComponent;
+  public static Whoami whoisStudent1() {
+    Whoami whoami = new Whoami();
+    whoami.setId("student1_id");
+    whoami.setBearer(STUDENT1_TOKEN);
+    whoami.setRole(Whoami.RoleEnum.STUDENT);
+    return whoami;
+  }
+
+  public static Whoami whoisTeacher1() {
+    Whoami whoami = new Whoami();
+    whoami.setId("teacher1_id");
+    whoami.setBearer(TEACHER1_TOKEN);
+    whoami.setRole(Whoami.RoleEnum.TEACHER);
+    return whoami;
+  }
+
+  public static Whoami whoisManager1() {
+    Whoami whoami = new Whoami();
+    whoami.setId("manager1_id");
+    whoami.setBearer(MANAGER1_TOKEN);
+    whoami.setRole(Whoami.RoleEnum.MANAGER);
+    return whoami;
+  }
 
   @BeforeEach
   public void setUp() {
@@ -102,27 +117,12 @@ class SecurityIT {
     assertEquals("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}", response.body());
   }
 
-  public static Whoami whoisStudent1() {
-    Whoami whoami = new Whoami();
-    whoami.setId("student1_id");
-    whoami.setBearer(STUDENT1_TOKEN);
-    whoami.setRole(Whoami.RoleEnum.STUDENT);
-    return whoami;
-  }
+  static class ContextInitializer extends AbstractContextInitializer {
+    public static final int SERVER_PORT = anAvailableRandomPort();
 
-  public static Whoami whoisTeacher1() {
-    Whoami whoami = new Whoami();
-    whoami.setId("teacher1_id");
-    whoami.setBearer(TEACHER1_TOKEN);
-    whoami.setRole(Whoami.RoleEnum.TEACHER);
-    return whoami;
-  }
-
-  public static Whoami whoisManager1() {
-    Whoami whoami = new Whoami();
-    whoami.setId("manager1_id");
-    whoami.setBearer(MANAGER1_TOKEN);
-    whoami.setRole(Whoami.RoleEnum.MANAGER);
-    return whoami;
+    @Override
+    public int getServerPort() {
+      return SERVER_PORT;
+    }
   }
 }
