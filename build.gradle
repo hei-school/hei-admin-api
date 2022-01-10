@@ -74,7 +74,7 @@ tasks.compileJava.dependsOn publishJavaClientToMavenLocal
 apply plugin: 'checkstyle'
 checkstyle {
     toolVersion '8.45'
-    configFile file("config/checkstyle/google_checks.xml")
+    configFile file("config/checkstyle/google_checks_custom.xml")
 }
 checkstyleMain {
     source = 'src/main/java'

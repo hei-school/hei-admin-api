@@ -1,5 +1,7 @@
 package school.hei.haapi.integration;
 
+import java.time.Instant;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,9 +17,6 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-import java.time.Instant;
-import java.util.List;
-
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -28,8 +27,8 @@ import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
@@ -39,21 +38,37 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @AutoConfigureMockMvc
 public class GroupIT {
 
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
-  }
+  @MockBean
+  private CognitoComponent cognitoComponent;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  @MockBean
-  private CognitoComponent cognitoComponent;
+  public static Group group1() {
+    Group group = new Group();
+    group.setId("group1_id");
+    group.setName("Name of group one");
+    group.setRef("GRP21001");
+    group.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    return group;
+  }
+
+  public static Group group2() {
+    Group group = new Group();
+    group.setId("group2_id");
+    group.setName("Name of group two");
+    group.setRef("GRP21002");
+    group.setCreationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
+    return group;
+  }
+
+  public static Group aCreatableGroup() {
+    Group group = new Group();
+    group.setName("Some name");
+    group.setRef("GRP21-" + randomUUID());
+    return group;
+  }
 
   @BeforeEach
   public void setUp() {
@@ -78,7 +93,7 @@ public class GroupIT {
     TeachingApi api = new TeachingApi(anonymousClient);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Bad credentials\"}",
-        () ->  api.createOrUpdateGroups(List.of())
+        () -> api.createOrUpdateGroups(List.of())
     );
   }
 
@@ -102,7 +117,7 @@ public class GroupIT {
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () ->  api.createOrUpdateGroups(List.of())
+        () -> api.createOrUpdateGroups(List.of())
     );
   }
 
@@ -113,7 +128,7 @@ public class GroupIT {
     TeachingApi api = new TeachingApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () ->  api.createOrUpdateGroups(List.of())
+        () -> api.createOrUpdateGroups(List.of())
     );
   }
 
@@ -161,28 +176,12 @@ public class GroupIT {
     assertTrue(updated.contains(toUpdate1));
   }
 
-  public static Group group1() {
-    Group group = new Group();
-    group.setId("group1_id");
-    group.setName("Name of group one");
-    group.setRef("GRP21001");
-    group.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    return group;
-  }
+  static class ContextInitializer extends AbstractContextInitializer {
+    public static final int SERVER_PORT = anAvailableRandomPort();
 
-  public static Group group2() {
-    Group group = new Group();
-    group.setId("group2_id");
-    group.setName("Name of group two");
-    group.setRef("GRP21002");
-    group.setCreationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
-    return group;
-  }
-
-  public static Group aCreatableGroup() {
-    Group group = new Group();
-    group.setName("Some name");
-    group.setRef("GRP21-" + randomUUID());
-    return group;
+    @Override
+    public int getServerPort() {
+      return SERVER_PORT;
+    }
   }
 }

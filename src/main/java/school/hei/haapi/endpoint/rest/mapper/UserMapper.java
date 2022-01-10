@@ -60,7 +60,8 @@ public class UserMapper {
     manager.setSex(Manager.SexEnum.fromValue(user.getSex().toString()));
     manager.setAddress(user.getAddress());
 
-    return manager;  }
+    return manager;
+  }
 
   public User toDomain(Teacher teacher) {
     return User.builder()

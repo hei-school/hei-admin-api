@@ -1,12 +1,11 @@
 package school.hei.haapi.repository.types;
 
-import org.hibernate.HibernateException;
-import org.hibernate.engine.spi.SharedSessionContractImplementor;
-import org.hibernate.type.EnumType;
-
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 import java.sql.Types;
+import org.hibernate.HibernateException;
+import org.hibernate.engine.spi.SharedSessionContractImplementor;
+import org.hibernate.type.EnumType;
 
 public class PostgresEnumType extends EnumType {
 

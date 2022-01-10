@@ -8,7 +8,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class JwtConfiguration implements Serializable {
   public static final String EMAIL_FIELD = "email";
-  @Getter private final String cognitoUserPoolUrl;
+  @Getter
+  private final String cognitoUserPoolUrl;
 
   public JwtConfiguration(@Value("${cognito.userPool.url}") final String cognitoUserPoolUrl) {
     this.cognitoUserPoolUrl = cognitoUserPoolUrl;

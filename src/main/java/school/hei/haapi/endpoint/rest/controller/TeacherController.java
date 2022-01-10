@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +15,6 @@ import school.hei.haapi.endpoint.rest.security.model.Role;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.UserService;
-
-import java.util.List;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
