@@ -30,9 +30,11 @@ import java.net.http.HttpResponse;
 class SpringSecurityIT {
 
   public static class ContextInitializer extends AbstractContextInitializer {
+    public static final int SERVER_PORT = anAvailableRandomPort();
+
     @Override
     public int getServerPort() {
-      return anAvailableRandomPort();
+      return SERVER_PORT;
     }
   }
 
@@ -54,7 +56,7 @@ class SpringSecurityIT {
   void ping_with_cors() throws IOException, InterruptedException {
     // /!\ The HttpClient produced by openapi-generator SEEMS to not support text/plain
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + SecurityIT.ContextInitializer.SERVER_PORT;
+    String basePath = "http://localhost:" + SpringSecurityIT.ContextInitializer.SERVER_PORT;
 
     HttpResponse<String> response = unauthenticatedClient.send(
         HttpRequest.newBuilder()
@@ -77,7 +79,7 @@ class SpringSecurityIT {
   @Test
   void options_with_cors() throws IOException, InterruptedException {
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + SecurityIT.ContextInitializer.SERVER_PORT;
+    String basePath = "http://localhost:" + SpringSecurityIT.ContextInitializer.SERVER_PORT;
 
     HttpResponse<String> response = unauthenticatedClient.send(
         HttpRequest.newBuilder()
