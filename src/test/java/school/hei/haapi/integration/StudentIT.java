@@ -17,10 +17,19 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -29,6 +38,7 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -37,7 +47,10 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 class StudentIT {
 
   @MockBean
-  private CognitoComponent cognitoComponent;
+  private CognitoComponent cognitoComponentMock;
+
+  @MockBean
+  private EventBridgeClient eventBridgeClientMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -85,7 +98,8 @@ class StudentIT {
 
   @BeforeEach
   public void setUp() {
-    setUpCognito(cognitoComponent);
+    setUpCognito(cognitoComponentMock);
+    setUpEventBridge(eventBridgeClientMock);
   }
 
   @Test
@@ -160,7 +174,7 @@ class StudentIT {
   }
 
   @Test
-  void manager_write_ok() throws ApiException {
+  void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
     List<Student> toUpdate = api.createOrUpdateStudents(List.of(
@@ -176,6 +190,25 @@ class StudentIT {
     assertEquals(2, updated.size());
     assertTrue(updated.contains(toUpdate0));
     assertTrue(updated.contains(toUpdate1));
+  }
+
+  @Test
+  void manager_write_update_triggers_userUpserted() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    reset(eventBridgeClientMock);
+    when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
+        .thenReturn(PutEventsResponse.builder()
+            .entries(
+                PutEventsResultEntry.builder().eventId("eventId1").build(),
+                PutEventsResultEntry.builder().eventId("eventId2").build())
+            .build());
+
+    api.createOrUpdateStudents(List.of(
+        aCreatableStudent(),
+        aCreatableStudent()));
+
+    verify(eventBridgeClientMock, times(1)).putEvents((PutEventsRequest) any());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

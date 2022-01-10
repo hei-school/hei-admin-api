@@ -7,9 +7,13 @@ import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 public class TestUtils {
@@ -40,6 +44,12 @@ public class TestUtils {
     when(cognitoComponent.getEmailByBearer(STUDENT1_TOKEN)).thenReturn("test+ryan@hei.school");
     when(cognitoComponent.getEmailByBearer(TEACHER1_TOKEN)).thenReturn("test+teacher1@hei.school");
     when(cognitoComponent.getEmailByBearer(MANAGER1_TOKEN)).thenReturn("test+manager1@hei.school");
+  }
+
+  public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {
+    when(eventBridgeClient.putEvents((PutEventsRequest) any())).thenReturn(
+        PutEventsResponse.builder().build()
+    );
   }
 
   public static void assertThrowsApiException(String expectedBody, Executable executable) {
