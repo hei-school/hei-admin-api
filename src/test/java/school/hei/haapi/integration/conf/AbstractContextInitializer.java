@@ -8,7 +8,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 public abstract class AbstractContextInitializer
     implements ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-  private static final String COGNITO_USERPOOL_URL =
+  private static final String AWS_COGNITO_USERPOOL_URL =
       "https://cognito-idp.eu-west-3.amazonaws.com/eu-west-3_mGxK1Bi8s";
 
   @Override
@@ -24,7 +24,8 @@ public abstract class AbstractContextInitializer
     TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
         applicationContext,
         "server.port=" + this.getServerPort(),
-        "cognito.userPool.url=" + COGNITO_USERPOOL_URL,
+        "aws.cognito.userPool.url=" + AWS_COGNITO_USERPOOL_URL,
+        "aws.eventBridge.bus=dummy",
         "spring.datasource.url=" + postgresContainer.getJdbcUrl(),
         "spring.datasource.username=" + postgresContainer.getUsername(),
         "spring.datasource.password=" + postgresContainer.getPassword(),

@@ -34,7 +34,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 class ManagerIT {
 
   @MockBean
-  private CognitoComponent cognitoComponent;
+  private CognitoComponent cognitoComponentMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -58,7 +58,7 @@ class ManagerIT {
 
   @BeforeEach
   public void setUp() {
-    setUpCognito(cognitoComponent);
+    setUpCognito(cognitoComponentMock);
   }
 
   @Test

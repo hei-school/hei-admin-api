@@ -39,7 +39,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 public class GroupIT {
 
   @MockBean
-  private CognitoComponent cognitoComponent;
+  private CognitoComponent cognitoComponentMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -72,7 +72,7 @@ public class GroupIT {
 
   @BeforeEach
   public void setUp() {
-    setUpCognito(cognitoComponent);
+    setUpCognito(cognitoComponentMock);
   }
 
   @Test

@@ -11,7 +11,7 @@ public class JwtConfiguration implements Serializable {
   @Getter
   private final String cognitoUserPoolUrl;
 
-  public JwtConfiguration(@Value("${cognito.userPool.url}") final String cognitoUserPoolUrl) {
+  public JwtConfiguration(@Value("${aws.cognito.userPool.url}") final String cognitoUserPoolUrl) {
     this.cognitoUserPoolUrl = cognitoUserPoolUrl;
   }
 

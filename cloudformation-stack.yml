@@ -47,8 +47,10 @@ Resources:
           PortMappings:
             - ContainerPort: !Ref ContainerPort
           Environment:
-            - Name: COGNITO_USERPOOL_URL
+            - Name: AWS_COGNITO_USERPOOL_URL
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-url:2}}'
+            - Name: AWS_EVENTBRIDGE_BUS
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/eventbridge/bus-name:1}}'
             - Name: SPRING_DATASOURCE_URL
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/url:1}}'
             - Name: SPRING_DATASOURCE_PASSWORD

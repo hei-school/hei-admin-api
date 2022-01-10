@@ -28,7 +28,7 @@ jobs:
 
       - name: Jacoco test coverage
         run: |
-          export TEST_COGNITO_IDTOKEN=${{ secrets.TEST_COGNITO_IDTOKEN }}
+          export TEST_AWS_COGNITO_IDTOKEN=${{ secrets.TEST_COGNITO_IDTOKEN }}
           ./gradlew test
 
       - name: Checkstyle

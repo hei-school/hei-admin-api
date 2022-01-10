@@ -17,6 +17,7 @@ import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -31,6 +32,7 @@ import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -39,7 +41,10 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 class TeacherIT {
 
   @MockBean
-  private CognitoComponent cognitoComponent;
+  private CognitoComponent cognitoComponentMock;
+
+  @MockBean
+  private EventBridgeClient eventBridgeClientMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -94,7 +99,8 @@ class TeacherIT {
 
   @BeforeEach
   public void setUp() {
-    setUpCognito(cognitoComponent);
+    setUpCognito(cognitoComponentMock);
+    setUpEventBridge(eventBridgeClientMock);
   }
 
   @Test

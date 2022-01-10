@@ -30,7 +30,7 @@ class SpringSecurityIT {
 
   @Autowired
   private CognitoComponent cognitoComponent;
-  @Value("${test.cognito.idToken}")
+  @Value("${test.aws.cognito.idToken}")
   private String bearer;
 
   @Test

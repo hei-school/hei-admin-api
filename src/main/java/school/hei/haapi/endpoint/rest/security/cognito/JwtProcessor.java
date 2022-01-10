@@ -24,9 +24,9 @@ public class JwtProcessor {
   private final JwtConfiguration jwtConfiguration;
 
   public JwtProcessor(
-      @Value("${cognito.jwt.jwsAlgorithm}") final String algorithm,
-      @Value("${cognito.jwt.connectTimeout}") final Integer connectTimeout,
-      @Value("${cognito.jwt.readTimeout}") final Integer readTimeOut,
+      @Value("${aws.cognito.jwt.jwsAlgorithm}") final String algorithm,
+      @Value("${aws.cognito.jwt.connectTimeout}") final Integer connectTimeout,
+      @Value("${aws.cognito.jwt.readTimeout}") final Integer readTimeOut,
       final JwtConfiguration jwtConfiguration) {
     this.connectTimeout = connectTimeout;
     this.readTimeout = readTimeOut;

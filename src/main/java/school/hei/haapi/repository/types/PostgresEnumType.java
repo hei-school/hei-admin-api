@@ -9,6 +9,7 @@ import org.hibernate.type.EnumType;
 
 public class PostgresEnumType extends EnumType {
 
+  @Override
   public void nullSafeSet(
       PreparedStatement st,
       Object value,

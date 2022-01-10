@@ -12,7 +12,7 @@ public class ApiException extends RuntimeException {
     this.type = type;
   }
 
-  public ApiException(Exception source, ExceptionType type) {
+  public ApiException(ExceptionType type, Exception source) {
     super(source);
     this.type = type;
   }
