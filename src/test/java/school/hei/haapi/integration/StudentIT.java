@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,6 +20,7 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 
@@ -197,18 +199,30 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
     reset(eventBridgeClientMock);
-    when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
-        .thenReturn(PutEventsResponse.builder()
+    when(eventBridgeClientMock.putEvents((PutEventsRequest) any())).thenReturn(
+        PutEventsResponse.builder()
             .entries(
                 PutEventsResultEntry.builder().eventId("eventId1").build(),
                 PutEventsResultEntry.builder().eventId("eventId2").build())
             .build());
 
-    api.createOrUpdateStudents(List.of(
+    List<Student> created = api.createOrUpdateStudents(List.of(
         aCreatableStudent(),
         aCreatableStudent()));
+    Student created0 = created.get(0);
+    Student created1 = created.get(1);
 
-    verify(eventBridgeClientMock, times(1)).putEvents((PutEventsRequest) any());
+    ArgumentCaptor<PutEventsRequest> captor = ArgumentCaptor.forClass(PutEventsRequest.class);
+    verify(eventBridgeClientMock, times(1)).putEvents(captor.capture());
+    PutEventsRequest actualRequest = captor.getValue();
+    List<PutEventsRequestEntry> actualRequestEntries = actualRequest.entries();
+    assertEquals(2, actualRequestEntries.size());
+    PutEventsRequestEntry requestEntry0 = actualRequestEntries.get(0);
+    assertTrue(requestEntry0.detail().contains(created0.getId()));
+    assertTrue(requestEntry0.detail().contains(created0.getEmail()));
+    PutEventsRequestEntry requestEntry1 = actualRequestEntries.get(1);
+    assertTrue(requestEntry1.detail().contains(created1.getId()));
+    assertTrue(requestEntry1.detail().contains(created1.getEmail()));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
