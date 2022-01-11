@@ -71,6 +71,10 @@ Resources:
             Principal:
               Service: ecs-tasks.amazonaws.com
             Action: 'sts:AssumeRole'
+          - Effect: Allow
+            Action: events:PutEvents
+            # TODO: restrict resource to the bus used
+            Resource: *
       ManagedPolicyArns:
         - 'arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy'
   TaskRole:
