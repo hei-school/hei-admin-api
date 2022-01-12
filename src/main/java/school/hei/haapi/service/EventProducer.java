@@ -30,7 +30,7 @@ public class EventProducer {
   private static class Conf { //NOSONAR
     private final Region region;
 
-    public Conf(@Value("${aws.eventBridge.bus}") String region) {
+    public Conf(@Value("${aws.region}") String region) {
       this.region = Region.of(region);
     }
 
