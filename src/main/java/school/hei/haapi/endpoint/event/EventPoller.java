@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.event;
 
 import java.time.Duration;
+import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Scheduled;
@@ -20,7 +21,7 @@ public class EventPoller {
   private final SqsClient sqsClient;
   private final EventConsumer eventConsumer;
 
-  private static final Duration WAIT_TIME = Duration.ofSeconds(20); // long polling if >20s
+  private static final Duration WAIT_TIME = Duration.ofSeconds(30); // long polling if >20s
 
   public EventPoller(
       @Value("${aws.sqs.queueUrl}") String queueUrl,
@@ -37,13 +38,19 @@ public class EventPoller {
         .queueUrl(queueUrl)
         .waitTimeSeconds(WAIT_TIME.toSecondsPart())
         .build();
-    eventConsumer.accept(
-        sqsClient.receiveMessage(receiveMessageRequest).messages().stream()
-            .map(this::toAcknowledgeableTypedEvent)
-            .collect(toUnmodifiableList()));
+
+    List<Message> messages = sqsClient.receiveMessage(receiveMessageRequest).messages();
+    if (!messages.isEmpty()) {
+      log.info("Events received: {}", messages); //TODO(PII)
+    }
+    eventConsumer.accept(messages.stream()
+        .map(this::toAcknowledgeableTypedEvent)
+        .collect(toUnmodifiableList()));
   }
 
   private AcknowledgeableEvent toAcknowledgeableTypedEvent(Message message) {
-    return new AcknowledgeableEvent(message.body(), message.receiptHandle());
+    return new AcknowledgeableEvent(
+        message.body(), //TODO: map to TypedEvent
+        message.receiptHandle());
   }
 }
