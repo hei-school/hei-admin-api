@@ -1,4 +1,4 @@
-package school.hei.haapi.endpoint.event;
+package school.hei.haapi.endpoint.event.model;
 
 import java.io.Serializable;
 

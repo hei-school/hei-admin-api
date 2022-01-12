@@ -35,13 +35,13 @@ class SpringSecurityIT {
 
   @Test
   void authenticated_user_has_known_email() {
-    String email = cognitoComponent.getEmailByBearer(bearer);
+    String email = cognitoComponent.getEmailByIdToken(bearer);
     assertEquals("test+ryan@hei.school", email);
   }
 
   @Test
   void unauthenticated_user_is_forbidden() {
-    assertNull(cognitoComponent.getEmailByBearer(BAD_TOKEN));
+    assertNull(cognitoComponent.getEmailByIdToken(BAD_TOKEN));
   }
 
   @Test

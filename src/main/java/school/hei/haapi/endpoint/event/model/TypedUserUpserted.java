@@ -1,8 +1,8 @@
-package school.hei.haapi.endpoint.event;
+package school.hei.haapi.endpoint.event.model;
 
 import java.io.Serializable;
 import lombok.AllArgsConstructor;
-import school.hei.haapi.endpoint.event.gen.UserUpserted;
+import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
 
 @AllArgsConstructor
 public class TypedUserUpserted extends TypedEvent{
