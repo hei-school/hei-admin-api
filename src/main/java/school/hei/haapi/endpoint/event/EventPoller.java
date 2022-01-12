@@ -21,7 +21,7 @@ public class EventPoller {
   private final SqsClient sqsClient;
   private final EventConsumer eventConsumer;
 
-  private static final Duration WAIT_TIME = Duration.ofSeconds(30); // long polling if >20s
+  private static final Duration WAIT_TIME = Duration.ofSeconds(20); // MUST be <= 20s
 
   public EventPoller(
       @Value("${aws.sqs.queueUrl}") String queueUrl,
