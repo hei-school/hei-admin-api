@@ -26,6 +26,7 @@ public abstract class AbstractContextInitializer
         "server.port=" + this.getServerPort(),
         "aws.cognito.userPool.url=" + AWS_COGNITO_USERPOOL_URL,
         "aws.eventBridge.bus=dummy",
+        "aws.sqs.queueUrl=dummy",
         "spring.datasource.url=" + postgresContainer.getJdbcUrl(),
         "spring.datasource.username=" + postgresContainer.getUsername(),
         "spring.datasource.password=" + postgresContainer.getPassword(),

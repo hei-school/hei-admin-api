@@ -32,7 +32,7 @@ public class AuthProvider extends AbstractUserDetailsAuthenticationProvider {
       throw new UsernameNotFoundException("Bad credentials");
     }
 
-    String email = cognitoComponent.getEmailByBearer(bearer);
+    String email = cognitoComponent.getEmailByIdToken(bearer);
     if (email == null) {
       throw new UsernameNotFoundException("Bad credentials");
     }

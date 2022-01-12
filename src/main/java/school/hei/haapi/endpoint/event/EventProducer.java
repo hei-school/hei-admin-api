@@ -1,16 +1,17 @@
-package school.hei.haapi.service;
+package school.hei.haapi.endpoint.event;
 
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.stereotype.Service;
-import school.hei.haapi.endpoint.event.TypedEvent;
+import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.event.model.TypedEvent;
 import school.hei.haapi.model.exception.ApiException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -22,12 +23,12 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
-@Service
+@Component
 @Slf4j
-public class EventProducer {
+public class EventProducer implements Consumer<List<TypedEvent>> {
 
   @Configuration
-  private static class Conf { //NOSONAR
+  public static class Conf {
     private final Region region;
 
     public Conf(@Value("${aws.region}") String region) {
@@ -56,10 +57,10 @@ public class EventProducer {
 
   /**
    * Send events to EventBridge bus.
-   * @param events Events to publish to the configured event bus
-   * @return Identifier of the events that were successfully sent
+   * @param events Events to publish to the configured event bus.
    */
-  public void produce(List<TypedEvent> events) {
+  @Override
+  public void accept(List<TypedEvent> events) {
     log.info(
         // TODO(PII): Personal Identifiable Information can be leaked here
         "Sending events={}", events);

@@ -3,8 +3,9 @@ package school.hei.haapi.service;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.endpoint.event.TypedUserUpserted;
-import school.hei.haapi.endpoint.event.gen.UserUpserted;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
+import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
 
@@ -27,7 +28,7 @@ public class UserService {
 
   public List<User> saveAll(List<User> users) {
     List<User> savedUsers = userRepository.saveAll(users);
-    eventProducer.produce(users.stream()
+    eventProducer.accept(users.stream()
         .map(this::toTypedEvent)
         .collect(toUnmodifiableList()));
     return savedUsers;

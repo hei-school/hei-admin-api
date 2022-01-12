@@ -51,6 +51,8 @@ Resources:
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-url:2}}'
             - Name: AWS_EVENTBRIDGE_BUS
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/eventbridge/bus-name:1}}'
+            - Name: AWS_SQS_QUEUEURL
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/sqs/queue-url:1}}'
             - Name: SPRING_DATASOURCE_URL
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/url:1}}'
             - Name: SPRING_DATASOURCE_PASSWORD

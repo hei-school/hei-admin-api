@@ -8,6 +8,7 @@ import java.text.ParseException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.model.exception.NotImplementedException;
 
 @Component
 @AllArgsConstructor
@@ -16,10 +17,10 @@ public class CognitoComponent {
   private final JwtConfiguration jwtConfiguration;
   private final JwtProcessor jwtProcessor;
 
-  public String getEmailByBearer(String bearer) {
+  public String getEmailByIdToken(String idToken) {
     JWTClaimsSet claims;
     try {
-      claims = jwtProcessor.configurableJwtProcessor().process(bearer, null);
+      claims = jwtProcessor.configurableJwtProcessor().process(idToken, null);
     } catch (ParseException | BadJOSEException | JOSEException e) {
       /* From Javadoc:
          ParseException – If the string couldn't be parsed to a valid JWT.
@@ -39,5 +40,9 @@ public class CognitoComponent {
 
   private String getEmail(JWTClaimsSet claims) {
     return claims.getClaims().get(JwtConfiguration.EMAIL_FIELD).toString();
+  }
+
+  public void createUser(String email) {
+    throw new NotImplementedException("TODO");
   }
 }
