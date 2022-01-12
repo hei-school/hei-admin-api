@@ -10,7 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.endpoint.event.Event;
+import school.hei.haapi.endpoint.event.TypedEvent;
 import school.hei.haapi.model.exception.ApiException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -55,11 +55,11 @@ public class EventProducer {
   }
 
   /**
-   * Sent events to EventBridge bus
+   * Send events to EventBridge bus.
    * @param events Events to publish to the configured event bus
    * @return Identifier of the events that were successfully sent
    */
-  public void produce(List<Event> events) {
+  public void produce(List<TypedEvent> events) {
     log.info(
         // TODO(PII): Personal Identifiable Information can be leaked here
         "Sending events={}", events);
@@ -67,17 +67,17 @@ public class EventProducer {
     checkResponse(response);
   }
 
-  private PutEventsResponse sendRequest(List<Event> events) {
+  private PutEventsResponse sendRequest(List<TypedEvent> events) {
     PutEventsRequest eventsRequest = PutEventsRequest.builder()
         .entries(events.stream().map(this::toRequestEntry).collect(toUnmodifiableList()))
         .build();
     return eventBridgeClient.putEvents(eventsRequest);
   }
 
-  private PutEventsRequestEntry toRequestEntry(Event event) {
-    String eventType = event.getClass().getTypeName();
+  private PutEventsRequestEntry toRequestEntry(TypedEvent typedEvent) {
+    String eventType = typedEvent.getClass().getTypeName();
     try {
-      String eventAsString = om.writeValueAsString(event);
+      String eventAsString = om.writeValueAsString(typedEvent.getPayload());
       return PutEventsRequestEntry.builder()
           .source(EVENT_SOURCE)
           .detailType(eventType)
