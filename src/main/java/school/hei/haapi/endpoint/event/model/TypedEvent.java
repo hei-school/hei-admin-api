@@ -7,9 +7,7 @@ import java.io.Serializable;
  * TypedEvent takes care of that.
  */
 public abstract class TypedEvent {
-  public String getType() {
-    return this.getClass().getTypeName();
-  }
+  public abstract String getTypeName();
 
   public abstract Serializable getPayload();
 }

@@ -10,6 +10,11 @@ public class TypedUserUpserted extends TypedEvent{
   private final UserUpserted userUpserted;
 
   @Override
+  public String getTypeName() {
+    return UserUpserted.class.getTypeName();
+  }
+
+  @Override
   public Serializable getPayload() {
     return userUpserted;
   }
