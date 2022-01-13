@@ -76,12 +76,11 @@ public class EventProducer implements Consumer<List<TypedEvent>> {
   }
 
   private PutEventsRequestEntry toRequestEntry(TypedEvent typedEvent) {
-    String eventType = typedEvent.getClass().getTypeName();
     try {
       String eventAsString = om.writeValueAsString(typedEvent.getPayload());
       return PutEventsRequestEntry.builder()
           .source(EVENT_SOURCE)
-          .detailType(eventType)
+          .detailType(typedEvent.getTypeName())
           .detail(eventAsString)
           .eventBusName(eventBusName)
           .build();
