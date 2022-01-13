@@ -54,8 +54,8 @@ public class EventPoller {
     List<Message> messages = sqsClient.receiveMessage(receiveMessageRequest).messages();
     if (!messages.isEmpty()) {
       log.info("Events received: {}", messages);
-      var acknowledgeableEvents = toAcknowledgeableTypedEvents(messages);
-      eventConsumer.accept(acknowledgeableEvents);
+      var ackEvents = toAcknowledgeableTypedEvents(messages);
+      eventConsumer.accept(ackEvents);
     }
   }
 

@@ -43,6 +43,6 @@ public class CognitoComponent {
   }
 
   public void createUser(String email) {
-    throw new NotImplementedException("TODO");
+    throw new NotImplementedException("Create cognito user");
   }
 }
