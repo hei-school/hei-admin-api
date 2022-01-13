@@ -114,8 +114,9 @@ dependencies {
 
     implementation 'school.hei:haapi-gen:1.0'
 
-    implementation 'software.amazon.awssdk:eventbridge:2.17.107'
-    implementation 'software.amazon.awssdk:sqs:2.17.107'
+    implementation 'software.amazon.awssdk:eventbridge:2.17.109'
+    implementation 'software.amazon.awssdk:sqs:2.17.109'
+    implementation 'software.amazon.awssdk:cognitoidentityprovider:2.17.109'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

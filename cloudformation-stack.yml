@@ -47,8 +47,8 @@ Resources:
           PortMappings:
             - ContainerPort: !Ref ContainerPort
           Environment:
-            - Name: AWS_COGNITO_USERPOOL_URL
-              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-url:2}}'
+            - Name: AWS_COGNITO_USERPOOL_ID
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-id:1}}'
             - Name: AWS_EVENTBRIDGE_BUS
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/eventbridge/bus-name:1}}'
             - Name: AWS_SQS_QUEUEURL

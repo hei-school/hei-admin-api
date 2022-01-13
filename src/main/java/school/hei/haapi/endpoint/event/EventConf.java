@@ -7,10 +7,10 @@ import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.sqs.SqsClient;
 
 @Configuration
-public class Conf {
+public class EventConf {
   private final Region region;
 
-  public Conf(@Value("${aws.region}") String region) {
+  public EventConf(@Value("${aws.region}") String region) {
     this.region = Region.of(region);
   }
 
