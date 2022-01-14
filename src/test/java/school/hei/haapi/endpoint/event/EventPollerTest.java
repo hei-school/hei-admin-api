@@ -55,9 +55,9 @@ class EventPollerTest {
   void non_empty_messages_triggers_eventConsumer() {
     ReceiveMessageResponse response = ReceiveMessageResponse.builder()
         .messages(
-            aMessage(UserUpserted.class, "receiptHandle_A"),
-            aMessage(Exception.class, "receiptHandle_B"),
-            aMessage(UserUpserted.class, "receiptHandle_C"))
+            aMessage(UserUpserted.class),
+            aMessage(Exception.class),
+            aMessage(UserUpserted.class))
         .build();
     when(sqsClient.receiveMessage((ReceiveMessageRequest) any())).thenReturn(response);
 
@@ -69,20 +69,18 @@ class EventPollerTest {
     assertEquals(2, ackTypedEvents.size());
     // First ackTypedEvent
     var ackTypedEvent0 = ackTypedEvents.get(0);
-    assertEquals("receiptHandle_A", ackTypedEvent0.getReceiptHandle());
     var typeEvent0 = ackTypedEvent0.getTypedEvent();
     assertEquals(UserUpserted.class.getTypeName(), typeEvent0.getTypeName());
     UserUpserted userUpserted0 = (UserUpserted) typeEvent0.getPayload();
     assertFalse(userUpserted0.getUserId().isEmpty());
     assertFalse(userUpserted0.getEmail().isEmpty());
     // Second ackTypedEvent
-    assertEquals("receiptHandle_C", ackTypedEvents.get(1).getReceiptHandle());
   }
 
-  private Message aMessage(Class<?> clazz, String receiptHandle) {
+  private Message aMessage(Class<?> clazz) {
     return Message.builder()
         .body(aMessageBody(clazz))
-        .receiptHandle(receiptHandle)
+        .receiptHandle(randomUUID().toString())
         .build();
   }
 
