@@ -14,6 +14,7 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Manager;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -21,6 +22,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -68,6 +70,10 @@ class ManagerIT {
     UsersApi api = new UsersApi(student1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.getManagerById(MANAGER_ID)
+    );
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         api::getManagers
     );
   }
@@ -79,8 +85,22 @@ class ManagerIT {
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.getManagerById(MANAGER_ID)
+    );
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         api::getManagers
     );
+  }
+
+  @Test
+  void manager_read_own_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+
+    UsersApi api = new UsersApi(manager1Client);
+    Manager actual = api.getManagerById(MANAGER_ID);
+
+    assertEquals(manager1(), actual);
   }
 
   @Test
