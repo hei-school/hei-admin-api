@@ -57,6 +57,7 @@ public class EventProducer implements Consumer<List<TypedEvent>> {
 
   /**
    * Send events to EventBridge bus.
+   *
    * @param events Events to publish to the configured event bus.
    */
   @Override

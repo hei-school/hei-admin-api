@@ -209,17 +209,17 @@ class StudentIT {
     List<Student> created = api.createOrUpdateStudents(List.of(
         aCreatableStudent(),
         aCreatableStudent()));
-    Student created0 = created.get(0);
-    Student created1 = created.get(1);
 
     ArgumentCaptor<PutEventsRequest> captor = ArgumentCaptor.forClass(PutEventsRequest.class);
     verify(eventBridgeClientMock, times(1)).putEvents(captor.capture());
     PutEventsRequest actualRequest = captor.getValue();
     List<PutEventsRequestEntry> actualRequestEntries = actualRequest.entries();
     assertEquals(2, actualRequestEntries.size());
+    Student created0 = created.get(0);
     PutEventsRequestEntry requestEntry0 = actualRequestEntries.get(0);
     assertTrue(requestEntry0.detail().contains(created0.getId()));
     assertTrue(requestEntry0.detail().contains(created0.getEmail()));
+    Student created1 = created.get(1);
     PutEventsRequestEntry requestEntry1 = actualRequestEntries.get(1);
     assertTrue(requestEntry1.detail().contains(created1.getId()));
     assertTrue(requestEntry1.detail().contains(created1.getEmail()));

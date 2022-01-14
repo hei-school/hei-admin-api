@@ -89,19 +89,19 @@ class EventPollerTest {
   private String aMessageBody(Class<?> clazz) {
     String eventId = randomUUID().toString();
     String userId = randomUUID().toString();
-    return "{\n" +
-        "    \"version\": \"0\",\n" +
-        "    \"id\": \" " + eventId + "\",\n" +
-        "    \"detail-type\": \"" + clazz.getTypeName() + "\",\n" +
-        "    \"source\": \"school.hei.haapi\",\n" +
-        "    \"account\": \"088312068315\",\n" +
-        "    \"time\": \"" + now() + "\",\n" +
-        "    \"region\": \"eu-west-3\",\n" +
-        "    \"resources\": [],\n" +
-        "    \"detail\": {\n" +
-        "        \"userId\": \"" + userId + "\",\n" +
-        "        \"email\": \"test+" + userId + "@hei.school\"\n" +
-        "    }\n" +
-        "}";
+    return "{\n"
+        + "    \"version\": \"0\",\n"
+        + "    \"id\": \" " + eventId + "\",\n"
+        + "    \"detail-type\": \"" + clazz.getTypeName() + "\",\n"
+        + "    \"source\": \"school.hei.haapi\",\n"
+        + "    \"account\": \"088312068315\",\n"
+        + "    \"time\": \"" + now() + "\",\n"
+        + "    \"region\": \"eu-west-3\",\n"
+        + "    \"resources\": [],\n"
+        + "    \"detail\": {\n"
+        + "        \"userId\": \"" + userId + "\",\n"
+        + "        \"email\": \"test+" + userId + "@hei.school\"\n"
+        + "    }\n"
+        + "}";
   }
 }
