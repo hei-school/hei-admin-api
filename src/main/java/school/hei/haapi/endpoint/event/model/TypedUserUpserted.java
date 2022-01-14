@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
 
 @AllArgsConstructor
-public class TypedUserUpserted extends TypedEvent{
+public class TypedUserUpserted implements TypedEvent {
 
   private final UserUpserted userUpserted;
 

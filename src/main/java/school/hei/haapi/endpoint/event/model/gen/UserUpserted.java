@@ -50,8 +50,8 @@ public class UserUpserted implements Serializable {
       return false;
     }
     UserUpserted userUpserted = (UserUpserted) o;
-    return Objects.equals(this.userId, userUpserted.userId) &&
-        Objects.equals(this.email, userUpserted.email);
+    return Objects.equals(this.userId, userUpserted.userId)
+        && Objects.equals(this.email, userUpserted.email);
   }
 
   @Override
