@@ -17,6 +17,7 @@ import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
 import school.hei.haapi.model.exception.BadRequestException;
 import software.amazon.awssdk.services.sqs.SqsClient;
+import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
 import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 
@@ -71,7 +72,12 @@ public class EventPoller {
         continue;
       }
 
-      res.add(new AcknowledgeableTypedEvent(typedEvent, message.receiptHandle()));
+      res.add(new AcknowledgeableTypedEvent(
+          typedEvent,
+          () -> sqsClient.deleteMessage(DeleteMessageRequest.builder()
+              .queueUrl(queueUrl)
+              .receiptHandle(message.receiptHandle())
+              .build())));
     }
 
     return res;
