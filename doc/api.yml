@@ -471,6 +471,174 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
+  /students/{studentId}/fees/{feeId}:
+    get:
+      tags:
+        - Paying
+      summary: Get student fee by identifier
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: feeId
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getStudentFeeById
+      responses:
+        '200':
+          description: Identified student fee
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{studentId}/fees:
+    get:
+      tags:
+        - Paying
+      summary: Get all student fees
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getStudentFees
+      responses:
+        '200':
+          description: List of all student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Paying
+      summary: Create student fees
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createStudentFees
+      responses:
+        '200':
+          description: Created student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreateFee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
+  /students/{studentId}/fees/{feeId}/payments:
+    get:
+      tags:
+        - Paying
+      summary: Get all student payments
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: feeId
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getStudentPayments
+      responses:
+        '200':
+          description: List of all student payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Paying
+      summary: Create student payments
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: feeId
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createStudentPayments
+      responses:
+        '200':
+          description: Created student payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreatePayment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -592,13 +760,61 @@ components:
           type: integer
         total_hours:
           type: integer
-    Response:
+    CreateFee:
       type: object
       properties:
-        code:
-          type: integer
-        message:
+        type:
           type: string
+          enum:
+            - TUITION
+            - HARDWARE
+        total_amount:
+          type: integer
+        creation_datetime:
+          type: string
+          format: date-time
+        due_datetime:
+          type: string
+          format: date-time
+    Fee:
+      allOf:
+        - $ref: '#/components/schemas/CreateFee'
+      type: object
+      properties:
+        id:
+          type: string
+        remaining_amount:
+          type: integer
+        status:
+          type: string
+          enum:
+            - UNPAID
+            - PAID
+            - LATE
+    CreatePayment:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - CASH
+            - SCOLARSHIP
+            - FIX
+        amount:
+          type: integer
+        fix_reason:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+    Payment:
+      allOf:
+        - $ref: '#/components/schemas/CreatePayment'
+      type: object
+      properties:
+        id:
+          type: string
+
     Exception:
       type: object
       properties:
