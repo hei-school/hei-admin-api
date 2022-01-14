@@ -82,10 +82,8 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Build Gradle project
-        run: | 
-          export COGNITO_JWT_REGION=${{ secrets.TEST_COGNITO_JWT_REGION }}
-          export COGNITO_JWT_USERPOOLID=${{ secrets.TEST_COGNITO_JWT_USERPOOLID }}
-          export TEST_COGNITO_JWT_STUDENTTOKEN=${{ secrets.TEST_COGNITO_JWT_STUDENTTOKEN }}
+        run: |
+          export TEST_AWS_COGNITO_IDTOKEN=${{ secrets.TEST_COGNITO_IDTOKEN }}
           ./gradlew build
 
       - name: If version incremented then commit
