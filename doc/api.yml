@@ -19,7 +19,7 @@ servers:
   - url: 'https://api.hei.school'
 
 security:
-  - BearerAuth: []
+  - BearerAuth: [ ]
 
 paths:
   '/whoami':
@@ -471,18 +471,18 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
-  /students/{studentId}/fees/{feeId}:
+  /students/{student_id}/fees/{fee_id}:
     get:
       tags:
         - Paying
       summary: Get student fee by identifier
       parameters:
-        - name: studentId
+        - name: student_id
           in: path
           required: true
           schema:
             type: string
-        - name: feeId
+        - name: fee_id
           in: path
           required: true
           schema:
@@ -505,13 +505,13 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{studentId}/fees:
+  /students/{student_id}/fees:
     get:
       tags:
         - Paying
       summary: Get all student fees
       parameters:
-        - name: studentId
+        - name: student_id
           in: path
           required: true
           schema:
@@ -541,7 +541,7 @@ paths:
         - Paying
       summary: Create student fees
       parameters:
-        - name: studentId
+        - name: student_id
           in: path
           required: true
           schema:
@@ -567,18 +567,18 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
-  /students/{studentId}/fees/{feeId}/payments:
+  /students/{student_id}/fees/{fee_id}/payments:
     get:
       tags:
         - Paying
       summary: Get all student payments
       parameters:
-        - name: studentId
+        - name: student_id
           in: path
           required: true
           schema:
             type: string
-        - name: feeId
+        - name: fee_id
           in: path
           required: true
           schema:
@@ -608,12 +608,12 @@ paths:
         - Paying
       summary: Create student payments
       parameters:
-        - name: studentId
+        - name: student_id
           in: path
           required: true
           schema:
             type: string
-        - name: feeId
+        - name: fee_id
           in: path
           required: true
           schema:
@@ -763,7 +763,7 @@ components:
     CreateFee:
       type: object
       properties:
-        studentId:
+        student_id:
           type: string
         type:
           type: string
@@ -793,6 +793,8 @@ components:
             - UNPAID
             - PAID
             - LATE
+        comment:
+          type: string
     CreatePayment:
       type: object
       properties:
@@ -804,7 +806,7 @@ components:
             - FIX
         amount:
           type: integer
-        fix_reason:
+        comment:
           type: string
         creation_datetime:
           type: string
