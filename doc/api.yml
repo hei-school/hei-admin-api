@@ -763,6 +763,8 @@ components:
     CreateFee:
       type: object
       properties:
+        studentId:
+          type: string
         type:
           type: string
           enum:

@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -19,6 +20,9 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.OPTIONS;
+import static org.springframework.http.HttpMethod.PUT;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 
@@ -69,16 +73,21 @@ class SpringSecurityIT {
   }
 
   @Test
-  void options_with_cors() throws IOException, InterruptedException {
+  void options_has_cors_headers() throws IOException, InterruptedException {
+    test_cors(GET, "/whoami");
+    test_cors(PUT, "/students");
+  }
+
+  void test_cors(HttpMethod method, String path) throws IOException, InterruptedException {
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
     String basePath = "http://localhost:" + SpringSecurityIT.ContextInitializer.SERVER_PORT;
 
     HttpResponse<String> response = unauthenticatedClient.send(
         HttpRequest.newBuilder()
-            .uri(URI.create(basePath + "/whoami"))
-            .method("OPTIONS", HttpRequest.BodyPublishers.noBody())
+            .uri(URI.create(basePath + path))
+            .method(OPTIONS.name(), HttpRequest.BodyPublishers.noBody())
             .header("Access-Control-Request-Headers", "authorization")
-            .header("Access-Control-Request-Method", "GET") // we want to perform GET afterwards
+            .header("Access-Control-Request-Method", method.name())
             .header("Origin", "http://localhost:3000")
             .build(),
         HttpResponse.BodyHandlers.ofString());
