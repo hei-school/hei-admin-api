@@ -13,6 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.SecurityApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -34,6 +35,9 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @ContextConfiguration(initializers = SecurityIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class SecurityIT {
+
+  @MockBean
+  private SentryConf sentryConf;
 
   @MockBean
   private CognitoComponent cognitoComponentMock;
