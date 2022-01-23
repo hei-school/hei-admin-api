@@ -7,11 +7,14 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.endpoint.rest.security.model.Role;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.UserService;
@@ -35,8 +38,10 @@ public class TeacherController {
   }
 
   @GetMapping(value = "/teachers")
-  public List<Teacher> getTeachers() {
-    return userService.getByRole(User.Role.TEACHER).stream()
+  public List<Teacher> getTeachers(
+      @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize) {
+    return userService
+        .getByRole(User.Role.TEACHER, page, pageSize).stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());
   }

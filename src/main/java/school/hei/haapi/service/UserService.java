@@ -2,14 +2,20 @@ package school.hei.haapi.service;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @Service
 @AllArgsConstructor
@@ -42,7 +48,11 @@ public class UserService {
     );
   }
 
-  public List<User> getByRole(User.Role role) {
-    return userRepository.getByRole(role);
+  public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable = PageRequest.of(
+        page.getValue() - 1,
+        pageSize.getValue(),
+        Sort.by(ASC, "ref"));
+    return userRepository.getByRole(role, pageable);
   }
 }

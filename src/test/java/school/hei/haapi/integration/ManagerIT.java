@@ -77,7 +77,7 @@ class ManagerIT {
     );
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        api::getManagers
+        () -> api.getManagers(1, 20)
     );
   }
 
@@ -92,7 +92,7 @@ class ManagerIT {
     );
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        api::getManagers
+        () -> api.getManagers(1, 20)
     );
   }
 
@@ -111,7 +111,7 @@ class ManagerIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     UsersApi api = new UsersApi(manager1Client);
-    List<Manager> managers = api.getManagers();
+    List<Manager> managers = api.getManagers(1, 20);
 
     assertEquals(1, managers.size());
     assertEquals(manager1(), managers.get(0));
