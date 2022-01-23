@@ -1,7 +1,10 @@
 package school.hei.haapi.integration;
 
+import com.github.javafaker.Faker;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -64,9 +67,23 @@ class StudentIT {
 
   public static Student aCreatableStudent() {
     Student student = student1();
+
+    Faker faker = new Faker();
     student.setId(null);
-    student.setRef("STD21_" + randomUUID());
-    student.setEmail(randomUUID() + "@hei.school");
+    student.setFirstName(faker.name().firstName());
+    student.setLastName(faker.name().lastName());
+    student.setEmail("test+" + randomUUID() + "@hei.school");
+    student.setRef("STD21" + (int) (Math.random() * 1_000_000));
+    student.setPhone("03" + (int) (Math.random() * 1_000_000_000));
+    student.setStatus(Student.StatusEnum.ENABLED);
+    student.setSex(Math.random() < 0.3 ? Student.SexEnum.F : Student.SexEnum.M);
+    Instant birthday = faker
+        .date().birthday()
+        .toInstant();
+    int ageOfEntrance = 14 + (int) (Math.random() * 20);
+    student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
+    student.setEntranceDatetime(birthday.plus(365L * ageOfEntrance, ChronoUnit.DAYS));
+    student.setAddress(faker.address().fullAddress());
     return student;
   }
 

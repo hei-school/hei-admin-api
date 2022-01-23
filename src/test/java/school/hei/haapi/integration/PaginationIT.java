@@ -22,6 +22,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.StudentIT.aCreatableStudent;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -57,7 +58,7 @@ class PaginationIT {
   private void createNewStudents(int nbOfNewStudents) throws ApiException {
     List<Student> newStudents = new ArrayList<>();
     for (int i = 0; i < nbOfNewStudents; i++) {
-      newStudents.add(StudentIT.aCreatableStudent());
+      newStudents.add(aCreatableStudent());
     }
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);

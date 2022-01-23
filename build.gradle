@@ -130,6 +130,8 @@ dependencies {
     testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'org.testcontainers:postgresql'
+
+    testImplementation 'com.github.javafaker:javafaker:1.0.2'
 }
 
 dependencyManagement {
