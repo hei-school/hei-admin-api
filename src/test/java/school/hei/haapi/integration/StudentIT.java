@@ -129,7 +129,7 @@ class StudentIT {
     );
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        api::getStudents
+        () -> api.getStudents(1, 20)
     );
   }
 
@@ -139,7 +139,7 @@ class StudentIT {
 
     UsersApi api = new UsersApi(teacher1Client);
     Student actualStudent1 = api.getStudentById(STUDENT1_ID);
-    List<Student> actualStudents = api.getStudents();
+    List<Student> actualStudents = api.getStudents(1, 20);
 
     assertEquals(student1(), actualStudent1);
     assertTrue(actualStudents.contains(student1()));
@@ -173,7 +173,7 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     UsersApi api = new UsersApi(manager1Client);
-    List<Student> actualStudents = api.getStudents();
+    List<Student> actualStudents = api.getStudents(1, 20);
 
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));

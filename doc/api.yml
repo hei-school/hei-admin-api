@@ -192,9 +192,18 @@ paths:
         - Users
       summary: Get all students
       operationId: getStudents
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
       responses:
         '200':
-          description: List of all students
+          description: List of students, ordered by ref.
           content:
             application/json:
               schema:
@@ -363,9 +372,18 @@ paths:
         - Users
       summary: Get all teachers
       operationId: getTeachers
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
       responses:
         '200':
-          description: List of all teachers
+          description: List of teachers, ordered by ref.
           content:
             application/json:
               schema:
@@ -451,9 +469,18 @@ paths:
         - Users
       summary: Get all managers
       operationId: getManagers
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
       responses:
         '200':
-          description: List of all managers
+          description: List of managers, ordered by ref.
           content:
             application/json:
               schema:
@@ -816,6 +843,13 @@ components:
       properties:
         id:
           type: string
+
+    Page:
+      type: integer
+      description: Start at `1`
+    PageSize:
+      type: integer
+      description: Cannot exceed `500`
 
     Exception:
       type: object

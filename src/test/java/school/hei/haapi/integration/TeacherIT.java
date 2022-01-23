@@ -118,7 +118,7 @@ class TeacherIT {
     );
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        api::getTeachers
+        () -> api.getTeachers(1, 20)
     );
   }
 
@@ -133,7 +133,7 @@ class TeacherIT {
     );
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        api::getTeachers
+        () -> api.getTeachers(1, 20)
     );
   }
 
@@ -174,7 +174,7 @@ class TeacherIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     UsersApi api = new UsersApi(manager1Client);
-    List<Teacher> teachers = api.getTeachers();
+    List<Teacher> teachers = api.getTeachers(1, 20);
 
     assertTrue(teachers.contains(teacher1()));
     assertTrue(teachers.contains(teacher2()));
