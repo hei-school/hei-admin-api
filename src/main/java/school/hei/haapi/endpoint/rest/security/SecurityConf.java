@@ -15,6 +15,7 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.PUT;
 import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
+import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
 import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 
 @Configuration
@@ -65,7 +66,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(OPTIONS, "/**").permitAll()
         .antMatchers("/whoami/**").authenticated()
         .antMatchers(GET, "/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-        .antMatchers(GET, "/students/**").authenticated()
+        .antMatchers(GET, "/students/*/fees/*").hasAnyRole(MANAGER.getRole(), STUDENT.getRole())
+        .antMatchers(GET, "/students/*").authenticated()
         .antMatchers(PUT, "/students/**").hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/teachers").hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/teachers/**").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
