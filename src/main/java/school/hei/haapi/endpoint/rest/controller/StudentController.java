@@ -41,19 +41,15 @@ public class StudentController {
   @GetMapping("/students")
   public List<Student> getStudents(
       @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize) {
-    return userService
-        .getByRole(User.Role.STUDENT, page, pageSize).stream()
-        .map(userMapper::toRestStudent)
-        .collect(toUnmodifiableList());
+    return userService.getByRole(User.Role.STUDENT, page, pageSize).stream()
+            .map(userMapper::toRestStudent)
+            .collect(toUnmodifiableList());
   }
 
   @PutMapping("/students")
-  public List<Student> saveAll(@RequestBody List<Student> toSave) {
+  public List<Student> saveAll(@RequestBody List<Student> toWrite) {
     return userService
-        .saveAll(toSave
-            .stream()
-            .map(userMapper::toDomain)
-            .collect(toUnmodifiableList()))
+        .saveAll(toWrite.stream().map(userMapper::toDomain).collect(toUnmodifiableList()))
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());

@@ -22,7 +22,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.StudentIT.aCreatableStudent;
+import static school.hei.haapi.integration.StudentIT.creatableStudent;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -36,14 +36,11 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 @AutoConfigureMockMvc
 class PaginationIT {
 
-  @MockBean
-  private SentryConf sentryConf;
+  @MockBean private SentryConf sentryConf;
 
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
-  @MockBean
-  private EventBridgeClient eventBridgeClientMock;
+  @MockBean private EventBridgeClient eventBridgeClientMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -58,7 +55,7 @@ class PaginationIT {
   private void createNewStudents(int nbOfNewStudents) throws ApiException {
     List<Student> newStudents = new ArrayList<>();
     for (int i = 0; i < nbOfNewStudents; i++) {
-      newStudents.add(aCreatableStudent());
+      newStudents.add(creatableStudent());
     }
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -67,21 +64,26 @@ class PaginationIT {
 
   @Test
   void student_pages_are_ordered_by_reference() throws ApiException {
-    createNewStudents(100);
+    createNewStudents(8);
+    int pageSize = 4;
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-
     UsersApi api = new UsersApi(teacher1Client);
-    List<Student> page5 = api.getStudents(5, 5);
-    List<Student> page10 = api.getStudents(10, 5);
-    List<Student> page100 = api.getStudents(100, 5);
 
-    assertEquals(5, page5.size());
-    assertEquals(5, page10.size());
+    final List<Student> page1 = api.getStudents(1, pageSize);
+    final List<Student> page2 = api.getStudents(2, pageSize);
+    final List<Student> page3 = api.getStudents(3, pageSize);
+    final List<Student> page4 = api.getStudents(4, pageSize);
+    final  List<Student> page100 = api.getStudents(100, pageSize);
+
+    assertEquals(pageSize, page1.size());
+    assertEquals(pageSize, page2.size());
+    assertEquals(2, page3.size());
+    assertEquals(0, page4.size());
     assertEquals(0, page100.size());
     // students are ordered by ref
-    assertTrue(isBefore(page5.get(0).getRef(), page5.get(4).getRef()));
-    assertTrue(isBefore(page5.get(4).getRef(), page10.get(0).getRef()));
-    assertTrue(isBefore(page10.get(0).getRef(), page10.get(4).getRef()));
+    assertTrue(isBefore(page1.get(0).getRef(), page1.get(2).getRef()));
+    assertTrue(isBefore(page1.get(2).getRef(), page2.get(0).getRef()));
+    assertTrue(isBefore(page2.get(0).getRef(), page2.get(2).getRef()));
   }
 
   private boolean isBefore(String a, String b) {
@@ -95,12 +97,10 @@ class PaginationIT {
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >=1\"}",
-        () -> api.getStudents(0, 20)
-    );
+        () -> api.getStudents(0, 20));
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",
-        () -> api.getStudents(1, 1000)
-    );
+        () -> api.getStudents(1, 1000));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

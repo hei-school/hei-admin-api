@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
@@ -32,11 +33,12 @@ public class UserService {
     return userRepository.getByEmail(email);
   }
 
+  @Transactional
   public List<User> saveAll(List<User> users) {
     List<User> savedUsers = userRepository.saveAll(users);
     eventProducer.accept(users.stream()
-        .map(this::toTypedEvent)
-        .collect(toUnmodifiableList()));
+              .map(this::toTypedEvent)
+              .collect(toUnmodifiableList()));
     return savedUsers;
   }
 
