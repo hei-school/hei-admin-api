@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.event.EventConf;
+import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
@@ -16,6 +18,7 @@ import school.hei.haapi.endpoint.rest.security.model.Role;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.UserService;
 
@@ -41,19 +44,18 @@ public class StudentController {
   @GetMapping("/students")
   public List<Student> getStudents(
       @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize) {
-    return userService
-        .getByRole(User.Role.STUDENT, page, pageSize).stream()
+    return userService.getByRole(User.Role.STUDENT, page, pageSize).stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
   }
 
   @PutMapping("/students")
-  public List<Student> saveAll(@RequestBody List<Student> toSave) {
+  public List<Student> saveAll(@RequestBody List<Student> toWrite) {
+    if (toWrite.size() > EventConf.MAX_EVENT_REQUEST_ENTRY) {
+      throw new BadRequestException("students to create or update must be ≤ 10");
+    }
     return userService
-        .saveAll(toSave
-            .stream()
-            .map(userMapper::toDomain)
-            .collect(toUnmodifiableList()))
+        .saveAll(toWrite.stream().map(userMapper::toDomain).collect(toUnmodifiableList()))
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());

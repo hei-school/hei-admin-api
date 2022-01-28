@@ -2,10 +2,12 @@ package school.hei.haapi.service;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
@@ -17,13 +19,14 @@ import school.hei.haapi.repository.UserRepository;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
+@Slf4j
+
 @Service
 @AllArgsConstructor
 public class UserService {
 
   private final UserRepository userRepository;
   private final EventProducer eventProducer;
-
   public User getById(String userId) {
     return userRepository.getById(userId);
   }
@@ -32,11 +35,13 @@ public class UserService {
     return userRepository.getByEmail(email);
   }
 
+  @Transactional
   public List<User> saveAll(List<User> users) {
     List<User> savedUsers = userRepository.saveAll(users);
     eventProducer.accept(users.stream()
         .map(this::toTypedEvent)
         .collect(toUnmodifiableList()));
+
     return savedUsers;
   }
 

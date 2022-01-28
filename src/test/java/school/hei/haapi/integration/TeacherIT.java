@@ -2,7 +2,10 @@ package school.hei.haapi.integration;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,15 +17,19 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 
 import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -41,14 +48,11 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 @AutoConfigureMockMvc
 class TeacherIT {
 
-  @MockBean
-  private SentryConf sentryConf;
+  @MockBean private SentryConf sentryConf;
 
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
-  @MockBean
-  private EventBridgeClient eventBridgeClientMock;
+  @MockBean private EventBridgeClient eventBridgeClientMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -101,6 +105,14 @@ class TeacherIT {
     return teacher;
   }
 
+  static List<Teacher> aTeacherList(int number) {
+    List<Teacher> teacherList = new ArrayList<>();
+    for (int i = 0; i < number; i++) {
+      teacherList.add(aCreatableTeacher());
+    }
+    return teacherList;
+  }
+
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
@@ -114,12 +126,10 @@ class TeacherIT {
     UsersApi api = new UsersApi(student1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getTeacherById(TEACHER1_ID)
-    );
+        () -> api.getTeacherById(TEACHER1_ID));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getTeachers(1, 20)
-    );
+        () -> api.getTeachers(1, 20));
   }
 
   @Test
@@ -129,12 +139,10 @@ class TeacherIT {
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getTeacherById(TEACHER2_ID)
-    );
+        () -> api.getTeacherById(TEACHER2_ID));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getTeachers(1, 20)
-    );
+        () -> api.getTeachers(1, 20));
   }
 
   @Test
@@ -144,8 +152,7 @@ class TeacherIT {
     UsersApi api = new UsersApi(student1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateTeachers(List.of())
-    );
+        () -> api.createOrUpdateTeachers(List.of()));
   }
 
   @Test
@@ -155,8 +162,7 @@ class TeacherIT {
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateTeachers(List.of())
-    );
+        () -> api.createOrUpdateTeachers(List.of()));
   }
 
   @Test
@@ -181,6 +187,23 @@ class TeacherIT {
   }
 
   @Test
+  void manager_write_update_rollback_on_event_error() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    Teacher toCreate = aCreatableTeacher();
+    reset(eventBridgeClientMock);
+    when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
+        .thenThrow(RuntimeException.class);
+
+    assertThrowsApiException(
+        "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
+        () -> api.createOrUpdateTeachers(List.of(toCreate)));
+
+    List<Teacher> actual = api.getTeachers(1, 100);
+    assertFalse(actual.stream().anyMatch(s -> Objects.equals(toCreate.getEmail(), s.getEmail())));
+  }
+
+  @Test
   void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     Teacher toCreate = aCreatableTeacher();
@@ -196,12 +219,27 @@ class TeacherIT {
   }
 
   @Test
+  void manager_write_update_more_than_10_teachers_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    Teacher teacherToCreate = aCreatableTeacher();
+    List<Teacher> listToCreate = aTeacherList(11);
+    listToCreate.add(teacherToCreate);
+
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"teachers to create or update must be ≤ 10\"}",
+        () -> api.createOrUpdateTeachers(listToCreate));
+
+    List<Teacher> actual = api.getTeachers(1, 100);
+    assertFalse(
+        actual.stream().anyMatch(s -> Objects.equals(teacherToCreate.getEmail(), s.getEmail())));
+  }
+
+  @Test
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Teacher toUpdate = api
-        .createOrUpdateTeachers(List.of(aCreatableTeacher()))
-        .get(0);
+    Teacher toUpdate = api.createOrUpdateTeachers(List.of(aCreatableTeacher())).get(0);
     toUpdate.setLastName("New last name");
 
     List<Teacher> updated = api.createOrUpdateTeachers(List.of(toUpdate));

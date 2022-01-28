@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.event.EventConf;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
@@ -16,6 +17,7 @@ import school.hei.haapi.endpoint.rest.security.model.Role;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.UserService;
 
@@ -40,19 +42,19 @@ public class TeacherController {
   @GetMapping(value = "/teachers")
   public List<Teacher> getTeachers(
       @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize) {
-    return userService
-        .getByRole(User.Role.TEACHER, page, pageSize).stream()
+    return userService.getByRole(User.Role.TEACHER, page, pageSize).stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());
   }
 
   @PutMapping(value = "/teachers")
   public List<Teacher> createOrUpdateTeachers(@RequestBody List<Teacher> toWrite) {
-    var saved = userService.saveAll(toWrite.stream()
-        .map(userMapper::toDomain)
-        .collect(toUnmodifiableList()));
-    return saved.stream()
-        .map(userMapper::toRestTeacher)
-        .collect(toUnmodifiableList());
+    if (toWrite.size() > EventConf.MAX_EVENT_REQUEST_ENTRY) {
+      throw new BadRequestException("teachers to create or update must be ≤ 10");
+    }
+    var saved =
+        userService.saveAll(
+            toWrite.stream().map(userMapper::toDomain).collect(toUnmodifiableList()));
+    return saved.stream().map(userMapper::toRestTeacher).collect(toUnmodifiableList());
   }
 }

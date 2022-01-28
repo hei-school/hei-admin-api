@@ -9,6 +9,7 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 @Configuration
 public class EventConf {
   private final Region region;
+  public final static Integer MAX_EVENT_REQUEST_ENTRY = 10;
 
   public EventConf(@Value("${aws.region}") String region) {
     this.region = Region.of(region);

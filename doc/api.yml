@@ -563,16 +563,19 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/fees:
     post:
       tags:
         - Paying
       summary: Create student fees
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateFee'
       operationId: createStudentFees
       responses:
         '200':
@@ -582,7 +585,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CreateFee'
+                  $ref: '#/components/schemas/Fee'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -593,7 +596,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /students/{student_id}/fees/{fee_id}/payments:
     get:
       tags:
@@ -799,6 +801,8 @@ components:
             - HARDWARE
         total_amount:
           type: integer
+        comment:
+          type: string
         creation_datetime:
           type: string
           format: date-time
