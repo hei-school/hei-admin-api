@@ -55,9 +55,9 @@ class EventPollerTest {
   void non_empty_messages_triggers_eventConsumer() {
     ReceiveMessageResponse response = ReceiveMessageResponse.builder()
         .messages(
-            aMessage(UserUpserted.class),
-            aMessage(Exception.class),
-            aMessage(UserUpserted.class))
+            message(UserUpserted.class),
+            message(Exception.class),
+            message(UserUpserted.class))
         .build();
     when(sqsClient.receiveMessage((ReceiveMessageRequest) any())).thenReturn(response);
 
@@ -77,14 +77,14 @@ class EventPollerTest {
     // Second ackTypedEvent
   }
 
-  private Message aMessage(Class<?> clazz) {
+  private Message message(Class<?> clazz) {
     return Message.builder()
-        .body(aMessageBody(clazz))
+        .body(messageBody(clazz))
         .receiptHandle(randomUUID().toString())
         .build();
   }
 
-  private String aMessageBody(Class<?> clazz) {
+  private String messageBody(Class<?> clazz) {
     String eventId = randomUUID().toString();
     String userId = randomUUID().toString();
     return "{\n"

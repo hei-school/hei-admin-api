@@ -50,7 +50,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .and()
         .authenticationProvider(authProvider)
         .addFilterBefore(
-            aBearerFilter(new NegatedRequestMatcher(
+            bearerFilter(new NegatedRequestMatcher(
                 new OrRequestMatcher(
                     new AntPathRequestMatcher("/ping"),
                     new AntPathRequestMatcher("/**", OPTIONS.toString())
@@ -87,7 +87,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
     // formatter:on
   }
 
-  private BearerAuthFilter aBearerFilter(RequestMatcher requestMatcher) throws Exception {
+  private BearerAuthFilter bearerFilter(RequestMatcher requestMatcher) throws Exception {
     BearerAuthFilter bearerFilter = new BearerAuthFilter(requestMatcher, AUTHORIZATION_HEADER);
     bearerFilter.setAuthenticationManager(authenticationManager());
     bearerFilter.setAuthenticationSuccessHandler(

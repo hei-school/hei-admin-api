@@ -5,7 +5,9 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -31,6 +33,7 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -52,20 +55,17 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 @AutoConfigureMockMvc
 class StudentIT {
 
-  @MockBean
-  private SentryConf sentryConf;
+  @MockBean private SentryConf sentryConf;
 
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
-  @MockBean
-  private EventBridgeClient eventBridgeClientMock;
+  @MockBean private EventBridgeClient eventBridgeClientMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  public static Student aCreatableStudent() {
+  public static Student creatableStudent() {
     Student student = student1();
 
     Faker faker = new Faker();
@@ -77,14 +77,20 @@ class StudentIT {
     student.setPhone("03" + (int) (Math.random() * 1_000_000_000));
     student.setStatus(Student.StatusEnum.ENABLED);
     student.setSex(Math.random() < 0.3 ? Student.SexEnum.F : Student.SexEnum.M);
-    Instant birthday = faker
-        .date().birthday()
-        .toInstant();
+    Instant birthday = faker.date().birthday().toInstant();
     int ageOfEntrance = 14 + (int) (Math.random() * 20);
     student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
     student.setEntranceDatetime(birthday.plus(365L * ageOfEntrance, ChronoUnit.DAYS));
     student.setAddress(faker.address().fullAddress());
     return student;
+  }
+
+  static List<Student> creatableStudentList(int nbOfStudent) {
+    List<Student> studentList = new ArrayList<>();
+    for (int i = 0; i < nbOfStudent; i++) {
+      studentList.add(creatableStudent());
+    }
+    return studentList;
   }
 
   public static Student student1() {
@@ -142,12 +148,10 @@ class StudentIT {
     UsersApi api = new UsersApi(student1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentById(TestUtils.STUDENT2_ID)
-    );
+        () -> api.getStudentById(TestUtils.STUDENT2_ID));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudents(1, 20)
-    );
+        () -> api.getStudents(1, 20));
   }
 
   @Test
@@ -170,8 +174,7 @@ class StudentIT {
     UsersApi api = new UsersApi(student1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateStudents(List.of())
-    );
+        () -> api.createOrUpdateStudents(List.of()));
   }
 
   @Test
@@ -181,8 +184,7 @@ class StudentIT {
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateStudents(List.of())
-    );
+        () -> api.createOrUpdateStudents(List.of()));
   }
 
   @Test
@@ -200,9 +202,8 @@ class StudentIT {
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    List<Student> toUpdate = api.createOrUpdateStudents(List.of(
-        aCreatableStudent(),
-        aCreatableStudent()));
+    List<Student> toUpdate =
+        api.createOrUpdateStudents(List.of(creatableStudent(), creatableStudent()));
     Student toUpdate0 = toUpdate.get(0);
     toUpdate0.setLastName("A new name zero");
     Student toUpdate1 = toUpdate.get(1);
@@ -216,20 +217,52 @@ class StudentIT {
   }
 
   @Test
+  void manager_write_update_rollback_on_event_error() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    Student toCreate = creatableStudent();
+    reset(eventBridgeClientMock);
+    when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
+        .thenThrow(RuntimeException.class);
+
+    assertThrowsApiException(
+        "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
+        () -> api.createOrUpdateStudents(List.of(toCreate)));
+
+    List<Student> actual = api.getStudents(1, 100);
+    assertFalse(actual.stream().anyMatch(s -> Objects.equals(toCreate.getEmail(), s.getEmail())));
+  }
+
+  @Test
+  void manager_write_update_more_than_10_students_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    Student studentToCreate = creatableStudent();
+    List<Student> listToCreate = creatableStudentList(11);
+    listToCreate.add(studentToCreate);
+
+    assertThrowsApiException(
+            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Request entries must be <= 10\"}",
+        () -> api.createOrUpdateStudents(listToCreate));
+
+    List<Student> actual = api.getStudents(1, 100);
+    assertFalse(
+        actual.stream().anyMatch(s -> Objects.equals(studentToCreate.getEmail(), s.getEmail())));
+  }
+
+  @Test
   void manager_write_update_triggers_userUpserted() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any())).thenReturn(
-        PutEventsResponse.builder()
-            .entries(
-                PutEventsResultEntry.builder().eventId("eventId1").build(),
-                PutEventsResultEntry.builder().eventId("eventId2").build())
-            .build());
+            PutEventsResponse.builder().entries(
+                    PutEventsResultEntry.builder().eventId("eventId1").build(),
+                    PutEventsResultEntry.builder().eventId("eventId2").build())
+                .build());
 
-    List<Student> created = api.createOrUpdateStudents(List.of(
-        aCreatableStudent(),
-        aCreatableStudent()));
+    List<Student> created =
+        api.createOrUpdateStudents(List.of(creatableStudent(), creatableStudent()));
 
     ArgumentCaptor<PutEventsRequest> captor = ArgumentCaptor.forClass(PutEventsRequest.class);
     verify(eventBridgeClientMock, times(1)).putEvents(captor.capture());

@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.event.model.TypedEvent;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.model.exception.BadRequestException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -29,7 +30,9 @@ public class EventProducer implements Consumer<List<TypedEvent>> {
 
   @Configuration
   public static class Conf {
+
     private final Region region;
+    private static final int MAX_PUT_EVENT_ENTRIES = 10;
 
     public Conf(@Value("${aws.region}") String region) {
       this.region = Region.of(region);
@@ -70,10 +73,15 @@ public class EventProducer implements Consumer<List<TypedEvent>> {
   }
 
   private PutEventsResponse sendRequest(List<TypedEvent> events) {
-    PutEventsRequest eventsRequest = PutEventsRequest.builder()
-        .entries(events.stream().map(this::toRequestEntry).collect(toUnmodifiableList()))
-        .build();
+    checkPayload(events);
+    PutEventsRequest eventsRequest = toEventsRequest(events);
     return eventBridgeClient.putEvents(eventsRequest);
+  }
+
+  private PutEventsRequest toEventsRequest(List<TypedEvent> events) {
+    return PutEventsRequest.builder()
+            .entries(events.stream().map(this::toRequestEntry).collect(toUnmodifiableList()))
+            .build();
   }
 
   private PutEventsRequestEntry toRequestEntry(TypedEvent typedEvent) {
@@ -106,6 +114,18 @@ public class EventProducer implements Consumer<List<TypedEvent>> {
     }
     if (!successfulEntries.isEmpty()) {
       log.info("Following events were successfully sent: {}", successfulEntries);
+    }
+  }
+
+  private boolean isPayloadValid(List<TypedEvent> events) {
+    PutEventsRequest eventsRequest = toEventsRequest(events);
+    return eventsRequest.entries().size() <= Conf.MAX_PUT_EVENT_ENTRIES;
+  }
+
+  private void checkPayload(List<TypedEvent> events) {
+    if (!isPayloadValid(events)) {
+      throw new BadRequestException(
+              "Request entries must be <= " + Conf.MAX_PUT_EVENT_ENTRIES);
     }
   }
 }
