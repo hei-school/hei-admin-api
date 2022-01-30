@@ -4,12 +4,12 @@ on:
   push:
     branches:
       - 'dev'
-      - 'staging'
+      - 'prod'
   workflow_dispatch:
 
 jobs:
   cd:
-    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'
+    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/prod'
 
     runs-on: ubuntu-latest
 
@@ -51,9 +51,9 @@ jobs:
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
       - name: Build, tag and push Docker image to AWS private ECR (continue-on-error)
-        # Assume dev and staging point to the same commit.
+        # Assume dev and prod point to the same commit.
         # Assume dev finished publishing the (immutable) image.
-        # In such a case, staging publication will end in an error since image already exists:
+        # In such a case, prod publication will end in an error since image already exists:
         # Ignore the error and pursue to stack update.
         continue-on-error: true
         env:
@@ -70,10 +70,10 @@ jobs:
             echo "branch_env=dev" >> $GITHUB_ENV
             echo "listenerRuleAvailablePriority=1" >> $GITHUB_ENV
             echo "subnet=${{ secrets.DEV_SUBNET }}" >> $GITHUB_ENV
-          elif ${{ github.ref == 'refs/heads/staging' }}; then
-            echo "branch_env=staging" >> $GITHUB_ENV
+          elif ${{ github.ref == 'refs/heads/prod' }}; then
+            echo "branch_env=prod" >> $GITHUB_ENV
             echo "listenerRuleAvailablePriority=2" >> $GITHUB_ENV
-            echo "subnet=${{ secrets.STAGING_SUBNET }}" >> $GITHUB_ENV
+            echo "subnet=${{ secrets.PROD_SUBNET }}" >> $GITHUB_ENV
           fi
       - name: Deploy with AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
