@@ -72,7 +72,7 @@ jobs:
             echo "subnet=${{ secrets.DEV_SUBNET }}" >> $GITHUB_ENV
           elif ${{ github.ref == 'refs/heads/prod' }}; then
             echo "branch_env=prod" >> $GITHUB_ENV
-            echo "listenerRuleAvailablePriority=2" >> $GITHUB_ENV
+            echo "listenerRuleAvailablePriority=10" >> $GITHUB_ENV
             echo "subnet=${{ secrets.PROD_SUBNET }}" >> $GITHUB_ENV
           fi
       - name: Deploy with AWS CloudFormation
