@@ -50,17 +50,17 @@ Resources:
             - Name: ENV
               Value: !Ref Env
             - Name: SENTRY_DSN
-              Value: !Sub '{{resolve:ssm:/hei-admin-api/sentry/dsn:1}}'
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/sentry/dsn}}'
             - Name: AWS_COGNITO_USERPOOL_ID
-              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-id:1}}'
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-id}}'
             - Name: AWS_EVENTBRIDGE_BUS
-              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/eventbridge/bus-name:1}}'
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/eventbridge/bus-name}}'
             - Name: AWS_SQS_QUEUEURL
-              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/sqs/queue-url:1}}'
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/sqs/queue-url}}'
             - Name: SPRING_DATASOURCE_URL
-              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/url:1}}'
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/url}}'
             - Name: SPRING_DATASOURCE_PASSWORD
-              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/password:1}}'
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/password}}'
           LogConfiguration:
             LogDriver: awslogs
             Options:
