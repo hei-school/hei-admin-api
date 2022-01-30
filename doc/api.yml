@@ -16,7 +16,7 @@ info:
 
 servers:
   - url: 'https://api-dev.hei.school'
-  - url: 'https://api.hei.school'
+  - url: 'https://api-prod.hei.school'
 
 security:
   - BearerAuth: [ ]
