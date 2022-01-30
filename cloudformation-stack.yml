@@ -50,7 +50,7 @@ Resources:
             - Name: ENV
               Value: !Ref Env
             - Name: SENTRY_DSN
-              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/sentry/dsn:1}}'
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/sentry/dsn:1}}'
             - Name: AWS_COGNITO_USERPOOL_ID
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-id:1}}'
             - Name: AWS_EVENTBRIDGE_BUS
