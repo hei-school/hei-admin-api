@@ -65,7 +65,7 @@ class StudentIT {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  public static Student creatableStudent() {
+  public static Student someCreatableStudent() {
     Student student = student1();
 
     Faker faker = new Faker();
@@ -85,10 +85,10 @@ class StudentIT {
     return student;
   }
 
-  static List<Student> creatableStudentList(int nbOfStudent) {
+  static List<Student> someCreatableStudentList(int nbOfStudent) {
     List<Student> studentList = new ArrayList<>();
     for (int i = 0; i < nbOfStudent; i++) {
-      studentList.add(creatableStudent());
+      studentList.add(someCreatableStudent());
     }
     return studentList;
   }
@@ -203,7 +203,7 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
     List<Student> toUpdate =
-        api.createOrUpdateStudents(List.of(creatableStudent(), creatableStudent()));
+        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));
     Student toUpdate0 = toUpdate.get(0);
     toUpdate0.setLastName("A new name zero");
     Student toUpdate1 = toUpdate.get(1);
@@ -220,7 +220,7 @@ class StudentIT {
   void manager_write_update_rollback_on_event_error() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Student toCreate = creatableStudent();
+    Student toCreate = someCreatableStudent();
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
         .thenThrow(RuntimeException.class);
@@ -237,8 +237,8 @@ class StudentIT {
   void manager_write_update_more_than_10_students_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Student studentToCreate = creatableStudent();
-    List<Student> listToCreate = creatableStudentList(11);
+    Student studentToCreate = someCreatableStudent();
+    List<Student> listToCreate = someCreatableStudentList(11);
     listToCreate.add(studentToCreate);
 
     assertThrowsApiException(
@@ -262,7 +262,7 @@ class StudentIT {
                 .build());
 
     List<Student> created =
-        api.createOrUpdateStudents(List.of(creatableStudent(), creatableStudent()));
+        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));
 
     ArgumentCaptor<PutEventsRequest> captor = ArgumentCaptor.forClass(PutEventsRequest.class);
     verify(eventBridgeClientMock, times(1)).putEvents(captor.capture());

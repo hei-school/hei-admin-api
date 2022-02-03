@@ -90,7 +90,7 @@ class TeacherIT {
     return teacher;
   }
 
-  public static Teacher creatableTeacher() {
+  public static Teacher someCreatableTeacher() {
     Teacher teacher = new Teacher();
     teacher.setFirstName("Some");
     teacher.setLastName("User");
@@ -105,10 +105,10 @@ class TeacherIT {
     return teacher;
   }
 
-  static List<Teacher> creatableTeacherList(int nbOfTeacher) {
+  static List<Teacher> someCreatableTeacherList(int nbOfTeacher) {
     List<Teacher> teacherList = new ArrayList<>();
     for (int i = 0; i < nbOfTeacher; i++) {
-      teacherList.add(creatableTeacher());
+      teacherList.add(someCreatableTeacher());
     }
     return teacherList;
   }
@@ -190,7 +190,7 @@ class TeacherIT {
   void manager_write_update_rollback_on_event_error() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Teacher toCreate = creatableTeacher();
+    Teacher toCreate = someCreatableTeacher();
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
         .thenThrow(RuntimeException.class);
@@ -206,7 +206,7 @@ class TeacherIT {
   @Test
   void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    Teacher toCreate = creatableTeacher();
+    Teacher toCreate = someCreatableTeacher();
 
     UsersApi api = new UsersApi(manager1Client);
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toCreate));
@@ -222,8 +222,8 @@ class TeacherIT {
   void manager_write_update_more_than_10_teachers_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Teacher teacherToCreate = creatableTeacher();
-    List<Teacher> listToCreate = creatableTeacherList(11);
+    Teacher teacherToCreate = someCreatableTeacher();
+    List<Teacher> listToCreate = someCreatableTeacherList(11);
     listToCreate.add(teacherToCreate);
 
     assertThrowsApiException(
@@ -239,7 +239,7 @@ class TeacherIT {
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Teacher toUpdate = api.createOrUpdateTeachers(List.of(creatableTeacher())).get(0);
+    Teacher toUpdate = api.createOrUpdateTeachers(List.of(someCreatableTeacher())).get(0);
     toUpdate.setLastName("New last name");
 
     List<Teacher> updated = api.createOrUpdateTeachers(List.of(toUpdate));

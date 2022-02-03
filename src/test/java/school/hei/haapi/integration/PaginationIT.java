@@ -22,7 +22,6 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.StudentIT.creatableStudent;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -52,10 +51,10 @@ class PaginationIT {
     setUpEventBridge(eventBridgeClientMock);
   }
 
-  private void createNewStudents(int nbOfNewStudents) throws ApiException {
+  private void someCreatableStudentList(int nbOfNewStudents) throws ApiException {
     List<Student> newStudents = new ArrayList<>();
     for (int i = 0; i < nbOfNewStudents; i++) {
-      newStudents.add(creatableStudent());
+      newStudents.add(StudentIT.someCreatableStudent());
     }
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -64,7 +63,7 @@ class PaginationIT {
 
   @Test
   void student_pages_are_ordered_by_reference() throws ApiException {
-    createNewStudents(8);
+    someCreatableStudentList(8);
     int pageSize = 4;
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     UsersApi api = new UsersApi(teacher1Client);

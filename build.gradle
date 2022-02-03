@@ -67,7 +67,11 @@ task generateTsClient(type: org.openapitools.generator.gradle.plugin.tasks.Gener
     outputDir = "$buildDir/gen-ts".toString()
 }
 task publishJavaClientToMavenLocal(type: Exec, dependsOn: generateJavaClient) {
-    commandLine './publish_gen_to_maven_local.bat'
+    if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)){
+        commandLine './publish_gen_to_maven_local.bat'
+    } else {
+        commandLine './publish_gen_to_maven_local.sh'
+    }
 }
 tasks.compileJava.dependsOn publishJavaClientToMavenLocal
 
