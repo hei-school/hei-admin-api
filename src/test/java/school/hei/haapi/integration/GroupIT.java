@@ -67,7 +67,7 @@ public class GroupIT {
     return group;
   }
 
-  public static Group creatableGroup() {
+  public static Group someCreatableGroup() {
     Group group = new Group();
     group.setName("Some name");
     group.setRef("GRP21-" + randomUUID());
@@ -139,8 +139,8 @@ public class GroupIT {
   @Test
   void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    Group toCreate3 = creatableGroup();
-    Group toCreate4 = creatableGroup();
+    Group toCreate3 = someCreatableGroup();
+    Group toCreate4 = someCreatableGroup();
 
     TeachingApi api = new TeachingApi(manager1Client);
     List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
@@ -166,8 +166,8 @@ public class GroupIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
     List<Group> toUpdate = api.createOrUpdateGroups(List.of(
-        creatableGroup(),
-        creatableGroup()));
+        someCreatableGroup(),
+        someCreatableGroup()));
     Group toUpdate0 = toUpdate.get(0);
     toUpdate0.setName("A new name zero");
     Group toUpdate1 = toUpdate.get(1);

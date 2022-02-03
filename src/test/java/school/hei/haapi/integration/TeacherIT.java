@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -16,10 +17,12 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 
@@ -48,11 +51,20 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 @AutoConfigureMockMvc
 class TeacherIT {
 
-  @MockBean private SentryConf sentryConf;
+  @MockBean
+  private SentryConf sentryConf;
 
-  @MockBean private CognitoComponent cognitoComponentMock;
+  @MockBean
+  private CognitoComponent cognitoComponentMock;
 
-  @MockBean private EventBridgeClient eventBridgeClientMock;
+  @MockBean
+  private EventBridgeClient eventBridgeClientMock;
+
+  @Autowired
+  private UserService userService;
+
+  @Autowired
+  private UserMapper userMapper;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -81,6 +93,22 @@ class TeacherIT {
     teacher.setLastName("Teacher");
     teacher.setEmail("test+teacher2@hei.school");
     teacher.setRef("TCR21002");
+    teacher.setPhone("0322411126");
+    teacher.setStatus(Teacher.StatusEnum.ENABLED);
+    teacher.setSex(Teacher.SexEnum.M);
+    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
+    teacher.setAddress("Adr 4");
+    return teacher;
+  }
+
+  public static Teacher teacher3() {
+    Teacher teacher = new Teacher();
+    teacher.setId("teacher3_id");
+    teacher.setFirstName("Three");
+    teacher.setLastName("Teach");
+    teacher.setEmail("test+teacher3@hei.school");
+    teacher.setRef("TCR21003");
     teacher.setPhone("0322411126");
     teacher.setStatus(Teacher.StatusEnum.ENABLED);
     teacher.setSex(Teacher.SexEnum.M);
@@ -129,7 +157,7 @@ class TeacherIT {
         () -> api.getTeacherById(TEACHER1_ID));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getTeachers(1, 20));
+        () -> api.getTeachers(1, 20, null, null, null));
   }
 
   @Test
@@ -142,7 +170,7 @@ class TeacherIT {
         () -> api.getTeacherById(TEACHER2_ID));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getTeachers(1, 20));
+        () -> api.getTeachers(1, 20, null, null, null));
   }
 
   @Test
@@ -180,7 +208,7 @@ class TeacherIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     UsersApi api = new UsersApi(manager1Client);
-    List<Teacher> teachers = api.getTeachers(1, 20);
+    List<Teacher> teachers = api.getTeachers(1, 20, null, null, null);
 
     assertTrue(teachers.contains(teacher1()));
     assertTrue(teachers.contains(teacher2()));
@@ -199,7 +227,7 @@ class TeacherIT {
         "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
         () -> api.createOrUpdateTeachers(List.of(toCreate)));
 
-    List<Teacher> actual = api.getTeachers(1, 100);
+    List<Teacher> actual = api.getTeachers(1, 100, null, null, null);
     assertFalse(actual.stream().anyMatch(s -> Objects.equals(toCreate.getEmail(), s.getEmail())));
   }
 
@@ -227,12 +255,13 @@ class TeacherIT {
     listToCreate.add(teacherToCreate);
 
     assertThrowsApiException(
-                "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Request entries must be <= 10\"}",
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Request entries must be <= 10\"}",
         () -> api.createOrUpdateTeachers(listToCreate));
 
-    List<Teacher> actual = api.getTeachers(1, 100);
+    List<Teacher> actual = api.getTeachers(1, 20, null, null, null);
     assertFalse(
-        actual.stream().anyMatch(s -> Objects.equals(teacherToCreate.getEmail(), s.getEmail())));
+        actual.stream().anyMatch(
+            s -> Objects.equals(teacherToCreate.getEmail(), s.getEmail())));
   }
 
   @Test

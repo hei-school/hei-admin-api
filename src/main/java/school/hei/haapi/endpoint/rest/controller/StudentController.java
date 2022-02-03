@@ -24,7 +24,6 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @RestController
 @AllArgsConstructor
 public class StudentController {
-
   private final UserService userService;
   private final UserMapper userMapper;
 
@@ -40,16 +39,23 @@ public class StudentController {
 
   @GetMapping("/students")
   public List<Student> getStudents(
-      @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize) {
-    return userService.getByRole(User.Role.STUDENT, page, pageSize).stream()
-            .map(userMapper::toRestStudent)
-            .collect(toUnmodifiableList());
+      @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
+      @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
+      @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
+      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
+    return userService.getByRoleAndCriteria(User.Role.STUDENT, page, pageSize,
+            ref, firstName, lastName).stream()
+        .map(userMapper::toRestStudent)
+        .collect(toUnmodifiableList());
   }
 
   @PutMapping("/students")
   public List<Student> saveAll(@RequestBody List<Student> toWrite) {
     return userService
-        .saveAll(toWrite.stream().map(userMapper::toDomain).collect(toUnmodifiableList()))
+        .saveAll(toWrite
+            .stream()
+            .map(userMapper::toDomain)
+            .collect(toUnmodifiableList()))
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());

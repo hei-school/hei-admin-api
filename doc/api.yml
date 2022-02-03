@@ -201,6 +201,18 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: ref
+          in: query
+          schema:
+            type: string
+        - name: first_name
+          in: query
+          schema:
+            type: string
+        - name: last_name
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -381,6 +393,18 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: ref
+          in: query
+          schema:
+            type: string
+        - name: first_name
+          in: query
+          schema:
+            type: string
+        - name: last_name
+          in: query
+          schema:
+            type: string
       responses:
         '200':
           description: List of teachers, ordered by ref.

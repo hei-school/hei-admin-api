@@ -1,6 +1,8 @@
 package school.hei.haapi.service;
 
 import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +26,8 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final EventProducer eventProducer;
+  @PersistenceContext
+  private EntityManager entityManager;
 
   public User getById(String userId) {
     return userRepository.getById(userId);
@@ -37,8 +41,8 @@ public class UserService {
   public List<User> saveAll(List<User> users) {
     List<User> savedUsers = userRepository.saveAll(users);
     eventProducer.accept(users.stream()
-              .map(this::toTypedEvent)
-              .collect(toUnmodifiableList()));
+        .map(this::toTypedEvent)
+        .collect(toUnmodifiableList()));
     return savedUsers;
   }
 
@@ -56,5 +60,16 @@ public class UserService {
         pageSize.getValue(),
         Sort.by(ASC, "ref"));
     return userRepository.getByRole(role, pageable);
+  }
+
+  public List<User> getByRoleAndCriteria(User.Role role, PageFromOne page, BoundedPageSize pageSize,
+                                         String ref, String firstName, String lastName) {
+    Pageable pageable = PageRequest.of(
+        page.getValue() - 1,
+        pageSize.getValue(),
+        Sort.by(ASC, "ref"));
+    return userRepository
+        .findByRoleAndRefContainingAndFirstNameContainingAndLastNameContaining(
+           role, ref, firstName, lastName, pageable);
   }
 }

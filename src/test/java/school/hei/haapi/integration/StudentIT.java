@@ -55,11 +55,14 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 @AutoConfigureMockMvc
 class StudentIT {
 
-  @MockBean private SentryConf sentryConf;
+  @MockBean
+  private SentryConf sentryConf;
 
-  @MockBean private CognitoComponent cognitoComponentMock;
+  @MockBean
+  private CognitoComponent cognitoComponentMock;
 
-  @MockBean private EventBridgeClient eventBridgeClientMock;
+  @MockBean
+  private EventBridgeClient eventBridgeClientMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -67,7 +70,6 @@ class StudentIT {
 
   public static Student someCreatableStudent() {
     Student student = student1();
-
     Faker faker = new Faker();
     student.setId(null);
     student.setFirstName(faker.name().firstName());
@@ -125,6 +127,22 @@ class StudentIT {
     return student;
   }
 
+  public static Student student3() {
+    Student student = new Student();
+    student.setId("student3_id");
+    student.setFirstName("Three");
+    student.setLastName("Student");
+    student.setEmail("test+student3@hei.school");
+    student.setRef("STD21003");
+    student.setPhone("0322411124");
+    student.setStatus(Student.StatusEnum.ENABLED);
+    student.setSex(Student.SexEnum.F);
+    student.setBirthDate(LocalDate.parse("2000-01-02"));
+    student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+    student.setAddress("Adr 2");
+    return student;
+  }
+
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
@@ -144,23 +162,24 @@ class StudentIT {
   @Test
   void student_read_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-
     UsersApi api = new UsersApi(student1Client);
+
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getStudentById(TestUtils.STUDENT2_ID));
+
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudents(1, 20));
+        () -> api.getStudents(1, 20, null, null, null));
   }
 
   @Test
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-
     UsersApi api = new UsersApi(teacher1Client);
     Student actualStudent1 = api.getStudentById(STUDENT1_ID);
-    List<Student> actualStudents = api.getStudents(1, 20);
+
+    List<Student> actualStudents = api.getStudents(1, 20, null, null, null);
 
     assertEquals(student1(), actualStudent1);
     assertTrue(actualStudents.contains(student1()));
@@ -170,8 +189,8 @@ class StudentIT {
   @Test
   void student_write_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-
     UsersApi api = new UsersApi(student1Client);
+
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateStudents(List.of()));
@@ -180,8 +199,8 @@ class StudentIT {
   @Test
   void teacher_write_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-
     UsersApi api = new UsersApi(teacher1Client);
+
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateStudents(List.of()));
@@ -190,12 +209,71 @@ class StudentIT {
   @Test
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-
     UsersApi api = new UsersApi(manager1Client);
-    List<Student> actualStudents = api.getStudents(1, 20);
+
+    List<Student> actualStudents = api.getStudents(1, 20, null, null, null);
 
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
+  }
+
+  @Test
+  void manager_read_by_ref_and_name_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents = api.getStudents(1, 20, student1().getRef(),
+        student1().getFirstName(), student1().getLastName());
+
+    assertEquals(1, actualStudents.size());
+    assertTrue(actualStudents.contains(student1()));
+  }
+
+  @Test
+  void manager_read_by_ref_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents = api.getStudents(1, 20, student1().getRef(), null, null);
+
+    assertEquals(1, actualStudents.size());
+    assertTrue(actualStudents.contains(student1()));
+  }
+
+  @Test
+  void manager_read_by_last_name_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents = api.getStudents(1, 20, null, null, student2().getLastName());
+
+    assertEquals(2, actualStudents.size());
+    assertTrue(actualStudents.contains(student2()));
+    assertTrue(actualStudents.contains(student3()));
+  }
+
+  @Test
+  void manager_read_by_ref_and_last_name_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents = api.getStudents(1, 20, student2().getRef(),
+        null, student2().getLastName());
+
+    assertEquals(1, actualStudents.size());
+    assertTrue(actualStudents.contains(student2()));
+  }
+
+  @Test
+  void manager_read_by_ref_and_bad_name_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents = api.getStudents(1, 20, student2().getRef(),
+        null, student1().getLastName());
+
+    assertEquals(0, actualStudents.size());
+    assertFalse(actualStudents.contains(student1()));
   }
 
   @Test
@@ -229,7 +307,7 @@ class StudentIT {
         "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
         () -> api.createOrUpdateStudents(List.of(toCreate)));
 
-    List<Student> actual = api.getStudents(1, 100);
+    List<Student> actual = api.getStudents(1, 100, null, null, null);
     assertFalse(actual.stream().anyMatch(s -> Objects.equals(toCreate.getEmail(), s.getEmail())));
   }
 
@@ -242,12 +320,12 @@ class StudentIT {
     listToCreate.add(studentToCreate);
 
     assertThrowsApiException(
-            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Request entries must be <= 10\"}",
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Request entries must be <= 10\"}",
         () -> api.createOrUpdateStudents(listToCreate));
 
-    List<Student> actual = api.getStudents(1, 100);
-    assertFalse(
-        actual.stream().anyMatch(s -> Objects.equals(studentToCreate.getEmail(), s.getEmail())));
+    List<Student> actual = api.getStudents(1, 100, null, null, null);
+    assertFalse(actual.stream().anyMatch(
+        s -> Objects.equals(studentToCreate.getEmail(), s.getEmail())));
   }
 
   @Test
@@ -256,10 +334,10 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any())).thenReturn(
-            PutEventsResponse.builder().entries(
-                    PutEventsResultEntry.builder().eventId("eventId1").build(),
-                    PutEventsResultEntry.builder().eventId("eventId2").build())
-                .build());
+        PutEventsResponse.builder().entries(
+                PutEventsResultEntry.builder().eventId("eventId1").build(),
+                PutEventsResultEntry.builder().eventId("eventId2").build())
+            .build());
 
     List<Student> created =
         api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));

@@ -35,11 +35,14 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 @AutoConfigureMockMvc
 class PaginationIT {
 
-  @MockBean private SentryConf sentryConf;
+  @MockBean
+  private SentryConf sentryConf;
 
-  @MockBean private CognitoComponent cognitoComponentMock;
+  @MockBean
+  private CognitoComponent cognitoComponentMock;
 
-  @MockBean private EventBridgeClient eventBridgeClientMock;
+  @MockBean
+  private EventBridgeClient eventBridgeClientMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -63,16 +66,16 @@ class PaginationIT {
 
   @Test
   void student_pages_are_ordered_by_reference() throws ApiException {
-    someCreatableStudentList(8);
+    someCreatableStudentList(7);
     int pageSize = 4;
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     UsersApi api = new UsersApi(teacher1Client);
 
-    final List<Student> page1 = api.getStudents(1, pageSize);
-    final List<Student> page2 = api.getStudents(2, pageSize);
-    final List<Student> page3 = api.getStudents(3, pageSize);
-    final List<Student> page4 = api.getStudents(4, pageSize);
-    final  List<Student> page100 = api.getStudents(100, pageSize);
+    final List<Student> page1 = api.getStudents(1, pageSize, null, null, null);
+    final List<Student> page2 = api.getStudents(2, pageSize, null, null, null);
+    final List<Student> page3 = api.getStudents(3, pageSize, null, null, null);
+    final List<Student> page4 = api.getStudents(4, pageSize, null, null, null);
+    final List<Student> page100 = api.getStudents(100, pageSize, null, null, null);
 
     assertEquals(pageSize, page1.size());
     assertEquals(pageSize, page2.size());
@@ -95,11 +98,11 @@ class PaginationIT {
 
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >=1\"}",
-        () -> api.getStudents(0, 20));
+            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >=1\"}",
+            () -> api.getStudents(0, 20, null, null, null));
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",
-        () -> api.getStudents(1, 1000));
+            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",
+            () -> api.getStudents(1, 1000, null, null, null));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

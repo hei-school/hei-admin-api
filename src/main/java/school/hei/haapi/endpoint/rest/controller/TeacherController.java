@@ -39,9 +39,12 @@ public class TeacherController {
 
   @GetMapping(value = "/teachers")
   public List<Teacher> getTeachers(
-      @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize) {
-    return userService
-        .getByRole(User.Role.TEACHER, page, pageSize).stream()
+      @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
+      @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
+      @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
+      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
+    return userService.getByRoleAndCriteria(User.Role.TEACHER, page, pageSize,
+            ref, firstName, lastName).stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());
   }
