@@ -1,3 +1,20 @@
+# [0.4.0](https://github.com/hei-school/hei-admin-api/compare/v0.3.0...v0.4.0) (2022-02-08)
+
+
+### Bug Fixes
+
+* build.gradle works for both unix and windows os ([ddfc835](https://github.com/hei-school/hei-admin-api/commit/ddfc83510b68bec2212ec7feaa5980f239071c8c))
+* limit user upsertion to EventBridge max ([9be6693](https://github.com/hei-school/hei-admin-api/commit/9be66939823eecfbdf6c4c134a1c1f5b630415a8)), closes [#37](https://github.com/hei-school/hei-admin-api/issues/37)
+* users can be filter by ref and names ([0dd534f](https://github.com/hei-school/hei-admin-api/commit/0dd534f2952d8a835180c0c39aa2e355958a0fe2)), closes [#39](https://github.com/hei-school/hei-admin-api/issues/39)
+
+
+### Features
+
+* add cors headers for all methods ([799bed0](https://github.com/hei-school/hei-admin-api/commit/799bed0d7fe66e9e8ec1ac28e1ddff335a86db19))
+* GET /fees/{id} ([8ed301c](https://github.com/hei-school/hei-admin-api/commit/8ed301ca58cbf2b767940dba0da2a7e676e720f8))
+
+
+
 # [0.3.0](https://github.com/hei-school/hei-admin-api/compare/v0.2.0...v0.3.0) (2022-01-14)
 
 
