@@ -230,6 +230,18 @@ class StudentIT {
   }
 
   @Test
+  void manager_read_by_ref_ignoring_case_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents = api.getStudents(1, 20, "std21001", null, null);
+
+    assertEquals("STD21001", student1().getRef());
+    assertEquals(1, actualStudents.size());
+    assertTrue(actualStudents.contains(student1()));
+  }
+
+  @Test
   void manager_read_by_ref_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);

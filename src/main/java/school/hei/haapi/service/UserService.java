@@ -61,7 +61,7 @@ public class UserService {
         pageSize.getValue(),
         Sort.by(ASC, "ref"));
     return userRepository
-        .findByRoleAndRefContainingAndFirstNameContainingAndLastNameContaining(
+        .findByRoleAndRefContainingIgnoreCaseAndFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
            role, ref, firstName, lastName, pageable);
   }
 }
