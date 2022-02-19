@@ -13,6 +13,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 
 import static java.lang.System.currentTimeMillis;
@@ -46,12 +47,6 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
           && !(securityContext.getAuthentication() instanceof AnonymousAuthenticationToken);
     }
 
-    private static Principal getPrincipal() {
-      SecurityContext context = SecurityContextHolder.getContext();
-      Authentication authentication = context.getAuthentication();
-      return (Principal) authentication.getPrincipal();
-    }
-
     @Override
     public boolean preHandle(
         HttpServletRequest request, HttpServletResponse response, Object handler) {
@@ -66,7 +61,7 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
           .map(entry -> entry.getKey() + "=" + String.join(",", entry.getValue()))
           .collect(joining(";"));
       if (shouldLog()) {
-        Principal principal = getPrincipal();
+        Principal principal = AuthProvider.getPrincipal();
         log.info("preHandle: "
                 + "userId={}, role={}, method={}, uri={}, parameters=[{}], "
                 + "handler={}, oldThreadName={}",

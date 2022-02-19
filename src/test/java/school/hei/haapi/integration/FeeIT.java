@@ -91,7 +91,7 @@ class FeeIT {
   }
 
   @Test
-  void student_read_ko() throws ApiException {
+  void student_read_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     PayingApi api = new PayingApi(student1Client);

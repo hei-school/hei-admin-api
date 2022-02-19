@@ -3,6 +3,9 @@ package school.hei.haapi.endpoint.rest.security;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
@@ -47,5 +50,11 @@ public class AuthProvider extends AbstractUserDetailsAuthenticationProvider {
       return null;
     }
     return ((String) tokenObject).substring(BEARER_PREFIX.length()).trim();
+  }
+
+  public static Principal getPrincipal() {
+    SecurityContext context = SecurityContextHolder.getContext();
+    Authentication authentication = context.getAuthentication();
+    return (Principal) authentication.getPrincipal();
   }
 }
