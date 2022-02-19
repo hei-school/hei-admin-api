@@ -34,8 +34,8 @@ public class StudentController {
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
-    return userService.getByRoleAndCriteria(User.Role.STUDENT, page, pageSize,
-            ref, firstName, lastName).stream()
+    return userService.getByCriteria(User.Role.STUDENT, firstName, lastName, ref, page, pageSize
+        ).stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
   }
