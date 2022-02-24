@@ -1,3 +1,12 @@
+# [0.5.0](https://github.com/hei-school/hei-admin-api/compare/v0.4.0...v0.5.0) (2022-02-24)
+
+
+### Features
+
+* filter users by params ignoring case ([d151927](https://github.com/hei-school/hei-admin-api/commit/d151927dd01bdb31604af85b69c7031aedf2b71f)), closes [#47](https://github.com/hei-school/hei-admin-api/issues/47)
+
+
+
 # [0.4.0](https://github.com/hei-school/hei-admin-api/compare/v0.3.0...v0.4.0) (2022-02-08)
 
 
