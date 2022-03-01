@@ -29,6 +29,7 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
@@ -275,6 +276,35 @@ class TeacherIT {
 
     assertEquals(1, updated.size());
     assertEquals(toUpdate, updated.get(0));
+  }
+
+  @Test
+  void manager_write_update_with_some_bad_fields_ko() {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    Teacher toCreate1 = someCreatableTeacher()
+        .firstName(null)
+        .lastName(null)
+        .email(null)
+        .address(null)
+        .phone(null)
+        .ref(null);
+    Teacher toCreate2 = someCreatableTeacher().email("bademail");
+
+    ApiException exception1 = assertThrows(ApiException.class,
+        () -> api.createOrUpdateTeachers(List.of(toCreate1)));
+    ApiException exception2 = assertThrows(ApiException.class,
+        () -> api.createOrUpdateTeachers(List.of(toCreate2)));
+
+    String exceptionMessage1 = exception1.getMessage();
+    String exceptionMessage2 = exception2.getMessage();
+    assertTrue(exceptionMessage2.contains("Email must be valid"));
+    assertTrue(exceptionMessage1.contains("First name is mandatory"));
+    assertTrue(exceptionMessage1.contains("Last name is mandatory"));
+    assertTrue(exceptionMessage1.contains("Email is mandatory"));
+    assertTrue(exceptionMessage1.contains("Address is mandatory"));
+    assertTrue(exceptionMessage1.contains("Phone number is mandatory"));
+    assertTrue(exceptionMessage1.contains("Reference is mandatory"));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

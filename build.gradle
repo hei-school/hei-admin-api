@@ -125,6 +125,8 @@ dependencies {
     implementation 'io.sentry:sentry-spring-boot-starter:5.5.3'
     implementation 'io.sentry:sentry-logback:5.5.3'
 
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'

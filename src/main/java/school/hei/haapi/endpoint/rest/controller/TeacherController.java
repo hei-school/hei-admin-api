@@ -43,10 +43,11 @@ public class TeacherController {
 
   @PutMapping(value = "/teachers")
   public List<Teacher> createOrUpdateTeachers(@RequestBody List<Teacher> toWrite) {
-    var saved = userService.saveAll(toWrite.stream()
-        .map(userMapper::toDomain)
-        .collect(toUnmodifiableList()));
-    return saved.stream()
+    return userService
+        .saveAll(toWrite.stream()
+            .map(userMapper::toDomain)
+            .collect(toUnmodifiableList()))
+        .stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());
   }

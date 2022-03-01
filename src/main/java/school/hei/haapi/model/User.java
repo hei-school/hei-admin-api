@@ -11,6 +11,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -38,16 +40,26 @@ public class User implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
+  @NotBlank(message = "First name is mandatory")
   private String firstName;
+
+  @NotBlank(message = "Last name is mandatory")
   private String lastName;
+
+  @NotBlank(message = "Email is mandatory")
+  @Email(message = "Email must be valid")
   private String email;
+
+  @NotBlank(message = "Reference is mandatory")
   private String ref;
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   private Status status;
 
+  @NotBlank(message = "Phone number is mandatory")
   private String phone;
+
   private LocalDate birthDate;
   private Instant entranceDatetime;
 
@@ -55,6 +67,7 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Sex sex;
 
+  @NotBlank(message = "Address is mandatory")
   private String address;
 
   @Column(name = "\"role\"")

@@ -13,6 +13,7 @@ import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.UserRepository;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -24,6 +25,7 @@ public class UserService {
 
   private final UserRepository userRepository;
   private final EventProducer eventProducer;
+  private final UserValidator userValidator;
 
   public User getById(String userId) {
     return userRepository.getById(userId);
@@ -35,6 +37,7 @@ public class UserService {
 
   @Transactional
   public List<User> saveAll(List<User> users) {
+    userValidator.accept(users);
     List<User> savedUsers = userRepository.saveAll(users);
     eventProducer.accept(users.stream()
         .map(this::toTypedEvent)
