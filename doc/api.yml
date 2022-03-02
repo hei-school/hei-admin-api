@@ -528,6 +528,60 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
+  /delay_penalty_change:
+    post:
+      tags:
+        - Paying
+      summary: Change current delay penalty configuration
+      operationId: createDelayPenaltyChange
+      requestBody:
+        description: Delay penalties to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDelayPenaltyChange'
+      responses:
+        '200':
+          description: List of created delay penalties
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayPenalty'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /delay_penalty:
+    get:
+      tags:
+        - Paying
+      summary: Get current delay penalty
+      operationId: getDelayPenalty
+      responses:
+        '200':
+          description: Active delay penalty
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayPenalty'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
   /students/{student_id}/fees/{fee_id}:
     get:
       tags:
@@ -775,10 +829,12 @@ components:
           type: string
           format: date-time
         status:
-          type: string
-          enum:
-            - ENABLED
-            - DISABLED
+          $ref: '#/components/schemas/EnableStatus'
+    EnableStatus:
+      type: string
+      enum:
+        - ENABLED
+        - DISABLED
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
@@ -835,6 +891,8 @@ components:
         due_datetime:
           type: string
           format: date-time
+        comment:
+          type: string
     Fee:
       allOf:
         - $ref: '#/components/schemas/CreateFee'
@@ -850,8 +908,29 @@ components:
             - UNPAID
             - PAID
             - LATE
-        comment:
+    CreateDelayPenaltyChange:
+      type: object
+      properties:
+        interest_percent:
+          type: integer
+        interest_timerate:
           type: string
+          enum:
+            - DAILY
+        grace_delay:
+          type: integer
+        applicability_delay_after_grace:
+          type: integer
+    DelayPenalty:
+      allOf:
+        - $ref: '#/components/schemas/CreateDelayPenaltyChange'
+      type: object
+      properties:
+        id:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
     CreatePayment:
       type: object
       properties:

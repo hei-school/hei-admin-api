@@ -18,6 +18,7 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -78,7 +79,7 @@ class TeacherIT {
     teacher.setEmail("test+teacher1@hei.school");
     teacher.setRef("TCR21001");
     teacher.setPhone("0322411125");
-    teacher.setStatus(Teacher.StatusEnum.ENABLED);
+    teacher.setStatus(EnableStatus.ENABLED);
     teacher.setSex(Teacher.SexEnum.F);
     teacher.setBirthDate(LocalDate.parse("1990-01-01"));
     teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
@@ -94,7 +95,7 @@ class TeacherIT {
     teacher.setEmail("test+teacher2@hei.school");
     teacher.setRef("TCR21002");
     teacher.setPhone("0322411126");
-    teacher.setStatus(Teacher.StatusEnum.ENABLED);
+    teacher.setStatus(EnableStatus.ENABLED);
     teacher.setSex(Teacher.SexEnum.M);
     teacher.setBirthDate(LocalDate.parse("1990-01-02"));
     teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
@@ -110,7 +111,7 @@ class TeacherIT {
     teacher.setEmail("test+teacher3@hei.school");
     teacher.setRef("TCR21003");
     teacher.setPhone("0322411126");
-    teacher.setStatus(Teacher.StatusEnum.ENABLED);
+    teacher.setStatus(EnableStatus.ENABLED);
     teacher.setSex(Teacher.SexEnum.M);
     teacher.setBirthDate(LocalDate.parse("1990-01-02"));
     teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
@@ -125,7 +126,7 @@ class TeacherIT {
     teacher.setEmail(randomUUID() + "@hei.school");
     teacher.setRef("TCR21-" + randomUUID());
     teacher.setPhone("0332511129");
-    teacher.setStatus(Teacher.StatusEnum.ENABLED);
+    teacher.setStatus(EnableStatus.ENABLED);
     teacher.setSex(Teacher.SexEnum.M);
     teacher.setBirthDate(LocalDate.parse("2000-01-01"));
     teacher.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
