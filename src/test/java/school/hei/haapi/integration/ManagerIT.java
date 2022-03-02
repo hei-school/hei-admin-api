@@ -14,6 +14,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -53,7 +54,7 @@ class ManagerIT {
     manager.setEmail("test+manager1@hei.school");
     manager.setRef("MGR21001");
     manager.setPhone("0322411127");
-    manager.setStatus(Manager.StatusEnum.ENABLED);
+    manager.setStatus(EnableStatus.ENABLED);
     manager.setSex(Manager.SexEnum.M);
     manager.setBirthDate(LocalDate.parse("1890-01-01"));
     manager.setEntranceDatetime(Instant.parse("2021-09-08T08:25:29Z"));
