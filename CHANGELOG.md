@@ -1,3 +1,12 @@
+## [0.5.1](https://github.com/hei-school/hei-admin-api/compare/v0.5.0...v0.5.1) (2022-03-03)
+
+
+### Bug Fixes
+
+* PUT /users validation ([a1b3fab](https://github.com/hei-school/hei-admin-api/commit/a1b3fabf692cf4a75b64a37393e8604fc80c99db)), closes [#50](https://github.com/hei-school/hei-admin-api/issues/50)
+
+
+
 # [0.5.0](https://github.com/hei-school/hei-admin-api/compare/v0.4.0...v0.5.0) (2022-02-24)
 
 
