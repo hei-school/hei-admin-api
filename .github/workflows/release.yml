@@ -89,7 +89,8 @@ jobs:
       - name: If version incremented then commit
         if: ${{ steps.conventional-ch.outputs.skipped == 'false' }} 
         run: |
-          git add version.yml gradle.properties
+          git rm version.yml
+          git add gradle.properties
           git commit --amend --no-edit
           git push -f
           # Also update tag since commit was amended
