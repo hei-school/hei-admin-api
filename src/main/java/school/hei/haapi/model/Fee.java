@@ -3,6 +3,7 @@ package school.hei.haapi.model;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -37,7 +38,8 @@ public class Fee implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  private String userId;
+  @Column(name = "user_id")
+  private String studentId;
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
@@ -48,7 +50,9 @@ public class Fee implements Serializable {
   private school.hei.haapi.endpoint.rest.model.Fee.TypeEnum type;
 
   private int totalAmount;
+
   private int remainingAmount;
+
   private String comment;
   @CreationTimestamp private Instant creationDatetime;
 
@@ -66,7 +70,7 @@ public class Fee implements Serializable {
     return totalAmount == fee.totalAmount
         && remainingAmount == fee.remainingAmount
         && Objects.equals(id, fee.id)
-        && Objects.equals(userId, fee.userId)
+        && Objects.equals(studentId, fee.studentId)
         && status == fee.status
         && type == fee.type
         && Objects.equals(creationDatetime, fee.creationDatetime)
