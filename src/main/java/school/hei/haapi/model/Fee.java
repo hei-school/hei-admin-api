@@ -2,6 +2,7 @@ package school.hei.haapi.model;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.Entity;
@@ -14,6 +15,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.persistence.Transient;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -61,12 +63,19 @@ public class Fee implements Serializable {
   private int remainingAmount;
 
   private String comment;
-  @CreationTimestamp private Instant creationDatetime;
+
+  @CreationTimestamp
+  @Getter(AccessLevel.NONE)
+  private Instant creationDatetime;
 
   private Instant dueDatetime;
 
   @OneToMany(mappedBy = "fee")
-  private List<Payment> paymentList;
+  private List<Payment> payments;
+
+  public Instant getCreationDatetime() {
+    return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
+  }
 
   @Override
   public boolean equals(Object o) {

@@ -8,10 +8,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
-import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.validator.PaymentValidator;
 import school.hei.haapi.repository.PaymentRepository;
 
@@ -35,21 +33,7 @@ public class PaymentService {
 
   @Transactional
   public List<Payment> saveAll(List<Payment> toCreate) {
-    checkStudentPayments(toCreate);
+    paymentValidator.accept(toCreate);
     return paymentRepository.saveAll(toCreate);
-  }
-
-  private void checkStudentPayments(Payment toCheck) {
-    Fee associatedFee = toCheck.getFee();
-    if (associatedFee.getRemainingAmount() < toCheck.getAmount()) {
-      throw new BadRequestException(
-          "Payment amount (" + toCheck.getAmount()
-              + ") exceeds fee remaining amount (" + associatedFee.getRemainingAmount() + ")");
-    }
-  }
-
-  private void checkStudentPayments(List<Payment> payments) {
-    paymentValidator.accept(payments);
-    payments.forEach(this::checkStudentPayments);
   }
 }

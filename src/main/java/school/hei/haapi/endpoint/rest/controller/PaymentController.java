@@ -36,7 +36,7 @@ public class PaymentController {
   }
 
   @GetMapping("/students/{studentId}/fees/{feeId}/payments")
-  public List<Payment> getFeePaymentsByStudentId(
+  public List<Payment> getPaymentsByStudentId(
       @PathVariable String studentId,
       @PathVariable String feeId,
       @RequestParam PageFromOne page,
