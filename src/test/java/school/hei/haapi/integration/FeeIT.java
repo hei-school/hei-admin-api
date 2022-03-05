@@ -80,7 +80,7 @@ class FeeIT {
     fee.setId(FEE2_ID);
     fee.setStudentId(STUDENT1_ID);
     fee.setStatus(Fee.StatusEnum.PAID);
-    fee.setType(Fee.TypeEnum.TUITION);
+    fee.setType(Fee.TypeEnum.HARDWARE);
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(0);
     fee.setComment("Comment");
@@ -93,7 +93,7 @@ class FeeIT {
     Fee fee = new Fee();
     fee.setId(FEE3_ID);
     fee.setStudentId(STUDENT1_ID);
-    fee.setStatus(Fee.StatusEnum.UNPAID);
+    fee.setStatus(Fee.StatusEnum.PAID);
     fee.setType(Fee.TypeEnum.TUITION);
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(5000);

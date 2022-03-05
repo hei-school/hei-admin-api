@@ -106,7 +106,7 @@ class PaginationIT {
   }
 
   @Test
-  void fees_page_are_ordered_by_due_datetime_desc() throws ApiException {
+  void fees_pages_are_ordered_by_due_datetime_desc() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
     int pageSize = 2;
@@ -123,14 +123,14 @@ class PaginationIT {
   }
 
   @Test
-  void payments_page_are_ordered_by_due_datetime_desc() throws ApiException {
+  void payments_pages_are_ordered_by_due_datetime_desc() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
     int pageSize = 2;
 
-    List<Payment> page1 = api.getStudentFeePayments(STUDENT1_ID, FEE1_ID, 1, pageSize);
-    List<Payment> page2 = api.getStudentFeePayments(STUDENT1_ID, FEE1_ID, 2, pageSize);
-    List<Payment> page3 = api.getStudentFeePayments(STUDENT1_ID, FEE1_ID, 3, pageSize);
+    List<Payment> page1 = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, pageSize);
+    List<Payment> page2 = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 2, pageSize);
+    List<Payment> page3 = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 3, pageSize);
 
     assertEquals(pageSize, page1.size());
     assertEquals(1, page2.size());
