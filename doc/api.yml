@@ -703,7 +703,7 @@ paths:
           required: true
           schema:
             type: string
-      operationId: getStudentPayments
+      operationId: getStudentFeePayments
       responses:
         '200':
           description: List of all student payments
@@ -739,6 +739,15 @@ paths:
           schema:
             type: string
       operationId: createStudentPayments
+      requestBody:
+        description: Student fees to create
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreatePayment'
       responses:
         '200':
           description: Created student payments
@@ -747,7 +756,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CreatePayment'
+                  $ref: '#/components/schemas/Payment'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -758,7 +767,37 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  /students/{student_id}/fees/payments:
+    get:
+      tags:
+        - Paying
+      summary: Get all student payments
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getStudentPayments
+      responses:
+        '200':
+          description: List of all student payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Payment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
@@ -943,6 +982,8 @@ components:
     CreatePayment:
       type: object
       properties:
+        fee_id:
+          type: string
         type:
           type: string
           enum:
@@ -953,9 +994,6 @@ components:
           type: integer
         comment:
           type: string
-        creation_datetime:
-          type: string
-          format: date-time
     Payment:
       allOf:
         - $ref: '#/components/schemas/CreatePayment'
@@ -963,7 +1001,9 @@ components:
       properties:
         id:
           type: string
-
+        creation_datetime:
+          type: string
+          format: date-time
     Page:
       type: integer
       description: Start at `1`
