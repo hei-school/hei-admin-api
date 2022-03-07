@@ -19,15 +19,15 @@ import school.hei.haapi.integration.conf.TestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -75,8 +75,7 @@ class FeeIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     PayingApi api = new PayingApi(teacher1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsForbiddenException(
         () -> api.getStudentFeeById(STUDENT1_ID, FEE1_ID));
   }
 
@@ -95,9 +94,7 @@ class FeeIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     PayingApi api = new PayingApi(student1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFeeById(STUDENT2_ID, FEE1_ID));
+    assertThrowsForbiddenException(() -> api.getStudentFeeById(STUDENT2_ID, FEE1_ID));
   }
 
   @Test

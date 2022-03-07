@@ -32,8 +32,8 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
@@ -46,6 +46,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 
@@ -164,12 +165,9 @@ class StudentIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
 
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentById(TestUtils.STUDENT2_ID));
+    assertThrowsForbiddenException(() -> api.getStudentById(TestUtils.STUDENT2_ID));
 
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsForbiddenException(
         () -> api.getStudents(1, 20, null, null, null));
   }
 
@@ -191,9 +189,7 @@ class StudentIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
 
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateStudents(List.of()));
+    assertThrowsForbiddenException(() -> api.createOrUpdateStudents(List.of()));
   }
 
   @Test
@@ -201,9 +197,7 @@ class StudentIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     UsersApi api = new UsersApi(teacher1Client);
 
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateStudents(List.of()));
+    assertThrowsForbiddenException(() -> api.createOrUpdateStudents(List.of()));
   }
 
   @Test

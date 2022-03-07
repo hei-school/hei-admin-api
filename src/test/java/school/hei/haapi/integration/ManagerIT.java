@@ -26,7 +26,7 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -71,14 +71,8 @@ class ManagerIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     UsersApi api = new UsersApi(student1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getManagerById(MANAGER_ID)
-    );
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getManagers(1, 20)
-    );
+    assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_ID));
+    assertThrowsForbiddenException(() -> api.getManagers(1, 20));
   }
 
   @Test
@@ -86,14 +80,8 @@ class ManagerIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     UsersApi api = new UsersApi(teacher1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getManagerById(MANAGER_ID)
-    );
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getManagers(1, 20)
-    );
+    assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_ID));
+    assertThrowsForbiddenException(() -> api.getManagers(1, 20));
   }
 
   @Test

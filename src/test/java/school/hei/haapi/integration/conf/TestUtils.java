@@ -59,6 +59,14 @@ public class TestUtils {
     assertEquals(expectedBody, apiException.getResponseBody());
   }
 
+  public static void assertThrowsForbiddenException(Executable executable) {
+    ApiException apiException = assertThrows(ApiException.class, executable);
+    String responseBody = apiException.getResponseBody();
+    assertEquals("{"
+        + "\"type\":\"403 FORBIDDEN\","
+        + "\"message\":\"Access is denied\"}", responseBody);
+  }
+
   public static boolean isValidUUID(String candidate) {
     try {
       UUID.fromString(candidate);

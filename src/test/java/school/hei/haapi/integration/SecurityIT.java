@@ -118,7 +118,9 @@ class SecurityIT {
         HttpResponse.BodyHandlers.ofString());
 
     assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
-    assertEquals("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}", response.body());
+    assertEquals("{"
+        + "\"type\":\"403 FORBIDDEN\","
+        + "\"message\":\"Access is denied\"}", response.body());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
