@@ -23,6 +23,7 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -118,7 +119,9 @@ class SecurityIT {
         HttpResponse.BodyHandlers.ofString());
 
     assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
-    assertEquals("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}", response.body());
+    assertTrue(response.body().contains("{"
+        + "\"type\":\"403 FORBIDDEN\","
+        + "\"message\":\"Access is denied. We logged your call: {address="));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

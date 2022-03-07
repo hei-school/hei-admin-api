@@ -42,6 +42,7 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -153,11 +154,9 @@ class TeacherIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     UsersApi api = new UsersApi(student1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsForbiddenException(
         () -> api.getTeacherById(TEACHER1_ID));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsForbiddenException(
         () -> api.getTeachers(1, 20, null, null, null));
   }
 
@@ -166,11 +165,9 @@ class TeacherIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     UsersApi api = new UsersApi(teacher1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsForbiddenException(
         () -> api.getTeacherById(TEACHER2_ID));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsForbiddenException(
         () -> api.getTeachers(1, 20, null, null, null));
   }
 
@@ -179,8 +176,7 @@ class TeacherIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     UsersApi api = new UsersApi(student1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsForbiddenException(
         () -> api.createOrUpdateTeachers(List.of()));
   }
 
@@ -189,8 +185,7 @@ class TeacherIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     UsersApi api = new UsersApi(teacher1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsForbiddenException(
         () -> api.createOrUpdateTeachers(List.of()));
   }
 

@@ -29,7 +29,7 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
@@ -84,10 +84,7 @@ public class GroupIT {
     ApiClient anonymousClient = anApiClient(BAD_TOKEN);
 
     TeachingApi api = new TeachingApi(anonymousClient);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Bad credentials\"}",
-        api::getGroups
-    );
+    assertThrowsForbiddenException(api::getGroups);
   }
 
   @Test
@@ -95,10 +92,7 @@ public class GroupIT {
     ApiClient anonymousClient = anApiClient(BAD_TOKEN);
 
     TeachingApi api = new TeachingApi(anonymousClient);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Bad credentials\"}",
-        () -> api.createOrUpdateGroups(List.of())
-    );
+    assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
   @Test
@@ -119,10 +113,7 @@ public class GroupIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     TeachingApi api = new TeachingApi(student1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateGroups(List.of())
-    );
+    assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
   @Test
@@ -130,10 +121,7 @@ public class GroupIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     TeachingApi api = new TeachingApi(teacher1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateGroups(List.of())
-    );
+    assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
   @Test

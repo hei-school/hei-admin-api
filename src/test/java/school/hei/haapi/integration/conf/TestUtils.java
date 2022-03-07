@@ -13,6 +13,7 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -57,6 +58,14 @@ public class TestUtils {
   public static void assertThrowsApiException(String expectedBody, Executable executable) {
     ApiException apiException = assertThrows(ApiException.class, executable);
     assertEquals(expectedBody, apiException.getResponseBody());
+  }
+
+  public static void assertThrowsForbiddenException(Executable executable) {
+    ApiException apiException = assertThrows(ApiException.class, executable);
+    String responseBody = apiException.getResponseBody();
+    assertTrue(responseBody.contains("{"
+        + "\"type\":\"403 FORBIDDEN\","
+        + "\"message\":\"Access is denied. We logged your call: {address="));
   }
 
   public static boolean isValidUUID(String candidate) {
