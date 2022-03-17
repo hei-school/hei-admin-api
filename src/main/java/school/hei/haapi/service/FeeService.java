@@ -1,15 +1,22 @@
 package school.hei.haapi.service;
 
 import java.util.List;
+import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
-import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @AllArgsConstructor
@@ -26,13 +33,27 @@ public class FeeService {
     return refreshFees(feeRepository.getByStudentIdAndId(studentId, feeId));
   }
 
-  public List<Fee> saveAll(String studentId, List<Fee> fees) {
-    checkStudentFees(studentId, fees);
+  public List<Fee> getByStatus(String status) {
+    String defaultStatus = "UNPAID";
+    if (status != null) {
+      defaultStatus = status;
+    }
+    throw new NotImplementedException("Not implemented");
+  }
+
+  @Transactional
+  public List<Fee> saveAll(List<Fee> fees) {
+    feeValidator.accept(fees);
     return refreshFees(feeRepository.saveAll(fees));
   }
 
-  public List<Fee> getFeesByStudentId(String studentId) {
-    return refreshFees(feeRepository.getByStudentId(studentId));
+  public List<Fee> getFeesByStudentId(
+      String studentId, PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable = PageRequest.of(
+        page.getValue() - 1,
+        pageSize.getValue(),
+        Sort.by(DESC, "dueDatetime"));
+    return refreshFees(feeRepository.getByStudentId(studentId, pageable));
   }
 
   private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum getFeeStatus(Fee fee) {
@@ -63,18 +84,5 @@ public class FeeService {
     return fees.stream()
         .map(this::refreshFees)
         .collect(toUnmodifiableList());
-  }
-
-  private void checkStudentFees(String studentId, Fee toCheck) {
-    if (!studentId.equals(toCheck.getStudent().getId())) {
-      throw new BadRequestException(
-          "Fee must be associated to student." + toCheck.getStudent().getId()
-              + " instead of student." + studentId);
-    }
-  }
-
-  private void checkStudentFees(String studentId, List<Fee> fees) {
-    feeValidator.accept(fees);
-    fees.forEach(fee -> checkStudentFees(studentId, fee));
   }
 }

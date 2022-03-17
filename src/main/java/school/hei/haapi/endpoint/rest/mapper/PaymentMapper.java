@@ -1,9 +1,13 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.Payment;
+import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.FeeService;
 
@@ -22,16 +26,30 @@ public class PaymentMapper {
         .creationDatetime(payment.getCreationDatetime());
   }
 
-  public school.hei.haapi.model.Payment toDomainPayment(CreatePayment createPayment) {
+  private school.hei.haapi.model.Payment toDomainPayment(
+      Fee associatedFee, CreatePayment createPayment) {
     if (createPayment.getAmount() == null) {
       throw new BadRequestException("Amount is mandatory");
     }
     return school.hei.haapi.model.Payment.builder()
-        .fee(feeService.getById(createPayment.getFeeId()))
+        .fee(associatedFee)
         .type(toDomainPaymentType(createPayment.getType()))
         .amount(createPayment.getAmount())
         .comment(createPayment.getComment())
         .build();
+  }
+
+  public List<school.hei.haapi.model.Payment> toDomainPayment(
+      String feeId, List<CreatePayment> createPayment) {
+    Fee associatedFee = feeService.getById(feeId);
+    if (associatedFee == null) {
+      throw new BadRequestException("Fee.id=" + feeId + "is not found");
+    }
+    List<school.hei.haapi.model.Payment> payments = new ArrayList<>();
+    for (CreatePayment c : createPayment) {
+      payments.add(toDomainPayment(associatedFee, c));
+    }
+    return payments;
   }
 
   private Payment.TypeEnum toDomainPaymentType(CreatePayment.TypeEnum createPaymentType) {

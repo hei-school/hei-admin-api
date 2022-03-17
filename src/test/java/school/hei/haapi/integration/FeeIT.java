@@ -14,7 +14,6 @@ import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -25,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
@@ -78,51 +78,52 @@ class FeeIT {
   static Fee fee2() {
     Fee fee = new Fee();
     fee.setId(FEE2_ID);
-    fee.setStudentId(STUDENT2_ID);
-    fee.setStatus(Fee.StatusEnum.UNPAID);
+    fee.setStudentId(STUDENT1_ID);
+    fee.setStatus(Fee.StatusEnum.PAID);
     fee.setType(Fee.TypeEnum.TUITION);
     fee.setTotalAmount(5000);
-    fee.setRemainingAmount(2000);
+    fee.setRemainingAmount(0);
     fee.setComment("Comment");
     fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    fee.setDueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+    fee.setDueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
     return fee;
   }
 
-  static CreatePayment creatablePayment2() {
-    return new CreatePayment()
-        .feeId("fee2_id")
-        .type(CreatePayment.TypeEnum.CASH)
-        .amount(2000)
-        .comment("Comment");
+  static Fee fee3() {
+    Fee fee = new Fee();
+    fee.setId(FEE3_ID);
+    fee.setStudentId(STUDENT1_ID);
+    fee.setStatus(Fee.StatusEnum.UNPAID);
+    fee.setType(Fee.TypeEnum.TUITION);
+    fee.setTotalAmount(5000);
+    fee.setRemainingAmount(5000);
+    fee.setComment("Comment");
+    fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
+    fee.setDueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
+    return fee;
   }
 
   static CreateFee creatableFee1() {
     return new CreateFee()
-        .studentId(STUDENT1_ID)
         .type(CreateFee.TypeEnum.TUITION)
         .totalAmount(5000)
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
 
-  static CreateFee creatableFee2() {
-    return new CreateFee()
-        .studentId(STUDENT2_ID)
-        .type(CreateFee.TypeEnum.TUITION)
-        .totalAmount(2000)
-        .comment("Comment")
-        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
-  }
-
   @Test
-  void teacher_read_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    PayingApi api = new PayingApi(teacher1Client);
+  void student_read_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    PayingApi api = new PayingApi(student1Client);
 
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFeeById(STUDENT1_ID, FEE1_ID));
+    Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
+    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5);
+
+    assertEquals(fee1(), actualFee);
+    assertEquals(3, actual.size());
+    assertTrue(actual.contains(fee1()));
+    assertTrue(actual.contains(fee2()));
+    assertTrue(actual.contains(fee3()));
   }
 
   @Test
@@ -130,16 +131,14 @@ class FeeIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    List<Fee> actual = api.getStudentFees(STUDENT2_ID);
-    Fee actualFee1 = api.getStudentFeeById(STUDENT2_ID, FEE2_ID);
-    api.createStudentPayments(FEE2_ID, List.of(creatablePayment2()));
-    Fee actualFee2 = api.getStudentFeeById(STUDENT2_ID, FEE2_ID);
+    Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
+    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5);
 
+    assertEquals(fee1(), actualFee);
+    assertEquals(3, actual.size());
+    assertTrue(actual.contains(fee1()));
     assertTrue(actual.contains(fee2()));
-    assertEquals(Fee.StatusEnum.UNPAID, actualFee1.getStatus());
-    assertEquals(Fee.StatusEnum.PAID, actualFee2.getStatus());
-    assertEquals(2000, actualFee1.getRemainingAmount());
-    assertEquals(0, actualFee2.getRemainingAmount());
+    assertTrue(actual.contains(fee3()));
   }
 
   @Test
@@ -150,20 +149,28 @@ class FeeIT {
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.getStudentFees(STUDENT2_ID, null, null));
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.getFees(null, null, null));
   }
 
   @Test
-  void student_read_own_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
+  void teacher_read_ko() {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    PayingApi api = new PayingApi(teacher1Client);
 
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID);
-    Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-
-    assertTrue(actual.contains(fee1()));
-    assertEquals(fee1(), actualFee);
-    assertEquals(Fee.StatusEnum.PAID, actualFee.getStatus());
-    assertEquals(0, actualFee.getRemainingAmount());
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.getStudentFees(STUDENT2_ID, null, null));
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.getFees(null, null, null));
   }
 
   @Test
@@ -173,7 +180,7 @@ class FeeIT {
 
     List<Fee> actual = api.createStudentFees(STUDENT1_ID, List.of(creatableFee1()));
 
-    List<Fee> expected = api.getStudentFees(STUDENT1_ID);
+    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5);
     assertTrue(expected.containsAll(actual));
   }
 
@@ -198,23 +205,13 @@ class FeeIT {
   }
 
   @Test
-  void manager_write_to_wrong_student_ko() {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-
-    assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":"
-            + "\"Fee must be associated to student.student2_id instead of student.student1_id\"}",
-        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee2())));
-  }
-
-  @Test
-  void manager_write_with_some_bad_fields_ko() {
+  void manager_write_with_some_bad_fields_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
     CreateFee toCreate1 = creatableFee1().totalAmount(null);
     CreateFee toCreate2 = creatableFee1().totalAmount(-1);
     CreateFee toCreate3 = creatableFee1().dueDatetime(null);
+    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5);
 
     ApiException exception1 = assertThrows(ApiException.class,
         () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate1)));
@@ -223,6 +220,9 @@ class FeeIT {
     ApiException exception3 = assertThrows(ApiException.class,
         () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate3)));
 
+    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5);
+    assertEquals(expected.size(), actual.size());
+    assertTrue(expected.containsAll(actual));
     String exceptionMessage1 = exception1.getMessage();
     String exceptionMessage2 = exception2.getMessage();
     String exceptionMessage3 = exception3.getMessage();

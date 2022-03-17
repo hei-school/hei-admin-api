@@ -620,13 +620,21 @@ paths:
     get:
       tags:
         - Paying
-      summary: Get all student fees
+      summary: Get all student fees ordered by due datetime desc
       parameters:
         - name: student_id
           in: path
           required: true
           schema:
             type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
       operationId: getStudentFees
       responses:
         '200':
@@ -686,11 +694,50 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /fees:
+    get:
+      tags:
+        - Paying
+      summary: Get all student fees filtered by status
+      parameters:
+        - name: status
+          in: query
+          description: "Filter fees by status. Available status are PAID, UNPAID and LATE"
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getFees
+      responses:
+        '200':
+          description: List of all student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees/{fee_id}/payments:
     get:
       tags:
         - Paying
-      summary: Get all student payments
+      summary: Get all student payments for one specific fee ordered by creation datetime desc
       parameters:
         - name: student_id
           in: path
@@ -702,6 +749,14 @@ paths:
           required: true
           schema:
             type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
       operationId: getStudentFeePayments
       responses:
         '200':
@@ -722,12 +777,16 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /fees/{fee_id}/payments:
     post:
       tags:
         - Paying
       summary: Create student payments
       parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
         - name: fee_id
           in: path
           required: true
@@ -745,38 +804,7 @@ paths:
                 $ref: '#/components/schemas/CreatePayment'
       responses:
         '200':
-          description: Created student payments
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Payment'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /students/{student_id}/payments:
-    get:
-      tags:
-        - Paying
-      summary: Get all student payments
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: getStudentPayments
-      responses:
-        '200':
-          description: List of all student payments
+          description: Created student payments,
           content:
             application/json:
               schema:
@@ -919,8 +947,6 @@ components:
     CreateFee:
       type: object
       properties:
-        student_id:
-          type: string
         type:
           type: string
           enum:
@@ -942,6 +968,8 @@ components:
       type: object
       properties:
         id:
+          type: string
+        student_id:
           type: string
         remaining_amount:
           type: integer
@@ -977,8 +1005,6 @@ components:
     CreatePayment:
       type: object
       properties:
-        fee_id:
-          type: string
         type:
           type: string
           enum:
@@ -995,6 +1021,8 @@ components:
       type: object
       properties:
         id:
+          type: string
+        fee_id:
           type: string
         creation_datetime:
           type: string
