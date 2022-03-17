@@ -8,6 +8,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,7 +39,9 @@ public class Payment implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  private String feeId;
+  @ManyToOne
+  @JoinColumn(name = "fee_id", nullable = false)
+  private Fee fee;
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
@@ -58,7 +62,7 @@ public class Payment implements Serializable {
     Payment payment = (Payment) o;
     return amount == payment.amount
         && Objects.equals(id, payment.id)
-        && Objects.equals(feeId, payment.feeId)
+        && Objects.equals(fee.getId(), payment.getFee().getId())
         && type == payment.type
         && creationDatetime.compareTo(payment.creationDatetime) == 0;
   }

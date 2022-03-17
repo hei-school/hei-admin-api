@@ -19,10 +19,11 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -54,28 +55,18 @@ public class PaymentIT {
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     setUpCognito(cognitoComponentMock);
   }
 
   static Payment payment1() {
     return new Payment()
         .id("payment1_id")
-        .feeId("fee1_id")
+        .feeId(FEE1_ID)
         .type(Payment.TypeEnum.CASH)
         .amount(2000)
         .comment("Comment")
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-  }
-
-  static Payment payment2() {
-    return new Payment()
-        .id("payment2_id")
-        .feeId("fee2_id")
-        .type(Payment.TypeEnum.CASH)
-        .amount(2000)
-        .comment("Comment")
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
   }
 
   static CreatePayment creatablePayment1() {
@@ -83,6 +74,14 @@ public class PaymentIT {
         .feeId("fee1_id")
         .type(CreatePayment.TypeEnum.CASH)
         .amount(2000)
+        .comment("Comment");
+  }
+
+  static CreatePayment creatablePayment3() {
+    return new CreatePayment()
+        .feeId("fee3_id")
+        .type(CreatePayment.TypeEnum.CASH)
+        .amount(6000)
         .comment("Comment");
   }
 
@@ -97,13 +96,23 @@ public class PaymentIT {
   }
 
   @Test
-  void student1_read_ko() {
+  void student_read_all_own_ok() throws ApiException {
+    ApiClient student2Client = anApiClient(STUDENT1_TOKEN);
+    PayingApi api = new PayingApi(student2Client);
+
+    List<Payment> actual = api.getStudentPayments(STUDENT1_ID);
+
+    assertTrue(actual.contains(payment1()));
+  }
+
+  @Test
+  void student1_read_all_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFeePayments(STUDENT2_ID, FEE2_ID));
+        () -> api.getStudentPayments(STUDENT2_ID));
   }
 
   @Test
@@ -112,10 +121,8 @@ public class PaymentIT {
     PayingApi api = new PayingApi(manager1Client);
 
     List<Payment> student1Payments = api.getStudentFeePayments(STUDENT1_ID, FEE1_ID);
-    List<Payment> student2Payments = api.getStudentFeePayments(STUDENT2_ID, FEE2_ID);
 
     assertTrue(student1Payments.contains(payment1()));
-    assertTrue(student2Payments.contains(payment2()));
   }
 
   @Test
@@ -125,19 +132,53 @@ public class PaymentIT {
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFeePayments(STUDENT1_ID, FEE1_ID));
+        () -> api.getStudentFeePayments(STUDENT2_ID, FEE1_ID));
   }
 
   @Test
   void manager_write_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
+    CreatePayment toCreate = creatablePayment3().amount(5000);
 
-    List<Payment> newPayments = api.createStudentPayments(STUDENT1_ID, FEE1_ID,
-        List.of(creatablePayment1()));
+    List<Payment> actualPayments = api.createStudentPayments(FEE3_ID,
+        List.of(toCreate));
 
-    List<Payment> actual = api.getStudentPayments(STUDENT1_ID);
-    assertTrue(actual.containsAll(newPayments));
+    List<Payment> expectedPayments = api.getStudentPayments(STUDENT2_ID);
+    assertTrue(expectedPayments.containsAll(actualPayments));
+  }
+
+  @Test
+  void manager_write_ko() {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Payment must be associated to fee.fee1_id"
+            + " instead of fee.fee3_id\"}",
+        () -> api.createStudentPayments(FEE3_ID, List.of(creatablePayment1())));
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Fee remaining amount is 5000"
+            + ". Actual payment amount is 6000\"}",
+        () -> api.createStudentPayments(FEE3_ID, List.of(creatablePayment3())));
+  }
+
+  @Test
+  void manager_write_with_some_bad_fields_ko() {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    CreatePayment toCreate1 = creatablePayment1().amount(null);
+    CreatePayment toCreate2 = creatablePayment1().amount(-1);
+
+    ApiException exception1 = assertThrows(ApiException.class,
+        () -> api.createStudentPayments(FEE1_ID, List.of(toCreate1)));
+    ApiException exception2 = assertThrows(ApiException.class,
+        () -> api.createStudentPayments(FEE1_ID, List.of(toCreate2)));
+
+    String exceptionMessage1 = exception1.getMessage();
+    String exceptionMessage2 = exception2.getMessage();
+    assertTrue(exceptionMessage1.contains("Amount is mandatory"));
+    assertTrue(exceptionMessage2.contains("Amount must be positive"));
   }
 
   @Test
@@ -147,7 +188,7 @@ public class PaymentIT {
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createStudentPayments(STUDENT1_ID, FEE1_ID, List.of()));
+        () -> api.createStudentPayments(FEE1_ID, List.of()));
 
   }
 
@@ -158,6 +199,6 @@ public class PaymentIT {
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createStudentPayments(STUDENT2_ID, FEE1_ID, List.of()));
+        () -> api.createStudentPayments(FEE1_ID, List.of()));
   }
 }

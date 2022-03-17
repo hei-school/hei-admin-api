@@ -1,13 +1,15 @@
 package school.hei.haapi.service;
 
 import java.util.List;
-import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
+
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 @Service
 @AllArgsConstructor
@@ -16,39 +18,58 @@ public class FeeService {
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
 
-  public Fee getByStudentIdAndFeeId(String userId, String feeId) {
-    return feeRepository.getByStudentIdAndId(userId, feeId);
+  public Fee getById(String id) {
+    return refreshFees(feeRepository.getById(id));
   }
 
-  @Transactional
+  public Fee getByStudentIdAndFeeId(String studentId, String feeId) {
+    return refreshFees(feeRepository.getByStudentIdAndId(studentId, feeId));
+  }
+
   public List<Fee> saveAll(String studentId, List<Fee> fees) {
     checkStudentFees(studentId, fees);
-    for (Fee f : fees) {
-      f.setRemainingAmount(computeRemainingAmount(f));
-      f.setStatus(getFeeStatus(f));
-    }
-    return feeRepository.saveAll(fees);
+    return refreshFees(feeRepository.saveAll(fees));
   }
 
   public List<Fee> getFeesByStudentId(String studentId) {
-    return feeRepository.getByStudentId(studentId);
-  }
-
-  private int computeRemainingAmount(Fee fee) {
-    //TODO : remaining amount is computed from payment status associated to the fee
-    return fee.getTotalAmount(); //By default return total amount
+    return refreshFees(feeRepository.getByStudentId(studentId));
   }
 
   private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum getFeeStatus(Fee fee) {
-    //TODO : remaining amount is computed from payment status associated to the fee
-    return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID; //By default return UNPAID
+    if (fee.getRemainingAmount() == 0) {
+      return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+    }
+    return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
+  }
+
+  private int computeRemainingAmount(Fee fee) {
+    List<Payment> payments = fee.getPaymentList();
+    int amount = 0;
+    if (payments != null) {
+      for (Payment payment : payments) {
+        amount += payment.getAmount();
+      }
+    }
+    return fee.getTotalAmount() - amount;
+  }
+
+  private Fee refreshFees(Fee fee) {
+    fee.setRemainingAmount(computeRemainingAmount(fee));
+    fee.setStatus(getFeeStatus(fee));
+    return fee;
+  }
+
+  private List<Fee> refreshFees(List<Fee> fees) {
+    return fees.stream()
+        .map(this::refreshFees)
+        .collect(toUnmodifiableList());
   }
 
   private void checkStudentFees(String studentId, Fee toCheck) {
-    if (!studentId.equals(toCheck.getStudentId())) {
+    if (!studentId.equals(toCheck.getStudent().getId())) {
       throw new BadRequestException(
-          "Fee must be associated to student." + toCheck.getStudentId() + " instead of student."
-              + studentId);
+          "Fee must be associated to student." + toCheck.getStudent().getId()
+              + " instead of student." + studentId);
     }
   }
 

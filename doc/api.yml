@@ -686,7 +686,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /students/{student_id}/fees/{fee_id}/payments:
     get:
       tags:
@@ -723,16 +722,12 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /fees/{fee_id}/payments:
     post:
       tags:
         - Paying
       summary: Create student payments
       parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
         - name: fee_id
           in: path
           required: true
@@ -740,7 +735,7 @@ paths:
             type: string
       operationId: createStudentPayments
       requestBody:
-        description: Student fees to create
+        description: Student payments to create
         required: true
         content:
           application/json:
@@ -767,7 +762,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{student_id}/fees/payments:
+  /students/{student_id}/payments:
     get:
       tags:
         - Paying

@@ -1,7 +1,6 @@
 package school.hei.haapi.integration;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -15,6 +14,7 @@ import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -65,14 +65,36 @@ class FeeIT {
     Fee fee = new Fee();
     fee.setId(FEE1_ID);
     fee.setStudentId(STUDENT1_ID);
-    fee.setStatus(Fee.StatusEnum.UNPAID);
+    fee.setStatus(Fee.StatusEnum.PAID);
     fee.setType(Fee.TypeEnum.TUITION);
     fee.setTotalAmount(5000);
-    fee.setRemainingAmount(5000);
+    fee.setRemainingAmount(0);
     fee.setComment("Comment");
     fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
     return fee;
+  }
+
+  static Fee fee2() {
+    Fee fee = new Fee();
+    fee.setId(FEE2_ID);
+    fee.setStudentId(STUDENT2_ID);
+    fee.setStatus(Fee.StatusEnum.UNPAID);
+    fee.setType(Fee.TypeEnum.TUITION);
+    fee.setTotalAmount(5000);
+    fee.setRemainingAmount(2000);
+    fee.setComment("Comment");
+    fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    fee.setDueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+    return fee;
+  }
+
+  static CreatePayment creatablePayment2() {
+    return new CreatePayment()
+        .feeId("fee2_id")
+        .type(CreatePayment.TypeEnum.CASH)
+        .amount(2000)
+        .comment("Comment");
   }
 
   static CreateFee creatableFee1() {
@@ -88,17 +110,9 @@ class FeeIT {
     return new CreateFee()
         .studentId(STUDENT2_ID)
         .type(CreateFee.TypeEnum.TUITION)
-        .totalAmount(5000)
+        .totalAmount(2000)
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
-  }
-
-  static List<CreateFee> someCreatableFeeList(int number) {
-    List<CreateFee> toCreate = new ArrayList<>();
-    for (int i = 0; i < number; i++) {
-      toCreate.add(creatableFee1());
-    }
-    return toCreate;
   }
 
   @Test
@@ -116,9 +130,16 @@ class FeeIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID);
+    List<Fee> actual = api.getStudentFees(STUDENT2_ID);
+    Fee actualFee1 = api.getStudentFeeById(STUDENT2_ID, FEE2_ID);
+    api.createStudentPayments(FEE2_ID, List.of(creatablePayment2()));
+    Fee actualFee2 = api.getStudentFeeById(STUDENT2_ID, FEE2_ID);
 
-    assertTrue(actual.contains(fee1()));
+    assertTrue(actual.contains(fee2()));
+    assertEquals(Fee.StatusEnum.UNPAID, actualFee1.getStatus());
+    assertEquals(Fee.StatusEnum.PAID, actualFee2.getStatus());
+    assertEquals(2000, actualFee1.getRemainingAmount());
+    assertEquals(0, actualFee2.getRemainingAmount());
   }
 
   @Test
@@ -140,7 +161,9 @@ class FeeIT {
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
 
     assertTrue(actual.contains(fee1()));
-    assertEquals(actualFee, fee1());
+    assertEquals(fee1(), actualFee);
+    assertEquals(Fee.StatusEnum.PAID, actualFee.getStatus());
+    assertEquals(0, actualFee.getRemainingAmount());
   }
 
   @Test
@@ -150,8 +173,8 @@ class FeeIT {
 
     List<Fee> actual = api.createStudentFees(STUDENT1_ID, List.of(creatableFee1()));
 
-    List<Fee> expectedFees = api.getStudentFees(STUDENT1_ID);
-    assertTrue(expectedFees.containsAll(actual));
+    List<Fee> expected = api.getStudentFees(STUDENT1_ID);
+    assertTrue(expected.containsAll(actual));
   }
 
   @Test
@@ -191,9 +214,7 @@ class FeeIT {
     PayingApi api = new PayingApi(manager1Client);
     CreateFee toCreate1 = creatableFee1().totalAmount(null);
     CreateFee toCreate2 = creatableFee1().totalAmount(-1);
-    CreateFee toCreate3 = creatableFee1()
-        .studentId(null)
-        .dueDatetime(null);
+    CreateFee toCreate3 = creatableFee1().dueDatetime(null);
 
     ApiException exception1 = assertThrows(ApiException.class,
         () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate1)));
@@ -208,6 +229,5 @@ class FeeIT {
     assertTrue(exceptionMessage1.contains("Total amount is mandatory"));
     assertTrue(exceptionMessage2.contains("Total amount must be positive"));
     assertTrue(exceptionMessage3.contains("Due datetime is mandatory"));
-    assertTrue(exceptionMessage3.contains("Student is mandatory"));
   }
 }

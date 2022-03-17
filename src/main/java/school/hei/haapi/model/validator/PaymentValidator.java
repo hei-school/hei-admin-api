@@ -5,27 +5,26 @@ import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.exception.BadRequestException;
 
 @Component
-public class FeeValidator implements Consumer<Fee> {
+@AllArgsConstructor
+public class PaymentValidator implements Consumer<Payment> {
 
-  public void accept(List<Fee> fees) {
-    fees.forEach(this::accept);
+  public void accept(List<Payment> payments) {
+    payments.forEach(this::accept);
   }
 
-  @Override public void accept(Fee fee) {
+  @Override public void accept(Payment payment) {
     Set<String> violationMessages = new HashSet<>();
-    if (fee.getStudent() == null) {
-      violationMessages.add("Student is mandatory");
+    if (payment.getFee() == null) {
+      violationMessages.add("Fee is mandatory");
     }
-    if (fee.getDueDatetime() == null) {
-      violationMessages.add("Due datetime is mandatory");
-    }
-    if (fee.getTotalAmount() < 0) {
-      violationMessages.add("Total amount must be positive");
+    if (payment.getAmount() < 0) {
+      violationMessages.add("Amount must be positive");
     }
     if (!violationMessages.isEmpty()) {
       String formattedViolationMessages = violationMessages.stream()

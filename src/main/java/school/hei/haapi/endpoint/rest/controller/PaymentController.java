@@ -21,13 +21,11 @@ public class PaymentController {
   private final PaymentService paymentService;
   private final PaymentMapper paymentMapper;
 
-  @PostMapping("/students/{studentId}/fees/{feeId}/payments")
-  public List<Payment> createPayments(
-      @PathVariable String studentId,
-      @PathVariable String feeId,
+  @PostMapping("/fees/{feeId}/payments")
+  public List<Payment> createPayments(@PathVariable String feeId,
       @RequestBody List<CreatePayment> toCreate) {
     return paymentService
-        .saveAll(studentId, feeId, toCreate.stream()
+        .saveAll(feeId, toCreate.stream()
             .map(paymentMapper::toDomainPayment)
             .collect(toUnmodifiableList()))
         .stream()
@@ -36,14 +34,13 @@ public class PaymentController {
   }
 
   @GetMapping("/students/{studentId}/fees/{feeId}/payments")
-  public List<Payment> getFeePaymentsByStudentId(
-      @PathVariable String studentId, @PathVariable String feeId) {
-    return paymentService.getByStudentIdAndFeeId(studentId, feeId).stream()
+  public List<Payment> getFeePaymentsByStudentId(@PathVariable String feeId) {
+    return paymentService.getByFeeId(feeId).stream()
         .map(paymentMapper::toRestPayment)
         .collect(toUnmodifiableList());
   }
 
-  @GetMapping("/students/{studentId}/fees/payments")
+  @GetMapping("/students/{studentId}/payments")
   public List<Payment> getPaymentsByStudentId(@PathVariable String studentId) {
     return paymentService.getByStudentId(studentId).stream()
         .map(paymentMapper::toRestPayment)
