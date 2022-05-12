@@ -11,7 +11,6 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
-import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 
@@ -31,14 +30,6 @@ public class FeeService {
 
   public Fee getByStudentIdAndFeeId(String studentId, String feeId) {
     return refreshFees(feeRepository.getByStudentIdAndId(studentId, feeId));
-  }
-
-  public List<Fee> getByStatus(String status) {
-    String defaultStatus = "UNPAID";
-    if (status != null) {
-      defaultStatus = status;
-    }
-    throw new NotImplementedException("Not implemented");
   }
 
   @Transactional

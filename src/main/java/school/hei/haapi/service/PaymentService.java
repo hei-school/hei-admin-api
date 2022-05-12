@@ -50,6 +50,6 @@ public class PaymentService {
 
   private void checkStudentPayments(List<Payment> payments) {
     paymentValidator.accept(payments);
-    payments.forEach(payment -> checkStudentPayments(payment));
+    payments.forEach(this::checkStudentPayments);
   }
 }

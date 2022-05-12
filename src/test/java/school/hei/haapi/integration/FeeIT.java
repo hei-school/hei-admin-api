@@ -84,7 +84,7 @@ class FeeIT {
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(0);
     fee.setComment("Comment");
-    fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    fee.creationDatetime(Instant.parse("2021-11-10T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
     return fee;
   }
@@ -120,7 +120,6 @@ class FeeIT {
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5);
 
     assertEquals(fee1(), actualFee);
-    assertEquals(3, actual.size());
     assertTrue(actual.contains(fee1()));
     assertTrue(actual.contains(fee2()));
     assertTrue(actual.contains(fee3()));
@@ -135,7 +134,6 @@ class FeeIT {
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5);
 
     assertEquals(fee1(), actualFee);
-    assertEquals(3, actual.size());
     assertTrue(actual.contains(fee1()));
     assertTrue(actual.contains(fee2()));
     assertTrue(actual.contains(fee3()));

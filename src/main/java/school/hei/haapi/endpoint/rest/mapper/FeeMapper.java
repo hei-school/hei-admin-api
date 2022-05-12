@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -18,6 +20,7 @@ public class FeeMapper {
   private final UserService userService;
 
   public Fee toRestFee(school.hei.haapi.model.Fee fee) {
+    Instant truncatedInstant = fee.getCreationDatetime().truncatedTo(ChronoUnit.MILLIS);
     return new Fee()
         .id(fee.getId())
         .studentId(fee.getStudent().getId())
@@ -26,7 +29,7 @@ public class FeeMapper {
         .totalAmount(fee.getTotalAmount())
         .remainingAmount(fee.getRemainingAmount())
         .comment(fee.getComment())
-        .creationDatetime(fee.getCreationDatetime())
+        .creationDatetime(truncatedInstant)
         .dueDatetime(fee.getDueDatetime());
   }
 

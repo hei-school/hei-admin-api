@@ -103,7 +103,6 @@ class PaymentIT {
 
     List<Payment> actual = api.getStudentFeePayments(STUDENT1_ID, FEE1_ID, 1, 5);
 
-    assertEquals(2, actual.size());
     assertTrue(actual.contains(payment1()));
     assertTrue(actual.contains(payment2()));
   }
@@ -115,7 +114,6 @@ class PaymentIT {
 
     List<Payment> actual = api.getStudentFeePayments(STUDENT1_ID, FEE1_ID, 1, 5);
 
-    assertEquals(2, actual.size());
     assertTrue(actual.contains(payment1()));
     assertTrue(actual.contains(payment2()));
   }

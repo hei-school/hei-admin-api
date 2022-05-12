@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -17,13 +18,14 @@ public class PaymentMapper {
   private final FeeService feeService;
 
   public Payment toRestPayment(school.hei.haapi.model.Payment payment) {
+    Instant truncatedInstant = payment.getCreationDatetime().truncatedTo(ChronoUnit.MILLIS);
     return new Payment()
         .id(payment.getId())
         .feeId(payment.getFee().getId())
         .type(payment.getType())
         .amount(payment.getAmount())
         .comment(payment.getComment())
-        .creationDatetime(payment.getCreationDatetime());
+        .creationDatetime(truncatedInstant);
   }
 
   private school.hei.haapi.model.Payment toDomainPayment(

@@ -24,14 +24,6 @@ public class FeeController {
   private final FeeService feeService;
   private final FeeMapper feeMapper;
 
-  @GetMapping("/fees")
-  public List<Fee> getFees(
-      @RequestParam("status") String status) {
-    return feeService.getByStatus(status).stream()
-        .map(feeMapper::toRestFee)
-        .collect(toUnmodifiableList());
-  }
-
   @GetMapping("/students/{studentId}/fees/{feeId}")
   public Fee getFeeByStudentId(
       @PathVariable String studentId,
