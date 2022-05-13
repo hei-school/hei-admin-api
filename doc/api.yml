@@ -620,13 +620,21 @@ paths:
     get:
       tags:
         - Paying
-      summary: Get all student fees
+      summary: Get all student fees ordered by due datetime desc
       parameters:
         - name: student_id
           in: path
           required: true
           schema:
             type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
       operationId: getStudentFees
       responses:
         '200':
@@ -686,12 +694,50 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  /fees:
+    get:
+      tags:
+        - Paying
+      summary: Get all student fees filtered by status
+      parameters:
+        - name: status
+          in: query
+          description: "Filter fees by status. Available status are PAID, UNPAID and LATE"
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getFees
+      responses:
+        '200':
+          description: List of all student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees/{fee_id}/payments:
     get:
       tags:
         - Paying
-      summary: Get all student payments
+      summary: Get all student payments for one specific fee ordered by creation datetime desc
       parameters:
         - name: student_id
           in: path
@@ -703,7 +749,15 @@ paths:
           required: true
           schema:
             type: string
-      operationId: getStudentPayments
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getStudentFeePayments
       responses:
         '200':
           description: List of all student payments
@@ -739,15 +793,24 @@ paths:
           schema:
             type: string
       operationId: createStudentPayments
+      requestBody:
+        description: Student payments to create
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreatePayment'
       responses:
         '200':
-          description: Created student payments
+          description: Created student payments,
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CreatePayment'
+                  $ref: '#/components/schemas/Payment'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -758,7 +821,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
 components:
   securitySchemes:
     BearerAuth:
@@ -885,8 +947,6 @@ components:
     CreateFee:
       type: object
       properties:
-        student_id:
-          type: string
         type:
           type: string
           enum:
@@ -908,6 +968,8 @@ components:
       type: object
       properties:
         id:
+          type: string
+        student_id:
           type: string
         remaining_amount:
           type: integer
@@ -953,9 +1015,6 @@ components:
           type: integer
         comment:
           type: string
-        creation_datetime:
-          type: string
-          format: date-time
     Payment:
       allOf:
         - $ref: '#/components/schemas/CreatePayment'
@@ -963,7 +1022,11 @@ components:
       properties:
         id:
           type: string
-
+        fee_id:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
     Page:
       type: integer
       description: Start at `1`

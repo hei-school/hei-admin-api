@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -10,9 +11,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -22,7 +26,10 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
@@ -64,6 +71,16 @@ class PaginationIT {
     api.createOrUpdateStudents(newStudents);
   }
 
+  private static Payment payment2() {
+    return new Payment()
+        .id("payment2_id")
+        .feeId(FEE1_ID)
+        .type(Payment.TypeEnum.CASH)
+        .amount(3000)
+        .comment("Comment")
+        .creationDatetime(Instant.parse("2022-11-09T08:25:25.00Z"));
+  }
+
   @Test
   void student_pages_are_ordered_by_reference() throws ApiException {
     someCreatableStudentList(7);
@@ -88,8 +105,46 @@ class PaginationIT {
     assertTrue(isBefore(page2.get(0).getRef(), page2.get(2).getRef()));
   }
 
+  @Test
+  void fees_page_are_ordered_by_due_datetime_desc() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    PayingApi api = new PayingApi(student1Client);
+    int pageSize = 2;
+
+    List<Fee> page1 = api.getStudentFees(STUDENT1_ID, 1, pageSize);
+    List<Fee> page2 = api.getStudentFees(STUDENT1_ID, 2, pageSize);
+    List<Fee> page3 = api.getStudentFees(STUDENT1_ID, 3, pageSize);
+
+    assertEquals(pageSize, page1.size());
+    assertEquals(1, page2.size());
+    assertEquals(0, page3.size());
+    assertTrue(isAfter(page1.get(0).getDueDatetime(), page1.get(1).getDueDatetime()));
+    assertTrue(isAfter(page1.get(1).getDueDatetime(), page2.get(0).getDueDatetime()));
+  }
+
+  @Test
+  void payments_page_are_ordered_by_due_datetime_desc() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    int pageSize = 2;
+
+    List<Payment> page1 = api.getStudentFeePayments(STUDENT1_ID, FEE1_ID, 1, pageSize);
+    List<Payment> page2 = api.getStudentFeePayments(STUDENT1_ID, FEE1_ID, 2, pageSize);
+    List<Payment> page3 = api.getStudentFeePayments(STUDENT1_ID, FEE1_ID, 3, pageSize);
+
+    assertEquals(pageSize, page1.size());
+    assertEquals(1, page2.size());
+    assertEquals(0, page3.size());
+    assertTrue(isAfter(page1.get(0).getCreationDatetime(), page1.get(1).getCreationDatetime()));
+    assertTrue(isAfter(page1.get(1).getCreationDatetime(), page2.get(0).getCreationDatetime()));
+  }
+
   private boolean isBefore(String a, String b) {
     return a.compareTo(b) < 0;
+  }
+
+  private boolean isAfter(Instant a, Instant b) {
+    return a.compareTo(b) > 0;
   }
 
   @Test

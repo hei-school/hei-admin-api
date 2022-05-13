@@ -18,7 +18,7 @@ public class FeeValidator implements Consumer<Fee> {
 
   @Override public void accept(Fee fee) {
     Set<String> violationMessages = new HashSet<>();
-    if (fee.getStudentId() == null) {
+    if (fee.getStudent() == null) {
       violationMessages.add("Student is mandatory");
     }
     if (fee.getDueDatetime() == null) {
