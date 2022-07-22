@@ -71,7 +71,7 @@ class PaymentValidatorTest {
 
   static Payment payment1() {
     return Payment.builder()
-        .id("payment1_id")
+        .id(TestUtils.PAYMENT1_ID)
         .fee(fee1())
         .type(CASH)
         .amount(5000)
@@ -82,7 +82,7 @@ class PaymentValidatorTest {
 
   static Payment payment2() {
     return Payment.builder()
-        .id("payment2_id")
+        .id(TestUtils.PAYMENT2_ID)
         .fee(fee2())
         .type(SCHOLARSHIP)
         .amount(1000)

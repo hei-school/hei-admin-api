@@ -93,7 +93,7 @@ class FeeIT {
     Fee fee = new Fee();
     fee.setId(FEE3_ID);
     fee.setStudentId(STUDENT1_ID);
-    fee.setStatus(Fee.StatusEnum.PAID);
+    fee.setStatus(Fee.StatusEnum.LATE);
     fee.setType(Fee.TypeEnum.TUITION);
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(5000);

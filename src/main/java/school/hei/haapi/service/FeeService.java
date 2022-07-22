@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import java.time.Instant;
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -48,10 +49,14 @@ public class FeeService {
   }
 
   private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum getFeeStatus(Fee fee) {
-    if (fee.getRemainingAmount() == 0) {
+    if (computeRemainingAmount(fee) == 0) {
       return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+    } else {
+      if (Instant.now().isAfter(fee.getDueDatetime())) {
+        return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
+      }
+      return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
     }
-    return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
   }
 
   private int computeRemainingAmount(Fee fee) {
@@ -71,12 +76,12 @@ public class FeeService {
         .id(initialFee.getId())
         .student(initialFee.getStudent())
         .type(initialFee.getType())
+        .remainingAmount(computeRemainingAmount(initialFee))
         .status(getFeeStatus(initialFee))
         .comment(initialFee.getComment())
         .creationDatetime(initialFee.getCreationDatetime())
         .dueDatetime(initialFee.getDueDatetime())
         .payments(initialFee.getPayments())
-        .remainingAmount(computeRemainingAmount(initialFee))
         .totalAmount(initialFee.getTotalAmount())
         .build();
   }
