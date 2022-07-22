@@ -1,38 +1,37 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.Payment;
+import school.hei.haapi.endpoint.rest.validator.CreatePaymentValidator;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.FeeService;
+
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 @Component
 @AllArgsConstructor
 public class PaymentMapper {
   private final FeeService feeService;
+  private final CreatePaymentValidator createPaymentValidator;
 
   public Payment toRestPayment(school.hei.haapi.model.Payment payment) {
-    Instant truncatedInstant = payment.getCreationDatetime().truncatedTo(ChronoUnit.MILLIS);
     return new Payment()
         .id(payment.getId())
         .feeId(payment.getFee().getId())
         .type(payment.getType())
         .amount(payment.getAmount())
         .comment(payment.getComment())
-        .creationDatetime(truncatedInstant);
+        .creationDatetime(payment.getCreationDatetime());
   }
 
   private school.hei.haapi.model.Payment toDomainPayment(
       Fee associatedFee, CreatePayment createPayment) {
-    if (createPayment.getAmount() == null) {
-      throw new BadRequestException("Amount is mandatory");
-    }
+    createPaymentValidator.accept(createPayment);
     return school.hei.haapi.model.Payment.builder()
         .fee(associatedFee)
         .type(toDomainPaymentType(createPayment.getType()))
@@ -45,24 +44,25 @@ public class PaymentMapper {
       String feeId, List<CreatePayment> createPayment) {
     Fee associatedFee = feeService.getById(feeId);
     if (associatedFee == null) {
-      throw new BadRequestException("Fee.id=" + feeId + "is not found");
+      throw new NotFoundException("Fee.id=" + feeId + " is not found");
     }
-    List<school.hei.haapi.model.Payment> payments = new ArrayList<>();
-    for (CreatePayment c : createPayment) {
-      payments.add(toDomainPayment(associatedFee, c));
-    }
-    return payments;
+    return createPayment.stream()
+        .map(payment -> toDomainPayment(associatedFee, payment))
+        .collect(toUnmodifiableList());
   }
 
   private Payment.TypeEnum toDomainPaymentType(CreatePayment.TypeEnum createPaymentType) {
-    String paymentType = createPaymentType.toString();
-    if (paymentType.equals(Payment.TypeEnum.CASH.toString())) {
-      return Payment.TypeEnum.CASH;
-    } else if (paymentType.equals(Payment.TypeEnum.SCOLARSHIP.toString())) {
-      return Payment.TypeEnum.SCOLARSHIP;
-    } else if (paymentType.equals(Payment.TypeEnum.FIX.toString())) {
-      return Payment.TypeEnum.FIX;
+    switch (createPaymentType) {
+      case CASH:
+        return Payment.TypeEnum.CASH;
+      case SCHOLARSHIP:
+        return Payment.TypeEnum.SCHOLARSHIP;
+      case MOBILE_MONEY:
+        return Payment.TypeEnum.MOBILE_MONEY;
+      case FIX:
+        return Payment.TypeEnum.FIX;
+      default:
+        throw new BadRequestException("Unexpected paymentType: " + createPaymentType.getValue());
     }
-    throw new BadRequestException("Unexpected paymentFee: " + paymentType);
   }
 }

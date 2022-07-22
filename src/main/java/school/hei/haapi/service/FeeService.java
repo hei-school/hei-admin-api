@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import java.time.Instant;
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -25,17 +26,17 @@ public class FeeService {
   private final FeeValidator feeValidator;
 
   public Fee getById(String id) {
-    return refreshFees(feeRepository.getById(id));
+    return resetPaymentRelatedInfo(feeRepository.getById(id));
   }
 
   public Fee getByStudentIdAndFeeId(String studentId, String feeId) {
-    return refreshFees(feeRepository.getByStudentIdAndId(studentId, feeId));
+    return resetPaymentRelatedInfo(feeRepository.getByStudentIdAndId(studentId, feeId));
   }
 
   @Transactional
   public List<Fee> saveAll(List<Fee> fees) {
     feeValidator.accept(fees);
-    return refreshFees(feeRepository.saveAll(fees));
+    return resetPaymentRelatedInfo(feeRepository.saveAll(fees));
   }
 
   public List<Fee> getFeesByStudentId(
@@ -44,36 +45,50 @@ public class FeeService {
         page.getValue() - 1,
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
-    return refreshFees(feeRepository.getByStudentId(studentId, pageable));
+    return resetPaymentRelatedInfo(feeRepository.getByStudentId(studentId, pageable));
   }
 
   private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum getFeeStatus(Fee fee) {
-    if (fee.getRemainingAmount() == 0) {
+    if (computeRemainingAmount(fee) == 0) {
       return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+    } else {
+      if (Instant.now().isAfter(fee.getDueDatetime())) {
+        return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
+      }
+      return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
     }
-    return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
   }
 
   private int computeRemainingAmount(Fee fee) {
-    List<Payment> payments = fee.getPaymentList();
-    int amount = 0;
+    List<Payment> payments = fee.getPayments();
     if (payments != null) {
-      for (Payment payment : payments) {
-        amount += payment.getAmount();
-      }
+      int amount = payments
+          .stream()
+          .mapToInt(Payment::getAmount)
+          .sum();
+      return fee.getTotalAmount() - amount;
     }
-    return fee.getTotalAmount() - amount;
+    return fee.getTotalAmount();
   }
 
-  private Fee refreshFees(Fee fee) {
-    fee.setRemainingAmount(computeRemainingAmount(fee));
-    fee.setStatus(getFeeStatus(fee));
-    return fee;
+  private Fee resetPaymentRelatedInfo(Fee initialFee) {
+    return Fee.builder()
+        .id(initialFee.getId())
+        .student(initialFee.getStudent())
+        .type(initialFee.getType())
+        .remainingAmount(computeRemainingAmount(initialFee))
+        .status(getFeeStatus(initialFee))
+        .comment(initialFee.getComment())
+        .creationDatetime(initialFee.getCreationDatetime())
+        .dueDatetime(initialFee.getDueDatetime())
+        .payments(initialFee.getPayments())
+        .totalAmount(initialFee.getTotalAmount())
+        .build();
   }
 
-  private List<Fee> refreshFees(List<Fee> fees) {
+  private List<Fee> resetPaymentRelatedInfo(List<Fee> fees) {
     return fees.stream()
-        .map(this::refreshFees)
+        .map(this::resetPaymentRelatedInfo)
         .collect(toUnmodifiableList());
   }
 }

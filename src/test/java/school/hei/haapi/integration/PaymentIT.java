@@ -25,9 +25,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.PAYMENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.PAYMENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.PAYMENT4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
@@ -76,10 +78,20 @@ class PaymentIT {
     return new Payment()
         .id(PAYMENT2_ID)
         .feeId(FEE1_ID)
-        .type(Payment.TypeEnum.CASH)
+        .type(Payment.TypeEnum.MOBILE_MONEY)
         .amount(3000)
-        .comment("Comment")
+        .comment(null)
         .creationDatetime(Instant.parse("2022-11-10T08:25:25.00Z"));
+  }
+
+  static Payment payment4() {
+    return new Payment()
+        .id(PAYMENT4_ID)
+        .feeId(FEE4_ID)
+        .type(Payment.TypeEnum.SCHOLARSHIP)
+        .amount(5000)
+        .comment(null)
+        .creationDatetime(Instant.parse("2022-11-12T08:25:26.00Z"));
   }
 
   static CreatePayment creatablePayment1() {
@@ -89,9 +101,9 @@ class PaymentIT {
         .comment("Comment");
   }
 
-  static CreatePayment creatablePayment3() {
+  static CreatePayment creatablePayment2() {
     return new CreatePayment()
-        .type(CreatePayment.TypeEnum.CASH)
+        .type(CreatePayment.TypeEnum.MOBILE_MONEY)
         .amount(6000)
         .comment("Comment");
   }
@@ -101,7 +113,7 @@ class PaymentIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
-    List<Payment> actual = api.getStudentFeePayments(STUDENT1_ID, FEE1_ID, 1, 5);
+    List<Payment> actual = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, 5);
 
     assertTrue(actual.contains(payment1()));
     assertTrue(actual.contains(payment2()));
@@ -112,7 +124,7 @@ class PaymentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    List<Payment> actual = api.getStudentFeePayments(STUDENT1_ID, FEE1_ID, 1, 5);
+    List<Payment> actual = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, 5);
 
     assertTrue(actual.contains(payment1()));
     assertTrue(actual.contains(payment2()));
@@ -125,7 +137,7 @@ class PaymentIT {
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFeePayments(STUDENT2_ID, FEE3_ID, null, null));
+        () -> api.getStudentPayments(STUDENT2_ID, FEE3_ID, null, null));
   }
 
   @Test
@@ -135,7 +147,7 @@ class PaymentIT {
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFeePayments(STUDENT2_ID, FEE3_ID, null, null));
+        () -> api.getStudentPayments(STUDENT2_ID, FEE3_ID, null, null));
   }
 
   @Test
@@ -146,7 +158,7 @@ class PaymentIT {
     List<Payment> actual = api.createStudentPayments(STUDENT1_ID, FEE3_ID,
         List.of(creatablePayment1()));
 
-    List<Payment> expected = api.getStudentFeePayments(STUDENT1_ID, FEE3_ID, 1, 5);
+    List<Payment> expected = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
     assertTrue(expected.containsAll(actual));
   }
 
@@ -175,14 +187,15 @@ class PaymentIT {
   void manager_write_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
-    List<Payment> expected = api.getStudentFeePayments(STUDENT1_ID, FEE3_ID, 1, 5);
+    List<Payment> expected = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
 
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Payment amount (6000)"
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Payment amount (8000)"
             + " exceeds fee remaining amount (5000)\"}",
-        () -> api.createStudentPayments(STUDENT1_ID, FEE3_ID, List.of(creatablePayment3())));
+        () -> api.createStudentPayments(STUDENT1_ID, FEE3_ID, List.of(creatablePayment1(),
+            creatablePayment2())));
 
-    List<Payment> actual = api.getStudentFeePayments(STUDENT1_ID, FEE3_ID, 1, 5);
+    List<Payment> actual = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
     assertEquals(0, expected.size());
     assertEquals(expected, actual);
   }

@@ -702,7 +702,7 @@ paths:
       parameters:
         - name: status
           in: query
-          description: "Filter fees by status. Available status are PAID, UNPAID and LATE"
+          description: "See the PaymentStatus object for its value."
           schema:
             type: string
         - name: page
@@ -716,7 +716,7 @@ paths:
       operationId: getFees
       responses:
         '200':
-          description: List of all student fees
+          description: List of filtered student fees
           content:
             application/json:
               schema:
@@ -737,7 +737,7 @@ paths:
     get:
       tags:
         - Paying
-      summary: Get all student payments for one specific fee ordered by creation datetime desc
+      summary: Get all student payments of a specific fee. Resulting list is ordered by creation datetime desc.
       parameters:
         - name: student_id
           in: path
@@ -757,7 +757,7 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getStudentFeePayments
+      operationId: getStudentPayments
       responses:
         '200':
           description: List of all student payments
@@ -804,7 +804,7 @@ paths:
                 $ref: '#/components/schemas/CreatePayment'
       responses:
         '200':
-          description: Created student payments,
+          description: Created student payments
           content:
             application/json:
               schema:
@@ -1009,7 +1009,8 @@ components:
           type: string
           enum:
             - CASH
-            - SCOLARSHIP
+            - MOBILE_MONEY
+            - SCHOLARSHIP
             - FIX
         amount:
           type: integer
