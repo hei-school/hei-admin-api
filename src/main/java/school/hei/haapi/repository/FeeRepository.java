@@ -11,4 +11,6 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
   Fee getByStudentIdAndId(String studentId, String feeId);
 
   List<Fee> getByStudentId(String studentId, Pageable pageable);
+
+  List<Fee> getByStudentId(String studentId);
 }

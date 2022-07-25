@@ -44,8 +44,19 @@ public class FeeController {
   public List<Fee> getFeesByStudentId(
       @PathVariable String studentId,
       @RequestParam PageFromOne page,
-      @RequestParam("page_size") BoundedPageSize pageSize) {
-    return feeService.getFeesByStudentId(studentId, page, pageSize).stream()
+      @RequestParam("page_size") BoundedPageSize pageSize,
+      @RequestParam(required = false) Fee.StatusEnum status) {
+    return feeService.getFeesByStudentId(studentId, page, pageSize, status).stream()
+        .map(feeMapper::toRestFee)
+        .collect(toUnmodifiableList());
+  }
+
+  @GetMapping("/fees")
+  public List<Fee> getFees(
+      @RequestParam PageFromOne page,
+      @RequestParam("page_size") BoundedPageSize pageSize,
+      @RequestParam(required = false) Fee.StatusEnum status) {
+    return feeService.getFees(page, pageSize, status).stream()
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
   }
