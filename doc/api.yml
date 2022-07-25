@@ -621,6 +621,7 @@ paths:
       tags:
         - Paying
       summary: Get all student fees ordered by due datetime desc
+      description: Fees can be filtered with an optional payment status parameter.
       parameters:
         - name: student_id
           in: path
@@ -635,6 +636,14 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - UNPAID
+              - PAID
+              - LATE
       operationId: getStudentFees
       responses:
         '200':
@@ -705,6 +714,11 @@ paths:
           description: "See the PaymentStatus object for its value."
           schema:
             type: string
+            default: LATE
+            enum:
+              - UNPAID
+              - LATE
+              - PAID
         - name: page
           in: query
           schema:

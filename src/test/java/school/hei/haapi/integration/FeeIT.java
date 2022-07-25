@@ -40,8 +40,10 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 @ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class FeeIT {
-  @MockBean private SentryConf sentryConf;
-  @MockBean private CognitoComponent cognitoComponentMock;
+  @MockBean
+  private SentryConf sentryConf;
+  @MockBean
+  private CognitoComponent cognitoComponentMock;
 
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
@@ -117,7 +119,7 @@ class FeeIT {
     PayingApi api = new PayingApi(student1Client);
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5);
+    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
     assertEquals(fee1(), actualFee);
     assertTrue(actual.contains(fee1()));
@@ -131,12 +133,16 @@ class FeeIT {
     PayingApi api = new PayingApi(manager1Client);
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5);
+    List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> actualFees2 = api.getFees(String.valueOf(Fee.StatusEnum.PAID), 1, 10);
 
     assertEquals(fee1(), actualFee);
-    assertTrue(actual.contains(fee1()));
-    assertTrue(actual.contains(fee2()));
-    assertTrue(actual.contains(fee3()));
+    assertEquals(4, actualFees2.size());
+    assertTrue(actualFees1.contains(fee1()));
+    assertTrue(actualFees1.contains(fee2()));
+    assertTrue(actualFees1.contains(fee3()));
+    assertTrue(actualFees2.contains(fee1()));
+    assertTrue(actualFees2.contains(fee2()));
   }
 
   @Test
@@ -149,7 +155,7 @@ class FeeIT {
         () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFees(STUDENT2_ID, null, null));
+        () -> api.getStudentFees(STUDENT2_ID, null, null, null));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getFees(null, null, null));
@@ -165,7 +171,7 @@ class FeeIT {
         () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFees(STUDENT2_ID, null, null));
+        () -> api.getStudentFees(STUDENT2_ID, null, null, null));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getFees(null, null, null));
@@ -178,7 +184,7 @@ class FeeIT {
 
     List<Fee> actual = api.createStudentFees(STUDENT1_ID, List.of(creatableFee1()));
 
-    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5);
+    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
     assertTrue(expected.containsAll(actual));
   }
 
@@ -209,7 +215,7 @@ class FeeIT {
     CreateFee toCreate1 = creatableFee1().totalAmount(null);
     CreateFee toCreate2 = creatableFee1().totalAmount(-1);
     CreateFee toCreate3 = creatableFee1().dueDatetime(null);
-    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5);
+    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
     ApiException exception1 = assertThrows(ApiException.class,
         () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate1)));
@@ -218,7 +224,7 @@ class FeeIT {
     ApiException exception3 = assertThrows(ApiException.class,
         () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate3)));
 
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5);
+    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
     assertEquals(expected.size(), actual.size());
     assertTrue(expected.containsAll(actual));
     String exceptionMessage1 = exception1.getMessage();

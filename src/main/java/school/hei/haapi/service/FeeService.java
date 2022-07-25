@@ -1,7 +1,9 @@
 package school.hei.haapi.service;
 
 import java.time.Instant;
+import java.util.Comparator;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -39,13 +41,52 @@ public class FeeService {
     return resetPaymentRelatedInfo(feeRepository.saveAll(fees));
   }
 
+  // TODO : This request must be cached and refresh every 12 hours
+  public List<Fee> getFees(
+      PageFromOne page, BoundedPageSize pageSize,
+      school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
+    List<Fee> allFees = feeRepository.findAll();
+    if (status != null) {
+      return getFeesByStatus(resetPaymentRelatedInfo(allFees), status, page, pageSize);
+    }
+    return getFeesByStatus(resetPaymentRelatedInfo(allFees),
+        school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE, page, pageSize);
+  }
+
   public List<Fee> getFeesByStudentId(
-      String studentId, PageFromOne page, BoundedPageSize pageSize) {
+      String studentId, PageFromOne page, BoundedPageSize pageSize,
+      school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
     Pageable pageable = PageRequest.of(
         page.getValue() - 1,
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
+    if (status != null) {
+      List<Fee> studentFees = resetPaymentRelatedInfo(feeRepository.getByStudentId(studentId));
+      return getFeesByStatus(studentFees, status, page, pageSize);
+    }
     return resetPaymentRelatedInfo(feeRepository.getByStudentId(studentId, pageable));
+  }
+
+  private List<Fee> getFeesByStatus(
+      List<Fee> fees,
+      school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status,
+      PageFromOne page, BoundedPageSize pageSize) {
+    int firstIndex = 0;
+    int lastIndex = page.getValue() * pageSize.getValue();
+    if (page.getValue() > 1) {
+      firstIndex = (page.getValue() - 1) * pageSize.getValue();
+    }
+    List<Fee> feesByStatus = fees.stream()
+        .filter(fee -> fee.getStatus().equals(status))
+        .sorted(Comparator.comparing(Fee::getDueDatetime).reversed())
+        .collect(Collectors.toUnmodifiableList());
+    if (firstIndex >= feesByStatus.size()) {
+      return List.of();
+    }
+    if (lastIndex > feesByStatus.size() - 1) {
+      lastIndex = feesByStatus.size();
+    }
+    return feesByStatus.subList(firstIndex, lastIndex);
   }
 
   private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum getFeeStatus(Fee fee) {
