@@ -1,3 +1,12 @@
+# [0.7.0](https://github.com/hei-school/hei-admin-api/compare/v0.6.0...v0.7.0) (2022-07-26)
+
+
+### Features
+
+* filter fees by status without cache ([2c27555](https://github.com/hei-school/hei-admin-api/commit/2c27555f7fe06284f9a70e144a7399f2a5ae2524))
+
+
+
 # [0.6.0](https://github.com/hei-school/hei-admin-api/compare/v0.5.1...v0.6.0) (2022-07-26)
 
 
