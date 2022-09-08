@@ -28,6 +28,7 @@ public class TestUtils {
   public static final String FEE2_ID = "fee2_id";
   public static final String FEE3_ID = "fee3_id";
   public static final String FEE4_ID = "fee4_id";
+  public static final String COURSE1_ID = "course1_id";
   public static final String PAYMENT1_ID = "payment1_id";
   public static final String PAYMENT2_ID = "payment2_id";
   public static final String PAYMENT4_ID = "payment4_id";
