@@ -13,6 +13,7 @@ import java.io.Serializable;
 @Getter
 @Setter
 @Builder
+@ToString
 @Table(name= "\"course\"")
 public class Course implements Serializable {
     @Id

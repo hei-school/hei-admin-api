@@ -30,7 +30,7 @@ import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = SecurityIT.ContextInitializer.class)
+@ContextConfiguration(initializers = CourseIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class CourseIT {
 
@@ -44,7 +44,7 @@ class CourseIT {
     private EventBridgeClient eventBridgeClientMock;
 
     private static ApiClient anApiClient(String token) {
-        return TestUtils.anApiClient(token, school.hei.haapi.integration.StudentIT.ContextInitializer.SERVER_PORT);
+        return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
     }
     public static Course course1() {
         Course course = new Course();
