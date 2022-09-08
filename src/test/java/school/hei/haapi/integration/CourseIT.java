@@ -14,10 +14,12 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.endpoint.rest.model.Course;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.UUID.randomUUID;
@@ -154,9 +156,20 @@ class CourseIT {
 
         Course updated1 = api.createOrUpdateCourses(course1());
         Course updated2 = api.createOrUpdateCourses(course2());
+        List<Course> updated = new ArrayList<>();
+        updated.add(updated1);
+        updated.add(updated2);
 
         assertEquals(2, updated.size());
-        assertTrue(updated.contains(toUpdate0));
         assertTrue(updated.contains(toUpdate1));
+        assertTrue(updated.contains(toUpdate2));
+    }
+    static class ContextInitializer extends AbstractContextInitializer {
+        public static final int SERVER_PORT = anAvailableRandomPort();
+
+        @Override
+        public int getServerPort() {
+            return SERVER_PORT;
+        }
     }
 }
