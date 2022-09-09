@@ -19,8 +19,8 @@ import java.io.Serializable;
 
 @AllArgsConstructor
 @Data
-@NoArgsConstructor
 @Builder
+@NoArgsConstructor
 @Entity
 public class EventParticipant implements Serializable {
   @Id
@@ -30,6 +30,7 @@ public class EventParticipant implements Serializable {
   @Enumerated(EnumType.STRING)
   @NotBlank
   @NotEmpty
+  @Builder.Default
   private Status status = Status.EXCEPTED;
 
   @OneToOne

@@ -948,7 +948,7 @@ components:
       properties :
         id :
           type : string
-        place_name:
+        salle:
           type: string
           example: Alliance
     Event :
@@ -979,12 +979,11 @@ components:
             - HERE
             - MISSING
         participant:
-          type : string
+          type : object
           $ref: '#/components/schemas/User'
         event:
-          type: array
-          items:
-            $ref: '#/components/schemas/Event'
+          type: object
+          $ref: '#/components/schemas/Event'
     Course:
       type: object
       properties:
