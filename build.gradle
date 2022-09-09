@@ -138,6 +138,14 @@ dependencies {
     testImplementation 'org.testcontainers:postgresql'
 
     testImplementation 'com.github.javafaker:javafaker:1.0.2'
+
+    //aws s3 dependencies
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.837')
+    implementation 'com.amazonaws:aws-java-sdk-s3'
+    implementation 'com.amazonaws:aws-java-sdk-rekognition'
+
+    //sentryConf dependency
+    implementation 'io.sentry:sentry-spring-boot-starter:6.4.1'
 }
 
 dependencyManagement {

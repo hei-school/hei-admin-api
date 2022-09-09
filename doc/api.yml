@@ -943,6 +943,48 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    Place :
+      type : object
+      properties :
+        id :
+          type : string
+        place_name:
+          type: string
+          example: Alliance
+    Event :
+      type: object
+      properties :
+        id:
+          type: string
+        eventType :
+          type : string
+        startTime :
+          type : string
+          format : time
+        endTime :
+          type : string
+          format : time
+        place :
+          type : object
+          $ref : '#/components/schemas/Place'
+    EventParticipant:
+      type : object
+      properties :
+        idEventParticipant:
+          type : string
+        status:
+          type : string
+          enum:
+            - EXCEPTED
+            - HERE
+            - MISSING
+        participant:
+          type : string
+          $ref: '#/components/schemas/User'
+        event:
+          type: array
+          items:
+            $ref: '#/components/schemas/Event'
     Course:
       type: object
       properties:
@@ -958,6 +1000,24 @@ components:
           type: integer
         total_hours:
           type: integer
+
+    CreateCourse:
+      type: object
+      properties:
+        id:
+          type: string
+        ref:
+          type: string
+          example: PROG1
+        name:
+          type: string
+          example: Algorithmics
+        credits:
+          type: integer
+          example : 3
+        totalHours:
+          type: integer
+          example: 2
     CreateFee:
       type: object
       properties:
