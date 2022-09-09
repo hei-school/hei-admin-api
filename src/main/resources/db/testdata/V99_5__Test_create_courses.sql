@@ -1,4 +1,5 @@
 insert into "course"
     (id, ref, name, credits,total_hours)
-values ('course1_id', 'Name of course one', 'PROG1', 5000, 24),
-       ('course2_id', 'Name of course two', 'PROG2', 2300, 24);
+values
+    ('course1_id', 'PROG2','Name of course one', 5000, 25),
+    ('course2_id', 'WEB1','Name of course two', 2300, 24);

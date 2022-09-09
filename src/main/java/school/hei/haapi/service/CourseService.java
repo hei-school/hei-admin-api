@@ -1,18 +1,20 @@
 package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
-import school.hei.haapi.model.Course;
-import school.hei.haapi.model.Group;
-import school.hei.haapi.model.User;
+import school.hei.haapi.model.*;
 import school.hei.haapi.repository.CourseRepository;
 
 import java.util.List;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @Service
 @AllArgsConstructor
@@ -20,7 +22,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
 
     public Course getById(String courseId) {
-        return courseRepository.getById(courseId);
+        return courseRepository.findById(courseId).get();
     }
     public List<Course> getAll() {
         return courseRepository.findAll();
@@ -31,4 +33,5 @@ public class CourseService {
     public List<Course> saveAll(List<Course> courses) {
         return courseRepository.saveAll(courses);
     }
+
 }

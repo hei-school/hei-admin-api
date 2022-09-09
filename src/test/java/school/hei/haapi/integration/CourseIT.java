@@ -12,7 +12,6 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -49,26 +48,26 @@ class CourseIT {
     public static Course course1() {
         Course course = new Course();
         course.setId("course1_id");
-        course.setRef("Name of course one");
-        course.setName("PROG1");
+        course.setRef("PROG2");
+        course.setName("Name of course one");
         course.setCredits(5000);
-        course.setTotalHours(24);
+        course.setTotalHours(25);
         return course;
     }
 
     public static Course course2() {
         Course course = new Course();
         course.setId("course2_id");
-        course.setRef("Name of course two");
-        course.setName("PROG2");
+        course.setRef("WEB1");
+        course.setName("Name of course two");
         course.setCredits(2300);
         course.setTotalHours(24);
         return course;
     }
     public static Course someCreatableCourse() {
         Course course = new Course();
-        course.setName("Some name");
-        course.setRef("CRS21-" + randomUUID());
+        course.setName("" + randomUUID());
+        course.setRef("" + randomUUID());
         return course;
     }
     @BeforeEach
@@ -96,12 +95,12 @@ class CourseIT {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
         TeachingApi api = new TeachingApi(student1Client);
-        Course actual1 = api.getCourseById(COURSE1_ID);
         List<Course> actualCourse = api.getCourses();
+        Course actual1 = api.getCourseById(COURSE1_ID);
 
-        assertEquals(course1(), actual1);
         assertTrue(actualCourse.contains(course1()));
         assertTrue(actualCourse.contains(course2()));
+        assertEquals(course1(), actual1);
     }
 
     @Test
@@ -115,34 +114,33 @@ class CourseIT {
     @Test
     void teacher_write_ko() {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-
         TeachingApi api = new TeachingApi(teacher1Client);
+
         assertThrowsForbiddenException(() -> api.createOrUpdateCourses(course1()));
     }
 
     @Test
     void manager_write_create_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
         Course toCreate3 = someCreatableCourse();
         Course toCreate4 = someCreatableCourse();
 
-        TeachingApi api = new TeachingApi(manager1Client);
-        Course created = api.createOrUpdateCourses(toCreate3);
+        Course created1 = api.createOrUpdateCourses(toCreate3);
+        Course created2 = api.createOrUpdateCourses(toCreate4);
 
-        Course created3 = toCreate3;
-        toCreate3.setId(created3.getId());
-        toCreate3.setName(created3.getName());
-        assertTrue(isValidUUID(created3.getId()));
-        assertNotNull(created3.getName());
+        toCreate3.setId(created1.getId());
+        toCreate3.setRef(created1.getRef());
+        assertTrue(isValidUUID(created1.getId()));
+        assertNotNull(created1.getRef());
         //
-        assertEquals(created3, toCreate3);
+        assertEquals(created1, toCreate3);
 
-        Course created4 = toCreate4;
-        toCreate4.setId(created4.getId());
-        toCreate4.setName(created4.getName());
-        assertTrue(isValidUUID(created4.getId()));
-        assertNotNull(created4.getName());
-        assertEquals(created4, toCreate4);
+        toCreate4.setId(created2.getId());
+        toCreate4.setRef(created2.getRef());
+        assertTrue(isValidUUID(created2.getId()));
+        assertNotNull(created2.getRef());
+        assertEquals(created2, toCreate4);
     }
 
     @Test

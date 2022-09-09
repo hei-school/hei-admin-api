@@ -6,6 +6,7 @@ import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
 import school.hei.haapi.service.CourseService;
 
 import java.util.List;
@@ -19,14 +20,13 @@ public class CourseController {
     private CourseMapper courseMapper;
 
     @GetMapping("/courses")
-    public List<Course> getAllCourses(
-            @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize){
+    public List<Course> getAllCourses(){
         return courseService.getAll();
     }
     @GetMapping("/courses/{courseId}")
     public Course getCourseById(
             @PathVariable String courseId){
-        return courseService.getById(courseId);
+        return courseMapper.toRest(courseService.getById(courseId));
     }
     @GetMapping("/course/{courseName}")
     public List<Course> getCourseByName(

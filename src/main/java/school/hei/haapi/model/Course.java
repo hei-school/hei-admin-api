@@ -20,15 +20,14 @@ public class Course implements Serializable {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
+    private String name;
+
     @Column(nullable = false,unique = true)
     private String ref;
 
-    @NotBlank(message = "Name cannot be blank")
-    private String name;
 
     @Min(value = 1)
     private int credits;
 
-    @Min(value = 1)
     private int total_hours;
 }

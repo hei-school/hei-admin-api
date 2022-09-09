@@ -9,8 +9,8 @@ public class CourseMapper {
     public school.hei.haapi.model.Course  toRest(Course course) {
         var restCourse = new school.hei.haapi.model.Course();
         restCourse.setId(course.getId());
-        restCourse.setName(course.getRef());
-        restCourse.setRef(course.getName());
+        restCourse.setRef(course.getRef());
+        restCourse.setName(course.getName());
         restCourse.setCredits(course.getCredits());
         restCourse.setTotal_hours(course.getTotal_hours());
         return restCourse;
