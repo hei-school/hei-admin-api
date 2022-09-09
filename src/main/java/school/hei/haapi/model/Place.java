@@ -13,6 +13,7 @@ import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import java.io.Serializable;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -20,7 +21,7 @@ import javax.validation.constraints.NotEmpty;
 @Entity
 @EqualsAndHashCode
 @Builder
-public class Place {
+public class Place implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)

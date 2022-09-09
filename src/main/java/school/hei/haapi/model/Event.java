@@ -13,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotEmpty;
+import java.io.Serializable;
 
 @AllArgsConstructor
 @Data
@@ -20,7 +21,7 @@ import javax.validation.constraints.NotEmpty;
 @NoArgsConstructor
 @Entity
 @EqualsAndHashCode
-public class Event {
+public class Event implements Serializable {
 
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
