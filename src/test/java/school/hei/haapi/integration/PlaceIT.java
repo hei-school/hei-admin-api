@@ -10,18 +10,14 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PlacesApi;
-import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Place;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -34,7 +30,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = CourseIT.ContextInitializer.class)
+@ContextConfiguration(initializers = PlaceIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class PlaceIT {
 
@@ -51,7 +47,7 @@ public class PlaceIT {
  public static Place place1(){
     Place place = new Place();
     place.setId("place1_id");
-    place.setName("Alliance Francaise");
+    place.setName("Alliance Française");
     place.setLocation("Andavamamba");
     place.setRegion("Antananarivo");
     return place;
@@ -60,7 +56,7 @@ public class PlaceIT {
   public static Place place2(){
     Place place = new Place();
     place.setId("place2_id");
-    place.setName("Haute Ecole d'informatique");
+    place.setName("HEI");
     place.setLocation("Ivandry");
     place.setRegion("Antananarivo");
     return place;
@@ -89,14 +85,12 @@ public class PlaceIT {
   }
 
   @Test
-  void student_read_ok() throws ApiException {
+  void student_read_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     PlacesApi api = new PlacesApi(student1Client);
-    List<Place> places = api.getPlaces();
+    assertThrowsForbiddenException(() -> api.getPlaces(1,20));
 
-    assertTrue(places.contains(place1()));
-    assertTrue(places.contains(place2()));
   }
 
   @Test
@@ -112,7 +106,7 @@ public class PlaceIT {
     ApiClient student1Client = anApiClient(TEACHER1_TOKEN);
 
     PlacesApi api = new PlacesApi(student1Client);
-    List<Place> places = api.getPlaces();
+    List<Place> places = api.getPlaces(1,20);
 
     assertTrue(places.contains(place1()));
     assertTrue(places.contains(place2()));
@@ -130,7 +124,7 @@ public class PlaceIT {
     ApiClient student1Client = anApiClient(MANAGER1_TOKEN);
 
     PlacesApi api = new PlacesApi(student1Client);
-    List<Place> places = api.getPlaces();
+    List<Place> places = api.getPlaces(1,20);
 
     assertTrue(places.contains(place1()));
     assertTrue(places.contains(place2()));
