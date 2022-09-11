@@ -966,8 +966,12 @@ components:
           type: string
         name:
           type: string
+          description: The place name 
+          example: HEI
         room_ref:
           type: string
+          description: The room reference
+          example: A17
 
     Event:
       type: object
