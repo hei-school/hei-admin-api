@@ -4,6 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -39,6 +42,7 @@ public class EventParticipant implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "id_event")
+  @Cascade(CascadeType.REMOVE)
   private Event event;
   public enum Status {
     EXCEPTED,

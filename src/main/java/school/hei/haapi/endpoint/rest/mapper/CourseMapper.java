@@ -14,7 +14,6 @@ public class CourseMapper {
             .totalHours(restCourse.getTotalHours())
             .credits(restCourse.getCredits());
   }
-
   public school.hei.haapi.model.Course toDomain (Course domainCourse) {
     return school.hei.haapi.model.Course.builder()
             .id(domainCourse.getId())

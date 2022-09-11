@@ -4,6 +4,8 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -42,5 +44,6 @@ public class Event implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "id_place")
+  @Cascade(CascadeType.REMOVE)
   private Place place;
 }
