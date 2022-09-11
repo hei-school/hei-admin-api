@@ -897,6 +897,12 @@ paths:
         - Place
       description: Get an identified place
       summary: Get an identified place
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: The identified place
