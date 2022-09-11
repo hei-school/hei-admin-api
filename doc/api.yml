@@ -891,6 +891,30 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /places/{id}:
+    get:
+      tags:
+        - Place
+      description: Get an identified place
+      summary: Get an identified place
+      responses:
+        '200':
+          description: The identified place
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Place'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'      
 components:
   securitySchemes:
     BearerAuth:
