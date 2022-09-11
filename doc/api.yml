@@ -968,6 +968,46 @@ components:
           type: string
         room_ref:
           type: string
+
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        supervisor_id:
+          type: string
+        place_id:
+          type: string
+        starting_time:
+          type: string
+          format: date-time
+        ending_time:
+          type: string
+          format: date-time
+        type:
+          type: string
+          example: conference
+        title:
+          type: string
+          example: Soft Skills
+        course_id:
+          type: string
+          description: Provided if it's a course
+
+    EventParticipant:
+      type: object
+      properties:
+        user_id:
+          type: string
+          description: The participant identifier
+        status:
+          type: string
+          enum:
+            - EXPECTED
+            - HERE
+            - MISSING
+
+        
     CreateFee:
       type: object
       properties:
