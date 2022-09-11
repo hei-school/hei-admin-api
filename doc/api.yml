@@ -958,6 +958,16 @@ components:
           type: integer
         total_hours:
           type: integer
+
+    Place:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        room_ref:
+          type: string
     CreateFee:
       type: object
       properties:
