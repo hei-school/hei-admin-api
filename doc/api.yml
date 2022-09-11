@@ -921,7 +921,24 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+    delete:
+      tags: 
+        - Place
+      description: Delete a place
+      summary: Delete a place
+      responses:
+        '200':
+          description: Place succesfully deleted
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /events:
     get:
       tags:
