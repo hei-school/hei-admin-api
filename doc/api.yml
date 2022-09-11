@@ -898,11 +898,12 @@ paths:
       description: Get an identified place
       summary: Get an identified place
       parameters:
-        - name: id
-          in: path
+        - in: path
+          name: id
           required: true
           schema:
             type: string
+      operationId: getPlaceById
       responses:
         '200':
           description: The identified place
@@ -922,10 +923,16 @@ paths:
         '500':
           $ref: '#/components/responses/500'
     delete:
-      tags: 
+      tags:
         - Place
       description: Delete a place
       summary: Delete a place
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: Place succesfully deleted
@@ -976,15 +983,15 @@ paths:
     post:
       tags:
         - Place
-      description: Create new events       
+      description: Create new events
       summary: Create new events
       requestBody:
         content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Event'
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Event'
       responses:
         '200':
           description: The identified place
@@ -1010,6 +1017,12 @@ paths:
         - Place
       description: Get event by id
       summary: Get event by id
+      parameters:
+        - in: path
+          name: id
+          required: true
+          schema:
+            type: string
       responses:
         '200':
           description: The identified event
@@ -1159,7 +1172,7 @@ components:
           type: string
         name:
           type: string
-          description: The place name 
+          description: The place name
           example: HEI
         room_ref:
           type: string
@@ -1204,7 +1217,7 @@ components:
             - HERE
             - MISSING
 
-        
+
     CreateFee:
       type: object
       properties:
