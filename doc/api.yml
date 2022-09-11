@@ -869,6 +869,15 @@ paths:
       tags:
         - Places
       summary: Get all places
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
       operationId: getPlaces
       responses:
         '200':
@@ -932,6 +941,7 @@ paths:
           required: true
           schema:
             type: number
+      operationId: getEventById
       responses:
         '200':
           description: Identified event
@@ -1385,11 +1395,13 @@ components:
           type: string
         event_name:
           type: string
-        start_time:
+        event_type:
+            type: string
+        start_date:
           type: string
-        end_time:
+        end_date:
           type: string
-        person_in_charge:
+        responsible:
           type: string
           enum:
             - $ref: '#/components/schemas/Teacher'
