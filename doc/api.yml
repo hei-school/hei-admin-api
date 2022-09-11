@@ -987,8 +987,30 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
-
+  /events/{id}:
+    get:
+      tags:
+        - Place
+      description: Get event by id
+      summary: Get event by id
+      responses:
+        '200':
+          description: The identified event
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
