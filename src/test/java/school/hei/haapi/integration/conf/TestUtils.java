@@ -37,6 +37,7 @@ public class TestUtils {
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
 
+  public static final String COURSE1_ID = "course1_id";
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
     client.setScheme("http");
