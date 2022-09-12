@@ -835,61 +835,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /event_Participant/{id}':
-    get:
-      tags:
-        - Events
-      summary: Get event participant by identifier
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: getEventParticipantById
-      responses:
-        '200':
-          description: The identified event participant
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/EvenyParticipant'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /event_participant:
-    get:
-      tags:
-        - "Events"
-      summary: Get all event participant 
-      operationId: getEventParticipant
-      responses:
-        '200':
-          description: List of event participant
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/EvenyParticipant'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'  
-
 components:
   securitySchemes:
     BearerAuth:
@@ -1097,23 +1042,6 @@ components:
         creation_datetime:
           type: string
           format: date-time
-    EvenyParticipant:
-      type: object
-      properties:
-        id:
-          type: string
-        event:
-          type: string
-          example: Lauren  
-        participant:
-          allOf:
-            - $ref: '#/components/schemas/Whoami'
-        status: 
-          type: string
-          enum:
-            - EXEPTED
-            - MISSING
-            - HERE 
     Page:
       type: integer
       description: Start at `1`
