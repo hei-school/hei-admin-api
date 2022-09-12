@@ -352,6 +352,183 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+
+  '/places/{id}':
+    get:
+      tags:
+        - Events
+      summary: Get place by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getPlaceById
+      responses:
+        '200':
+          description: The identified place
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Place'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /places:
+    get:
+      tags:
+        - Events
+      summary: Get all places
+      operationId: getPlaces
+      responses:
+        '200':
+          description: List of all places
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Place'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Events
+      summary: Create new places or update existing places
+      description: Update places when id are provided, create them otherwise.
+      operationId: createOrUpdatePlaces
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Place'
+      responses:
+        '200':
+          description: The created or updated places
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Place'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
+  '/events/{id}':
+    get:
+      tags:
+        - Events
+      summary: Get event by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getEventById
+      responses:
+        '200':
+          description: The identified event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events:
+    get:
+      tags:
+        - Events
+      summary: Get all events
+      operationId: getEvents
+      responses:
+        '200':
+          description: List of all events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Events
+      summary: Create new events or update existing events
+      description: Update events when id are provided, create them otherwise.
+      operationId: createOrUpdateEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Event'
+      responses:
+        '200':
+          description: The created or updated events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
   '/teachers/{id}':
     get:
       tags:
@@ -1042,6 +1219,46 @@ components:
         creation_datetime:
           type: string
           format: date-time
+
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        event_type:
+          type: string
+          enum:
+            - COURSES
+            - EXAMS
+            - CONFERENCES
+        description:
+          type: string
+          example: string
+        responsible:
+          $ref: '#/components/schemas/User'
+        start:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        status:
+          type: string
+          enum:
+            - ACTIVE
+            - CANCEL
+        place:
+          $ref: '#/components/schemas/Place'
+
+    Place:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: class hei
+
     Page:
       type: integer
       description: Start at `1`
