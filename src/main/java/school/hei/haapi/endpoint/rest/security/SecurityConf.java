@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.security;
 
 import javax.servlet.http.HttpServletRequest;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +15,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
 
+import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.POST;
@@ -26,22 +28,22 @@ import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 @Slf4j
 public class SecurityConf extends WebSecurityConfigurerAdapter {
 
-  private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String AUTHORIZATION_HEADER = "Authorization";
 
-  private final AuthProvider authProvider;
-  private final HandlerExceptionResolver exceptionResolver;
+    private final AuthProvider authProvider;
+    private final HandlerExceptionResolver exceptionResolver;
 
-  public SecurityConf(
-      AuthProvider authProvider,
-      // InternalToExternalErrorHandler behind
-      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
-    this.authProvider = authProvider;
-    this.exceptionResolver = exceptionResolver;
-  }
+    public SecurityConf(
+            AuthProvider authProvider,
+            // InternalToExternalErrorHandler behind
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
+        this.authProvider = authProvider;
+        this.exceptionResolver = exceptionResolver;
+    }
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    // @formatter:off
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        // @formatter:off
     http
         .exceptionHandling()
         .authenticationEntryPoint(
@@ -100,6 +102,9 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/groups").authenticated()
         .antMatchers(GET, "/groups/*").authenticated()
         .antMatchers(PUT, "/groups/**").hasAnyRole(MANAGER.getRole())
+        .antMatchers(GET, "/places/**").authenticated()
+        .antMatchers(PUT, "/places").hasAnyRole(MANAGER.getRole())
+        .antMatchers(DELETE, "/places/**").hasAnyRole(MANAGER.getRole())
         .antMatchers("/**").denyAll()
 
         // disable superfluous protections
