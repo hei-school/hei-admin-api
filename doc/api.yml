@@ -841,6 +841,7 @@ paths:
         - Place
       description: 'Get the list of created places'
       summary: 'Get the list of created places'
+      operationId: getPlaces
       responses:
         '200':
           description: List of places
@@ -865,6 +866,7 @@ paths:
         - Place
       description: Create or update an existing place
       summary: Create or update an existing place
+      operationId: createPlaces
       requestBody:
         content:
           application/json:
@@ -897,13 +899,13 @@ paths:
         - Place
       description: Get an identified place
       summary: Get an identified place
+      operationId: getPlaceById
       parameters:
         - in: path
           name: id
           required: true
           schema:
             type: string
-      operationId: getPlaceById
       responses:
         '200':
           description: The identified place
@@ -927,6 +929,7 @@ paths:
         - Place
       description: Delete a place
       summary: Delete a place
+      operationId: deletePlace
       parameters:
         - in: path
           name: id
