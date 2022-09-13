@@ -8,10 +8,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.rest.api.EventApi;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.Place;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -24,9 +26,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.PLACE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.PLACE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -36,9 +38,9 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = CourseIT.ContextInitializer.class)
+@ContextConfiguration(initializers = PlaceIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-public class CourseIT {
+public class PlaceIT {
     @MockBean
     private SentryConf sentryConf;
 
@@ -49,33 +51,24 @@ public class CourseIT {
         return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
     }
 
-    public static Course course1() {
-        Course course = new Course();
-        course.setId("course1_id");
-        course.setRef("PROG1");
-        course.setName("Algorithmics");
-        course.setCredits(5);
-        course.setTotalHours(45);
-        return course;
+    public Place place1(){
+        Place place = new Place();
+        place.setId("place1_id");
+        place.setName("Alliance Française");
+        return place;
+    }
+    public static Place place2(){
+        Place place = new Place();
+        place.setId("place2_id");
+        place.setName("Hei ivandry");
+        return place;
     }
 
-    public static Course course2() {
-        Course course = new Course();
-        course.setId("course2_id");
-        course.setRef("SYS1");
-        course.setName("Operating systems");
-        course.setCredits(4);
-        course.setTotalHours(40);
-        return course;
-    }
-
-    public static Course someCreatableCourse(){
-        Course course = new Course();
-        course.setRef("COURSE21-" + randomUUID());
-        course.setName("Some name");
-        course.setCredits(6);
-        course.setTotalHours(40);
-        return course;
+    public static Place someCreatablePlace(){
+        Place place = new Place();
+        place.setName("Some name");
+        place.setId("LOC21-" + randomUUID());
+        return place;
     }
 
     @BeforeEach
@@ -87,95 +80,94 @@ public class CourseIT {
     void badtoken_read_ko() {
         ApiClient anonymousClient = anApiClient(BAD_TOKEN);
 
-        TeachingApi api = new TeachingApi(anonymousClient);
-        assertThrowsForbiddenException(api::getCourses);
+        EventApi api = new EventApi(anonymousClient);
+        assertThrowsForbiddenException(api::getPlaces);
     }
-
 
     @Test
     void badtoken_write_ko() {
         ApiClient anonymousClient = anApiClient(BAD_TOKEN);
-        TeachingApi api = new TeachingApi(anonymousClient);
-        assertThrowsForbiddenException(() -> api.createOrUpdateCourses(course1()));
+        EventApi api = new EventApi(anonymousClient);
+        assertThrowsForbiddenException(() -> api.createOrUpdatePlaces(place1()));
     }
 
     @Test
     void student_read_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
-        TeachingApi api = new TeachingApi(student1Client);
-        Course actual1 = api.getCourseById(COURSE1_ID);
-        List<Course> actualCourses = api.getCourses();
+        EventApi api = new EventApi(student1Client);
+        Place actual1 = api.getPlaceById(PLACE1_ID);
+        List<Place> actualPlaces = api.getPlaces();
 
-        assertEquals(course1(), actual1);
-        assertTrue(actualCourses.contains(course1()));
-        assertTrue(actualCourses.contains(course2()));
+        assertEquals(place1(), actual1);
+        assertTrue(actualPlaces.contains(place1()));
+        assertTrue(actualPlaces.contains(place2()));
     }
 
     @Test
     void student_write_ko() {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
-        TeachingApi api = new TeachingApi(student1Client);
-        assertThrowsForbiddenException(() -> api.createOrUpdateCourses(new Course()));
+        EventApi api = new EventApi(student1Client);
+        assertThrowsForbiddenException(() -> api.createOrUpdatePlaces(new Place()));
     }
 
     @Test
     void teacher_read_ok() throws ApiException {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-        TeachingApi api = new TeachingApi(teacher1Client);
-        Course actual2 = api.getCourseById(COURSE2_ID);
+        EventApi api = new EventApi(teacher1Client);
+        Place actual2 = api.getPlaceById(PLACE2_ID);
 
-        List<Course> actualCourses = api.getCourses();
+        List<Place> actualPlaces = api.getPlaces();
 
-        assertEquals(course2(), actual2);
-        assertTrue(actualCourses.contains(course1()));
-        assertTrue(actualCourses.contains(course2()));
+        assertEquals(place2(), actual2);
+        assertTrue(actualPlaces.contains(place1()));
+        assertTrue(actualPlaces.contains(place2()));
     }
 
     @Test
     void teacher_write_ko() {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
-        TeachingApi api = new TeachingApi(teacher1Client);
-        assertThrowsForbiddenException(() -> api.createOrUpdateCourses(new Course()));
+        EventApi api = new EventApi(teacher1Client);
+        assertThrowsForbiddenException(() -> api.createOrUpdatePlaces(new Place()));
     }
 
     @Test
     void manager_write_create_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-        TeachingApi api = new TeachingApi(manager1Client);
-        Course toCreate3 = someCreatableCourse();
-        Course toCreate4 = someCreatableCourse();
-        List<Course> created = new ArrayList<>();
+        EventApi api = new EventApi(manager1Client);
+        Place toCreate3 = someCreatablePlace();
+        Place toCreate4 = someCreatablePlace();
+        List<Place> created = new ArrayList<>();
 
-        created.add(api.createOrUpdateCourses(toCreate3));
-        created.add(api.createOrUpdateCourses(toCreate4));
+        created.add(api.createOrUpdatePlaces(toCreate3));
+        created.add(api.createOrUpdatePlaces(toCreate4));
 
         assertEquals(2, created.size());
-        Course created3 = created.get(0);
+        Place created3 = created.get(0);
         assertTrue(isValidUUID(created3.getId()));
         toCreate3.setId(created3.getId());
         assertEquals(created3, toCreate3);
-        Course created4 = created.get(0);
+        Place created4 = created.get(0);
         assertEquals(created4, toCreate3);
     }
 
     @Test
     void manager_write_update_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-        TeachingApi api = new TeachingApi(manager1Client);
-        List<Course> toUpdate = new ArrayList<>();
-        toUpdate.add(api.createOrUpdateCourses(someCreatableCourse()));
-        toUpdate.add(api.createOrUpdateCourses(someCreatableCourse()));
-        Course toUpdate0 = toUpdate.get(0);
+        EventApi api = new EventApi(manager1Client);
+        List<Place> toUpdate = new ArrayList<>();
+        toUpdate.add(api.createOrUpdatePlaces(someCreatablePlace()));
+        toUpdate.add(api.createOrUpdatePlaces(someCreatablePlace()));
+        Place toUpdate0 = toUpdate.get(0);
         toUpdate0.setName("A new name zero");
-        Course toUpdate1 = toUpdate.get(1);
+        Place toUpdate1 = toUpdate.get(1);
         toUpdate1.setName("A new name one");
-        List<Course> updated = new ArrayList<>();
+        List<Place> updated = new ArrayList<>();
 
-        updated.add(api.createOrUpdateCourses(toUpdate.get(0)));
-        updated.add(api.createOrUpdateCourses(toUpdate.get(1)));
+        updated.add(api.createOrUpdatePlaces(toUpdate.get(0)));
+        updated.add(api.createOrUpdatePlaces(toUpdate.get(1)));
 
         assertEquals(2, updated.size());
         assertTrue(updated.contains(toUpdate0));
