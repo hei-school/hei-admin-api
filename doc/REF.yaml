@@ -1,0 +1,815 @@
+openapi: 3.0.0
+info:
+  description: |
+    This is the API to get access to the application that manage applications and Job Offers.
+  version: "1.0.0"
+  title: JobOffers manager for Library
+  
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/fenohasinalala/overlordJobOffer/1.0.0
+tags:
+  - name: Domains
+    description: Information about Domains    
+  - name: JobOffers
+    description: Everything about JobOffers
+  - name: Applications
+    description: Specification about applications
+  - name: Security
+    description: Specification about Security
+paths:
+  /ping:
+    get:
+      tags:
+        - Security
+      summary: pong
+      operationId: ping
+      responses:
+        200:
+          description: pong
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: pong
+        400:
+            description: Error
+            content: {}
+  /domains:
+      get:
+        tags:
+          - "Domains"
+        summary: Get all Domains
+        operationId: getDomains
+        parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+        - name: name
+          description: Filter Domains by name, case is ignored
+          in: query
+          schema:
+            type: string
+        
+        responses:
+          200:
+            description: Success
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items: 
+                    $ref: '#/components/schemas/Domain'
+          400:
+            description: Error
+            content: {}
+      post:
+        tags:
+          - "Domains"
+        summary: Add new Domain
+        operationId: PostDomain
+        requestBody:
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/NewDomain'
+        responses:
+          200:
+            description: Domain added successfully
+            content:
+              application/json:
+                schema:
+                    $ref: '#/components/schemas/Domain'
+          400:
+              description: Error
+              content: {}
+       
+  /domains/{id}:
+    get:
+      tags:
+        - "Domains"
+      summary: Get a Domain by specified id
+      operationId: getDomain
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+        400:
+            description: Error
+            content: {}
+     
+    put:
+      tags:
+        - "Domains"
+      summary: Modify all information about Domain given by ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        description: new Domain
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewDomain'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Domain'
+        400:
+          description: Error
+          content: {}
+    
+
+  /job-offers:
+      get:
+        tags:
+          - JobOffers
+        summary: Get all JobOffers
+        operationId: getJobOffers
+        parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+        - name: reference
+          description: Filter JobOffers by reference,
+          in: query
+          schema:
+            type: string
+        - name: post
+          description: Filter JobOffers by post,
+          in: query
+          schema:
+            type: string
+        - name: profile
+          description: Filter JobOffers by profile
+          in: query
+          schema:
+            type: string
+        - name: location
+          description: Filter JobOffers by location
+          in: query
+          schema:
+            type: string
+        - name: description
+          description: Filter JobOffers by description
+          in: query
+          schema:
+            type: string
+        
+        
+        
+        responses:
+          200:
+            description: Success
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items: 
+                    $ref: '#/components/schemas/JobOffer'
+          400:
+            description: Error
+            content: {}
+      post:
+        tags:
+          - JobOffers
+        summary: Add new JobOffers
+        operationId: PostJobOffers
+        requestBody:
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/NewJobOffer'
+        responses:
+          200:
+            description: JobOffer added successfully
+            content:
+              application/json:
+                schema:
+                    $ref: '#/components/schemas/JobOffer'
+          400:
+              description: Error
+              content: {}
+       
+  /job-offers/{id}:
+    get:
+      tags:
+        - JobOffers
+      summary: Get a JobOffer by specified id
+      operationId: getJobOffer
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobOffer'
+        400:
+            description: Error
+            content: {}
+     
+    put:
+      tags:
+        - JobOffers
+      summary: Modify all information about JobOffer given by ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        description: new JobOffer
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewJobOffer'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/JobOffer'
+        400:
+          description: Error
+          content: {}
+    
+  /domains/{id_domain}/job-offers:
+    get:
+      tags:
+        - JobOffers
+      summary: Get a JobOffer by domain ID
+      operationId: getJobOfferBydomain
+      parameters:
+        - name: id_domain
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+              application/json:
+                schema:
+                  type: array
+                  items: 
+                    $ref: '#/components/schemas/JobOffer'
+        400:
+            description: Error
+            content: {}
+  /domains/{id_domain}/job-offers/count:
+    get:
+      tags:
+        - JobOffers
+      summary: Get a JobOffer count by domain ID
+      operationId: getJobOfferCountByDomain
+      parameters:
+        - name: id_domain
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: number
+                example: 100
+        400:
+            description: Error
+            content: {}
+  /job-offers/count:
+    get:
+      tags:
+        - JobOffers
+      summary: Get a JobOffer count
+      operationId: getJobOfferCount
+      
+      responses:
+        200:
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: number
+                example: 100
+        400:
+            description: Error
+            content: {}
+
+
+  /applications:
+      get:
+        tags:
+          - Applications
+        summary: Get all applications
+        operationId: getapplications
+        parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+        - name: candidate_name
+          description: Filter applications by candidate name, case is ignored
+          in: query
+          schema:
+            type: string
+        - name: email
+          description: Filter applications by candidate email, case is ignored
+          in: query
+          schema:
+            type: string
+        - name: profile
+          description: Filter applications by candidate profile, case is ignored
+          in: query
+          schema:
+            type: string
+        - name: salary
+          description: Filter applications by candidate salary
+          in: query
+          schema:
+            type: number
+               
+        
+        responses:
+          200:
+            description: Success
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items: 
+                    $ref: '#/components/schemas/application'
+          400:
+            description: Error
+            content: {}
+      post:
+        tags:
+          - "Applications"
+        summary: Add new applications
+        operationId: Postapplications
+        requestBody:
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/Newapplication'
+        responses:
+          200:
+            description: applications added successfully
+            content:
+              application/json:
+                schema:
+                    $ref: '#/components/schemas/application'
+          400:
+              description: Error
+              content: {}
+       
+  /applications/{id}:
+    get:
+      tags:
+        - "Applications"
+      summary: Get a application by specified id
+      operationId: getapplication
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/application'
+        400:
+            description: Error
+            content: {}
+    
+    put:
+      tags:
+        - "Applications"
+      summary: Modify all information about application given by ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        description: new application
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Newapplication'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/application'
+        400:
+          description: Error
+          content: {}
+    
+  /domains/{id_domain}/applications:
+    get:
+      tags:
+        - "Applications"
+      summary: Get a application by Domains ID
+      operationId: getapplicationByDomain
+      parameters:
+        - name: id_domain
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+            description: Success
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items: 
+                    $ref: '#/components/schemas/application'
+        400:
+            description: Error
+            content: {}
+  /domains/{id_domain}/applications/count:
+    get:
+      tags:
+        - Applications
+      summary: Get applications count by domain ID
+      operationId: getApplicationsCountByDomain
+      parameters:
+        - name: id_domain
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: number
+                example: 100
+        400:
+            description: Error
+            content: {}
+  /applications/count:
+    get:
+      tags:
+        - Applications
+      summary: Get a applications count
+      operationId: getApplicationsCount
+      
+      responses:
+        200:
+          description: Success
+          content:
+            text/plain:
+              schema:
+                type: number
+                example: 100
+        400:
+            description: Error
+            content: {}
+
+
+  
+  /users:
+      get:
+        tags:
+          - Users
+        summary: Get all Users
+        operationId: getUsers
+        parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          schema:
+            type: integer
+        - name: first_name
+          description: Filter Users by first name, case is ignored
+          in: query
+          schema:
+            type: string
+        - name: last_name
+          description: Filter Users by last name, case is ignored
+          in: query
+          schema:
+            type: string
+        - name: role
+          description: Filter Users by role, case is ignored
+          in: query
+          schema:
+            type: string
+        
+        responses:
+          200:
+            description: Success
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items: 
+                    $ref: '#/components/schemas/User'
+          400:
+            description: Error
+            content: {}
+      post:
+        tags:
+          - Users
+        summary: Add new User
+        operationId: PostUser
+        requestBody:
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/NewUser'
+        responses:
+          200:
+            description: User added successfully
+            content:
+              application/json:
+                schema:
+                    $ref: '#/components/schemas/User'
+          400:
+              description: Error
+              content: {}
+       
+  /users/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get a User by specified id
+      operationId: getUser
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+            description: Error
+            content: {}
+    
+    put:
+      tags:
+        - Users
+      summary: Modify all information about User given by ID
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: integer
+          required: true
+      requestBody:
+        description: new Users
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewUser'
+      responses:
+        200:
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+        400:
+          description: Error
+          content: {}
+    
+    
+components:
+  schemas:
+    NewDomain:
+      type: object
+      properties:
+        name:
+          type: string
+          example: 'Informatique'
+    Domain:
+      type: object
+      properties:
+        idDomain:
+          type: number
+          example: 1
+        name:
+          type: string
+          example: 'Informatique'
+
+    NewJobOffer:
+      type: object
+      properties:
+        reference:
+          type: string
+          example: 'REF-001'
+        post:
+          type: string
+          example: 'Chef de chantier'
+        profile:
+          type: string
+          example: "Bacc+3 avec 02 années d'expérience"
+        location: 
+          type: string
+          example: "Antananarivo"
+        description: 
+          type: string
+          example: "Parle courament français, ayant comme mission du suivie du bon derouement des travaux sur chantier"
+        company: 
+          type: string
+          example: "COLAS"
+        contract: 
+          type: string
+          example: "CDI"
+        available:
+          type: boolean
+          example: true
+        domain:
+          type: object
+          properties:
+            idDomain: 
+              type: number
+              example: 1
+          
+    JobOffer:
+      type: object
+      properties:        
+        idJobOffer:
+          type: number
+          example: 1        
+        reference:
+          type: string
+          example: 'REF-001'
+        post:
+          type: string
+          example: 'Chef de chantier'
+        profile:
+          type: string
+          example: "Bacc+3 avec 02 années d'expérience"
+        location: 
+          type: string
+          example: "Antananarivo"
+        description: 
+          type: string
+          example: "Parle courament français, ayant comme mission du suivie du bon derouement des travaux sur chantier"
+        company: 
+          type: string
+          example: "COLAS"
+        contract: 
+          type: string
+          example: "CDI"
+        available:
+          type: boolean
+          example: true
+        domain:
+          $ref: '#/components/schemas/Domain'
+
+    Newapplication:
+          type: object
+          properties:
+            candidateName:
+              type: string
+              example: "Lova RAFANOMEZANTSOA"
+            email:
+              type: string
+              format: email
+              example: "lova@gmail.com"
+            profile:
+              type: string
+              example: "Ingenieur en Génie Civil, 05 années d'expériences"
+            salary:
+              type: number
+              example: 2000000
+            dateApplication:
+              type: string
+              format: date
+              example: '2022-07-12'
+            jobOffer:
+              type: object
+              properties:        
+                idJobOffer:
+                  type: number
+                  example: 1
+    application:
+          type: object
+          properties:        
+            idApplication:
+              type: number
+              example: 1
+            candidateName:
+              type: string
+              example: "Lova RAFANOMEZANTSOA"
+            email:
+              type: string
+              format: email
+              example: "lova@gmail.com"
+            profile:
+              type: string
+              example: "Ingenieur en Génie Civil, 05 années d'expériences"
+            salary:
+              type: number
+              example: 2000000
+            dateApplication:
+              type: string
+              format: date
+              example: '2022-07-12'
+            jobOffer:
+              $ref: '#/components/schemas/JobOffer'
+
+    NewUser:
+      type: object
+      properties:
+        firstName:
+          type: string
+          example: 'Rindra'
+        lastName:
+          type: string
+          example: 'RAKOTO'
+        username:
+          type: string
+          example: 'rindra01'
+        password:
+          type: string
+          example: 'rindrapass'
+        role:
+          type: string
+          example: 'manager'
+    User:
+      type: object
+      properties:        
+        idUser:
+          type: number
+          example: 1
+        firstName:
+          type: string
+          example: 'Rindra'
+        lastName:
+          type: string
+          example: 'RAKOTO'
+        username:
+          type: string
+          example: 'rindra01'
+        password:
+          type: string
+          example: 'rindrapass'
+        role:
+          type: string
+          example: 'manager'

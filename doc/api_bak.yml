@@ -15,9 +15,7 @@ info:
     You are welcome to try and compromise it. Happy hacking!
 
 servers:
-  - url: 'https://api-dev.hei.school'
-  - url: 'https://api-prod.hei.school'
-
+  - url: 'https://api-prod.hei.school/el1p3'
 
 security:
   - BearerAuth: [ ]
@@ -1367,9 +1365,9 @@ components:
           format: date-time
         status:
           $ref: '#/components/schemas/EnableStatus'
-        ref_image:
-          type: string
-          example: "STD21001.jpg"
+        #ref_image:
+        #  type: string
+        #  example: "STD21001.jpg"
     EnableStatus:
       type: string
       enum:

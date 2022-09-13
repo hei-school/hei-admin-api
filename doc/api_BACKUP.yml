@@ -18,7 +18,6 @@ servers:
   - url: 'https://api-dev.hei.school'
   - url: 'https://api-prod.hei.school'
 
-
 security:
   - BearerAuth: [ ]
 
@@ -836,451 +835,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /events:
-      get:
-        tags:
-          - Events
-        summary: Get all Events
-        operationId: getEvents
-        parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          schema:
-            type: integer
-        - name: name
-          description: Filter Events by name,
-          in: query
-          schema:
-            type: string
-        - name: responsible_name
-          description: Filter Events by responsible name,
-          in: query
-          schema:
-            type: string
-        
-        responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Event'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-      put:
-        tags:
-          - Events
-        summary: Add new Events
-        description: Update Events when `id` are provided, create them otherwise.
-        operationId: PostEvents
-        requestBody:
-          content:
-            application/json:
-              schema:
-                  $ref: '#/components/schemas/NewEvent'
-        responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Event'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-       
-  /events/{id}:
-    get:
-      tags:
-        - Events
-      summary: Get a Event by specified id
-      operationId: getEvent
-      parameters:
-        - name: id
-          in: path
-          schema:
-            type: integer
-          required: true
-      responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  items:
-                    $ref: '#/components/schemas/Event'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-    
-  /responsibles/{id_responsible}/events:
-    get:
-      tags:
-        - Events
-      summary: Get a Event by responsible ID
-      operationId: getEventByresponsible
-      parameters:
-        - name: id_responsible
-          in: path
-          schema:
-            type: integer
-          required: true
-      responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Event'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-
-  /event_participants:
-      get:
-        tags:
-          - Event participants
-        summary: Get all Event_participants
-        operationId: getEvent_participants
-        parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          schema:
-            type: integer
-        - name: name
-          description: Filter Event_participants by name,
-          in: query
-          schema:
-            type: string
-        
-        responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/EventParticipant'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-      put:
-        tags:
-          - Event participants
-        summary: Add new Event_participants
-        description: Update Event_participants when `id` are provided, create them otherwise.
-        operationId: PostEvent_participants
-        requestBody:
-          content:
-            application/json:
-              schema:
-                  $ref: '#/components/schemas/NewEventParticipant'
-        responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/EventParticipant'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-       
-  /event_participants/{id}:
-    get:
-      tags:
-        - Event participants
-      summary: Get a Event_participant by specified id
-      operationId: getEvent_participant
-      parameters:
-        - name: id
-          in: path
-          schema:
-            type: integer
-          required: true
-      responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  items:
-                    $ref: '#/components/schemas/EventParticipant'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-  
-  
-    
-  /events/{id_event}/event_participants:
-    get:
-      tags:
-        - Event participants
-      summary: Get a Event_participant by event ID
-      operationId: getEvent_participantByevent
-      parameters:
-        - name: id_event
-          in: path
-          schema:
-            type: integer
-          required: true
-      responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/EventParticipant'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-
-  /events/{id_event}/event_participants/presence:
-    put:
-      tags:
-        - Event participants
-      summary: Take picture to mark presence of participants
-      operationId: presenceEvent_participant
-      parameters:
-        - name: id_event
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        content:
-          image/png:
-            schema:
-              type: string
-              format: binary
-      responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  items:
-                    $ref: '#/components/schemas/EventParticipant'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-  
-  /places:
-      get:
-        tags:
-          - Places
-        summary: Get all Places
-        operationId: getPlaces
-        parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-        - name: page_size
-          in: query
-          schema:
-            type: integer
-        - name: name
-          description: Filter Places by name,
-          in: query
-          schema:
-            type: string
-        
-        responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/place'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-      post:
-        tags:
-          - Places
-        summary: Add new Places
-        operationId: PostPlaces
-        requestBody:
-          content:
-            application/json:
-              schema:
-                  $ref: '#/components/schemas/NewPlace'
-        responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/place'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-       
-  /places/{id}:
-    get:
-      tags:
-        - Places
-      summary: Get a Place by specified id
-      operationId: getPlace
-      parameters:
-        - name: id
-          in: path
-          schema:
-            type: integer
-          required: true
-      responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  items:
-                    $ref: '#/components/schemas/place'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-    
-  /events/{id_event}/places:
-    get:
-      tags:
-        - Places
-      summary: Get a Place by event ID
-      operationId: getPlaceByevent
-      parameters:
-        - name: id_event
-          in: path
-          schema:
-            type: integer
-          required: true
-      responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/place'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-   
 components:
   securitySchemes:
     BearerAuth:
@@ -1335,16 +889,13 @@ components:
       properties:
         id:
           type: string
-          example: id0001
         ref:
           type: string
           example: STD000001
         first_name:
           type: string
-          example: "Ndrina"
         last_name:
           type: string
-          example: "RAKOTO"
         sex:
           type: string
           enum:
@@ -1355,21 +906,15 @@ components:
           format: date
         address:
           type: string
-          example: "Ambohitrarahaba"
         phone:
           type: string
-          example: "0331750545"
         email:
           type: string
-          format: email
         entrance_datetime:
           type: string
           format: date-time
         status:
           $ref: '#/components/schemas/EnableStatus'
-        ref_image:
-          type: string
-          example: "STD21001.jpg"
     EnableStatus:
       type: string
       enum:
@@ -1389,7 +934,6 @@ components:
       properties:
         id:
           type: string
-          example: id0001
         name:
           type: string
           example: The group number one
@@ -1439,13 +983,10 @@ components:
       properties:
         id:
           type: string
-          example: idfee
         student_id:
           type: string
-          example: idstudent
         remaining_amount:
           type: integer
-          example: 2000
         status:
           type: string
           enum:
@@ -1457,14 +998,12 @@ components:
       properties:
         interest_percent:
           type: integer
-          example: 20
         interest_timerate:
           type: string
           enum:
             - DAILY
         grace_delay:
           type: integer
-          example: 40
         applicability_delay_after_grace:
           type: integer
     DelayPenalty:
@@ -1474,7 +1013,6 @@ components:
       properties:
         id:
           type: string
-          example: iddelay
         creation_datetime:
           type: string
           format: date-time
@@ -1490,10 +1028,8 @@ components:
             - FIX
         amount:
           type: integer
-          example: 2000
         comment:
           type: string
-          example: comment
     Payment:
       allOf:
         - $ref: '#/components/schemas/CreatePayment'
@@ -1501,97 +1037,11 @@ components:
       properties:
         id:
           type: string
-          example: idpayement
         fee_id:
           type: string
-          example: idfee
         creation_datetime:
           type: string
           format: date-time
-
-    NewPlace:
-      type: object
-      properties:
-        name:
-          type: string
-          example: 'HEI-Anatananarivo-Ivandry'
-    place:
-      type: object
-      properties:        
-        id:
-          type: number
-          example: 1        
-        name:
-          type: string
-          example: 'HEI-Anatananarivo-Ivandry'
-
-    NewEventParticipant:
-      type: object
-      properties:
-        participant:
-          $ref: '#/components/schemas/User'
-        status: 
-          type: string
-          example: "EXPECTED"
-
-    EventParticipant:
-      type: object
-      properties:        
-        id:
-          type: number
-          example: 1        
-        participant:
-          $ref: '#/components/schemas/User'
-        status: 
-          type: string
-          example: "EXPECTED"
-        
-    NewEvent:
-      type: object
-      properties:
-        name:
-          type: string
-          example: 'cours de français'
-        start:
-          type: string
-          format: date-time
-          example: "2022-09-13 13:00:00"
-        end:
-          type: string
-          format: date-time
-          example: "2022-09-13 15:00:00"
-        status: 
-          type: string
-          example: "cancelled"
-        responsible: 
-          type: object
-          properties:        
-            id:
-              type: string 
-          
-    Event:
-      type: object
-      properties:        
-        id:
-          type: number
-          example: 1        
-        name:
-          type: string
-          example: 'cours de français'
-        start:
-          type: string
-          format: date-time
-          example: "2022-09-13 13:00:00"
-        end:
-          type: string
-          format: date-time
-          example: "2022-09-13 15:00:00"
-        status: 
-          type: string
-          example: "cancelled"
-        responsible: 
-          $ref: '#/components/schemas/User'
-
     Page:
       type: integer
       description: Start at `1`
