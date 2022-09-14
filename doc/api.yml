@@ -1044,6 +1044,82 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /events/{event_id}/participants:
+    get:
+      tags:
+        - Places
+      summary: Get all participants of a specific event
+      operationId: getParticipants
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: List of participants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Places
+      summary: Create eventParticipant
+      operationId: createEventParticipant
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateEventParticipant'
+      responses:
+        '200':
+          description: List of participants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
@@ -1206,20 +1282,36 @@ components:
         course_id:
           type: string
           description: Provided if it's a course
+          
+    CreateEventParticipant:
+      type: object
+      properties:
+        event_id:
+          type: string
+        group_id:
+          type: string
 
     EventParticipant:
       type: object
       properties:
-        user_id:
+        id:
           type: string
-          description: The participant identifier
+          example: "uuid"
+        ref:
+          type: string
+          example: "STD21001"
+        first_name:
+          type: string
+        last_name:
+          type: string
+        event_id:
+          type: string
         status:
           type: string
           enum:
             - EXPECTED
             - HERE
             - MISSING
-
 
     CreateFee:
       type: object
