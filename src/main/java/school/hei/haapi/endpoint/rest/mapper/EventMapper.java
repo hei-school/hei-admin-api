@@ -22,7 +22,7 @@ public class EventMapper {
         return Event.builder()
                 .id(restEvent.getId())
                 .name(restEvent.getName())
-                .eventType(restEvent.getEventType())
+                .eventType(Event.EventType.valueOf(restEvent.getEventType().toString()))
                 .startingTime(restEvent.getStartingTime())
                 .endingTime(restEvent.getEndingTime())
                 .supervisor(restEvent.getSupervisor())

@@ -35,10 +35,12 @@ public class EventController {
 
     @PutMapping("/events")
     public List<Event> createOrUpdateEvents(@RequestBody List<Event> toWrite){
-        var saved = eventService.saveAll(toWrite.stream()
-                .map(eventMapper::toDomain)
-                .collect(Collectors.toUnmodifiableList()));
-        return saved.stream()
+        return eventService
+                .saveAll(toWrite)
+                    .stream()
+                    .map(eventMapper::toDomain)
+                    .collect(Collectors.toUnmodifiableList())
+                .stream()
                 .map(eventMapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
     }

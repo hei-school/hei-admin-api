@@ -54,7 +54,7 @@ public class Event implements Serializable {
     private Instant endingTime;
 
     @ManyToOne
-    @JoinColumn(name = "user_id",nullable = false)
+    @JoinColumn(name = "supervisor_id",nullable = false)
     private User supervisor;
 
     @ManyToOne
