@@ -11,9 +11,10 @@ public class EventMapper {
         var restEvent = new Event();
         restEvent.setId(event.getId());
         restEvent.setName(event.getName());
+        restEvent.setEventType(event.getEventType());
         restEvent.setStartingTime(event.getStartingTime());
         restEvent.setEndingTime(event.getEndingTime());
-        restEvent.setResponsible(event.getResponsible());
+        restEvent.setSupervisor(event.getSupervisor());
         restEvent.setPlace(event.getPlace());
         return restEvent;
     }
@@ -21,9 +22,10 @@ public class EventMapper {
         return Event.builder()
                 .id(restEvent.getId())
                 .name(restEvent.getName())
+                .eventType(restEvent.getEventType())
                 .startingTime(restEvent.getStartingTime())
                 .endingTime(restEvent.getEndingTime())
-                .responsible(restEvent.getResponsible())
+                .supervisor(restEvent.getSupervisor())
                 .place(restEvent.getPlace())
                 .build();
     }

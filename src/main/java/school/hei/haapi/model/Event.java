@@ -6,10 +6,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
@@ -40,6 +43,10 @@ public class Event implements Serializable {
     @NotBlank(message = "Name is mandatory")
     private String name;
 
+    @Type(type = "psql_enum")
+    @Enumerated(EnumType.STRING)
+    private EventType eventType;
+
     @FutureOrPresent
     private Instant startingTime;
 
@@ -48,9 +55,13 @@ public class Event implements Serializable {
 
     @ManyToOne
     @JoinColumn(name = "user_id",nullable = false)
-    private User responsible;
+    private User supervisor;
 
     @ManyToOne
     @JoinColumn(name = "place_id",nullable = false)
     private Place place;
+
+    public enum EventType {
+        COURSE, EXAMINATION, MEETING
+    }
 }
