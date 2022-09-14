@@ -1143,16 +1143,16 @@ components:
         name:
           type: string
           example: "EL1P3"
-        eventType:
+        event_type:
           type: string
           enum:
             - COURSE
             - EXAMINATION
             - MEETING
-        startingTime:
+        starting_time:
           type: string
           format: date-time
-        endingTime:
+        ending_time:
           type: string
           format: date-time
         supervisor_id:
