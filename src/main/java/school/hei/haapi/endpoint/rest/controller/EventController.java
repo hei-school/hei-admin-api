@@ -33,7 +33,7 @@ public class EventController {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    @PutMapping("/places")
+    @PutMapping("/events")
     public List<Event> createOrUpdateEvents(@RequestBody List<Event> toWrite){
         var saved = eventService.saveAll(toWrite.stream()
                 .map(eventMapper::toDomain)
