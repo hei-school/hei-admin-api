@@ -25,14 +25,22 @@ public class EventParticipantController {
     public EventParticipant getEventParticipantById(@PathVariable String id){
         return eventParticipantMapper.toRest(eventParticipantService.getById(id));
     }
+    @GetMapping("/eventParticipants")
+    public List<EventParticipant> getEventParticipants(){
+        return eventParticipantService.getAll().stream()
+                .map(eventParticipantMapper::toRest)
+                .collect(Collectors.toUnmodifiableList());
+    }
 
     @PutMapping("/eventParticipants")
     public List<EventParticipant> createOrUpdateEventParticipants(
             @RequestBody List<EventParticipant> toWrite){
-        var saved = eventParticipantService.saveAll(toWrite.stream()
-                .map(eventParticipantMapper::toDomain)
-                .collect(Collectors.toUnmodifiableList()));
-        return saved.stream()
+        return eventParticipantService
+                .saveAll(toWrite)
+                    .stream()
+                    .map(eventParticipantMapper::toDomain)
+                    .collect(Collectors.toUnmodifiableList())
+                .stream()
                 .map(eventParticipantMapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
     }
