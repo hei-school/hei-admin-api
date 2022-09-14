@@ -1,16 +1,22 @@
 package school.hei.haapi.model;
 
-import lombok.*;
-import org.hibernate.Hibernate;
-import org.hibernate.annotations.TypeDef;
-import school.hei.haapi.repository.types.PostgresEnumType;
-
-import javax.persistence.*;
+import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import javax.validation.constraints.Min;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
-import java.io.Serializable;
-import java.util.Objects;
+
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.TypeDef;
+import school.hei.haapi.repository.types.PostgresEnumType;
 
 
 import static javax.persistence.GenerationType.IDENTITY;
