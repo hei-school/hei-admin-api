@@ -43,7 +43,7 @@ public class Event implements Serializable {
     @NotBlank(message = "Name is mandatory")
     private String name;
 
-    @Type(type = "psql_enum")
+    @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
     private EventType eventType;
 
