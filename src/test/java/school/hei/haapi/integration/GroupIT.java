@@ -1,7 +1,5 @@
 package school.hei.haapi.integration;
 
-import java.time.Instant;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,6 +15,9 @@ import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+
+import java.time.Instant;
+import java.util.List;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -131,7 +132,7 @@ public class GroupIT {
     Group toCreate4 = someCreatableGroup();
 
     TeachingApi api = new TeachingApi(manager1Client);
-    List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
+    List<Group> created = api.createOrUpdateGroups(List.of(toCreate3,toCreate4));
 
     assertEquals(2, created.size());
     Group created3 = created.get(0);

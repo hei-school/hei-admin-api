@@ -1,8 +1,5 @@
 package school.hei.haapi.integration.conf;
 
-import java.io.IOException;
-import java.net.ServerSocket;
-import java.util.UUID;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -10,6 +7,10 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
+
+import java.io.IOException;
+import java.net.ServerSocket;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -31,6 +32,8 @@ public class TestUtils {
   public static final String PAYMENT1_ID = "payment1_id";
   public static final String PAYMENT2_ID = "payment2_id";
   public static final String PAYMENT4_ID = "payment4_id";
+  public static final String PLACE1_ID = "place1_id";
+  public static final String PLACE2_ID = "place2_id";
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";

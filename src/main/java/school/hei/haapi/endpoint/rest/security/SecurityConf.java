@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.security;
 
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +12,8 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
+
+import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
@@ -100,6 +101,9 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/groups").authenticated()
         .antMatchers(GET, "/groups/*").authenticated()
         .antMatchers(PUT, "/groups/**").hasAnyRole(MANAGER.getRole())
+            .antMatchers(GET,"/places").authenticated()
+            .antMatchers(GET,"/places/*").authenticated()
+            .antMatchers(PUT,"/places/**").hasAnyRole(MANAGER.getRole())
         .antMatchers("/**").denyAll()
 
         // disable superfluous protections
