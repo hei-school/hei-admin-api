@@ -22,13 +22,13 @@ public class EventMapper {
     public Event toDomain(Event event) {
         return Event.builder()
                 .id(event.getId())
-                .eventType(Event.EventTypeEnum.valueOf(event.getEventType().toString()))
+                .eventType(event.getEventType())
                 .description(event.getDescription())
                 .responsible(event.getResponsible())
                 .start(event.getStart())
                 .end(event.getEnd())
                 .place(event.getPlace())
-                .status(Event.StatusEnum.valueOf(event.getStatus().toString()))
+                .status(event.getStatus())
                 .build();
     }
 

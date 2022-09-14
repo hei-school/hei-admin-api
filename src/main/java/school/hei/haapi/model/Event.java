@@ -22,9 +22,9 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "\"event\"")
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
+@ToString
 @Getter
 @Setter
-@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -35,7 +35,7 @@ public class Event implements Serializable {
 
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
-    private EventTypeEnum eventType;
+    private school.hei.haapi.endpoint.rest.model.Event.EventTypeEnum eventType;
 
     @NotBlank(message = "Description is mandatory")
     private String description;
@@ -48,7 +48,7 @@ public class Event implements Serializable {
 
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
-    private StatusEnum status;
+    private school.hei.haapi.endpoint.rest.model.Event.StatusEnum status;
 
     @ManyToOne
     private Place place;
@@ -70,14 +70,4 @@ public class Event implements Serializable {
         return getClass().hashCode();
     }
 
-    public enum EventTypeEnum {
-            COURSES,
-            EXAMS,
-            CONFERENCES
-    }
-
-    public enum StatusEnum {
-        ACTIVE,
-        CANCEL
-    }
 }

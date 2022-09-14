@@ -28,14 +28,6 @@ public class CourseController {
     }
     @PutMapping("/courses")
     public school.hei.haapi.model.Course createOrUpdate(@RequestBody school.hei.haapi.model.Course toWrite) {
-        /*return courseService
-                .saveAll(toWrite
-                        .stream()
-                        .map(courseMapper::toDomain)
-                        .collect(toUnmodifiableList()))
-                .stream()
-                .map(courseMapper::toRest)
-                .collect(toUnmodifiableList());*/
         return courseService.save(toWrite);
     }
 }

@@ -82,12 +82,12 @@ public class EventIT {
     public static Event event1() {
         Event event = new Event();
         event.setId("event1_id");
+        event.setEventType(Event.EventTypeEnum.COURSES);
         event.setDescription("Some description");
-        event.setEventType(Math.random() < 0.3 ? Event.EventTypeEnum.COURSES : Event.EventTypeEnum.EXAMS);
         event.setResponsible(teacher1());
         event.setStart(Instant.parse("2022-09-08T08:00:00.00Z"));
-        event.setStart(Instant.parse("2022-09-08T10:30:00.00Z"));
-        event.setStatus(Math.random() < 0.3 ? Event.StatusEnum.ACTIVE : Event.StatusEnum.CANCEL);
+        event.setEnd(Instant.parse("2022-09-08T10:30:00.00Z"));
+        event.setStatus(Event.StatusEnum.ACTIVE);
         event.setPlace(place1());
         return event;
     }
@@ -95,12 +95,12 @@ public class EventIT {
     public static Event event2() {
         Event event = new Event();
         event.setId("event2_id");
-        event.setDescription("Some description");
         event.setEventType(Event.EventTypeEnum.COURSES);
+        event.setDescription("Some description");
         event.setResponsible(manager1());
         event.setStart(Instant.parse("2022-09-08T08:00:00.00Z"));
-        event.setStart(Instant.parse("2022-09-08T10:30:00.00Z"));
-        event.setStatus(Math.random() < 0.3 ? Event.StatusEnum.ACTIVE : Event.StatusEnum.CANCEL);
+        event.setEnd(Instant.parse("2022-09-08T10:30:00.00Z"));
+        event.setStatus( Event.StatusEnum.CANCEL);
         event.setPlace(place1());
         return event;
     }
