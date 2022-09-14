@@ -1025,6 +1025,8 @@ paths:
           content:
             application/json:
               schema:
+                type: array
+                items:
                   $ref: '#/components/schemas/EventParticipant'
         responses:
           '200':
@@ -1135,6 +1137,7 @@ paths:
             content:
               application/json:
                 schema:
+                  type: array
                   items:
                     $ref: '#/components/schemas/EventParticipant'
           '400':
@@ -1532,6 +1535,8 @@ components:
       properties:
         participant:
           $ref: '#/components/schemas/User'
+        event:
+          $ref: '#/components/schemas/Event'
         status: 
           type: string
           example: "EXPECTED"
@@ -1544,6 +1549,8 @@ components:
           example: 1        
         participant:
           $ref: '#/components/schemas/User'
+        event:
+          $ref: '#/components/schemas/Event'
         status: 
           type: string
           example: "EXPECTED"
