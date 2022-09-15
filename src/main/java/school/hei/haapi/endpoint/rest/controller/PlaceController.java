@@ -44,8 +44,4 @@ public class PlaceController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/{id}/events")
-    public List<Event> getEventFromOnePlace(@PathVariable String id){
-        throw new NotImplementedException("Not implemented");
-    }
 }
