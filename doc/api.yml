@@ -955,6 +955,7 @@ paths:
         - Place
       description: Get the list of created event
       summary: Get the list of created event
+      operationId: getEvents
       parameters:
         - name: page
           in: query
@@ -964,6 +965,11 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: "place_id"
+          in: "query"
+          required: false
+          schema:
+            type: "string"
       responses:
         '200':
           description: List of events
@@ -983,11 +989,12 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    post:
+    put:
       tags:
         - Place
       description: Create new events
       summary: Create new events
+      operationId: createEvents
       requestBody:
         content:
           application/json:
@@ -1020,6 +1027,7 @@ paths:
         - Place
       description: Get event by id
       summary: Get event by id
+      operationId: getEventById
       parameters:
         - in: path
           name: id
