@@ -680,13 +680,100 @@ paths:
                 $ref: '#/components/schemas/Event'
       responses:
         '200':
-          description: The created or updated places
+          description: The created or updated events
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /eventParticipants/{id}:
+    get:
+      tags:
+        - Event
+      summary: Get eventParticipant by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getEventParticipantById
+      responses:
+        '200':
+          description: The identified eventParticipant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /eventParticipants:
+    get:
+      tags:
+        - Event
+      summary: Get all eventParticipants
+      operationId: getEventParticipants
+      responses:
+        '200':
+          description: List of all eventParticipants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Event
+      summary: Create new eventParticipants or update existing eventParticipants
+      description: Update eventParticipant when id are provided, create them otherwise.
+      operationId: createOrUpdateEventParticipants
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/EventParticipant'
+      responses:
+        '200':
+          description: The created or updated eventParticipants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1159,6 +1246,21 @@ components:
           type: string
         place_id:
           type: string
+    EventParticipant:
+      type: object
+      properties:
+        id:
+          type: string
+        event_id:
+          type: string
+        participant_id:
+          type: string
+        status:
+          type: string
+          enum:
+            - EXPECTED
+            - HERE
+            - MISSING
     CreateFee:
       type: object
       properties:
