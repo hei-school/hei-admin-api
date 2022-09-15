@@ -1055,7 +1055,7 @@ paths:
   /events/{event_id}/participants:
     get:
       tags:
-        - Places
+        - Place
       summary: Get all participants of a specific event
       operationId: getParticipants
       parameters:
@@ -1093,7 +1093,7 @@ paths:
           $ref: '#/components/responses/500'
     post:
       tags:
-        - Places
+        - Place
       summary: Create eventParticipant
       operationId: createEventParticipant
       parameters:
@@ -1294,6 +1294,8 @@ components:
     CreateEventParticipant:
       type: object
       properties:
+        user:
+            $ref: "#/components/schemas/User"
         event_id:
           type: string
         group_id:
@@ -1301,19 +1303,9 @@ components:
 
     EventParticipant:
       type: object
+      allOf:
+        - $ref: "#/components/schemas/CreateEventParticipant"
       properties:
-        id:
-          type: string
-          example: "uuid"
-        ref:
-          type: string
-          example: "STD21001"
-        first_name:
-          type: string
-        last_name:
-          type: string
-        event_id:
-          type: string
         status:
           type: string
           enum:
