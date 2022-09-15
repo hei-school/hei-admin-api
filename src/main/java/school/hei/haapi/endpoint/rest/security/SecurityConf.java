@@ -73,7 +73,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers("/ping").permitAll()
-        .antMatchers(POST,"/events/*/event_participants/**").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(POST,"/events/*/event_participants/presence").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(OPTIONS, "/**").permitAll()
         .antMatchers("/whoami").authenticated()
         .antMatchers(GET, "/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
@@ -101,6 +101,12 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/groups").authenticated()
         .antMatchers(GET, "/groups/*").authenticated()
         .antMatchers(PUT, "/groups/**").hasAnyRole(MANAGER.getRole())
+            .antMatchers(GET,"/places").authenticated()
+            .antMatchers(GET,"/places/*").authenticated()
+            .antMatchers(PUT,"/places/**").hasAnyRole(MANAGER.getRole())
+            .antMatchers(GET,"/courses").authenticated()
+            .antMatchers(GET,"/courses/*").authenticated()
+            .antMatchers(PUT,"/courses/**").hasAnyRole(MANAGER.getRole())
         .antMatchers("/**").permitAll()
 
         // disable superfluous protections

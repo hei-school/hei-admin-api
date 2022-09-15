@@ -839,7 +839,7 @@ paths:
   /events:
       get:
         tags:
-          - Events
+          - Places
         summary: Get all Events
         operationId: getEvents
         parameters:
@@ -883,7 +883,7 @@ paths:
             $ref: '#/components/responses/500'
       put:
         tags:
-          - Events
+          - Places
         summary: Add new Events
         description: Update Events when `id` are provided, create them otherwise.
         operationId: PostEvents
@@ -915,7 +915,7 @@ paths:
   /events/{id}:
     get:
       tags:
-        - Events
+        - Places
       summary: Get a Event by specified id
       operationId: getEvent
       parameters:
@@ -946,7 +946,7 @@ paths:
   /responsibles/{id_responsible}/events:
     get:
       tags:
-        - Events
+        - Places
       summary: Get a Event by responsible ID
       operationId: getEventByresponsible
       parameters:
@@ -978,7 +978,7 @@ paths:
   /event_participants:
       get:
         tags:
-          - Event participants
+          - Places
         summary: Get all Event_participants
         operationId: getEvent_participants
         parameters:
@@ -1017,7 +1017,7 @@ paths:
             $ref: '#/components/responses/500'
       put:
         tags:
-          - Event participants
+          - Places
         summary: Add new Event_participants
         description: Update Event_participants when `id` are provided, create them otherwise.
         operationId: PostEvent_participants
@@ -1051,7 +1051,7 @@ paths:
   /event_participants/{id}:
     get:
       tags:
-        - Event participants
+        - Places
       summary: Get a Event_participant by specified id
       operationId: getEvent_participant
       parameters:
@@ -1084,7 +1084,7 @@ paths:
   /events/{id_event}/event_participants:
     get:
       tags:
-        - Event participants
+        - Places
       summary: Get a Event_participant by event ID
       operationId: getEvent_participantByevent
       parameters:
@@ -1116,7 +1116,7 @@ paths:
   /events/{id_event}/event_participants/presence:
     put:
       tags:
-        - Event participants
+        - Places
       summary: Take picture to mark presence of participants
       operationId: presenceEvent_participant
       parameters:

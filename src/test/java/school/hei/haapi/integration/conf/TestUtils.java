@@ -31,6 +31,10 @@ public class TestUtils {
   public static final String PAYMENT1_ID = "payment1_id";
   public static final String PAYMENT2_ID = "payment2_id";
   public static final String PAYMENT4_ID = "payment4_id";
+  public static final String PLACE1_ID = "place1_id";
+  public static final String PLACE2_ID = "place2_id";
+  public static final String COURSE1_ID = "course1_id";
+  public static final String COURSE2_ID = "course2_id";
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
