@@ -1582,24 +1582,28 @@ components:
       type: object
       properties:        
         id:
-          type: number
-          example: 1        
+          type: string    
         name:
           type: string
           example: 'cours de français'
-        start:
+        type:
+          type: string
+          example: 'COURSE'
+        startEvent:
           type: string
           format: date-time
           example: "2022-09-13 13:00:00"
-        end:
+        endEvent:
           type: string
           format: date-time
           example: "2022-09-13 15:00:00"
         status: 
           type: string
           example: "cancelled"
-        responsible: 
-          $ref: '#/components/schemas/User'
+        responsibleId: 
+          type: string 
+        placeId: 
+          type: string 
 
     Page:
       type: integer
