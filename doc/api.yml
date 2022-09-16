@@ -17,6 +17,7 @@ info:
 servers:
   - url: 'https://api-dev.hei.school'
   - url: 'https://api-prod.hei.school'
+  #- url: 'https://virtserver.swaggerhub.com/fenohasinalala/el1p3-hei.admin/1.0.0'
 
 
 security:
@@ -951,6 +952,14 @@ paths:
           schema:
             type: string
           required: true
+        - name: page
+          in: query
+          schema:
+            type: integer
+        - name: page_size
+          in: query
+          schema:
+            type: integer
       responses:
           '200':
             description: Success
