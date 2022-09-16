@@ -1,8 +1,13 @@
 package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Event;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Place;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -14,6 +19,8 @@ import school.hei.haapi.repository.UserRepository;
 import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
+
+import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @Service
 @AllArgsConstructor
@@ -27,8 +34,17 @@ public class EventService {
         return eventRepository.getById(eventId);
     }
 
-    public List<Event> getAll(){
-        return eventRepository.findAll();
+    public List<Event> getByName(
+            String name,
+            PageFromOne page,
+            BoundedPageSize pageSize) {
+        Pageable pageable = PageRequest.of(
+                page.getValue() - 1,
+                pageSize.getValue(),
+                Sort.by(ASC, "eventType"));
+        return eventRepository.findByNameContainingIgnoreCase(
+                name,pageable
+        );
     }
 
     @Transactional

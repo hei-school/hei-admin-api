@@ -645,6 +645,20 @@ paths:
         - Places
       summary: Get all events
       operationId: getEvents
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: name
+          in: query
+          description: "Filter events by name, case is ignored"
+          schema:
+            type: string
       responses:
         '200':
           description: List of all events
