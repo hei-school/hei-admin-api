@@ -1,9 +1,14 @@
 package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.validator.EventParticipantValidator;
@@ -15,6 +20,8 @@ import javax.transaction.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+import static org.springframework.data.domain.Sort.Direction.ASC;
+
 @Service
 @AllArgsConstructor
 public class EventParticipantService {
@@ -23,12 +30,21 @@ public class EventParticipantService {
     private final EventRepository eventRepository;
     private final UserRepository userRepository;
 
-    public EventParticipant getById(String eventParticipantId){
-        return eventParticipantRepository.getById(eventParticipantId);
+    public EventParticipant getById(String eventId, String eventParticipantId){
+        return eventParticipantRepository.findEventParticipantByEvent_IdAndId(eventId,eventParticipantId);
     }
 
-    public List<EventParticipant> getAll(){
-        return eventParticipantRepository.findAll();
+    public List<EventParticipant> getAll(
+            String eventId,
+            PageFromOne page,
+            BoundedPageSize pageSize
+    ){
+        Pageable pageable = PageRequest.of(
+                page.getValue() - 1,
+                pageSize.getValue(),
+                Sort.by(ASC, "status"));
+        return eventParticipantRepository.findAllByEvent_Id(
+                eventId, pageable);
     }
 
     @Transactional

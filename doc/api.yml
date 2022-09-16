@@ -725,13 +725,18 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /eventParticipants/{id}:
+  /events/{event_id}/eventParticipants/{event_participant_id}:
     get:
       tags:
         - Places
       summary: Get eventParticipant by identifier
       parameters:
-        - name: id
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: event_participant_id
           in: path
           required: true
           schema:
@@ -754,12 +759,26 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /eventParticipants:
+  /events/{event_id}/eventParticipants:
     get:
       tags:
         - Places
       summary: Get all eventParticipants
       operationId: getEventParticipants
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
       responses:
         '200':
           description: List of all eventParticipants
@@ -779,6 +798,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /eventParticipants:
     put:
       tags:
         - Places
