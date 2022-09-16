@@ -856,11 +856,6 @@ paths:
           in: query
           schema:
             type: string
-        - name: responsible_name
-          description: Filter Events by responsible name,
-          in: query
-          schema:
-            type: string
         
         responses:
           '200':
@@ -924,7 +919,7 @@ paths:
         - name: id
           in: path
           schema:
-            type: integer
+            type: string
           required: true
       responses:
           '200':
@@ -932,8 +927,7 @@ paths:
             content:
               application/json:
                 schema:
-                  items:
-                    $ref: '#/components/schemas/Event'
+                  $ref: '#/components/schemas/Event'
           '400':
             $ref: '#/components/responses/400'
           '403':
