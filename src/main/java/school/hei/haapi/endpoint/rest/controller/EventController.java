@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -9,6 +10,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.EventMapper;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.PageFromOne;
@@ -38,6 +40,16 @@ public class EventController {
             @RequestParam(required = false, defaultValue = "") String name
     ){
         return eventService.getByName(name,page,pageSize).stream()
+                .map(eventMapper::toRest)
+                .collect(Collectors.toUnmodifiableList());
+    }
+
+    @GetMapping("/events/myevents")
+    public List<Event> getMyEvents(
+            @AuthenticationPrincipal Principal principal
+            ){
+        String supervisorId = principal.getUserId();
+        return eventService.getAllBySupervisorId(supervisorId).stream()
                 .map(eventMapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
     }

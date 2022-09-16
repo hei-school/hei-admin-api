@@ -48,6 +48,10 @@ public class EventService {
         );
     }
 
+    public List<Event> getAllBySupervisorId(String supervisorId){
+        return eventRepository.findAllBySupervisor_Id(supervisorId);
+    }
+
     @Transactional
     public Event accept(Event event){
         eventValidator.accept(event);
