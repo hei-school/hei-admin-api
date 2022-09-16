@@ -940,7 +940,7 @@ paths:
           in: path
           required: true
           schema:
-            type: number
+            type: string
       operationId: getEventById
       responses:
         '200':
@@ -969,7 +969,7 @@ paths:
           in: path
           required: true
           schema:
-            type: number
+            type: string
         - name: page
           in: query
           schema:
@@ -1003,10 +1003,12 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/Page'
+          required: false
         - name: page_size
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+          required: false
       operationId: getEvents
       responses:
         '200':
@@ -1403,22 +1405,22 @@ components:
           type: string
         responsible:
           type: string
-          enum:
-            - $ref: '#/components/schemas/Teacher'
-            - $ref: '#/components/schemas/Manager'
+          example: "Teacher 1"
         place:
-          $ref: '#/components/schemas/Place'
+          type: string
+          example: "Haute Ecole d'Informatique Ivandry"
     EventParticipant:
       type: object
       properties:
-        participant:
+        id:
           type: string
-          enum:
-            - $ref: '#/components/schemas/Student'
-            - $ref: '#/components/schemas/Teacher'
-            - $ref: '#/components/schemas/Manager'
-        event:
-          $ref: '#/components/schemas/Event'
+          example: "uuid"
+        participant_ref:
+          type: string
+          example: "STD22001"
+        event_id:
+          type: string
+          example: "event1_id"
         status:
           type: string
           enum:
