@@ -34,10 +34,14 @@ public class EventParticipant {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "id", nullable = false)
-    private Long id;
+    private String id;
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
+
+    @ManyToOne
+    @JoinColumn(name = "group_id")
+    private Group group;
 
     @Column(name = "\"status\"")
     @Type(type = "pgsql_enum")
