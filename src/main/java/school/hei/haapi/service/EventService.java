@@ -37,7 +37,8 @@ public class EventService {
     public List<Event> getByName(
             String name,
             PageFromOne page,
-            BoundedPageSize pageSize) {
+            BoundedPageSize pageSize
+    ){
         Pageable pageable = PageRequest.of(
                 page.getValue() - 1,
                 pageSize.getValue(),
