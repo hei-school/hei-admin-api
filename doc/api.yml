@@ -1253,10 +1253,12 @@ components:
       properties:
         id:
           type: string
-        event_id:
-          type: string
-        participant_id:
-          type: string
+        event:
+          allOf:
+            - $ref: '#/components/schemas/Event'
+        participant:
+          allOf:
+            - $ref: '#/components/schemas/User'
         status:
           type: string
           enum:
