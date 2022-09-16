@@ -886,11 +886,13 @@ paths:
           - Places
         summary: Add new Events
         description: Update Events when `id` are provided, create them otherwise.
-        operationId: PostEvents
+        operationId: CreateOrUpdateEvents
         requestBody:
           content:
             application/json:
               schema:
+                type: array
+                items:
                   $ref: '#/components/schemas/Event'
         responses:
           '200':
@@ -917,7 +919,7 @@ paths:
       tags:
         - Places
       summary: Get a Event by specified id
-      operationId: getEvent
+      operationId: getEventById
       parameters:
         - name: id
           in: path
@@ -948,12 +950,12 @@ paths:
       tags:
         - Places
       summary: Get a Event by responsible ID
-      operationId: getEventByresponsible
+      operationId: getEventByResponsibleId
       parameters:
         - name: id_responsible
           in: path
           schema:
-            type: integer
+            type: string
           required: true
       responses:
           '200':
@@ -1020,7 +1022,7 @@ paths:
           - Places
         summary: Add new Event_participants
         description: Update Event_participants when `id` are provided, create them otherwise.
-        operationId: PostEvent_participants
+        operationId: CreateOrUpdateEvent_participants
         requestBody:
           content:
             application/json:
@@ -1053,7 +1055,7 @@ paths:
       tags:
         - Places
       summary: Get a Event_participant by specified id
-      operationId: getEvent_participant
+      operationId: getEvent_participantById
       parameters:
         - name: id
           in: path
@@ -1086,12 +1088,12 @@ paths:
       tags:
         - Places
       summary: Get a Event_participant by event ID
-      operationId: getEvent_participantByevent
+      operationId: getEvent_participantByEventId
       parameters:
         - name: id_event
           in: path
           schema:
-            type: integer
+            type: string
           required: true
       responses:
           '200':
@@ -1114,7 +1116,7 @@ paths:
             $ref: '#/components/responses/500'
 
   /events/{id_event}/event_participants/presence:
-    put:
+    post:
       tags:
         - Places
       summary: Take picture to mark presence of participants
@@ -1229,7 +1231,7 @@ paths:
       tags:
         - Places
       summary: Get a Place by specified id
-      operationId: getPlace
+      operationId: getPlaceById
       parameters:
         - name: id
           in: path
@@ -1254,38 +1256,6 @@ paths:
           '500':
             $ref: '#/components/responses/500'
     
-  /events/{id_event}/places:
-    get:
-      tags:
-        - Places
-      summary: Get a Place by event ID
-      operationId: getPlaceByevent
-      parameters:
-        - name: id_event
-          in: path
-          schema:
-            type: integer
-          required: true
-      responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/Place'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
-   
 components:
   securitySchemes:
     BearerAuth:
@@ -1444,7 +1414,7 @@ components:
       properties:
         id:
           type: string
-          example: idfee
+          example: TUITION
         student_id:
           type: string
           example: idstudent
@@ -1514,7 +1484,7 @@ components:
           type: string
           format: date-time
 
-    NewPlace:
+    CreatePlace:
       type: object
       properties:
         name:
@@ -1530,53 +1500,65 @@ components:
           type: string
           example: 'HEI-Anatananarivo-Ivandry'
 
-    NewEventParticipant:
+    CreateEventParticipant:
       type: object
-      properties:
-        participant:
-          $ref: '#/components/schemas/User'
-        event:
-          $ref: '#/components/schemas/Event'
+      properties:          
+        participantId: 
+          type: string 
+        eventId: 
+          type: string 
         status: 
           type: string
-          example: "EXPECTED"
+          enum:
+            - HERE
+            - MISSING
+            - EXPECTED
 
     EventParticipant:
       type: object
       properties:        
         id:
-          type: number
-          example: 1        
-        participant:
-          $ref: '#/components/schemas/User'
-        event:
-          $ref: '#/components/schemas/Event'
+          type: string       
+        participantId: 
+          type: string 
+        eventId: 
+          type: string 
         status: 
           type: string
           example: "EXPECTED"
         
-    NewEvent:
+    CreateEvent:
       type: object
       properties:
         name:
           type: string
           example: 'cours de français'
-        start:
+        type:
+          type: string
+          enum:
+            - COURSE
+            - EXAM
+            - ENTRANCE_TEST
+            - MEETING
+            - CONFERENCE
+            - VISIT
+        startEvent:
           type: string
           format: date-time
           example: "2022-09-13 13:00:00"
-        end:
+        endEvent:
           type: string
           format: date-time
           example: "2022-09-13 15:00:00"
         status: 
           type: string
-          example: "cancelled"
-        responsible: 
-          type: object
-          properties:        
-            id:
-              type: string 
+          enum:
+            - CANCELLED
+            - ONGOING
+        responsibleId: 
+          type: string 
+        placeId: 
+          type: string 
           
     Event:
       type: object
