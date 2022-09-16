@@ -1294,18 +1294,26 @@ components:
     CreateEventParticipant:
       type: object
       properties:
+        id:
+          type: string
         user:
-            $ref: "#/components/schemas/User"
+          type: string
+          description: The user id
         event_id:
           type: string
         group_id:
           type: string
+          description: The participant group if it's a student
 
     EventParticipant:
       type: object
-      allOf:
-        - $ref: "#/components/schemas/CreateEventParticipant"
       properties:
+        id:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+        group:
+          $ref: "#/components/schemas/Group"
         status:
           type: string
           enum:
