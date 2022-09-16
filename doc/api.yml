@@ -530,7 +530,7 @@ paths:
   /places/{id}:
     get:
       tags:
-        - Event
+        - Places
       summary: Get place by identifier
       parameters:
         - name: id
@@ -559,7 +559,7 @@ paths:
   /places:
     get:
       tags:
-        - Event
+        - Places
       summary: Get all places
       operationId: getPlaces
       responses:
@@ -583,7 +583,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Event
+        - Places
       summary: Create new place or update existing place
       description: Update place when id are provided, create them otherwise.
       operationId: createOrUpdatePlaces
@@ -613,7 +613,7 @@ paths:
   /events/{id}:
     get:
       tags:
-        - Event
+        - Places
       summary: Get event by identifier
       parameters:
         - name: id
@@ -642,7 +642,7 @@ paths:
   /events:
     get:
       tags:
-        - Event
+        - Places
       summary: Get all events
       operationId: getEvents
       responses:
@@ -666,7 +666,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Event
+        - Places
       summary: Create new events or update existing events
       description: Update event when id are provided, create them otherwise.
       operationId: createOrUpdateEvents
@@ -700,7 +700,7 @@ paths:
   /eventParticipants/{id}:
     get:
       tags:
-        - Event
+        - Places
       summary: Get eventParticipant by identifier
       parameters:
         - name: id
@@ -729,7 +729,7 @@ paths:
   /eventParticipants:
     get:
       tags:
-        - Event
+        - Places
       summary: Get all eventParticipants
       operationId: getEventParticipants
       responses:
@@ -753,7 +753,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Event
+        - Places
       summary: Create new eventParticipants or update existing eventParticipants
       description: Update eventParticipant when id are provided, create them otherwise.
       operationId: createOrUpdateEventParticipants
