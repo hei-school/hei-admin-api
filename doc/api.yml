@@ -1242,10 +1242,12 @@ components:
         ending_time:
           type: string
           format: date-time
-        supervisor_id:
-          type: string
-        place_id:
-          type: string
+        supervisor:
+          allOf:
+            - $ref: '#/components/schemas/User'
+        place:
+          allOf:
+            - $ref: '#/components/schemas/Place'
     EventParticipant:
       type: object
       properties:

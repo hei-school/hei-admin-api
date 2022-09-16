@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -13,6 +14,8 @@ import school.hei.haapi.service.EventService;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 @RestController
 @AllArgsConstructor
@@ -35,13 +38,11 @@ public class EventController {
 
     @PutMapping("/events")
     public List<Event> createOrUpdateEvents(@RequestBody List<Event> toWrite){
-        return eventService
-                .saveAll(toWrite)
-                    .stream()
-                    .map(eventMapper::toDomain)
-                    .collect(Collectors.toUnmodifiableList())
-                .stream()
+        var saved = eventService.saveAll(toWrite.stream()
+                .map(eventMapper::toDomain)
+                .collect(toUnmodifiableList()));
+        return saved.stream()
                 .map(eventMapper::toRest)
-                .collect(Collectors.toUnmodifiableList());
+                .collect(toUnmodifiableList());
     }
 }
