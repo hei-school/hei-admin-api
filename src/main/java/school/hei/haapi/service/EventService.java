@@ -56,7 +56,6 @@ public class EventService {
     public List<Event> saveAll(List<Event> events){
         List<Event> saved = new ArrayList<>();
         events.forEach(event -> saved.add(accept(event)));
-        eventValidator.accept(saved);
         return eventRepository.saveAll(saved);
     }
 }
