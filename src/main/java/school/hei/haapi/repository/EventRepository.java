@@ -11,5 +11,5 @@ import java.util.List;
 public interface EventRepository extends JpaRepository<Event,String> {
     List<Event> findByNameContainingIgnoreCase(String name, Pageable pageable);
 
-    List<Event> findAllBySupervisor_Id(String supervisorId);
+    List<Event> findAllBySupervisor_Id(String supervisorId, Pageable pageable);
 }

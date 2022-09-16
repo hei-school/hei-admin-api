@@ -48,8 +48,15 @@ public class EventService {
         );
     }
 
-    public List<Event> getAllBySupervisorId(String supervisorId){
-        return eventRepository.findAllBySupervisor_Id(supervisorId);
+    public List<Event> getAllBySupervisorId(
+            String supervisorId,
+            PageFromOne page,
+            BoundedPageSize pageSize){
+        Pageable pageable = PageRequest.of(
+                page.getValue() - 1,
+                pageSize.getValue(),
+                Sort.by(ASC, "eventType"));
+        return eventRepository.findAllBySupervisor_Id(supervisorId, pageable);
     }
 
     @Transactional

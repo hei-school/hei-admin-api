@@ -46,10 +46,12 @@ public class EventController {
 
     @GetMapping("/events/myevents")
     public List<Event> getMyEvents(
+            @RequestParam PageFromOne page,
+            @RequestParam("page_size") BoundedPageSize pageSize,
             @AuthenticationPrincipal Principal principal
             ){
         String supervisorId = principal.getUserId();
-        return eventService.getAllBySupervisorId(supervisorId).stream()
+        return eventService.getAllBySupervisorId(supervisorId, page, pageSize).stream()
                 .map(eventMapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
     }
