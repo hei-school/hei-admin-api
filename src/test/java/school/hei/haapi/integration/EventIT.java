@@ -28,8 +28,10 @@ import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
 import static school.hei.haapi.integration.conf.TestUtils.PLACE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.PLACE2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
@@ -70,7 +72,7 @@ public class EventIT {
                 .id(EVENT1_ID)
                 .courseId(COURSE1_ID)
                 .placeId(PLACE1_ID)
-                .supervisorId(TEACHER1_ID)
+                .supervisorId(MANAGER_ID)
                 .title("title1")
                 .type("type1")
                 .startingTime(Instant.parse("2023-12-08T08:25:24.00Z"))
@@ -127,7 +129,7 @@ public class EventIT {
 
     @Test
     void student_read_ok() throws ApiException {
-        ApiClient student1Client = anApiClient(MANAGER1_TOKEN);
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         PlaceApi api = new PlaceApi(student1Client);
 
         Event actualEvent = api.getEventById(EVENT1_ID);

@@ -35,11 +35,9 @@ public class EventController {
     @PutMapping("")
     public List<Event> createEvents(@RequestBody List<Event> events) {
         return eventService.createOrUpdate(events.stream()
-                        .map(this::toDomain).collect(Collectors.toList())).stream()
+                        .map(eventMapper::toDomain).collect(Collectors.toList())).stream()
                 .map(eventMapper::toRest).collect(Collectors.toList());
     }
 
-    private school.hei.haapi.model.Event toDomain(Event event) {
-        return eventMapper.toDomain(event.getSupervisorId(), event.getCourseId(), event.getPlaceId(), event);
-    }
+
 }

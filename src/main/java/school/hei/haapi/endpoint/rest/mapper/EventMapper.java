@@ -33,11 +33,11 @@ public class EventMapper {
                 .courseId(eventDomain.getCourse().getId());
     }
 
-    public school.hei.haapi.model.Event toDomain(String supervisorId,String courseId,String placeId, Event eventRest){
+    public school.hei.haapi.model.Event toDomain(Event eventRest){
         //throw error if entity with a specified id does not exist
-        User teacherOrManager = getTeacherOrManager(supervisorId);
-        Course course = getCourse(courseId);
-        Place place = getPlace(placeId);
+        User teacherOrManager = getTeacherOrManager(eventRest.getSupervisorId());
+        Course course = getCourse(eventRest.getCourseId());
+        Place place = getPlace(eventRest.getPlaceId());
 
         return school.hei.haapi.model.Event.builder()
                 .id(eventRest.getId())
@@ -60,7 +60,7 @@ public class EventMapper {
     }
 
     private Course getCourse(String courseId) {
-        Course course = courseService.getCourseById(courseId);
+        Course course = courseService.getById(courseId);
         if (course == null) {
             throw new NotFoundException("course.id=" + courseId + " is not found");
         }

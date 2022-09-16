@@ -12,7 +12,6 @@ import school.hei.haapi.repository.EventRepository;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -20,14 +19,18 @@ public class EventService {
     private final EventRepository eventRepository;
 
     public List<Event> getAllOrByPlaceId(PageFromOne page, BoundedPageSize pageSize, String placeId) {
-        Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(),Sort.by(Sort.Direction.DESC,"starting_date_time"));
+        Pageable pageable = PageRequest.of(
+                page.getValue() - 1, pageSize.getValue(),
+                Sort.by(Sort.Direction.DESC, "starting_date_time"));
         if (placeId != null) {
-            return eventRepository.findEventFromPlace(pageable,placeId);
+            return eventRepository.findEventFromPlace(pageable, placeId);
         }
         return new ArrayList<>(eventRepository.findAll());
     }
-
-    public List<Event> createOrUpdate(List<Event> events){
+    public Event getById(String id){
+        return eventRepository.getById(id);
+    }
+    public List<Event> createOrUpdate(List<Event> events) {
         return eventRepository.saveAll(events);
     }
 
