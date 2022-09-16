@@ -1053,17 +1053,22 @@ paths:
           '500':
             $ref: '#/components/responses/500'
        
-  /event_participants/{id}:
+  /events/{event_id}/event_participants/{event_participant_id}:
     get:
       tags:
         - Places
       summary: Get a Event_participant by specified id
       operationId: getEvent_participantById
       parameters:
-        - name: id
+        - name: event_id
           in: path
           schema:
-            type: integer
+            type: string
+          required: true
+        - name: event_participant_id
+          in: path
+          schema:
+            type: string
           required: true
       responses:
           '200':
