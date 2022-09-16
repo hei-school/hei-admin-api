@@ -14,4 +14,5 @@ public interface UserRepository extends JpaRepository<User, String> {
 
   List<User> findByRoleAndRefContainingIgnoreCaseAndFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
       User.Role role, String ref, String firstName, String lastName, Pageable pageable);
+  List<User> findByRoleAndGroup_Id(User.Role role,String groupId,Pageable pageable);
 }
