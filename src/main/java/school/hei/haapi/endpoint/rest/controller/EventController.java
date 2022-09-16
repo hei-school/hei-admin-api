@@ -35,7 +35,7 @@ public class EventController {
     public List<Event> getEvents(
             @RequestParam PageFromOne page,
             @RequestParam("page_size") BoundedPageSize pageSize,
-            @RequestParam(value = "ref", required = false, defaultValue = "") String name
+            @RequestParam(value = "name", required = false, defaultValue = "") String name
     ){
         return eventService.getByName(name,page,pageSize).stream()
                 .map(eventMapper::toRest)
