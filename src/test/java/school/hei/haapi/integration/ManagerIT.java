@@ -54,6 +54,7 @@ class ManagerIT {
     manager.setEmail("test+manager1@hei.school");
     manager.setRef("MGR21001");
     manager.setPhone("0322411127");
+    manager.setPicture("manager1.jpg");
     manager.setStatus(EnableStatus.ENABLED);
     manager.setSex(Manager.SexEnum.M);
     manager.setBirthDate(LocalDate.parse("1890-01-01"));

@@ -1,5 +1,6 @@
 package school.hei.haapi.integration.conf;
 
+import com.amazonaws.services.s3.AmazonS3Client;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.UUID;
@@ -24,12 +25,18 @@ public class TestUtils {
   public static final String TEACHER2_ID = "teacher2_id";
   public static final String MANAGER_ID = "manager1_id";
   public static final String GROUP1_ID = "group1_id";
+  public static final String GROUP2_ID = "group2_id";
 
   public static final String COURSE1_ID = "course1_id";
   public static final String FEE1_ID = "fee1_id";
   public static final String FEE2_ID = "fee2_id";
   public static final String FEE3_ID = "fee3_id";
   public static final String FEE4_ID = "fee4_id";
+
+  public static final String EVENT1_ID = "event1_id";
+  public static final String EVENT2_ID = "event2_id";
+  public static final String EVENTP1_ID = "eventp1_id";
+  public static final String EVENTP2_ID = "eventp2_id";
   public static final String PAYMENT1_ID = "payment1_id";
   public static final String PAYMENT2_ID = "payment2_id";
   public static final String PAYMENT4_ID = "payment4_id";
@@ -39,6 +46,8 @@ public class TestUtils {
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
 
+  public static final String BUCKET_NAME = "bucket_name";
+  public static final String S3_PICTURE = "s3 picture";
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
     client.setScheme("http");
@@ -60,6 +69,13 @@ public class TestUtils {
     when(eventBridgeClient.putEvents((PutEventsRequest) any())).thenReturn(
         PutEventsResponse.builder().build()
     );
+  }
+
+  public static void setUpS3(AmazonS3Client s3Client){
+    //when(s3Client.getObject(BUCKET_NAME,S3_PICTURE)).thenReturn("");
+  }
+  public static void setUpRekognition(){
+
   }
 
   public static void assertThrowsApiException(String expectedBody, Executable executable) {

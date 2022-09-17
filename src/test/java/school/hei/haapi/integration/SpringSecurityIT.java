@@ -57,7 +57,7 @@ class SpringSecurityIT {
   void ping_with_cors() throws IOException, InterruptedException {
     // /!\ The HttpClient produced by openapi-generator SEEMS to not support text/plain
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + SpringSecurityIT.ContextInitializer.SERVER_PORT;
+    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
 
     HttpResponse<String> response = unauthenticatedClient.send(
         HttpRequest.newBuilder()
@@ -85,7 +85,7 @@ class SpringSecurityIT {
 
   void test_cors(HttpMethod method, String path) throws IOException, InterruptedException {
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + SpringSecurityIT.ContextInitializer.SERVER_PORT;
+    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
 
     HttpResponse<String> response = unauthenticatedClient.send(
         HttpRequest.newBuilder()

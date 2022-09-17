@@ -32,6 +32,7 @@ public class EventParticipantService {
     return repository.getById(participantId);
   }
 
+  @Transactional
   public List<EventParticipant> saveAll(List<EventParticipant> toCreate) {
     return repository.saveAll(toCreate);
   }

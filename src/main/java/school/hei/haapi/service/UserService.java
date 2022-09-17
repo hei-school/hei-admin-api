@@ -38,6 +38,9 @@ public class UserService {
     return userRepository.getByEmail(email);
   }
 
+  public User getByRef(String ref){
+    return userRepository.getByRef(ref);
+  }
   @Transactional
   public List<User> saveAll(List<User> users) {
     userValidator.accept(users);

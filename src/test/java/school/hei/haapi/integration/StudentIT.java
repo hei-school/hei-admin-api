@@ -41,6 +41,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.GROUP2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -77,9 +79,11 @@ class StudentIT {
     student.setFirstName(faker.name().firstName());
     student.setLastName(faker.name().lastName());
     student.setEmail("test+" + randomUUID() + "@hei.school");
+    student.setGroup("group1_id");
     student.setRef("STD21" + (int) (Math.random() * 1_000_000));
     student.setPhone("03" + (int) (Math.random() * 1_000_000_000));
     student.setStatus(EnableStatus.ENABLED);
+    student.setPicture("picture" + randomUUID());
     student.setSex(Math.random() < 0.3 ? Student.SexEnum.F : Student.SexEnum.M);
     Instant birthday = faker.date().birthday().toInstant();
     int ageOfEntrance = 14 + (int) (Math.random() * 20);
@@ -105,6 +109,8 @@ class StudentIT {
     student.setEmail("test+ryan@hei.school");
     student.setRef("STD21001");
     student.setPhone("0322411123");
+    student.setPicture("student1.jpg");
+    student.setGroup("group1_id");
     student.setStatus(EnableStatus.ENABLED);
     student.setSex(Student.SexEnum.M);
     student.setBirthDate(LocalDate.parse("2000-01-01"));
@@ -120,7 +126,9 @@ class StudentIT {
     student.setLastName("Student");
     student.setEmail("test+student2@hei.school");
     student.setRef("STD21002");
+    student.setGroup("group2_id");
     student.setPhone("0322411124");
+    student.setPicture("student2.jpg");
     student.setStatus(EnableStatus.ENABLED);
     student.setSex(Student.SexEnum.F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
@@ -136,7 +144,9 @@ class StudentIT {
     student.setLastName("Student");
     student.setEmail("test+student3@hei.school");
     student.setRef("STD21003");
+    student.setGroup("group1_id");
     student.setPhone("0322411124");
+    student.setPicture("student3.jpg");
     student.setStatus(EnableStatus.ENABLED);
     student.setSex(Student.SexEnum.F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
@@ -222,6 +232,17 @@ class StudentIT {
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student1()));
+  }
+
+  @Test
+  void manager_read_by_groupId_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents = api.getStudentsByGroupId(GROUP2_ID,1,100);
+
+    assertEquals(1, actualStudents.size());
+    assertTrue(actualStudents.contains(student2()));
   }
 
   @Test

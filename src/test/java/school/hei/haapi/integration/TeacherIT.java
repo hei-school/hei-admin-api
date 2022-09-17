@@ -81,6 +81,7 @@ class TeacherIT {
     teacher.setEmail("test+teacher1@hei.school");
     teacher.setRef("TCR21001");
     teacher.setPhone("0322411125");
+    teacher.setPicture("teacher1.jpg");
     teacher.setStatus(EnableStatus.ENABLED);
     teacher.setSex(Teacher.SexEnum.F);
     teacher.setBirthDate(LocalDate.parse("1990-01-01"));
@@ -97,6 +98,7 @@ class TeacherIT {
     teacher.setEmail("test+teacher2@hei.school");
     teacher.setRef("TCR21002");
     teacher.setPhone("0322411126");
+    teacher.setPicture("teacher2.jpg");
     teacher.setStatus(EnableStatus.ENABLED);
     teacher.setSex(Teacher.SexEnum.M);
     teacher.setBirthDate(LocalDate.parse("1990-01-02"));
@@ -113,6 +115,7 @@ class TeacherIT {
     teacher.setEmail("test+teacher3@hei.school");
     teacher.setRef("TCR21003");
     teacher.setPhone("0322411126");
+    teacher.setPicture("teacher3.jpg");
     teacher.setStatus(EnableStatus.ENABLED);
     teacher.setSex(Teacher.SexEnum.M);
     teacher.setBirthDate(LocalDate.parse("1990-01-02"));
@@ -128,6 +131,7 @@ class TeacherIT {
     teacher.setEmail(randomUUID() + "@hei.school");
     teacher.setRef("TCR21-" + randomUUID());
     teacher.setPhone("0332511129");
+    teacher.setPicture("picture"+randomUUID());
     teacher.setStatus(EnableStatus.ENABLED);
     teacher.setSex(Teacher.SexEnum.M);
     teacher.setBirthDate(LocalDate.parse("2000-01-01"));

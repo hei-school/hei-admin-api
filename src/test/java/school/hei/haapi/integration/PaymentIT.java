@@ -56,7 +56,7 @@ class PaymentIT {
   }
 
   private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, PaymentIT.ContextInitializer.SERVER_PORT);
+    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
   @BeforeEach

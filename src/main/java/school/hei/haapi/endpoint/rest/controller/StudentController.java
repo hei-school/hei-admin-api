@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,8 +15,6 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.UserService;
-
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 @RestController
 @AllArgsConstructor
@@ -33,9 +32,19 @@ public class StudentController {
       @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
-      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
+      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName
+  ) {
     return userService.getByCriteria(User.Role.STUDENT, firstName, lastName, ref, page, pageSize
         ).stream()
+        .map(userMapper::toRestStudent)
+        .collect(toUnmodifiableList());
+  }
+
+  @GetMapping("/groups/{group_id}/students")
+  public List<Student> getStudentsByGroup(@RequestParam PageFromOne page,
+                                          @RequestParam("page_size") BoundedPageSize pageSize,
+                                          @PathVariable("group_id") String groupId) {
+    return userService.getByGroup(page, pageSize, User.Role.STUDENT, groupId).stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
   }
