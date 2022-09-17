@@ -1020,38 +1020,7 @@ paths:
             $ref: '#/components/responses/429'
           '500':
             $ref: '#/components/responses/500'
-      put:
-        tags:
-          - Places
-        summary: Add new Event_participants
-        description: Update Event_participants when `id` are provided, create them otherwise.
-        operationId: CreateOrUpdateEvent_participants
-        requestBody:
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/EventParticipant'
-        responses:
-          '200':
-            description: Success
-            content:
-              application/json:
-                schema:
-                  type: array
-                  items:
-                    $ref: '#/components/schemas/EventParticipant'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
+
        
   /events/{event_id}/event_participants/{event_participant_id}:
     get:
@@ -1122,6 +1091,44 @@ paths:
             $ref: '#/components/responses/429'
           '500':
             $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Places
+      summary: Add new Event_participants
+      description: Update Event_participants when `id` are provided, create them otherwise.
+      operationId: CreateOrUpdateEvent_participants
+      parameters:
+        - name: id_event
+          in: path
+          schema:
+            type: string
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/EventParticipant'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
   /events/{id_event}/event_participants/presence:
     post:
@@ -1523,17 +1530,12 @@ components:
             - EXPECTED
 
     EventParticipant:
+      allOf:
+          - $ref: '#/components/schemas/CreateEventParticipant'
       type: object
       properties:        
         id:
-          type: string       
-        participantId: 
           type: string 
-        eventId: 
-          type: string 
-        status: 
-          type: string
-          example: "EXPECTED"
         
     CreateEvent:
       type: object
