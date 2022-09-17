@@ -7,7 +7,6 @@ and implements it in Java.
 We welcome [contributions](https://github.com/hei-school/hei-admin-api/blob/dev/CONTRIBUTING.md).
 
 
-#
 <!-- Improved compatibility of back to top link: See: https://github.com/othneildrew/Best-README-Template/pull/73 -->
 <a name="readme-top"></a>
 <!--
