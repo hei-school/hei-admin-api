@@ -8,9 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.PlaceMapper;
-import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.Place;
-import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.service.PlaceService;
 
 import java.util.List;

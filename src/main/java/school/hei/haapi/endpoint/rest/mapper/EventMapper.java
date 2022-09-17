@@ -8,11 +8,8 @@ import school.hei.haapi.model.Place;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.CourseService;
-import school.hei.haapi.service.EventService;
 import school.hei.haapi.service.PlaceService;
 import school.hei.haapi.service.UserService;
-
-import java.time.Instant;
 
 @Component
 @AllArgsConstructor
