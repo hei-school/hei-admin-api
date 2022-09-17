@@ -6,16 +6,14 @@ import com.amazonaws.services.rekognition.model.CompareFacesRequest;
 import com.amazonaws.services.rekognition.model.CompareFacesResult;
 import com.amazonaws.services.rekognition.model.ComparedFace;
 import com.amazonaws.services.rekognition.model.Image;
-import com.amazonaws.services.s3.model.S3ObjectSummary;
-import lombok.AllArgsConstructor;
+import javax.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.Present;
-import school.hei.haapi.model.User;
+import school.hei.haapi.repository.EventParticipantRepository;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -32,27 +30,29 @@ public class RekognitionAppFacialService {
 
     private final StudentGroupService studentGroupService;
     private final EventService eventService;
-
+    private final EventParticipantRepository eventParticipantRepository;
     private final EventParticipantService eventParticipantService;
 
     @Value("${spring.aws.s3.bucket.name}")
     private String awsS3BucketName1;
 
+    @Transactional
     public List<Present> facialPresence(String idEvent, MultipartFile multipartFile, Float similarity) throws IOException {
         //Event event = eventService.getById(idEvent);
         //List<String> allParticipantImageRef= new ArrayList<>();
         //List<S3ObjectSummary> allImages = s3AppFacialService.getAll();
         //List<User> participants = eventParticipantService.getParticipantsByEventId(idEvent);
+
+        //if (eventParticipantService.getEventParticipantsByEventId(idEvent)==null){
         if (eventParticipantService.getEventParticipantsByEventId(idEvent)==null){
             throw new RuntimeException();
         }
-        List<EventParticipant> eventParticipants = eventParticipantService.getEventParticipantsByEventId(idEvent);
+        //List<EventParticipant> eventParticipants = eventParticipantService.getEventParticipantsByEventId(idEvent);
+        List<EventParticipant> eventParticipants = eventParticipantRepository.getByEventId(idEvent);
         List<Present> result;
         Float similarityThreshold = similarity;
-
-
-
         result=compareTwoFaces(amazonRekognition, similarityThreshold, multipartFile,eventParticipants);
+
         return result;
     }
     public List<Present> compareTwoFaces(AmazonRekognition rekClient, Float similarityThreshold, MultipartFile sourceImage,List<EventParticipant> eventParticipants ) throws IOException {
