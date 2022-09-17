@@ -10,6 +10,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -45,6 +47,14 @@ public class User implements Serializable {
 
   @NotBlank(message = "Last name is mandatory")
   private String lastName;
+
+  @NotBlank(message = "Picture link is mandatory")
+  @Column(unique = true)
+  private String picture;
+
+  @ManyToOne
+  @JoinColumn(name = "group_id")
+  private Group group;
 
   @NotBlank(message = "Email is mandatory")
   @Email(message = "Email must be valid")

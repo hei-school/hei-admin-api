@@ -959,40 +959,33 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /events/{id}/eventParticipant:
-    get:
+    delete:
       tags:
         - Places
-      summary: Get all participants of identified event
+      summary: Delete event by identifier
+      operationId: deleteEvent
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-        - name: page_size
-          in: query
-          schema:
-            $ref: '#/components/schemas/PageSize'
-      operationId: getParticipantsOfEvent
       responses:
         '200':
-          description: List of participants of identified event
+          description: Event successfully deleted
           content:
-            application/json:
-              schema:
-                type: object
-                properties:
-                  event:
-                    $ref: '#/components/schemas/Event'
-                  participants:
-                    type: array
-                    items:
-                      $ref: '#/components/schemas/EventParticipant'
+            text/plain:
+              example: Event successfully deleted
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /events:
     get:
       tags:
@@ -1062,25 +1055,48 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /eventParticipant/{id}:
+  /events/{event_id}/participants:
     get:
       tags:
         - Places
-      summary: Get identified event participant
+      summary: Get all participants of a specific event
+      operationId: getParticipants
       parameters:
-        - name: id
+        - name: page
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: event_id
           in: path
           required: true
           schema:
-            type: number
-      operationId: getEventParticipantById
+            type: string
+        - name: status
+          in: query
+          description: Filters event participants by STATUS
+          required: false
+          schema:
+            type: string
+        - name: ref
+          in: query
+          description: Filters event participants by REF
+          schema:
+            type: string
       responses:
         '200':
-          description: The identified event participant.
+          description: List of participants
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/EventParticipant'
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1091,30 +1107,69 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /eventParticipant:
-    get:
+    put:
       tags:
         - Places
-      summary: Get all participants
+      summary: Create eventParticipants
+      operationId: createEventParticipants
       parameters:
-        - name: page
-          in: query
+        - name: event_id
+          in: path
+          required: true
           schema:
-            $ref: '#/components/schemas/Page'
-        - name: page_size
-          in: query
-          schema:
-            $ref: '#/components/schemas/PageSize'
-      operationId: getEventParticipants
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateEventParticipants'
       responses:
         '200':
-          description: List of event participants
+          description: List of participants
           content:
             application/json:
               schema:
                 type: array
                 items:
                   $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/events/{event_id}/participants/attendance':
+    post:
+      tags:
+        - Places
+      summary: checks registered participants' attendance for a specified event
+      operationId: checkAttendance
+      parameters:
+        - name: event_id
+          required: true
+          in: path
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/jpeg:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Who you are
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Whoami'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1401,8 +1456,10 @@ components:
             type: string
         start_date:
           type: string
+          format: date-time
         end_date:
           type: string
+          format: date-time
         responsible:
           type: string
           example: "Teacher 1"
@@ -1427,3 +1484,10 @@ components:
             - MISSING
             - HERE
             - EXPECTED
+    CreateEventParticipants:
+      type: object
+      properties:
+        event_id:
+          type: string
+        group_id:
+          type: string

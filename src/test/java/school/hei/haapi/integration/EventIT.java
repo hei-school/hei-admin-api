@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,7 +32,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = CourseIT.ContextInitializer.class)
+@ContextConfiguration(initializers = EventIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class EventIT {
 
@@ -50,8 +51,8 @@ public class EventIT {
     event.setId("event1_id");
     event.setEventName("PROG2");
     event.setEventType("course");
-    event.setStartDate("2021-11-08T08:25:24.00Z");
-    event.setEndDate("2021-11-08T12:25:24.00Z");
+    event.setStartDate(Instant.parse("2021-11-08T08:25:24.00Z"));
+    event.setEndDate(Instant.parse("2021-11-08T12:25:24.00Z"));
     event.setResponsible("teacher1_id");
     event.setPlace("place1_id");
     return event;
@@ -63,8 +64,8 @@ public class EventIT {
     event.setId("event2_id");
     event.setEventName("SYS2");
     event.setEventType("course");
-    event.setStartDate("2022-11-08T08:25:24.00Z");
-    event.setEndDate("2022-11-08T12:25:24.00Z");
+    event.setStartDate(Instant.parse("2022-11-08T08:25:24.00Z"));
+    event.setEndDate(Instant.parse("2022-11-08T12:25:24.00Z"));
     event.setResponsible("teacher2_id");
     event.setPlace("place2_id");
     return event;
@@ -75,8 +76,8 @@ public class EventIT {
         .id("event3_id")
         .eventName("MGT1")
         .eventType("course")
-        .startDate("2022-11-08T12:25:24.00Z")
-        .endDate("2022-11-08T16:25:24.00Z")
+        .startDate(Instant.parse("2022-11-08T12:25:24.00Z"))
+        .endDate(Instant.parse("2022-11-08T16:25:24.00Z"))
         .responsible("teacher1_id")
         .place("place1_id");
     return event;
@@ -86,8 +87,8 @@ public class EventIT {
         .id("event4_id")
         .eventName("WEB1")
         .eventType("course")
-        .startDate("2022-11-08T12:25:24.00Z")
-        .endDate("2022-11-08T16:25:24.00Z")
+        .startDate(Instant.parse("2022-11-08T12:25:24.00Z"))
+        .endDate(Instant.parse("2022-11-08T16:25:24.00Z"))
         .responsible("teacher2_id")
         .place("place2_id");
     return event;

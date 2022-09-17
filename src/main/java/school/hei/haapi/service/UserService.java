@@ -35,6 +35,8 @@ public class UserService {
     return userRepository.getByEmail(email);
   }
 
+  public User getByRef (String ref){ return userRepository.getByRef(ref); }
+
   @Transactional
   public List<User> saveAll(List<User> users) {
     userValidator.accept(users);
@@ -66,5 +68,14 @@ public class UserService {
     return userRepository
         .findByRoleAndRefContainingIgnoreCaseAndFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
            role, ref, firstName, lastName, pageable);
+  }
+
+  public User getByFirstName(String firstName){
+    User user = userRepository.getByFirstName(firstName);
+    return user;
+  }
+  public List<User> getByGroup(PageFromOne page, BoundedPageSize pageSize, User.Role role, String groupId){
+    Pageable pageable = PageRequest.of(page.getValue() -1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    return userRepository.findByRoleAndGroup_Id(role,groupId, pageable);
   }
 }

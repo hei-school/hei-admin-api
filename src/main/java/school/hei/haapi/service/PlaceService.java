@@ -29,6 +29,10 @@ public class PlaceService {
     return placeRepository.findAll(pageable).toList();
   }
 
+  public Place getPlaceByName(String name){
+    Place place = placeRepository.findByName(name);
+    return place;
+  }
 
   public Place getPlaceById (String id){
     Place place = placeRepository.getById(id);

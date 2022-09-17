@@ -6,4 +6,5 @@ import school.hei.haapi.model.Place;
 
 @Repository
 public interface PlaceRepository extends JpaRepository<Place, String> {
+  Place findByName(String name);
 }

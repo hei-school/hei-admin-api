@@ -128,7 +128,7 @@ dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-validation'
     implementation 'com.amazonaws:aws-java-sdk-rekognition:1.12.296'
     implementation 'software.amazon.awssdk:rekognition:2.17.267'
-    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.296'
+    implementation 'com.amazonaws:aws-java-sdk-s3:1.12.300'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
