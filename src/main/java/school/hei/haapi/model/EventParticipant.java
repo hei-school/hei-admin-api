@@ -31,7 +31,6 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-
 public class EventParticipant implements Serializable {
     @Id
     @GeneratedValue(strategy = IDENTITY)

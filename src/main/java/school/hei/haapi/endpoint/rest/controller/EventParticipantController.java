@@ -38,7 +38,7 @@ public class EventParticipantController {
             @RequestParam PageFromOne page,
             @RequestParam("page_size") BoundedPageSize pageSize
     ){
-        return eventParticipantService.getEventParticipantsByEventsId(event_id, page, pageSize).stream()
+        return eventParticipantService.getEventParticipantsByEventId(event_id, page, pageSize).stream()
                 .map(eventParticipantMapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
     }

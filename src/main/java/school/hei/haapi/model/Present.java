@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 public class Present {
     private String s3name;
-    private Integer faceNumber;
+    private String studentId;
     private Float similarity;
     private Float boundingBoxWidth;
     private Float boundingBoxTop;

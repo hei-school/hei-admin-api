@@ -7,11 +7,15 @@ import com.amazonaws.services.rekognition.model.CompareFacesResult;
 import com.amazonaws.services.rekognition.model.ComparedFace;
 import com.amazonaws.services.rekognition.model.Image;
 import com.amazonaws.services.s3.model.S3ObjectSummary;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.model.Event;
+import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.Present;
+import school.hei.haapi.model.User;
 
 import java.io.FileNotFoundException;
 import java.io.IOException;
@@ -26,22 +30,37 @@ public class RekognitionAppFacialService {
     private final AmazonRekognition amazonRekognition;
     private final S3AppFacialService s3AppFacialService;
 
+    private final StudentGroupService studentGroupService;
+    private final EventService eventService;
+
+    private final EventParticipantService eventParticipantService;
+
     @Value("${spring.aws.s3.bucket.name}")
     private String awsS3BucketName1;
 
     public List<Present> facialPresence(String idEvent, MultipartFile multipartFile, Float similarity) throws IOException {
+        //Event event = eventService.getById(idEvent);
+        //List<String> allParticipantImageRef= new ArrayList<>();
+        //List<S3ObjectSummary> allImages = s3AppFacialService.getAll();
+        //List<User> participants = eventParticipantService.getParticipantsByEventId(idEvent);
+        if (eventParticipantService.getEventParticipantsByEventId(idEvent)==null){
+            throw new RuntimeException();
+        }
+        List<EventParticipant> eventParticipants = eventParticipantService.getEventParticipantsByEventId(idEvent);
         List<Present> result;
         Float similarityThreshold = similarity;
 
-        result=compareTwoFaces(amazonRekognition, similarityThreshold, multipartFile);
+
+
+        result=compareTwoFaces(amazonRekognition, similarityThreshold, multipartFile,eventParticipants);
         return result;
     }
-    public List<Present> compareTwoFaces(AmazonRekognition rekClient, Float similarityThreshold, MultipartFile sourceImage) throws IOException {
+    public List<Present> compareTwoFaces(AmazonRekognition rekClient, Float similarityThreshold, MultipartFile sourceImage,List<EventParticipant> eventParticipants ) throws IOException {
         List<Present> t=new ArrayList<>();
 
-        for (S3ObjectSummary i:s3AppFacialService.getAll()) {
+        for (EventParticipant i:eventParticipants) {
 
-            byte [] target = s3AppFacialService.getFileByNameAsByte(i.getKey());
+            byte [] target = s3AppFacialService.getFileByNameAsByte(i.getParticipant().getRefImage());
 
             try {
                 // Create an Image object for the source image.
@@ -50,7 +69,6 @@ public class RekognitionAppFacialService {
                         .withBytes(ByteBuffer.wrap(sourceImage.getBytes()));
                 Image tarImage=new Image().withBytes(ByteBuffer.wrap(target));
 
-
                 CompareFacesRequest facesRequest = new CompareFacesRequest()
                         .withSourceImage(souImage)
                         .withTargetImage(tarImage)
@@ -58,13 +76,11 @@ public class RekognitionAppFacialService {
                 // Compare the two images.
                 CompareFacesResult compareFacesResult = rekClient.compareFaces(facesRequest);
                 List <CompareFacesMatch> faceDetails = compareFacesResult.getFaceMatches();
-                int number = 0;
                 for (CompareFacesMatch match: faceDetails){
-                    number+=1;
                     ComparedFace face= match.getFace();
                     Present present = new Present();
-                    present.setS3name(i.getKey());
-                    present.setFaceNumber(number);
+                    present.setS3name(i.getParticipant().getRefImage());
+                    present.setStudentId(i.getParticipant().getId());
                     present.setSimilarity(match.getSimilarity());
                     present.setBoundingBoxTop(face.getBoundingBox().getTop());
                     present.setBoundingBoxLeft(face.getBoundingBox().getLeft());
@@ -72,6 +88,8 @@ public class RekognitionAppFacialService {
                     present.setBoundingBoxWidth(face.getBoundingBox().getWidth());
                     t.add(present);
                 }
+                i.setStatus(school.hei.haapi.endpoint.rest.model.EventParticipant.StatusEnum.valueOf("HERE"));
+
                 List<ComparedFace> uncompared = compareFacesResult.getUnmatchedFaces();
 
             } catch( FileNotFoundException e) {

@@ -34,7 +34,7 @@ public class EventParticipantService {
         return eventParticipantRepository.findEventParticipantByEvent_IdAndId(eventId,eventParticipantId);
     }
 
-    public List<EventParticipant> getEventParticipantsByEventsId(
+    public List<EventParticipant> getEventParticipantsByEventId(
             String eventId,
             PageFromOne page,
             BoundedPageSize pageSize
@@ -44,6 +44,11 @@ public class EventParticipantService {
                 pageSize.getValue(),
                 Sort.by(ASC, "status"));
         return eventParticipantRepository.getByEventId(eventId, pageable);
+    }
+    public List<EventParticipant> getEventParticipantsByEventId(
+            String eventId
+    ){
+        return eventParticipantRepository.getByEventId(eventId);
     }
 
     public List<EventParticipant> getAll(
@@ -55,6 +60,17 @@ public class EventParticipantService {
                 pageSize.getValue(),
                 Sort.by(ASC, "status"));
         return eventParticipantRepository.findAll(pageable).toList();
+    }
+
+    public List<User> getParticipantsByEventId(
+            String eventId
+    ){
+        List<User> listParticipant = new ArrayList<>();
+        List<EventParticipant> list = getEventParticipantsByEventId(eventId);
+        for (EventParticipant p:list) {
+            listParticipant.add(p.getParticipant());
+        }
+        return listParticipant;
     }
 
 

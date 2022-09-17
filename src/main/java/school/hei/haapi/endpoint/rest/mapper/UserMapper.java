@@ -24,6 +24,7 @@ public class UserMapper {
     restStudent.setBirthDate(user.getBirthDate());
     restStudent.setSex(Student.SexEnum.fromValue(user.getSex().toString()));
     restStudent.setAddress(user.getAddress());
+    restStudent.setRefImage(user.getRefImage());
 
     return restStudent;
   }
@@ -95,6 +96,7 @@ public class UserMapper {
         .birthDate(student.getBirthDate())
         .sex(User.Sex.valueOf(student.getSex().toString()))
         .address(student.getAddress())
+        .refImage(student.getRefImage())
         .build();
   }
 }

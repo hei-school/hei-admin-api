@@ -20,7 +20,6 @@ import java.util.List;
 public class AppFacialController {
     public RekognitionAppFacialService rekognitionAppFacialService;
 
-
     @PostMapping("/events/{id_event}/event_participants/presence")
     public List<Present> presenceVerification(
             @PathVariable String id_event,
