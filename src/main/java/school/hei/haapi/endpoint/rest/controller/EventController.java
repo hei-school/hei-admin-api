@@ -6,9 +6,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.EventMapper;
 import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.EventService;
 
 import java.util.List;
@@ -28,9 +31,21 @@ public class EventController {
         return eventMapper.toRestEvent(eventService.getById(id));
     }
 
+    @GetMapping("/responsibles/{id_responsible}/events")
+    public List<Event> getEventsByResponsibleId(
+            @PathVariable String id_responsible,
+            @RequestParam PageFromOne page,
+            @RequestParam("page_size") BoundedPageSize pageSize){
+        return eventService.getEventsByResponsibleId(id_responsible,page,pageSize).stream()
+                .map(eventMapper::toRestEvent)
+                .collect(Collectors.toUnmodifiableList());
+    }
+
     @GetMapping("/events")
-    public List<Event> getEvents(){
-        return eventService.getAll().stream()
+    public List<Event> getEvents(@RequestParam PageFromOne page,
+                                 @RequestParam("page_size") BoundedPageSize pageSize,
+                                 @RequestParam(value = "name", required = false, defaultValue = "") String name){
+        return eventService.getAll(page, pageSize,name).stream()
                 .map(eventMapper::toRestEvent)
                 .collect(Collectors.toUnmodifiableList());
     }
