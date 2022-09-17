@@ -1,5 +1,8 @@
 package school.hei.haapi.service;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import com.amazonaws.services.rekognition.model.CompareFacesMatch;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -13,17 +16,17 @@ import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.UserRepository;
-
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static org.springframework.data.domain.Sort.Direction.ASC;
+import school.hei.haapi.service.AWS.RekognitionService;
 
 @Service
 @AllArgsConstructor
 public class UserService {
 
   private final UserRepository userRepository;
+  private final RekognitionService rekognitionService;
   private final EventProducer eventProducer;
   private final UserValidator userValidator;
 
@@ -65,6 +68,27 @@ public class UserService {
         Sort.by(ASC, "ref"));
     return userRepository
         .findByRoleAndRefContainingIgnoreCaseAndFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
-           role, ref, firstName, lastName, pageable);
+            role, ref, firstName, lastName, pageable);
+  }
+
+  public List<User> getByGroup(PageFromOne page, BoundedPageSize pageSize, User.Role role,
+                               String groupId) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    return userRepository.findByRoleAndGroup_Id(role, groupId, pageable);
+  }
+
+  public User rekognisePicture(byte[] picture) {
+    List<User> users = userRepository.findAll();
+    for (User user : users) {
+      List<CompareFacesMatch> result =
+          rekognitionService.compareFaces(picture, user.getPicture()).getFaceMatches();
+      for (CompareFacesMatch match : result) {
+        if (match.getSimilarity() >= RekognitionService.SIMILARITY_THRESHOLD) {
+          return user;
+        }
+      }
+    }
+    throw new BadRequestException("Given picture fits no user");
   }
 }
