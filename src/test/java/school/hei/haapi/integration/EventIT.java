@@ -147,11 +147,35 @@ public class EventIT {
     }
 
     @Test
-    void teacher_write_ko() {
+    void teacher_write_create_ok() throws ApiException {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
         PlacesApi api = new PlacesApi(teacher1Client);
-        assertThrowsForbiddenException(() -> api.createOrUpdateEvents(List.of()));
+        Event toCreate = someCreatableEvent();
+
+        List<Event> created = api.createOrUpdateEvents(List.of(toCreate));
+
+        assertEquals(1, created.size());
+        Event created0 = created.get(0);
+        assertTrue(isValidUUID(created0.getId()));
+        toCreate.setId(created0.getId());
+        assertEquals(toCreate, created0);
+    }
+
+    @Test
+    void teacher_write_update_ok() throws ApiException {
+        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+
+        PlacesApi api = new PlacesApi(teacher1Client);
+        List<Event> toUpdate = (api.createOrUpdateEvents(List.of(someCreatableEvent(), someCreatableEvent())));
+        Event toUpdate3 = toUpdate.get(0);
+        toUpdate3.setName("A new name 3");
+        Event toUpdate4 = toUpdate.get(1);
+        toUpdate4.setName("A new name 4");
+        List<Event> updated = (api.createOrUpdateEvents(List.of(toUpdate.get(0), toUpdate.get(1))));
+        assertEquals(2, updated.size());
+        assertTrue(updated.contains(toUpdate3));
+        assertTrue(updated.contains(toUpdate4));
     }
 
     @Test
