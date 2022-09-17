@@ -75,4 +75,8 @@ public class EventParticipantService {
                         saved.add(accept(eventParticipant)));
         return eventParticipantRepository.saveAll(saved);
     }
+
+    public List<EventParticipant> getEventParticipantsByEventId(String idEvent) {
+        return eventParticipantRepository.getByEventId(idEvent);
+    }
 }
