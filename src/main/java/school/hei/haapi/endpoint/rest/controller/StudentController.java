@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -20,35 +21,47 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @RestController
 @AllArgsConstructor
 public class StudentController {
-  private final UserService userService;
-  private final UserMapper userMapper;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
-  @GetMapping("/students/{id}")
-  public Student getStudentById(@PathVariable String id) {
-    return userMapper.toRestStudent(userService.getById(id));
-  }
+    @GetMapping("/students/{id}")
+    public Student getStudentById(@PathVariable String id) {
+        return userMapper.toRestStudent(userService.getById(id));
+    }
 
-  @GetMapping("/students")
-  public List<Student> getStudents(
-      @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
-      @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
-      @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
-      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
-    return userService.getByCriteria(User.Role.STUDENT, firstName, lastName, ref, page, pageSize
-        ).stream()
-        .map(userMapper::toRestStudent)
-        .collect(toUnmodifiableList());
-  }
+    @GetMapping("/students")
+    public List<Student> getStudents(
+            @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
+            @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
+            @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
+            @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
+        return userService.getByCriteria(User.Role.STUDENT, firstName, lastName, ref, page, pageSize
+                ).stream()
+                .map(userMapper::toRestStudent)
+                .collect(toUnmodifiableList());
+    }
 
-  @PutMapping("/students")
-  public List<Student> saveAll(@RequestBody List<Student> toWrite) {
-    return userService
-        .saveAll(toWrite
-            .stream()
-            .map(userMapper::toDomain)
-            .collect(toUnmodifiableList()))
-        .stream()
-        .map(userMapper::toRestStudent)
-        .collect(toUnmodifiableList());
-  }
+    @GetMapping(value = "/groups/{group_id}/students")
+    public List<Student> getStudentsByGroupId(
+            @PathVariable String group_id,
+            @RequestParam(name = "page", required = false) Integer page,
+            @RequestParam(name = "page_size", required = false) Integer pageSize
+    ) {
+        return userService.getByGroupId(group_id, page, pageSize)
+                .stream()
+                .map(userMapper::toRestStudent)
+                .collect(toUnmodifiableList());
+    }
+
+    @PutMapping("/students")
+    public List<Student> saveAll(@RequestBody List<Student> toWrite) {
+        return userService
+                .saveAll(toWrite
+                        .stream()
+                        .map(userMapper::toDomain)
+                        .collect(toUnmodifiableList()))
+                .stream()
+                .map(userMapper::toRestStudent)
+                .collect(toUnmodifiableList());
+    }
 }

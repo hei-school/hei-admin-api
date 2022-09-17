@@ -86,6 +86,8 @@ class StudentIT {
     student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
     student.setEntranceDatetime(birthday.plus(365L * ageOfEntrance, ChronoUnit.DAYS));
     student.setAddress(faker.address().fullAddress());
+    student.setGroupId("group1_id");
+    student.setKeyImageInBucket(null);
     return student;
   }
 
@@ -110,6 +112,8 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-01"));
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setAddress("Adr 1");
+    student.setGroupId("group1_id");
+    student.setKeyImageInBucket("toky1.jpg");
     return student;
   }
 
@@ -126,6 +130,8 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
+    student.setGroupId("group1_id");
+    student.setKeyImageInBucket(null);
     return student;
   }
 
@@ -142,6 +148,8 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
+    student.setGroupId("group1_id");
+    student.setKeyImageInBucket(null);
     return student;
   }
 
@@ -179,10 +187,14 @@ class StudentIT {
     Student actualStudent1 = api.getStudentById(STUDENT1_ID);
 
     List<Student> actualStudents = api.getStudents(1, 20, null, null, null);
+    List<Student> listByGroup = api.getStudentsByGroupId("group2_id",null,null);
 
     assertEquals(student1(), actualStudent1);
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
+
+    assertFalse(listByGroup.contains(student1()));
+    assertFalse(listByGroup.contains(student2()));
   }
 
   @Test
@@ -207,9 +219,13 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents = api.getStudents(1, 20, null, null, null);
+    List<Student> listByGroup = api.getStudentsByGroupId("group2_id",null,null);
 
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
+
+    assertFalse(listByGroup.contains(student1()));
+    assertFalse(listByGroup.contains(student2()));
   }
 
   @Test

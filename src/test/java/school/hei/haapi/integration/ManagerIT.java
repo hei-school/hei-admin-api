@@ -59,6 +59,7 @@ class ManagerIT {
     manager.setBirthDate(LocalDate.parse("1890-01-01"));
     manager.setEntranceDatetime(Instant.parse("2021-09-08T08:25:29Z"));
     manager.setAddress("Adr 5");
+    manager.setKeyImageInBucket(null);
     return manager;
   }
 

@@ -15,20 +15,25 @@ $$;
 
 create table if not exists "user"
 (
-    id                varchar
+    id                  varchar
         constraint user_pk primary key default uuid_generate_v4(),
-    first_name        varchar                  not null,
-    last_name         varchar                  not null,
-    email             varchar                  not null
+    first_name          varchar                  not null,
+    last_name           varchar                  not null,
+    email               varchar                  not null
         constraint user_email_unique unique,
-    ref               varchar                  not null
+    ref                 varchar                  not null
         constraint user_ref_unique unique,
-    status            user_status              not null,
-    sex               sex                      not null,
-    birth_date        date                     not null,
-    entrance_datetime timestamp with time zone not null,
-    phone             varchar                  not null,
-    address           varchar                  not null,
-    role              role                     not null
+    status              user_status              not null,
+    sex                 sex                      not null,
+    birth_date          date                     not null,
+    entrance_datetime   timestamp with time zone not null,
+    phone               varchar                  not null,
+    address             varchar                  not null,
+    role                role                     not null,
+    group_id            varchar
+        constraint user_group_fk references "group" (id),
+    key_image_in_bucket varchar
+        constraint user_key_image_unique unique
 );
+
 create index if not exists user_last_name_index on "user" (last_name);

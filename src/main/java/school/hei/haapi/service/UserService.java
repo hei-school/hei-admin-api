@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,48 +24,55 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 @AllArgsConstructor
 public class UserService {
 
-  private final UserRepository userRepository;
-  private final EventProducer eventProducer;
-  private final UserValidator userValidator;
+    private final UserRepository userRepository;
+    private final EventProducer eventProducer;
+    private final UserValidator userValidator;
 
-  public User getById(String userId) {
-    return userRepository.getById(userId);
-  }
+    public User getById(String userId) {
+        return userRepository.getById(userId);
+    }
 
-  public User getByEmail(String email) {
-    return userRepository.getByEmail(email);
-  }
+    public User getByEmail(String email) {
+        return userRepository.getByEmail(email);
+    }
 
-  @Transactional
-  public List<User> saveAll(List<User> users) {
-    userValidator.accept(users);
-    List<User> savedUsers = userRepository.saveAll(users);
-    eventProducer.accept(users.stream()
-        .map(this::toTypedEvent)
-        .collect(toUnmodifiableList()));
-    return savedUsers;
-  }
+    @Transactional
+    public List<User> saveAll(List<User> users) {
+        userValidator.accept(users);
+        List<User> savedUsers = userRepository.saveAll(users);
+        eventProducer.accept(users.stream()
+                .map(this::toTypedEvent)
+                .collect(toUnmodifiableList()));
+        return savedUsers;
+    }
 
-  private TypedUserUpserted toTypedEvent(User user) {
-    return new TypedUserUpserted(
-        new UserUpserted()
-            .userId(user.getId())
-            .email(user.getEmail()));
-  }
+    public List<User> getByGroupId(String groupId, Integer page, Integer pageSize) {
+        if (page != null && pageSize != null) {
+            return userRepository.getUserByGroup_Id(groupId, PageRequest.of(page, pageSize));
+        }
+        return userRepository.getUserByGroup_Id(groupId);
+    }
 
-  public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
-    return getByCriteria(role, "", "", "", page, pageSize);
-  }
+    private TypedUserUpserted toTypedEvent(User user) {
+        return new TypedUserUpserted(
+                new UserUpserted()
+                        .userId(user.getId())
+                        .email(user.getEmail()));
+    }
 
-  public List<User> getByCriteria(
-      User.Role role, String firstName, String lastName, String ref,
-      PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable = PageRequest.of(
-        page.getValue() - 1,
-        pageSize.getValue(),
-        Sort.by(ASC, "ref"));
-    return userRepository
-        .findByRoleAndRefContainingIgnoreCaseAndFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
-           role, ref, firstName, lastName, pageable);
-  }
+    public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
+        return getByCriteria(role, "", "", "", page, pageSize);
+    }
+
+    public List<User> getByCriteria(
+            User.Role role, String firstName, String lastName, String ref,
+            PageFromOne page, BoundedPageSize pageSize) {
+        Pageable pageable = PageRequest.of(
+                page.getValue() - 1,
+                pageSize.getValue(),
+                Sort.by(ASC, "ref"));
+        return userRepository
+                .findByRoleAndRefContainingIgnoreCaseAndFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
+                        role, ref, firstName, lastName, pageable);
+    }
 }

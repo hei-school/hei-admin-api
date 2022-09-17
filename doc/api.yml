@@ -98,6 +98,45 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/groups/{group_id}/students':
+    get:
+      tags:
+        - Users
+      summary: Get students by groups
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getStudentsByGroupId
+      responses:
+        '200':
+          description: The students list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /groups:
     get:
       tags:
@@ -342,6 +381,431 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
+  '/places/{id}':
+    get:
+      tags:
+        - Event
+      summary: Get place by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getPlaceById
+      responses:
+        '200':
+          description: The identified place
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Place'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
+  /places:
+    get:
+      tags:
+        - Event
+      summary: Get all places
+      operationId: getPlaces
+      responses:
+        '200':
+          description: List of all places
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Place'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Event
+      summary: Create new places or update existing places
+      description: Update places when id are provided, create them otherwise.
+      operationId: createOrUpdatePlaces
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Place'
+      responses:
+        '200':
+          description: The created or updated places
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Place'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
+  '/events/{id}':
+    get:
+      tags:
+        - Event
+      summary: Get event by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getEventById
+      responses:
+        '200':
+          description: The identified event
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events:
+    get:
+      tags:
+        - Event
+      summary: Get all events order by starting_hours
+      parameters:
+        - name: place_id
+          in: query
+          required: false
+          schema:
+            type: string
+      operationId: getEvents
+      responses:
+        '200':
+          description: List of all events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Event
+      summary: Create new events or update existing events
+      description: Update events when id are provided, create them otherwise.
+      operationId: createOrUpdateEvents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Event'
+      responses:
+        '200':
+          description: The created or updated events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/events/{event_id}/event_participants/{event_participant_id}':
+    get:
+      tags:
+        - Event
+      summary: Get event event_participant by identifier
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: event_participant_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getEventEventParticipantById
+      responses:
+        '200':
+          description: Identified event event participant
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/events/{event_id}/event_participants':
+    get:
+      tags:
+        - Event
+      summary: Get all event event_participants
+      description: Event participants can be filtered with an optional status parameter.
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - EXPECTED
+              - HERE
+              - MISSING
+      operationId: getEventEventParticipants
+      responses:
+        '200':
+          description: List of all event event_participants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Event
+      summary: Create new event event_participants
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createEventEventParticipants
+      requestBody:
+        description: Event event participants to create
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateEventParticipant'
+      responses:
+        '200':
+          description: Created Event event participants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Event
+      summary: Update existing event event_participants
+      description: Update event event_participants when id are provided, create them otherwise.
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: updateEventEventParticipants
+      requestBody:
+        description: Event event participants to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/EventParticipant'
+      responses:
+        '200':
+          description: Updated Event event participants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events/{event_id}/presence:
+    put:
+      tags:
+        - Event
+      summary: Update a event_participant's status with their image.
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: updateEventEventParticipantsStatus
+      requestBody:
+        description: Event event participants to update
+        required: true
+        content:
+          application/octet-stream:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Updated Event event participants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /event_participants:
+    get:
+      tags:
+        - Event
+      summary: Get all event event_participants filtered by status
+      parameters:
+        - name: status
+          in: query
+          description: "See the event_participants object for its value."
+          schema:
+            type: string
+            default: EXPECTED
+            enum:
+              - EXPECTED
+              - HERE
+              - MISSING
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getEventParticipants
+      responses:
+        '200':
+          description: List of filtered event event_participants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -835,6 +1299,8 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+
+
 components:
   securitySchemes:
     BearerAuth:
@@ -915,12 +1381,19 @@ components:
           format: date-time
         status:
           $ref: '#/components/schemas/EnableStatus'
+        key_image_in_bucket:
+          type: string
+          example: toky1.jpg
+
     EnableStatus:
       type: string
       enum:
         - ENABLED
         - DISABLED
     Student:
+      properties:
+        group_id:
+          type: string
       allOf:
         - $ref: '#/components/schemas/User'
     Teacher:
@@ -943,6 +1416,58 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    Place:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: Andavamamba
+
+    CreateEventParticipant:
+      type: object
+      properties:
+        user_participant_id:
+          type: string
+
+    EventParticipant:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          type: string
+          enum:
+            - EXPECTED
+            - HERE
+            - MISSING
+        event_id:
+          type: string
+      allOf:
+        - $ref: '#/components/schemas/CreateEventParticipant'
+
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: The event number one
+        ref:
+          type: string
+          example: EVT1
+        starting_hours:
+          type: string
+          format: date-time
+        ending_hours:
+          type: string
+          format: date-time
+        user_manager_id:
+          type: string
+        place_id:
+          type: string
     Course:
       type: object
       properties:
@@ -958,6 +1483,7 @@ components:
           type: integer
         total_hours:
           type: integer
+
     CreateFee:
       type: object
       properties:
@@ -976,6 +1502,7 @@ components:
         due_datetime:
           type: string
           format: date-time
+
     Fee:
       allOf:
         - $ref: '#/components/schemas/CreateFee'
@@ -993,6 +1520,7 @@ components:
             - UNPAID
             - PAID
             - LATE
+
     CreateDelayPenaltyChange:
       type: object
       properties:
@@ -1006,6 +1534,7 @@ components:
           type: integer
         applicability_delay_after_grace:
           type: integer
+
     DelayPenalty:
       allOf:
         - $ref: '#/components/schemas/CreateDelayPenaltyChange'

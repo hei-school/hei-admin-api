@@ -10,6 +10,8 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -74,6 +76,13 @@ public class User implements Serializable {
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   private Role role;
+
+  @ManyToOne
+  @JoinColumn(name = "group_id")
+  private Group group;
+
+  @Column(name = "key_image_in_bucket", unique = true)
+  private String keyImageInBucket;
 
   @Override
   public boolean equals(Object o) {

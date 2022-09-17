@@ -86,6 +86,7 @@ class TeacherIT {
     teacher.setBirthDate(LocalDate.parse("1990-01-01"));
     teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
     teacher.setAddress("Adr 3");
+    teacher.setKeyImageInBucket(null);
     return teacher;
   }
 
@@ -102,6 +103,7 @@ class TeacherIT {
     teacher.setBirthDate(LocalDate.parse("1990-01-02"));
     teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
     teacher.setAddress("Adr 4");
+    teacher.setKeyImageInBucket(null);
     return teacher;
   }
 
@@ -118,6 +120,7 @@ class TeacherIT {
     teacher.setBirthDate(LocalDate.parse("1990-01-02"));
     teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
     teacher.setAddress("Adr 4");
+    teacher.setKeyImageInBucket(null);
     return teacher;
   }
 
@@ -133,6 +136,7 @@ class TeacherIT {
     teacher.setBirthDate(LocalDate.parse("2000-01-01"));
     teacher.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     teacher.setAddress("Adr X");
+    teacher.setKeyImageInBucket(null);
     return teacher;
   }
 
