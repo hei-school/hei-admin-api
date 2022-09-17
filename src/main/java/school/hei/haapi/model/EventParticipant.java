@@ -38,14 +38,9 @@ public class EventParticipant {
     @ManyToOne
     @JoinColumn(name = "user_id")
     private User user;
-
-    @ManyToOne
-    @JoinColumn(name = "group_id")
-    private Group group;
-
-    @Column(name = "\"status\"")
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
+    @Column(columnDefinition = "EXPECTED")
     private Status status;
 
     @ManyToOne
