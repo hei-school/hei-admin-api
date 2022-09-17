@@ -14,6 +14,7 @@ public class EventParticipantMapper {
     private final UserService userService;
 
     public EventParticipant toRest(school.hei.haapi.model.EventParticipant eventParticipant){
+        if (eventParticipant.getStatus()==null) eventParticipant.setStatus(school.hei.haapi.model.EventParticipant.Status.EXPECTED);
         return new EventParticipant()
                 .id(eventParticipant.getId())
                 .status(EventParticipant.StatusEnum.valueOf(eventParticipant.getStatus().toString()))

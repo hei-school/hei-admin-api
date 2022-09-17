@@ -21,6 +21,8 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+import static javax.persistence.GenerationType.*;
+
 @Entity
 @Table(name = "\"event_participant\"")
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
@@ -32,7 +34,7 @@ import javax.persistence.Table;
 @NoArgsConstructor
 public class EventParticipant {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = IDENTITY)
     @Column(name = "id", nullable = false)
     private String id;
     @ManyToOne
@@ -40,8 +42,7 @@ public class EventParticipant {
     private User user;
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "EXPECTED")
-    private Status status;
+    private Status status=Status.EXPECTED;
 
     @ManyToOne
     @JoinColumn(name = "event_id")

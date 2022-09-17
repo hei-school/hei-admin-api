@@ -1,9 +1,13 @@
 package school.hei.haapi.integration;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PlaceApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -33,6 +37,9 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenE
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
+@Testcontainers
+@ContextConfiguration(initializers = EventParticipantIT.ContextInitializer.class)
+@AutoConfigureMockMvc
 public class EventParticipantIT {
     @MockBean
     private SentryConf sentryConf;
@@ -49,7 +56,7 @@ public class EventParticipantIT {
     }
 
     private static ApiClient anApiClient(String token) {
-        return TestUtils.anApiClient(token, FeeIT.ContextInitializer.SERVER_PORT);
+        return TestUtils.anApiClient(token, EventParticipantIT.ContextInitializer.SERVER_PORT);
     }
 
     @BeforeEach
@@ -140,21 +147,23 @@ public class EventParticipantIT {
     }
 
     @Test
+    @Order(1)
     void manager_write_ok()throws ApiException{
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         PlaceApi api = new PlaceApi(manager1Client);
 
-        List<CreateEventParticipant> actual = List.of(createEventParticipant1(), createEventParticipant2(), createEventParticipant3());
-        api.createEventParticipant(EVENT1_ID, actual);
+        List<CreateEventParticipant> participants = List.of(createEventParticipant1(), createEventParticipant2(), createEventParticipant3());
+        List<EventParticipant> actual = api.createEventParticipant(EVENT1_ID, participants);
 
-        List<EventParticipant> participants = api.getParticipants(EVENT1_ID, 1, 5);
-        assertTrue(participants.contains(eventParticipant1()));
-        assertTrue(participants.contains(eventParticipant3()));
-        assertTrue(participants.contains(eventParticipant2()));
+        List<EventParticipant> expected = api.getParticipants(EVENT1_ID, 1, 5);
+        assertTrue(expected.contains(actual.get(0)));
+        assertTrue(expected.contains(actual.get(1)));
+        assertTrue(expected.contains(actual.get(2)));
     }
 
     @Test
-    void teacher_write_ko() throws ApiException {
+    @Order(2)
+    void teacher_write_ko() {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
         PlaceApi api = new PlaceApi(teacher1Client);
 

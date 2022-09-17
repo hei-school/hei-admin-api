@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.EventMapper;
 import school.hei.haapi.endpoint.rest.mapper.EventParticipantMapper;
+import school.hei.haapi.endpoint.rest.model.CreateEventParticipant;
 import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.model.BoundedPageSize;
@@ -57,6 +58,18 @@ public class EventController {
                 .stream()
                 .map(eventParticipantMapper::toRest)
                 .collect(Collectors.toList());
+    }
+
+    @PutMapping("/{event_id}/participants")
+    public List<EventParticipant> createEventParticipant(@PathVariable(name = "event_id") String eventId, @RequestBody List<CreateEventParticipant> participants) {
+        return eventParticipantService.saveAll(
+                        participants.stream()
+                                .map(createEventParticipant -> eventParticipantMapper
+                                        .toDomain(eventId, createEventParticipant)
+                                )
+                                .collect(Collectors.toList())
+                ).stream()
+                .map(eventParticipantMapper::toRest).collect(Collectors.toList());
     }
 
 }
