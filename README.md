@@ -9,7 +9,8 @@ We welcome [contributions](https://github.com/hei-school/hei-admin-api/blob/dev/
 
 
 Thanks for checking out the [HEI-Admin](https://github.com/hei-school/hei-admin-api/releases).
-We also implement some endpoints like [COURSE,PLACE,EVENT and EVENT_PARTICIPANT](https://github.com/Ranomenjanahary/hei-admin-api)
+We also implement some endpoints like [COURSE,PLACE,EVENT and EVENT_PARTICIPANT](https://github.com/Ranomenjanahary/hei-admin-api).
+
 If you have a suggestion
 that would make this better, please fork the repo and create a pull request
 or simply open an issue with the tag "enhancement".
