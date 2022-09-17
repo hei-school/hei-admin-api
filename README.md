@@ -10,12 +10,32 @@ We welcome [contributions](https://github.com/hei-school/hei-admin-api/blob/dev/
 
 Thanks for checking out the [HEI-Admin](https://github.com/hei-school/hei-admin-api/releases).
 
-We also implement some endpoints like [COURSE,PLACE,EVENT and EVENT_PARTICIPANT](https://github.com/Ranomenjanahary/hei-admin-api).
+We also implement some endpoints in the backend like [COURSE,PLACE,EVENT and EVENT_PARTICIPANT] (https://github.com/Reichmann/hei-admin-api)
+
+REQUIREMENTS:
+
+To be able to work on this project, we use:
+
+    ----> maven installed locally
+    ----> gradle
+    ----> jdk with java_home configuration
+    ----> postgresql or mongoDB
+
+We also used some tools in the front-end like:
+
+    ----> A react typescript application that contains a login/password for teachers and administrators
+    ----> AWS Rekognition for facial presence
+    ----> App-face that takes a picture and compares it in the database
 
 If you have a suggestion
-that would make this better, please fork the repo and create a pull request
-or simply open an issue with the tag "enhancement".
+to improve this system, please fork the repo and create a pull request.
+or simply open an issue with the "enhancement" tag.
 
 Don't forget to give the project a star!
-Thanks again! Now go create something AMAZING! :D
+Thanks again! Now go and create something INCREDIBLE! :D
 
+NB: We are working together in this project,
+But if one of us push his part, there is always conflict because of the version of the gradle
+So, we choose to take one person to push the work
+ 
+ 
