@@ -50,7 +50,7 @@ public class Principal implements UserDetails {
 
   @Override
   public boolean isEnabled() {
-    return User.Status.ENABLED.equals(user.getStatus());
+    return User.Status.ENABLED.equals(quser.getStatus());
   }
 
   public String getUserId() {

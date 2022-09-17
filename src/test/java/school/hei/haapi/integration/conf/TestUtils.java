@@ -1,9 +1,14 @@
 package school.hei.haapi.integration.conf;
 
+import com.amazonaws.services.rekognition.model.S3Object;
 import com.amazonaws.services.s3.AmazonS3Client;
+import com.amazonaws.services.s3.model.S3ObjectIdBuilder;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.util.UUID;
+import org.apache.tomcat.jni.File;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -71,8 +76,9 @@ public class TestUtils {
     );
   }
 
-  public static void setUpS3(AmazonS3Client s3Client){
-    //when(s3Client.getObject(BUCKET_NAME,S3_PICTURE)).thenReturn("");
+  public static void setUpS3(AmazonS3Client s3Client) throws IOException {
+    when(s3Client.getObject(BUCKET_NAME,S3_PICTURE))
+        .thenReturn(null);
   }
   public static void setUpRekognition(){
 

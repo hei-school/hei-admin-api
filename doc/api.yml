@@ -52,12 +52,12 @@ paths:
       summary: tells you who you are by a picture of you.
       operationId: whoamiface
       requestBody:
-        required: true
         content:
           image/jpeg:
             schema:
               type: string
-              format: binary
+              format: byte
+
       responses:
         '200':
           description: Who you are

@@ -7,17 +7,23 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
+import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import javax.imageio.ImageIO;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -70,8 +76,24 @@ class SecurityIT {
     return whoami;
   }
 
-  public static File getPicture() throws IOException {
-    return File.createTempFile("", "");
+  public byte[] getPicture() {
+    ByteArrayOutputStream bos = new ByteArrayOutputStream();
+    try {
+        BufferedImage bImage = ImageIO.read(getFile());
+        ImageIO.write(bImage, "jpg", bos);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+    return bos.toByteArray();
+  }
+
+  public File getFile() {
+    try {
+      Resource stateFile = new ClassPathResource("images/test_image.png");
+      return new File(stateFile.getURI());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @BeforeEach
@@ -128,8 +150,13 @@ class SecurityIT {
   }
 
   @Test
-  void whoamiface_manager1_ok() {
-    SecurityApi api = new SecurityApi();
+  void whoamiface_user_ok() throws ApiException, IOException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    SecurityApi api = new SecurityApi(manager1Client);
+
+    Whoami actual = api.whoamiface(getPicture());
+
+    assertEquals(whoisManager1(), actual);
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

@@ -22,7 +22,7 @@ values ('teacher1_id', 'One','teacher1.jpg', 'Teacher', 'test+teacher1@hei.schoo
        ('teacher3_id', 'Three','teacher3.jpg', 'Teach', 'test+teacher3@hei.school', 'TCR21003', 'ENABLED', 'M',
         '1990-01-02',
         '2021-10-09T08:28:24.00Z', '0322411126', 'Adr 4', 'TEACHER'),
-       ('manager1_id', 'One','manager1.jpg' ,'Manager', 'test+manager1@hei.school', 'MGR21001', 'ENABLED', 'M',
+       ('manager1_id', 'One','toky1.jpg' ,'Manager', 'test+manager1@hei.school', 'MGR21001', 'ENABLED', 'M',
         '1890-01-01',
         '2021-09-08T08:25:29.00Z', '0322411127', 'Adr 5', 'MANAGER');
 
