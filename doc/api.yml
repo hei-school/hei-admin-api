@@ -1091,7 +1091,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    post:
+    put:
       tags:
         - Place
       summary: Create eventParticipant
