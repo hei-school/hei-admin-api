@@ -26,8 +26,13 @@ public class WhoamiController {
     return whoami;
   }
 
+  //accepts JSON for SECURITYIT
   @PostMapping(path = "/whoamiface",
-      consumes = {MediaType.IMAGE_PNG_VALUE, MediaType.IMAGE_JPEG_VALUE}
+      consumes = {
+      MediaType.IMAGE_PNG_VALUE,
+          MediaType.IMAGE_JPEG_VALUE,
+          MediaType.APPLICATION_JSON_VALUE
+  }
   )
   public Whoami whoamiface(
       @RequestBody byte[] toCompare,

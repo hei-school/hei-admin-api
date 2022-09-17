@@ -3,7 +3,6 @@ package school.hei.haapi.service.AWS;
 
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
 import com.amazonaws.auth.BasicAWSCredentials;
-import com.amazonaws.regions.Regions;
 import com.amazonaws.services.rekognition.AmazonRekognition;
 import com.amazonaws.services.rekognition.AmazonRekognitionClientBuilder;
 import com.amazonaws.services.rekognition.model.CompareFacesRequest;
@@ -16,27 +15,27 @@ import org.springframework.stereotype.Component;
 @Component
 public class RekognitionService {
 
+  public static Float SIMILARITY_THRESHOLD = 80F;
   private final S3Service service;
   private String accessKeyId;
-
   private String secretKey;
-
-  public static Float SIMILARITY_THRESHOLD = 80F;
+  private String region;
 
   public RekognitionService(S3Service service,
                             @Value("${aws.access.key.id}")
                             String accessKeyId,
                             @Value("${aws.secret.key}")
-                            String secretKey) {
+                            String secretKey,
+                            @Value("${aws.region}")
+                            String region
+  ) {
     this.service = service;
     this.accessKeyId = accessKeyId;
     this.secretKey = secretKey;
+    this.region = region;
   }
 
   public CompareFacesResult compareFaces(byte[] toCompare, String picture) {
-
-
-    Regions region = Regions.EU_WEST_3;
 
     BasicAWSCredentials credentials = new BasicAWSCredentials(accessKeyId, secretKey);
 
@@ -48,16 +47,14 @@ public class RekognitionService {
 
     byte[] reference = service.getImage(picture);
 
-    ByteBuffer ref = ByteBuffer.wrap(reference);
-    ByteBuffer toC = ByteBuffer.wrap(toCompare);
+    ByteBuffer referenceAsByteBuffer = ByteBuffer.wrap(reference);
+    ByteBuffer targetImage = ByteBuffer.wrap(toCompare);
 
     CompareFacesRequest facesRequest = new CompareFacesRequest()
-        .withSourceImage(new Image().withBytes(ref))
-        .withTargetImage(new Image().withBytes(toC))
+        .withSourceImage(new Image().withBytes(referenceAsByteBuffer))
+        .withTargetImage(new Image().withBytes(targetImage))
         .withSimilarityThreshold(SIMILARITY_THRESHOLD);
 
-    CompareFacesResult result = amazonRekognitionClient.compareFaces(facesRequest);
-
-    return result;
+    return amazonRekognitionClient.compareFaces(facesRequest);
   }
 }
