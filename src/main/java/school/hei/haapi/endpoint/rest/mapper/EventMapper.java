@@ -9,6 +9,7 @@ import school.hei.haapi.service.UserService;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Component
 @AllArgsConstructor
@@ -33,8 +34,8 @@ public class EventMapper {
                 .id(restEvent.getId())
                 .name(restEvent.getName())
                 .type(Event.EventType.valueOf(restEvent.getType()))
-                .startEvent(LocalDate.from(restEvent.getStartEvent()))
-                .endEvent(LocalDate.from(restEvent.getEndEvent()))
+                .startEvent(restEvent.getStartEvent())
+                .endEvent(restEvent.getEndEvent())
                 .status(Event.EventStatus.valueOf(restEvent.getStatus()))
                 .responsible(userService.getById(restEvent.getResponsibleId()) )
                 .place(placeService.getById(restEvent.getPlaceId()))

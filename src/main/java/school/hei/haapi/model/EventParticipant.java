@@ -38,18 +38,16 @@ public class EventParticipant implements Serializable {
     private String id;
 
     @ManyToOne
-    @JoinColumn(name = "event_id",nullable = false)
-    private Event event;
-
-    @ManyToOne
     @JoinColumn(name = "participant_id",nullable = false)
     private User participant;
 
+    @ManyToOne
+    @JoinColumn(name = "event_id",nullable = false)
+    private Event event;
+
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private school.hei.haapi.endpoint.rest.model.EventParticipant.StatusEnum status;
 
-    public enum Status{
-        EXPECTED, HERE, MISSING
-    }
+
 }

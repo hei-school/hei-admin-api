@@ -8,5 +8,5 @@ import java.util.List;
 
 public interface EventParticipantRepository extends JpaRepository<EventParticipant, String> {
     EventParticipant findEventParticipantByEvent_IdAndId(String eventId, String Id);
-    List<EventParticipant> findAllByEvent_Id(String eventId, Pageable pageable);
+    List<EventParticipant>getByEventId(String eventId, Pageable pageable);
 }

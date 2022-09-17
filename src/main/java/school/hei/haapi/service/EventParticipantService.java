@@ -34,7 +34,7 @@ public class EventParticipantService {
         return eventParticipantRepository.findEventParticipantByEvent_IdAndId(eventId,eventParticipantId);
     }
 
-    public List<EventParticipant> getAll(
+    public List<EventParticipant> getEventParticipantsByEventsId(
             String eventId,
             PageFromOne page,
             BoundedPageSize pageSize
@@ -43,9 +43,21 @@ public class EventParticipantService {
                 page.getValue() - 1,
                 pageSize.getValue(),
                 Sort.by(ASC, "status"));
-        return eventParticipantRepository.findAllByEvent_Id(
-                eventId, pageable);
+        return eventParticipantRepository.getByEventId(eventId, pageable);
     }
+
+    public List<EventParticipant> getAll(
+            PageFromOne page,
+            BoundedPageSize pageSize
+    ){
+        Pageable pageable = PageRequest.of(
+                page.getValue() - 1,
+                pageSize.getValue(),
+                Sort.by(ASC, "status"));
+        return eventParticipantRepository.findAll(pageable).toList();
+    }
+
+
 
     @Transactional
     public EventParticipant accept(EventParticipant eventParticipant){

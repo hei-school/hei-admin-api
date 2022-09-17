@@ -92,8 +92,8 @@ public class PlaceIT {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
         PlacesApi api = new PlacesApi(student1Client);
-        Place actual1 = api.getPlace(PLACE1_ID);
-        List<Place> actualPlaces = api.getPlaces(1,100,"HEI");
+        Place actual1 = api.getPlaceById(PLACE1_ID);
+        List<Place> actualPlaces = api.getPlaces(1,100,"");
 
         assertEquals(place1(), actual1);
         assertTrue(actualPlaces.contains(place1()));
@@ -112,9 +112,9 @@ public class PlaceIT {
     void teacher_read_ok() throws ApiException {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
         PlacesApi api = new PlacesApi(teacher1Client);
-        Place actual2 = api.getPlace(PLACE2_ID);
+        Place actual2 = api.getPlaceById(PLACE2_ID);
 
-        List<Place> actualPlaces = api.getPlaces(1,100,"HEI");
+        List<Place> actualPlaces = api.getPlaces(1,100,"");
 
         assertEquals(place2(), actual2);
         assertTrue(actualPlaces.contains(place1()));
@@ -132,23 +132,16 @@ public class PlaceIT {
     @Test
     void manager_write_create_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-        Place toCreate3 = someCreatablePlace();
-        Place toCreate4 = someCreatablePlace();
+        Place toCreate = someCreatablePlace();
 
         PlacesApi api = new PlacesApi(manager1Client);
-        List<Place> created = api.createOrUpdatePlaces(List.of(toCreate3, toCreate4));
+        List<Place> created = api.createOrUpdatePlaces(List.of(toCreate));
 
-        assertEquals(2, created.size());
-        Place created3 = created.get(0);
-        assertTrue(isValidUUID(created3.getId()));
-        toCreate3.setId(created3.getId());
-        toCreate3.setName(created3.getName());
-        assertEquals(created3, toCreate3);
-        Place created4 = created.get(0);
-        assertTrue(isValidUUID(created4.getId()));
-        toCreate4.setId(created3.getId());
-        toCreate4.setName(created3.getName());
-        assertEquals(created4, toCreate4);
+        assertEquals(1, created.size());
+        Place created0 = created.get(0);
+        assertTrue(isValidUUID(created0.getId()));
+        toCreate.setId(created0.getId());
+        assertEquals(toCreate, created0);
     }
 
     @Test

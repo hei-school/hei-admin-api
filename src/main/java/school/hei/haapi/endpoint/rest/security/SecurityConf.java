@@ -101,18 +101,21 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
             .antMatchers(GET, "/groups").authenticated()
             .antMatchers(GET, "/groups/*").authenticated()
             .antMatchers(PUT, "/groups/**").hasAnyRole(MANAGER.getRole())
-            .antMatchers(GET,"/places").authenticated()
-            .antMatchers(GET,"/places/*").authenticated()
-            .antMatchers(PUT,"/places/**").hasAnyRole(MANAGER.getRole())
-            .antMatchers(GET,"/courses").authenticated()
-            .antMatchers(GET,"/courses/*").authenticated()
-            .antMatchers(PUT,"/courses/**").hasAnyRole(MANAGER.getRole())
-            .antMatchers(GET,"/events").authenticated()
-            .antMatchers(GET,"/events/*").authenticated()
-            .antMatchers(PUT,"/events/**").hasAnyRole(MANAGER.getRole(),MANAGER.getRole())
-            .antMatchers("/**").permitAll()
-
-            //.antMatchers("/**").denyAll()
+            .antMatchers(GET, "/courses").authenticated()
+            .antMatchers(GET, "/courses/*").authenticated()
+            .antMatchers(PUT, "/courses/**").hasAnyRole(MANAGER.getRole())
+            .antMatchers(GET, "/places").authenticated()
+            .antMatchers(GET, "/places/*").authenticated()
+            .antMatchers(PUT, "/places/**").hasAnyRole(MANAGER.getRole())
+            .antMatchers(GET, "/events").authenticated() // to modify
+            .antMatchers(GET, "/events/*").authenticated() // to modify
+            .antMatchers(GET, "/responsibles/*/events").hasAnyRole(TEACHER.getRole(),MANAGER.getRole())
+            .antMatchers(PUT, "/events/**").hasAnyRole(MANAGER.getRole()) // to modify
+            .antMatchers(GET, "/event_participants").authenticated()
+            .antMatchers(GET, "/events/*/event_participants").authenticated()
+            .antMatchers(GET, "/events/*/event_participants/**").authenticated()
+            .antMatchers(POST, "/events/*/event_participants").hasAnyRole(TEACHER.getRole(),MANAGER.getRole())
+            .antMatchers("/**").denyAll()
 
             // disable superfluous protections
             // Eg if all clients are non-browser then no csrf

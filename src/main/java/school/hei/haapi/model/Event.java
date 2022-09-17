@@ -18,9 +18,12 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.validation.constraints.Future;
+import javax.validation.constraints.FutureOrPresent;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
-import java.time.LocalDate;
+import java.time.Instant;
+import java.time.LocalDateTime;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -45,9 +48,11 @@ public class Event implements Serializable {
     @Enumerated(EnumType.STRING)
     private EventType type;
 
-    private LocalDate startEvent;
+    @FutureOrPresent
+    private Instant startEvent;
 
-    private LocalDate endEvent;
+    @Future
+    private Instant endEvent;
 
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
@@ -62,7 +67,7 @@ public class Event implements Serializable {
     private Place place;
 
     public enum EventType {
-        COURSE, EXAM, ENTRANCE_TEST, MEETING
+        COURSE, EXAM, ENTRANCE_TEST, MEETING, CONFERENCE, VISIT
     }
 
     public enum EventStatus {

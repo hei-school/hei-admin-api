@@ -6,9 +6,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.PlaceMapper;
-import school.hei.haapi.model.Place;
+import school.hei.haapi.endpoint.rest.model.Place;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.PlaceService;
 
 import java.util.List;
@@ -30,8 +33,9 @@ public class PlaceController {
     }
 
     @GetMapping("/places")
-    public List<Place> getPlaces(){
-        return placeService.getAll().stream()
+    public List<Place> getPlaces(@RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
+                                 @RequestParam(value = "name", required = false, defaultValue = "") String name){
+        return placeService.getAll(page, pageSize,name).stream()
                 .map(placeMapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
     }
