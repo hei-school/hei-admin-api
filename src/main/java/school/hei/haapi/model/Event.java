@@ -6,13 +6,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.TypeDef;
-import school.hei.haapi.repository.types.PostgresEnumType;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -22,7 +19,6 @@ import javax.validation.constraints.NotBlank;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDateTime;
 
 import static javax.persistence.GenerationType.*;
 
@@ -52,8 +48,8 @@ public class Event implements Serializable {
     private Instant startingDateTime;
     @FutureOrPresent(message = "endingDateTime must be in future or present")
     private Instant endingDateTime;
+    @Column(nullable = false)
     private String eventType;
-    @NotBlank(message = "title cannot be blank")
     private String title;
     @ManyToOne
     @JoinColumn(name = "course_id")
