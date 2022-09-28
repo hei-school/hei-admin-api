@@ -915,6 +915,8 @@ components:
           format: date-time
         status:
           $ref: '#/components/schemas/EnableStatus'
+        group:
+          type: string
     EnableStatus:
       type: string
       enum:
