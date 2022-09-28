@@ -86,6 +86,7 @@ class StudentIT {
     student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
     student.setEntranceDatetime(birthday.plus(365L * ageOfEntrance, ChronoUnit.DAYS));
     student.setAddress(faker.address().fullAddress());
+    student.setGroup("group1_id");
     return student;
   }
 
@@ -110,6 +111,7 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-01"));
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setAddress("Adr 1");
+    student.setGroup("group1_id");
     return student;
   }
 
@@ -126,6 +128,7 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
+    student.setGroup("group2_id");
     return student;
   }
 
@@ -142,6 +145,7 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
+    student.setGroup("group1_id");
     return student;
   }
 

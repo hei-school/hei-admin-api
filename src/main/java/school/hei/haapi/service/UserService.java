@@ -15,6 +15,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.repository.dao.UserManagerDao;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
@@ -26,6 +27,8 @@ public class UserService {
   private final UserRepository userRepository;
   private final EventProducer eventProducer;
   private final UserValidator userValidator;
+
+  private final UserManagerDao userManagerDao;
 
   public User getById(String userId) {
     return userRepository.getById(userId);
@@ -63,8 +66,7 @@ public class UserService {
         page.getValue() - 1,
         pageSize.getValue(),
         Sort.by(ASC, "ref"));
-    return userRepository
-        .findByRoleAndRefContainingIgnoreCaseAndFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
+    return userManagerDao.findByCriteria(
            role, ref, firstName, lastName, pageable);
   }
 }

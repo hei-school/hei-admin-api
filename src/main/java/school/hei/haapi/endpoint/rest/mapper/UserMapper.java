@@ -1,15 +1,19 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.GroupService;
 
 @Component
 public class UserMapper {
 
+  @Autowired
+  private GroupService groupService;
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
     restStudent.setId(user.getId());
@@ -22,6 +26,7 @@ public class UserMapper {
     restStudent.setPhone(user.getPhone());
     restStudent.setEntranceDatetime(user.getEntranceDatetime());
     restStudent.setBirthDate(user.getBirthDate());
+    restStudent.setGroup(user.getGroup().getId());
     restStudent.setSex(Student.SexEnum.fromValue(user.getSex().toString()));
     restStudent.setAddress(user.getAddress());
 
@@ -91,6 +96,7 @@ public class UserMapper {
         .ref(student.getRef())
         .status(User.Status.valueOf(student.getStatus().toString()))
         .phone(student.getPhone())
+        .group(groupService.getById(student.getGroup()))
         .entranceDatetime(student.getEntranceDatetime())
         .birthDate(student.getBirthDate())
         .sex(User.Sex.valueOf(student.getSex().toString()))
