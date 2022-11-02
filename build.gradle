@@ -122,6 +122,15 @@ dependencies {
     implementation 'software.amazon.awssdk:sqs:2.17.109'
     implementation 'software.amazon.awssdk:cognitoidentityprovider:2.17.109'
 
+
+    //aws s3 dependencies
+    implementation platform('com.amazonaws:aws-java-sdk-bom:1.11.837')
+    implementation 'com.amazonaws:aws-java-sdk-s3'
+    implementation 'com.amazonaws:aws-java-sdk-rekognition'
+
+    //sentryConf dependency
+    implementation 'io.sentry:sentry-spring-boot-starter:6.4.1'
+
     implementation 'io.sentry:sentry-spring-boot-starter:5.5.3'
     implementation 'io.sentry:sentry-logback:5.5.3'
 
