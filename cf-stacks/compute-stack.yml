@@ -70,7 +70,7 @@ Resources:
   ExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['', [!Ref Env, -hei-admin-api, -ExecutionRole]]
+      RoleName: !Join ['', [!Ref Env, -compute-hei-admin-api, -ExecutionRole]]
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -82,7 +82,7 @@ Resources:
   TaskRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['', [!Ref Env, -hei-admin-api, -TaskRole]]
+      RoleName: !Join ['', [!Ref Env, -compute-hei-admin-api, -TaskRole]]
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
