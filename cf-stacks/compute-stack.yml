@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Stack for HEI Admin API
+Description: Compute stack for HEI Admin API
 
 Parameters:
   Env:
@@ -89,10 +89,6 @@ Resources:
             Principal:
               Service: ecs-tasks.amazonaws.com
             Action: 'sts:AssumeRole'
-      ManagedPolicyArns:
-        - 'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess'
-        - 'arn:aws:iam::aws:policy/AmazonCognitoPowerUser'
-
   Service:
     Type: AWS::ECS::Service
     Properties:
@@ -114,15 +110,15 @@ Resources:
           TargetGroupArn: !Ref TargetGroup
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties: 
+    Properties:
       Name: !Join ['', [!Ref Env, -ha-api, -TG]]
       Protocol: HTTP
       Port: !Ref ContainerPort
       # TargetType must be ip with Fargate: targets are (de-)registered on container creation/destruction
       TargetType: ip
-      #Targets: 
+      #Targets:
       #  - AvailabilityZone: all
-      #    Id: 
+      #    Id:
       #    Port: ! Ref ContainerPort
       VpcId: '{{resolve:ssm:/hei-admin-api/vpc:1}}'
       HealthCheckEnabled: true
