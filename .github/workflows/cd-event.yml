@@ -5,6 +5,8 @@ on:
     branches:
       - 'dev'
       - 'prod'
+      - 'preprod'
+
   workflow_dispatch:
     
 jobs:
@@ -22,10 +24,15 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: eu-west-3
 
+      - name: Put branch_env into GITHUB_ENV
+        run: echo "branch_env=${{ github.ref_name }}" >> $GITHUB_ENV
+
       - name: Deploy to AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: event stack
-          template: event-stack.yml
+          template: cf-stacks/event-stack.yml
           tags: "[ { \"Key\": \"App\", \"Value\": \"hei-admin\" }, { \"Key\": \"Env\", \"Value\": \"${{ env.branch_env }}\" } ]"
           no-fail-on-empty-changeset: "1"
+          parameter-overrides:
+            "Env=${{ env.branch_env }}"

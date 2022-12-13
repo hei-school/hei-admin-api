@@ -2,10 +2,6 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Event stack for Hei Admin
 
 Parameters:
-  SimpleQueue:
-    Type: String
-  DLQueue:
-    Type: String
   Env:
     Type: String
 
@@ -13,7 +9,7 @@ Resources:
   MailboxQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Ref SimpleQueue
+      QueueName: !Join ['' , [!Ref Env , -hei-admin]]
       FifoQueue: false
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
@@ -23,5 +19,5 @@ Resources:
     DeadLetterQueue:
       Type: AWS::SQS::Queue
       Properties:
-        QueueName: !Ref DlQueue
+        QueueName: !Join ['' , [!Ref Env , -hei-admin-dl]]
         SqsManagedSseEnabled: false
