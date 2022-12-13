@@ -80,7 +80,7 @@ jobs:
       - name: Deploy compute stack
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: ${{ env.branch_env }}-hei-admin-api
+          name: ${{ env.branch_env }}-compute-hei-admin-api
           template: cf-stacks/compute-stack.yml
           tags: "[ { \"Key\": \"App\", \"Value\": \"hei-admin\" }, { \"Key\": \"Env\", \"Value\": \"${{ env.branch_env }}\" } ]"
           capabilities: CAPABILITY_NAMED_IAM
