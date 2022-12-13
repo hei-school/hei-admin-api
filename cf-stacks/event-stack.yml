@@ -101,7 +101,7 @@ Resources:
           - school.hei.haapi
       Targets:
         - Arn: !GetAtt MailboxQueue.Arn
-          Id: !Join [ '', [ !Ref Env, -hei-admin, -api-mailbox ] ]bpartners
+          Id: !Join [ '', [ !Ref Env, -hei-admin, -api-mailbox ] ]
 
   EventBridgeBusNameSSM:
     Type: AWS::SSM::Parameter
