@@ -1,0 +1,23 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: Event stack for Hei Admin
+
+Parameters:
+  Env:
+    Type: String
+
+Resources:
+  MailboxQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join ['' , [!Ref Env , -hei-admin]]
+      FifoQueue: false
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
+        maxReceiveCount: 5
+      SqsManagedSseEnabled: false
+
+    DeadLetterQueue:
+      Type: AWS::SQS::Queue
+      Properties:
+        QueueName: !Join ['' , [!Ref Env , -hei-admin-dl]]
+        SqsManagedSseEnabled: false
