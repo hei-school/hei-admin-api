@@ -21,3 +21,99 @@ Resources:
     Properties:
       QueueName: !Join ['' , [!Ref Env , -hei-admin-dl]]
       SqsManagedSseEnabled: false
+
+  MailboxQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref MailboxQueue
+      PolicyDocument:
+        Version: "2008-10-17"
+        Id: "MailboxQueuePolicy_ID"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - "SQS:*"
+            Resource: !GetAtt MailboxQueue.Arn
+          - Effect: "Allow"
+            Principal:
+              Service:
+                - "events.amazonaws.com"
+            Action:
+              - "SQS:SendMessage"
+            Resource: !GetAtt MailboxQueue.Arn
+            Condition:
+              ArnEquals:
+                aws:SourceArn: !GetAtt EventBridgeRule.Arn
+
+  DeadLetterQueuePolicy:
+    Type: AWS::SQS::QueuePolicy
+    Properties:
+      Queues:
+        - !Ref DeadLetterQueue
+      PolicyDocument:
+        Version: "2008-10-17"
+        Id: "DeadLetterQueue_ID"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              AWS:
+                - !Sub arn:aws:iam::${AWS::AccountId}:root
+            Action:
+              - "SQS:*"
+            Resource: !GetAtt DeadLetterQueue.Arn
+
+  MailboxQueueSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Join [ '' , [ /hei-admin-api/ , !Ref Env , /sqs/mailbox-queue-url ] ]
+      Type: String
+      Value: !Ref MailboxQueue
+
+  DeadLetterQueueSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Join [ '' , [ /hei-admin-api/ , !Ref Env , /sqs/dead-letter-queue-url ] ]
+      Type: String
+      Value: !Ref DeadLetterQueue
+
+  EventBridgeBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: !Join [ '', [ !Ref Env, -hei-admin ] ]
+
+  EventBridgeArchive:
+    Type: AWS::Events::Archive
+    Properties:
+      ArchiveName: !Join [ '', [ !Ref Env, -hei-admin, -archive ] ]
+      SourceArn: !GetAtt EventBridgeBus.Arn
+
+  EventBridgeRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Join [ '', [ !Ref Env, -hei-admin, -from-api-to-api ] ]
+      EventBusName: !GetAtt EventBridgeBus.Name
+      EventPattern:
+        source:
+          - school.hei.haapi
+      Targets:
+        - Arn: !GetAtt MailboxQueue.Arn
+          Id: !Join [ '', [ !Ref Env, -hei-admin, -api-mailbox ] ]bpartners
+
+  EventBridgeBusNameSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Join [ '',[ /hei-admin-api/ , !Ref Env , /eventbridge/bus-name ] ]
+      Type: String
+      Value: !GetAtt EventBridgeBus.Name
+
+Outputs:
+  MailboxQueueURL:
+    Value: !Ref MailboxQueueSSM
+  DeadLetterQueueURL:
+    Value: !Ref DeadLetterQueueSSM
+  EventBridgeBusName:
+    Value: !Ref EventBridgeBusNameSSM
