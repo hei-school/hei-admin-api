@@ -30,7 +30,7 @@ jobs:
       - name: Deploy to AWS CloudFormation
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: event stack
+          name: ${{ env.branch_env }}-hei-admin-api
           template: cf-stacks/event-stack.yml
           tags: "[ { \"Key\": \"App\", \"Value\": \"hei-admin\" }, { \"Key\": \"Env\", \"Value\": \"${{ env.branch_env }}\" } ]"
           no-fail-on-empty-changeset: "1"
