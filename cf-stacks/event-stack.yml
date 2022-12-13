@@ -16,8 +16,8 @@ Resources:
         maxReceiveCount: 5
       SqsManagedSseEnabled: false
 
-    DeadLetterQueue:
-      Type: AWS::SQS::Queue
-      Properties:
-        QueueName: !Join ['' , [!Ref Env , -hei-admin-dl]]
-        SqsManagedSseEnabled: false
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      QueueName: !Join ['' , [!Ref Env , -hei-admin-dl]]
+      SqsManagedSseEnabled: false
