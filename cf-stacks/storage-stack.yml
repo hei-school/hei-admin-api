@@ -28,7 +28,7 @@ Resources:
       DBName: !Ref DBName
       AllocatedStorage: !Ref DBAllocatedStorage
       DBSecurityGroups:
-        - !Sub '{{resolve:ssm:/hei-admin-api/sg:1}}'
+        - !Sub '{{resolve:ssm:/hei-admin-api/sg}}'
       DBInstanceClass:
         Ref: DBClass
       Engine: postgres
