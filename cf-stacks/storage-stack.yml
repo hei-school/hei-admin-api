@@ -27,6 +27,8 @@ Resources:
     Properties:
       DBName: !Ref DBName
       AllocatedStorage: !Ref DBAllocatedStorage
+      DBSecurityGroups:
+        - Ref: HeiAdminSg
       DBInstanceClass:
         Ref: DBClass
       Engine: postgres
