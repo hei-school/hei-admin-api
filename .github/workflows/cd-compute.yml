@@ -89,5 +89,5 @@ jobs:
             "Env=${{ env.branch_env }},
             ListenerRuleAvailablePriority=${{ env.listenerRuleAvailablePriority }},
             Subnet=${{ env.subnet }},
-            Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}
+            Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }},
             TasksDesiredCount=1"
