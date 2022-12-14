@@ -5,14 +5,8 @@ Parameters:
   Env:
     Type: String
   DBName:
-    Default: haapi
-    Description: The database name
     Type: String
-    MinLength: '1'
-    MaxLength: '8'
-    AllowedPattern: "[a-zA-Z][a-zA-Z0-9]*"
-    ConstraintDescription: must begin with a letter and contain only alphanumeric
-      characters.
+    Default: hei_admin
   DBClass:
     Default: db.t3.micro
     Description: Database instance class
@@ -29,11 +23,10 @@ Parameters:
 Resources:
   Database:
     Type: AWS::RDS::DBInstance
+    DeletionPolicy: Retain
     Properties:
-      DBName:
-        Ref: DBName
-      AllocatedStorage:
-        Ref: DBAllocatedStorage
+      DBName: !Ref DBName
+      AllocatedStorage: !Ref DBAllocatedStorage
       DBInstanceClass:
         Ref: DBClass
       Engine: postgres
