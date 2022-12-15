@@ -35,7 +35,7 @@ Resources:
       Engine: postgres
       MasterUsername: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/username}}'
       MasterUserPassword: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/password}}'
-       VPCSecurityGroups: 
+      VPCSecurityGroups: 
         - !Ref SecurityGroup
   DatabaseSSM:
     Type: AWS::SSM::Parameter
