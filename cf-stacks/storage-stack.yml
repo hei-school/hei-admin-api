@@ -19,6 +19,9 @@ Parameters:
     MinValue: '5'
     MaxValue: '6144'
     ConstraintDescription: must be between 5+
+  SecurityGroup:
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: '/hei-admin-api/sg'
 
 Resources:
   Database:
@@ -27,13 +30,13 @@ Resources:
     Properties:
       DBName: !Ref DBName
       AllocatedStorage: !Ref DBAllocatedStorage
-      DBSecurityGroups:
-        - Ref: HeiAdminSg
       DBInstanceClass:
         Ref: DBClass
       Engine: postgres
       MasterUsername: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/username}}'
       MasterUserPassword: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/password}}'
+       VPCSecurityGroups: 
+        - !Ref SecurityGroup
   DatabaseSSM:
     Type: AWS::SSM::Parameter
     Properties:
