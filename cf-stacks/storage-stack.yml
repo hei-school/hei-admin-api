@@ -6,7 +6,7 @@ Parameters:
     Type: String
   DBName:
     Type: String
-    Default: hei_admin
+    Default: pgDB
   DBClass:
     Default: db.t3.micro
     Description: Database instance class
