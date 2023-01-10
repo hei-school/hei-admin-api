@@ -528,6 +528,60 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
+  /delay_penalty_change:
+    post:
+      tags:
+        - Paying
+      summary: Change current delay penalty configuration
+      operationId: createDelayPenaltyChange
+      requestBody:
+        description: Delay penalties to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDelayPenaltyChange'
+      responses:
+        '200':
+          description: List of created delay penalties
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayPenalty'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /delay_penalty:
+    get:
+      tags:
+        - Paying
+      summary: Get current delay penalty
+      operationId: getDelayPenalty
+      responses:
+        '200':
+          description: Active delay penalty
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayPenalty'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
   /students/{student_id}/fees/{fee_id}:
     get:
       tags:
@@ -566,13 +620,30 @@ paths:
     get:
       tags:
         - Paying
-      summary: Get all student fees
+      summary: Get all student fees ordered by due datetime desc
+      description: Fees can be filtered with an optional payment status parameter.
       parameters:
         - name: student_id
           in: path
           required: true
           schema:
             type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum:
+              - UNPAID
+              - PAID
+              - LATE
       operationId: getStudentFees
       responses:
         '200':
@@ -604,6 +675,15 @@ paths:
           schema:
             type: string
       operationId: createStudentFees
+      requestBody:
+        description: Student fees to create
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateFee'
       responses:
         '200':
           description: Created student fees
@@ -612,7 +692,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CreateFee'
+                  $ref: '#/components/schemas/Fee'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -623,12 +703,55 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  /fees:
+    get:
+      tags:
+        - Paying
+      summary: Get all student fees filtered by status
+      parameters:
+        - name: status
+          in: query
+          description: "See the PaymentStatus object for its value."
+          schema:
+            type: string
+            default: LATE
+            enum:
+              - UNPAID
+              - LATE
+              - PAID
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getFees
+      responses:
+        '200':
+          description: List of filtered student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees/{fee_id}/payments:
     get:
       tags:
         - Paying
-      summary: Get all student payments
+      summary: Get all student payments of a specific fee. Resulting list is ordered by creation datetime desc.
       parameters:
         - name: student_id
           in: path
@@ -640,6 +763,14 @@ paths:
           required: true
           schema:
             type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
       operationId: getStudentPayments
       responses:
         '200':
@@ -676,6 +807,15 @@ paths:
           schema:
             type: string
       operationId: createStudentPayments
+      requestBody:
+        description: Student payments to create
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreatePayment'
       responses:
         '200':
           description: Created student payments
@@ -684,7 +824,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CreatePayment'
+                  $ref: '#/components/schemas/Payment'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -695,7 +835,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
 components:
   securitySchemes:
     BearerAuth:
@@ -775,10 +914,12 @@ components:
           type: string
           format: date-time
         status:
-          type: string
-          enum:
-            - ENABLED
-            - DISABLED
+          $ref: '#/components/schemas/EnableStatus'
+    EnableStatus:
+      type: string
+      enum:
+        - ENABLED
+        - DISABLED
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
@@ -820,13 +961,13 @@ components:
     CreateFee:
       type: object
       properties:
-        student_id:
-          type: string
         type:
           type: string
           enum:
             - TUITION
             - HARDWARE
+        comment:
+          type: string
         total_amount:
           type: integer
         creation_datetime:
@@ -842,6 +983,8 @@ components:
       properties:
         id:
           type: string
+        student_id:
+          type: string
         remaining_amount:
           type: integer
         status:
@@ -850,8 +993,29 @@ components:
             - UNPAID
             - PAID
             - LATE
-        comment:
+    CreateDelayPenaltyChange:
+      type: object
+      properties:
+        interest_percent:
+          type: integer
+        interest_timerate:
           type: string
+          enum:
+            - DAILY
+        grace_delay:
+          type: integer
+        applicability_delay_after_grace:
+          type: integer
+    DelayPenalty:
+      allOf:
+        - $ref: '#/components/schemas/CreateDelayPenaltyChange'
+      type: object
+      properties:
+        id:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
     CreatePayment:
       type: object
       properties:
@@ -859,15 +1023,13 @@ components:
           type: string
           enum:
             - CASH
-            - SCOLARSHIP
+            - MOBILE_MONEY
+            - SCHOLARSHIP
             - FIX
         amount:
           type: integer
         comment:
           type: string
-        creation_datetime:
-          type: string
-          format: date-time
     Payment:
       allOf:
         - $ref: '#/components/schemas/CreatePayment'
@@ -875,7 +1037,11 @@ components:
       properties:
         id:
           type: string
-
+        fee_id:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
     Page:
       type: integer
       description: Start at `1`

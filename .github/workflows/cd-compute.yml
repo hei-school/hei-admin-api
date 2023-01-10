@@ -5,11 +5,13 @@ on:
     branches:
       - 'dev'
       - 'prod'
+      - 'preprod'
+
   workflow_dispatch:
 
 jobs:
-  cd:
-    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/prod'
+  cd-compute:
+    if: github.ref_name == 'dev' || github.ref_name == 'prod'
 
     runs-on: ubuntu-latest
 
@@ -63,27 +65,29 @@ jobs:
           docker build --build-arg version=${{ steps.read-semver.outputs.version }} \
             -t $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-  
+
       - name: Put branch_env, subnet and listenerRuleAvailablePriority into GITHUB_ENV
         run: |
-          if ${{ github.ref == 'refs/heads/dev' }}; then
+          if ${{ github.ref_name == 'dev' }}; then
             echo "branch_env=dev" >> $GITHUB_ENV
             echo "listenerRuleAvailablePriority=1" >> $GITHUB_ENV
             echo "subnet=${{ secrets.DEV_SUBNET }}" >> $GITHUB_ENV
-          elif ${{ github.ref == 'refs/heads/prod' }}; then
+          elif ${{ github.ref_name == 'prod' }}; then
             echo "branch_env=prod" >> $GITHUB_ENV
             echo "listenerRuleAvailablePriority=10" >> $GITHUB_ENV
             echo "subnet=${{ secrets.PROD_SUBNET }}" >> $GITHUB_ENV
           fi
-      - name: Deploy with AWS CloudFormation
+      - name: Deploy compute stack
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: ${{ env.branch_env }}-hei-admin-api
-          template: cloudformation-stack.yml
+          name: ${{ env.branch_env }}-compute-hei-admin-api
+          template: cf-stacks/compute-stack.yml
           tags: "[ { \"Key\": \"App\", \"Value\": \"hei-admin\" }, { \"Key\": \"Env\", \"Value\": \"${{ env.branch_env }}\" } ]"
           capabilities: CAPABILITY_NAMED_IAM
+          no-fail-on-empty-changeset: "1"
           parameter-overrides:
             "Env=${{ env.branch_env }},
             ListenerRuleAvailablePriority=${{ env.listenerRuleAvailablePriority }},
             Subnet=${{ env.subnet }},
-            Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
+            Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }},
+            TasksDesiredCount=1"
