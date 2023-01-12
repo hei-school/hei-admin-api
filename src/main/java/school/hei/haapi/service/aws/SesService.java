@@ -1,7 +1,7 @@
 package school.hei.haapi.service.aws;
 
-import jakarta.mail.MessagingException;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.ses.SesClient;
 import software.amazon.awssdk.services.ses.model.Body;
@@ -9,17 +9,18 @@ import software.amazon.awssdk.services.ses.model.Content;
 import software.amazon.awssdk.services.ses.model.Destination;
 import software.amazon.awssdk.services.ses.model.Message;
 import software.amazon.awssdk.services.ses.model.SendEmailRequest;
+import software.amazon.awssdk.services.ses.model.SendEmailResponse;
 import software.amazon.awssdk.services.ses.model.SesException;
 
-import java.io.UnsupportedEncodingException;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class SesService {
   private final SesClient client;
 
-  public void sendEmail(String sender, String recipient,
-                        String subject, String bodyHtml) throws UnsupportedEncodingException, MessagingException {
+  public SendEmailResponse sendEmail(String sender, String recipient,
+                                     String subject, String bodyHtml) {
 
     Destination destination = Destination.builder()
         .toAddresses(recipient)
@@ -47,15 +48,18 @@ public class SesService {
         .message(message)
         .source(sender)
         .build();
-
-    try{
+    try {
+      log.info("Trying to send email to " + recipient);
       client.sendEmail(emailRequest);
-    }
-    catch (SesException e) {
-      System.err.println(e.awsErrorDetails().errorMessage());
-      System.exit(1);
+      log.info("Sent successfully ! Next ...");
+    } catch (SesException e) {
+      log.error(e.awsErrorDetails().errorMessage());
+      throw new RuntimeException(e);
     }
 
+    return SendEmailResponse.builder()
+        .messageId("Sent successfully ! Next ...")
+        .build();
   }
 
 }

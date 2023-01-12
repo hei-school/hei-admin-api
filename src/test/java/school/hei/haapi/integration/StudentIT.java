@@ -1,16 +1,10 @@
 package school.hei.haapi.integration;
 
 import com.github.javafaker.Faker;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -25,11 +19,20 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.aws.SesService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
+
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -57,12 +60,12 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 @AutoConfigureMockMvc
 class StudentIT {
 
+  @Autowired
+  SesService sesService;
   @MockBean
   private SentryConf sentryConf;
-
   @MockBean
   private CognitoComponent cognitoComponentMock;
-
   @MockBean
   private EventBridgeClient eventBridgeClientMock;
 
@@ -362,6 +365,16 @@ class StudentIT {
     PutEventsRequestEntry requestEntry1 = actualRequestEntries.get(1);
     assertTrue(requestEntry1.detail().contains(created1.getId()));
     assertTrue(requestEntry1.detail().contains(created1.getEmail()));
+  }
+
+  @Test
+  void student_get_email() {
+    String success = "Sent successfully ! Next ...";
+    String sender = "contact@hei.school";
+    String subject = "Changement d'emploi du temps (HEI)";
+    String bodyHtml = "Bonjour, <br/> L'emploi du temps à été mis à jour. <br/> " +
+        "Veuillez le consulter sur <a href='calendar.hei.school'>calendar.hei.school</a>";
+    assertEquals(success, sesService.sendEmail(sender, student1().getEmail(), subject, bodyHtml).messageId());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
