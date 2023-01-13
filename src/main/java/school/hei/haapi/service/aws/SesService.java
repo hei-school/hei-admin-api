@@ -58,7 +58,7 @@ public class SesService {
     }
 
     return SendEmailResponse.builder()
-        .messageId("Sent successfully ! Next ...")
+        .messageId("Email sent !")
         .build();
   }
 

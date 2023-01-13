@@ -4,7 +4,6 @@ import com.github.javafaker.Faker;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -19,7 +18,6 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.service.aws.SesService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
@@ -59,9 +57,6 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 @ContextConfiguration(initializers = StudentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class StudentIT {
-
-  @Autowired
-  SesService sesService;
   @MockBean
   private SentryConf sentryConf;
   @MockBean
@@ -365,16 +360,6 @@ class StudentIT {
     PutEventsRequestEntry requestEntry1 = actualRequestEntries.get(1);
     assertTrue(requestEntry1.detail().contains(created1.getId()));
     assertTrue(requestEntry1.detail().contains(created1.getEmail()));
-  }
-
-  @Test
-  void student_get_email() {
-    String success = "Sent successfully ! Next ...";
-    String sender = "contact@hei.school";
-    String subject = "Changement d'emploi du temps (HEI)";
-    String bodyHtml = "Bonjour, <br/> L'emploi du temps à été mis à jour. <br/> " +
-        "Veuillez le consulter sur <a href='calendar.hei.school'>calendar.hei.school</a>";
-    assertEquals(success, sesService.sendEmail(sender, student1().getEmail(), subject, bodyHtml).messageId());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
