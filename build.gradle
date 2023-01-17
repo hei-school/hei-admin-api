@@ -35,6 +35,14 @@ repositories {
     mavenCentral()
 }
 
+sonarqube {
+    properties {
+        property "sonar.projectKey", "hei-admin-api"
+        property "sonar.organization", "hei-school"
+        property "sonar.host.url", "https://sonarcloud.io"
+    }
+}
+
 task generateJavaClient(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
     generatorName = "java"
     inputSpec = "$rootDir/doc/api.yml".toString()
