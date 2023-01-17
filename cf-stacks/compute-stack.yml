@@ -89,6 +89,10 @@ Resources:
             Principal:
               Service: ecs-tasks.amazonaws.com
             Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AmazonCognitoPowerUser'
+        - 'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess'
+        - 'arn:aws:iam::aws:policy/AmazonSQSFullAccess'
   Service:
     Type: AWS::ECS::Service
     Properties:
