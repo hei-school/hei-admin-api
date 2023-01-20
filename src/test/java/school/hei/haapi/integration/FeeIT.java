@@ -133,11 +133,11 @@ class FeeIT {
     PayingApi api = new PayingApi(manager1Client);
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 5, "UNPAID");
     List<Fee> actualFees2 = api.getFees(String.valueOf(Fee.StatusEnum.PAID), 1, 10);
 
     assertEquals(fee1(), actualFee);
-    assertEquals(4, actualFees2.size());
+    assertEquals(2, actualFees2.size());
     assertTrue(actualFees1.contains(fee1()));
     assertTrue(actualFees1.contains(fee2()));
     assertTrue(actualFees1.contains(fee3()));

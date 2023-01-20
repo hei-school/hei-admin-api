@@ -19,6 +19,8 @@ import school.hei.haapi.repository.FeeRepository;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
 
 @Service
 @AllArgsConstructor
@@ -91,12 +93,12 @@ public class FeeService {
 
   private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum getFeeStatus(Fee fee) {
     if (computeRemainingAmount(fee) == 0) {
-      return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+      return PAID;
     } else {
       if (Instant.now().isAfter(fee.getDueDatetime())) {
         return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
       }
-      return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
+      return UNPAID;
     }
   }
 
@@ -118,7 +120,7 @@ public class FeeService {
         .student(initialFee.getStudent())
         .type(initialFee.getType())
         .remainingAmount(computeRemainingAmount(initialFee))
-        .status(getFeeStatus(initialFee))
+        .status(computeRemainingAmount(initialFee) == 0 ? PAID : UNPAID)
         .comment(initialFee.getComment())
         .creationDatetime(initialFee.getCreationDatetime())
         .dueDatetime(initialFee.getDueDatetime())

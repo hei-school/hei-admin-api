@@ -43,6 +43,7 @@ public class FeeMapper {
         .student(student)
         .type(toDomainFeeType(Objects.requireNonNull(createFee.getType())))
         .totalAmount(createFee.getTotalAmount())
+        .status(Fee.StatusEnum.UNPAID)
         .comment(createFee.getComment())
         .creationDatetime(createFee.getCreationDatetime())
         .dueDatetime(createFee.getDueDatetime())

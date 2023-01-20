@@ -50,7 +50,6 @@ public class Fee implements Serializable {
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
-  @Transient
   private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status;
 
   @Type(type = "pgsql_enum")
@@ -59,7 +58,6 @@ public class Fee implements Serializable {
 
   private int totalAmount;
 
-  @Transient
   private int remainingAmount;
 
   private String comment;
