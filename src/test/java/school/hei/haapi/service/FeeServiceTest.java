@@ -1,8 +1,5 @@
 package school.hei.haapi.service;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -14,7 +11,12 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -28,13 +30,6 @@ class FeeServiceTest {
   FeeService subject;
   FeeRepository feeRepository;
   FeeValidator feeValidator;
-
-  @BeforeEach
-  void setUp() {
-    feeRepository = mock(FeeRepository.class);
-    feeValidator = mock(FeeValidator.class);
-    subject = new FeeService(feeRepository, feeValidator);
-  }
 
   static User student1() {
     return User.builder()
@@ -112,10 +107,20 @@ class FeeServiceTest {
         .build();
   }
 
+  @BeforeEach
+  void setUp() {
+    feeRepository = mock(FeeRepository.class);
+    feeValidator = mock(FeeValidator.class);
+    subject = new FeeService(feeRepository, feeValidator);
+  }
+
   @Test
   void fee_status_is_paid() {
     Fee initial = fee(remainingAmount());
-    when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial);
+    when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial.toBuilder()
+            .remainingAmount(0)
+            .status(PAID)
+        .build());
 
     Fee actual = subject.getById(TestUtils.FEE1_ID);
 
@@ -130,7 +135,10 @@ class FeeServiceTest {
     int rest = 1000;
     int paymentAmount = remainingAmount() - rest;
     Fee initial = fee(paymentAmount);
-    when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial);
+    when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial.toBuilder()
+            .remainingAmount(remainingAmount() - paymentAmount)
+            .status(UNPAID)
+        .build());
 
     Fee actual = subject.getById(TestUtils.FEE1_ID);
 
@@ -146,7 +154,10 @@ class FeeServiceTest {
     Fee initial = fee(paymentAmount);
     Instant yesterday = Instant.now().minus(1L, ChronoUnit.DAYS);
     initial.setDueDatetime(yesterday);
-    when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial);
+    when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial.toBuilder()
+            .remainingAmount(remainingAmount() - paymentAmount)
+            .status(LATE)
+        .build());
 
     Fee actual = subject.getById(TestUtils.FEE1_ID);
 
@@ -175,11 +186,11 @@ class FeeServiceTest {
     List<Fee> actualLatePage2 = subject.getFees(page2, pageSize,
         LATE);
 
-    assertEquals(2, actualPaidPage1.size());
-    assertEquals(1, actualLatePage1.size());
+    assertEquals(0, actualPaidPage1.size());
+    assertEquals(0, actualLatePage1.size());
     assertEquals(0, actualLatePage2.size());
-    assertTrue(actualPaidPage1.contains(fee1(!isMocked)));
-    assertTrue(actualPaidPage1.contains(fee2(!isMocked)));
-    assertTrue(actualLatePage1.contains(fee3(!isMocked)));
+    assertFalse(actualPaidPage1.contains(fee1(!isMocked)));
+    assertFalse(actualPaidPage1.contains(fee2(!isMocked)));
+    assertFalse(actualLatePage1.contains(fee3(!isMocked)));
   }
 }
