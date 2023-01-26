@@ -10,7 +10,6 @@ import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
-
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -118,8 +117,8 @@ class FeeServiceTest {
   void fee_status_is_paid() {
     Fee initial = fee(remainingAmount());
     when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial.toBuilder()
-            .remainingAmount(0)
-            .status(PAID)
+        .remainingAmount(0)
+        .status(PAID)
         .build());
 
     Fee actual = subject.getById(TestUtils.FEE1_ID);
@@ -136,8 +135,8 @@ class FeeServiceTest {
     int paymentAmount = remainingAmount() - rest;
     Fee initial = fee(paymentAmount);
     when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial.toBuilder()
-            .remainingAmount(remainingAmount() - paymentAmount)
-            .status(UNPAID)
+        .remainingAmount(remainingAmount() - paymentAmount)
+        .status(UNPAID)
         .build());
 
     Fee actual = subject.getById(TestUtils.FEE1_ID);
@@ -155,8 +154,8 @@ class FeeServiceTest {
     Instant yesterday = Instant.now().minus(1L, ChronoUnit.DAYS);
     initial.setDueDatetime(yesterday);
     when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial.toBuilder()
-            .remainingAmount(remainingAmount() - paymentAmount)
-            .status(LATE)
+        .remainingAmount(remainingAmount() - paymentAmount)
+        .status(LATE)
         .build());
 
     Fee actual = subject.getById(TestUtils.FEE1_ID);

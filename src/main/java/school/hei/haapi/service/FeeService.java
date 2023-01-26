@@ -10,7 +10,6 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
-
 import javax.transaction.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;

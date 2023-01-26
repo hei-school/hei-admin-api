@@ -41,7 +41,6 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 @Testcontainers
 @ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-@Slf4j
 class FeeIT {
   @MockBean
   private SentryConf sentryConf;
