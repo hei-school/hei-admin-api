@@ -3,7 +3,6 @@ package school.hei.haapi.integration;
 import java.time.Instant;
 import java.util.List;
 
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -27,6 +26,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
@@ -107,6 +107,21 @@ class FeeIT {
     return fee;
   }
 
+  static Fee fee6() {
+    Fee fee = new Fee();
+    fee.setId(FEE6_ID);
+    fee.setStudentId(STUDENT1_ID);
+    fee.setStatus(Fee.StatusEnum.LATE);
+    fee.setType(Fee.TypeEnum.TUITION);
+    fee.setTotalAmount(5000);
+    fee.setRemainingAmount(5000);
+    fee.setComment("Comment");
+    fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    fee.setDueDatetime(Instant.parse("2021-12-09T08:25:25.00Z"));
+    return fee;
+  }
+
+
   static CreateFee creatableFee1() {
     return new CreateFee()
         .type(CreateFee.TypeEnum.TUITION)
@@ -139,7 +154,7 @@ class FeeIT {
     List<Fee> actualFees2 = api.getFees(String.valueOf(Fee.StatusEnum.PAID), 1, 10);
 
     assertEquals(fee1(), actualFee);
-    assertEquals(3, actualFees2.size());
+    assertEquals(2, actualFees2.size());
     assertTrue(actualFees1.contains(fee1()));
     assertTrue(actualFees1.contains(fee2()));
     assertTrue(actualFees1.contains(fee3()));

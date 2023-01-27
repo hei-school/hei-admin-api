@@ -1,7 +1,5 @@
 package school.hei.haapi.integration;
 
-import java.time.Instant;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -14,22 +12,26 @@ import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
+import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
+import java.time.Instant;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE4_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.PAYMENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.PAYMENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.PAYMENT4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
@@ -43,25 +45,13 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @ContextConfiguration(initializers = PaymentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class PaymentIT {
-  @MockBean private SentryConf sentryConf;
-  @MockBean private CognitoComponent cognitoComponentMock;
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
-  }
+  @MockBean
+  private SentryConf sentryConf;
+  @MockBean
+  private CognitoComponent cognitoComponentMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, PaymentIT.ContextInitializer.SERVER_PORT);
-  }
-
-  @BeforeEach
-  void setUp() {
-    setUpCognito(cognitoComponentMock);
   }
 
   static Payment payment1() {
@@ -84,16 +74,6 @@ class PaymentIT {
         .creationDatetime(Instant.parse("2022-11-10T08:25:25.00Z"));
   }
 
-  static Payment payment4() {
-    return new Payment()
-        .id(PAYMENT4_ID)
-        .feeId(FEE4_ID)
-        .type(Payment.TypeEnum.SCHOLARSHIP)
-        .amount(5000)
-        .comment(null)
-        .creationDatetime(Instant.parse("2022-11-12T08:25:26.00Z"));
-  }
-
   static CreatePayment creatablePayment1() {
     return new CreatePayment()
         .type(CreatePayment.TypeEnum.CASH)
@@ -106,6 +86,11 @@ class PaymentIT {
         .type(CreatePayment.TypeEnum.MOBILE_MONEY)
         .amount(6000)
         .comment("Comment");
+  }
+
+  @BeforeEach
+  void setUp() {
+    setUpCognito(cognitoComponentMock);
   }
 
   @Test
@@ -154,10 +139,8 @@ class PaymentIT {
   void manager_write_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
-
     List<Payment> actual = api.createStudentPayments(STUDENT1_ID, FEE3_ID,
         List.of(creatablePayment1()));
-
     List<Payment> expected = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
     assertTrue(expected.containsAll(actual));
   }
@@ -188,7 +171,6 @@ class PaymentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
     List<Payment> expected = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
-
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Payment amount (8000)"
             + " exceeds fee remaining amount (5000)\"}",
@@ -216,5 +198,33 @@ class PaymentIT {
     String exceptionMessage2 = exception2.getMessage();
     assertTrue(exceptionMessage1.contains("Amount is mandatory"));
     assertTrue(exceptionMessage2.contains("Amount must be positive"));
+  }
+
+  @Test
+  void manager_write_changes_expected() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    Fee fee = api.getStudentFeeById(STUDENT1_ID, FEE6_ID);
+
+    List<Payment> actual = api.createStudentPayments(fee.getStudentId(), fee.getId(),
+        List.of(creatablePayment1()));
+
+    List<Payment> expected = api.getStudentPayments(fee.getStudentId(), fee.getId(), 1, 10);
+
+    Fee actualFee3 = api.getStudentFeeById(fee.getStudentId(), fee.getId());
+    assertNotEquals(fee, actualFee3);
+    assertEquals((fee.getRemainingAmount() - creatablePayment1().getAmount()),
+        actualFee3.getRemainingAmount());
+
+    assertEquals(expected, actual);
+  }
+
+  static class ContextInitializer extends AbstractContextInitializer {
+    public static final int SERVER_PORT = anAvailableRandomPort();
+
+    @Override
+    public int getServerPort() {
+      return SERVER_PORT;
+    }
   }
 }

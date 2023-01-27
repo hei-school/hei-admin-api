@@ -13,6 +13,7 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.UserService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
 
 @Component
 @AllArgsConstructor
@@ -43,6 +44,8 @@ public class FeeMapper {
         .student(student)
         .type(toDomainFeeType(Objects.requireNonNull(createFee.getType())))
         .totalAmount(createFee.getTotalAmount())
+        .status(UNPAID)
+        .remainingAmount(createFee.getTotalAmount())
         .comment(createFee.getComment())
         .creationDatetime(createFee.getCreationDatetime())
         .dueDatetime(createFee.getDueDatetime())

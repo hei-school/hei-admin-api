@@ -12,11 +12,9 @@ import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 import javax.transaction.Transactional;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 
 @Service
 @AllArgsConstructor
@@ -33,20 +31,10 @@ public class FeeService {
     return feeRepository.getByStudentIdAndId(studentId, feeId);
   }
 
-  public Fee checkRemainingAmount(Fee fee) {
-    if (fee.getRemainingAmount() == 0) {
-      fee.setStatus(PAID);
-    }
-    return fee;
-  }
-
   @Transactional
   public List<Fee> saveAll(List<Fee> fees) {
     feeValidator.accept(fees);
-    List<Fee> checkedFees = fees.stream()
-        .map(this::checkRemainingAmount)
-        .collect(Collectors.toUnmodifiableList());
-    return feeRepository.saveAll(checkedFees);
+    return feeRepository.saveAll(fees);
   }
 
   // TODO : This request must be cached and refresh every 12 hours
