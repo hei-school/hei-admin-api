@@ -1,5 +1,7 @@
 package school.hei.haapi.service;
 
+import java.util.List;
+import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,8 +13,6 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.validator.PaymentValidator;
 import school.hei.haapi.repository.PaymentRepository;
-import javax.transaction.Transactional;
-import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
@@ -25,10 +25,9 @@ public class PaymentService {
   private final PaymentRepository paymentRepository;
   private final PaymentValidator paymentValidator;
 
-  public List<Payment> getByStudentIdAndFeeId(
-      String studentId, String feeId, PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable = PageRequest.of(
-        page.getValue() - 1,
+  public List<Payment> getByStudentIdAndFeeId(String studentId, String feeId, PageFromOne page,
+                                              BoundedPageSize pageSize) {
+    Pageable pageable = PageRequest.of(page.getValue() - 1,
         pageSize.getValue(),
         Sort.by(DESC, "creationDatetime"));
     return paymentRepository.getByStudentIdAndFeeId(studentId, feeId, pageable);
@@ -46,9 +45,8 @@ public class PaymentService {
   @Transactional
   public List<Payment> saveAll(List<Payment> toCreate) {
     paymentValidator.accept(toCreate);
-    toCreate.forEach(payment ->
-        computeRemainingAmount(payment.getFee().getId(),
-            payment.getAmount()));
+    toCreate.forEach(
+        payment -> computeRemainingAmount(payment.getFee().getId(), payment.getAmount()));
     return paymentRepository.saveAll(toCreate);
   }
 }

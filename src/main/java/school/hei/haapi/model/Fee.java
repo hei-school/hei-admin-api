@@ -1,5 +1,19 @@
 package school.hei.haapi.model;
 
+import java.io.Serializable;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import java.util.Objects;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,20 +26,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import java.io.Serializable;
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
-import java.util.Objects;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -83,14 +83,11 @@ public class Fee implements Serializable {
       return false;
     }
     Fee fee = (Fee) o;
-    return totalAmount == fee.totalAmount
-        && remainingAmount == fee.remainingAmount
-        && Objects.equals(id, fee.id)
-        && Objects.equals(student.getId(), fee.student.getId())
-        && status == fee.status
-        && type == fee.type
-        && Objects.equals(creationDatetime, fee.creationDatetime)
-        && Objects.equals(dueDatetime, fee.dueDatetime);
+    return totalAmount == fee.totalAmount && remainingAmount == fee.remainingAmount &&
+        Objects.equals(id, fee.id) && Objects.equals(student.getId(), fee.student.getId()) &&
+        status == fee.status && type == fee.type &&
+        Objects.equals(creationDatetime, fee.creationDatetime) &&
+        Objects.equals(dueDatetime, fee.dueDatetime);
   }
 
   @Override

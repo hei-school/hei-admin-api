@@ -2,7 +2,6 @@ package school.hei.haapi.integration;
 
 import java.time.Instant;
 import java.util.List;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,18 +23,18 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -47,22 +46,8 @@ class FeeIT {
   @MockBean
   private CognitoComponent cognitoComponentMock;
 
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
-  }
-
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, FeeIT.ContextInitializer.SERVER_PORT);
-  }
-
-  @BeforeEach
-  void setUp() {
-    setUpCognito(cognitoComponentMock);
   }
 
   static Fee fee1() {
@@ -121,13 +106,14 @@ class FeeIT {
     return fee;
   }
 
-
   static CreateFee creatableFee1() {
-    return new CreateFee()
-        .type(CreateFee.TypeEnum.TUITION)
-        .totalAmount(5000)
-        .comment("Comment")
+    return new CreateFee().type(CreateFee.TypeEnum.TUITION).totalAmount(5000).comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+  }
+
+  @BeforeEach
+  void setUp() {
+    setUpCognito(cognitoComponentMock);
   }
 
   @Test
@@ -167,14 +153,11 @@ class FeeIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getStudentFees(STUDENT2_ID, null, null, null));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getFees(null, null, null));
   }
 
@@ -183,14 +166,11 @@ class FeeIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     PayingApi api = new PayingApi(teacher1Client);
 
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getStudentFees(STUDENT2_ID, null, null, null));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getFees(null, null, null));
   }
 
@@ -210,8 +190,7 @@ class FeeIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createStudentFees(STUDENT1_ID, List.of()));
   }
 
@@ -220,8 +199,7 @@ class FeeIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     PayingApi api = new PayingApi(teacher1Client);
 
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createStudentFees(STUDENT1_ID, List.of()));
   }
 
@@ -250,5 +228,14 @@ class FeeIT {
     assertTrue(exceptionMessage1.contains("Total amount is mandatory"));
     assertTrue(exceptionMessage2.contains("Total amount must be positive"));
     assertTrue(exceptionMessage3.contains("Due datetime is mandatory"));
+  }
+
+  static class ContextInitializer extends AbstractContextInitializer {
+    public static final int SERVER_PORT = anAvailableRandomPort();
+
+    @Override
+    public int getServerPort() {
+      return SERVER_PORT;
+    }
   }
 }
