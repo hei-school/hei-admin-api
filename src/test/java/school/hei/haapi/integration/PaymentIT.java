@@ -17,7 +17,6 @@ import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-
 import java.time.Instant;
 import java.util.List;
 
