@@ -83,11 +83,14 @@ public class Fee implements Serializable {
       return false;
     }
     Fee fee = (Fee) o;
-    return totalAmount == fee.totalAmount && remainingAmount == fee.remainingAmount &&
-        Objects.equals(id, fee.id) && Objects.equals(student.getId(), fee.student.getId()) &&
-        status == fee.status && type == fee.type &&
-        Objects.equals(creationDatetime, fee.creationDatetime) &&
-        Objects.equals(dueDatetime, fee.dueDatetime);
+    return totalAmount == fee.totalAmount
+        && remainingAmount == fee.remainingAmount
+        && Objects.equals(id, fee.id)
+        && Objects.equals(student.getId(), fee.student.getId())
+        && status == fee.status
+        && type == fee.type
+        && Objects.equals(creationDatetime, fee.creationDatetime)
+        && Objects.equals(dueDatetime, fee.dueDatetime);
   }
 
   @Override

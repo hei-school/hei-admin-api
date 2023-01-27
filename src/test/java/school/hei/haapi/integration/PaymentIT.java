@@ -151,8 +151,8 @@ class PaymentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
     List<Payment> expected = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
-    assertThrowsApiException("{\"type\":\"400 BAD_REQUEST\",\"message\":\"Payment amount (8000)" +
-            " exceeds fee remaining amount (5000)\"}",
+    assertThrowsApiException("{\"type\":\"400 BAD_REQUEST\",\"message\":\"Payment amount (8000)"
+            + " exceeds fee remaining amount (5000)\"}",
         () -> api.createStudentPayments(STUDENT1_ID, FEE3_ID,
             List.of(creatablePayment1(), creatablePayment2())));
 
