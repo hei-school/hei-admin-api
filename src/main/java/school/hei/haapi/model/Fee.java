@@ -6,15 +6,14 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.Enumerated;
-import javax.persistence.EnumType;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import javax.persistence.Transient;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -36,7 +35,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Setter
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 @ToString
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Fee implements Serializable {
@@ -50,7 +49,6 @@ public class Fee implements Serializable {
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
-  @Transient
   private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status;
 
   @Type(type = "pgsql_enum")
@@ -59,7 +57,6 @@ public class Fee implements Serializable {
 
   private int totalAmount;
 
-  @Transient
   private int remainingAmount;
 
   private String comment;
@@ -100,4 +97,5 @@ public class Fee implements Serializable {
   public int hashCode() {
     return getClass().hashCode();
   }
+
 }
