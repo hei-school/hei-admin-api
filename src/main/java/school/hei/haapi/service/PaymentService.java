@@ -1,24 +1,27 @@
 package school.hei.haapi.service;
 
 import java.util.List;
-import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.validator.PaymentValidator;
 import school.hei.haapi.repository.PaymentRepository;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 
 @Service
 @AllArgsConstructor
 public class PaymentService {
 
+  private final FeeService feeService;
   private final PaymentRepository paymentRepository;
   private final PaymentValidator paymentValidator;
 
@@ -31,9 +34,19 @@ public class PaymentService {
     return paymentRepository.getByStudentIdAndFeeId(studentId, feeId, pageable);
   }
 
+  public void computeRemainingAmount(String feeId, int amount) {
+    Fee associatedFee = feeService.getById(feeId);
+    associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() - amount);
+    if (associatedFee.getRemainingAmount() == 0) {
+      associatedFee.setStatus(PAID);
+    }
+  }
+
   @Transactional
   public List<Payment> saveAll(List<Payment> toCreate) {
     paymentValidator.accept(toCreate);
+    toCreate.forEach(
+        payment -> computeRemainingAmount(payment.getFee().getId(), payment.getAmount()));
     return paymentRepository.saveAll(toCreate);
   }
 }
