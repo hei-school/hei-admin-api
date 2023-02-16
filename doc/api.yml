@@ -993,6 +993,9 @@ components:
             - UNPAID
             - PAID
             - LATE
+        updated_at:
+          type: string
+          format: date-time
     CreateDelayPenaltyChange:
       type: object
       properties:
