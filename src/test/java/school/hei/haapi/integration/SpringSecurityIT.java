@@ -5,6 +5,9 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -83,6 +86,7 @@ class SpringSecurityIT {
     test_cors(PUT, "/students");
   }
 
+  //TODO
   void test_cors(HttpMethod method, String path) throws IOException, InterruptedException {
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
     String basePath = "http://localhost:" + SpringSecurityIT.ContextInitializer.SERVER_PORT;
@@ -104,6 +108,14 @@ class SpringSecurityIT {
     var headersList = headers.allValues("Access-Control-Allow-Headers");
     assertEquals(1, headersList.size());
     assertEquals("authorization", headersList.get(0));
+  }
+
+  @Test
+  void check_timezone_is_utc_plus_three() {
+    ZoneId zoneId = ZoneId.of("Indian/Antananarivo");
+    String utc = "+03:00";
+    ZoneOffset offset = zoneId.getRules().getOffset(Instant.now());
+    assertEquals(utc, offset.getId());
   }
 
   public static class ContextInitializer extends AbstractContextInitializer {

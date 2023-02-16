@@ -59,6 +59,8 @@ public class Fee implements Serializable {
 
   private int remainingAmount;
 
+  private Instant updatedAt;
+
   private String comment;
 
   @CreationTimestamp

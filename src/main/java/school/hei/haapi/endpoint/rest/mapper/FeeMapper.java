@@ -32,6 +32,7 @@ public class FeeMapper {
         .remainingAmount(fee.getRemainingAmount())
         .comment(fee.getComment())
         .creationDatetime(fee.getCreationDatetime())
+        .updatedAt(fee.getUpdatedAt())
         .dueDatetime(fee.getDueDatetime());
   }
 
@@ -44,6 +45,7 @@ public class FeeMapper {
         .student(student)
         .type(toDomainFeeType(Objects.requireNonNull(createFee.getType())))
         .totalAmount(createFee.getTotalAmount())
+        .updatedAt(createFee.getCreationDatetime())
         .status(UNPAID)
         .remainingAmount(createFee.getTotalAmount())
         .comment(createFee.getComment())

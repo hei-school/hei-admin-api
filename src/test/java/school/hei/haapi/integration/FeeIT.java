@@ -26,7 +26,6 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -59,6 +58,7 @@ class FeeIT {
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(0);
     fee.setComment("Comment");
+    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
     fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
     return fee;
@@ -73,6 +73,7 @@ class FeeIT {
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(0);
     fee.setComment("Comment");
+    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
     fee.creationDatetime(Instant.parse("2021-11-10T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
     return fee;
@@ -87,27 +88,17 @@ class FeeIT {
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(5000);
     fee.setComment("Comment");
+    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
     fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
     return fee;
   }
 
-  static Fee fee6() {
-    Fee fee = new Fee();
-    fee.setId(FEE6_ID);
-    fee.setStudentId(STUDENT1_ID);
-    fee.setStatus(Fee.StatusEnum.LATE);
-    fee.setType(Fee.TypeEnum.TUITION);
-    fee.setTotalAmount(5000);
-    fee.setRemainingAmount(5000);
-    fee.setComment("Comment");
-    fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    fee.setDueDatetime(Instant.parse("2021-12-09T08:25:25.00Z"));
-    return fee;
-  }
-
   static CreateFee creatableFee1() {
-    return new CreateFee().type(CreateFee.TypeEnum.TUITION).totalAmount(5000).comment("Comment")
+    return new CreateFee()
+        .type(CreateFee.TypeEnum.TUITION)
+        .totalAmount(5000)
+        .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
 
