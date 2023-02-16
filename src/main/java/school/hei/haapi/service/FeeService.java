@@ -43,7 +43,6 @@ public class FeeService {
     return feeRepository.saveAll(fees);
   }
 
-  // TODO : This request must be cached and refresh every 12 hours
   public List<Fee> getFees(
       PageFromOne page, BoundedPageSize pageSize,
       school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
