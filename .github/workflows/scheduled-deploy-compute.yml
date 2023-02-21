@@ -8,6 +8,5 @@ on:
 
 jobs:
   deploy_compute_stack:
-    uses: ./.github/workflows/cd-compute.yml
-    
+    uses: ./.github/workflows/cd-compute.yml 
     secrets: inherit
