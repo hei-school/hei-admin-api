@@ -9,6 +9,8 @@ on:
 
   workflow_dispatch:
 
+  workflow_call:
+
 jobs:
   cd-compute:
     if: github.ref_name == 'dev' || github.ref_name == 'prod'
