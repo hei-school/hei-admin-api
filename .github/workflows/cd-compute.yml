@@ -5,11 +5,20 @@ on:
     branches:
       - 'dev'
       - 'prod'
-      - 'preprod'
 
   workflow_dispatch:
+    inputs:
+      run_tests:
+        type: boolean
+        required: false
+        default: true
 
   workflow_call:
+    inputs:
+      run_tests:
+        type: boolean
+        required: false
+        default: true
 
 jobs:
   cd-compute:
