@@ -61,6 +61,8 @@ Resources:
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/url}}'
             - Name: SPRING_DATASOURCE_PASSWORD
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/password}}'
+            - Name: AWS_SES_SOURCE
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/ses/source}}'
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -93,6 +95,7 @@ Resources:
         - 'arn:aws:iam::aws:policy/AmazonCognitoPowerUser'
         - 'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess'
         - 'arn:aws:iam::aws:policy/AmazonSQSFullAccess'
+        - 'arn:aws:iam::aws:policy/AmazonSESFullAccess'
   Service:
     Type: AWS::ECS::Service
     Properties:
