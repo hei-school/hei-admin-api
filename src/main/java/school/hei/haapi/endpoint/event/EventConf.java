@@ -13,7 +13,7 @@ public class EventConf {
   private final String sesSource;
 
   public EventConf(@Value("${aws.region}") String region,
-                   @Value("aws.ses.source") String sesSource) {
+                   @Value("${aws.ses.source}") String sesSource) {
     this.region = Region.of(region);
     this.sesSource = sesSource;
   }

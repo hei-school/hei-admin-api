@@ -1,6 +1,7 @@
 package school.hei.haapi.service.aws;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
@@ -15,6 +16,7 @@ import software.amazon.awssdk.services.ses.model.SendEmailRequest;
 @Component
 @Service
 @AllArgsConstructor
+@Slf4j
 public class SesService {
   private final SesClient client;
 

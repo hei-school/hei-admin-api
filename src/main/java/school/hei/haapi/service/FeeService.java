@@ -10,6 +10,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.TypedLateFeeChecked;
+import school.hei.haapi.endpoint.event.model.gen.LateFeeChecked;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
@@ -28,6 +31,8 @@ public class FeeService {
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
+
+  private final EventProducer eventProducer;
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
@@ -84,5 +89,29 @@ public class FeeService {
       log.info("Fee with id." + fee.getId() + " is going to be updated from UNPAID to LATE");
     });
     feeRepository.saveAll(unpaidFees);
+  }
+
+  private TypedLateFeeChecked toTypedEvent(Fee fee) {
+    return new TypedLateFeeChecked(
+        LateFeeChecked.builder()
+            .type(fee.getType())
+            .student(fee.getStudent())
+            .totalAmount(fee.getTotalAmount())
+            .comment(fee.getComment())
+            .remainingAmount(fee.getRemainingAmount())
+            .dueDatetime(fee.getDueDatetime())
+            .build()
+    );
+  }
+
+  @Scheduled(cron = "0 0 8 * * *")
+  public void sendLateFeesEmail() {
+    List<Fee> lateFees = feeRepository.getLateFees();
+    lateFees.forEach(
+        fee -> {
+          eventProducer.accept(List.of(toTypedEvent(fee)));
+          log.info("Late Fee with id." + fee.getId() + " is sent to EventBus");
+        }
+    );
   }
 }

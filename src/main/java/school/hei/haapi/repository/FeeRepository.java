@@ -25,4 +25,7 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
       + "and f.remainingAmount > 0 "
       + "and f.dueDatetime < current_date")
   List<Fee> getUnpaidFees();
+
+  @Query("select f from Fee f where f.status = 'LATE'")
+  List<Fee> getLateFees();
 }
