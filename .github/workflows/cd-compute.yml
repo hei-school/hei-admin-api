@@ -50,10 +50,13 @@ jobs:
           file: version.yml
           version: version
 
-      - name: Build Gradle project
+      - name: Run test
+        if: ${{ github.event.inputs.run_tests != 'false' && github.event_name != 'schedule' }}
         run: |
           export TEST_AWS_COGNITO_IDTOKEN=${{ secrets.TEST_COGNITO_IDTOKEN }}
-          ./gradlew build
+          ./gradlew test
+      - name: Build Gradle project
+        run: ./gradlew build -x test
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
         with:
