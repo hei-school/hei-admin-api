@@ -24,11 +24,6 @@ public class LateFeeCheckedService implements Consumer<LateFeeChecked> {
   public void accept(LateFeeChecked lateFeeChecked) {
     String sender = eventConf.getSesSource();
     User student = lateFeeChecked.getStudent();
-    String recipient = student.getEmail();
-    String subject = "Retard de paiement - " +
-        student.getRef() +
-        " - " +
-        lateFeeChecked.getComment();
     StringBuilder fullName = new StringBuilder()
         .append(student.getLastName())
         .append(" ")
@@ -43,6 +38,11 @@ public class LateFeeCheckedService implements Consumer<LateFeeChecked> {
     context.setVariable("remainingAmount", formattedNumber);
     context.setVariable("remainingAmWords", formattedToWords);
     String bodyHtml = htmlToString("lateFee", context);
+    String recipient = student.getEmail();
+    String subject = "Retard de paiement - "
+        + student.getRef()
+        + " - "
+        + lateFeeChecked.getComment();
     service.sendEmail(sender, recipient, subject, bodyHtml);
   }
 }

@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.model.exception.ApiException;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.ses.SesClient;
@@ -12,6 +13,8 @@ import software.amazon.awssdk.services.ses.model.Content;
 import software.amazon.awssdk.services.ses.model.Destination;
 import software.amazon.awssdk.services.ses.model.Message;
 import software.amazon.awssdk.services.ses.model.SendEmailRequest;
+
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 @Component
 @Service
@@ -52,7 +55,7 @@ public class SesService {
     try {
       client.sendEmail(emailRequest);
     } catch (AwsServiceException | SdkClientException e) {
-      throw new RuntimeException(e);
+      throw new ApiException(SERVER_EXCEPTION, e.getMessage());
     }
 
   }
