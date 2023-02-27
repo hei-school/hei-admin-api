@@ -129,6 +129,7 @@ dependencies {
     implementation 'software.amazon.awssdk:eventbridge:2.17.109'
     implementation 'software.amazon.awssdk:sqs:2.17.109'
     implementation 'software.amazon.awssdk:cognitoidentityprovider:2.17.109'
+    implementation 'software.amazon.awssdk:ses:2.19.4'
 
     implementation 'io.sentry:sentry-spring-boot-starter:5.5.3'
     implementation 'io.sentry:sentry-logback:5.5.3'
