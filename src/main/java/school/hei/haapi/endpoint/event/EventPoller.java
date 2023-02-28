@@ -13,7 +13,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.event.EventConsumer.AcknowledgeableTypedEvent;
 import school.hei.haapi.endpoint.event.model.TypedEvent;
+import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
+import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
 import school.hei.haapi.model.exception.BadRequestException;
 import software.amazon.awssdk.services.sqs.SqsClient;
@@ -25,13 +27,12 @@ import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 @Slf4j
 public class EventPoller {
 
+  private static final Duration WAIT_TIME = Duration.ofSeconds(20); // MUST be <= 20s
+  private static final int MAX_NUMBER_OF_MESSAGES = 10;
   private final String queueUrl;
   private final SqsClient sqsClient;
   private final ObjectMapper om;
   private final EventConsumer eventConsumer;
-
-  private static final Duration WAIT_TIME = Duration.ofSeconds(20); // MUST be <= 20s
-  private static final int MAX_NUMBER_OF_MESSAGES = 10;
 
   public EventPoller(
       @Value("${aws.sqs.queueUrl}") String queueUrl,
@@ -93,6 +94,9 @@ public class EventPoller {
     if (UserUpserted.class.getTypeName().equals(typeName)) {
       UserUpserted userUpserted = om.convertValue(body.get("detail"), UserUpserted.class);
       typedEvent = new TypedUserUpserted(userUpserted);
+    } else if (LateFeeVerified.class.getTypeName().equals(typeName)) {
+      LateFeeVerified lateFee = om.convertValue(body.get("detail"), LateFeeVerified.class);
+      typedEvent = new TypedLateFeeVerified(lateFee);
     } else {
       throw new BadRequestException("Unexpected message type for message=" + message);
     }

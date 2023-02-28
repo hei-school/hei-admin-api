@@ -7,10 +7,6 @@ import school.hei.haapi.model.exception.ApiException;
 import software.amazon.awssdk.awscore.exception.AwsServiceException;
 import software.amazon.awssdk.core.exception.SdkClientException;
 import software.amazon.awssdk.services.ses.SesClient;
-import software.amazon.awssdk.services.ses.model.Body;
-import software.amazon.awssdk.services.ses.model.Content;
-import software.amazon.awssdk.services.ses.model.Destination;
-import software.amazon.awssdk.services.ses.model.Message;
 import software.amazon.awssdk.services.ses.model.SendEmailRequest;
 
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
@@ -22,22 +18,14 @@ public class SesService {
   private final SesClient client;
 
   public void sendEmail(String sender, String recipient,
-                        String subject, String bodyHtml) {
+                        String subject, String htmlBody) {
     SendEmailRequest emailRequest = SendEmailRequest.builder()
         .source(sender)
-        .destination(Destination.builder()
-            .toAddresses(recipient)
-            .build())
-        .message(Message.builder()
-            .subject(Content.builder()
-                .data(subject)
-                .build())
-            .body(Body.builder()
-                .html(Content.builder()
-                    .data(bodyHtml)
-                    .build())
-                .build())
-            .build())
+        .destination(destination -> destination.toAddresses(recipient))
+        .message(message -> {
+          message.subject(content -> content.data(subject));
+          message.body(body -> body.html(content -> content.data(htmlBody)));
+        })
         .build();
     try {
       client.sendEmail(emailRequest);
