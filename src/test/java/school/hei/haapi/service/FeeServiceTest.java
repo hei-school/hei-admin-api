@@ -5,6 +5,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
@@ -29,6 +30,7 @@ class FeeServiceTest {
   FeeService subject;
   FeeRepository feeRepository;
   FeeValidator feeValidator;
+  EventProducer eventProducer;
 
   static User student1() {
     return User.builder()
@@ -110,7 +112,8 @@ class FeeServiceTest {
   void setUp() {
     feeRepository = mock(FeeRepository.class);
     feeValidator = mock(FeeValidator.class);
-    subject = new FeeService(feeRepository, feeValidator);
+    eventProducer = mock(EventProducer.class);
+    subject = new FeeService(feeRepository, feeValidator, eventProducer);
   }
 
   @Test

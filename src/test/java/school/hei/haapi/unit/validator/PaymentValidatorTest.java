@@ -1,4 +1,4 @@
-package school.hei.haapi.model.validator;
+package school.hei.haapi.unit.validator;
 
 import java.time.Instant;
 import java.util.List;
@@ -9,6 +9,7 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotImplementedException;
+import school.hei.haapi.model.validator.PaymentValidator;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
@@ -23,11 +24,6 @@ import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.SCHOLARSHIP;
 
 class PaymentValidatorTest {
   PaymentValidator subject;
-
-  @BeforeEach
-  void setUp() {
-    subject = new PaymentValidator();
-  }
 
   static User student1() {
     return User.builder()
@@ -100,6 +96,11 @@ class PaymentValidatorTest {
         .comment("Comment is mandatory for mobile money")
         .creationDatetime(Instant.now())
         .build();
+  }
+
+  @BeforeEach
+  void setUp() {
+    subject = new PaymentValidator();
   }
 
   @Test
