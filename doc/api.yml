@@ -873,6 +873,13 @@ components:
           schema:
             $ref: '#/components/schemas/InternalServerException'
   schemas:
+    GpsAddress:
+        type: object
+        properties:
+          latitude:
+            type: string
+          longitude:
+            type: string
     Whoami:
       properties:
         id:
@@ -921,6 +928,15 @@ components:
         - ENABLED
         - DISABLED
     Student:
+      type: object
+      properties:
+        gps_address:
+          type: object
+          properties:
+            latitude:
+              type: string
+            longitude:
+              type: string
       allOf:
         - $ref: '#/components/schemas/User'
     Teacher:
