@@ -61,6 +61,7 @@ public class User implements Serializable {
   private String phone;
 
   private LocalDate birthDate;
+
   private Instant entranceDatetime;
 
   @Type(type = "pgsql_enum")
