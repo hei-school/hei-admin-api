@@ -1016,15 +1016,10 @@ components:
         - ENABLED
         - DISABLED
     Student:
-      type: object
       properties:
         gps_address:
-          type: object
-          properties:
-            latitude:
-              type: string
-            longitude:
-              type: string
+          type: string
+          default: null
       allOf:
         - $ref: '#/components/schemas/User'
     Teacher:
