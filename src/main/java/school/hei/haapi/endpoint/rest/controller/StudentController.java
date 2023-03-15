@@ -22,7 +22,6 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 public class StudentController {
   private final UserService userService;
   private final UserMapper userMapper;
-
   @GetMapping("/students/{id}")
   public Student getStudentById(@PathVariable String id) {
     return userMapper.toRestStudent(userService.getById(id));
@@ -33,8 +32,9 @@ public class StudentController {
       @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
-      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
-    return userService.getByCriteria(User.Role.STUDENT, firstName, lastName, ref, page, pageSize
+      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
+      @RequestParam(value = "promotion_name", required = false, defaultValue = "") String promotionName) {
+    return userService.getByCriteria(User.Role.STUDENT, firstName, lastName, promotionName, ref, page, pageSize
         ).stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());

@@ -24,49 +24,71 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 @AllArgsConstructor
 public class UserService {
 
-  private final UserRepository userRepository;
-  private final EventProducer eventProducer;
-  private final UserValidator userValidator;
+    private final UserRepository userRepository;
+    private final EventProducer eventProducer;
+    private final UserValidator userValidator;
 
-  private final UserManagerDao userManagerDao;
+    private final UserManagerDao userManagerDao;
 
-  public User getById(String userId) {
-    return userRepository.getById(userId);
-  }
+    private final PromotionService promotionService;
 
-  public User getByEmail(String email) {
-    return userRepository.getByEmail(email);
-  }
+    public User getById(String userId) {
+        return userRepository.getById(userId);
+    }
 
-  @Transactional
-  public List<User> saveAll(List<User> users) {
-    userValidator.accept(users);
-    List<User> savedUsers = userRepository.saveAll(users);
-    eventProducer.accept(users.stream()
-        .map(this::toTypedEvent)
-        .collect(toUnmodifiableList()));
-    return savedUsers;
-  }
+    public User getByEmail(String email) {
+        return userRepository.getByEmail(email);
+    }
 
-  private TypedUserUpserted toTypedEvent(User user) {
-    return new TypedUserUpserted(
-        new UserUpserted()
-            .userId(user.getId())
-            .email(user.getEmail()));
-  }
+    public void crUpdateUsersPromotion(List<User> users) {
+        users.forEach(
+                user -> { if (user.getRole().equals(User.Role.STUDENT)){
+                    user.getPromotions().forEach(
+                            promotion -> {
+                                if (!promotionService.existsByName(promotion.getPromotionName())) {
+                                    promotionService.createPromotion(promotion);
+                                }
+                            }
+                    );
+                }
+                }
+        );
+    }
+    @Transactional
+    public List<User> saveAll(List<User> users) {
+        userValidator.accept(users);
+        crUpdateUsersPromotion(users);
+        List<User> savedUsers = userRepository.saveAll(users);
+        eventProducer.accept(users.stream()
+                .map(this::toTypedEvent)
+                .collect(toUnmodifiableList()));
+        return savedUsers;
+    }
 
-  public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
-    return getByCriteria(role, "", "", "", page, pageSize);
-  }
 
-  public List<User> getByCriteria(
-      User.Role role, String firstName, String lastName, String ref,
-      PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable = PageRequest.of(
-        page.getValue() - 1,
-        pageSize.getValue(),
-        Sort.by(ASC, "ref"));
-    return userManagerDao.findByCriteria(
-           role, ref, firstName, lastName, pageable);
-  }
+    private TypedUserUpserted toTypedEvent(User user) {
+        return new TypedUserUpserted(
+                new UserUpserted()
+                        .userId(user.getId())
+                        .email(user.getEmail()));
+    }
+
+    public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
+        return getByCriteria(role, "", "", "", "", page, pageSize);
+    }
+
+    public List<User> getByCriteria(
+            User.Role role, String firstName, String lastName, String promotionName, String ref,
+            PageFromOne page, BoundedPageSize pageSize) {
+        Pageable pageable = PageRequest.of(
+                page.getValue() - 1,
+                pageSize.getValue(),
+                Sort.by(ASC, "ref"));
+        if (promotionName == null || promotionName.equals("")) {
+            return userManagerDao.findByCriteria(
+                    role, ref, firstName, lastName, pageable);
+        }
+        return userManagerDao.findByPromotionName(role, pageable, ref, firstName, lastName,
+                promotionName);
+    }
 }

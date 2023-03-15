@@ -216,6 +216,11 @@ paths:
           description: "Filter students by last name, case is ignored"
           schema:
             type: string
+        - name: promotion_name
+          in: query
+          description: "Filter promotions by promotion name, case is ignored"
+          schema:
+            type: string
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -923,6 +928,11 @@ components:
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
+      properties:
+        promotion:
+          type: array
+          items:
+            $ref: '#/components/schemas/Promotion'
     Teacher:
       allOf:
         - $ref: '#/components/schemas/User'
@@ -943,6 +953,17 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    Promotion:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: promotion21
+        promotion_range:
+          type: string
+          example: 2021-2022
     Course:
       type: object
       properties:
