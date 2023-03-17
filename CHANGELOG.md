@@ -1,3 +1,16 @@
+## [0.7.1](https://github.com/hei-school/hei-admin-api/compare/v0.7.0...v0.7.1) (2023-03-17)
+
+
+### Bug Fixes
+
+* calling cd-compute workflow in Sched-Depl-Compute ([5ccba39](https://github.com/hei-school/hei-admin-api/commit/5ccba39cb1daa9f95bb102b7d9eba9c38635b799))
+* database security group ([069df1f](https://github.com/hei-school/hei-admin-api/commit/069df1fe35c46d182242a52588f29b6f3ef4876a))
+* event-stack syntax ([#97](https://github.com/hei-school/hei-admin-api/issues/97)) ([7b78f83](https://github.com/hei-school/hei-admin-api/commit/7b78f8341c137b9eada7cdb391a8634e13e2af1e))
+* security group for database ([47362f4](https://github.com/hei-school/hei-admin-api/commit/47362f4e6dd5df608e40465d9ebcc23439958e13))
+* stack name ([#91](https://github.com/hei-school/hei-admin-api/issues/91)) ([6c73dbe](https://github.com/hei-school/hei-admin-api/commit/6c73dbe419292714ae9335d09669c55b4cc011f1))
+
+
+
 # [0.7.0](https://github.com/hei-school/hei-admin-api/compare/v0.6.0...v0.7.0) (2022-07-26)
 
 
