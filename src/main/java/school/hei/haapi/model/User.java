@@ -116,6 +116,7 @@ public class User implements Serializable {
     if(this.role.equals(Role.STUDENT)){
       this.courseStatus=param;
     }
-    throw RuntimeErrorException("teacher cannot have course status");
+    // throw RuntimeErrorException("teacher cannot have course status");
+    // should throw an exception but I don't know how to do this for now cuz I don't have JAVA RUNTIME that work with gradle.
   }
 }
