@@ -48,7 +48,7 @@ public class Course {
     @JoinTable(
             name = "have_student",
             joinColumns = @JoinColumn(name = "id_course", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "id_student", referencedColumnName = "id")
+            inverseJoinColumns = @JoinColumn(name = "id_user", referencedColumnName = "id")
     )
     private Set<User> Student;
 
