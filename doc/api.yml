@@ -873,6 +873,13 @@ components:
           schema:
             $ref: '#/components/schemas/InternalServerException'
   schemas:
+    Localisation:
+      type: object
+      properties:
+        latitude:
+          type: number
+        longitude:
+          type: number
     Whoami:
       properties:
         id:
@@ -923,6 +930,12 @@ components:
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
+      type: object
+
+      properties:
+        positions:
+          allOf:
+            - $ref: '#/components/schemas/Localisation'
     Teacher:
       allOf:
         - $ref: '#/components/schemas/User'
