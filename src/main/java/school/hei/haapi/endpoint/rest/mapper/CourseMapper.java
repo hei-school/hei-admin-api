@@ -16,6 +16,17 @@ public class CourseMapper {
                 .total_hours(course.getTotal_hours())
                 .build();
     }
+//    public List<school.hei.haapi.model.Course> toDomainC (String studentId, List<Course> toCreate){
+//        Course course = service.getById(studentId);
+//        if (status == null) {
+//            throw new NotFoundException("Course.id=" + studentId + " is not found");
+//        }
+//        String id = "";
+//        return toCreate
+//                .stream()
+//                .map(Course -> toDomainC(id, course))
+//                .collect(toUnmodifiableList());
+//    }
     public Course toRest (Course course){
         Course nCourse = new Course();
         nCourse.setId(course.getId());
@@ -26,4 +37,15 @@ public class CourseMapper {
 
         return nCourse;
     }
+//
+//    public Course toRestC(Course course) {
+//        return new school.hei.haapi.model.Course()
+//                .id(course.getId())
+//                .status(course.getStatus())
+//                .studentId(course.getStudent().getId())
+//                .to(course.getTotal_hours())
+//                .credits(course.getCredits())
+//                .ref(course.getRef())
+//                .name(course.getName());
+//    }
 }

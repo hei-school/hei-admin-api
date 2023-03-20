@@ -19,17 +19,11 @@ public class CourseController {
     private CourseService service;
 
     @GetMapping("/courses")
-    public List<Course> getAllCourses(
-            @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
-            @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
-            @RequestParam(value = "name", required = false, defaultValue = "") String name,
-            @RequestParam(value = "total_hours", required = false, defaultValue = "") Integer total_hours,
-            @RequestParam(value = "credits", required = false, defaultValue = "") Integer credits){
+    public List<Course> getAllCourses(){
                 return service.getAllCourses().stream()
-                        .map(courseMapper::toRestCourse)
+                        .map(courseMapper::toRest)
                         .collect(toUnmodifiableList());
     }
-
     @PutMapping("/courses")
     public List<Course> saveAllCourses(@RequestBody List<Course> toCreate) {
         return service
@@ -38,8 +32,29 @@ public class CourseController {
                         .map(courseMapper::toDomain)
                         .collect(toUnmodifiableList()))
                 .stream()
-                .map(courseMapper::toRestCourse)
+                .map(courseMapper::toRest)
                 .collect(toUnmodifiableList());
     }
+
+    @GetMapping("/students/{student_id}/courses")
+    public List<Course> getCourseByStudentId(
+            @PathVariable String studentId,
+            @PathVariable PageFromOne page,
+            @PathVariable Course.CourseStatus status,
+            @RequestParam("page_size") BoundedPageSize pageSize){
+        return service.getCourseByStudentId(studentId, page, pageSize, status).stream()
+                .map(courseMapper::toRest)
+                .collect(toUnmodifiableList());
+    }
+
+//    @PutMapping("/students/{student_id}/courses")
+//    public List<Fee> createCourse(
+//            @PathVariable String studentId,
+//            @RequestBody List<CreateCourse> toCreate) {
+//        return service.saveAll(
+//                        courseMapper.toDomainC(studentId, toCreate)).stream()
+//                .map(courseMapper::toRest)
+//                .collect(toUnmodifiableList());
+//    }
 
 }
