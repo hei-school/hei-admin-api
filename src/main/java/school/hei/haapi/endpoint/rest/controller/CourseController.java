@@ -26,8 +26,17 @@ public class CourseController {
             @RequestParam(value = "total_hours", required = false, defaultValue = "") Integer total_hours,
             @RequestParam(value = "credits", required = false, defaultValue = "") Integer credits){
                 return service.getAllCourses().stream()
-                        .map(courseMapper::toRestCourse)
+                        .map(courseMapper::toRest)
                         .collect(toUnmodifiableList());
+    }
+    @GetMapping("/students/{student_id}/courses")
+    public List<Course> getCourseByStudentId(
+            @PathVariable String studentId,
+            @PathVariable PageFromOne page,
+            @RequestParam("page_size") BoundedPageSize pageSize){
+        return service.getCourseByStudentId(studentId, page, pageSize).stream()
+                .map(courseMapper::toRest)
+                .collect(toUnmodifiableList());
     }
 
     @PutMapping("/courses")
@@ -38,8 +47,18 @@ public class CourseController {
                         .map(courseMapper::toDomain)
                         .collect(toUnmodifiableList()))
                 .stream()
-                .map(courseMapper::toRestCourse)
+                .map(courseMapper::toRest)
                 .collect(toUnmodifiableList());
     }
+
+//    @PutMapping("/students/{student_id}/courses")
+//    public List<Fee> createCourse(
+//            @PathVariable String studentId,
+//            @RequestBody List<CreateCourse> toCreate) {
+//        return service.saveAll(
+//                        courseMapper.toDomainC(studentId, toCreate)).stream()
+//                .map(courseMapper::toRest)
+//                .collect(toUnmodifiableList());
+//    }
 
 }

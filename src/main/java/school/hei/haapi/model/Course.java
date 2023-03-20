@@ -36,6 +36,7 @@ public class Course implements Serializable {
 
     @NotBlank(message = "Credits is mandatory")
     private Integer credits;
+
     @NotBlank(message = "Total hours is mandatory")
     private Integer total_hours;
 
