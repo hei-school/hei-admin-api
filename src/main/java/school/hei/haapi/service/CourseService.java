@@ -1,0 +1,21 @@
+package school.hei.haapi.service;
+
+import java.util.List;
+import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.model.StudentCourse;
+import school.hei.haapi.repository.StudentCourseRepository;
+
+@Service
+@AllArgsConstructor
+public class CourseService {
+  private final StudentCourseRepository repository;
+
+  public List<Course> updateStudentCourse(List<StudentCourse> toUpdate) {
+    return repository.saveAll(toUpdate).stream()
+        .map(StudentCourse::getCourse)
+        .collect(Collectors.toUnmodifiableList());
+  }
+}
