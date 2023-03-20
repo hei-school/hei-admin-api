@@ -12,8 +12,6 @@ import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.UserRepository;
 
-import java.util.List;
-
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -22,13 +20,13 @@ public class CourseService {
     private final UserRepository userRepository;
     private final  CourseMapper courseMapper;
 
-    public Course updateCourseStatus(String stundet_id,String course_id,String Status){
+    public Course updateCourseStatus(String stundet_id,String course_id,String status){
         Course course = courseRepository.findById(course_id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("", course_id)));
-        if(Status == "UNLINKED"){
+        if(status == "UNLINKED"){
             course.getStudent().remove(userRepository.getById(stundet_id));
         }
-        if(Status == "LINKED"){
+        if(status == "LINKED"){
             course.getStudent().add(userRepository.getById(stundet_id));
         }
         else throw new BadRequestException("Not recognized parameters");
