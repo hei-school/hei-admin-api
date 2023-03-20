@@ -304,6 +304,18 @@ paths:
         - Teaching
       summary: Get all courses
       operationId: getCourses
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
       responses:
         '200':
           description: List of all courses
@@ -326,22 +338,26 @@ paths:
     put:
       tags:
         - Teaching
-      summary: Create new courses or update existing courses
+      summary: Crupdate courses
       description: Update courses when id are provided, create them otherwise.
-      operationId: createOrUpdateCourses
+      operationId: crupdateCourses
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Course'
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateCourse'
       responses:
         '200':
-          description: The created or updated courses
+          description: The crupdated courses
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Course'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -943,12 +959,12 @@ components:
         creation_datetime:
           type: string
           format: date-time
-    Course:
+    CourseTemplate:
       type: object
       properties:
         id:
           type: string
-        ref:
+        code:
           type: string
           example: PROG1
         name:
@@ -958,6 +974,20 @@ components:
           type: integer
         total_hours:
           type: integer
+    CrupdateCourse:
+      allOf:
+        - $ref: '#/components/schemas/CourseTemplate'
+      type: object
+      properties:
+        main_teacher_id:
+          type: string
+    Course:
+      allOf:
+        - $ref: '#/components/schemas/CourseTemplate'
+      type: object
+      properties:
+        main_teacher:
+          $ref: '#/components/schemas/Teacher'
     CreateFee:
       type: object
       properties:
