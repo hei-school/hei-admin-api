@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import java.util.List;
+import main.java.school.hei.haapi.service.utils.UpdateStudentscourse;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,9 +12,11 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.UserService;
+import school.hei.haapi.service.utils.UpdateStudentscourse;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
@@ -50,5 +53,9 @@ public class StudentController {
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
+  }
+  @PutMapping("/students/{student_id}/courses")
+  public List<Course> updateStudentcourseAssociation(@RequestBody List<UpdateStudentscourse> body,@PathVariable String student_id) {
+    return userService.updateStudentcourse(body,student_id);
   }
 }
