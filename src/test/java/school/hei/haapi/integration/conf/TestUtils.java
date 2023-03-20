@@ -2,11 +2,16 @@ package school.hei.haapi.integration.conf;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.model.exception.BadRequestException;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -66,6 +71,11 @@ public class TestUtils {
     assertEquals(expectedBody, apiException.getResponseBody());
   }
 
+  public static void assertThrowsBadRequestException(String expectedBody, Executable executable) {
+    BadRequestException badRequestException = assertThrows(BadRequestException.class, executable);
+    assertEquals(expectedBody, badRequestException.getMessage());
+  }
+
   public static void assertThrowsForbiddenException(Executable executable) {
     ApiException apiException = assertThrows(ApiException.class, executable);
     String responseBody = apiException.getResponseBody();
@@ -81,6 +91,38 @@ public class TestUtils {
     } catch (Exception e) {
       return false;
     }
+  }
+
+  public static Teacher teacher1() {
+    Teacher teacher = new Teacher();
+    teacher.setId("teacher1_id");
+    teacher.setFirstName("One");
+    teacher.setLastName("Teacher");
+    teacher.setEmail("test+teacher1@hei.school");
+    teacher.setRef("TCR21001");
+    teacher.setPhone("0322411125");
+    teacher.setStatus(EnableStatus.ENABLED);
+    teacher.setSex(Teacher.SexEnum.F);
+    teacher.setBirthDate(LocalDate.parse("1990-01-01"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
+    teacher.setAddress("Adr 3");
+    return teacher;
+  }
+
+  public static Teacher teacher2() {
+    Teacher teacher = new Teacher();
+    teacher.setId("teacher2_id");
+    teacher.setFirstName("Two");
+    teacher.setLastName("Teacher");
+    teacher.setEmail("test+teacher2@hei.school");
+    teacher.setRef("TCR21002");
+    teacher.setPhone("0322411126");
+    teacher.setStatus(EnableStatus.ENABLED);
+    teacher.setSex(Teacher.SexEnum.M);
+    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
+    teacher.setAddress("Adr 4");
+    return teacher;
   }
 
   public static int anAvailableRandomPort() {

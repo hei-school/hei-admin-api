@@ -47,6 +47,8 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenE
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestUtils.teacher1;
+import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -71,38 +73,6 @@ class TeacherIT {
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
-  }
-
-  public static Teacher teacher1() {
-    Teacher teacher = new Teacher();
-    teacher.setId("teacher1_id");
-    teacher.setFirstName("One");
-    teacher.setLastName("Teacher");
-    teacher.setEmail("test+teacher1@hei.school");
-    teacher.setRef("TCR21001");
-    teacher.setPhone("0322411125");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.F);
-    teacher.setBirthDate(LocalDate.parse("1990-01-01"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
-    teacher.setAddress("Adr 3");
-    return teacher;
-  }
-
-  public static Teacher teacher2() {
-    Teacher teacher = new Teacher();
-    teacher.setId("teacher2_id");
-    teacher.setFirstName("Two");
-    teacher.setLastName("Teacher");
-    teacher.setEmail("test+teacher2@hei.school");
-    teacher.setRef("TCR21002");
-    teacher.setPhone("0322411126");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.M);
-    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
-    teacher.setAddress("Adr 4");
-    return teacher;
   }
 
   public static Teacher teacher3() {
