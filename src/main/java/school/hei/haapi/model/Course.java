@@ -24,7 +24,7 @@ import java.util.Objects;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Table(name = "\"group\"")
+@Table(name = "\"course\"")
 @Getter
 @Setter
 @ToString
