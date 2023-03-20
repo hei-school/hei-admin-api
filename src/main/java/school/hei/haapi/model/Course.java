@@ -7,9 +7,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotBlank;
@@ -37,8 +39,10 @@ public class Course {
 
     private int credits;
 
+    @Column(name = "total_hours")
     private int totalHours;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User mainTeacher;
 }
