@@ -5,6 +5,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+
+import javax.management.RuntimeErrorException;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -109,4 +111,11 @@ public class User implements Serializable {
   @ManyToMany
   @JoinTable
   private List<Course> courseStatus;
+  @Override
+  public void SetCourseStatus(List<Course> param){
+    if(this.role.equals(Role.STUDENT)){
+      this.courseStatus=param;
+    }
+    throw RuntimeErrorException("teacher cannot have course status");
+  }
 }

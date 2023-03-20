@@ -73,13 +73,20 @@ public class UserService {
     return userManagerDao.findByCriteria(
            role, ref, firstName, lastName, pageable);
   }
-  public List<Course> updateStudentcourse(List<UpdateStudentscourse> plainbody,String student_id){
-    plainbody.stream().map((requestBody)->{
-        userRepository.save(userRepository.getById(student_id).Builder()
-          .setCourseStatus(requestBody.getStatus())
-          .build();
-        )
-      }
-    )
+  public List<Course> updateStudentcourse(List<UpdateStudentscourse> plainbody,String student_id) throw {
+    try {
+      // List<UpdateStudentscourse> returnedList = new ArrayList();
+      return plainbody.stream().map((requestBody)->{
+        User variableValueForUserFromDatabaseAcciredFromRequestBody = userRepository.getById(student_id);
+        // returnedList.add(variableValueForUserFromDataBaseAcciredFromRequestBody);
+        return userRepository.save(variableValueForUserFromDataBaseAcciredFromRequestBody.Builder()
+            .setCourseStatus(requestBody.getStatus())
+            .build();
+          )
+        }
+      ).toList();
+    } catch (RuntimeErrorException E) {
+      // TODO: handle exception
+    }
   }
 }
