@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.PaymentMapper;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.Payment;
-import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.endpoint.rest.model.BoundedPageSize;
+import school.hei.haapi.endpoint.rest.model.PageFromOne;
 import school.hei.haapi.service.PaymentService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
