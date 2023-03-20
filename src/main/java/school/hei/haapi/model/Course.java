@@ -38,6 +38,10 @@ public class Course implements Serializable {
     @JoinColumn(name = "main_teacher_id")
     private User main_teacher_id;
     @ManyToMany
-    @JoinTable
+    @JoinTable(
+        name= "linked_or_unliked",
+        JoinColumn=@JoinColumn(name = "User_id"),
+        inverseJoinColumn=@JoinColumn(name = "course_id")
+    )
     private List<User> userStatus;
 }

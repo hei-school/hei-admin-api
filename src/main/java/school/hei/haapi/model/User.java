@@ -108,8 +108,7 @@ public class User implements Serializable {
   public enum Role {
     STUDENT, TEACHER, MANAGER
   }
-  @ManyToMany
-  @JoinTable
+  @ManyToMany(mappedBy = "userStatus")
   private List<Course> courseStatus;
   @Override
   public void SetCourseStatus(List<Course> param){
