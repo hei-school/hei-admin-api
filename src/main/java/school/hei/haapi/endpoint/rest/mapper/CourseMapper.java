@@ -13,6 +13,7 @@ import school.hei.haapi.service.CourseService;
 import school.hei.haapi.service.UserService;
 
 import java.util.List;
+import java.util.ArrayList;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 

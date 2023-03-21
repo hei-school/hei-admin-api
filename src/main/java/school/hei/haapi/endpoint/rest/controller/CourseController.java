@@ -56,6 +56,15 @@ public class CourseController {
             @PathVariable String studentId, @RequestParam(required = false) StudentCourse.CourseStatus status) {
         return courseMapper.toRestCourse(courseService.getByStudentIdAndStatus(studentId,status));
     }
+
+    @PutMapping("/students/{studentId}/courses")
+    public List<Course> createFees(
+            @PathVariable String studentId, @RequestBody List<UpdateStudentCourse> toCreate) {
+
+        return courseService.saveAllStudentCourses(studentId,courseMapper.toDomainStudentCourse(studentId, toCreate)).stream()
+                .map(courseMapper::toRestCourse)
+                .collect(Collectors.toList());
+    }
 }
 
 
