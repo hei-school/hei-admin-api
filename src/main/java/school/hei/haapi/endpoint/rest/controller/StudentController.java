@@ -66,4 +66,11 @@ public class StudentController {
             .map(courseMapper::toRest)
             .collect(toUnmodifiableList());
   }
+  @GetMapping("/students/{student_id}/courses")
+  public List<StudentCoursesResponse> linkOrUnlinkCoursesToStudent(@PathVariable String student_id ){
+    return studentCoursesService.getSpecificStudentCourses(student_id)
+            .stream()
+            .map(courseMapper::toRest)
+            .collect(toUnmodifiableList());
+  }
 }

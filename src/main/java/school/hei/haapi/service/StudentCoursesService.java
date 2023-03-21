@@ -30,4 +30,10 @@ public class StudentCoursesService {
 
         return studentCoursesRepository.saveAll(courses);
     }
+
+    public List<StudentCourses> getSpecificStudentCourses(String id){
+        User student = userRepository.findById(id).get();
+
+        return studentCoursesRepository.findByStudent(student);
+    }
 }

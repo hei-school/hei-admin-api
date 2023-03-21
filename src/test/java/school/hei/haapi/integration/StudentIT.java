@@ -363,6 +363,10 @@ class StudentIT {
     assertTrue(requestEntry1.detail().contains(created1.getId()));
     assertTrue(requestEntry1.detail().contains(created1.getEmail()));
   }
+  @Test
+  void link_or_unlink_test() throws ApiException {
+
+  }
 
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
