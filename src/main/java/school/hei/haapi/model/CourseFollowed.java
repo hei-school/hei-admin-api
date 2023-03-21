@@ -1,5 +1,7 @@
 package school.hei.haapi.model;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -9,6 +11,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.hibernate.annotations.Type;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 
 @Entity
@@ -19,17 +22,17 @@ import school.hei.haapi.endpoint.rest.model.CourseStatus;
 @Builder
 public class CourseFollowed {
   @Id
-  private String id;
+  private String idCourseFollowed;
 
   @ManyToOne
-  @MapsId("id")
   @JoinColumn(name = "student_id")
   private User student;
 
   @ManyToOne
-  @MapsId("courseId")
   @JoinColumn(name = "course_id")
   private Course course;
 
+  @Type(type = "pgsql_enum")
+  @Enumerated(EnumType.STRING)
   private CourseStatus status;
 }

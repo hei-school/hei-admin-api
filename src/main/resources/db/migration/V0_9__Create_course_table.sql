@@ -4,6 +4,6 @@ create table if not exists "course"(
     "name" varchar,
     credits int,
     total_hours int,
-    user_id           varchar                  not null
-    constraint course_user_id_fk references "user"(id)
+    id_teacher           varchar                  not null
+    constraint course_teacher_id_fk references "user"(id)
 );
