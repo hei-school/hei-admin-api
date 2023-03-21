@@ -1,5 +1,7 @@
 package school.hei.haapi.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
+import com.fasterxml.jackson.annotation.JsonValue;
 import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -44,7 +46,7 @@ public class Course implements Serializable {
 
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
-    private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status;
+    private school.hei.haapi.model.Course.StatusEnum status;
 
     public Course id(String id) {
         this.id = id;
@@ -52,7 +54,38 @@ public class Course implements Serializable {
     }
 
     public enum CourseStatus {
-        LINKED,UNLINKED
+        LINKED, UNLINKED
+    }
+    public enum StatusEnum {
+        UNPAID("LINKED"),
+
+        LATE("UNLINKED");
+
+        private String value;
+
+        StatusEnum(String value) {
+            this.value = value;
+        }
+
+        @JsonValue
+        public String getValue() {
+            return value;
+        }
+
+        @Override
+        public String toString() {
+            return String.valueOf(value);
+        }
+
+        @JsonCreator
+        public static Course.StatusEnum fromValue(String value) {
+            for (Course.StatusEnum b : Course.StatusEnum.values()) {
+                if (b.value.equals(value)) {
+                    return b;
+                }
+            }
+            throw new IllegalArgumentException("Unexpected value '" + value + "'");
+        }
     }
 
 }
