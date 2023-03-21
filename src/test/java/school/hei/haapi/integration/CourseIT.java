@@ -102,7 +102,11 @@ public class CourseIT {
         Course toUpdate= (Course) List.of();
         assertThrowsApiException("{\"type\":\"404 NOT_FOUND\",\"message\":null}", () -> List.of(toUpdate) );
     }
-
+    @Test
+    void course_write_create_if_exist_ko () throws ApiException{
+        Course toCreate= createCourse();
+        assertThrowsApiException("{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}", () -> List.of(toCreate) );
+    }
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
 
