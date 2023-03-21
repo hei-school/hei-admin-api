@@ -86,7 +86,7 @@ class CourseIT {
     String randomId = String.valueOf(randomUUID());
 
     Executable executable1 = () -> api.updateStudentCourses(STUDENT1_ID,
-        List.of(new UpdateStudentCourse().courseId("random_course_id")));
+        List.of(new UpdateStudentCourse().courseId("random_course_id").status(LINKED)));
     Executable executable2 = () -> api.updateStudentCourses(randomId,
         List.of(courseToUpdate()));
 
@@ -105,7 +105,7 @@ class CourseIT {
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.updateStudentCourses(STUDENT1_ID, List.of()));
+        () -> api.updateStudentCourses(STUDENT1_ID, List.of(courseToUpdate())));
   }
 
   @Test
@@ -115,7 +115,7 @@ class CourseIT {
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.updateStudentCourses(STUDENT1_ID, List.of()));
+        () -> api.updateStudentCourses(STUDENT1_ID, List.of(courseToUpdate())));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

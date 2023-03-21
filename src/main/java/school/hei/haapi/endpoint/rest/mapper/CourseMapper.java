@@ -4,15 +4,12 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.StudentCourse;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.UserRepository;
-
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
 
 @Component
 @AllArgsConstructor
@@ -32,7 +29,6 @@ public class CourseMapper {
   }
 
   public StudentCourse toDomain(String studentId, UpdateStudentCourse toUpdate) {
-    CourseStatus status = toUpdate.getStatus() == null ? LINKED : toUpdate.getStatus();
     Optional<User> student = userRepository.findById(studentId);
     if (student.isEmpty()) {
       throw new NotFoundException("Student." + studentId + " is not found.");
@@ -41,7 +37,7 @@ public class CourseMapper {
     return StudentCourse.builder()
         .course(peristedCourse)
         .student(student.get())
-        .status(status)
+        .status(toUpdate.getStatus())
         .build();
   }
 

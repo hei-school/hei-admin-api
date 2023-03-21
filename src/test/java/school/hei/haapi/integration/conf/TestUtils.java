@@ -11,6 +11,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.model.exception.BadRequestException;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -68,6 +69,11 @@ public class TestUtils {
   public static void assertThrowsApiException(String expectedBody, Executable executable) {
     ApiException apiException = assertThrows(ApiException.class, executable);
     assertEquals(expectedBody, apiException.getResponseBody());
+  }
+
+  public static void assertThrowsBadRequestException(String expectedBody, Executable executable) {
+    BadRequestException badRequestException = assertThrows(BadRequestException.class, executable);
+    assertEquals(expectedBody, badRequestException.getMessage());
   }
 
   public static void assertThrowsForbiddenException(Executable executable) {
