@@ -1,6 +1,11 @@
 package school.hei.haapi.service;
 
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import school.hei.haapi.model.Course;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +23,11 @@ import school.hei.haapi.repository.StudentCourseRepository;
 public class CourseService {
   private final StudentCourseRepository repository;
   private final CourseRepository courseRepository;
+  public List<Course> createOrUpdateCourse(List<Course> toUpdate) {
+    return courseRepository.saveAll(toUpdate);
+  }
+
+
 
   public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize) {
     int pageValue = page.getValue() - 1;
