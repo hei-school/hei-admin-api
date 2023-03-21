@@ -52,4 +52,8 @@ public class CourseService {
         return allCourses;
     }
 
+        public List<StudentCourse> getByStudentIdAndStatus(String studentId, StudentCourse.CourseStatus status) {
+        return studentCourseRepository.getStudentCourseByStudentIdAndStatus(studentId,status);
+
+    }
 }
