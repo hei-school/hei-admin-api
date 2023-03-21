@@ -26,7 +26,7 @@ public class CourseService {
         Pageable pageable = PageRequest.of(
                 page.getValue() - 1,
                 pageSize.getValue(),
-                Sort.by(DESC, "dueDatetime"));
+                Sort.by(DESC, "UNLINKED"));
         if (status != null) {
             return repository.getCourseByStudentId(studentId, pageable, status);
         }
