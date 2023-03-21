@@ -11,8 +11,8 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.endpoint.rest.model.BoundedPageSize;
+import school.hei.haapi.endpoint.rest.model.PageFromOne;
 import school.hei.haapi.service.FeeService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
