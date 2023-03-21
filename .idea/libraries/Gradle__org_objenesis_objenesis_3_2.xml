@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="Gradle: org.objenesis:objenesis:3.2">
+    <CLASSES>
+      <root url="jar://$MAVEN_REPOSITORY$/org/objenesis/objenesis/3.2/objenesis-3.2.jar!/" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
