@@ -2,20 +2,31 @@ package school.hei.haapi.integration;
 
 import org.junit.Test;
 import org.junit.jupiter.api.BeforeEach;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Courses;
 import school.hei.haapi.model.User;
 
 
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.skyscreamer.jsonassert.JSONAssert.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -64,7 +75,22 @@ public class CoursesIT {
         setUpCognito(cognitoComponentMock);
     }
 
-    @Test
-    void
+    @Autowired
+    private MockMvc mockMvc;
+    private final ObjectMapper objectMapper = new ObjectMapper()
+            .findAndRegisterModules();
 
+    @Test
+    void read_courses_ok() throws Exception {
+        MockHttpServletResponse response = mockMvc.perform(get("/matches"))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse();
+        List<Courses> courseList = convertFromHttpResponse(response);
+
+        assertEquals(HttpStatus.OK.value(), response.getStatus());
+        assertEquals(courseList.size(), 2);
+        assertTrue(courseList.contains(course1()));
+        assertTrue(courseList.contains(course2()));
+    }
 }
