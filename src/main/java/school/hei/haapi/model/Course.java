@@ -4,10 +4,30 @@ import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-
 import javax.persistence.*;
 import java.util.List;
 import java.util.Objects;
+import school.hei.haapi.repository.types.PostgresEnumType;
+import javax.persistence.*;
+import java.io.Serializable;
+import java.util.List;
+import java.util.Objects;
+import static javax.persistence.GenerationType.IDENTITY;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.TypeDef;
+import school.hei.haapi.repository.types.PostgresEnumType;
 
 @Entity
 @Table(name = "\"course\"")
@@ -18,45 +38,40 @@ import java.util.Objects;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Course {
 
-        @Id
-        @GeneratedValue(strategy = GenerationType.IDENTITY)
-        private String id;
+public class Course implements Serializable {
+  @Id
+  @GeneratedValue(strategy = IDENTITY)
+  private String id;
+  private String code;
+  private String name;
+  private int credits;
+  private int totals_hours;
 
-        private String code;
+  @ManyToOne
+  @JoinColumn(name = "main_teacher_id", nullable = false)
+  private User main_teacher;
 
-        private String name;
+  @ManyToMany
+  @JoinTable(name="course_student")
+  private List<User> students;
 
-        private int credits;
+  @Type(type = "pgsql_enum")
+  @Enumerated(EnumType.STRING)
+  private school.hei.haapi.endpoint.rest.model.CourseStatus status;
 
-        private int totalHours;
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    Course course = (Course) o;
+    return credits == course.credits && totals_hours == course.totals_hours && id.equals(course.id) &&
+            code.equals(course.code) && name.equals(course.name) && main_teacher.equals(course.main_teacher)
+            && status == course.status;
+  }
 
-        @ManyToOne
-        @JoinColumn(name = "main_teacher_id", nullable = false)
-        private User mainTeacher;
-
-        @ManyToMany
-        @JoinTable(name = "course_student")
-        private List<User> students;
-        @Type(type="pgsql_enum")
-        @Enumerated(EnumType.STRING)
-        private CourseStatus status;
-        @Override
-        public boolean equals(Object o) {
-            if (this == o) {
-                return true;
-            }
-            if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
-                return false;
-            }
-            Course user = (Course) o;
-            return id != null && Objects.equals(id, user.id);
-        }
-
-        @Override
-        public int hashCode() {
-            return getClass().hashCode();
-        }
-
+  @Override
+  public int hashCode() {
+    return Objects.hash(id, code, name, credits, totals_hours, main_teacher, status);
+  }
 }

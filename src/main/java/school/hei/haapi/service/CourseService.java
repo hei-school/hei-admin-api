@@ -2,6 +2,16 @@ package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.repository.CourseRepository;
+import java.util.List;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import java.util.List;
+import lombok.AllArgsConstructor;
+import org.springframework.boot.autoconfigure.data.couchbase.CouchbaseReactiveDataAutoConfiguration;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -17,13 +27,40 @@ import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
+
 @Service
 @AllArgsConstructor
-@Slf4j
 public class CourseService {
-    private final CourseRespository courseRepository;
+  private final CourseRepository repository;
 
-    public List<Course> getCoursesByStudentId(
+public Course getById(String groupId) {
+    return repository.getById(groupId);
+  }
+
+  public List<Course> getAll() {
+    return repository.findAll();
+  }
+
+  public List<Course> saveAll(List<Course> groups) {
+    return repository.saveAll(groups);
+  }
+
+  public List<Course> getCoursesByStudentId(String studentId){
+    return repository.getByStudentId(studentId);
+  public List<Course> crupdateCourses(List<Course> courses){
+    return repository.saveAll(courses);
+  }
+  
+  public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize){
+    Pageable pageable = PageRequest.of(
+            page.getValue() - 1, pageSize.getValue());
+    return repository.findAll(pageable).getContent();
+  }
+
+  public List<Course> crupdateCourses(List<Course> courses){
+    return repository.saveAll(courses);
+  }
+  public List<Course> getCoursesByStudentId(
             String studentId, PageFromOne page, BoundedPageSize pageSize,
             school.hei.haapi.endpoint.rest.model.CourseStatus status) {
         Pageable pageable = PageRequest.of(
@@ -35,3 +72,4 @@ public class CourseService {
         return courseRepository.getByStudentId(studentId, pageable);
     }
 }
+
