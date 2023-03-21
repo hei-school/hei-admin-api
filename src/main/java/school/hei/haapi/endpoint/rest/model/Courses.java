@@ -1,4 +1,4 @@
-package school.hei.haapi.model;
+package school.hei.haapi.endpoint.rest.model;
 
 import lombok.*;
 import org.hibernate.annotations.TypeDef;
@@ -38,4 +38,11 @@ public class Courses implements Serializable {
     @OneToMany
     @JoinColumn(name = "main_teacher_id")
     private User main_teacher;
+    @ManyToMany
+    @JoinTable(
+            name= "linked_or_unliked",
+            JoinColumn=@JoinColumn(name = "User_id"),
+            inverseJoinColumn=@JoinColumn(name = "course_id")
+    )
+    private List<User> userStatus;
 }
