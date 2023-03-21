@@ -34,6 +34,10 @@ public class CourseMapper {
                       .mainTeacher(userMapper.toRestTeacher(course.getMainTeacher()));
     }
 
+    public Course toRestCourse(school.hei.haapi.model.StudentCourse studentCourse){
+        return toRestCourse(studentCourse.getCourse());
+    }
+
     private school.hei.haapi.model.StudentCourse toDomainStudentCourse(User student, UpdateStudentCourse course){
         if (!student.getRole().equals(User.Role.STUDENT)) {
             throw new BadRequestException("Only students can be linked to courses");
