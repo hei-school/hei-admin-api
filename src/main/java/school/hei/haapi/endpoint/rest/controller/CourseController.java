@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
