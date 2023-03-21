@@ -1,0 +1,1735 @@
+openapi: 3.0.3
+info:
+  description: |
+    _Programmatically connect to a computer programming [school](https://hei.school)._
+    After [joining us](mailto:contact@hei.school),
+    you can get an identification token from
+    our [dev](https://dev-hei-admin.auth.eu-west-3.amazoncognito.com/oauth2/authorize?client_id=5s8cg50doahmu855rlc8fr6qmp&response_type=token&scope=email+openid&redirect_uri=https%3A%2F%2Fapi-dev.hei.school%2Fwhoami)
+    or [prod](https://prod-hei-admin.auth.eu-west-3.amazoncognito.com/oauth2/authorize?client_id=i8bg538jpfu6mqmqb61m26trd&response_type=token&scope=email+openid&redirect_uri=https%3A%2F%2Fapi-prod.hei.school%2Fwhoami)
+    authentication service.
+    Then, start playing with our system!
+    The implementation of our API is [publicly disclosed](https://github.com/hei-school/hei-admin-api).
+    You are welcome to try and compromise it. Happy hacking!
+  title: HEI Admin API
+  version: "1.0"
+servers:
+- url: https://api-dev.hei.school
+- url: https://api-prod.hei.school
+security:
+- BearerAuth: []
+paths:
+  /whoami:
+    get:
+      operationId: whoami
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Whoami'
+          description: Who you are
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Who am I? Tells you who you are.
+      tags:
+      - Security
+      x-accepts: application/json
+  /ping:
+    get:
+      operationId: ping
+      responses:
+        "200":
+          content:
+            text/plain:
+              schema:
+                example: pong
+                type: string
+          description: pong
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: pong
+      tags:
+      - Security
+      x-accepts: application/json
+  /groups/{id}:
+    get:
+      operationId: getGroupById
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+          description: The identified group
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get group by identifier
+      tags:
+      - Teaching
+      x-accepts: application/json
+  /groups:
+    get:
+      operationId: getGroups
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Group'
+                type: array
+          description: List of groups
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get all groups
+      tags:
+      - Teaching
+      x-accepts: application/json
+    put:
+      description: "Update groups when `id` are provided, create them otherwise."
+      operationId: createOrUpdateGroups
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/Group'
+              type: array
+        description: Groups to update
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Group'
+                type: array
+          description: The created or updated groups
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Create new groups or update existing groups
+      tags:
+      - Teaching
+      x-contentType: application/json
+      x-accepts: application/json
+  /students/{id}:
+    get:
+      operationId: getStudentById
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+          description: The identified student
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get student by identifier
+      tags:
+      - Users
+      x-accepts: application/json
+  /students:
+    get:
+      operationId: getStudents
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          $ref: '#/components/schemas/Page'
+        style: form
+      - explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          $ref: '#/components/schemas/PageSize'
+        style: form
+      - description: "Filter students by ref, case is ignored"
+        explode: true
+        in: query
+        name: ref
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Filter students by first name, case is ignored"
+        explode: true
+        in: query
+        name: first_name
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Filter students by last name, case is ignored"
+        explode: true
+        in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Student'
+                type: array
+          description: "List of students, ordered by ref."
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get all students
+      tags:
+      - Users
+      x-accepts: application/json
+    put:
+      description: "Update students when `id` are provided, create them otherwise."
+      operationId: createOrUpdateStudents
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/Student'
+              type: array
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  allOf:
+                  - $ref: '#/components/schemas/Student'
+                type: array
+          description: The created or updated students
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Create new students or update existing students
+      tags:
+      - Users
+      x-contentType: application/json
+      x-accepts: application/json
+  /courses/{id}:
+    get:
+      operationId: getCourseById
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: The identified course
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get course by identifier
+      tags:
+      - Teaching
+      x-accepts: application/json
+  /courses:
+    get:
+      operationId: getCourses
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Course'
+                type: array
+          description: List of all courses
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get all courses
+      tags:
+      - Teaching
+      x-accepts: application/json
+    put:
+      description: "Update courses when id are provided, create them otherwise."
+      operationId: createOrUpdateCourses
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Course'
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+          description: The created or updated courses
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Create new courses or update existing courses
+      tags:
+      - Teaching
+      x-contentType: application/json
+      x-accepts: application/json
+  /teachers/{id}:
+    get:
+      operationId: getTeacherById
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+          description: The identified teacher
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get teacher by identifier
+      tags:
+      - Users
+      x-accepts: application/json
+  /teachers:
+    get:
+      operationId: getTeachers
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          $ref: '#/components/schemas/Page'
+        style: form
+      - explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          $ref: '#/components/schemas/PageSize'
+        style: form
+      - description: "Filter teachers by ref, case is ignored"
+        explode: true
+        in: query
+        name: ref
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Filter teachers by first name, case is ignored"
+        explode: true
+        in: query
+        name: first_name
+        required: false
+        schema:
+          type: string
+        style: form
+      - description: "Filter teachers by last name, case is ignored"
+        explode: true
+        in: query
+        name: last_name
+        required: false
+        schema:
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Teacher'
+                type: array
+          description: "List of teachers, ordered by ref."
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get all teachers
+      tags:
+      - Users
+      x-accepts: application/json
+    put:
+      description: "Update teachers when `id` are provided, create them otherwise."
+      operationId: createOrUpdateTeachers
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/Teacher'
+              type: array
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Teacher'
+                type: array
+          description: The created or updated teachers
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Create new teachers or update existing teachers
+      tags:
+      - Users
+      x-contentType: application/json
+      x-accepts: application/json
+  /managers/{id}:
+    get:
+      operationId: getManagerById
+      parameters:
+      - explode: false
+        in: path
+        name: id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manager'
+          description: The identified manager
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get manager by identifier
+      tags:
+      - Users
+      x-accepts: application/json
+  /managers:
+    get:
+      operationId: getManagers
+      parameters:
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          $ref: '#/components/schemas/Page'
+        style: form
+      - explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          $ref: '#/components/schemas/PageSize'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Manager'
+                type: array
+          description: "List of managers, ordered by ref."
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get all managers
+      tags:
+      - Users
+      x-accepts: application/json
+  /delay_penalty_change:
+    post:
+      operationId: createDelayPenaltyChange
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateDelayPenaltyChange'
+        description: Delay penalties to create
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayPenalty'
+          description: List of created delay penalties
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Change current delay penalty configuration
+      tags:
+      - Paying
+      x-contentType: application/json
+      x-accepts: application/json
+  /delay_penalty:
+    get:
+      operationId: getDelayPenalty
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DelayPenalty'
+          description: Active delay penalty
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get current delay penalty
+      tags:
+      - Paying
+      x-accepts: application/json
+  /students/{student_id}/fees/{fee_id}:
+    get:
+      operationId: getStudentFeeById
+      parameters:
+      - explode: false
+        in: path
+        name: student_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: fee_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fee'
+          description: Identified student fee
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get student fee by identifier
+      tags:
+      - Paying
+      x-accepts: application/json
+  /students/{student_id}/fees:
+    get:
+      description: Fees can be filtered with an optional payment status parameter.
+      operationId: getStudentFees
+      parameters:
+      - explode: false
+        in: path
+        name: student_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          $ref: '#/components/schemas/Page'
+        style: form
+      - explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          $ref: '#/components/schemas/PageSize'
+        style: form
+      - explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          enum:
+          - UNPAID
+          - PAID
+          - LATE
+          type: string
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Fee'
+                type: array
+          description: List of all student fees
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get all student fees ordered by due datetime desc
+      tags:
+      - Paying
+      x-accepts: application/json
+    post:
+      operationId: createStudentFees
+      parameters:
+      - explode: false
+        in: path
+        name: student_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/CreateFee'
+              type: array
+        description: Student fees to create
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Fee'
+                type: array
+          description: Created student fees
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Create student fees
+      tags:
+      - Paying
+      x-contentType: application/json
+      x-accepts: application/json
+  /fees:
+    get:
+      operationId: getFees
+      parameters:
+      - description: See the PaymentStatus object for its value.
+        explode: true
+        in: query
+        name: status
+        required: false
+        schema:
+          default: LATE
+          enum:
+          - UNPAID
+          - LATE
+          - PAID
+          type: string
+        style: form
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          $ref: '#/components/schemas/Page'
+        style: form
+      - explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          $ref: '#/components/schemas/PageSize'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Fee'
+                type: array
+          description: List of filtered student fees
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get all student fees filtered by status
+      tags:
+      - Paying
+      x-accepts: application/json
+  /students/{student_id}/fees/{fee_id}/payments:
+    get:
+      operationId: getStudentPayments
+      parameters:
+      - explode: false
+        in: path
+        name: student_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: fee_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: true
+        in: query
+        name: page
+        required: false
+        schema:
+          $ref: '#/components/schemas/Page'
+        style: form
+      - explode: true
+        in: query
+        name: page_size
+        required: false
+        schema:
+          $ref: '#/components/schemas/PageSize'
+        style: form
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Payment'
+                type: array
+          description: List of all student payments
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Get all student payments of a specific fee. Resulting list is ordered
+        by creation datetime desc.
+      tags:
+      - Paying
+      x-accepts: application/json
+    post:
+      operationId: createStudentPayments
+      parameters:
+      - explode: false
+        in: path
+        name: student_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      - explode: false
+        in: path
+        name: fee_id
+        required: true
+        schema:
+          type: string
+        style: simple
+      requestBody:
+        content:
+          application/json:
+            schema:
+              items:
+                $ref: '#/components/schemas/CreatePayment'
+              type: array
+        description: Student payments to create
+        required: true
+      responses:
+        "200":
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/Payment'
+                type: array
+          description: Created student payments
+        "400":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/BadRequestException'
+          description: Bad request
+        "403":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/NotAuthorizedException'
+          description: Forbidden
+        "404":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ResourceNotFoundException'
+          description: Not found
+        "429":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TooManyRequestsException'
+          description: Too many requests to the API
+        "500":
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/InternalServerException'
+          description: Internal server error
+      summary: Create student payments
+      tags:
+      - Paying
+      x-contentType: application/json
+      x-accepts: application/json
+components:
+  responses:
+    "400":
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/BadRequestException'
+      description: Bad request
+    "403":
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/NotAuthorizedException'
+      description: Forbidden
+    "404":
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ResourceNotFoundException'
+      description: Not found
+    "429":
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/TooManyRequestsException'
+      description: Too many requests to the API
+    "500":
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/InternalServerException'
+      description: Internal server error
+  schemas:
+    Whoami:
+      example:
+        role: STUDENT
+        bearer: bearer
+        id: id
+      properties:
+        id:
+          type: string
+        role:
+          enum:
+          - STUDENT
+          - TEACHER
+          - MANAGER
+          type: string
+        bearer:
+          type: string
+    User:
+      properties:
+        id:
+          type: string
+        ref:
+          example: STD000001
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        sex:
+          enum:
+          - M
+          - F
+          type: string
+        birth_date:
+          format: date
+          type: string
+        address:
+          type: string
+        phone:
+          type: string
+        email:
+          type: string
+        entrance_datetime:
+          format: date-time
+          type: string
+        status:
+          $ref: '#/components/schemas/EnableStatus'
+    EnableStatus:
+      enum:
+      - ENABLED $
+      - DISABLED
+      type: string
+    Student:
+      allOf:
+      - $ref: '#/components/schemas/User'
+      example:
+        localisation: "{}"
+      properties:
+        localisation:
+          properties:
+            longitude:
+              type: string
+            latitude:
+              type: string
+          type: object
+      type: object
+    Teacher:
+      allOf:
+      - $ref: '#/components/schemas/User'
+    Manager:
+      allOf:
+      - $ref: '#/components/schemas/User'
+    Group:
+      example:
+        ref: G1
+        name: The group number one
+        creation_datetime: 2000-01-23T04:56:07.000+00:00
+        id: id
+      properties:
+        id:
+          type: string
+        name:
+          example: The group number one
+          type: string
+        ref:
+          example: G1
+          type: string
+        creation_datetime:
+          format: date-time
+          type: string
+      type: object
+    Course:
+      example:
+        ref: PROG1
+        credits: 0
+        name: Algorithmics
+        id: id
+        total_hours: 6
+      properties:
+        id:
+          type: string
+        ref:
+          example: PROG1
+          type: string
+        name:
+          example: Algorithmics
+          type: string
+        credits:
+          type: integer
+        total_hours:
+          type: integer
+      type: object
+    CreateFee:
+      example:
+        due_datetime: 2000-01-23T04:56:07.000+00:00
+        total_amount: 0
+        creation_datetime: 2000-01-23T04:56:07.000+00:00
+        comment: comment
+        type: TUITION
+      properties:
+        type:
+          enum:
+          - TUITION
+          - HARDWARE
+          type: string
+        comment:
+          type: string
+        total_amount:
+          type: integer
+        creation_datetime:
+          format: date-time
+          type: string
+        due_datetime:
+          format: date-time
+          type: string
+      type: object
+    Fee:
+      allOf:
+      - $ref: '#/components/schemas/CreateFee'
+      example:
+        updated_at: 2000-01-23T04:56:07.000+00:00
+        remaining_amount: 0
+        student_id: student_id
+        id: id
+        status: UNPAID
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        remaining_amount:
+          type: integer
+        status:
+          enum:
+          - UNPAID
+          - PAID
+          - LATE
+          type: string
+        updated_at:
+          format: date-time
+          type: string
+      type: object
+    CreateDelayPenaltyChange:
+      example:
+        grace_delay: 6
+        interest_percent: 0
+        applicability_delay_after_grace: 1
+        interest_timerate: DAILY
+      properties:
+        interest_percent:
+          type: integer
+        interest_timerate:
+          enum:
+          - DAILY
+          type: string
+        grace_delay:
+          type: integer
+        applicability_delay_after_grace:
+          type: integer
+      type: object
+    DelayPenalty:
+      allOf:
+      - $ref: '#/components/schemas/CreateDelayPenaltyChange'
+      example:
+        creation_datetime: 2000-01-23T04:56:07.000+00:00
+        id: id
+      properties:
+        id:
+          type: string
+        creation_datetime:
+          format: date-time
+          type: string
+      type: object
+    CreatePayment:
+      example:
+        amount: 0
+        comment: comment
+        type: CASH
+      properties:
+        type:
+          enum:
+          - CASH
+          - MOBILE_MONEY
+          - SCHOLARSHIP
+          - FIX
+          type: string
+        amount:
+          type: integer
+        comment:
+          type: string
+      type: object
+    Payment:
+      allOf:
+      - $ref: '#/components/schemas/CreatePayment'
+      example:
+        fee_id: fee_id
+        creation_datetime: 2000-01-23T04:56:07.000+00:00
+        id: id
+      properties:
+        id:
+          type: string
+        fee_id:
+          type: string
+        creation_datetime:
+          format: date-time
+          type: string
+      type: object
+    Page:
+      description: Start at `1`
+      type: integer
+    PageSize:
+      description: Cannot exceed `500`
+      type: integer
+    Exception:
+      properties:
+        type:
+          type: string
+        message:
+          type: string
+      type: object
+    BadRequestException:
+      allOf:
+      - $ref: '#/components/schemas/Exception'
+      example:
+        type: BadRequestException
+        message: Bad request
+    NotAuthorizedException:
+      allOf:
+      - $ref: '#/components/schemas/Exception'
+      example:
+        type: NotAuthorizedException
+        message: Not authorized
+    ResourceNotFoundException:
+      allOf:
+      - $ref: '#/components/schemas/Exception'
+      example:
+        type: ResourceNotFoundException
+        message: Resource of type <T> identified by <I> not found
+    TooManyRequestsException:
+      allOf:
+      - $ref: '#/components/schemas/Exception'
+      example:
+        type: TooManyRequestsException
+        message: Too many requests
+    InternalServerException:
+      allOf:
+      - $ref: '#/components/schemas/Exception'
+      example:
+        type: InternalServerException
+        message: Unexpected error
+  securitySchemes:
+    BearerAuth:
+      scheme: bearer
+      type: http
+
