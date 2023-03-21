@@ -186,6 +186,78 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{student_id}/courses:
+    get:
+      tags:
+        - Users
+      summary: Get a specific student courses
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/CourseStatus'
+          description: By default, LINKED courses are provided.
+      operationId: getStudentCoursesById
+      responses:
+        '200':
+          description: The student courses
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Link or unlink courses to a specific student
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: updateStudentCourses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdateStudentCourse'
+      responses:
+        '200':
+          description: The student updated courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students:
     get:
       tags:
@@ -304,6 +376,18 @@ paths:
         - Teaching
       summary: Get all courses
       operationId: getCourses
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
       responses:
         '200':
           description: List of all courses
@@ -326,22 +410,26 @@ paths:
     put:
       tags:
         - Teaching
-      summary: Create new courses or update existing courses
+      summary: Crupdate courses
       description: Update courses when id are provided, create them otherwise.
-      operationId: createOrUpdateCourses
+      operationId: crupdateCourses
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Course'
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateCourse'
       responses:
         '200':
-          description: The created or updated courses
+          description: The crupdated courses
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Course'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -943,12 +1031,12 @@ components:
         creation_datetime:
           type: string
           format: date-time
-    Course:
+    CourseTemplate:
       type: object
       properties:
         id:
           type: string
-        ref:
+        code:
           type: string
           example: PROG1
         name:
@@ -958,6 +1046,32 @@ components:
           type: integer
         total_hours:
           type: integer
+    CrupdateCourse:
+      allOf:
+        - $ref: '#/components/schemas/CourseTemplate'
+      type: object
+      properties:
+        main_teacher_id:
+          type: string
+    CourseStatus:
+      type: string
+      enum:
+        - LINKED
+        - UNLINKED
+    UpdateStudentCourse:
+      type: object
+      properties:
+        course_id:
+          type: string
+        status:
+          $ref: '#/components/schemas/CourseStatus'
+    Course:
+      allOf:
+        - $ref: '#/components/schemas/CourseTemplate'
+      type: object
+      properties:
+        main_teacher:
+          $ref: '#/components/schemas/Teacher'
     CreateFee:
       type: object
       properties:

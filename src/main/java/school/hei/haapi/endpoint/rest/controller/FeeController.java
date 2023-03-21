@@ -19,7 +19,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 
 @RestController
 @AllArgsConstructor
-public class FeeController {
+public class  FeeController {
 
   private final FeeService feeService;
   private final FeeMapper feeMapper;
