@@ -45,10 +45,12 @@ public class CourseController {
     }
 
     @PutMapping("/students/{studentId}/courses")
-    public List<StudentCourse> createFees(
+    public List<Course> createFees(
             @PathVariable String studentId, @RequestBody List<UpdateStudentCourse> toCreate) {
-        return new ArrayList<>();//courseService.saveAll(
-                        //courseMapper.toDomainStudentCourse(studentId, toCreate));
+
+        return courseService.saveAllStudentCourses(studentId,courseMapper.toDomainStudentCourse(studentId, toCreate)).stream()
+                        .map(courseMapper::toRestCourse)
+                .collect(Collectors.toList());
     }
     @GetMapping("/students/{studentId}/courses")
     public List<Course> getFeesByStudentAndStatus(

@@ -5,12 +5,12 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
-import school.hei.haapi.endpoint.rest.model.BadRequestException;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.StudentCourse;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.StudentCourseRepository;
 
@@ -55,4 +55,15 @@ public class CourseService {
         }
         return allCourses;
     }
+
+    public List<StudentCourse> saveAllStudentCourses(String studentId, List<StudentCourse> toDomainStudentCourse) {
+
+
+        return studentCourseRepository.saveAll(toDomainStudentCourse);
+    }
+
+    public StudentCourse getByStudentIdAndCourseId(String studentId, String courseId) {
+        return studentCourseRepository.getStudentCourseByStudentIdAndCourseId(studentId,courseId);
+    }
+
 }

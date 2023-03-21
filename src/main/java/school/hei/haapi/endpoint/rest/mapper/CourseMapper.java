@@ -12,6 +12,7 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.CourseService;
 import school.hei.haapi.service.UserService;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -83,6 +84,7 @@ public class CourseMapper {
         if (student == null) {
             throw new NotFoundException("Student.id=" + studentId + " is not found");
         }
+
         return toCreate
                 .stream()
                 .map(createStudentCourse -> toDomainStudentCourse(student, createStudentCourse))
