@@ -9,9 +9,11 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -25,6 +27,8 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -120,7 +124,25 @@ public class CourseIT {
         assertTrue(actualCourses.contains(course2()));
         assertTrue(actualCourses.contains(course3()));
     }
+    @Test
+    void manager_read_by_student_ref_and_status_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        UsersApi api = new UsersApi(manager1Client);
+        List<Course> actualCourse = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
+        Course actualCourse1 = actualCourse.get(0);
 
+        assertEquals(course2(), actualCourse1);
+    }
+
+    @Test
+    void  manager_read_by_student_ref_and_null_status_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        UsersApi api = new UsersApi(manager1Client);
+        List<Course> actualCourse = api.getStudentCoursesById(STUDENT1_ID, null);
+        Course actualCourse1 = actualCourse.get(0);
+
+        assertEquals(course2(), actualCourse1);
+    }
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
 

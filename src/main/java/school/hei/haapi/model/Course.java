@@ -6,9 +6,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -50,4 +53,14 @@ public class Course implements Serializable {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "main_teacher_id")
     private User mainTeacher;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User student;
+    @Type(type = "pgsql_enum")
+    @Enumerated(EnumType.STRING)
+    private Status status;
+    public enum Status {
+        LINKED, UNLINKED
+    }
+
 }
