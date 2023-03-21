@@ -5,6 +5,7 @@ import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.model.User;
 
 @Component
@@ -96,5 +97,17 @@ public class UserMapper {
         .sex(User.Sex.valueOf(student.getSex().toString()))
         .address(student.getAddress())
         .build();
+  }
+
+  public Course toRestStudentCourse(school.hei.haapi.model.Course course) {
+    Course newCourse = new Course();
+
+    return newCourse
+            .id(course.getId())
+            .code(course.getCode())
+            .name(course.getName())
+            .credits(course.getCredits())
+            .totalHours(course.getTotal_hours())
+            .mainTeacher(toRestTeacher(course.getMain_teacher()));
   }
 }

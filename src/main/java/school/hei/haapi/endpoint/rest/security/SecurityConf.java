@@ -73,6 +73,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers("/ping").permitAll()
+        .requestMatchers(new SelfMatcher(GET, "/students/*/courses")).hasAnyRole(STUDENT.getRole(), TEACHER.getRole())
         .antMatchers(OPTIONS, "/**").permitAll()
         .antMatchers("/whoami").authenticated()
         .antMatchers(GET, "/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
