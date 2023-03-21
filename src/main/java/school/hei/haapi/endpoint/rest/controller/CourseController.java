@@ -1,11 +1,21 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.service.CourseService;
+
+import java.util.List;
+
+import static java.util.stream.Collectors.toUnmodifiableList;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -18,7 +28,7 @@ import school.hei.haapi.service.CourseService;
 @AllArgsConstructor
 public class CourseController {
     private final CourseService service;
-    private final CourseMapper mapper;
+    private final CourseMapper mapper
 
     @GetMapping(value = "/courses")
     public List<Course> getCourses(
@@ -41,4 +51,16 @@ public class CourseController {
                 .map(mapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
     }
+
+  @PutMapping("/students/{student_id}/courses")
+  public List<Course> updateStudentCourses(@PathVariable String studentId, @RequestBody List<UpdateStudentCourse> toWrite) {
+     return service
+        .saveAll(toWrite
+            .stream()
+            .map(updateStudentCourse -> mapper.toStudentCourseDomain(studentId, updateStudentCourse))
+            .collect(toUnmodifiableList()))
+        .stream()
+        .map(courseMapper::toRest)
+        .collect(toUnmodifiableList());
+  }
 }

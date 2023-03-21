@@ -1,5 +1,12 @@
 package school.hei.haapi.service;
 
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.repository.CourseRepository;
+
+import java.util.List;
+
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -16,8 +23,25 @@ import school.hei.haapi.repository.CourseRepository;
 @Service
 @AllArgsConstructor
 public class CourseService {
+
   private final CourseRepository repository;
 
+  public Course getById(String groupId) {
+    return repository.getById(groupId);
+  }
+
+  public List<Course> getAll() {
+    return repository.findAll();
+  }
+
+  public List<Course> saveAll(List<Course> groups) {
+    return repository.saveAll(groups);
+  }
+
+  public List<Course> getCoursesByStudentId(String studentId){
+    return repository.getByStudentId(studentId);
+  }
+  
   public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize){
     Pageable pageable = PageRequest.of(
             page.getValue() - 1, pageSize.getValue());
