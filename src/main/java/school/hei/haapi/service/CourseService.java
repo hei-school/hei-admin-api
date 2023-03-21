@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
+import org.hibernate.annotations.Any;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -18,7 +19,6 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 @AllArgsConstructor
 public class CourseService {
     private final CourseRepository repository;
-
     public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize){
         if (page == null){
             page = new PageFromOne(1);
@@ -31,5 +31,12 @@ public class CourseService {
                 pageSize.getValue(),
                 Sort.by(ASC, "code"));
         return repository.findAll(pageable).getContent();
+    }
+
+    public List<Course> getCoursesByStatus(String student_id, Course.Status status){
+        if(status == null){
+            return repository.findAllByStudentIdAndStatus(student_id, Course.Status.LINKED).getContent();
+        }
+        return repository.findAllByStudentIdAndStatus(student_id, status).getContent();
     }
 }

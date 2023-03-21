@@ -9,4 +9,6 @@ import school.hei.haapi.model.Course;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, String> {
     Page<Course> findAll(Pageable pageable);
+    Page<Course> findAllByStudentIdAndStatus(String studentId,
+                                             Course.Status status);
 }

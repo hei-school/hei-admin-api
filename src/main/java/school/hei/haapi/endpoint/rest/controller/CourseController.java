@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
@@ -28,5 +29,15 @@ public class CourseController {
                 .stream()
                 .map(courseMapper::toRest)
                 .collect(toUnmodifiableList());
+    }
+
+    @GetMapping(value="/students/{student_id}/courses")
+    public List<Course> getCoursesByStatus(
+        @RequestParam(required= false) school.hei.haapi.model.Course.Status status,
+        @PathVariable String student_id){
+        return courseService.getCoursesByStatus(student_id,status)
+            .stream()
+            .map(courseMapper::toRest)
+            .collect(toUnmodifiableList());
     }
 }
