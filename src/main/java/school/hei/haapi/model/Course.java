@@ -41,7 +41,8 @@ public class Course implements Serializable {
     @JoinTable(
         name= "linked_or_unliked",
         JoinColumn=@JoinColumn(name = "User_id"),
-        inverseJoinColumn=@JoinColumn(name = "course_id")
+        inverseJoinColumn=@JoinColumn(name = "course_id"),
+        column=@Column(name = "status")
     )
     private List<User> userStatus;
 }

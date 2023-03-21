@@ -86,6 +86,7 @@ public class UserService {
           .setCourseStatus(toSave)
           .build();
       )
+      
     } catch (RuntimeErrorException E) {
       throw RuntimeErrorException;
     }
