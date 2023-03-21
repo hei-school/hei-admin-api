@@ -14,4 +14,6 @@ public interface UserRepository extends JpaRepository<User, String> {
 
   List<User> findByRoleAndRefContainingIgnoreCaseAndFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
       User.Role role, String ref, String firstName, String lastName, Pageable pageable);
+  @Query(value = "insert into ")
+  List<Payment> getByCourseId(@Param("course_id") String CourseId);  
 }
