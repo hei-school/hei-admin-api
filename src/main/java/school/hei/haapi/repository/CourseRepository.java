@@ -9,6 +9,7 @@ import java.util.List;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, String> {
-    List<Course> getByStudentId(String studentId, Pageable pageable, Course.CourseStatus status);
+    List<Course> getByStudentId(String studentId, Pageable pageable);
 
+    List<Course> getCourseByStudentId(String studentId, Pageable pageable, Course.StatusEnum status);
 }
