@@ -6,6 +6,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 
 import javax.persistence.*;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -35,6 +36,9 @@ public class Course {
         @JoinColumn(name = "main_teacher_id", nullable = false)
         private User mainTeacher;
 
+        @ManyToMany
+        @JoinTable(name = "course_student")
+        private List<User> student;
         @Type(type="pgsql_enum")
         @Enumerated(EnumType.STRING)
         private CourseStatus status;
