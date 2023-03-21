@@ -692,10 +692,10 @@ export interface ResourceNotFoundException {
 export interface Student {
     /**
      * 
-     * @type {string}
+     * @type {GpsAddress}
      * @memberof Student
      */
-    'gps_address'?: string;
+    'gps_address'?: GpsAddress;
     /**
      * 
      * @type {string}

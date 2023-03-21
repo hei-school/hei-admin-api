@@ -930,8 +930,7 @@ components:
     Student:
       properties:
         gps_address:
-          type: string
-          default: null
+          $ref: '#/components/schemas/GpsAddress'
       allOf:
         - $ref: '#/components/schemas/User'
     Teacher:
