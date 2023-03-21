@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.model.BadRequestException;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.repository.CourseRepository;
 
@@ -15,4 +16,5 @@ public class CourseService {
         return repository.saveAll(courses);
     }
 
+    public Course getById(String courseId){return repository.getById(courseId);}
 }
