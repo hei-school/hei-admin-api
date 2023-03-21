@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.controller;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.apache.catalina.Manager;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;

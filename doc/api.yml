@@ -257,7 +257,7 @@ paths:
         '429':
           $ref: '#/components/responses/429'
         '500':
-          $ref: '#/components/responses/500'
+          $ref: '#/components/responses/500''
   /students:
     get:
       tags:
@@ -1062,13 +1062,13 @@ components:
       enum:
         - LINKED
         - UNLINKED
-    UpdateStudentCourse:
-      type: object
-      properties:
-        course_id:
-          type: string
-        status:
-          $ref: '#/components/schemas/CourseStatus'
+      UpdateStudentCourse:
+        type: object
+        properties:
+          course_id:
+            type: string
+          status:
+            $ref: '#/components/schemas/CourseStatus'
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'

@@ -17,6 +17,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
+
 import javax.persistence.*;
 
 
@@ -39,7 +40,6 @@ public class Course {
     private String code;
 
 
-
     @OneToMany
     @JoinColumn(name = "student_id" , nullable = false)
     private Student student;
@@ -54,6 +54,7 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "main_teacher_id", nullable = false)
     private User main_teacher;
+
 
 
     public String getCourseName() {
