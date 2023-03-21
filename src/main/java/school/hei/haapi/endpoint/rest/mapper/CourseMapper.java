@@ -69,4 +69,11 @@ public class CourseMapper {
                 .map(createStudentCourse -> toDomainStudentCourse(student, createStudentCourse))
                 .collect(toUnmodifiableList());
     }
+        public List<Course> toRestCourse(List<school.hei.haapi.model.StudentCourse> toCreate){
+        return toCreate
+                .stream()
+                .map(studentCourse -> toRestCourse(studentCourse))
+                .collect(toUnmodifiableList());
+    }
+    
 }
