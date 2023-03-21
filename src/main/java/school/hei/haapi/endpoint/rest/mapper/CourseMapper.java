@@ -1,66 +1,24 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-<<<<<<< HEAD
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.model.Course;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.validator.CourseValidator;
 import school.hei.haapi.service.CourseService;
 import school.hei.haapi.service.UserService;
 
-import java.util.List;
 import java.util.Objects;
-
-@Component
-public class CourseMapper {
-
-  private UserMapper userMapper;
-  private UserService userService;
-  private CourseService courseService;
-
-  public school.hei.haapi.endpoint.rest.model.Course toRest(Course course) {
-    var restCourse = new school.hei.haapi.endpoint.rest.model.Course();
-    restCourse.setId(course.getId());
-    restCourse.setCode(course.getCode());
-    restCourse.setName(course.getName());
-    restCourse.setCredits(course.getCredits());
-    restCourse.setTotalHours(course.getTotals_hours());
-    restCourse.setMainTeacher(userMapper.toRestTeacher(course.getMain_teacher()));
-    return restCourse;
-  }
-
-  public Course toStudentCourseDomain(String studentId, school.hei.haapi.endpoint.rest.model.UpdateStudentCourse restStudentCourse) {
-    Course domain = courseService.getById(restStudentCourse.getCourseId());
-    User student = userService.getById(studentId);
-    return Course.builder()
-            .id(domain.getId())
-            .code(domain.getCode())
-            .name(domain.getName())
-            .credits(domain.getCredits())
-            .totals_hours(domain.getTotals_hours())
-            .students(List.of(student))
-            .main_teacher(domain.getMain_teacher())
-            .status(restStudentCourse.getStatus())
-            .build();
-=======
-import java.util.UUID;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
-import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.model.User;
-import school.hei.haapi.model.validator.CourseValidator;
-import school.hei.haapi.service.UserService;
-
 @Component
 @AllArgsConstructor
 public class CourseMapper {
   private final UserMapper userMapper;
   private final UserService userService;
   private final CourseValidator validator;
+
+  private CourseService courseService;
 
   public Course toRest(school.hei.haapi.model.Course domain) {
     Teacher actualTeacher = domain.getMainTeacher() != null ?
@@ -88,6 +46,28 @@ public class CourseMapper {
         .totalHours(rest.getTotalHours())
         .mainTeacher(actualTeacher)
         .build();
->>>>>>> dcbf6c0e198524dab51d5515d0b92cabb24a51cc
+  }
+
+  public school.hei.haapi.endpoint.rest.model.Course toRest(Course course) {
+    var restCourse = new school.hei.haapi.endpoint.rest.model.Course();
+    restCourse.setId(course.getId());
+    restCourse.setCode(course.getCode());
+    restCourse.setName(course.getName());
+    restCourse.setCredits(course.getCredits());
+    restCourse.setTotalHours(course.getTotals_hours());
+    restCourse.setMainTeacher(userMapper.toRestTeacher(course.getMain_teacher()));
+    return restCourse;
+  }
+  public Course toDomain(school.hei.haapi.endpoint.rest.model.UpdateStudentCourse restCourse) {
+    Course domain = courseService.getById(restCourse.getCourseId());
+    return Course.builder()
+            .id(domain.getId())
+            .code(domain.getCode())
+            .name(domain.getName())
+            .credits(domain.getCredits())
+            .totals_hours(domain.getTotals_hours())
+            .main_teacher(domain.getMain_teacher())
+            .status(restCourse.getStatus())
+            .build();
   }
 }
