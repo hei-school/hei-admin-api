@@ -25,6 +25,7 @@ import school.hei.haapi.model.StudentCourse;
 import java.util.ArrayList;
 import java.util.List;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -46,6 +47,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -93,6 +95,16 @@ public class CourseIT {
         course.setTotalHours(20);
         course.setMainTeacher(TeacherIT.teacher2());
         return course;
+    }
+    public static CrupdateCourse someCreatableCourse() {
+        CrupdateCourse createCourse = new CrupdateCourse();
+        createCourse.setId("COURSE21-" + randomUUID());
+        createCourse.setName("Some name");
+        createCourse.setCode("Code");
+        createCourse.setCredits(5);
+        createCourse.setTotalHours(40);
+        createCourse.setMainTeacherId("Teacher6_id");
+        return createCourse;
     }
     @BeforeEach
     void setUp() {
@@ -165,5 +177,62 @@ public class CourseIT {
                 () -> api.getStudentCoursesById(STUDENT2_ID, CourseStatus.UNLINKED));
     }
 
+    @Test
+    void badtoken_write_ko() {
+        ApiClient anonymousClient = anApiClient(BAD_TOKEN);
 
+        TeachingApi api = new TeachingApi(anonymousClient);
+        assertThrowsForbiddenException(() -> api.crupdateCourses(List.of()));
+    }
+
+    @Test
+    void student_write_ko() {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+
+        TeachingApi api = new TeachingApi(student1Client);
+        assertThrowsForbiddenException(() -> api.crupdateCourses(List.of()));
+    }
+
+    @Test
+    void teacher_write_ko() {
+        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+
+        TeachingApi api = new TeachingApi(teacher1Client);
+        assertThrowsForbiddenException(() -> api.crupdateCourses(List.of()));
+    }
+    @Test
+    void manager_write_create_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        CrupdateCourse toCreate3 = someCreatableCourse();
+        CrupdateCourse toCreate4 = someCreatableCourse();
+
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> created = api.crupdateCourses(List.of(toCreate3, toCreate4));
+
+        assertEquals(2, created.size());
+        Course created3 = created.get(0);
+        assertTrue(isValidUUID(created3.getId()));
+        toCreate3.setId(created3.getId());
+        //
+        assertEquals(created3, toCreate3);
+        Course created4 = created.get(0);
+        assertTrue(isValidUUID(created4.getId()));
+        toCreate4.setId(created4.getId());
+        assertEquals(created4, toCreate3);
+    }
+    @Test
+    void manager_write_update_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> toUpdate = api.crupdateCourses(List.of(
+                someCreatableCourse(),
+                someCreatableCourse()));
+        Course toUpdate0 = toUpdate.get(0);
+        toUpdate0.setName("A new name zero");
+        Course toUpdate1 = toUpdate.get(1);
+        toUpdate1.setName("A new name one");
+        assertEquals(2, toUpdate.size());
+        assertTrue(toUpdate.contains(toUpdate0));
+        assertTrue(toUpdate.contains(toUpdate1));
+    }
 }
