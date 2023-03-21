@@ -22,7 +22,7 @@ plugins {
 }
 
 group = 'school.hei'
-sourceCompatibility = '11'
+sourceCompatibility = '17'
 
 configurations {
     compileOnly {
