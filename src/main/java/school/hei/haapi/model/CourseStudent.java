@@ -36,20 +36,15 @@ public class CourseStudent {
     private String id;
     
     @ManyToOne
-    @MapsId("courseId")
     @JoinColumn(name = "course_id")
     private Course course;
     
     @ManyToOne
-    @MapsId("studentId")
     @JoinColumn(name = "student_id")
     private User student;
     
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
-    private Status status;
+    private school.hei.haapi.endpoint.rest.model.CourseStatus status;
 
-    public enum Status {
-        LINKED,UNLINKED
-    }
 }
