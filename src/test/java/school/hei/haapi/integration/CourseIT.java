@@ -143,9 +143,9 @@ class CourseIT {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         CourseApi api = new CourseApi(manager1Client);
 
-        List<CrupdateCourse> actual = api.updateStudentCourses(STUDENT1_ID, List.of(someModifiableCourse());
+        List<Course> actual = api.updateStudentCourses(STUDENT1_ID, List.of(someModifiableCourse());
 
-        assertTrue(actual.containsAll(course1()));
+        assertTrue(actual.contains(course1()));
     }
 
     @Test

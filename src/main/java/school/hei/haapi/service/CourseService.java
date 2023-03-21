@@ -31,7 +31,7 @@ public class CourseService {
         }
         else throw new BadRequestException("Not recognized parameters");
 
-        return courseMapper.toRestCourse(course);
+        return course;
     }
 
 }

@@ -33,6 +33,10 @@ configurations {
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        url 'https://repo.clojars.org'
+        name 'Clojars'
+    }
 }
 
 sonarqube {
@@ -138,6 +142,7 @@ dependencies {
     implementation 'org.thymeleaf:thymeleaf:3.1.1.RELEASE'
     // A library that format number into words
     implementation 'pl.allegro.finance:tradukisto:1.12.0'
+    implementation 'user.java.io:user.java.io:2020.134.36653'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
