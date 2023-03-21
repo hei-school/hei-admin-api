@@ -12,6 +12,21 @@ import java.util.List;
 import java.util.Objects;
 
 import static javax.persistence.GenerationType.IDENTITY;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.annotations.TypeDef;
+import school.hei.haapi.repository.types.PostgresEnumType;
 
 @Entity
 @Table(name = "\"course\"")
@@ -19,7 +34,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Setter
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 @ToString
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Course implements Serializable {
@@ -32,7 +47,7 @@ public class Course implements Serializable {
   private int totals_hours;
 
   @ManyToOne
-  @JoinColumn(name = "main_teacher_id")
+  @JoinColumn(name = "main_teacher_id", nullable = false)
   private User main_teacher;
 
   @ManyToMany
