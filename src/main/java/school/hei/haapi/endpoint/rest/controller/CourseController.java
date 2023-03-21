@@ -13,6 +13,11 @@ import school.hei.haapi.service.CourseService;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 @RestController
 @AllArgsConstructor
@@ -27,4 +32,14 @@ public class CourseController {
                 .stream().map(courseMapper::toRestCourse)
                 .collect(Collectors.toUnmodifiableList());
     }
+
+  @PutMapping(value = "/courses")
+  public List<Course> createOrUpdateCourses(@RequestBody List<CrupdateCourse> toWrite) {
+    var saved = courseService.saveAll(toWrite.stream()
+        .map(courseMapper::toDomain)
+        .collect(toUnmodifiableList()));
+    return saved.stream()
+        .map(courseMapper::toRest)
+        .collect(toUnmodifiableList());
+  }
 }

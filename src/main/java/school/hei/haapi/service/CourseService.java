@@ -11,8 +11,6 @@ import school.hei.haapi.repository.CourseRepository;
 
 import java.util.List;
 
-
-
 @Service
 @AllArgsConstructor
 public class CourseService {
@@ -23,4 +21,8 @@ public class CourseService {
                 PageRequest.of(page.getValue() - 1, pageSize.getValue());
         return repository.findAll(pageable).toList();
     }
+
+  public List<Course> saveAll(List<Course> courses) {
+    return repository.saveAll(courses);
+  }
 }
