@@ -6,5 +6,6 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public Interface LinkedOrUnlikedRepository extends JpaRepository <LinkedOrUnliked,String>{
-    
+    @Query(value = "insert into ")
+  List<Payment> getByCourseId(@Param("course_id") String CourseId);    
 }

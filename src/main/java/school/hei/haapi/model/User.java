@@ -108,13 +108,14 @@ public class User implements Serializable {
   public enum Role {
     STUDENT, TEACHER, MANAGER
   }
-  @ManyToOne
-  @JoinColumn(name = "user_id")
-  private List<Course> courseLinked;
+
+  @ManyToMany(mappedBy = "userStatus")
+  private List<Course> courseStatus;
+
   @Override
   public void SetCourseStatus(List<Course> param){
     if(this.role.equals(Role.STUDENT)){
-      this.courseLinked=param;
+      this.courseStatus=param;
     }
     throw RuntimeErrorException("teacher cannot have course status");
   }

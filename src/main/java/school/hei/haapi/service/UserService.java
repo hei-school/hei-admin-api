@@ -32,7 +32,6 @@ public class UserService {
   private final EventProducer eventProducer;
   private final UserValidator userValidator;
   private final CourseRepository courseRepository;
-  private final LinkedOrUnlikedRepository linkedOrUnlikedRepository;
 
   private final UserManagerDao userManagerDao;
 
@@ -77,6 +76,14 @@ public class UserService {
   }
 
   public List<Course> updateStudentcourse(List<UpdateStudentscourse> plainbody,String student_id) {
-    
+    return plainbody.stream().map((requestBody)->{
+        User variableValueForUserFromDatabaseAcciredFromRequestBody = userRepository.getById(student_id);
+        // returnedList.add(variableValueForUserFromDataBaseAcciredFromRequestBody);
+        return userRepository.save(variableValueForUserFromDataBaseAcciredFromRequestBody.Builder()
+            .setCourseStatus(requestBody.getStatus())
+            .build();
+          )
+        }
+      ).toList();
   }
 }
