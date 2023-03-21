@@ -38,9 +38,13 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
@@ -97,15 +101,6 @@ public class CourseIT {
 
 
     @Test
-    void student_read_hes_course_ok() throws ApiException {
-        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-        UsersApi api = new UsersApi(student1Client);
-
-        List<Course> actual = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
-        
-    }
-
-    @Test
     void manager_read_student_courses_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         UsersApi api = new UsersApi(manager1Client);
@@ -136,6 +131,38 @@ public class CourseIT {
         expectCours.add(0,course1());
         List<Course> actualCours = api.getStudentCoursesById(STUDENT1_ID, null);
         assertEquals(actualCours, expectCours);
+    }
+
+    @Test
+    void teacher_read_student_courses_ko() throws ApiException {
+        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+        UsersApi api = new UsersApi(teacher1Client);
+
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED));
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getStudentCoursesById(STUDENT1_ID, null));
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getStudentCoursesById(STUDENT1_ID, CourseStatus.UNLINKED));
+    }
+
+    @Test
+    void student_read_courses_ko() throws ApiException {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        UsersApi api = new UsersApi(student1Client);
+
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getStudentCoursesById(STUDENT2_ID, CourseStatus.LINKED));
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getStudentCoursesById(STUDENT2_ID, null));
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getStudentCoursesById(STUDENT2_ID, CourseStatus.UNLINKED));
     }
 
 
