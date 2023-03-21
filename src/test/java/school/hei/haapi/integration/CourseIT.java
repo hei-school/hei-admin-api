@@ -68,7 +68,9 @@ class CourseIT {
   void student_course_read_ok() throws ApiException {
     ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(studentClient);
+
     List<Course> actual = api.getStudentCoursesById(STUDENT1_ID, LINKED);
+
     assertTrue(actual.contains(course()));
   }
 
@@ -113,13 +115,13 @@ class CourseIT {
 
   @Test
   void student_course_read_ko() throws ApiException {
-    String STUDENT100001_id = "100001";
+    String new_student_id = "100001";
     ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(studentClient);
 
     assertThrowsApiException(
-            "{\"type\":\"404 NOT FOUND\",\"message\":\"Student not Found\"}",
-            () -> api.getStudentCoursesById(STUDENT100001_id, LINKED));
+            "{\"type\":\"404 NOT_FOUND\",\"message\":\"Student.100001 is not found.\"}",
+            () -> api.getStudentCoursesById(new_student_id, LINKED));
   }
 
   @Test
