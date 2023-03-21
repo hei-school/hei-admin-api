@@ -17,6 +17,8 @@ import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.StudentCourse;
 import school.hei.haapi.service.CourseService;
 
@@ -54,5 +56,15 @@ public class CourseController {
     public List<Course> getFeesByStudentAndStatus(
             @PathVariable String studentId, @RequestParam(required = false) StudentCourse.CourseStatus status) {
         return courseMapper.toRestCourse(courseService.getByStudentIdAndStatus(studentId,status));
+    }
+
+    @GetMapping("/courses")
+    public List<Course> getCourses(
+            @RequestParam(name = "page", required = false)PageFromOne page,
+            @RequestParam(name = "page_size", required = false)BoundedPageSize pageSize
+            ){
+        return courseService.getCourses(page, pageSize).stream()
+                .map(courseMapper::toRestCourse)
+                .collect(Collectors.toList());
     }
 }
