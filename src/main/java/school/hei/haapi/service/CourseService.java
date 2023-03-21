@@ -12,6 +12,8 @@ import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.UserRepository;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 @Slf4j

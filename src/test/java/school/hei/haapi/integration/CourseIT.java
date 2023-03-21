@@ -13,16 +13,16 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
-import school.hei.haapi.endpoint.rest.api.CoursesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
-import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -43,6 +43,7 @@ class CourseIT {
     @MockBean
     private CognitoComponent cognitoComponentMock;
     private static CourseStatus status;
+    private static UserMapper userMapper;
 
     private static ApiClient anApiClient(String token) {
         return TestUtils.anApiClient(token, FeeIT.ContextInitializer.SERVER_PORT);
@@ -115,9 +116,8 @@ class CourseIT {
     public static Course course1(){
         Course course = new Course();
         course.setId("course1_id");
-        course.setName("CRS0001");
-       course.setMainTeacher(null);
-
+        course.setName("CRS21001");
+       course.setMainTeacher(teacher1());
        return course;
 }
     @BeforeEach
@@ -128,26 +128,22 @@ class CourseIT {
     @Test
     void student_read_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-        CoursesApi api = new CoursesApi(student1Client);
+        UsersApi api = new UsersApi(student1Client);
 
-        Course actualCourse = api.getStudentCoursesById(STUDENT1_ID, LINKED_STATUS);
-
-
+        Course actualCourse = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
         assertEquals(course1(),actualCourse);
-        assertTrue(actual.contains(course1()));
-
     }
-    public static CrupdateCourse someModifiableCourse(){
-        return new CrupdateCourse();
+    public static UpdateStudentCourse someModifiableCourse(){
+        return  new  UpdateStudentCourse()
+                .courseId("course1_id")
+                .status(CourseStatus.LINKED);
     }
     @Test
-    void manager_write_ok() throws ApiException {
+    void teacher_write_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-        CoursesApi api = new CoursesApi(manager1Client);
-
+        UsersApi api = new UsersApi(manager1Client);
         List<Course> actual = api.updateStudentCourses(STUDENT1_ID, List.of(someModifiableCourse()));
-
-        assertTrue(actual.contains(course1()));
+        assertEquals(actual,course1());
     }
 
     @Test
@@ -172,7 +168,7 @@ class CourseIT {
 
     @Test
     void manager_write_with_some_bad_fields_ko() throws ApiException {
-       // TODO : implement bad request
+
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
