@@ -12,6 +12,9 @@ import school.hei.haapi.service.CourseService;
 
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.PathVariable;
+
+
 
 @RestController
 @AllArgsConstructor
@@ -30,4 +33,11 @@ public class CourseController {
                 .map(mapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
     }
+
+    @GetMapping("/courses/{id}")
+    public Course getCourseById(@PathVariable String id) {
+        return mapper.toRest(service.getById(id));
+    }
+
+
 }

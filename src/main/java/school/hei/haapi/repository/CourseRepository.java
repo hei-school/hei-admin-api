@@ -14,3 +14,4 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     Course findCourseByCode(String code);
 
 }
+

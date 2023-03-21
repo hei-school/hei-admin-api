@@ -1,21 +1,9 @@
 package school.hei.haapi.model;
 
-
-import java.util.List;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToMany;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
-
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Objects;
 import javax.persistence.*;
-import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 
 import lombok.AllArgsConstructor;
@@ -24,40 +12,37 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import static javax.persistence.FetchType.LAZY;
-
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import school.hei.haapi.repository.types.PostgresEnumType;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
+@Table(name = "\"student_course\"")
 @Getter
 @Setter
 @ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Course implements Serializable {
+public class StudentCourse implements Serializable {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private String id;
 
-    private String code;
+    @NotBlank(message = "Course is mandatory")
+    @ManyToOne(cascade = CascadeType.ALL)
+    private Course course_id;
 
-    private String name;
+    @NotBlank(message = "Student is mandatory")
+    @ManyToOne(cascade = CascadeType.ALL)
+    private User student_id;
 
-    private int credits;
+    @Type(type = "pgsql_enum")
+    @Enumerated(EnumType.STRING)
+    private Status status = Status.LINKED;
 
-    private int totalHours;
-
-    @OneToOne
-    @JoinColumn(name = "main_teacher", nullable = false, referencedColumnName = "id")
-    private User mainTeacher;
 
     @Override
     public boolean equals(Object o) {
@@ -67,12 +52,15 @@ public class Course implements Serializable {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
             return false;
         }
-        Course course = (Course) o;
-        return id != null && Objects.equals(id, course.id);
+        StudentCourse studentCourse = (StudentCourse) o;
+        return id != null && Objects.equals(id, studentCourse.id);
     }
 
     @Override
     public int hashCode() {
         return getClass().hashCode();
+    }
+    public enum Status {
+        LINKED, UNLINKED
     }
 }
