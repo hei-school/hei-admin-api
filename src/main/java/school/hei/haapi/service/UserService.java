@@ -32,6 +32,7 @@ public class UserService {
   private final EventProducer eventProducer;
   private final UserValidator userValidator;
   private final CourseRepository courseRepository;
+  private final LinkedOrUnlikedRepository linkedOrUnlikedRepository;
 
   private final UserManagerDao userManagerDao;
 
@@ -75,20 +76,7 @@ public class UserService {
            role, ref, firstName, lastName, pageable);
   }
 
-  public List<Course> updateStudentcourse(List<UpdateStudentscourse> plainbody,String student_id) throw {
-    try {
-      User variableValueForUserFromDatabaseAcciredFromRequestBody = userRepository.getById(student_id);
-      List<Course> toSave = plainbody.stream().map((requestBody)->{
-          return courseRepository.getByCourseId(requestBody.getCourseId());
-        }.toList(); 
-      );
-      userRepository.save(variableValueForUserFromDataBaseAcciredFromRequestBody.Builder()
-          .setCourseStatus(toSave)
-          .build();
-      )
-      
-    } catch (RuntimeErrorException E) {
-      throw RuntimeErrorException;
-    }
+  public List<Course> updateStudentcourse(List<UpdateStudentscourse> plainbody,String student_id) {
+    
   }
 }
