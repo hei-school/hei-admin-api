@@ -24,4 +24,8 @@ public class CourseService {
   public List<Course> saveAll(List<Course> groups) {
     return repository.saveAll(groups);
   }
+
+  public List<Course> getCoursesByStudentId(String studentId){
+    return repository.getByStudentId(studentId);
+  }
 }

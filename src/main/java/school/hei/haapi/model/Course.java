@@ -8,6 +8,7 @@ import school.hei.haapi.repository.types.PostgresEnumType;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.util.List;
 import java.util.Objects;
 
 import static javax.persistence.GenerationType.IDENTITY;
@@ -25,7 +26,6 @@ public class Course implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
-
   private String code;
   private String name;
   private int credits;
@@ -34,6 +34,10 @@ public class Course implements Serializable {
   @ManyToOne
   @JoinColumn(name = "main_teacher_id")
   private User main_teacher;
+
+  @ManyToMany
+  @JoinTable(name="course_student")
+  private List<User> students;
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)

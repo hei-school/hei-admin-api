@@ -21,11 +21,11 @@ public class CourseController {
   private final CourseMapper courseMapper;
 
   @PutMapping("/students/{student_id}/courses")
-  public List<Course> saveAll(@RequestBody List<UpdateStudentCourse> toWrite) {
-    return courseService
+  public List<Course> updateStudentCourses(@PathVariable String studentId, @RequestBody List<UpdateStudentCourse> toWrite) {
+     return courseService
         .saveAll(toWrite
             .stream()
-            .map(courseMapper::toDomain)
+            .map(updateStudentCourse -> courseMapper.toStudentCourseDomain(studentId, updateStudentCourse))
             .collect(toUnmodifiableList()))
         .stream()
         .map(courseMapper::toRest)
