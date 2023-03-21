@@ -9,13 +9,13 @@ package school.hei.haapi.model;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Linked_or_unliked {
+public class LinkedOrUnliked {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private String id;
-    @OneToMany
+    @OneToMany( mappedBy = "courseLinked")
     private String User_id;
-    @OneToMany
+    @OneToMany( mappedBy = "userStatus")
     private String course_id;
     private Status status;
     public enum Status{

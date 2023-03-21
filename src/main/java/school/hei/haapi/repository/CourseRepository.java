@@ -1,6 +1,6 @@
 package main.java.school.hei.haapi.repository;
 
 @Repository
-public class CourseRepository {
+public Interface CourseRepository extends JpaRepository <Course,String>{
     
 }
