@@ -34,16 +34,22 @@ public class CourseStudent {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private String id;
-
+    
     @ManyToOne
-    @JoinColumn(name = "student_id")
-    private User student;
-
-    @ManyToOne
+    @MapsId("courseId")
     @JoinColumn(name = "course_id")
     private Course course;
-
+    
+    @ManyToOne
+    @MapsId("studentId")
+    @JoinColumn(name = "student_id")
+    private User student;
+    
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
-    private school.hei.haapi.endpoint.rest.model.CourseStatus status;
+    private Status status;
+
+    public enum Status {
+        LINKED,UNLINKED
+    }
 }
