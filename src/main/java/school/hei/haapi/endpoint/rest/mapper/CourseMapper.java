@@ -4,7 +4,10 @@ package school.hei.haapi.endpoint.rest.mapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.CourseFollowed;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.model.CourseFollowedRest;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CourseRepository;
@@ -15,9 +18,9 @@ import school.hei.haapi.repository.UserRepository;
 
 public class CourseMapper {
 
-  private final UserMapper userMapper;
+  private UserMapper userMapper;
+  private UserRepository userRepository;
   private final CourseRepository courseRepository;
-  private final UserRepository userRepository;
 
   public Course toRest(CourseFollowed domain){
     return new Course()
@@ -51,4 +54,26 @@ public class CourseMapper {
             .build();
   }
 
+
+  public school.hei.haapi.model.Course toDomain(CrupdateCourse rest){
+    return school.hei.haapi.model.Course.builder()
+        .idCourse(rest.getId())
+        .teacher(userRepository.getById(rest.getMainTeacherId()))
+        .code(rest.getCode())
+        .name(rest.getName())
+        .credits(rest.getCredits())
+        .totalHours(rest.getTotalHours())
+        .build();
+  }
+
+  public school.hei.haapi.model.CourseFollowed toDomain(UpdateStudentCourse rest, String studentId){
+    school.hei.haapi.model.Course course = courseRepository.getById(rest.getCourseId());
+    User student = userRepository.getById(studentId);
+
+    return CourseFollowed.builder()
+        .course(course)
+        .student(student)
+        .status(rest.getStatus())
+        .build();
+  }
 }

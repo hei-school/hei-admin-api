@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
+import org.hibernate.sql.Update;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -19,9 +20,11 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -98,11 +101,30 @@ class CourseIT {
         .totalHours(150);
   }
 
-  private CourseFollowedRest courseToUpdate(){
-    return CourseFollowedRest.builder()
-            .course_id("course2_id")
-            .status(CourseStatus.UNLINKED)
-            .build();
+  private CrupdateCourse new_course(){
+    return new CrupdateCourse()
+        .id("course3_id")
+        .code("SYS1")
+        .name("Systeme d'exploitation")
+        .credits(10)
+        .totalHours(200)
+        .mainTeacherId("teacher1_id");
+  }
+
+  private CrupdateCourse to_be_updated(){
+    return new CrupdateCourse()
+        .id("course1_id")
+        .code("PROG2")
+        .name("Base de données")
+        .credits(10)
+        .totalHours(200)
+        .mainTeacherId("teacher1_id");
+  }
+
+  private UpdateStudentCourse courseToUpdate(){
+    return new  UpdateStudentCourse()
+            .courseId("course2_id")
+            .status(CourseStatus.UNLINKED);
   }
 
   @BeforeEach
@@ -125,7 +147,7 @@ class CourseIT {
   void get_all_courses_ok() throws ApiException{
     ApiClient student1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
-    List<Course> courses = api.getCourses(null, null);
+    List<Course> courses = api.getCourses(1, 15);
 
     assertTrue(courses.contains(student1_linked()));
     assertTrue(courses.contains(student1_unlinked()));
@@ -133,12 +155,35 @@ class CourseIT {
 
   @Test
   void put_student_followed_courses_ok() throws ApiException{
-    ApiClient manager1Client  = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+    ApiClient student1  = anApiClient(TEACHER1_TOKEN);
+    UsersApi api = new UsersApi(student1);
+    TeachingApi api1 = new TeachingApi(student1);
 
-    List<CourseFollowedRest> courseToUpdate = List.of(courseToUpdate());
-    List<Course> coursesUpdated = List.of(student1_unlinked());
+    List<Course> getCoursesBefore = api1.getCourses(1, 15);
+    List<Course> courseToUpdate = api.updateStudentCourses(STUDENT1_ID,
+        List.of(courseToUpdate()));
+    List<Course> getAllCourses = api1.getCourses(1, 15);
+
+    log.info("before: {}", getCoursesBefore);
+    log.info("updated: {}", courseToUpdate);
+    log.info("after: {}", getAllCourses);
+
   }
+
+  @Test
+  void crupdate_courses_ok () throws ApiException{
+    ApiClient teacher1 = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1);
+    List<Course> toBeCreated = api.crupdateCourses(List.of(new_course()));
+    List<Course> toBeUpdated = api.crupdateCourses(List.of(to_be_updated()));
+    List<Course> allCourses = api.getCourses(1, 15);
+    log.info("courses{}", allCourses);
+
+    assertEquals(allCourses.get(0), student1_unlinked());
+    assertEquals(allCourses.get(1), toBeCreated.get(0));
+    assertEquals(allCourses.get(2), toBeUpdated.get(0));
+  }
+
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
 

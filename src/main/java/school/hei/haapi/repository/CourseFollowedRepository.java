@@ -7,4 +7,5 @@ import school.hei.haapi.model.CourseFollowed;
 
 public interface CourseFollowedRepository extends JpaRepository<CourseFollowed, String> {
   List<CourseFollowed> findAllByStudentIdAndStatus(String studentId, CourseStatus status);
+  CourseFollowed findByStudentIdAndCourseIdCourse(String studentId, String couresId);
 }
