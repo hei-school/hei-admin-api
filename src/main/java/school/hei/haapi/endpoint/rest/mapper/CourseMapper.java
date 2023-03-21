@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.response.CoursesResponse;
 import school.hei.haapi.endpoint.rest.response.CreateCourses;
+import school.hei.haapi.endpoint.rest.response.StudentCoursesResponse;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.StudentCourses;
 import school.hei.haapi.repository.UserRepository;
 
 @Component
@@ -54,6 +56,12 @@ public class CourseMapper {
                 .credits(rest.getCredits())
                 .total_hours(rest.getTotal_hours())
                 .main_teacher_id(rest.getMain_teacher().getId())
+                .build();
+    }
+
+    public StudentCoursesResponse toRest(StudentCourses rest) {
+        return StudentCoursesResponse.builder()
+                .course(rest.getCourse())
                 .build();
     }
 }
