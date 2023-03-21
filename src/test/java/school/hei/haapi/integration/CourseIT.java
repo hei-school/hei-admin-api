@@ -10,10 +10,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -116,6 +118,25 @@ class CourseIT {
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.updateStudentCourses(STUDENT1_ID, List.of(courseToUpdate())));
+  }
+
+  @Test
+  void update_course_ok() throws ApiException {
+    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(managerClient);
+
+    List<Course> actual = api.crupdateCourses(List.of(new CrupdateCourse()
+        .id("course1_id")
+        .code("SYS1")
+        .name("Operating System")
+        .credits(5)
+        .totalHours(40)
+        .mainTeacherId("teacher1_id")));
+
+    assertFalse(actual.isEmpty());
+    assertTrue(actual.contains(course()
+        .code("SYS1")
+        .name("Operating System")));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
