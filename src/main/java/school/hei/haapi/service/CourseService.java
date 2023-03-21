@@ -72,4 +72,3 @@ public Course getById(String groupId) {
         return courseRepository.getByStudentId(studentId, pageable);
     }
 }
-

@@ -34,7 +34,7 @@ import school.hei.haapi.service.CourseService;
 @AllArgsConstructor
 public class CourseController {
     private final CourseService service;
-    private final CourseMapper mapper
+    private final CourseMapper mapper;
 
     @GetMapping(value = "/courses")
     public List<Course> getCourses(

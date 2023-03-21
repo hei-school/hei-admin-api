@@ -159,6 +159,36 @@ public class CourseIT {
     setUpCognito(cognitoComponent);
   }
 
+  @Test
+  void manager_read_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(apiClient);
+
+    List<Course> actual = api.getCourses(1, 15);
+
+    assertEquals(5, actual.size());
+    assertTrue(actual.containsAll(List.of(course1(), course2())));
+  }
+  @Test
+  void teacher_read_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(apiClient);
+
+    List<Course> actual = api.getCourses(1, 15);
+
+    assertEquals(5, actual.size());
+    assertTrue(actual.containsAll(List.of(course1(), course2())));
+  }
+  @Test
+  void student_read_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(apiClient);
+
+    List<Course> actual = api.getCourses(1, 15);
+
+    assertEquals(5, actual.size());
+    assertTrue(actual.containsAll(List.of(course1(), course2())));
+  }
   @Order(1)
   @Test
   void manager_read_ok() throws ApiException {
