@@ -1,13 +1,16 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Group;
@@ -45,5 +48,10 @@ public class CourseController {
             @PathVariable String studentId, @RequestBody List<UpdateStudentCourse> toCreate) {
         return new ArrayList<>();//courseService.saveAll(
                         //courseMapper.toDomainStudentCourse(studentId, toCreate));
+    }
+    @GetMapping("/students/{studentId}/courses")
+    public List<Course> getFeesByStudentAndStatus(
+            @PathVariable String studentId, @RequestParam(required = false) StudentCourse.CourseStatus status) {
+        return courseMapper.toRestCourse(courseService.getByStudentIdAndStatus(studentId,status));
     }
 }
