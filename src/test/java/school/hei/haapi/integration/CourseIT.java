@@ -24,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -95,6 +96,11 @@ public class CourseIT {
                 .build();
         assertEquals(expected,toCreate);
         assertTrue(toUpdate.contains(createCourse()));
+    }
+    @Test
+    void course_write_update_if_exist_ko () throws ApiException{
+        Course toUpdate= (Course) List.of();
+        assertThrowsApiException("{\"type\":\"404 NOT_FOUND\",\"message\":null}", () -> List.of(toUpdate) );
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
