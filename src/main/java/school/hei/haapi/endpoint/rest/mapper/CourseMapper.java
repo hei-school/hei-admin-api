@@ -44,6 +44,25 @@ public class CourseMapper {
                 .collect(toUnmodifiableList());
     }
 
+    public school.hei.haapi.model.Course toDomain(school.hei.haapi.endpoint.rest.model.CrupdateCourse createCourse){
+        User teacher = userService.getById(createCourse.getMainTeacherId());
+        if (teacher == null) {
+            throw new NotFoundException("Teacher.id=" + createCourse.getMainTeacherId() + " is not found");
+        }
+        if (!teacher.getRole().equals(User.Role.TEACHER)) {
+            throw new BadRequestException("Only teachers can possess courses");
+        }
+        return school.hei.haapi.model.Course.builder()
+                .id(createCourse.getId())
+                .code(createCourse.getCode())
+                .name(createCourse.getName())
+                .credits(createCourse.getCredits())
+                .totalHours(createCourse.getTotalHours())
+                .MainTeacher(User.builder()
+                        .id(createCourse.getMainTeacherId())
+                        .build())
+                .build();
+    }
     private school.hei.haapi.model.StudentCourse toDomainStudentCourse(User student, UpdateStudentCourse course){
         if (!student.getRole().equals(User.Role.STUDENT)) {
             throw new BadRequestException("Only students can be linked to courses");
