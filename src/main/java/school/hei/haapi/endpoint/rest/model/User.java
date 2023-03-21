@@ -1,16 +1,11 @@
-package school.hei.haapi.model;
+package school.hei.haapi.endpoint.rest.model;
 
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -103,5 +98,15 @@ public class User implements Serializable {
 
   public enum Role {
     STUDENT, TEACHER, MANAGER
+  }
+  @ManyToMany(mappedBy = "userStatus")
+  private List<Courses> courseStatus;
+  @Override
+  public void SetCourseStatus(List<Courses> param){
+    if(this.role.equals(Role.STUDENT)){
+      this.courseStatus=param;
+    }
+    // throw RuntimeErrorException("teacher cannot have course status");
+    // should throw an exception but I don't know how to do this for now cuz I don't have JAVA RUNTIME that work with gradle.
   }
 }
