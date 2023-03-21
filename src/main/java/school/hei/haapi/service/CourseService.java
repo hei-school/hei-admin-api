@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.*;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.CourseStudentRepository;
 
@@ -32,7 +33,7 @@ public class CourseService {
                 .map(CourseStudent::getCourse)
                 .collect(Collectors.toList());
     }
-    public void updateCourseStudentStatus(String studentId, String courseId, CourseStudent.Status newStatus) {
+    public void updateCourseStudentStatus(String studentId, String courseId, CourseStatus newStatus) {
         User student = userService.getById(studentId);
         Course course = repository.findById(courseId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid course id: " + courseId));
