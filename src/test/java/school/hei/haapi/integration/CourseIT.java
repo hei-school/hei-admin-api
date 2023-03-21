@@ -13,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
+import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -31,6 +32,12 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -112,6 +119,16 @@ class CourseIT {
 
     assertEquals(coursesUnlinked, List.of(student1_unlinked()));
     assertEquals(coursesLinked, List.of(student1_linked()));
+  }
+
+  @Test
+  void get_all_courses_ok() throws ApiException{
+    ApiClient student1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+    List<Course> courses = api.getCourses(null, null);
+
+    assertTrue(courses.contains(student1_linked()));
+    assertTrue(courses.contains(student1_unlinked()));
   }
 
   @Test
