@@ -39,4 +39,6 @@ public class LateFeeVerified implements Serializable {
   @JsonProperty("comment")
   private String comment;
 
+  private class TypeEnum {
+  }
 }

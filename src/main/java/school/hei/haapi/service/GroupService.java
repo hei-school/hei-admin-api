@@ -13,6 +13,7 @@ public class GroupService {
   private final GroupRepository repository;
 
   public Group getById(String groupId) {
+
     return repository.getById(groupId);
   }
 
