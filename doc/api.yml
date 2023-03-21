@@ -994,6 +994,10 @@ components:
           format: date
         address:
           type: string
+        longitude:
+          type: string
+        latitude:
+          type: string
         phone:
           type: string
         email:

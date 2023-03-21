@@ -8,7 +8,17 @@ import lombok.Setter;
 import lombok.ToString;
 
 
+
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
+
 import javax.persistence.*;
+
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -28,9 +38,12 @@ public class Course {
     @Column(unique=true)
     private String code;
 
+
+
     @OneToMany
     @JoinColumn(name = "student_id" , nullable = false)
     private Student student;
+
 
     private String name;
 
@@ -41,5 +54,14 @@ public class Course {
     @ManyToOne
     @JoinColumn(name = "main_teacher_id", nullable = false)
     private User main_teacher;
+
+
+    public String getCourseName() {
+        return null;
+    }
+
+    public Object getStatus() {
+        return null;
+    }
 
 }
