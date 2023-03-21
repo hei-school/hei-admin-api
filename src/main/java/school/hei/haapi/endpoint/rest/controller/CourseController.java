@@ -18,6 +18,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 public class CourseController {
     private final CourseService courseService;
     private final CourseMapper courseMapper;
+
     @GetMapping("/students/{studentId}/courses")
     public List<Course> getFeesByStudentId(
             @PathVariable String studentId,
@@ -27,4 +28,5 @@ public class CourseController {
         return courseService.getCoursesByStudentId(studentId, page, pageSize, status).stream()
                 .map(courseMapper::toRestCourse)
                 .collect(toUnmodifiableList());
+    }
 }

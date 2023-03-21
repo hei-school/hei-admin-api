@@ -38,7 +38,7 @@ public class Course {
 
         @ManyToMany
         @JoinTable(name = "course_student")
-        private List<User> student;
+        private List<User> students;
         @Type(type="pgsql_enum")
         @Enumerated(EnumType.STRING)
         private CourseStatus status;

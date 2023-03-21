@@ -11,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class CourseMapper {
     private UserService userService;
-    public Course toRestCourse(school.hei.haapi.model.Course course, String studentId) {
+    public Course toRestCourse (school.hei.haapi.model.Course course, String studentId) {
         return new Course()
                 .id(course.getId())
                 .code(course.getCode())
