@@ -53,13 +53,10 @@ public class Course implements Serializable {
         return this;
     }
 
-    public enum CourseStatus {
-        LINKED, UNLINKED
-    }
     public enum StatusEnum {
-        UNPAID("LINKED"),
+        LINKED("LINKED"),
 
-        LATE("UNLINKED");
+        UNLINKED("UNLINKED");
 
         private String value;
 

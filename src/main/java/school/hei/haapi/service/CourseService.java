@@ -13,6 +13,8 @@ import school.hei.haapi.repository.CourseRepository;
 import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.model.Course.StatusEnum.LINKED;
+import static school.hei.haapi.model.Course.StatusEnum.UNLINKED;
 
 @Service
 @AllArgsConstructor
@@ -20,15 +22,15 @@ public class CourseService {
 
     private final CourseRepository repository;
 
-    public List<Course> getCourseByStudentId(String studentId, PageFromOne page, BoundedPageSize pageSize, Course.CourseStatus status){
+    public List<Course> getCourseByStudentId(String studentId, PageFromOne page, BoundedPageSize pageSize, Course.StatusEnum status){
         Pageable pageable = PageRequest.of(
                 page.getValue() - 1,
                 pageSize.getValue(),
                 Sort.by(DESC, "dueDatetime"));
         if (status != null) {
-            return repository.getByStudentId(studentId, pageable, status);
+            return repository.getCourseByStudentId(studentId, pageable, status);
         }
-        return repository.getByStudentId(studentId, pageable, status);
+        return repository.getByStudentId(studentId, pageable);
     }
     public List<Course> getAllCourses() {
         return repository.findAll();
@@ -38,6 +40,14 @@ public class CourseService {
         return repository.getById(courseId);
     }
 
+    private Course updateCourseStatus(Course initialCourse) {
+        if (initialCourse.getStatus() == null || initialCourse.getId() == null) {
+            initialCourse.setStatus(LINKED);
+        } else if (initialCourse.getStatus() != null) {
+            initialCourse.setStatus(UNLINKED);
+        }
+        return initialCourse;
+    }
 
     public List<Course> saveAllCourses(List<Course> courses) {
         return repository.saveAll(courses);

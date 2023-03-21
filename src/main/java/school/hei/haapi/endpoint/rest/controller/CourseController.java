@@ -40,7 +40,7 @@ public class CourseController {
     public List<Course> getCourseByStudentId(
             @PathVariable String studentId,
             @PathVariable PageFromOne page,
-            @PathVariable Course.CourseStatus status,
+            @PathVariable Course.StatusEnum status,
             @RequestParam("page_size") BoundedPageSize pageSize){
         return service.getCourseByStudentId(studentId, page, pageSize, status).stream()
                 .map(courseMapper::toRest)
@@ -48,7 +48,7 @@ public class CourseController {
     }
 
 //    @PutMapping("/students/{student_id}/courses")
-//    public List<Fee> createCourse(
+//    public List<Course> createCourse(
 //            @PathVariable String studentId,
 //            @RequestBody List<CreateCourse> toCreate) {
 //        return service.saveAll(
