@@ -20,8 +20,11 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -143,6 +146,34 @@ class StudentIT {
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
     return student;
+  }
+
+  public static Teacher teacher1() {
+    Teacher teacher = new Teacher();
+    teacher.setId("teacher1_id");
+    teacher.setFirstName("One");
+    teacher.setLastName("Teacher");
+    teacher.setEmail("test+teacher1@hei.school");
+    teacher.setRef("TCR21001");
+    teacher.setStatus(EnableStatus.ENABLED);
+    teacher.setSex(Teacher.SexEnum.F);
+    teacher.setBirthDate(LocalDate.parse("1990-01-01"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
+    teacher.setAddress("Adr 2");
+    teacher.setPhone("0322411125");
+    teacher.setAddress("Adr 3");
+    return teacher;
+  }
+
+  public static Course course1() {
+    Course course = new Course();
+    course.setId("course1_id");
+    course.setMainTeacher(teacher1());
+    course.setCode("PROG1");
+    course.setName("Algo");
+    course.setCredits(3);
+    course.setTotalHours(30);
+    return course;
   }
 
   @BeforeEach
@@ -362,6 +393,14 @@ class StudentIT {
     PutEventsRequestEntry requestEntry1 = actualRequestEntries.get(1);
     assertTrue(requestEntry1.detail().contains(created1.getId()));
     assertTrue(requestEntry1.detail().contains(created1.getEmail()));
+  }
+  @Test
+  void student_read_course_by_id() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    UsersApi api = new UsersApi(student1Client);
+    List<Course> actual = api.getStudentCoursesById(student1().getId(), CourseStatus.LINKED);
+
+    assertTrue(actual.contains(course1()));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

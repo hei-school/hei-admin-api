@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -14,8 +15,10 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UserValidator;
+import school.hei.haapi.repository.CourseStudentRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
@@ -29,6 +32,8 @@ public class UserService {
   private final UserValidator userValidator;
 
   private final UserManagerDao userManagerDao;
+
+  private final CourseStudentRepository courseStudentRepository;
 
   public User getById(String userId) {
     return userRepository.getById(userId);
@@ -68,5 +73,14 @@ public class UserService {
         Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
            role, ref, firstName, lastName, pageable);
+  }
+
+  public List<school.hei.haapi.model.Course> getByIdAndStatus(String student_id, CourseStatus status) {
+      List<school.hei.haapi.model.Course> courseList = new ArrayList<>();
+      courseStudentRepository.getAllByStudentIdAndStatus(student_id, status).forEach(courseStudent -> {
+        courseList.add(courseStudent.getCourse());
+      });
+
+    return courseList;
   }
 }
