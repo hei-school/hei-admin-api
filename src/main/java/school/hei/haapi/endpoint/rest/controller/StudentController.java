@@ -11,8 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.CourseService;
 import school.hei.haapi.service.UserService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -23,9 +25,16 @@ public class StudentController {
   private final UserService userService;
   private final UserMapper userMapper;
 
+  private final CourseService courseService;
+
   @GetMapping("/students/{id}")
   public Student getStudentById(@PathVariable String id) {
     return userMapper.toRestStudent(userService.getById(id));
+  }
+
+  @GetMapping("/students/{student_id}/courses")
+  public List<Course> getCoursesByStudent(@PathVariable String id){
+    return courseService.getByStudentId(id);
   }
 
   @GetMapping("/students")
