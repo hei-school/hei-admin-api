@@ -4,15 +4,11 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,41 +36,23 @@ public class Course implements Serializable {
     @GeneratedValue(strategy = IDENTITY)
     private String id;
 
-    @NotBlank(message = "First name is mandatory")
-    private String firstName;
+    @NotBlank(message = "Code is mandatory")
+    @Column(unique = true)
+    private String code;
 
-    @NotBlank(message = "Last name is mandatory")
-    private String lastName;
+    @NotBlank(message = "name is mandatory")
+    private String name;
 
     @NotBlank(message = "Email is mandatory")
-    @Email(message = "Email must be valid")
-    private String email;
+    private Integer credits;
 
-    @NotBlank(message = "Reference is mandatory")
-    private String ref;
+    @NotBlank(message = "Total hours is mandatory")
+    private Integer total_hours;
 
-    @Type(type = "pgsql_enum")
-    @Enumerated(EnumType.STRING)
-    private Status status;
-
-    @NotBlank(message = "Phone number is mandatory")
-    private String phone;
-
-    private LocalDate birthDate;
-
-    private Instant entranceDatetime;
-
-    @Type(type = "pgsql_enum")
-    @Enumerated(EnumType.STRING)
-    private Sex sex;
-
-    @NotBlank(message = "Address is mandatory")
-    private String address;
-
-    @Column(name = "\"role\"")
-    @Type(type = "pgsql_enum")
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    @NotBlank(message = "Main teacher is mandatory")
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "main_teacher",referencedColumnName = "id")
+    private User main_teacher;
 
     @Override
     public boolean equals(Object o) {
@@ -84,24 +62,12 @@ public class Course implements Serializable {
         if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
             return false;
         }
-        User user = (User) o;
-        return id != null && Objects.equals(id, user.id);
+        Course course = (Course) o;
+        return id != null && Objects.equals(id, course.id);
     }
 
     @Override
     public int hashCode() {
         return getClass().hashCode();
-    }
-
-    public enum Sex {
-        M, F
-    }
-
-    public enum Status {
-        ENABLED, DISABLED
-    }
-
-    public enum Role {
-        STUDENT, TEACHER, MANAGER
     }
 }
