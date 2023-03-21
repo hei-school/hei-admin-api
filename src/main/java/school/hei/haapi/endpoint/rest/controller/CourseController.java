@@ -1,5 +1,14 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.*;
+import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
+import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.service.CourseService;
+import school.hei.haapi.service.FeeService;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -11,9 +20,7 @@ import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.CourseService;
-
 import java.util.List;
-
 import static java.util.stream.Collectors.toUnmodifiableList;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -62,4 +69,15 @@ public class CourseController {
         .map(courseMapper::toRest)
         .collect(toUnmodifiableList());
   }
+  
+   @GetMapping("/students/{studentId}/courses")
+    public List<Course> getFeesByStudentId(
+            @PathVariable String studentId,
+            @RequestParam PageFromOne page,
+            @RequestParam("page_size") BoundedPageSize pageSize,
+            @RequestParam(required = false) CourseStatus status) {
+        return courseService.getCoursesByStudentId(studentId, page, pageSize, status).stream()
+                .map(courseMapper::toRestCourse)
+                .collect(toUnmodifiableList());
+    }
 }

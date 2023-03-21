@@ -1,17 +1,13 @@
 package school.hei.haapi.service;
 
-<<<<<<< HEAD
-=======
+import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import java.util.List;
->>>>>>> dcbf6c0e198524dab51d5515d0b92cabb24a51cc
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.repository.CourseRepository;
-
-<<<<<<< HEAD
 import java.util.List;
-
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -22,16 +18,22 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.repository.CourseRepository;
+import school.hei.haapi.repository.CourseRespository;
+import school.hei.haapi.repository.FeeRepository;
+
+import java.util.List;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 
 @Service
 @AllArgsConstructor
 public class CourseService {
-
   private final CourseRepository repository;
 
-  public Course getById(String groupId) {
+public Course getById(String groupId) {
     return repository.getById(groupId);
   }
 
@@ -45,15 +47,8 @@ public class CourseService {
 
   public List<Course> getCoursesByStudentId(String studentId){
     return repository.getByStudentId(studentId);
-=======
-@Service
-@AllArgsConstructor
-public class CourseService {
-  private final CourseRepository repository;
-
   public List<Course> crupdateCourses(List<Course> courses){
     return repository.saveAll(courses);
->>>>>>> dcbf6c0e198524dab51d5515d0b92cabb24a51cc
   }
   
   public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize){
@@ -65,4 +60,16 @@ public class CourseService {
   public List<Course> crupdateCourses(List<Course> courses){
     return repository.saveAll(courses);
   }
+  public List<Course> getCoursesByStudentId(
+            String studentId, PageFromOne page, BoundedPageSize pageSize,
+            school.hei.haapi.endpoint.rest.model.CourseStatus status) {
+        Pageable pageable = PageRequest.of(
+                page.getValue() - 1,
+                pageSize.getValue());
+        if (status != null) {
+            return courseRepository.getCoursesByStudentIdAndStatus(studentId, status, pageable);
+        }
+        return courseRepository.getByStudentId(studentId, pageable);
+    }
 }
+

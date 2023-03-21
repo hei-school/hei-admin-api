@@ -4,13 +4,14 @@ import lombok.*;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import javax.persistence.*;
+import java.util.List;
+import java.util.Objects;
 import school.hei.haapi.repository.types.PostgresEnumType;
-
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
-
 import static javax.persistence.GenerationType.IDENTITY;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -37,6 +38,7 @@ import school.hei.haapi.repository.types.PostgresEnumType;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+
 public class Course implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
