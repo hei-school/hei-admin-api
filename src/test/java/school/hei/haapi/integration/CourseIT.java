@@ -64,7 +64,7 @@ class CourseIT {
   @Test
   void course_read_ok() throws ApiException {
     ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi();
+    TeachingApi api = new TeachingApi(teachingClient);
 
     List<Course> actual = api.getCourses(1,20);
     assertEquals(course(), actual);
