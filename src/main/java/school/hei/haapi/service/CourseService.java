@@ -10,6 +10,7 @@ import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.StudentCourseRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -30,16 +31,12 @@ public class CourseService {
     }
 
     public List<StudentCourse> saveAllStudentCourses(String studentId, List<StudentCourse> toDomainStudentCourse) {
-        for (StudentCourse s: toDomainStudentCourse) {
-            List<StudentCourse> test = getByStudentIdAndCourseId(studentId,s.getId());
-            if (test.size()>0) {
-                throw new BadRequestException("Course with id:"+s.getId()+ "is already linked with this student");
-            }
-        }
+
+
         return studentCourseRepository.saveAll(toDomainStudentCourse);
     }
 
-    public List<StudentCourse> getByStudentIdAndCourseId(String studentId, String courseId) {
+    public StudentCourse getByStudentIdAndCourseId(String studentId, String courseId) {
         return studentCourseRepository.getStudentCourseByStudentIdAndCourseId(studentId,courseId);
     }
 
