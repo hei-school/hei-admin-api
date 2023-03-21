@@ -4,10 +4,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
-import io.swagger.model.Course;
-import io.swagger.model.CourseStatus;
-import io.swagger.model.CrupdateCourse;
-import io.swagger.model.Fee;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,10 +13,16 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
+import school.hei.haapi.endpoint.rest.api.CoursesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -141,9 +143,9 @@ class CourseIT {
     @Test
     void manager_write_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-        CourseApi api = new CourseApi(manager1Client);
+        CoursesApi api = new CoursesApi(manager1Client);
 
-        List<Course> actual = api.updateStudentCourses(STUDENT1_ID, List.of(someModifiableCourse());
+        List<Course> actual = api.updateStudentCourses(STUDENT1_ID, List.of(someModifiableCourse()));
 
         assertTrue(actual.contains(course1()));
     }
