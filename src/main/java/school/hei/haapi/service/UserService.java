@@ -20,7 +20,7 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
-
+import school.hei.haapi.repository.CourseRepository;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
@@ -31,6 +31,7 @@ public class UserService {
   private final UserRepository userRepository;
   private final EventProducer eventProducer;
   private final UserValidator userValidator;
+  private final CourseRepository courseRepository;
 
   private final UserManagerDao userManagerDao;
 
@@ -73,20 +74,20 @@ public class UserService {
     return userManagerDao.findByCriteria(
            role, ref, firstName, lastName, pageable);
   }
+
   public List<Course> updateStudentcourse(List<UpdateStudentscourse> plainbody,String student_id) throw {
     try {
-      // List<UpdateStudentscourse> returnedList = new ArrayList();
-      return plainbody.stream().map((requestBody)->{
-        User variableValueForUserFromDatabaseAcciredFromRequestBody = userRepository.getById(student_id);
-        // returnedList.add(variableValueForUserFromDataBaseAcciredFromRequestBody);
-        return userRepository.save(variableValueForUserFromDataBaseAcciredFromRequestBody.Builder()
-            .setCourseStatus(requestBody.getStatus())
-            .build();
-          )
-        }
-      ).toList();
+      User variableValueForUserFromDatabaseAcciredFromRequestBody = userRepository.getById(student_id);
+      List<Course> toSave = plainbody.stream().map((requestBody)->{
+          return courseRepository.getByCourseId(requestBody.getCourseId());
+        }.toList(); 
+      );
+      userRepository.save(variableValueForUserFromDataBaseAcciredFromRequestBody.Builder()
+          .setCourseStatus(toSave)
+          .build();
+      )
     } catch (RuntimeErrorException E) {
-      // TODO: handle exception
+      throw RuntimeErrorException;
     }
   }
 }

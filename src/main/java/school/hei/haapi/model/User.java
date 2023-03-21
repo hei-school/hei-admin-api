@@ -109,11 +109,11 @@ public class User implements Serializable {
     STUDENT, TEACHER, MANAGER
   }
   @ManyToMany(mappedBy = "userStatus")
-  private List<Course> courseStatus;
+  private List<Course> courseLinked;
   @Override
   public void SetCourseStatus(List<Course> param){
     if(this.role.equals(Role.STUDENT)){
-      this.courseStatus=param;
+      this.courseLinked=param;
     }
     // throw RuntimeErrorException("teacher cannot have course status");
     // should throw an exception but I don't know how to do this for now cuz I don't have JAVA RUNTIME that work with gradle.
