@@ -50,5 +50,12 @@ public class CourseController {
                 .map(courseMapper::toRest)
                 .collect(toUnmodifiableList());
     }
+    
+    @GetMapping("/students/{studentId}/courses")
+    public List<Course> getFeesByStudentAndStatus(
+            @PathVariable String studentId, @RequestParam(required = false) StudentCourse.CourseStatus status) {
+        return courseMapper.toRestCourse(courseService.getByStudentIdAndStatus(studentId,status));
+    }
+}
 
 }
