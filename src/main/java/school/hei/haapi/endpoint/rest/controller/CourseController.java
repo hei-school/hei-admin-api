@@ -11,12 +11,6 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CourseStatus;
-import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.Group;
-import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.StudentCourse;
@@ -34,24 +28,7 @@ public class CourseController {
     private final CourseService courseService;
     private final CourseMapper courseMapper;
 
-    /*
-    @PutMapping(value = "/courses")
-    public List<Course> createOrUpdateCourses(@RequestBody List<Course> toWrite) {
-        var saved = courseService.saveAll(toWrite.stream()
-                .map(courseMapper::toDomain)
-                .collect(toUnmodifiableList()));
-        return saved.stream()
-                .map(courseMapper::toRest)
-                .collect(toUnmodifiableList());
-    }
-     */
 
-    @PutMapping("/students/{studentId}/courses")
-    public List<StudentCourse> createFees(
-            @PathVariable String studentId, @RequestBody List<UpdateStudentCourse> toCreate) {
-        return new ArrayList<>();//courseService.saveAll(
-        //courseMapper.toDomainStudentCourse(studentId, toCreate));
-    }
 
     @GetMapping("/courses")
     public List<Course> getCourses(
@@ -63,9 +40,4 @@ public class CourseController {
                 .collect(Collectors.toList());
     }
 
-    @GetMapping("/students/{studentId}/courses")
-    public List<Course> getFeesByStudentAndStatus(
-            @PathVariable String studentId, @RequestParam(required = false) StudentCourse.CourseStatus status) {
-        return courseMapper.toRestCourse(courseService.getByStudentIdAndStatus(studentId,status));
-    }
 }
