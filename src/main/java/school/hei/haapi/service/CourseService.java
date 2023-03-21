@@ -31,8 +31,8 @@ public class CourseService {
     public Course getById(String courseId){return repository.getById(courseId);}
 
     public List<StudentCourse> getByStudentIdAndStatus(String studentId, StudentCourse.CourseStatus status) {
-        return studentCourseRepository.getStudentCourseByStudentIdAndStatus(studentId,status);
-
+        StudentCourse.CourseStatus newStatus = status==null?StudentCourse.CourseStatus.LINKED:status;
+        return studentCourseRepository.getStudentCourseByStudentIdAndStatus(studentId,newStatus);
     }
 
     public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize){

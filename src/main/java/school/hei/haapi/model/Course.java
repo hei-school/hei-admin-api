@@ -34,7 +34,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+//@EqualsAndHashCode
 public class Course implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -48,4 +48,6 @@ public class Course implements Serializable {
   @ManyToOne
   @JoinColumn(name = "teacher_id", nullable = false)
   private User MainTeacher;
+
+
 }
