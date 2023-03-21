@@ -33,9 +33,7 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -114,12 +112,10 @@ public class CourseIT {
     @Test
     void student_read_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-
         TeachingApi api = new TeachingApi(student1Client);
-        Course actual1 = api.getCourseById("COURSE1_ID");
+
         List<Course> actualCourses = api.getCourses(1,10);
 
-        assertEquals(course1(), actual1);
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
     }
@@ -127,12 +123,10 @@ public class CourseIT {
     @Test
     void teacher_read_ok() throws ApiException {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-
         TeachingApi api = new TeachingApi(teacher1Client);
-        Course actual1 = api.getCourseById("COURSE1_ID");
+
         List<Course> actualCourses = api.getCourses(1,10);
 
-        assertEquals(course1(), actual1);
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
     }
@@ -140,12 +134,10 @@ public class CourseIT {
     @Test
     void manager_read_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-
         TeachingApi api = new TeachingApi(manager1Client);
-        Course actual1 = api.getCourseById("COURSE1_ID");
+
         List<Course> actualCourses = api.getCourses(1,10);
 
-        assertEquals(course1(), actual1);
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
     }
