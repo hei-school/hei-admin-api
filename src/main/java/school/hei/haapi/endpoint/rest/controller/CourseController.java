@@ -27,7 +27,7 @@ public class CourseController {
   @GetMapping(value = "/courses")
   public List<Course> getGroups(
           @RequestParam(name = "page") PageFromOne page,
-          @RequestParam(name = "pageSize") BoundedPageSize pageSize
+          @RequestParam(name = "page_size") BoundedPageSize pageSize
           ) {
     return service.getCourses(page,pageSize).stream()
             .map(courseMapper::toRest)
