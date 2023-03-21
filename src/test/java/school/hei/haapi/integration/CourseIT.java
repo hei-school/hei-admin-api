@@ -24,16 +24,14 @@ import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.CourseFollowed;
+import school.hei.haapi.model.CourseFollowedRest;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -92,6 +90,14 @@ class CourseIT {
         .credits(8)
         .totalHours(150);
   }
+
+  private CourseFollowedRest courseToUpdate(){
+    return CourseFollowedRest.builder()
+            .course_id("course2_id")
+            .status(CourseStatus.UNLINKED)
+            .build();
+  }
+
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
@@ -108,6 +114,14 @@ class CourseIT {
     assertEquals(coursesLinked, List.of(student1_linked()));
   }
 
+  @Test
+  void put_student_followed_courses_ok() throws ApiException{
+    ApiClient manager1Client  = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<CourseFollowedRest> courseToUpdate = List.of(courseToUpdate());
+    List<Course> coursesUpdated = List.of(student1_unlinked());
+  }
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
 

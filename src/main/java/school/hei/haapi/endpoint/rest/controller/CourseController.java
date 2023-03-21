@@ -3,13 +3,11 @@ package school.hei.haapi.endpoint.rest.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
+import school.hei.haapi.model.CourseFollowedRest;
 import school.hei.haapi.service.CourseService;
 
 @RestController
@@ -26,5 +24,15 @@ public class CourseController {
   ) {
     return courseService.getCourseFollowedByOneStudent(studentId, status).stream()
         .map(courseMapper::toRest).collect(Collectors.toUnmodifiableList());
+  }
+
+  @PutMapping("/students/{student_id}/courses")
+  public List<Course> updateStudentCourseLink(
+          @PathVariable(name = "student_id") String studentId ,
+          @RequestBody List <CourseFollowedRest> courseToUpdate
+          ){
+    return courseService.updateStudentCourseLink(courseToUpdate, studentId)
+            .stream()
+            .map(courseMapper::toRest).collect(Collectors.toUnmodifiableList());
   }
 }
