@@ -3,10 +3,10 @@ package school.hei.haapi.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
-import school.hei.haapi.endpoint.rest.model.BadRequestException;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.StudentCourse;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.StudentCourseRepository;
 
@@ -27,6 +27,20 @@ public class CourseService {
 
     public List<StudentCourse> getByStudentIdAndStatus(String studentId, StudentCourse.CourseStatus status) {
         return studentCourseRepository.getStudentCourseByStudentIdAndStatus(studentId,status);
-
     }
+
+    public List<StudentCourse> saveAllStudentCourses(String studentId, List<StudentCourse> toDomainStudentCourse) {
+        for (StudentCourse s: toDomainStudentCourse) {
+            List<StudentCourse> test = getByStudentIdAndCourseId(studentId,s.getId());
+            if (test.size()>0) {
+                throw new BadRequestException("Course with id:"+s.getId()+ "is already linked with this student");
+            }
+        }
+        return studentCourseRepository.saveAll(toDomainStudentCourse);
+    }
+
+    public List<StudentCourse> getByStudentIdAndCourseId(String studentId, String courseId) {
+        return studentCourseRepository.getStudentCourseByStudentIdAndCourseId(studentId,courseId);
+    }
+
 }

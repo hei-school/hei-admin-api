@@ -15,4 +15,5 @@ public interface StudentCourseRepository extends JpaRepository<StudentCourse, St
 
   List<StudentCourse> getStudentCourseByStudentIdAndStatus(String studentId,
                                                            StudentCourse.CourseStatus status);
+  List<StudentCourse> getStudentCourseByStudentIdAndCourseId(String studentId, String courseId);
 }
