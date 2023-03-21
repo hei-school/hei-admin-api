@@ -7,23 +7,26 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
-import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToMany;
-import javax.persistence.OneToOne;
+import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.io.Serializable;
-import java.util.List;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotBlank;
+import java.time.Instant;
+import java.time.LocalDate;
+
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Table(name = "\"course\"")
+@Table(name = "\"student\"")
 @Getter
 @Setter
 @EqualsAndHashCode
@@ -32,17 +35,16 @@ import java.util.List;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class Course implements Serializable {
+public class Student {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = IDENTITY)
   private String id;
-  @Column(unique = true)
-  private String code;
-  @Column(unique = true)
-  private String name;
-  private Integer credits;
-  private Integer total_hours;
-  @OneToOne
-  @JoinColumn(referencedColumnName = "main_teacher_id")
-  private User main_teacher;
+
+  @ManyToOne
+  private User student;
+
+  @ManyToOne
+  private Course course;
+
+  private CourseTemplate.status courseStatus = CourseTemplate.status.LINKED;
 }

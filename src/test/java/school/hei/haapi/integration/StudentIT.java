@@ -20,6 +20,8 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseTemplate;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
@@ -144,7 +146,17 @@ class StudentIT {
     student.setAddress("Adr 2");
     return student;
   }
-
+  public static Course course1(){
+    Course course = new Course();
+    course.credits(12);
+    course.id("course_id");
+    return course;
+  }
+  public static CourseTemplate courseTemplate(){
+    CourseTemplate courseTemplate = new CourseTemplate();
+    courseTemplate.id(course1().getId());
+    return courseTemplate;
+  }
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
@@ -364,6 +376,12 @@ class StudentIT {
     assertTrue(requestEntry1.detail().contains(created1.getEmail()));
   }
 
+  @Test
+  void can_change_student_course_status(){
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+  }
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
 
