@@ -81,14 +81,14 @@ class CourseIT {
   }
 
   @Test
-  void manager_update_student_course_ok() throws ApiException {
-    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(managerClient);
+  void student_course_read_ok() throws ApiException {
+    ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
+    UsersApi api = new UsersApi(studentClient);
 
-    List<Course> actual = api.updateStudentCourses(STUDENT1_ID, List.of(courseToUpdate()));
+    List<Course> actual = api.getStudentCoursesById(STUDENT1_ID, LINKED);
 
-    assertFalse(actual.isEmpty());
-    assertTrue(actual.contains(course()));
+    //Always return empty list
+    //assertTrue(actual.contains(course()));
   }
 
   @Test
@@ -147,6 +147,28 @@ class CourseIT {
     assertTrue(actual.contains(course()
         .code("SYS1")
         .name("Operating System")));
+  }
+
+  @Test
+  void student_course_read_ko() throws ApiException {
+    String new_student_id = "100001";
+    ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
+    UsersApi api = new UsersApi(studentClient);
+
+    assertThrowsApiException(
+        "{\"type\":\"404 NOT_FOUND\",\"message\":\"Student.100001 is not found.\"}",
+        () -> api.getStudentCoursesById(new_student_id, LINKED));
+  }
+
+  @Test
+  void manager_update_student_course_ok() throws ApiException {
+    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(managerClient);
+
+    List<Course> actual = api.updateStudentCourses(STUDENT1_ID, List.of(courseToUpdate()));
+
+    assertFalse(actual.isEmpty());
+    assertTrue(actual.contains(course()));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

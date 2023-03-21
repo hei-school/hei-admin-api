@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -42,26 +41,28 @@ public class CourseMapper {
         .status(toUpdate.getStatus())
         .build();
   }
+
   public school.hei.haapi.model.Course toDomainCourse(CrupdateCourse rest) {
-      Optional<school.hei.haapi.model.Course> optionalCourse=courseRepository.findById(rest.getId());
-      Optional<User> teacher = userRepository.findById(rest.getMainTeacherId());
-      if (optionalCourse.isPresent()) {
-        school.hei.haapi.model.Course persisted = optionalCourse.get();
-        persisted.setCode(rest.getCode());
-        persisted.setName(rest.getName());
-        persisted.setCredits(rest.getCredits());
-        persisted.setTotalHours(rest.getTotalHours());
-        persisted.setMainTeacher(teacher.get());
-        return persisted;
-      }
-      return school.hei.haapi.model.Course.builder()
-              .id(rest.getId())
-              .code(rest.getCode())
-              .name(rest.getName())
-              .credits(rest.getCredits())
-              .totalHours(rest.getTotalHours())
-              .mainTeacher(teacher.get())
-              .build();
+    Optional<school.hei.haapi.model.Course> optionalCourse =
+        courseRepository.findById(rest.getId());
+    Optional<User> teacher = userRepository.findById(rest.getMainTeacherId());
+    if (optionalCourse.isPresent()) {
+      school.hei.haapi.model.Course persisted = optionalCourse.get();
+      persisted.setCode(rest.getCode());
+      persisted.setName(rest.getName());
+      persisted.setCredits(rest.getCredits());
+      persisted.setTotalHours(rest.getTotalHours());
+      persisted.setMainTeacher(teacher.get());
+      return persisted;
+    }
+    return school.hei.haapi.model.Course.builder()
+        .id(rest.getId())
+        .code(rest.getCode())
+        .name(rest.getName())
+        .credits(rest.getCredits())
+        .totalHours(rest.getTotalHours())
+        .mainTeacher(teacher.get())
+        .build();
   }
 
   private school.hei.haapi.model.Course checkIfExist(UpdateStudentCourse course) {

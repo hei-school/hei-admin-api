@@ -11,17 +11,31 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.StudentCourse;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.StudentCourseRepository;
+import school.hei.haapi.repository.UserRepository;
 
 @Service
 @AllArgsConstructor
 public class CourseService {
   private final StudentCourseRepository repository;
+  private final UserRepository userRepository;
+
+  public List<Course> getStudentCourses(String studentId, CourseStatus status) {
+    CourseStatus status1 = status == null ? CourseStatus.LINKED: status;
+    if(userRepository.findById(studentId).isPresent()){
+      return repository.findByStudentIdAndStatus(studentId, status1).stream()
+              .map(StudentCourse::getCourse)
+              .collect(Collectors.toUnmodifiableList());
+    }
+    throw new NotFoundException("Student." + studentId + " is not found.");
+  }
   private final CourseRepository courseRepository;
   public List<Course> createOrUpdateCourse(List<Course> toUpdate) {
     return courseRepository.saveAll(toUpdate);
