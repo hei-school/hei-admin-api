@@ -12,6 +12,7 @@ import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
@@ -22,8 +23,11 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.TeacherIT.teacher1;
+import static school.hei.haapi.integration.TeacherIT.teacher2;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -41,37 +45,6 @@ public class CourseIT {
         return TestUtils.anApiClient(token, CourseIT.ContextInitializer.SERVER_PORT);
     }
 
-    public static Teacher teacher1() {
-        Teacher teacher = new Teacher();
-        teacher.setId("teacher1_id");
-        teacher.setFirstName("One");
-        teacher.setLastName("Teacher");
-        teacher.setEmail("test+teacher1@hei.school");
-        teacher.setRef("TCR21001");
-        teacher.setPhone("0322411125");
-        teacher.setStatus(EnableStatus.ENABLED);
-        teacher.setSex(Teacher.SexEnum.F);
-        teacher.setBirthDate(LocalDate.parse("1990-01-01"));
-        teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
-        teacher.setAddress("Adr 3");
-        return teacher;
-    }
-
-    public static Teacher teacher2() {
-        Teacher teacher = new Teacher();
-        teacher.setId("teacher2_id");
-        teacher.setFirstName("Two");
-        teacher.setLastName("Teacher");
-        teacher.setEmail("test+teacher2@hei.school");
-        teacher.setRef("TCR21002");
-        teacher.setPhone("0322411126");
-        teacher.setStatus(EnableStatus.ENABLED);
-        teacher.setSex(Teacher.SexEnum.M);
-        teacher.setBirthDate(LocalDate.parse("1990-01-02"));
-        teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
-        teacher.setAddress("Adr 4");
-        return teacher;
-    }
     public static Course course1(){
         Course course = new Course();
         course.setId("course1_id");
@@ -92,6 +65,17 @@ public class CourseIT {
         course.setTotalHours(20);
         course.setMainTeacher(teacher2());
         return course;
+    }
+
+    public static CrupdateCourse toCreateSuccess() {
+        CrupdateCourse toCreate = new CrupdateCourse();
+        toCreate.setId(null);
+        toCreate.setCode("CR_2");
+        toCreate.setName("Course_02");
+        toCreate.setCredits(10);
+        toCreate.setTotalHours(10);
+        toCreate.setMainTeacherId(teacher1().getId());
+        return toCreate;
     }
 
     @BeforeEach
@@ -131,6 +115,17 @@ public class CourseIT {
 
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
+    }
+
+    @Test
+    void manager_write_create_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> created = api.crupdateCourses(List.of(toCreateSuccess()));
+
+        assertEquals(1, created.size());
+        Course created1 = created.get(0);
+        assertTrue(isValidUUID(created1.getId()));
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
