@@ -77,13 +77,14 @@ public class UserService {
 
   public List<Course> updateStudentcourse(List<UpdateStudentscourse> plainbody,String student_id) {
     return plainbody.stream().map((requestBody)->{
-        User variableValueForUserFromDatabaseAcciredFromRequestBody = userRepository.getById(student_id);
+        User variableValueForUserFromDatabaseAcciredFromRequestBody = userRepository.getByUserId(student_id);
         // returnedList.add(variableValueForUserFromDataBaseAcciredFromRequestBody);
-        return userRepository.save(variableValueForUserFromDataBaseAcciredFromRequestBody.Builder()
+          userRepository.save(variableValueForUserFromDataBaseAcciredFromRequestBody.Builder()
             .setCourseStatus(requestBody.getStatus())
             .build();
           )
         }
-      ).toList();
+      );
+      return courseRepository.getByCourseId(plainbody.courseId)
   }
 }
