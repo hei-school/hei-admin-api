@@ -1,6 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -14,13 +16,13 @@ import java.util.List;
 
 @RestController
 @AllArgsConstructor
-@RequestMapping("/courses")
 public class CourseController {
   private final CourseMapper mapper;
   private final CourseService service;
 
+  @PutMapping("/students/{id}/courses")
   public List<Course> changeReferencedStudentCourse(
-          @RequestParam String id,
+          @PathVariable String id,
           @RequestBody List<CourseTemplate> courseTemplate
           ){
   return service.updateStudentCourse(mapper.toList(id,courseTemplate));
