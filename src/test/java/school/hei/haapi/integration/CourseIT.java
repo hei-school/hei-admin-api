@@ -12,6 +12,7 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
@@ -25,10 +26,13 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -58,6 +62,20 @@ public class CourseIT {
     course.setTotalHours(22);
     course.setMainTeacher(teacher1());
     return course;
+  }
+
+  public static UpdateStudentCourse studentCourse1() {
+    UpdateStudentCourse updateStudentCourse = new UpdateStudentCourse();
+    updateStudentCourse.setCourseId("course1_id");
+    updateStudentCourse.setStatus(CourseStatus.LINKED);
+    return updateStudentCourse;
+  }
+
+  public static UpdateStudentCourse studentCourse2() {
+    UpdateStudentCourse updateStudentCourse = new UpdateStudentCourse();
+    updateStudentCourse.setCourseId("course2_id");
+    updateStudentCourse.setStatus(CourseStatus.LINKED);
+    return updateStudentCourse;
   }
 
   public static Course course2() {
@@ -196,6 +214,39 @@ public class CourseIT {
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.crupdateCourses(List.of(toCreateSuccess())));
+  }
+
+
+  @Test
+  void manager_update_student_course_ok() throws ApiException {
+    ApiClient manager = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager);
+
+    List<Course> actual =
+            api.updateStudentCourses("student1_id",List.of(studentCourse1(), studentCourse2()));
+
+    assertEquals(2, actual.size());
+    assertTrue(actual.containsAll(List.of(course1()))
+    );
+  }
+
+  @Test
+  void teacher_write_student_course_ko() {
+    ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
+    UsersApi api = new UsersApi(apiClient);
+
+    assertThrowsApiException(
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.updateStudentCourses(null, List.of()));
+  }
+  @Test
+  void student_write_student_course_ko() {
+    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
+    UsersApi api = new UsersApi(apiClient);
+
+    assertThrowsApiException(
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.updateStudentCourses(null, List.of()));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
