@@ -40,4 +40,15 @@ public class CourseController {
                 .collect(Collectors.toList());
     }
 
+
+    @PutMapping(value = "/courses")
+    public List<Course> createOrUpdateCourses(@RequestBody List<Course> toWrite) {
+        var saved = courseService.saveAll(toWrite.stream()
+                .map(courseMapper::toDomain)
+                .collect(toUnmodifiableList()));
+        return saved.stream()
+                .map(courseMapper::toRest)
+                .collect(toUnmodifiableList());
+    }
+
 }

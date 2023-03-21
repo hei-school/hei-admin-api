@@ -23,9 +23,11 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 public class CourseService {
     private final CourseRepository repository;
     private final StudentCourseRepository studentCourseRepository;
+
     public List<Course> saveAll(List<Course> courses) {
         return repository.saveAll(courses);
     }
+
 
     public Course getById(String courseId){return repository.getById(courseId);}
 
