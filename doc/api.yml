@@ -200,7 +200,7 @@ paths:
         - name: status
           in: query
           schema:
-            $ref: '#/components/schemas/CourseStatus'
+              $ref: '#/components/schemas/CourseStatus'
           description: By default, LINKED courses are provided.
       operationId: getStudentCoursesById
       responses:
@@ -209,7 +209,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Course'
+                type: array
+                items:
+                    $ref: '#/components/schemas/Course'
         '400':
           $ref: '#/components/responses/400'
         '403':
