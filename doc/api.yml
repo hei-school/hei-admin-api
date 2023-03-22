@@ -415,6 +415,16 @@ paths:
           schema:
             type: string
             enum: [ ASC, DESC ]
+
+        -  in: query
+           name: page
+           schema:
+             type: integer
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
       responses:
         '200':
           description: List of all courses
