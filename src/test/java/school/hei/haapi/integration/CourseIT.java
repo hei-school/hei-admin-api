@@ -1,5 +1,4 @@
 package school.hei.haapi.integration;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -11,13 +10,12 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.Course;
-import school.hei.haapi.model.User;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -25,44 +23,41 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
-import static school.hei.haapi.model.User.Role.TEACHER;
-import static school.hei.haapi.model.User.Sex.M;
-import static school.hei.haapi.model.User.Status.ENABLED;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = CourseIT.ContextInitializer.class)
+@ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-public class CourseIT {
+class CourseIT {
 
     @MockBean
     private SentryConf sentryConf;
-
     @MockBean
     private CognitoComponent cognitoComponentMock;
 
-    public static User teacher1() {
-        User teacher = new User();
+    private static ApiClient anApiClient(String token) {
+        return TestUtils.anApiClient(token, CourseIT.ContextInitializer.SERVER_PORT);
+    }
+    public static Teacher teacher1() {
+        Teacher teacher = new Teacher();
         teacher.setId("teacher1_id");
         teacher.setFirstName("One");
         teacher.setLastName("Teacher");
         teacher.setEmail("test+teacher1@hei.school");
         teacher.setRef("TCR21001");
         teacher.setPhone("0322411125");
-        teacher.setStatus(ENABLED);
-        teacher.setSex(M);
-        teacher.setRole(TEACHER);
+        teacher.setStatus(EnableStatus.ENABLED);
+        teacher.setSex(Teacher.SexEnum.F);
         teacher.setBirthDate(LocalDate.parse("1990-01-01"));
         teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
         teacher.setAddress("Adr 3");
         return teacher;
     }
 
-    static List<Course> courses (){
-        Course course1 = new Course();
+    static List<school.hei.haapi.endpoint.rest.model.Course> courses (){
+        school.hei.haapi.endpoint.rest.model.Course course1 = new school.hei.haapi.endpoint.rest.model.Course();
         course1.setId("2");
         course1.setCode("WEB1");
         course1.setName("IHM");
@@ -70,17 +65,17 @@ public class CourseIT {
         course1.setTotalHours(50);
         course1.setMainTeacher(teacher1());
 
-        Course course = new Course();
-        course.setId("1");
-        course.setCode("PROG1");
-        course.setName("programmation");
-        course.setCredits(50);
-        course.setTotalHours(50);
-        course.setMainTeacher(teacher1());
+        school.hei.haapi.endpoint.rest.model.Course course2 = new school.hei.haapi.endpoint.rest.model.Course();
+        course2.setId("1");
+        course2.setCode("PROG1");
+        course2.setName("programmation");
+        course2.setCredits(50);
+        course2.setTotalHours(50);
+        course2.setMainTeacher(teacher1());
 
         List<Course> courseList = new ArrayList<>();
         courseList.add(course1);
-        courseList.add(course);
+        courseList.add(course2);
 
         return courseList;
     }
@@ -92,16 +87,14 @@ public class CourseIT {
 
     @Test
     void course_read_ok() throws ApiException {
+
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+
         TeachingApi api = new TeachingApi(student1Client);
 
         List<school.hei.haapi.endpoint.rest.model.Course> actual1 = api.getCourses(1,2);
 
-        assertTrue(actual1.contains(courses()));
-    }
-
-    private static ApiClient anApiClient(String token) {
-        return TestUtils.anApiClient(token, CourseIT.ContextInitializer.SERVER_PORT);
+        assertEquals(courses(), actual1);
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
@@ -112,5 +105,6 @@ public class CourseIT {
             return SERVER_PORT;
         }
     }
+
 }
 
