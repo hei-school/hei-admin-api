@@ -27,6 +27,7 @@ public class Course {
     private Integer totalHours;
 
     @ManyToOne
+    @JoinColumn(name="teacher_id")
     private User mainTeacher;
 
 
