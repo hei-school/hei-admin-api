@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 import static school.hei.haapi.model.User.Role.TEACHER;
@@ -59,7 +60,16 @@ public class CourseIT {
         teacher.setAddress("Adr 3");
         return teacher;
     }
-    static Course course1(){
+
+    static List<Course> courses (){
+        Course course1 = new Course();
+        course1.setId("2");
+        course1.setCode("WEB1");
+        course1.setName("IHM");
+        course1.setCredits(50);
+        course1.setTotalHours(50);
+        course1.setMainTeacher(teacher1());
+
         Course course = new Course();
         course.setId("1");
         course.setCode("PROG1");
@@ -67,17 +77,12 @@ public class CourseIT {
         course.setCredits(50);
         course.setTotalHours(50);
         course.setMainTeacher(teacher1());
-        return course;
-    }
-    static Course course2(){
-        Course course = new Course();
-        course.setId("2");
-        course.setCode("WEB1");
-        course.setName("IHM");
-        course.setCredits(50);
-        course.setTotalHours(50);
-        course.setMainTeacher(teacher1());
-        return course;
+
+        List<Course> courseList = new ArrayList<>();
+        courseList.add(course1);
+        courseList.add(course);
+
+        return courseList;
     }
 
     @BeforeEach
@@ -89,8 +94,10 @@ public class CourseIT {
     void course_read_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         TeachingApi api = new TeachingApi(student1Client);
-        List<school.hei.haapi.endpoint.rest.model.Course> actual1 = api.getCourses(1,1);
-        assertEquals(course1(), actual1);
+
+        List<school.hei.haapi.endpoint.rest.model.Course> actual1 = api.getCourses(1,2);
+
+        assertTrue(actual1.contains(courses()));
     }
 
     private static ApiClient anApiClient(String token) {
