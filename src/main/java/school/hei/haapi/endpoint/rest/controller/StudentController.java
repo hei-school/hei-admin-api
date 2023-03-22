@@ -8,11 +8,15 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.response.StudentCoursesResponse;
+import school.hei.haapi.endpoint.rest.response.UpdateCoursesToStudent;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.StudentCoursesService;
 import school.hei.haapi.service.UserService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -22,6 +26,8 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 public class StudentController {
   private final UserService userService;
   private final UserMapper userMapper;
+  private final CourseMapper courseMapper;
+  private final StudentCoursesService studentCoursesService;
 
   @GetMapping("/students/{id}")
   public Student getStudentById(@PathVariable String id) {
@@ -50,5 +56,20 @@ public class StudentController {
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
+  }
+  @PutMapping("/students/{student_id}/courses")
+  public List<StudentCoursesResponse> linkOrUnlinkCoursesToStudent(@PathVariable String student_id,
+                                                                   @RequestBody List<UpdateCoursesToStudent> toUpdate){
+    return studentCoursesService.updateCourseStatusToStudent(student_id, toUpdate)
+            .stream()
+            .map(courseMapper::toRest)
+            .collect(toUnmodifiableList());
+  }
+  @GetMapping("/students/{student_id}/courses")
+  public List<StudentCoursesResponse> linkOrUnlinkCoursesToStudent(@PathVariable String student_id ){
+    return studentCoursesService.getSpecificStudentCourses(student_id)
+            .stream()
+            .map(courseMapper::toRest)
+            .collect(toUnmodifiableList());
   }
 }
