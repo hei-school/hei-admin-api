@@ -5,21 +5,16 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
-import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.validator.CourseValidator;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.UserRepository;
 
-import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
-import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.validator.CourseValidator;
-import school.hei.haapi.repository.CourseRepository;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -30,18 +25,17 @@ import java.util.List;
 public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
-    private final  CourseMapper courseMapper;
+    private final CourseValidator courseValidator;
 
-    public Course updateCourseStatus(String stundet_id,String course_id,String status){
+    public Course updateCourseStatus(String student_id, String course_id, String status) {
         Course course = courseRepository.findById(course_id)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("", course_id)));
-        if(status == "UNLINKED"){
-            course.getStudent().remove(userRepository.getById(stundet_id));
+        if (status == "UNLINKED") {
+            course.getStudent().remove(userRepository.getById(student_id));
         }
-        if(status == "LINKED"){
-            course.getStudent().add(userRepository.getById(stundet_id));
-        }
-        else throw new BadRequestException("Not recognized parameters");
+        if (status == "LINKED") {
+            course.getStudent().add(userRepository.getById(student_id));
+        } else throw new BadRequestException("Not recognized parameters");
 
         return course;
     }

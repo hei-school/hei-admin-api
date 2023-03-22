@@ -35,7 +35,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Setter
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 @ToString
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Fee implements Serializable {
