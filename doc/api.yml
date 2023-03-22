@@ -290,6 +290,7 @@ paths:
           description: "Filter students by last name, case is ignored"
           schema:
             type: string
+
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -390,6 +391,46 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: code
+          in: query
+          schema:
+            type: string
+          description: filter courses by code
+          required: false
+        - name: name
+          in: query
+          schema:
+            type: string
+          description: filter courses by name
+          required: false
+        - name: credits
+          in: query
+          schema:
+            type: integer
+          description: filter courses by credits
+          required: false
+        - name: teacher_first_name
+          in: query
+          schema:
+            type: string
+          description: filter courses by teacher's last name
+          required: false
+        - name: teacher_last_name
+          in: query
+          schema:
+            type: string
+          description: filter courses by teacher's last name
+          required: false
+        - name: creditsOrder
+          in: query
+          description: order courses by credits
+          schema:
+            $ref: '#/components/schemas/OrderType'
+        - name: codeOrder
+          in: query
+          description: order courses by codes
+          schema:
+            $ref: '#/components/schemas/OrderType'
       responses:
         '200':
           description: List of all courses
@@ -1167,6 +1208,11 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
+    OrderType:
+      type: string
+      enum:
+        - ASC
+        - DESC
 
     Exception:
       type: object
