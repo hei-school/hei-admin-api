@@ -60,6 +60,14 @@ public class CourseController {
 
     @GetMapping("/courses")
     public List<Course> getCourses(
+
+            @RequestParam(name = "code", required = false)String code,
+            @RequestParam(name = "name", required = false)String name,
+            @RequestParam(name = "credits", required = false)Integer credits,
+            @RequestParam(name = "teacher_first_name", required = false)String teacher_first_name,
+            @RequestParam(name = "teacher_last_name", required = false)String teacher_last_name,
+            @RequestParam(name = "creditsOrder", required = false)String creditsOrder,
+            @RequestParam(name = "codeOrder", required = false)String codeOrder,
             @RequestParam(name = "page", required = false)PageFromOne page,
             @RequestParam(name = "page_size", required = false)BoundedPageSize pageSize
             ){
