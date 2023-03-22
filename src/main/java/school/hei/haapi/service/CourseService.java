@@ -31,6 +31,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final  CourseMapper courseMapper;
+    private final CourseValidator courseValidator;
 
     public Course updateCourseStatus(String stundet_id,String course_id,String status){
         Course course = courseRepository.findById(course_id)

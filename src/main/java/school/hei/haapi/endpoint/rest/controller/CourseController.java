@@ -33,7 +33,6 @@ public class CourseController {
     public Course updateCoursesByStatus(@RequestBody List<UpdateStudentCourse> course,@PathVariable String  student_id,String status){
        return courseMapper.toRestCourse(courseService.updateCourseStatus(student_id,course.get(0).getCourseId(),course.get(0).getStatus().toString()));
    }
-}
 
     @GetMapping(value = "/courses")
     public List<Course> getAllCourses(
