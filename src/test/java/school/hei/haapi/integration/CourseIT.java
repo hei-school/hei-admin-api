@@ -103,7 +103,7 @@ public class CourseIT {
         createCourse.setCode("Code");
         createCourse.setCredits(5);
         createCourse.setTotalHours(40);
-        createCourse.setMainTeacherId("Teacher6_id");
+        createCourse.setMainTeacherId("teacher1_id");
         return createCourse;
     }
     @BeforeEach

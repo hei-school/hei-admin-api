@@ -390,6 +390,12 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: code
+          in: query
+          description: "Filter course by code, case is ignored"
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: List of all courses
