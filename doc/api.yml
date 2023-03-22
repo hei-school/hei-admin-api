@@ -393,7 +393,7 @@ paths:
           in: query
           description: filter courses by credits
           schema:
-            type: string
+            type: integer
           required: false
         - name: teacher_first_name
           in: query
