@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
@@ -9,7 +8,6 @@ import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
 
 @Component
-@AllArgsConstructor
 public class UserMapper {
 
   public Student toRestStudent(User user) {

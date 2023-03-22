@@ -32,12 +32,12 @@ public class StudentCourseService {
             for(int i=0; i<updateStudentCourseStatusResponse.size(); i++){
 
                 for(int k=0; k < studentCourse.size(); k++){
-                    if(studentCourse.get(k).getCourse_id() == courseRepository.getById(updateStudentCourseStatusResponse.get(i).getCourse_id())){
+                    if(studentCourse.get(k).getCourse()== courseRepository.getById(updateStudentCourseStatusResponse.get(i).getCourse_id())){
                         studentCourse.get(k).setStatus(updateStudentCourseStatusResponse.get(i).getStatus());
                     }
                 }
 
-                    studentCourse.get(i).setCourse_id(courseService.getById(updateStudentCourseStatusResponse.get(i).getCourse_id()));
+                    studentCourse.get(i).setCourse(courseService.getById(updateStudentCourseStatusResponse.get(i).getCourse_id()));
                     studentCourse.get(i).setStatus(updateStudentCourseStatusResponse.get(i).getStatus());
                     }
             }else {
