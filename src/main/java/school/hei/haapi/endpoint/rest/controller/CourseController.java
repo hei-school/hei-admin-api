@@ -52,8 +52,8 @@ public class CourseController {
                                                    @RequestParam(required = false) String teacherLastName,
                                                    @RequestParam(required = false, defaultValue = "ASC") String creditsOrder,
                                                    @RequestParam(required = false, defaultValue = "ASC") String codeOrder,
-                                                    @RequestParam("page") PageFromOne page,
-                                                    @RequestParam("page_size") BoundedPageSize pageSize) {
+                                                    @RequestParam("page") int page,
+                                                    @RequestParam("page_size") int pageSize) {
         List<school.hei.haapi.model.Course> courses = courseService.findCoursesByParams(code, name, credits, teacherFirstName, teacherLastName, creditsOrder, codeOrder, page, pageSize);
         return courses.stream()
                 .map(courseMapper::toRestCourse)

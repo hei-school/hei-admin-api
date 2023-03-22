@@ -6,9 +6,14 @@ import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import org.thymeleaf.util.StringUtils;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.CourseValidator;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -20,6 +25,7 @@ import school.hei.haapi.model.PageFromOne;
 
 import javax.transaction.Transactional;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Service
 @AllArgsConstructor
@@ -56,19 +62,22 @@ public class CourseService {
         courseValidator.accept(courses);
         return courseRepository.saveAll(courses);
     }
-    public List<Course> findCoursesByParams(String code, String name, Integer credits, String teacherFirstName, String teacherLastName, String creditsOrder, String codeOrder,PageFromOne page, BoundedPageSize pageSize) {
+    public List<Course> findCoursesByParams(String code, String name, Integer credits, String teacherFirstName, String teacherLastName, String creditsOrder, String codeOrder,int page, int pageSize) {
         int pageValue = 1;
         int pageSizeValue = 15;
-        if (page.getValue() != 0) pageValue = page.getValue();
-        if (pageSize.getValue() != 0) pageSizeValue = pageSize.getValue();
+        if (page != 0) pageValue = page;
+        if (pageSize != 0) pageSizeValue = pageSize;
         Pageable pageableWithSort = PageRequest.of(pageValue-1, pageSizeValue);
-
+        List<User> user = userRepository.getByLastName(teacherLastName);
+        List<User> filteredList = user.stream()
+                .filter(u -> u.getFirstName().toLowerCase().contains(u.getFirstName().toLowerCase()) && (u.getRole()== User.Role.TEACHER))
+                .collect(Collectors.toList());
+        User teacher = filteredList.get(0);
         return courseRepository.findCoursesByCodeAndNameAndCreditsAndTeacherNameOrderByCreditsAndCode(
                 code,
                 name,
                 credits,
-                teacherFirstName,
-                teacherLastName,
+                teacher.getId(),
                 creditsOrder,
                 codeOrder,
                 pageableWithSort

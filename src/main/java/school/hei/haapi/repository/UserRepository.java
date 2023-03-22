@@ -9,7 +9,8 @@ import school.hei.haapi.model.User;
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
   User getByEmail(String email);
-
+  List<User> getByFirstName(String name);
+ List< User> getByLastName(String name);
   List<User> getByRole(User.Role role, Pageable pageable);
 
   List<User> findByRoleAndRefContainingIgnoreCaseAndFirstNameContainingIgnoreCaseAndLastNameContainingIgnoreCase(
