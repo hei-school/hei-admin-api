@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest;
 
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
@@ -11,10 +13,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
-
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 import static java.lang.System.currentTimeMillis;
 import static java.lang.Thread.currentThread;
@@ -47,14 +47,9 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
           && !(securityContext.getAuthentication() instanceof AnonymousAuthenticationToken);
     }
 
-    private static Principal getPrincipal() {
-      SecurityContext context = SecurityContextHolder.getContext();
-      Authentication authentication = context.getAuthentication();
-      return (Principal) authentication.getPrincipal();
-    }
-
     @Override
-    public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) {
+    public boolean preHandle(
+        HttpServletRequest request, HttpServletResponse response, Object handler) {
       request.setAttribute(REQUEST_START_TIME, currentTimeMillis());
 
       Thread current = currentThread();
@@ -66,8 +61,10 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
           .map(entry -> entry.getKey() + "=" + String.join(",", entry.getValue()))
           .collect(joining(";"));
       if (shouldLog()) {
-        Principal principal = getPrincipal();
-        log.info("preHandle: userId={}, role={}, method={}, uri={}, parameters=[{}], handler={}, oldThreadName={}",
+        Principal principal = AuthProvider.getPrincipal();
+        log.info("preHandle: "
+                + "userId={}, role={}, method={}, uri={}, parameters=[{}], "
+                + "handler={}, oldThreadName={}",
             principal.getUserId(), principal.getRole(),
             request.getMethod(), request.getRequestURI(), parameters, handler,
             oldThreadName);
@@ -77,7 +74,8 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
 
     @Override
     public void afterCompletion(
-        HttpServletRequest request, HttpServletResponse response, Object handler, @Nullable Exception ex) {
+        HttpServletRequest request, HttpServletResponse response,
+        Object handler, @Nullable Exception ex) {
       long duration = currentTimeMillis() - (long) request.getAttribute(REQUEST_START_TIME);
       if (shouldLog()) {
         log.info("afterCompletion: status={}, duration={}ms", response.getStatus(), duration, ex);

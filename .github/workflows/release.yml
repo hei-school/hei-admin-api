@@ -82,16 +82,16 @@ jobs:
           java-version: '11'
           distribution: 'adopt'
       - name: Build Gradle project
-        run: | 
-          export COGNITO_JWT_REGION=${{ secrets.TEST_COGNITO_JWT_REGION }}
-          export COGNITO_JWT_USERPOOLID=${{ secrets.TEST_COGNITO_JWT_USERPOOLID }}
-          export TEST_COGNITO_JWT_STUDENTTOKEN=${{ secrets.TEST_COGNITO_JWT_STUDENTTOKEN }}
+        run: |
+          export TEST_AWS_COGNITO_IDTOKEN=${{ secrets.TEST_COGNITO_IDTOKEN }}
+          export AWS_SES_SOURCE=${{ secrets.AWS_SES_SOURCE }}
           ./gradlew build
 
       - name: If version incremented then commit
         if: ${{ steps.conventional-ch.outputs.skipped == 'false' }} 
         run: |
-          git add version.yml gradle.properties
+          git rm version.yml
+          git add gradle.properties
           git commit --amend --no-edit
           git push -f
           # Also update tag since commit was amended

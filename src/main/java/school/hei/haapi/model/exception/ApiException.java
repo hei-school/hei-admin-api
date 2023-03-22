@@ -4,14 +4,15 @@ import lombok.Getter;
 
 public class ApiException extends RuntimeException {
 
-  @Getter private final ExceptionType type;
+  @Getter
+  private final ExceptionType type;
 
   public ApiException(ExceptionType type, String message) {
     super(message);
     this.type = type;
   }
 
-  public ApiException(Exception source, ExceptionType type) {
+  public ApiException(ExceptionType type, Exception source) {
     super(source);
     this.type = type;
   }

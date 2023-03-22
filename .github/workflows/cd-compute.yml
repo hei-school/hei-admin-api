@@ -4,12 +4,25 @@ on:
   push:
     branches:
       - 'dev'
-      - 'staging'
+      - 'prod'
+
   workflow_dispatch:
+    inputs:
+      run_tests:
+        type: boolean
+        required: false
+        default: true
+
+  workflow_call:
+    inputs:
+      run_tests:
+        type: boolean
+        required: false
+        default: true
 
 jobs:
-  cd:
-    if: github.ref == 'refs/heads/dev' || github.ref == 'refs/heads/staging'
+  cd-compute:
+    if: github.ref_name == 'dev' || github.ref_name == 'prod'
 
     runs-on: ubuntu-latest
 
@@ -37,25 +50,27 @@ jobs:
           file: version.yml
           version: version
 
-      - name: Build Gradle project
+      - name: Run test
+        if: ${{ github.event.inputs.run_tests != 'false' && github.event_name != 'schedule' }}
         run: |
-          export COGNITO_JWT_REGION=${{ secrets.TEST_COGNITO_JWT_REGION }}
-          export COGNITO_JWT_USERPOOLID=${{ secrets.TEST_COGNITO_JWT_USERPOOLID }}
-          export TEST_COGNITO_JWT_STUDENTTOKEN=${{ secrets.TEST_COGNITO_JWT_STUDENTTOKEN }}
-          ./gradlew build
+          export TEST_AWS_COGNITO_IDTOKEN=${{ secrets.TEST_COGNITO_IDTOKEN }}
+          export AWS_SES_SOURCE=${{ secrets.AWS_SES_SOURCE }}
+          ./gradlew test
+      - name: Build Gradle project
+        run: ./gradlew build -x test
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
-      - name: Set up crendetials for private ECR
+      - name: Set up credentials for private ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
       - name: Build, tag and push Docker image to AWS private ECR (continue-on-error)
-        # Assume dev and staging point to the same commit.
+        # Assume dev and prod point to the same commit.
         # Assume dev finished publishing the (immutable) image.
-        # In such a case, staging publication will end in an error since image already exists:
+        # In such a case, prod publication will end in an error since image already exists:
         # Ignore the error and pursue to stack update.
         continue-on-error: true
         env:
@@ -65,27 +80,29 @@ jobs:
           docker build --build-arg version=${{ steps.read-semver.outputs.version }} \
             -t $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
-  
+
       - name: Put branch_env, subnet and listenerRuleAvailablePriority into GITHUB_ENV
         run: |
-          if ${{ github.ref == 'refs/heads/dev' }}; then
+          if ${{ github.ref_name == 'dev' }}; then
             echo "branch_env=dev" >> $GITHUB_ENV
             echo "listenerRuleAvailablePriority=1" >> $GITHUB_ENV
             echo "subnet=${{ secrets.DEV_SUBNET }}" >> $GITHUB_ENV
-          elif ${{ github.ref == 'refs/heads/staging' }}; then
-            echo "branch_env=staging" >> $GITHUB_ENV
-            echo "listenerRuleAvailablePriority=2" >> $GITHUB_ENV
-            echo "subnet=${{ secrets.STAGING_SUBNET }}" >> $GITHUB_ENV
+          elif ${{ github.ref_name == 'prod' }}; then
+            echo "branch_env=prod" >> $GITHUB_ENV
+            echo "listenerRuleAvailablePriority=10" >> $GITHUB_ENV
+            echo "subnet=${{ secrets.PROD_SUBNET }}" >> $GITHUB_ENV
           fi
-      - name: Deploy with AWS CloudFormation
+      - name: Deploy compute stack
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: ${{ env.branch_env }}-hei-admin-api
-          template: cloudformation-stack.yml
+          name: ${{ env.branch_env }}-compute-hei-admin-api
+          template: cf-stacks/compute-stack.yml
           tags: "[ { \"Key\": \"App\", \"Value\": \"hei-admin\" }, { \"Key\": \"Env\", \"Value\": \"${{ env.branch_env }}\" } ]"
           capabilities: CAPABILITY_NAMED_IAM
+          no-fail-on-empty-changeset: "1"
           parameter-overrides:
             "Env=${{ env.branch_env }},
             ListenerRuleAvailablePriority=${{ env.listenerRuleAvailablePriority }},
             Subnet=${{ env.subnet }},
-            Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }}"
+            Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }},
+            TasksDesiredCount=1"

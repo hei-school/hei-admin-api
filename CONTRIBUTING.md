@@ -11,6 +11,6 @@ In case you open a PR, please meet the following conditions, most of which are a
   Please note that this is not line coverage, but [Sonar coverage](https://docs.sonarqube.org/latest/user-guide/metric-definitions/).
   Sonar coverage is more strict as it takes into account condition coverage (how much branching conditions were tested).
 * No major bug|vulnerability|security hostpot detected by Sonar
-* Format using [Google's checkstyle](https://github.com/checkstyle/checkstyle/blob/master/src/main/resources/google_checks.xml)
+* Format with respect to [checkstyle](https://github.com/hei-school/hei-admin-api/wiki/Checkstyle)
 * Use [conventional commits](https://www.conventionalcommits.org/en/v1.0.0/)
   and [sign](https://docs.github.com/en/github/authenticating-to-github/managing-commit-signature-verification/about-commit-signature-verification) them

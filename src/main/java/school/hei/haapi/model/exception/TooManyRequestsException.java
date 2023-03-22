@@ -6,6 +6,6 @@ public class TooManyRequestsException extends ApiException {
   }
 
   public TooManyRequestsException(Exception source) {
-    super(source, ExceptionType.CLIENT_EXCEPTION);
+    super(ExceptionType.CLIENT_EXCEPTION, source);
   }
 }

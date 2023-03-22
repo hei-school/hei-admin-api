@@ -1,7 +1,12 @@
 package school.hei.haapi.model;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.Objects;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -10,15 +15,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
-import org.springframework.data.annotation.CreatedDate;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.Objects;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "\"group\"")

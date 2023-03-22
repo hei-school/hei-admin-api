@@ -1,5 +1,10 @@
 package school.hei.haapi.integration;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -8,6 +13,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.SecurityApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -15,12 +21,6 @@ import school.hei.haapi.endpoint.rest.model.Whoami;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -36,24 +36,43 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @AutoConfigureMockMvc
 class SecurityIT {
 
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
+  @MockBean
+  private SentryConf sentryConf;
 
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
-  }
+  @MockBean
+  private CognitoComponent cognitoComponentMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  @MockBean private CognitoComponent cognitoComponent;
+  public static Whoami whoisStudent1() {
+    Whoami whoami = new Whoami();
+    whoami.setId("student1_id");
+    whoami.setBearer(STUDENT1_TOKEN);
+    whoami.setRole(Whoami.RoleEnum.STUDENT);
+    return whoami;
+  }
+
+  public static Whoami whoisTeacher1() {
+    Whoami whoami = new Whoami();
+    whoami.setId("teacher1_id");
+    whoami.setBearer(TEACHER1_TOKEN);
+    whoami.setRole(Whoami.RoleEnum.TEACHER);
+    return whoami;
+  }
+
+  public static Whoami whoisManager1() {
+    Whoami whoami = new Whoami();
+    whoami.setId("manager1_id");
+    whoami.setBearer(MANAGER1_TOKEN);
+    whoami.setRole(Whoami.RoleEnum.MANAGER);
+    return whoami;
+  }
 
   @BeforeEach
   public void setUp() {
-    setUpCognito(cognitoComponent);
+    setUpCognito(cognitoComponentMock);
   }
 
   @Test
@@ -99,46 +118,17 @@ class SecurityIT {
         HttpResponse.BodyHandlers.ofString());
 
     assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
-    assertEquals("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}", response.body());
+    assertEquals("{"
+        + "\"type\":\"403 FORBIDDEN\","
+        + "\"message\":\"Access is denied\"}", response.body());
   }
 
-  @Test
-  void _ping() throws IOException, InterruptedException {
-    // /!\ The HttpClient produced by openapi-generator SEEMS to not support text/plain
-    HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
+  static class ContextInitializer extends AbstractContextInitializer {
+    public static final int SERVER_PORT = anAvailableRandomPort();
 
-    HttpResponse<String> response = unauthenticatedClient.send(
-        HttpRequest.newBuilder()
-            .uri(URI.create(basePath + "/ping"))
-            .build(),
-        HttpResponse.BodyHandlers.ofString());
-
-    assertEquals(HttpStatus.OK.value(), response.statusCode());
-    assertEquals("pong", response.body());
-  }
-
-  public static Whoami whoisStudent1() {
-    Whoami whoami = new Whoami();
-    whoami.setId("student1_id");
-    whoami.setBearer(STUDENT1_TOKEN);
-    whoami.setRole(Whoami.RoleEnum.STUDENT);
-    return whoami;
-  }
-
-  public static Whoami whoisTeacher1() {
-    Whoami whoami = new Whoami();
-    whoami.setId("teacher1_id");
-    whoami.setBearer(TEACHER1_TOKEN);
-    whoami.setRole(Whoami.RoleEnum.TEACHER);
-    return whoami;
-  }
-
-  public static Whoami whoisManager1() {
-    Whoami whoami = new Whoami();
-    whoami.setId("manager1_id");
-    whoami.setBearer(MANAGER1_TOKEN);
-    whoami.setRole(Whoami.RoleEnum.MANAGER);
-    return whoami;
+    @Override
+    public int getServerPort() {
+      return SERVER_PORT;
+    }
   }
 }

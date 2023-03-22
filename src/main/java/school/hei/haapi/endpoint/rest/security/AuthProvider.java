@@ -3,13 +3,14 @@ package school.hei.haapi.endpoint.rest.security;
 import lombok.AllArgsConstructor;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.authentication.dao.AbstractUserDetailsAuthenticationProvider;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
-import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.UserService;
 
 @Component
@@ -34,7 +35,7 @@ public class AuthProvider extends AbstractUserDetailsAuthenticationProvider {
       throw new UsernameNotFoundException("Bad credentials");
     }
 
-    String email = cognitoComponent.getEmailByBearer(bearer);
+    String email = cognitoComponent.getEmailByIdToken(bearer);
     if (email == null) {
       throw new UsernameNotFoundException("Bad credentials");
     }
@@ -49,5 +50,11 @@ public class AuthProvider extends AbstractUserDetailsAuthenticationProvider {
       return null;
     }
     return ((String) tokenObject).substring(BEARER_PREFIX.length()).trim();
+  }
+
+  public static Principal getPrincipal() {
+    SecurityContext context = SecurityContextHolder.getContext();
+    Authentication authentication = context.getAuthentication();
+    return (Principal) authentication.getPrincipal();
   }
 }
