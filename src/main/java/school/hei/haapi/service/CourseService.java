@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.validator.CourseValidator;
@@ -27,30 +28,25 @@ public class CourseService {
     private final UserRepository userRepository;
     private final CourseValidator courseValidator;
 
-    public Course updateCourseStatus(String student_id, String course_id, String status) {
-        Course course = courseRepository.findById(course_id)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("", course_id)));
-        if (status == "UNLINKED") {
+    public Course updateCourseStatus(String student_id, String course_id, CourseStatus status) {
+        Course course = courseRepository.findById(course_id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("", course_id)));
+        if (status.equals(CourseStatus.UNLINKED)) {
             course.getStudent().remove(userRepository.getById(student_id));
         }
-        if (status == "LINKED") {
+        if (status.equals(CourseStatus.LINKED)) {
             course.getStudent().add(userRepository.getById(student_id));
         } else throw new BadRequestException("Not recognized parameters");
 
+        courseRepository.save(course);
         return course;
     }
 
     public List<Course> getAll(PageFromOne page, BoundedPageSize pageSize) {
         int pageValue = 1;
         int pageSizeValue = 15;
-        if (page.getValue() != 0)
-            pageValue = page.getValue();
-        if (pageSize.getValue() != 0)
-            pageSizeValue = pageSize.getValue();
-        Pageable pageable = PageRequest.of(
-                pageValue - 1,
-                pageSizeValue
-        );
+        if (page.getValue() != 0) pageValue = page.getValue();
+        if (pageSize.getValue() != 0) pageSizeValue = pageSize.getValue();
+        Pageable pageable = PageRequest.of(pageValue - 1, pageSizeValue);
         return courseRepository.findAll(pageable).getContent();
     }
 

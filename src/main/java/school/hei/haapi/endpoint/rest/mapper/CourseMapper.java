@@ -12,7 +12,7 @@ import school.hei.haapi.service.UserService;
 @Component
 @AllArgsConstructor
 public class CourseMapper {
-     private UserService userService;
+    private UserService userService;
     private UserMapper userMapper;
 
     public Course toRestCourse(school.hei.haapi.model.Course course) {

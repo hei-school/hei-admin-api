@@ -119,13 +119,13 @@ class CourseIT {
                 .status(CourseStatus.LINKED);
     }
 
-//    @Test
-//    void teacher_write_ok() throws ApiException {
-//        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-//        UsersApi api = new UsersApi(manager1Client);
-//        List<Course> actual = api.updateStudentCourses(STUDENT1_ID, List.of(someModifiableCourse()));
-//        assertTrue(actual.contains(course1()));
-//    }
+    @Test
+    void teacher_write_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        UsersApi api = new UsersApi(manager1Client);
+        List<Course> actual = api.updateStudentCourses(STUDENT1_ID, List.of(someModifiableCourse()));
+        assertTrue(actual.contains(course1()));
+    }
 
     @Test
     void bad_token_write_ko() {
