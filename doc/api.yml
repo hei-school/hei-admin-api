@@ -372,22 +372,47 @@ paths:
           $ref: '#/components/responses/500'
   /courses:
     get:
-      tags:
-        - Teaching
-      summary: Get all courses
-      operationId: getCourses
+      summary: Retrieve a list of courses
+      description: get courses by more criteria
+      operationId: getAllCourses
       parameters:
-        - name: page
-          in: query
+        - in: query
+          name: code
+          description: Filters courses by code
           schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
+            type: string
+        - in: query
+          name: name
+          description: Filters courses by name
           schema:
-            $ref: '#/components/schemas/PageSize'
+            type: string
+        - in: query
+          name: credits
+          description: Filters courses by number of credits
+          schema:
+            type: integer
+        - in: query
+          name: teacher_first_name
+          description: Filters courses by teacher's first name
+          schema:
+            type: string
+        - in: query
+          name: teacher_last_name
+          description: Filters courses by teacher's last name
+          schema:
+            type: string
+        - in: query
+          name: creditsOrder
+          description: Sorts courses by ascending or descending order of credits
+          schema:
+            type: string
+            enum: [ ASC, DESC ]
+        - in: query
+          name: codeOrder
+          description: Sorts courses by ascending or descending order of UE code
+          schema:
+            type: string
+            enum: [ ASC, DESC ]
       responses:
         '200':
           description: List of all courses

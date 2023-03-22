@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
@@ -54,5 +55,23 @@ public class CourseService {
     public List<Course> saveAll(List<Course> courses) {
         courseValidator.accept(courses);
         return courseRepository.saveAll(courses);
+    }
+    public List<Course> findCoursesByParams(String code, String name, Integer credits, String teacherFirstName, String teacherLastName, String creditsOrder, String codeOrder,PageFromOne page, BoundedPageSize pageSize) {
+        int pageValue = 1;
+        int pageSizeValue = 15;
+        if (page.getValue() != 0) pageValue = page.getValue();
+        if (pageSize.getValue() != 0) pageSizeValue = pageSize.getValue();
+        Pageable pageableWithSort = PageRequest.of(pageValue-1, pageSizeValue);
+
+        return courseRepository.findCoursesByCodeAndNameAndCreditsAndTeacherNameOrderByCreditsAndCode(
+                code,
+                name,
+                credits,
+                teacherFirstName,
+                teacherLastName,
+                creditsOrder,
+                codeOrder,
+                pageableWithSort
+        );
     }
 }

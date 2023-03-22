@@ -33,14 +33,6 @@ public class CourseController {
         return List.of(courseMapper.toRestCourse(courseService.updateCourseStatus(student_id, course.get(0).getCourseId(), course.get(0).getStatus())));
     }
 
-    @GetMapping(value = "/courses")
-    public List<Course> getAllCourses(
-            @RequestParam("page") PageFromOne page,
-            @RequestParam("page_size") BoundedPageSize pageSize) {
-        return courseService.getAll(page, pageSize).stream()
-                .map(courseMapper::toRestCourse)
-                .collect(Collectors.toUnmodifiableList());
-    }
 
     @PutMapping(value = "/courses")
     public List<Course> createOrUpdateCourses(@RequestBody List<CrupdateCourse> toWrite) {
@@ -51,4 +43,21 @@ public class CourseController {
                 .map(courseMapper::toRestCourse)
                 .collect(Collectors.toUnmodifiableList());
     }
+
+    @GetMapping("/courses")
+    public List<Course> getCoursesByCriteria(@RequestParam(required = false) String code,
+                                                   @RequestParam(required = false) String name,
+                                                   @RequestParam(required = false) Integer credits,
+                                                   @RequestParam(required = false) String teacherFirstName,
+                                                   @RequestParam(required = false) String teacherLastName,
+                                                   @RequestParam(required = false, defaultValue = "ASC") String creditsOrder,
+                                                   @RequestParam(required = false, defaultValue = "ASC") String codeOrder,
+                                                    @RequestParam("page") PageFromOne page,
+                                                    @RequestParam("page_size") BoundedPageSize pageSize) {
+        List<school.hei.haapi.model.Course> courses = courseService.findCoursesByParams(code, name, credits, teacherFirstName, teacherLastName, creditsOrder, codeOrder, page, pageSize);
+        return courses.stream()
+                .map(courseMapper::toRestCourse)
+                .collect(Collectors.toUnmodifiableList());
+    }
 }
+
