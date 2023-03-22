@@ -377,6 +377,48 @@ paths:
       summary: Get all courses
       operationId: getCourses
       parameters:
+        - name: code
+          in: query
+          description: filter courses by code
+          schema:
+            type: string
+          required: false
+        - name: name
+          in: query
+          description: filter courses by name
+          schema:
+            type: string
+          required: false
+        - name: credits
+          in: query
+          description: filter courses by credits
+          schema:
+            type: string
+          required: false
+        - name: teacher_first_name
+          in: query
+          description: filter courses by teacher firstname
+          schema:
+            type: string
+          required: false
+        - name: teacher_last_name
+          in: query
+          description: filter courses by teacher lastname
+          schema:
+            type: string
+          required: false
+        - name: creditsOrder
+          in: query
+          description: filter courses by credits with a specific order
+          schema:
+            $ref: '#/components/schemas/Order'
+          required: false
+        - name: codeOrder
+          in: query
+          description: filter courses by code with a specific order
+          schema:
+            $ref: '#/components/schemas/Order'
+          required: false
         - name: page
           in: query
           schema:
@@ -1165,6 +1207,11 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
+    Order:
+      type: string
+      enum:
+        - DESC
+        - ASC
 
     Exception:
       type: object
