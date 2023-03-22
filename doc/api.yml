@@ -388,6 +388,49 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: code
+          in: query
+          schema:
+            $ref: '#/components/schemas/code'
+          description: Set value to null if not provided
+          required: false
+        - name: name
+          in: query
+          schema:
+            $ref: '#/components/schemas/name'
+          description: Set value to null if not provided
+          required: false
+        - name: credits
+          in: query
+          schema:
+            $ref: '#/components/schemas/credits'
+          description: Set value to null if not provided
+          required: false
+        - name: teacher_first_name
+          in: query
+          schema:
+            $ref: '#/components/schemas/teacher_first_name'
+          description: Set value to null if not provided
+          required: false
+        - name: teacher_last_name
+          in: query
+          schema:
+            $ref: '#/components/schemas/teacher_last_name'
+          description: Set value to null if not provided
+          required: false
+        - name: creditsOrder
+          in: query
+          schema:
+            $ref: '#/components/schemas/creditsOrder'
+          description: Set value to null if not provided
+          required: false
+        - name: codeOrder
+          in: query
+          schema:
+            $ref: '#/components/schemas/codeOrder'
+          description: Set value to null if not provided
+          required: false
+
       responses:
         '200':
           description: List of all courses
@@ -1175,6 +1218,31 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
+    code:
+      type: string
+      description: Unique title of the course
+    name:
+      type: string
+      description: Title of the course
+    credits:
+      type: integer
+      description: Ratio of the course
+    teacher_first_name:
+      type: string
+      description: The firstname of the teacher
+    teacher_last_name:
+      type: string
+      description: The lastname of the teacher
+    creditsOrder:
+      type: string
+      enum:
+        - DESC
+        - ASC
+    codeOrder:
+      type: string
+      enum:
+        - DESC
+        - ASC
 
     Exception:
       type: object

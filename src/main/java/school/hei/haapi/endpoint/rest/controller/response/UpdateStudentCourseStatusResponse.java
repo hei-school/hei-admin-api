@@ -10,5 +10,5 @@ import school.hei.haapi.model.StudentCourse;
 @Builder
 public class UpdateStudentCourseStatusResponse {
     private String course_id;
-    private StudentCourse.Status status;
+    private StudentCourse.CourseStatus status;
 }
