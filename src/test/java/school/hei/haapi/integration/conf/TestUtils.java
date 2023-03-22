@@ -7,6 +7,8 @@ import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -36,6 +38,13 @@ public class TestUtils {
   public static final String COURSE2_ID = "course2_id";
   public static final String LINKED_STATUS = "LINKED";
   public static final String UNLINKED_STATUS = "UNLINKED";
+  public static final String CODE = "PROG1";
+  public static final String NAME = "Introduction to Computer Science";
+  public static final Integer CREDITS = 4;
+  public static final String TEACHERFIRSTNAME ="RAMAROZAKA" ;
+  public static final String TEACHELASTNAME = "Tokimahery";
+  public static final String creditsOrderDESC = "DESC";
+  public static final String codeOrderASC = "ASC";
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";

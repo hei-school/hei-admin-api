@@ -147,6 +147,17 @@ class CourseIT {
     }
 
     @Test
+    void teacher_read_ok() throws ApiException {
+        ApiClient student1Client = anApiClient(TEACHER1_TOKEN);
+
+        TeachingApi api = new TeachingApi(student1Client);
+        List<Course> actualCourses = api.getCourses(1, 15);
+
+        assertTrue(actualCourses.contains(course1()));
+        assertTrue(actualCourses.contains(course2()));
+    }
+
+    @Test
     void student_write_ko() {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         UsersApi api = new UsersApi(student1Client);

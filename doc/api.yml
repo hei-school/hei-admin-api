@@ -372,6 +372,8 @@ paths:
           $ref: '#/components/responses/500'
   /courses:
     get:
+      tags:
+        - Teaching
       summary: Retrieve a list of courses
       description: get courses by more criteria
       operationId: getAllCourses
