@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS "course" (
-                                        id SERIAL PRIMARY KEY,
+                                        id VARCHAR PRIMARY KEY,
                                         code TEXT NOT NULL,
                                         name TEXT NOT NULL,
                                         credits INTEGER NOT NULL,
