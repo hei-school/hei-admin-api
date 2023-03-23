@@ -19,4 +19,8 @@ public class CourseService {
     public List<Course> updateOrCreateCourses(List<Course> toUpdate) {
         return courseRepository.saveAll(toUpdate);
     }
+
+    public Object[] findNameCreditsAndTeacherIdByCode(String code) {
+        return courseRepository.findNameCreditsAndTeacherIdByCode(code);
+    }
 }
