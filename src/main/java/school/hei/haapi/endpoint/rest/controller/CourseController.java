@@ -27,9 +27,12 @@ public class CourseController {
             @RequestParam(name = "name", required = false, defaultValue = "") String name,
             @RequestParam(name = "credits", required = false) Integer credits,
             @RequestParam(name = "teacher_first_name", required = false, defaultValue = "") String teacherFirstName,
-            @RequestParam(name = "teacher_last_name", required = false, defaultValue = "") String teacherLastName) {
+            @RequestParam(name = "teacher_last_name", required = false, defaultValue = "") String teacherLastName,
+            @RequestParam(name = "codeOrder", required = false) String codeOrder,
+            @RequestParam(name = "creditsOrder", required = false) String creditsOrder) {
         return courseService
-                .getAllByCriteria(page, pageSize, code, name, credits, teacherFirstName, teacherLastName).stream()
+                .getAllByCriteria(page, pageSize, code, name, credits, teacherFirstName, teacherLastName, codeOrder, creditsOrder)
+                .stream()
                 .map(courseMapper::toRestCourse)
                 .collect(Collectors.toUnmodifiableList());
     }
