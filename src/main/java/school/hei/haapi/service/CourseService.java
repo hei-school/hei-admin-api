@@ -11,7 +11,12 @@ import java.util.List;
 @AllArgsConstructor
 public class CourseService {
     private final CourseRepository courseRepository;
+
+    public List<Course> getAllCourse (){
+        return courseRepository.findAll();
+    }
     public List<Course> getAllCoursesByTeacherFirstName (String teacherFirstName){
         return courseRepository.getCoursesByMainTeacher_FirstName(teacherFirstName);
     }
+
 }
