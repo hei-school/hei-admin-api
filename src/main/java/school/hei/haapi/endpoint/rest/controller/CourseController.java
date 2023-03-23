@@ -14,10 +14,14 @@ import java.util.stream.Collectors;
 public class CourseController {
     private CourseService service;
     private CourseMapper mapper;
-
-
     @GetMapping("/courses")
-    public List<Course> getCourseByCode(@PathVariable int id, @RequestBody List<Course> coursesourse){
-
+    public List<Course> getCourse(
+            @RequestParam String code,
+            @RequestParam String name,
+            @RequestParam int credits,
+            @RequestParam String teacherFirstName,
+            @RequestParam String teacherLastName
+            ) {
+        return service.GetAllAndFiltreReturnedList(code,name,credits,teacherFirstName,teacherLastName);
     }
 }

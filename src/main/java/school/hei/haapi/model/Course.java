@@ -12,11 +12,11 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "\"course\"")
+@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
+@Builder(toBuilder = true)
 @Getter
 @Setter
 @ToString
-@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
-@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class Course implements Serializable {
