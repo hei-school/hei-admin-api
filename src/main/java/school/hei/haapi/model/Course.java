@@ -21,8 +21,8 @@ public class Course {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private String id;
-    private String code ;
     private String name;
+    private String code ;
     private Integer credits;
     private Integer totalHours;
 
