@@ -1,4 +1,18 @@
 package school.hei.haapi.repository;
 
-public interface CourseRepository {
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+import school.hei.haapi.model.Course;
+
+import java.util.List;
+@Repository
+public interface CourseRepository extends JpaRepository<Course, String> {
+  List<Course> findCoursesByCreditsIsAndAndCodeAndNameContainingIgnoreCaseAndMain_teacherContainingIgnoreCaseAndCodeIsContainingIgnoreCase(
+          String name,
+          String code,
+          String teacher_first_name,
+          String teacher_last_name,
+          Pageable pageable
+  );
 }
