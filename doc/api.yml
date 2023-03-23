@@ -388,6 +388,16 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: creditsOrder
+          in: query
+          schema:
+            type: integer
+          description: Sorting order of credits (ASC for increasing, DESC for decreasing)
+        - name: codeOrder
+          in: query
+          schema:
+            type: string
+          description: Sorting order of code (ASC for increasing, DESC for decreasing)
       responses:
         '200':
           description: List of all courses
