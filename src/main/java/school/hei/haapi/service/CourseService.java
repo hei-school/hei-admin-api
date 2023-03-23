@@ -62,22 +62,30 @@ public class CourseService {
         courseValidator.accept(courses);
         return courseRepository.saveAll(courses);
     }
-    public List<Course> findCoursesByParams(String code, String name, Integer credits, String teacherFirstName, String teacherLastName, String creditsOrder, String codeOrder,int page, int pageSize) {
+
+    public List<Course> findCoursesByParams(String code, String name, Integer credits, String teacherFirstName, String teacherLastName, String creditsOrder, String codeOrder, int page, int pageSize) {
         int pageValue = 1;
         int pageSizeValue = 15;
         if (page != 0) pageValue = page;
         if (pageSize != 0) pageSizeValue = pageSize;
-        Pageable pageableWithSort = PageRequest.of(pageValue-1, pageSizeValue);
-        List<User> filteredList = userRepository.getByLastName(teacherLastName);
-        String teacher = filteredList.get(0).getId();
+        if (page != 0) pageValue = page;
+        if (pageSize != 0) pageSizeValue = pageSize;
+        Pageable pageableWithSort = PageRequest.of(pageValue - 1, pageSizeValue);
+            User teacher;
+        List<User> user = userRepository.getByLastName(teacherLastName);
+        List<User> filteredList = user.stream()
+                .filter(u -> u.getFirstName().toLowerCase().contains(u.getFirstName().toLowerCase()) && (u.getRole() == User.Role.TEACHER))
+                .collect(Collectors.toList());
+       if(filteredList.isEmpty()){
+           throw new NotFoundException("user not found");
+       } else  teacher = filteredList.get(0);
         return courseRepository.findCoursesByCodeAndNameAndCreditsAndTeacherNameOrderByCreditsAndCode(
                 code,
                 name,
                 credits,
-                teacher,
+                teacher.getId(),
                 creditsOrder,
                 codeOrder,
-                pageableWithSort
-        );
+                pageableWithSort);
     }
 }

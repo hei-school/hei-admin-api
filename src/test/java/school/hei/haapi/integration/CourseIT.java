@@ -22,6 +22,7 @@ import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.exception.NotFoundException;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -29,11 +30,10 @@ import java.util.List;
 import java.util.Objects;
 
 import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -141,23 +141,38 @@ class CourseIT {
 //    }
 
     @Test
-    void teacher_read_ok() throws ApiException {
+    void teacher_read_ko() throws ApiException{
         ApiClient student1Client = anApiClient(TEACHER1_TOKEN);
 
         TeachingApi api = new TeachingApi(student1Client);
-        List<Course> actualCourses = api.getAllCourses(
-                course1().getCode(),
-                course1().getCode(),
+
+        assertThrowsApiException( "{\"type\":\"404 NOT_FOUND\",\"message\":\"user not found\"}" ,  () -> api.getAllCourses( course1().getCode(),
+                course1().getName(),
                 course1().getCredits(),
                 course1().getMainTeacher().getFirstName(), course1().getMainTeacher().getLastName(),
                 creditsOrderDESC,
                 codeOrderASC,
                 1,
-                15 );
-        System.out.println(actualCourses);
+                15));
+    }
+    @Test
+    void teacher_read_ok() throws ApiException {
+        ApiClient student1Client = anApiClient(TEACHER1_TOKEN);
+
+        TeachingApi api = new TeachingApi(student1Client);
+
+        List<Course> actualCourses = api.getAllCourses( course2().getCode(),
+                course2().getName(),
+                course2().getCredits(),
+                course2().getMainTeacher().getFirstName(), course2().getMainTeacher().getLastName(),
+                creditsOrderDESC,
+                codeOrderASC,
+                1,
+                15
+                );
+
         assertTrue(actualCourses.contains(course1()));
     }
-
     @Test
     void student_write_ko() {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
