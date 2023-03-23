@@ -27,5 +27,4 @@ public class CourseService {
     ) {
         return repository.getCourseAndFilter(query.getCourseAndFilterQuery(code,name,credit,teacherFirstName,teacherLastName));
     }
-
 }
