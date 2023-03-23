@@ -12,4 +12,6 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     List<Course> findByNameLikeIgnoreCase(String name, Pageable pageable);
     List<Course> findByCodeLikeIgnoreCase(String code, Pageable pageable);
     List<Course> findByCredits(Integer credits, Pageable pageable);
+    List<Course> findByMainTeacherFirstName(String first_name, Pageable pageable);
+    List<Course> findByMainTeacherLastName(String last_name, Pageable pageable);
 }
