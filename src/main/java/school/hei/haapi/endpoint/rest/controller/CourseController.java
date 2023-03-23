@@ -63,7 +63,7 @@ public class CourseController {
 
             @RequestParam(name = "code", required = false, defaultValue = "")String code,
             @RequestParam(name = "name", required = false, defaultValue = "")String name,
-            @RequestParam(name = "credits", required = false, defaultValue = "0")Integer credits,
+            @RequestParam(name = "credits", required = false, defaultValue = "")Integer credits,
             @RequestParam(name = "teacher_first_name", required = false, defaultValue = "")String teacher_first_name,
             @RequestParam(name = "teacher_last_name", required = false, defaultValue = "")String teacher_last_name,
             @RequestParam(name = "creditsOrder", required = false, defaultValue = "")String creditsOrder,
