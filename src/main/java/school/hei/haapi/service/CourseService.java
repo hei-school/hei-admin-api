@@ -43,10 +43,10 @@ public class CourseService {
             Integer credits
     ){
         if(name != null){
-            return repository.findByNameContainingIgnoreCase(name, pageableCreator(page, pageSize));
+            return repository.findByNameLikeIgnoreCase(name, pageableCreator(page, pageSize));
         }
         if(code != null){
-            return repository.findByCodeContainingIgnoreCase(code, pageableCreator(page, pageSize));
+            return repository.findByCodeLikeIgnoreCase(code, pageableCreator(page, pageSize));
         }
         if(credits != null){
             return repository.findByCredits(credits, pageableCreator(page, pageSize));
