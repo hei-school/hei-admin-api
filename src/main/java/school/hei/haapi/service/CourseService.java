@@ -23,11 +23,11 @@ public class CourseService {
     }
 
     public List<Course> getAllCourseByCode (String code){
-        return courseRepository.getCoursesByCode(code);
+        return courseRepository.getCoursesByCodeIgnoreCase(code);
     }
 
     public List<Course> getAllCourseByName(String name){
-        return courseRepository.getCoursesByName(name);
+        return courseRepository.getCourseByNameIgnoreCase(name);
     }
 
     public List<Course> getAllCourseByCredits(Integer credits){

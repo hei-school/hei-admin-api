@@ -11,9 +11,9 @@ import java.util.List;
 public interface CourseRepository extends JpaRepository<Course, String> {
     List<Course> getCoursesByMainTeacher_FirstName(@NotBlank(message = "First name is mandatory") String mainTeacher_firstName);
     List<Course> getCoursesByMainTeacher_LastName(String mainTeacher_lastName);
-    List<Course> getCoursesByCode(String code);
+    List<Course> getCoursesByCodeIgnoreCase(String code);
 
-    List<Course> getCoursesByName(String name);
+    List<Course> getCourseByNameIgnoreCase(String name);
 
     List<Course> getCoursesByCredits(Integer credits);
 }
