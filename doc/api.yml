@@ -420,6 +420,18 @@ paths:
           required: false
           schema:
             $ref: '#/components/schemas/TeacherLastName'
+        - name: creditsOrder
+          in: query
+          description: Get course with a specific order
+          required: false
+          schema:
+            $ref: '#/components/schemas/CreditsOrder'
+        - name: codeOrder
+          in: query
+          description: Get course with a specific
+          required: false
+          schema:
+            $ref: '#/components/schemas/CodeOrder'
 
       responses:
         '200':
@@ -1213,7 +1225,12 @@ components:
     TeacherLastName:
       type: string
       description: course by teacher_last_name
-
+    CreditsOrder:
+      type: string
+      description: ASC or DESC
+    CodeOrder:
+      type: string
+      description: ASC or DESC
     Exception:
       type: object
       properties:

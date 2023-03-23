@@ -64,7 +64,7 @@ public class CourseController {
             @RequestParam(name = "page_size", required = false)BoundedPageSize pageSize,
             @RequestParam(name = "name", required = false)String name,
             @RequestParam(name = "code", required = false)String code,
-            @RequestParam(name = "credits", required = false)int credits
+            @RequestParam(name = "credits", required = false)Integer credits
     ){
         return courseService.getCourses(page, pageSize, name, code, credits).stream()
                 .map(courseMapper::toRestCourse)
