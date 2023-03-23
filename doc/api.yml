@@ -390,6 +390,37 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: code
+          in: query
+          description: Get courses by code
+          required: false
+          schema:
+            $ref: '#/components/schemas/Code'
+        - name: name
+          in: query
+          description: Get courses by name
+          required: false
+          schema:
+            $ref: '#/components/schemas/Name'
+        - name: credits
+          in: query
+          description: Get courses by credits
+          required: false
+          schema:
+            $ref: '#/components/schemas/Credits'
+        - name: teacher_first_name
+          in: query
+          description: Get courses by teacher first name
+          required: false
+          schema:
+            $ref: '#/components/schemas/TeacherFirstName'
+        - name: teacher_last_name
+          in: query
+          description: Get courses by teacher last name
+          required: false
+          schema:
+            $ref: '#/components/schemas/TeacherLastName'
+
       responses:
         '200':
           description: List of all courses
@@ -1167,6 +1198,21 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
+    Code:
+      type: string
+      description: course by code
+    Name:
+      type: string
+      description: course by name
+    Credits:
+      type: integer
+      description: course by credits
+    TeacherFirstName:
+      type: string
+      description: course by teacher_first_name
+    TeacherLastName:
+      type: string
+      description: course by teacher_last_name
 
     Exception:
       type: object
