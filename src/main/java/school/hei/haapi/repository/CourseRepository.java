@@ -6,4 +6,5 @@ import school.hei.haapi.model.Course;
 
 @Service
 public interface CourseRepository extends JpaRepository<Course, String> {
+
 }
