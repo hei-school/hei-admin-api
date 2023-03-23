@@ -45,7 +45,7 @@ public class CourseController {
     }
 
     @PutMapping("/students/{studentId}/courses")
-    public List<Course> createFees(
+    public List<Course> createOrUpdateCourses(
             @PathVariable String studentId, @RequestBody List<UpdateStudentCourse> toCreate) {
 
         return courseService.saveAllStudentCourses(studentId,courseMapper.toDomainStudentCourse(studentId, toCreate)).stream()
@@ -53,7 +53,7 @@ public class CourseController {
                 .collect(Collectors.toList());
     }
     @GetMapping("/students/{studentId}/courses")
-    public List<Course> getFeesByStudentAndStatus(
+    public List<Course> getCoursesByStudentAndStatus(
             @PathVariable String studentId, @RequestParam(required = false) StudentCourse.CourseStatus status) {
         return courseMapper.toRestCourse(courseService.getByStudentIdAndStatus(studentId,status));
     }

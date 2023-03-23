@@ -54,7 +54,7 @@ public class CourseService {
         return studentCourseRepository.saveAll(toDomainStudentCourse);
     }
 
-    public StudentCourse getByStudentIdAndCourseId(String studentId, String courseId) {
+    public StudentCourse getCoursesByStudentIdAndCourseId(String studentId, String courseId) {
         return studentCourseRepository.getStudentCourseByStudentIdAndCourseId(studentId,courseId);
     }
 
