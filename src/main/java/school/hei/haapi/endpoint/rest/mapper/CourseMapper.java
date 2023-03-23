@@ -68,15 +68,19 @@ public class CourseMapper {
         if (!student.getRole().equals(User.Role.STUDENT)) {
             throw new BadRequestException("Only students can be linked to courses");
         }
-        school.hei.haapi.model.Course toSave = courseService.getById(course.getCourseId());
-        if (toSave == null) {
+        school.hei.haapi.model.Course toLink = courseService.getById(course.getCourseId());
+        if (toLink == null) {
             throw new NotFoundException("Course.id=" + course.getCourseId() + " is not found");
         }
-        return school.hei.haapi.model.StudentCourse.builder()
-                .course(toSave)
-                .student(student)
-                .status(StudentCourse.CourseStatus.valueOf(course.getStatus().toString()))
-                .build();
+        StudentCourse exist = courseService.getCoursesByStudentIdAndCourseId(student.getId(),toLink.getId());
+        if (exist==null){
+            return school.hei.haapi.model.StudentCourse.builder()
+                    .course(toLink)
+                    .student(student)
+                    .status(StudentCourse.CourseStatus.valueOf(course.getStatus().toString()))
+                    .build();
+        }
+        return exist;
     }
 
     public List<school.hei.haapi.model.StudentCourse> toDomainStudentCourse(String studentId, List<UpdateStudentCourse> toCreate){
