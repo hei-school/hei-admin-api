@@ -391,7 +391,7 @@ paths:
         - name: creditsOrder
           in: query
           schema:
-            type: integer
+            type: string
           description: Sorting order of credits (ASC for increasing, DESC for decreasing)
         - name: codeOrder
           in: query
