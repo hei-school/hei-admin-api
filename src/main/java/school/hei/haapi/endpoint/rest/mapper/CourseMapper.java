@@ -38,12 +38,7 @@ public class CourseMapper {
     public Course toRestCourse(school.hei.haapi.model.StudentCourse studentCourse){
         return toRestCourse(studentCourse.getCourse());
     }
-    public List<Course> toRestCourse(List<school.hei.haapi.model.StudentCourse> toCreate){
-        return toCreate
-                .stream()
-                .map(studentCourse -> toRestCourse(studentCourse))
-                .collect(toUnmodifiableList());
-    }
+
 
     private school.hei.haapi.model.StudentCourse toDomainStudentCourse(User student, UpdateStudentCourse course){
         if (!student.getRole().equals(User.Role.STUDENT)) {

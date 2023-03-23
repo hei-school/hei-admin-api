@@ -95,13 +95,26 @@ public class CourseIT {
         setUpCognito(cognitoComponentMock);
     }
 
+    @Test
+    void manager_read_courses_with_params_ok(){
+      /*  ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        UsersApi api = new UsersApi(manager1Client);
+
+        Course actual1 = api.getStudentCoursesById()
+        List<Course> actualCourses = api.getCourse(null,null,"","","","","");
+
+        assertEquals(course1(), actual1);
+        assertTrue(actualCourses.contains(course1()));
+
+       */
+    }
 
     @Test
     void student_read_hes_course_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         UsersApi api = new UsersApi(student1Client);
 
-        List<Course> actual = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
+        List<Course> actual = (List<Course>) api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
 
     }
 
@@ -112,7 +125,7 @@ public class CourseIT {
 
         List<Course> expectCours = new ArrayList<>();
         expectCours.add(0,course1());
-        List<Course> actualCours = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
+        List<Course> actualCours = (List<Course>) api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
         assertEquals(actualCours, expectCours);
     }
 
@@ -123,7 +136,7 @@ public class CourseIT {
 
         List<Course> expectCours = new ArrayList<>();
         expectCours.add(0,course2());
-        List<Course> actualCours = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.UNLINKED);
+        List<Course> actualCours = (List<Course>) api.getStudentCoursesById(STUDENT1_ID, CourseStatus.UNLINKED);
         assertEquals(actualCours, expectCours);
     }
 
@@ -134,7 +147,7 @@ public class CourseIT {
 
         List<Course> expectCours = new ArrayList<>();
         expectCours.add(0,course1());
-        List<Course> actualCours = api.getStudentCoursesById(STUDENT1_ID, null);
+        List<Course> actualCours = (List<Course>) api.getStudentCoursesById(STUDENT1_ID, null);
         assertEquals(actualCours, expectCours);
     }
 
