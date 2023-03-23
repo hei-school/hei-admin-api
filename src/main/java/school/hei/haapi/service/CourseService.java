@@ -18,5 +18,8 @@ public class CourseService {
     public List<Course> getAllCoursesByTeacherFirstName (String teacherFirstName){
         return courseRepository.getCoursesByMainTeacher_FirstName(teacherFirstName);
     }
+    public List<Course> getAllCourseByTeacherLastName (String teacherLastName){
+        return courseRepository.getCoursesByMainTeacher_LastName(teacherLastName);
+    }
 
 }
