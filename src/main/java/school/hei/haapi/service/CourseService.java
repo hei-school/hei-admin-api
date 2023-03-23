@@ -16,18 +16,22 @@ public class CourseService {
         return courseRepository.findAll();
     }
     public List<Course> getAllCoursesByTeacherFirstName (String teacherFirstName){
-        return courseRepository.getCoursesByMainTeacher_FirstName(teacherFirstName);
+        return courseRepository.getCoursesByMainTeacher_FirstNameContainingIgnoreCase(teacherFirstName);
     }
     public List<Course> getAllCourseByTeacherLastName (String teacherLastName){
-        return courseRepository.getCoursesByMainTeacher_LastName(teacherLastName);
+        return courseRepository.getCoursesByMainTeacher_LastNameContainingIgnoreCase(teacherLastName);
     }
 
     public List<Course> getAllCourseByCode (String code){
-        return courseRepository.getCoursesByCode(code);
+        return courseRepository.getCoursesByCodeContainingIgnoreCase(code);
     }
 
     public List<Course> getAllCourseByName(String name){
-        return courseRepository.getCoursesByName(name);
+        return courseRepository.getCourseByNameContainingIgnoreCase(name);
+    }
+
+    public List<Course> getAllCourseByCredits(Integer credits){
+        return courseRepository.getCoursesByCredits(credits);
     }
 
 }

@@ -19,7 +19,8 @@ public class CourseController {
             @RequestParam(name = "teacher_first_name", required = false) String teacherFirstName,
             @RequestParam(name = "teacher_last_name",required = false) String teacherLastName,
             @RequestParam(name = "code", required = false)String code,
-            @RequestParam(name ="name", required = false)String name
+            @RequestParam(name ="name", required = false)String name,
+            @RequestParam(name = "credits",required = false)Integer credits
     ) {
       if(teacherFirstName != null){
           return courseService.getAllCoursesByTeacherFirstName(teacherFirstName);
@@ -32,6 +33,9 @@ public class CourseController {
       }
       else if(name != null){
           return courseService.getAllCourseByName(name);
+      }
+      else if(credits != null){
+          return courseService.getAllCourseByCredits(credits);
       }
 return courseService.getAllCourse();
     }
