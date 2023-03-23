@@ -96,6 +96,12 @@ public class CourseIT {
         assertTrue(actualCourse.contains(course1()));
     }
 
+    @Test
+    void course_get_ko() throws ApiException{
+        TeachingApi api = new TeachingApi();
+        assertThrowsApiException("{\"type\":\"404 NOT_FOUND\",\"message\"}",
+            () -> api.getCourses(1,15));
+    }
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
 
