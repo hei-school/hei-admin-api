@@ -390,7 +390,7 @@ paths:
             $ref: '#/components/schemas/PageSize'
         - name: code
           in: query
-          description: "Filter courses by code"
+          description: "Filter courses by code, case is ignored"
           schema:
             type: string
         - name: name
@@ -413,6 +413,24 @@ paths:
           description: "Filter courses by teacher last name, case is ignored"
           schema:
             type: string
+        - name: creditsOrder
+          in: query
+          description: "Sort courses by credits"
+          schema:
+            type: string
+            default: DESC
+            enum:
+              - ASC
+              - DESC
+        - name: codeOrder
+          in: query
+          description: "Sort courses by code"
+          schema:
+            type: string
+            default: DESC
+            enum:
+              - ASC
+              - DESC
       responses:
         '200':
           description: List of all courses
