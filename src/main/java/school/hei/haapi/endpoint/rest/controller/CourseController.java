@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class CourseController {
     private CourseService service;
-    private CourseMapper mapper;
     @GetMapping("/courses")
     public List<Course> getCourse(
             @RequestParam String code,

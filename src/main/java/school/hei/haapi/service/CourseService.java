@@ -18,8 +18,7 @@ public class CourseService {
     private final CourseMapper mapper;
     private QueryBuilder query = new QueryBuilder();
 
-<<<<<<< HEAD
-=======
+
     public List<Course> GetAllAndFiltreReturnedList(
             String code,
             String name,
@@ -30,5 +29,4 @@ public class CourseService {
         return repository.getCourseAndFilter(query.getCourseAndFilterQuery(code,name,credit,teacherFirstName,teacherLastName));
     }
 
->>>>>>> bf29adb98331ec2d42aaa8875823ad182260dab3
 }
