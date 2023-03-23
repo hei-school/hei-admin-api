@@ -41,11 +41,11 @@ public class CourseService {
 
 
   public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize, String code, String name, Integer credits,
-                                 String teacherFirstName, String teacherLastName) {
+                                 String teacherFirstName, Course.CodeOrder codeOrder, Course.CreditsOrder creditsOrder, String teacherLastName) {
     int pageValue = page.getValue() - 1;
     int pageSizeValue = pageSize.getValue();
     Pageable pageable = PageRequest.of(pageValue, pageSizeValue);
-    return courseDao.findByCriteria(code, name, credits, teacherFirstName, teacherLastName, pageable);
+    return courseDao.findByCriteria(code, name, credits, teacherFirstName, teacherLastName,creditsOrder, codeOrder, pageable);
   }
 
   public List<Course> updateStudentCourse(List<StudentCourse> toUpdate) {

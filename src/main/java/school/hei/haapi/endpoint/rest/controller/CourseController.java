@@ -41,15 +41,17 @@ public class CourseController {
 
   @GetMapping(value = "/courses")
   public List<Course> getCourses(
-      @RequestParam(name = "page") PageFromOne page,
-      @RequestParam(name = "page_size") BoundedPageSize pageSize,
-      @RequestParam(value = "code", required = false, defaultValue = "") String code,
-      @RequestParam(value = "name", required = false, defaultValue = "") String name,
-      @RequestParam(value = "credits", required = false, defaultValue = "") Integer credits,
-      @RequestParam(value = "teacher_first_name", required = false, defaultValue = "") String teacherFirstName,
-      @RequestParam(value = "teacher_last_name", required = false, defaultValue = "") String teacherLastname
-  ) {
-    return service.getCourses(page, pageSize, code, name, credits, teacherFirstName, teacherLastname).stream()
+          @RequestParam(name = "page") PageFromOne page,
+          @RequestParam(name = "page_size") BoundedPageSize pageSize,
+          @RequestParam(value = "code", required = false, defaultValue = "") String code,
+          @RequestParam(value = "name", required = false, defaultValue = "") String name,
+          @RequestParam(value = "credits", required = false, defaultValue = "") Integer credits,
+          @RequestParam(value = "teacher_first_name", required = false, defaultValue = "") String teacherFirstName,
+          @RequestParam(value = "teacher_last_name", required = false, defaultValue = "") String teacherLastname,
+          @RequestParam(value = "creditsOrder", required = false, defaultValue = "ASC") String creditsOrder,
+          @RequestParam(value = "codeOrder", required = false, defaultValue = "ASC") String codeOrder
+          ) {
+    return service.getCourses(page, pageSize, code, name, credits, teacherFirstName, school.hei.haapi.model.Course.CodeOrder.valueOf(codeOrder), school.hei.haapi.model.Course.CreditsOrder.valueOf(creditsOrder), teacherLastname ).stream()
         .map(courseMapper::toRest)
         .collect(toUnmodifiableList());
   }
