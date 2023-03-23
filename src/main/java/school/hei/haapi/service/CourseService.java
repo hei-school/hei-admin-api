@@ -30,4 +30,8 @@ public class CourseService {
         return courseRepository.getCoursesByName(name);
     }
 
+    public List<Course> getAllCourseByCredits(Integer credits){
+        return courseRepository.getCoursesByCredits(credits);
+    }
+
 }

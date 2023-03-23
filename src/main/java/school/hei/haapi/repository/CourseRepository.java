@@ -14,4 +14,6 @@ public interface CourseRepository extends JpaRepository<Course, String> {
     List<Course> getCoursesByCode(String code);
 
     List<Course> getCoursesByName(String name);
+
+    List<Course> getCoursesByCredits(Integer credits);
 }
