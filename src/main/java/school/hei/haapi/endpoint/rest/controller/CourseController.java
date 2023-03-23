@@ -64,9 +64,11 @@ public class CourseController {
             @RequestParam(name = "page_size", required = false)BoundedPageSize pageSize,
             @RequestParam(name = "name", required = false)String name,
             @RequestParam(name = "code", required = false)String code,
-            @RequestParam(name = "credits", required = false)Integer credits
+            @RequestParam(name = "credits", required = false)Integer credits,
+            @RequestParam(name = " teacher_first_name", required = false)String TeacherFirstName,
+            @RequestParam(name = "teacher_last_name", required = false)String TeacherLastName
     ){
-        return courseService.getCourses(page, pageSize, name, code, credits).stream()
+        return courseService.getCourses(page, pageSize, name, code, credits, TeacherFirstName, TeacherLastName).stream()
                 .map(courseMapper::toRestCourse)
                 .collect(Collectors.toList());
     }

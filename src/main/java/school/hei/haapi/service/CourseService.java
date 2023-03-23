@@ -40,7 +40,9 @@ public class CourseService {
             BoundedPageSize pageSize,
             String name,
             String code,
-            Integer credits
+            Integer credits,
+            String first_name,
+            String last_name
     ){
         if(name != null){
             return repository.findByNameContainingIgnoreCase(name, pageableCreator(page, pageSize));
@@ -50,6 +52,12 @@ public class CourseService {
         }
         if(credits != null){
             return repository.findByCredits(credits, pageableCreator(page, pageSize));
+        }
+        if(first_name != null) {
+            return repository.findByMainTeacherFirstName(first_name.toLowerCase(), pageableCreator(page, pageSize));
+        }
+        if(last_name != null) {
+            return repository.findByMainTeacherLastName(last_name.toLowerCase(), pageableCreator(page, pageSize));
         }
         else{
             return repository.findAll(pageableCreator(page, pageSize)).toList();
