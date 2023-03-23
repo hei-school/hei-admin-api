@@ -14,9 +14,8 @@ import java.util.stream.Collectors;
 public class CourseController {
     private CourseService service;
     private CourseMapper mapper;
-
     @GetMapping("/courses")
-    public List<Course> updateCourse(
+    public List<Course> getCourse(
             @RequestParam String code,
             @RequestParam String name,
             @RequestParam int credits,
