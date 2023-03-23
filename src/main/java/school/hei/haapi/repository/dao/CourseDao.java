@@ -4,7 +4,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.Course;
 
 import javax.persistence.criteria.CriteriaBuilder;
@@ -16,6 +15,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import java.util.ArrayList;
 import java.util.List;
 
 @Repository
@@ -36,17 +36,14 @@ public class CourseDao {
                         builder.like(builder.lower(root.get("code")), "%" + code + "%"),
                         builder.like(root.get("code"), "%" + code + "%")
                 );
-        Order codeOrderClause;
-        switch (codeOrder) {
-            case ASC:
-                codeOrderClause = builder.asc(root.get("code"));
-                break;
-            case DESC:
-                codeOrderClause = builder.desc(root.get("code"));
-                break;
-            default:
-                codeOrderClause = builder.asc(root.get("code"));
+
+        List<Order> codeOrderClause = new ArrayList<>();
+        if (creditsOrder == Course.CreditsOrder.ASC) {
+            codeOrderClause.add(builder.asc(root.get("code")));
+        } else if (creditsOrder == Course.CreditsOrder.DESC) {
+            codeOrderClause.add(builder.desc(root.get("code")));
         }
+        codeOrderClause.addAll(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
         Predicate hasCourseName =
                 builder.or(
@@ -60,17 +57,14 @@ public class CourseDao {
                                 builder.equal(root.get("credits"), credits)
                         ) : builder.conjunction();
 
-        Order creditsOrderClause;
-        switch (creditsOrder) {
-            case ASC:
-                creditsOrderClause = builder.asc(root.get("credits"));
-                break;
-            case DESC:
-                creditsOrderClause = builder.desc(root.get("credits"));
-                break;
-            default:
-                creditsOrderClause = builder.asc(root.get("credits"));
+
+        List<Order> creditsOrderClause = new ArrayList<>();
+        if (creditsOrder == Course.CreditsOrder.ASC) {
+            creditsOrderClause.add(builder.asc(root.get("credits")));
+        } else if (creditsOrder == Course.CreditsOrder.DESC) {
+            creditsOrderClause.add(builder.desc(root.get("credits")));
         }
+        creditsOrderClause.addAll(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
         Predicate hasTeacherFirstName =
                 builder.or(
@@ -91,9 +85,10 @@ public class CourseDao {
             hasTeacherFirstNameAndTeacherLastName = hasTeacherFirstName;
         } else hasTeacherFirstNameAndTeacherLastName = builder.or(hasTeacherFirstName, hasTeacherLastName);
 
+
         query
-                .where(builder.and(hasCourseCode, hasCourseName, hasCredits, hasTeacherFirstName, hasTeacherLastName))
-                .orderBy(creditsOrderClause, codeOrderClause, (Order) QueryUtils.toOrders(pageable.getSort(), root, builder));
+                .where(builder.and(hasCourseCode, hasCourseName, hasCredits, hasTeacherFirstNameAndTeacherLastName))
+                .orderBy(creditsOrderClause);
 
         return entityManager.createQuery(query)
                 .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
