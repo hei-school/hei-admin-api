@@ -15,13 +15,16 @@ public class CourseController {
     private final CourseService courseService;
 
     @GetMapping("/courses")
-    public List<Course> getAllCourseByTeacherFirstName(@RequestParam(name = "teacher_first_name", required = false) String teacherFirstName
+    public List<Course> getAllCourseByTeacherFirstName(
+            @RequestParam(name = "teacher_first_name", required = false) String teacherFirstName,
+            @RequestParam(name = "teacher_last_name",required = false) String teacherLastName
     ) {
-        if (teacherFirstName == null) {
-            return courseService.getAllCourse();
-        } else {
-            return courseService.getAllCoursesByTeacherFirstName(teacherFirstName);
-        }
-
+      if(teacherFirstName != null){
+          courseService.getAllCoursesByTeacherFirstName(teacherFirstName);
+      }
+      else if(teacherLastName != null){
+          courseService.getAllCourseByTeacherLastName(teacherLastName);
+      }
+return courseService.getAllCourse();
     }
 }
