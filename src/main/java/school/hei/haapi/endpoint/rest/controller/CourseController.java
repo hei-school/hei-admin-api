@@ -3,7 +3,9 @@ package school.hei.haapi.endpoint.rest.controller;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
+import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.CourseService;
 
 import java.util.List;
@@ -21,8 +23,10 @@ public class CourseController {
             @RequestParam String teacherFirstName,
             @RequestParam String teacherLastName,
             @RequestParam String codeOrder,
-            @RequestParam String creditsOrder
+            @RequestParam String creditsOrder,
+            @RequestParam PageFromOne page,
+            @RequestParam BoundedPageSize pageSize
             ) {
-        return service.GetAllAndFiltreReturnedList(code,name,credits,teacherFirstName,teacherLastName,codeOrder,creditsOrder);
+        return service.GetAllAndFiltreReturnedList(code,name,credits,teacherFirstName,teacherLastName,codeOrder,creditsOrder,page,pageSize);
     }
 }
