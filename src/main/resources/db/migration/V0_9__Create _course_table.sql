@@ -5,8 +5,8 @@ create table if not exists "course"
     code              varchar                  not null
     constraint course_ref_unique unique,
     name              varchar                  not null,
-    credits           integer                  not null,
-    total_hours       integer                  not null,
+    credits           integer                  check( credits > 0 ),
+    total_hours       integer                  check( total_hours > 0),
     main_teacher      varchar                  not null
     constraint teacher_id_fk references "user"(id)
 );

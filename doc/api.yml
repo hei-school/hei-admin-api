@@ -418,18 +418,6 @@ paths:
             $ref: '#/components/schemas/teacher_last_name'
           description: Set value to null if not provided
           required: false
-        - name: creditsOrder
-          in: query
-          schema:
-            $ref: '#/components/schemas/creditsOrder'
-          description: Set value to null if not provided
-          required: false
-        - name: codeOrder
-          in: query
-          schema:
-            $ref: '#/components/schemas/codeOrder'
-          description: Set value to null if not provided
-          required: false
 
       responses:
         '200':

@@ -99,21 +99,21 @@ public class CourseIT {
     Course course = new Course();
     course.setId("course1_id");
     course.setCode("PROG1");
-    course.setCredits(3);
-    course.setTotalHours(12);
+    course.setCredits(1000);
+    course.setTotalHours(24);
     course.setMainTeacher(teacher1());
-    course.setName("Algorithmics");
+    course.setName("Basics");
     return course;
   }
 
   static Course course2() {
     Course course = new Course();
     course.setId("course2_id");
-    course.setCode("PROG2");
-    course.setCredits(6);
+    course.setCode("PROG3");
+    course.setCredits(2000);
     course.setTotalHours(24);
     course.setMainTeacher(teacher2());
-    course.setName("OOP");
+    course.setName("Algorithmics");
     return course;
   }
 
@@ -149,8 +149,8 @@ public class CourseIT {
   void student_read_ok() throws ApiException {
     ApiClient student = anApiClient(STUDENT1_TOKEN);
     TeachingApi teachingApi = new TeachingApi(student);
-    List<Course> actual = teachingApi.getCourses(null, null);
-    assertEquals(4, actual.size());
+    List<Course> actual = teachingApi.getCourses(1, 1,"p","", 1000, "o", "");
+    assertEquals(1, actual.size());
     assertTrue(actual.contains(course1()));
   }
 
@@ -158,8 +158,8 @@ public class CourseIT {
   void teacher_read_ok() throws ApiException {
     ApiClient teacher = anApiClient(TEACHER1_TOKEN);
     TeachingApi teachingApi = new TeachingApi(teacher);
-    List<Course> actual = teachingApi.getCourses(null, null);
-    assertEquals(4, actual.size());
+    List<Course> actual = teachingApi.getCourses(1, 2,"","",null,"","");
+    assertEquals(2, actual.size());
     assertTrue(actual.contains(course1()));
     assertTrue(actual.contains(course2()));
   }
@@ -169,7 +169,7 @@ public class CourseIT {
     ApiClient teacher = anApiClient(TEACHER1_TOKEN);
     TeachingApi teachingApi = new TeachingApi(teacher);
     assertThrowsApiException(
-        "{\"type\"403 FORBIDDEN\",\"message\"Access is denied\"}",
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> teachingApi.crupdateCourses(List.of()));
   }
 
