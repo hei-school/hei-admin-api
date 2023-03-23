@@ -407,6 +407,16 @@ paths:
           schema:
             type: integer
           description: If provided, search course by teacher_last_name
+        - in: query
+          name: creditsOrder
+          schema:
+           $ref: '#/components/schemas/OrderDirection'
+          description: Filter course by credit order
+        - in: query
+          name: codeOrder
+          schema:
+            $ref: '#/components/schemas/OrderDirection'
+          description: Filter course by code order
         - name: page
           in: query
           schema:
@@ -1189,6 +1199,11 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    OrderDirection:
+      type: string
+      enum:
+        - ASC
+        - DESC
     Page:
       type: integer
       description: Start at `1`
