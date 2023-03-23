@@ -22,4 +22,8 @@ public class CourseService {
         return courseRepository.getCoursesByMainTeacher_LastName(teacherLastName);
     }
 
+    public List<Course> getAllCourseByCode (String code){
+        return courseRepository.getCoursesByCode(code);
+    }
+
 }

@@ -17,13 +17,17 @@ public class CourseController {
     @GetMapping("/courses")
     public List<Course> getAllCourseByTeacherFirstName(
             @RequestParam(name = "teacher_first_name", required = false) String teacherFirstName,
-            @RequestParam(name = "teacher_last_name",required = false) String teacherLastName
+            @RequestParam(name = "teacher_last_name",required = false) String teacherLastName,
+            @RequestParam(name = "code", required = false)String code
     ) {
       if(teacherFirstName != null){
-          courseService.getAllCoursesByTeacherFirstName(teacherFirstName);
+          return courseService.getAllCoursesByTeacherFirstName(teacherFirstName);
       }
       else if(teacherLastName != null){
-          courseService.getAllCourseByTeacherLastName(teacherLastName);
+          return courseService.getAllCourseByTeacherLastName(teacherLastName);
+      }
+      else if(code != null){
+          return courseService.getAllCourseByCode(code);
       }
 return courseService.getAllCourse();
     }
