@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: "1.0"
+  version: '1.0'
   title: HEI Admin API
   description: |
     _Programmatically connect to a computer programming [school](https://hei.school)._
@@ -15,61 +15,61 @@ info:
     You are welcome to try and compromise it. Happy hacking!
 
 servers:
-  - url: "https://api-dev.hei.school"
-  - url: "https://api-prod.hei.school"
+  - url: 'https://api-dev.hei.school'
+  - url: 'https://api-prod.hei.school'
 
 security:
-  - BearerAuth: []
+  - BearerAuth: [ ]
 
 paths:
-  "/whoami":
+  '/whoami':
     get:
       tags:
         - Security
       summary: Who am I? Tells you who you are.
       operationId: whoami
       responses:
-        "200":
+        '200':
           description: Who you are
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Whoami"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
-  "/ping":
+                $ref: '#/components/schemas/Whoami'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/ping':
     get:
       tags:
         - Security
       summary: pong
       operationId: ping
       responses:
-        "200":
+        '200':
           description: pong
           content:
             text/plain:
               schema:
                 type: string
                 example: pong
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
-  "/groups/{id}":
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/groups/{id}':
     get:
       tags:
         - Teaching
@@ -82,22 +82,22 @@ paths:
             type: string
       operationId: getGroupById
       responses:
-        "200":
+        '200':
           description: The identified group
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Group"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                $ref: '#/components/schemas/Group'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /groups:
     get:
       tags:
@@ -105,24 +105,24 @@ paths:
       summary: Get all groups
       operationId: getGroups
       responses:
-        "200":
+        '200':
           description: List of groups
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Group"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                  $ref: '#/components/schemas/Group'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     put:
       tags:
         - Teaching
@@ -137,27 +137,27 @@ paths:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/Group"
+                $ref: '#/components/schemas/Group'
       responses:
-        "200":
+        '200':
           description: The created or updated groups
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Group"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
-  "/students/{id}":
+                  $ref: '#/components/schemas/Group'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{id}':
     get:
       tags:
         - Users
@@ -170,22 +170,22 @@ paths:
             type: string
       operationId: getStudentById
       responses:
-        "200":
+        '200':
           description: The identified student
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Student"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/courses:
     get:
       tags:
@@ -200,26 +200,28 @@ paths:
         - name: status
           in: query
           schema:
-            $ref: "#/components/schemas/CourseStatus"
+              $ref: '#/components/schemas/CourseStatus'
           description: By default, LINKED courses are provided.
       operationId: getStudentCoursesById
       responses:
-        "200":
+        '200':
           description: The student courses
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Course"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                type: array
+                items:
+                    $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     put:
       tags:
         - Users
@@ -238,26 +240,26 @@ paths:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/UpdateStudentCourse"
+                $ref: '#/components/schemas/UpdateStudentCourse'
       responses:
-        "200":
+        '200':
           description: The student updated courses
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Course"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                  $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students:
     get:
       tags:
@@ -268,11 +270,11 @@ paths:
         - name: page
           in: query
           schema:
-            $ref: "#/components/schemas/Page"
+            $ref: '#/components/schemas/Page'
         - name: page_size
           in: query
           schema:
-            $ref: "#/components/schemas/PageSize"
+            $ref: '#/components/schemas/PageSize'
         - name: ref
           in: query
           description: "Filter students by ref, case is ignored"
@@ -289,24 +291,24 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: List of students, ordered by ref.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Student"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                  $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     put:
       tags:
         - Users
@@ -320,9 +322,9 @@ paths:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/Student"
+                $ref: '#/components/schemas/Student'
       responses:
-        "200":
+        '200':
           description: The created or updated students
           content:
             application/json:
@@ -330,18 +332,18 @@ paths:
                 type: array
                 items:
                   allOf:
-                    - $ref: "#/components/schemas/Student"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
-  "/courses/{id}":
+                    - $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/courses/{id}':
     get:
       tags:
         - Teaching
@@ -354,22 +356,22 @@ paths:
             type: string
       operationId: getCourseById
       responses:
-        "200":
+        '200':
           description: The identified course
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Course"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /courses:
     get:
       tags:
@@ -380,63 +382,63 @@ paths:
         - name: page
           in: query
           schema:
-            $ref: "#/components/schemas/Page"
+            $ref: '#/components/schemas/Page'
           description: Set value to 1 by default if null is provided
           required: false
         - name: page_size
           in: query
           description: Set value to 15 by default if null is provided
           schema:
-            $ref: "#/components/schemas/PageSize"
+            $ref: '#/components/schemas/PageSize'
         - name: code
           in: query
           required: false
           description: Filter courses by code, case is ignored
           schema:
-            type: string
+           type: string
         - name: name
           in: query
           required: false
           description: Filter courses by name, case is ignored
           schema:
-            type: string    
+           type: string
         - name: credits
           in: query
           required: false
-          description: Filter courses by credits, case is ignored
+          description: Filter courses by credits, case is ignored           
           schema:
-            type: integer
+           type: integer
         - name: teacher_first_name
           in: query
           required: false
           description: Filter courses by teacher first name, case is ignored
           schema:
-            type: string
+           type: string
         - name: teacher_last_name
           in: query
           required: false
           description: Filter courses by techer last name, case is ignored
           schema:
-            type: string    
+           type: string
       responses:
-        "200":
+        '200':
           description: List of all courses
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Course"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                  $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     put:
       tags:
         - Teaching
@@ -450,27 +452,27 @@ paths:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/CrupdateCourse"
+                $ref: '#/components/schemas/CrupdateCourse'
       responses:
-        "200":
+        '200':
           description: The crupdated courses
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Course"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
-  "/teachers/{id}":
+                  $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/teachers/{id}':
     get:
       tags:
         - Users
@@ -483,22 +485,22 @@ paths:
             type: string
       operationId: getTeacherById
       responses:
-        "200":
+        '200':
           description: The identified teacher
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Teacher"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                $ref: '#/components/schemas/Teacher'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /teachers:
     get:
       tags:
@@ -509,11 +511,11 @@ paths:
         - name: page
           in: query
           schema:
-            $ref: "#/components/schemas/Page"
+            $ref: '#/components/schemas/Page'
         - name: page_size
           in: query
           schema:
-            $ref: "#/components/schemas/PageSize"
+            $ref: '#/components/schemas/PageSize'
         - name: ref
           in: query
           description: "Filter teachers by ref, case is ignored"
@@ -530,24 +532,24 @@ paths:
           schema:
             type: string
       responses:
-        "200":
+        '200':
           description: List of teachers, ordered by ref.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Teacher"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                  $ref: '#/components/schemas/Teacher'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     put:
       tags:
         - Users
@@ -561,28 +563,28 @@ paths:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/Teacher"
+                $ref: '#/components/schemas/Teacher'
       responses:
-        "200":
+        '200':
           description: The created or updated teachers
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Teacher"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                  $ref: '#/components/schemas/Teacher'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
-  "/managers/{id}":
+  '/managers/{id}':
     get:
       tags:
         - Users
@@ -595,22 +597,22 @@ paths:
             type: string
       operationId: getManagerById
       responses:
-        "200":
+        '200':
           description: The identified manager
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Manager"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                $ref: '#/components/schemas/Manager'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /managers:
     get:
       tags:
@@ -621,30 +623,30 @@ paths:
         - name: page
           in: query
           schema:
-            $ref: "#/components/schemas/Page"
+            $ref: '#/components/schemas/Page'
         - name: page_size
           in: query
           schema:
-            $ref: "#/components/schemas/PageSize"
+            $ref: '#/components/schemas/PageSize'
       responses:
-        "200":
+        '200':
           description: List of managers, ordered by ref.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Manager"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                  $ref: '#/components/schemas/Manager'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
   /delay_penalty_change:
     post:
@@ -658,24 +660,24 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/CreateDelayPenaltyChange"
+              $ref: '#/components/schemas/CreateDelayPenaltyChange'
       responses:
-        "200":
+        '200':
           description: List of created delay penalties
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DelayPenalty"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                $ref: '#/components/schemas/DelayPenalty'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /delay_penalty:
     get:
       tags:
@@ -683,22 +685,22 @@ paths:
       summary: Get current delay penalty
       operationId: getDelayPenalty
       responses:
-        "200":
+        '200':
           description: Active delay penalty
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/DelayPenalty"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                $ref: '#/components/schemas/DelayPenalty'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
   /students/{student_id}/fees/{fee_id}:
     get:
@@ -718,22 +720,22 @@ paths:
             type: string
       operationId: getStudentFeeById
       responses:
-        "200":
+        '200':
           description: Identified student fee
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/Fee"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees:
     get:
       tags:
@@ -749,11 +751,11 @@ paths:
         - name: page
           in: query
           schema:
-            $ref: "#/components/schemas/Page"
+            $ref: '#/components/schemas/Page'
         - name: page_size
           in: query
           schema:
-            $ref: "#/components/schemas/PageSize"
+            $ref: '#/components/schemas/PageSize'
         - name: status
           in: query
           schema:
@@ -764,24 +766,24 @@ paths:
               - LATE
       operationId: getStudentFees
       responses:
-        "200":
+        '200':
           description: List of all student fees
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Fee"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     post:
       tags:
         - Paying
@@ -801,26 +803,26 @@ paths:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/CreateFee"
+                $ref: '#/components/schemas/CreateFee'
       responses:
-        "200":
+        '200':
           description: Created student fees
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Fee"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /fees:
     get:
       tags:
@@ -840,31 +842,31 @@ paths:
         - name: page
           in: query
           schema:
-            $ref: "#/components/schemas/Page"
+            $ref: '#/components/schemas/Page'
         - name: page_size
           in: query
           schema:
-            $ref: "#/components/schemas/PageSize"
+            $ref: '#/components/schemas/PageSize'
       operationId: getFees
       responses:
-        "200":
+        '200':
           description: List of filtered student fees
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Fee"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees/{fee_id}/payments:
     get:
       tags:
@@ -884,31 +886,31 @@ paths:
         - name: page
           in: query
           schema:
-            $ref: "#/components/schemas/Page"
+            $ref: '#/components/schemas/Page'
         - name: page_size
           in: query
           schema:
-            $ref: "#/components/schemas/PageSize"
+            $ref: '#/components/schemas/PageSize'
       operationId: getStudentPayments
       responses:
-        "200":
+        '200':
           description: List of all student payments
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Payment"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                  $ref: '#/components/schemas/Payment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     post:
       tags:
         - Paying
@@ -933,26 +935,26 @@ paths:
             schema:
               type: array
               items:
-                $ref: "#/components/schemas/CreatePayment"
+                $ref: '#/components/schemas/CreatePayment'
       responses:
-        "200":
+        '200':
           description: Created student payments
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: "#/components/schemas/Payment"
-        "400":
-          $ref: "#/components/responses/400"
-        "403":
-          $ref: "#/components/responses/403"
-        "404":
-          $ref: "#/components/responses/404"
-        "429":
-          $ref: "#/components/responses/429"
-        "500":
-          $ref: "#/components/responses/500"
+                  $ref: '#/components/schemas/Payment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
@@ -960,36 +962,36 @@ components:
       scheme: bearer
 
   responses:
-    "400":
+    '400':
       description: Bad request
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/BadRequestException"
-    "403":
+            $ref: '#/components/schemas/BadRequestException'
+    '403':
       description: Forbidden
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/NotAuthorizedException"
-    "404":
+            $ref: '#/components/schemas/NotAuthorizedException'
+    '404':
       description: Not found
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/ResourceNotFoundException"
-    "429":
+            $ref: '#/components/schemas/ResourceNotFoundException'
+    '429':
       description: Too many requests to the API
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/TooManyRequestsException"
-    "500":
+            $ref: '#/components/schemas/TooManyRequestsException'
+    '500':
       description: Internal server error
       content:
         application/json:
           schema:
-            $ref: "#/components/schemas/InternalServerException"
+            $ref: '#/components/schemas/InternalServerException'
   schemas:
     Whoami:
       properties:
@@ -1032,7 +1034,7 @@ components:
           type: string
           format: date-time
         status:
-          $ref: "#/components/schemas/EnableStatus"
+          $ref: '#/components/schemas/EnableStatus'
     EnableStatus:
       type: string
       enum:
@@ -1040,13 +1042,13 @@ components:
         - DISABLED
     Student:
       allOf:
-        - $ref: "#/components/schemas/User"
+        - $ref: '#/components/schemas/User'
     Teacher:
       allOf:
-        - $ref: "#/components/schemas/User"
+        - $ref: '#/components/schemas/User'
     Manager:
       allOf:
-        - $ref: "#/components/schemas/User"
+        - $ref: '#/components/schemas/User'
     Group:
       type: object
       properties:
@@ -1078,7 +1080,7 @@ components:
           type: integer
     CrupdateCourse:
       allOf:
-        - $ref: "#/components/schemas/CourseTemplate"
+        - $ref: '#/components/schemas/CourseTemplate'
       type: object
       properties:
         main_teacher_id:
@@ -1094,14 +1096,14 @@ components:
         course_id:
           type: string
         status:
-          $ref: "#/components/schemas/CourseStatus"
+          $ref: '#/components/schemas/CourseStatus'
     Course:
       allOf:
-        - $ref: "#/components/schemas/CourseTemplate"
+        - $ref: '#/components/schemas/CourseTemplate'
       type: object
       properties:
         main_teacher:
-          $ref: "#/components/schemas/Teacher"
+          $ref: '#/components/schemas/Teacher'
     CreateFee:
       type: object
       properties:
@@ -1122,7 +1124,7 @@ components:
           format: date-time
     Fee:
       allOf:
-        - $ref: "#/components/schemas/CreateFee"
+        - $ref: '#/components/schemas/CreateFee'
       type: object
       properties:
         id:
@@ -1155,7 +1157,7 @@ components:
           type: integer
     DelayPenalty:
       allOf:
-        - $ref: "#/components/schemas/CreateDelayPenaltyChange"
+        - $ref: '#/components/schemas/CreateDelayPenaltyChange'
       type: object
       properties:
         id:
@@ -1179,7 +1181,7 @@ components:
           type: string
     Payment:
       allOf:
-        - $ref: "#/components/schemas/CreatePayment"
+        - $ref: '#/components/schemas/CreatePayment'
       type: object
       properties:
         id:
@@ -1195,6 +1197,7 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
+
     Exception:
       type: object
       properties:
@@ -1204,31 +1207,31 @@ components:
           type: string
     BadRequestException:
       allOf:
-        - $ref: "#/components/schemas/Exception"
+        - $ref: '#/components/schemas/Exception'
       example:
         type: BadRequestException
         message: Bad request
     NotAuthorizedException:
       allOf:
-        - $ref: "#/components/schemas/Exception"
+        - $ref: '#/components/schemas/Exception'
       example:
         type: NotAuthorizedException
         message: Not authorized
     ResourceNotFoundException:
       allOf:
-        - $ref: "#/components/schemas/Exception"
+        - $ref: '#/components/schemas/Exception'
       example:
         type: ResourceNotFoundException
         message: Resource of type <T> identified by <I> not found
     TooManyRequestsException:
       allOf:
-        - $ref: "#/components/schemas/Exception"
+        - $ref: '#/components/schemas/Exception'
       example:
         type: TooManyRequestsException
         message: Too many requests
     InternalServerException:
       allOf:
-        - $ref: "#/components/schemas/Exception"
+        - $ref: '#/components/schemas/Exception'
       example:
         type: InternalServerException
         message: Unexpected error

@@ -75,7 +75,7 @@ class CourseIT {
     ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teachingClient);
 
-    List<Course> actual = api.getCourses(1,20);
+    List<Course> actual = api.getCourses(1, 20, null, null,null,null,null);
 
     assertTrue(actual.contains(course()));
   }
@@ -85,7 +85,7 @@ class CourseIT {
     ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(studentClient);
 
-    List<Course> actual = (List<Course>) api.getStudentCoursesById(STUDENT1_ID, LINKED);
+    List<Course> actual = api.getStudentCoursesById(STUDENT1_ID, LINKED);
 
     //Always return empty list
     //assertTrue(actual.contains(course()));
