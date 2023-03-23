@@ -12,6 +12,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
@@ -147,6 +148,22 @@ public class CourseIT {
     assertEquals(1, actual.size());
     assertTrue(actual.contains(course1()));
   }
+  @Test
+  void student_read_courses_ok() throws ApiException {
+    ApiClient student = anApiClient(STUDENT1_TOKEN);
+    UsersApi usersApi = new UsersApi(student);
+  }
+  @Test
+  void student_create_courses_ko() throws ApiException {
+    ApiClient student = anApiClient(STUDENT1_TOKEN);
+    UsersApi usersApi = new UsersApi(student);
+  }
+
+  @Test
+  void manager_create_courses_ok() throws ApiException {
+    ApiClient student = anApiClient(STUDENT1_TOKEN);
+    UsersApi usersApi = new UsersApi(student);
+  }
 
   @Test
   void teacher_read_ok() throws ApiException {
@@ -171,8 +188,8 @@ public class CourseIT {
   void manager_crupdate_ok() throws ApiException {
     ApiClient manager = anApiClient(MANAGER1_TOKEN);
     TeachingApi teachingApi = new TeachingApi(manager);
+    UsersApi usersApi = new UsersApi(manager);
     List<Course> actual = teachingApi.crupdateCourses(List.of(updatedCourse()));
-
     assertTrue(actual.contains(course3()));
   }
 
