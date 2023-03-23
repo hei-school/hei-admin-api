@@ -6,7 +6,15 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @NoArgsConstructor
 public class QueryBuilder {
-    public String getCourseAndFilterQuery(String code,String name,Integer credits,String firstName,String lastName){
+    public String getCourseAndFilterQuery(
+            String code,
+            String name,
+            Integer credits,
+            String firstName,
+            String lastName,
+            String codeOrder,
+            String creditOrder
+            ){
         String query = "select c from course c join \"user\" u on u.id = c.user.id where ";
         int acc=0;
         if(code !=null){
@@ -41,10 +49,15 @@ public class QueryBuilder {
             if(acc!=0){
                 query=query.concat("and lower(u.last_name) like lower(concat('%',"+lastName+",'%')) ");
             }else {
-                query=query.concat("lower(u.last_name) like lower(concat('%',"+lastName+",'%'))");
+                query=query.concat("lower(u.last_name) like lower(concat('%',"+lastName+",'%')) ");
             }
         }
-
+        if(creditOrder!=null && codeOrder!=null){
+            query = query.concat("order by c.credits "+creditOrder+",c.code "+codeOrder);
+        }
+        if(codeOrder!=null && creditOrder==null){
+            query = query.concat("order by c.code "+codeOrder);
+        }
         return query;
     }
 }
