@@ -36,24 +36,16 @@ public class CourseService {
     }
 
     public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize){
-        List<Course> allCourses = new ArrayList<>();
-        if(page==null && pageSize==null){
-            Pageable pageable = PageRequest.of(0, 15);
-            allCourses = repository.findAll(pageable).toList();
+         if(page==null){
+             PageFromOne defaultPage = new PageFromOne(1);
+             page = defaultPage;
         }
-        else if(page==null){
-            Pageable pageable = PageRequest.of(1, pageSize.getValue());
-            allCourses = repository.findAll(pageable).toList();
+         if(pageSize==null){
+             BoundedPageSize defaultPageSize = new BoundedPageSize(15);
+             pageSize = defaultPageSize;
         }
-        else if(pageSize==null){
-            Pageable pageable = PageRequest.of(page.getValue()-1, 15);
-            allCourses = repository.findAll(pageable).toList();
-        }
-        else{
-            Pageable pageable = PageRequest.of(page.getValue()-1, pageSize.getValue());
-            allCourses = repository.findAll(pageable).toList();
-        }
-        return allCourses;
+        Pageable pageable = PageRequest.of(page.getValue()-1, pageSize.getValue());
+        return repository.findAll(pageable).toList();
     }
 
     public List<StudentCourse> saveAllStudentCourses(String studentId, List<StudentCourse> toDomainStudentCourse) {
