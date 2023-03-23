@@ -43,11 +43,11 @@ public class Course implements Serializable {
     private String code;
     @NotBlank(message = "Name is mandatory")
     private String name;
-    private int credits;
+    private Integer credits;
     private int totalHours;
     @ManyToOne
     @JoinColumn(name = "teacher_id", nullable = false)
-    private User MainTeacher;
+    private User mainTeacher;
 
 
 }
