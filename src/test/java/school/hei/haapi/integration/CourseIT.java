@@ -25,13 +25,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -123,7 +117,7 @@ public class CourseIT {
     course.setCode("MGT1");
     course.setCredits(5);
     course.setTotalHours(16);
-    course.setMainTeacher(teacher3());
+    course.setMainTeacher(teacher2());
     course.setName("Git");
     return course;
   }
@@ -134,7 +128,7 @@ public class CourseIT {
     crupdateCourse.setCode("MGT1");
     crupdateCourse.setCredits(5);
     crupdateCourse.setTotalHours(16);
-    crupdateCourse.setMainTeacherId(TEACHER3_ID);
+    crupdateCourse.setMainTeacherId(TEACHER2_ID);
     crupdateCourse.setName("Git");
     return crupdateCourse;
   }
@@ -178,6 +172,9 @@ public class CourseIT {
     ApiClient manager = anApiClient(MANAGER1_TOKEN);
     TeachingApi teachingApi = new TeachingApi(manager);
     List<Course> actual = teachingApi.crupdateCourses(List.of(updatedCourse()));
+    System.out.println(actual.get(0));
+    System.out.println(course3());
+
     assertTrue(actual.contains(course3()));
   }
 
