@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -10,25 +11,23 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.User;
+import school.hei.haapi.repository.CourseRepository;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
+import software.amazon.awssdk.services.ses.endpoints.internal.Value;
 
 
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -42,39 +41,36 @@ public class CourseIT {
     @MockBean
     private EventBridgeClient eventBridgeClientMock;
 
-
     private static ApiClient anApiClient(String token) {
         return TestUtils.anApiClient(token, CourseIT.ContextInitializer.SERVER_PORT);
     }
     public static Course course1(){
-        Course course = new Course();
-        course.setId("course1_id");
-        course.setCode("PROG1");
-        course.setName("Algo");
-        course.setCredits(100);
-        course.setMain_teacher(User.Role.TEACHER);
-        return course;
-    }
-    public static Course course2(){
-        Course course = new Course();
-        course.setId("course2_id");
-        course.setCode("WEB1");
-        course.setName("Interface web");
-        course.setCredits(100);
-        course.setMain_teacher(User.builder()
-                .build());
-        return course;
-    }
-
-    static Course createCourse(){
         return Course.builder()
-                .id("course3_id")
-                .code("SYS1")
-                .name("Systeme d'exploitation")
-                .credits(100)
-                .main_teacher(User.builder().build()).build();
+                .id("course1_id")
+                .code("PROG1")
+                .name("Algo")
+                .credits(4)
+                .total_hours(8)
+                .main_teacher(User.builder()
+                            .id("teacher1_id")
+                            .firstName("One")
+                            .lastName("teacher")
+                            .email("test+teacher1@hei.school")
+                            .ref("TCR21001")
+                            .phone("0322411125")
+                            .sex(User.Sex.F)
+                            .status(User.Status.ENABLED)
+                            .role(User.Role.TEACHER)
+                            .birthDate(LocalDate.parse("1990-01-01"))
+                            .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
+                            .address("Adr 3")
+                            .build())
+                .build();
 
     }
+
+
+
     @BeforeEach
     public void setUp() {
         setUpCognito(cognitoComponentMock);
@@ -82,7 +78,9 @@ public class CourseIT {
     }
 
     @Test
-    public course_write_
+    void course_get_ok() throws ApiException{
+
+    }
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
 

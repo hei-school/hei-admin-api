@@ -4,6 +4,10 @@ import org.junit.jupiter.api.Test;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.User;
+
+import java.time.Instant;
+import java.time.LocalDate;
+
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 
 
@@ -15,7 +19,21 @@ public class CourseTest {
                 .code("PROG1")
                 .name("Algo")
                 .credits(100)
-                .main_teacher(User.Role.TEACHER).build();
+                .main_teacher(User.builder()
+                        .id("teacher1_id")
+                        .firstName("One")
+                        .lastName("teacher")
+                        .email("test+teacher1@hei.school")
+                        .ref("TCR21001")
+                        .phone("0322411125")
+                        .sex(User.Sex.F)
+                        .status(User.Status.ENABLED)
+                        .role(User.Role.TEACHER)
+                        .birthDate(LocalDate.parse("1990-01-01"))
+                        .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
+                        .address("Adr 3")
+                        .build())
+                .build();
     }
     static Course course2(){
         return Course.builder()
@@ -23,7 +41,21 @@ public class CourseTest {
                 .code("WEB1")
                 .name("Interface Web")
                 .credits(100)
-                .main_teacher(User.Role.TEACHER).build();
+                .main_teacher(User.builder()
+                        .id("teacher1_id")
+                        .firstName("One")
+                        .lastName("teacher")
+                        .email("test+teacher1@hei.school")
+                        .ref("TCR21001")
+                        .phone("0322411125")
+                        .sex(User.Sex.F)
+                        .status(User.Status.ENABLED)
+                        .role(User.Role.TEACHER)
+                        .birthDate(LocalDate.parse("1990-01-01"))
+                        .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
+                        .address("Adr 3")
+                        .build())
+                .build();
     }
     @Test
     void courses_with_unique_code_ok(){
