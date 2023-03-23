@@ -78,7 +78,7 @@ public class CourseIT {
     }
 
     @Test
-    void course_get_ok() throws ApiException {
+    void course_get_pageable_ok() throws ApiException {
         TeachingApi api = new TeachingApi();
         List<school.hei.haapi.endpoint.rest.model.Course> actualCourse = api.getCourses(1,15);
 
@@ -91,6 +91,8 @@ public class CourseIT {
         assertThrowsApiException("{\"type\":\"404 NOT_FOUND\",\"message\"}",
             () -> api.getCourses(1,15));
     }
+
+    void
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
 
