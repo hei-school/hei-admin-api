@@ -49,8 +49,6 @@ public class CourseService {
     }
 
     public List<StudentCourse> saveAllStudentCourses(String studentId, List<StudentCourse> toDomainStudentCourse) {
-
-
         return studentCourseRepository.saveAll(toDomainStudentCourse);
     }
 
