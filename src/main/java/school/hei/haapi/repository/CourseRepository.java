@@ -9,7 +9,7 @@ import java.util.List;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, String> {
-    List<Course> findByNameContainingIgnoreCase(String name, Pageable pageable);
-    List<Course> findByCodeContainingIgnoreCase(String code, Pageable pageable);
+    List<Course> findByNameLikeIgnoreCase(String name, Pageable pageable);
+    List<Course> findByCodeLikeIgnoreCase(String code, Pageable pageable);
     List<Course> findByCredits(Integer credits, Pageable pageable);
 }
