@@ -68,16 +68,13 @@ public class CourseService {
         if (page != 0) pageValue = page;
         if (pageSize != 0) pageSizeValue = pageSize;
         Pageable pageableWithSort = PageRequest.of(pageValue-1, pageSizeValue);
-        List<User> user = userRepository.getByLastName(teacherLastName);
-        List<User> filteredList = user.stream()
-                .filter(u -> u.getFirstName().toLowerCase().contains(u.getFirstName().toLowerCase()) && (u.getRole()== User.Role.TEACHER))
-                .collect(Collectors.toList());
-        User teacher = filteredList.get(0);
+        List<User> filteredList = userRepository.getByLastName(teacherLastName);
+        String teacher = filteredList.get(0).getId();
         return courseRepository.findCoursesByCodeAndNameAndCreditsAndTeacherNameOrderByCreditsAndCode(
                 code,
                 name,
                 credits,
-                teacher.getId(),
+                teacher,
                 creditsOrder,
                 codeOrder,
                 pageableWithSort

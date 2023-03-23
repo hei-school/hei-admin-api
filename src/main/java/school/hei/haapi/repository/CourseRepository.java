@@ -14,8 +14,8 @@ import java.util.List;
 public interface CourseRepository extends JpaRepository<Course,String> {
     List<Course> getByMainTeacherId(String UserId, Pageable pageable);
 
-    @Query(value = "SELECT c FROM course c WHERE "
-            + "INNER JOIN user u WHERE c.user_id=:user_id  AND "
+    @Query(value = "SELECT c FROM Course c "
+            + "INNER JOIN user u ON c.user_id = :user_id WHERE "
             + "(:code IS NULL OR c.code LIKE %:code%) AND "
             + "(:name IS NULL OR c.name LIKE %:name%) AND "
             + "(:credits IS NULL OR c.credits = :credits) "
@@ -27,7 +27,7 @@ public interface CourseRepository extends JpaRepository<Course,String> {
     List<Course> findCoursesByCodeAndNameAndCreditsAndTeacherNameOrderByCreditsAndCode(@Param("code") String code,
                                                                                        @Param("name") String name,
                                                                                        @Param("credits") Integer credits,
-                                                                                       @Param("user_id") String teacher_id,
+                                                                                       @Param("user_id") String user_id,
                                                                                        @Param("creditsOrder") String creditsOrder,
                                                                                        @Param("codeOrder") String codeOrder,
                                                                                        Pageable pageable);

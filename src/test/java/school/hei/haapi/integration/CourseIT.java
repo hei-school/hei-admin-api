@@ -26,6 +26,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -98,30 +99,8 @@ class CourseIT {
         return teacher;
     }
 
-    public static Teacher teachers1() {
-        Teacher teacher = new Teacher();
-        teacher.setId("teacher4_id");
-        teacher.setFirstName("TOKIMAHERY");
-        teacher.setLastName("RAMAROZAKA");
-        teacher.setEmail("test+teacher4@hei.school");
-        teacher.setRef("TCR21004");
-        teacher.setPhone("032241117");
-        teacher.setStatus(EnableStatus.ENABLED);
-        teacher.setSex(Teacher.SexEnum.M);
-        teacher.setBirthDate(LocalDate.parse("1990-01-02"));
-        teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24.00Z"));
-        teacher.setAddress("Adr 4");
-        return teacher;
-    }
-    public static Course courses1(){
-        Course course = new Course();
-        course.setCode(CODE);
-        course.setName(NAME);
-        course.setCredits(CREDITS);
-        course.setTotalHours(course1().getTotalHours());
-        course.setMainTeacher(teachers1());
-                return course;
-    }
+
+
 
     @BeforeEach
     public void setUp() {
@@ -167,16 +146,16 @@ class CourseIT {
 
         TeachingApi api = new TeachingApi(student1Client);
         List<Course> actualCourses = api.getAllCourses(
-                CODE,
-                NAME,
-                CREDITS,
-                TEACHERFIRSTNAME, TEACHELASTNAME,
+                course1().getCode(),
+                course1().getCode(),
+                course1().getCredits(),
+                course1().getMainTeacher().getFirstName(), course1().getMainTeacher().getLastName(),
                 creditsOrderDESC,
                 codeOrderASC,
                 1,
                 15 );
-
-        assertTrue(actualCourses.contains(courses1()));
+        System.out.println(actualCourses);
+        assertTrue(actualCourses.contains(course1()));
     }
 
     @Test

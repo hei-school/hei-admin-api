@@ -38,11 +38,6 @@ public class TestUtils {
   public static final String COURSE2_ID = "course2_id";
   public static final String LINKED_STATUS = "LINKED";
   public static final String UNLINKED_STATUS = "UNLINKED";
-  public static final String CODE = "PROG1";
-  public static final String NAME = "Introduction to Computer Science";
-  public static final Integer CREDITS = 4;
-  public static final String TEACHERFIRSTNAME ="RAMAROZAKA" ;
-  public static final String TEACHELASTNAME = "Tokimahery";
   public static final String creditsOrderDESC = "DESC";
   public static final String codeOrderASC = "ASC";
 
