@@ -418,7 +418,6 @@ paths:
           description: "Sort courses by credits"
           schema:
             type: string
-            default: DESC
             enum:
               - ASC
               - DESC
@@ -427,7 +426,6 @@ paths:
           description: "Sort courses by code"
           schema:
             type: string
-            default: DESC
             enum:
               - ASC
               - DESC
