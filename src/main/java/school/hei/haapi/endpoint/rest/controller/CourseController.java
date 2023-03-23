@@ -26,8 +26,8 @@ public class CourseController {
             @RequestParam(name = "code", required = false, defaultValue = "") String code,
             @RequestParam(name = "name", required = false, defaultValue = "") String name,
             @RequestParam(name = "credits", required = false) Integer credits,
-            @RequestParam(name = "teacher_first_name", required = false, defaultValue = "") String teacherFirstName,
-            @RequestParam(name = "teacher_last_name", required = false, defaultValue = "") String teacherLastName,
+            @RequestParam(name = "teacher_first_name", required = false) String teacherFirstName,
+            @RequestParam(name = "teacher_last_name", required = false) String teacherLastName,
             @RequestParam(name = "codeOrder", required = false) String codeOrder,
             @RequestParam(name = "creditsOrder", required = false) String creditsOrder) {
         return courseService
