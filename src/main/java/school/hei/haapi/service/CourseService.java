@@ -17,16 +17,21 @@ public class CourseService {
     private CourseRepository courseRepository;
 
     public List<Course> getAll(PageFromOne page, BoundedPageSize pageSize) {
-        int pageValue = 1;
-        int pageSizeValue = 15;
-        if (page.getValue() != 0)
-            pageValue = page.getValue();
-        if (pageSize.getValue() != 0)
-            pageSizeValue = pageSize.getValue();
         Pageable pageable = PageRequest.of(
-                pageValue - 1,
-                pageSizeValue
+                page.getValue() - 1,
+                pageSize.getValue()
         );
         return courseRepository.findAll(pageable).getContent();
+    }
+
+    public List<Course> getAllByCriteria(
+            PageFromOne page, BoundedPageSize pageSize, String code,
+            String name, Integer credits, String teacherFirstName, String teacherLastName) {
+        Pageable pageable = PageRequest.of(
+                page.getValue() - 1,
+                pageSize.getValue()
+        );
+        return courseRepository
+                .findCoursesByCriteria(code, name, credits, teacherFirstName, teacherLastName, pageable);
     }
 }
