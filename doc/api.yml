@@ -420,6 +420,24 @@ paths:
           required: false
           schema:
             type: string
+        - name: creditsOrder
+          in: query
+          description: "Order by credits. Can be DESC or ASC"
+          required: false
+          schema:
+            type: string
+            enum:
+              - DESC
+              - ASC
+        - name: codeOrder
+          in: query
+          description: "Order by code. Can be DESC or ASC"
+          required: false
+          schema:
+            type: string
+            enum:
+              - DESC
+              - ASC
       responses:
         '200':
           description: List of all courses

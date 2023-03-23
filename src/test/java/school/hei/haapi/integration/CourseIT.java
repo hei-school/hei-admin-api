@@ -55,16 +55,28 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @ContextConfiguration(initializers = GroupIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class CourseIT {
+
+    private static String oppositeCase(String str) {
+        StringBuilder result = new StringBuilder();
+        for (int i = 0; i < str.length(); i++) {
+            char c = str.charAt(i);
+            if (Character.isLowerCase(c)) {
+                result.append(Character.toUpperCase(c));
+            } else if (Character.isUpperCase(c)) {
+                result.append(Character.toLowerCase(c));
+            } else {
+                result.append(c);
+            }
+        }
+        return result.toString();
+    }
     @MockBean
     private SentryConf sentryConf;
-
     @MockBean
     private CognitoComponent cognitoComponentMock;
-
     private static ApiClient anApiClient(String token) {
         return TestUtils.anApiClient(token, GroupIT.ContextInitializer.SERVER_PORT);
     }
-
     public static Course course1(){
         Course course = new Course();
         course.setId(COURSE1_ID);
@@ -75,7 +87,6 @@ public class CourseIT {
         course.setMainTeacher(TeacherIT.teacher1());
         return course;
     }
-
     public static Course course2(){
         Course course = new Course();
         course.setId(COURSE2_ID);
@@ -109,8 +120,6 @@ public class CourseIT {
     void setUp() {
         setUpCognito(cognitoComponentMock);
     }
-
-
     @Test
     void manager_read_student_courses_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -121,7 +130,6 @@ public class CourseIT {
         List<Course> actualCours = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
         assertEquals(actualCours, expectCours);
     }
-
     @Test
     void read_student_courses_unliked_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -132,7 +140,6 @@ public class CourseIT {
         List<Course> actualCours = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.UNLINKED);
         assertEquals(actualCours, expectCours);
     }
-
     @Test
     void read_student_courses_whith_status_null_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -143,7 +150,6 @@ public class CourseIT {
         List<Course> actualCours = api.getStudentCoursesById(STUDENT1_ID, null);
         assertEquals(actualCours, expectCours);
     }
-
     @Test
     void teacher_read_student_courses_ko() throws ApiException {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
@@ -183,7 +189,6 @@ public class CourseIT {
         TeachingApi api = new TeachingApi(anonymousClient);
         assertThrowsForbiddenException(() -> api.crupdateCourses(List.of()));
     }
-
     @Test
     void student_write_ko() {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
@@ -191,7 +196,6 @@ public class CourseIT {
         TeachingApi api = new TeachingApi(student1Client);
         assertThrowsForbiddenException(() -> api.crupdateCourses(List.of()));
     }
-
     @Test
     void teacher_write_ko() {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
@@ -233,5 +237,156 @@ public class CourseIT {
         assertEquals(2, toUpdate.size());
         assertTrue(toUpdate.contains(toUpdate0));
         assertTrue(toUpdate.contains(toUpdate1));
+    }
+    @Test
+    void bad_token_read_ko() {
+        ApiClient anonymousClient = anApiClient(BAD_TOKEN);
+        TeachingApi api = new TeachingApi(anonymousClient);
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getCourses(null,null,"","","","","","",""));
+    }
+    @Test
+    void teacher_read_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+
+        TeachingApi api = new TeachingApi(teacher1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","","","","","","");
+
+        assertTrue(actualCourses.contains(course1()));
+        assertTrue(actualCourses.contains(course2()));
+        assertTrue(actualCourses.contains(course3()));
+    }
+    @Test
+    void manager_read_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","","","","","","");
+
+        assertTrue(actualCourses.contains(course1()));
+        assertTrue(actualCourses.contains(course2()));
+        assertTrue(actualCourses.contains(course3()));
+    }
+    @Test
+    void student_read_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        TeachingApi api = new TeachingApi(student1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","","","","","","");
+
+        assertTrue(actualCourses.contains(course1()));
+        assertTrue(actualCourses.contains(course2()));
+        assertTrue(actualCourses.contains(course3()));
+    }
+    @Test
+    void reading_with_teacher_first_name_part_filter_case_insensitive_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","","",oppositeCase(course1().getMainTeacher().getFirstName().substring(0, 2)),"","","");
+
+        assertTrue(actualCourses.contains(course1()));
+    }
+    @Test
+    void reading_with_teacher_last_name_part_filter_case_insensitive_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","","","",oppositeCase(course1().getMainTeacher().getLastName().substring(0, 2)),"","");
+
+        assertTrue(actualCourses.contains(course1()));
+    }
+    @Test
+    void reading_with_teacher_last_name_part_case_insensitive_filter_first_name_too_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","","","",oppositeCase(course1().getMainTeacher().getFirstName().substring(0, 2)),"","");
+
+        assertTrue(actualCourses.contains(course1()));
+    }
+    @Test
+    void reading_with_name_part_filter_case_insensitive_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"",oppositeCase(course1().getName().substring(0, 2)),"","","","","");
+
+        assertTrue(actualCourses.contains(course1()));
+    }
+    @Test
+    void reading_with_code_part_filter_case_insensitive_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,oppositeCase(course1().getCode().substring(0, 2)),"","","","","","");
+
+        assertTrue(actualCourses.contains(course1()));
+    }
+    @Test
+    void reading_with_exact_credits_filter_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","",course1().getCredits().toString(),"","","","");
+
+        assertTrue(actualCourses.contains(course1()));
+    }
+    @Test
+    void reading_with_not_exact_credits_filter_ko() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"", "",course1().getCredits().toString().concat("1"),"","","","");
+
+        assertTrue(!actualCourses.contains(course1()));
+    }
+    @Test
+    void reading_in_credits_order_asc_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","","","","","ASC","");
+
+        assertTrue(actualCourses.contains(course1()));
+        assertTrue(actualCourses.contains(course2()));
+        assertTrue(actualCourses.contains(course3()));
+    }
+    @Test
+    void reading_in_credits_order_desc_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","","","","","DESC","");
+
+        assertTrue(actualCourses.contains(course1()));
+        assertTrue(actualCourses.contains(course2()));
+        assertTrue(actualCourses.contains(course3()));
+    }
+    @Test
+    void reading_in_code_order_asc_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","","","","","","ASC");
+
+        assertTrue(actualCourses.contains(course1()));
+        assertTrue(actualCourses.contains(course2()));
+        assertTrue(actualCourses.contains(course3()));
+    }
+    @Test
+    void reading_in_code_order_desc_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","","","","","","DESC");
+
+        assertTrue(actualCourses.contains(course1()));
+        assertTrue(actualCourses.contains(course2()));
+        assertTrue(actualCourses.contains(course3()));
+    }
+    @Test
+    void reading_in_credits_order_with_bad_parameters_ko() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","","","","","BAD","");
+
+
+    }
+    @Test
+    void reading_in_code_order_with_bad_parameters_ko() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> actualCourses = api.getCourses(null,null,"","","","","","","BAD");
+
+
     }
 }

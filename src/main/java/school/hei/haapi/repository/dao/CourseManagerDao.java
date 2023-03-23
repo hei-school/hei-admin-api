@@ -34,7 +34,12 @@ public class CourseManagerDao {
             builder.like(root.get("code"), "%" + code + "%")
         );
 
-    Predicate hasCourseName =
+    Predicate hasCourseName = name.length()==0?
+        builder.or(
+            builder.like(builder.lower(root.get("name")), "%" + name.toLowerCase() + "%"),
+            builder.like(root.get("name"), "%" + name + "%"),
+            builder.isNull(root.get("name"))
+        ):
         builder.or(
             builder.like(builder.lower(root.get("name")), "%" + name.toLowerCase() + "%"),
             builder.like(root.get("name"), "%" + name + "%")
@@ -45,7 +50,7 @@ public class CourseManagerDao {
                       builder.like(builder.lower(teacher.get("firstName")), "%" + teacher_first_name.toLowerCase() + "%"),
                       builder.like(teacher.get("firstName"), "%" + teacher_first_name + "%")
               );
-      Predicate hasTeacherLastName =
+    Predicate hasTeacherLastName =
               builder.or(
                       builder.like(builder.lower(teacher.get("lastName")), "%" + teacher_last_name.toLowerCase() + "%"),
                       builder.like(teacher.get("lastName"), "%" + teacher_last_name + "%")
