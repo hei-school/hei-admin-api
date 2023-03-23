@@ -27,7 +27,9 @@ public class CourseController {
 
     @GetMapping("/courses")
     public List<Course> getAllCourse (
-            @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize) {
+            @RequestParam(required = false, defaultValue="1") PageFromOne page,
+            @RequestParam(required = false,name = "page_size",defaultValue = "15") BoundedPageSize pageSize
+            ) {
         return courseService.getAll(page, pageSize)
                 .stream().map(courseMapper::toRestCourse)
                 .collect(Collectors.toUnmodifiableList());

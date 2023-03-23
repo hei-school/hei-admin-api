@@ -18,9 +18,9 @@ public class CourseService {
     private final CourseRepository repository;
     private final CourseStudentRepository courseStudentRepository;
     private final UserService userService;
-    public List<Course> getAll(PageFromOne page, BoundedPageSize pageSize){
+    public List<Course> getAll(PageFromOne page , BoundedPageSize pageSize){
         Pageable pageable =
-                PageRequest.of(page.getValue() - 1, pageSize.getValue());
+                PageRequest.of(page.getValue(), pageSize.getValue());
         return repository.findAll(pageable).toList();
     }
 
