@@ -388,6 +388,41 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: code
+          in: query
+          description: Filter the list of courses by those that contain the code provided
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Filter the list of courses by those containing the name provided
+          schema:
+            type: string
+        - name: credits
+          in: query
+          description: Filter the list of courses with exactly the number of credits provided
+          schema:
+            type: integer
+        - name: teacher_first_name
+          in: query
+          description: Filter the list of courses by those containing the teacher first name provided
+          schema:
+            type: string
+        - name: teacher_last_name
+          in: query
+          description: Filter the list of courses by those containing the teacher last name  provided
+          schema:
+            type: string
+        - name: creditsOrder
+          in: query
+          description: Sort the list of courses obtained in ascending or descending order of credits
+          schema:
+            $ref: '#/components/schemas/CreditsOrder'
+        - name: codeOrder
+          in: query
+          description: Sort the list of courses obtained in ascending or descending order of the course code
+          schema:
+            $ref: '#/components/schemas/CodeOrder'
       responses:
         '200':
           description: List of all courses
@@ -1165,6 +1200,16 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
+    CreditsOrder:
+      type: string
+      enum:
+        - ASC
+        - DESC
+    CodeOrder:
+      type: string
+      enum:
+        - ASC
+        - DESC
 
     Exception:
       type: object
