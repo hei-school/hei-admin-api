@@ -61,9 +61,12 @@ public class CourseController {
     @GetMapping("/courses")
     public List<Course> getCourses(
             @RequestParam(name = "page", required = false)PageFromOne page,
-            @RequestParam(name = "page_size", required = false)BoundedPageSize pageSize
+            @RequestParam(name = "page_size", required = false)BoundedPageSize pageSize,
+            @RequestParam(name = "name", required = false)String name,
+            @RequestParam(name = "code", required = false)String code,
+            @RequestParam(name = "credits", required = false)int credits
     ){
-        return courseService.getCourses(page, pageSize).stream()
+        return courseService.getCourses(page, pageSize, name, code, credits).stream()
                 .map(courseMapper::toRestCourse)
                 .collect(Collectors.toList());
     }
