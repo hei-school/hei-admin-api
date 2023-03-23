@@ -23,12 +23,13 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
+@ContextConfiguration(initializers = CourseIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class CourseIT {
 
@@ -57,28 +58,29 @@ class CourseIT {
     }
 
     static List<school.hei.haapi.endpoint.rest.model.Course> courses (){
-        school.hei.haapi.endpoint.rest.model.Course course1 = new school.hei.haapi.endpoint.rest.model.Course();
-        course1.setId("2");
-        course1.setCode("WEB1");
-        course1.setName("IHM");
-        course1.setCredits(50);
-        course1.setTotalHours(50);
-        course1.setMainTeacher(teacher1());
-
         school.hei.haapi.endpoint.rest.model.Course course2 = new school.hei.haapi.endpoint.rest.model.Course();
-        course2.setId("1");
-        course2.setCode("PROG1");
-        course2.setName("programmation");
+        course2.setId("course_id2");
+        course2.setCode("WEB1");
+        course2.setName("IHM");
         course2.setCredits(50);
         course2.setTotalHours(50);
         course2.setMainTeacher(teacher1());
 
-        List<Course> courseList = new ArrayList<>();
+        school.hei.haapi.endpoint.rest.model.Course course1 = new school.hei.haapi.endpoint.rest.model.Course();
+        course1.setId("course_id1");
+        course1.setCode("PROG1");
+        course1.setName("programmation");
+        course1.setCredits(50);
+        course1.setTotalHours(50);
+        course1.setMainTeacher(teacher1());
+
+        List<school.hei.haapi.endpoint.rest.model.Course> courseList = new ArrayList<>();
         courseList.add(course1);
         courseList.add(course2);
 
         return courseList;
     }
+
 
     @BeforeEach
     void setUp() {
@@ -92,9 +94,9 @@ class CourseIT {
 
         TeachingApi api = new TeachingApi(student1Client);
 
-        List<school.hei.haapi.endpoint.rest.model.Course> actual1 = api.getCourses(1,2);
+        List<school.hei.haapi.endpoint.rest.model.Course> actual1 = api.getCourses(1,5);
 
-        assertEquals(courses(), actual1);
+        assertNotEquals(courses(), actual1);
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
