@@ -105,7 +105,6 @@ class CourseIT {
     assertTrue(actual.contains(course2()));
   }
 
-
   @Test
   void course_read_by_name_ignoring_case_ok() throws ApiException {
     ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
@@ -182,6 +181,33 @@ class CourseIT {
 
     //Always return empty list
     //assertTrue(actual.contains(course()));
+  }
+
+  @Test
+  void course_read_by_pagination_ok() throws ApiException {
+    ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teachingClient);
+
+    List<Course> actual = api.getCourses(1, 2,null,null,null,null,null,null,null);
+    List<Course> actual2 = api.getCourses(2, 2,null,null,null,null,null,null,null);
+
+    assertEquals(2, actual.size());
+    assertEquals(1, actual2.size());
+  }
+
+  @Test
+  void course_read_by_fiter_and_sort_and_pagination_ok() throws ApiException {
+    ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teachingClient);
+
+    List<Course> actual = api.getCourses(1, 1,"PROG",null,null,"MAhEry","mahery","DESC","ASC");
+    List<Course> actual2 = api.getCourses(2, 1,"PROG",null,null,"MAhEry","mahery","DESC","ASC");
+    List<Course> actual3 = api.getCourses(1, 15,"PROG",null,null,null,"mahery","DESC","ASC");
+
+    assertTrue(actual.contains(course()));
+    assertTrue(actual2.contains(course2()));
+    assertTrue(actual3.contains(course2()));
+
   }
 
   @Test
