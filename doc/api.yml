@@ -377,6 +377,36 @@ paths:
       summary: Get all courses
       operationId: getCourses
       parameters:
+        - name: code
+          in: query
+          required: false
+          description: filter by courseCode
+          schema:
+            $ref: '#/components/schemas/code'
+        - name: name
+          in: query
+          required: false
+          description: filter by name
+          schema:
+            $ref: '#/components/schemas/name'
+        - name: credit
+          in: query
+          required: false
+          description: filter by credits
+          schema:
+            $ref: '#/components/schemas/credits'
+        - name: teacher_first_name
+          in: query
+          required: false
+          description: filter by teacher first-name
+          schema:
+            $ref: '#/components/schemas/teacher'
+        - name: teacher_last_name
+          in: query
+          required: false
+          description: filter by teacher last-name
+          schema:
+            $ref: '#/components/schemas/teacher'
         - name: page
           in: query
           schema:
@@ -1165,7 +1195,18 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
-
+    code:
+      type: string
+      description: should be a proper course code
+    name:
+      type: integer
+      description: should be a proper course name(insensitive case)
+    credits:
+      type: integer
+      description: should be a correct credits 
+    teacher:
+      type: string
+      description: first-name or -last name (insensitive case)
     Exception:
       type: object
       properties:
