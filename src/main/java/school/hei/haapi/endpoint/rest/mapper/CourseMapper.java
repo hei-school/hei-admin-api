@@ -5,21 +5,36 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseTemplate;
 import school.hei.haapi.model.Student;
+import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.StudentRepository;
+import school.hei.haapi.repository.UserRepository;
+
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 @Component
 @AllArgsConstructor
 public class CourseMapper {
   private final CourseRepository repository;
   private final StudentRepository studentRepository;
-  public Student toRest( CourseTemplate courseTemplate){
-      return Student.builder()
-              .courseStatus(courseTemplate.getStatus())
-              .build();
-  }
+    private final UserRepository userRepository;
 
+  public Course toRest( PutCourse putCourse){
+        User teacher = userRepository.getById(putCourse.getId_teacher());
+        return Course.builder()
+                .id(putCourse.getId())
+                .credits(putCourse.getCredits())
+                .total_hours(putCourse.getTotal_hours())
+                .code(putCourse.getCode())
+                .main_teacher(teacher)
+                .build();
+    }
+
+    public List<Course> toDomain(List<PutCourse> putCourses){
+        return putCourses.stream().map(this::toRest).collect(Collectors.toList());
+    }
   public List<Course> toList(String id ,List<CourseTemplate> courseTemplateList){
       List<Student> students = new ArrayList<>();
       List<Course> courses = new ArrayList<>();

@@ -3,7 +3,6 @@ package school.hei.haapi.endpoint.rest.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import org.hibernate.mapping.List;
 import org.springframework.web.bind.annotation.*;
 import school.hei.haapi.endpoint.rest.mapper.CoursesMapper;
 import school.hei.haapi.model.BoundedPageSize;

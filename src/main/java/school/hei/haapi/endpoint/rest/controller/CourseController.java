@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
+import school.hei.haapi.endpoint.rest.mapper.PutCourse;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseTemplate;
 import school.hei.haapi.service.CourseService;
@@ -26,5 +27,11 @@ public class CourseController {
           @RequestBody List<CourseTemplate> courseTemplate
           ){
   return service.updateStudentCourse(mapper.toList(id,courseTemplate));
+  }
+  @PutMapping("/courses")
+  public List<Course> changeCourse(
+          @RequestBody List<PutCourse> putCourses
+  ){
+    return service.updateStudentCourse(mapper.toDomain(putCourses));
   }
 }
