@@ -15,5 +15,5 @@ create table if not exists "student_course"
     constraint course_id_fk references "course"(id),
     student_id               varchar
     constraint student_id_fk references "user"(id),
-    status                   course_type       default 'LINKED'
+    status                   course_status       default 'LINKED'
 );

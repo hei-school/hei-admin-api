@@ -9,6 +9,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.model.CodeEnum;
+import school.hei.haapi.model.CreditEnum;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
@@ -27,10 +29,14 @@ public class CourseController {
 
   @GetMapping("/courses")
   public List<Course> getCourses(@RequestParam(value = "page", defaultValue = "1") PageFromOne page,
-                                 @RequestParam(value = "page_size", defaultValue = "15")
-                                 BoundedPageSize pageSize
-  ) {
-    return service.getCourses(page, pageSize)
+                                 @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize,
+                                 @RequestParam(value = "code", required = false, defaultValue = "") String code,
+                                 @RequestParam(value = "name", required = false, defaultValue = "") String name,
+                                 @RequestParam(value = "credits",required = false) Integer credits,
+                                 @RequestParam(value = "teacher_first_name", required = false, defaultValue = "") String teacher_first_name,
+                                 @RequestParam(value = "teacher_last_name", required = false, defaultValue = "") String teacher_last_name
+                                 ) {
+    return service.getCourses(page, pageSize, code, name, credits, teacher_first_name, teacher_last_name)
         .stream()
         .map(mapper::toRest)
         .collect(Collectors.toUnmodifiableList());
