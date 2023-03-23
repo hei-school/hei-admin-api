@@ -71,16 +71,6 @@ public class CourseIT {
 
     }
 
-    static Course expected(){
-        String code = course1().getCode();
-        String name = course1().getName();
-        int credits = course1().getCredits();
-        String teacherFirstName = course1().getMain_teacher().getFirstName();
-        String teacherLastName = course1().getMain_teacher().getLastName();
-        return course1();
-    }
-
-
     @BeforeEach
     public void setUp() {
         setUpCognito(cognitoComponentMock);
@@ -92,7 +82,6 @@ public class CourseIT {
         TeachingApi api = new TeachingApi();
         List<school.hei.haapi.endpoint.rest.model.Course> actualCourse = api.getCourses(1,15);
 
-        assertEquals(expected(), actualCourse);
         assertTrue(actualCourse.contains(course1()));
     }
 
