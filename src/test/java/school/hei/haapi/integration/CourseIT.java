@@ -1,7 +1,8 @@
 package school.hei.haapi.integration;
 
-import org.junit.Test;
+
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -12,11 +13,9 @@ import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.exception.ApiException;
 
 import java.util.List;
 
@@ -35,10 +34,13 @@ public class CourseIT {
     @MockBean
     private CognitoComponent cognitoComponentMock;
 
+    private static ApiClient anApiClient(String token) {
+        return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+    }
 
     public static Course course1(){
         Course course = new Course();
-        course.setId(COURSE1_ID);
+        course.setId("courses1_id");
         course.setCode("PROG1");
         course.setName("Algorithmics");
         course.setCredits(3);
@@ -49,17 +51,13 @@ public class CourseIT {
 
     public static Course course3(){
         Course course = new Course();
-        course.setId(COURSE3_ID);
+        course.setId("courses3_id");
         course.setCode("MGT1");
         course.setName("name");
         course.setCredits(2);
         course.setTotalHours(20);
         course.setMainTeacher(TeacherIT.teacher2());
         return course;
-    }
-
-    private static ApiClient anApiClient(String token) {
-        return TestUtils.anApiClient(token, GroupIT.ContextInitializer.SERVER_PORT);
     }
 
     @BeforeEach
@@ -69,9 +67,9 @@ public class CourseIT {
 
     @Test
     void student_read_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
-        ApiClient studen1Client = anApiClient(STUDENT1_TOKEN);
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
-        TeachingApi api = new TeachingApi(studen1Client);
+        TeachingApi api = new TeachingApi(student1Client);
         Course actual1 = api.getCourseById(COURSE1_ID);
         List<Course> actualCourses = api.getCourses(null, null, null, null, null, null, null,null,null);
 
