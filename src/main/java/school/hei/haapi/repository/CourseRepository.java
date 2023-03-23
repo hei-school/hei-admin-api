@@ -3,18 +3,18 @@ package school.hei.haapi.repository;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Course;
-import javax.validation.constraints.NotBlank;
+import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, String> {
 
-    List<Course> getCoursesByMainTeacher_FirstNameContainingIgnoreCase(@NotBlank(message = "First name is mandatory") String mainTeacher_firstName);
+    List<Course> getCoursesByMainTeacherFirstName(String mainTeacherFirstName,Pageable pageable);
 
-    List<Course> getCoursesByMainTeacher_LastNameContainingIgnoreCase(String mainTeacher_lastName);
-    List<Course> getCoursesByCodeContainingIgnoreCase(String code);
+    List<Course> getCoursesByMainTeacherLastName(String mainTeacherLastName,Pageable pageable);
+    List<Course> getCoursesByCodeContainingIgnoreCase(String code,Pageable pageable);
 
-    List<Course> getCourseByNameContainingIgnoreCase(String name);
+    List<Course> getCoursesByNameContainingIgnoreCase(String name,Pageable pageable);
 
-    List<Course> getCoursesByCredits(Integer credits);
+    List<Course> getCoursesByCredits(Integer credits,Pageable pageable);
 }
