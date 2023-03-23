@@ -17,14 +17,15 @@ public class CourseService {
     private final CourseRepository repository;
     private final CourseMapper mapper;
     private QueryBuilder query = new QueryBuilder();
-
     public List<Course> GetAllAndFiltreReturnedList(
             String code,
             String name,
             int credit,
             String teacherFirstName,
-            String teacherLastName
+            String teacherLastName,
+            String codeOrder,
+            String creditsOrder
     ) {
-        return repository.getCourseAndFilter(query.getCourseAndFilterQuery(code,name,credit,teacherFirstName,teacherLastName));
+        return repository.getCourseAndFilter(query.getCourseAndFilterQuery(code,name,credit,teacherFirstName,teacherLastName,codeOrder,creditsOrder));
     }
 }
