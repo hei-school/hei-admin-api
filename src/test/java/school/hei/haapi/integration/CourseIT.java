@@ -172,8 +172,6 @@ public class CourseIT {
     ApiClient manager = anApiClient(MANAGER1_TOKEN);
     TeachingApi teachingApi = new TeachingApi(manager);
     List<Course> actual = teachingApi.crupdateCourses(List.of(updatedCourse()));
-    System.out.println(actual.get(0));
-    System.out.println(course3());
 
     assertTrue(actual.contains(course3()));
   }

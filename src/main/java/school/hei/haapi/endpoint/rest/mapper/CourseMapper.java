@@ -34,9 +34,10 @@ public class CourseMapper {
     User domainTeacher = userService.getById(rest.getMainTeacherId());
     if (service.getById(rest.getId()) == null
         && service.getByCode(rest.getCode()) == null) {
+
       return school.hei.haapi.model.Course
           .builder()
-          .id(String.valueOf(UUID.randomUUID()))
+          .id(rest.getId())
           .code(rest.getCode())
           .credits(rest.getCredits())
           .totalHours(rest.getTotalHours())

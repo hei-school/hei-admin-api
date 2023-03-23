@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.controller.response.UpdateStudentCourseStatusResponse;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.StudentCourse;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -21,35 +22,20 @@ public class StudentCourseService {
     private final StudentCourseRepository studentCourseRepository;
     private final CourseService courseService;
 
-    private final CourseRepository courseRepository;
-
-
-    public List<Course> updateStatus(String student_id, List<UpdateStudentCourseStatusResponse> updateStudentCourseStatusResponse) {
-        List<Course> allCourses = new ArrayList<Course>();
-        List<StudentCourse> studentCourse = studentCourseRepository.findAllByStudent_id(student_id);
-        if (studentCourse.size() > 0) {
-
-            for(int i=0; i<updateStudentCourseStatusResponse.size(); i++){
-
-                for(int k=0; k < studentCourse.size(); k++){
-                    if(studentCourse.get(k).getCourse()== courseRepository.getById(updateStudentCourseStatusResponse.get(i).getCourse_id())){
-                        studentCourse.get(k).setStatus(updateStudentCourseStatusResponse.get(i).getStatus());
-                    }
-                }
-
-                    studentCourse.get(i).setCourse(courseService.getById(updateStudentCourseStatusResponse.get(i).getCourse_id()));
-                    studentCourse.get(i).setStatus(updateStudentCourseStatusResponse.get(i).getStatus());
-                    }
-            }else {
+        public List<Course> updateCoursesStatuses(String student_id, List<UpdateStudentCourseStatusResponse> updateStudentCourses){
+            if(studentCourseRepository.findById(student_id).isEmpty()){
                 throw new NotFoundException("Student" + student_id + " not found");
             }
-            studentCourseRepository.saveAll(studentCourse);
-
-        for(int f=0; f < updateStudentCourseStatusResponse.size();f++){
-            allCourses.add(courseService.getById(updateStudentCourseStatusResponse.get(f).getCourse_id()));
-        }
-
-            return allCourses;
+            else {
+                List<Course> updatedCourses = new ArrayList<>();
+                for(UpdateStudentCourseStatusResponse course : updateStudentCourses) {
+                    StudentCourse studentCourse = studentCourseRepository.findByCourse_IdAndStudent_Id(course.getCourse_id(),student_id);
+                    studentCourse.setStatus(course.getStatus());
+                    studentCourseRepository.save(studentCourse);
+                    updatedCourses.add(courseService.getById(course.getCourse_id()));
+                }
+                return updatedCourses;
+            }
         }
 
 }

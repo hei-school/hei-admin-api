@@ -9,6 +9,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.rest.controller.response.UpdateStudentCourseStatusResponse;
+import school.hei.haapi.endpoint.rest.mapper.StudentCourseMapper;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.CodeEnum;
 import school.hei.haapi.model.CreditEnum;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
@@ -18,6 +21,9 @@ import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.CourseService;
+import school.hei.haapi.service.StudentCourseService;
+
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 
 @RestController
@@ -26,6 +32,10 @@ public class CourseController {
   private final CourseMapper mapper;
 
   private final CourseService service;
+
+  private final StudentCourseService studentCourseService;
+
+  private final StudentCourseMapper studentCourseMapper;
 
   @GetMapping("/courses")
   public List<Course> getCourses(@RequestParam(value = "page", defaultValue = "1") PageFromOne page,
@@ -69,5 +79,16 @@ public class CourseController {
         .collect(Collectors.toUnmodifiableList());
   }
 
-
+  @PutMapping("/students/{student_id}/courses")
+  public List<Course> updateStatus(@PathVariable String student_id, @RequestBody List<UpdateStudentCourse> updateStudentCourseStatusResponse) {
+    return
+            studentCourseService.updateCoursesStatuses(student_id,
+                            updateStudentCourseStatusResponse
+                                    .stream()
+                                    .map(studentCourseMapper::toConvert)
+                                    .collect(Collectors.toUnmodifiableList()))
+                    .stream()
+                    .map(mapper::toRest)
+                    .collect(toUnmodifiableList());
+  }
 }
