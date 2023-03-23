@@ -17,50 +17,52 @@ import java.util.List;
 @Repository
 @AllArgsConstructor
 public class UserManagerDao {
-  private EntityManager entityManager;
+    private EntityManager entityManager;
 
-  public List<User> findByCriteria(User.Role role, String ref, String firstName, String lastName,
-                                   Pageable pageable) {
-    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<User> query = builder.createQuery(User.class);
-    Root<User> root = query.from(User.class);
+    public List<User> findByCriteria(User.Role role, String ref, String firstName, String lastName,
+                                     Pageable pageable) {
+        CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+        CriteriaQuery<User> query = builder.createQuery(User.class);
+        Root<User> root = query.from(User.class);
 
-    Predicate hasUserRef =
-        builder.or(
-            builder.like(builder.lower(root.get("ref")), "%" + ref + "%"),
-            builder.like(root.get("ref"), "%" + ref + "%")
-        );
+        Predicate hasUserRef =
+                builder.or(
+                        builder.like(builder.lower(root.get("ref")), "%" + ref + "%"),
+                        builder.like(root.get("ref"), "%" + ref + "%")
+                );
 
-    Predicate hasUserFirstName =
-        builder.or(
-            builder.like(builder.lower(root.get("firstName")), "%" + firstName + "%"),
-            builder.like(root.get("firstName"), "%" + firstName + "%")
-        );
+        Predicate hasUserFirstName =
+                builder.or(
+                        builder.like(builder.lower(root.get("firstName")), "%" + firstName + "%"),
+                        builder.like(root.get("firstName"), "%" + firstName + "%")
+                );
 
-    Predicate hasUserLastName =
-        builder.or(
-            builder.like(builder.lower(root.get("lastName")), "%" + lastName + "%"),
-            builder.like(root.get("lastName"), "%" + lastName + "%")
-        );
+        Predicate hasUserLastName =
+                builder.or(
+                        builder.like(builder.lower(root.get("lastName")), "%" + lastName + "%"),
+                        builder.like(root.get("lastName"), "%" + lastName + "%")
+                );
 
-    Predicate hasUserRole =
-        builder.or(
-            builder.equal(root.get("role"), role)
-        );
+        Predicate hasUserRole =
+                builder.or(
+                        builder.equal(root.get("role"), role)
+                );
 
-    query
-        .where(builder.and(hasUserRole, hasUserRef, hasUserFirstName, hasUserLastName))
-        .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
+        query
+                .where(builder.and(hasUserRole, hasUserRef, hasUserFirstName, hasUserLastName))
+                .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
 
-    return entityManager.createQuery(query)
-        .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
-        .setMaxResults(pageable.getPageSize())
-        .getResultList();
-  }
-    public List<User> findByPromotionName(User.Role role, Pageable pageable,
-                                          String ref, String firstName, String lastName,
-                                          String promotionName) {
+        return entityManager.createQuery(query)
+                .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
+                .setMaxResults(pageable.getPageSize())
+                .getResultList();
+    }
+
+    //TODO : handle promotions by date intervals
+    public List<User> findByPromotionRange(User.Role role, Pageable pageable,
+                                           String ref, String firstName, String lastName,
+                                           String promotionRange) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> query = builder.createQuery(User.class);
         Root<User> root = query.from(User.class);
@@ -71,9 +73,9 @@ public class UserManagerDao {
                         builder.equal(root.get("role"), role)
                 );
 
-        Predicate hasPromotionName =
+        Predicate hasPromotionRange =
                 builder.like(builder.lower(
-                        promotionJoin.get("promotionName")), "%" + promotionName.toLowerCase() + "%");
+                        promotionJoin.get("promotionRange")), "%" + promotionRange.toLowerCase() + "%");
 
         Predicate hasUserRef =
                 builder.or(
@@ -95,7 +97,7 @@ public class UserManagerDao {
 
         query
                 .where(builder.and(hasUserRole, hasUserRef, hasUserFirstName, hasUserLastName,
-                        hasPromotionName))
+                        hasPromotionRange))
                 .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
 

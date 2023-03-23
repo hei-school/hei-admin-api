@@ -42,18 +42,20 @@ public class UserService {
 
     public void crUpdateUsersPromotion(List<User> users) {
         users.forEach(
-                user -> { if (user.getRole().equals(User.Role.STUDENT)){
-                    user.getPromotions().forEach(
-                            promotion -> {
-                                if (!promotionService.existsByName(promotion.getPromotionName())) {
-                                    promotionService.createPromotion(promotion);
+                user -> {
+                    if (user.getRole().equals(User.Role.STUDENT)) {
+                        user.getPromotions().forEach(
+                                promotion -> {
+                                    if (!promotionService.existsByRange(promotion.getPromotionRange())) {
+                                        promotionService.createPromotion(promotion);
+                                    }
                                 }
-                            }
-                    );
-                }
+                        );
+                    }
                 }
         );
     }
+
     @Transactional
     public List<User> saveAll(List<User> users) {
         userValidator.accept(users);
@@ -78,17 +80,17 @@ public class UserService {
     }
 
     public List<User> getByCriteria(
-            User.Role role, String firstName, String lastName, String promotionName, String ref,
+            User.Role role, String firstName, String lastName, String promotionRange, String ref,
             PageFromOne page, BoundedPageSize pageSize) {
         Pageable pageable = PageRequest.of(
                 page.getValue() - 1,
                 pageSize.getValue(),
                 Sort.by(ASC, "ref"));
-        if (promotionName == null || promotionName.equals("")) {
+        if (promotionRange == null || promotionRange.equals("")) {
             return userManagerDao.findByCriteria(
                     role, ref, firstName, lastName, pageable);
         }
-        return userManagerDao.findByPromotionName(role, pageable, ref, firstName, lastName,
-                promotionName);
+        return userManagerDao.findByPromotionRange(role, pageable, ref, firstName, lastName,
+                promotionRange);
     }
 }

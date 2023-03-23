@@ -12,24 +12,24 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @AllArgsConstructor
 public class SelfMatcher implements RequestMatcher {
 
-  private final HttpMethod method;
-  private final String antPattern;
+    private final HttpMethod method;
+    private final String antPattern;
 
-  private static final Pattern SELFABLE_URI_PATTERN =
-      // /resourceType/id/...
-      Pattern.compile("/[^/]+/(?<id>[^/]+)(/.*)?");
+    private static final Pattern SELFABLE_URI_PATTERN =
+            // /resourceType/id/...
+            Pattern.compile("/[^/]+/(?<id>[^/]+)(/.*)?");
 
-  @Override
-  public boolean matches(HttpServletRequest request) {
-    AntPathRequestMatcher antMatcher = new AntPathRequestMatcher(antPattern, method.toString());
-    if (!antMatcher.matches(request)) {
-      return false;
+    @Override
+    public boolean matches(HttpServletRequest request) {
+        AntPathRequestMatcher antMatcher = new AntPathRequestMatcher(antPattern, method.toString());
+        if (!antMatcher.matches(request)) {
+            return false;
+        }
+        return Objects.equals(getSelfId(request), AuthProvider.getPrincipal().getUserId());
     }
-    return Objects.equals(getSelfId(request), AuthProvider.getPrincipal().getUserId());
-  }
 
-  private String getSelfId(HttpServletRequest request) {
-    Matcher uriMatcher = SELFABLE_URI_PATTERN.matcher(request.getRequestURI());
-    return uriMatcher.find() ? uriMatcher.group("id") : null;
-  }
+    private String getSelfId(HttpServletRequest request) {
+        Matcher uriMatcher = SELFABLE_URI_PATTERN.matcher(request.getRequestURI());
+        return uriMatcher.find() ? uriMatcher.group("id") : null;
+    }
 }

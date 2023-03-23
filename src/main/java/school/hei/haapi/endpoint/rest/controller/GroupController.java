@@ -17,28 +17,28 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @AllArgsConstructor
 public class GroupController {
 
-  private final GroupService groupService;
-  private final GroupMapper groupMapper;
+    private final GroupService groupService;
+    private final GroupMapper groupMapper;
 
-  @GetMapping(value = "/groups/{id}")
-  public Group getGroupById(@PathVariable String id) {
-    return groupMapper.toRest(groupService.getById(id));
-  }
+    @GetMapping(value = "/groups/{id}")
+    public Group getGroupById(@PathVariable String id) {
+        return groupMapper.toRest(groupService.getById(id));
+    }
 
-  @GetMapping(value = "/groups")
-  public List<Group> getGroups() {
-    return groupService.getAll().stream()
-        .map(groupMapper::toRest)
-        .collect(toUnmodifiableList());
-  }
+    @GetMapping(value = "/groups")
+    public List<Group> getGroups() {
+        return groupService.getAll().stream()
+                .map(groupMapper::toRest)
+                .collect(toUnmodifiableList());
+    }
 
-  @PutMapping(value = "/groups")
-  public List<Group> createOrUpdateGroups(@RequestBody List<Group> toWrite) {
-    var saved = groupService.saveAll(toWrite.stream()
-        .map(groupMapper::toDomain)
-        .collect(toUnmodifiableList()));
-    return saved.stream()
-        .map(groupMapper::toRest)
-        .collect(toUnmodifiableList());
-  }
+    @PutMapping(value = "/groups")
+    public List<Group> createOrUpdateGroups(@RequestBody List<Group> toWrite) {
+        var saved = groupService.saveAll(toWrite.stream()
+                .map(groupMapper::toDomain)
+                .collect(toUnmodifiableList()));
+        return saved.stream()
+                .map(groupMapper::toRest)
+                .collect(toUnmodifiableList());
+    }
 }

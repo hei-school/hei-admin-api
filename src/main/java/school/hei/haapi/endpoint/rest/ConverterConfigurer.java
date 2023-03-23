@@ -9,9 +9,9 @@ import school.hei.haapi.endpoint.rest.converter.PageSizeConverter;
 @Configuration
 public class ConverterConfigurer implements WebMvcConfigurer {
 
-  @Override
-  public void addFormatters(FormatterRegistry registry) {
-    registry.addConverter(new PageConverter());
-    registry.addConverter(new PageSizeConverter());
-  }
+    @Override
+    public void addFormatters(FormatterRegistry registry) {
+        registry.addConverter(new PageConverter());
+        registry.addConverter(new PageSizeConverter());
+    }
 }

@@ -5,8 +5,8 @@ import school.hei.haapi.model.BoundedPageSize;
 
 public class PageSizeConverter implements Converter<String, BoundedPageSize> {
 
-  @Override
-  public BoundedPageSize convert(String source) {
-    return new BoundedPageSize(Integer.parseInt(source));
-  }
+    @Override
+    public BoundedPageSize convert(String source) {
+        return new BoundedPageSize(Integer.parseInt(source));
+    }
 }

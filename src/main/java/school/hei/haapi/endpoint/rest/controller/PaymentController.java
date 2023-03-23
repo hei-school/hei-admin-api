@@ -21,28 +21,28 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @AllArgsConstructor
 public class PaymentController {
 
-  private final PaymentService paymentService;
-  private final PaymentMapper paymentMapper;
+    private final PaymentService paymentService;
+    private final PaymentMapper paymentMapper;
 
-  @PostMapping("/students/{studentId}/fees/{feeId}/payments")
-  public List<Payment> createPayments(
-      @PathVariable String feeId,
-      @RequestBody List<CreatePayment> toCreate) {
-    return paymentService
-        .saveAll(paymentMapper.toDomainPayment(feeId, toCreate))
-        .stream()
-        .map(paymentMapper::toRestPayment)
-        .collect(toUnmodifiableList());
-  }
+    @PostMapping("/students/{studentId}/fees/{feeId}/payments")
+    public List<Payment> createPayments(
+            @PathVariable String feeId,
+            @RequestBody List<CreatePayment> toCreate) {
+        return paymentService
+                .saveAll(paymentMapper.toDomainPayment(feeId, toCreate))
+                .stream()
+                .map(paymentMapper::toRestPayment)
+                .collect(toUnmodifiableList());
+    }
 
-  @GetMapping("/students/{studentId}/fees/{feeId}/payments")
-  public List<Payment> getPaymentsByStudentId(
-      @PathVariable String studentId,
-      @PathVariable String feeId,
-      @RequestParam PageFromOne page,
-      @RequestParam("page_size") BoundedPageSize pageSize) {
-    return paymentService.getByStudentIdAndFeeId(studentId, feeId, page, pageSize).stream()
-        .map(paymentMapper::toRestPayment)
-        .collect(toUnmodifiableList());
-  }
+    @GetMapping("/students/{studentId}/fees/{feeId}/payments")
+    public List<Payment> getPaymentsByStudentId(
+            @PathVariable String studentId,
+            @PathVariable String feeId,
+            @RequestParam PageFromOne page,
+            @RequestParam("page_size") BoundedPageSize pageSize) {
+        return paymentService.getByStudentIdAndFeeId(studentId, feeId, page, pageSize).stream()
+                .map(paymentMapper::toRestPayment)
+                .collect(toUnmodifiableList());
+    }
 }

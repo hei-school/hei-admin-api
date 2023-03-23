@@ -27,30 +27,30 @@ import static javax.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Group implements Serializable {
-  @Id
-  @GeneratedValue(strategy = IDENTITY)
-  private String id;
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
+    private String id;
 
-  private String name;
-  private String ref;
+    private String name;
+    private String ref;
 
-  @CreationTimestamp
-  private Instant creationDatetime;
+    @CreationTimestamp
+    private Instant creationDatetime;
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+            return false;
+        }
+        Group user = (Group) o;
+        return id != null && Objects.equals(id, user.id);
     }
-    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
-      return false;
-    }
-    Group user = (Group) o;
-    return id != null && Objects.equals(id, user.id);
-  }
 
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
-  }
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

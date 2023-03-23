@@ -19,20 +19,20 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @AllArgsConstructor
 public class ManagerController {
 
-  private final UserService userService;
-  private final UserMapper userMapper;
+    private final UserService userService;
+    private final UserMapper userMapper;
 
-  @GetMapping(value = "/managers/{id}")
-  public Manager getManagerById(@PathVariable String id) {
-    return userMapper.toRestManager(userService.getById(id));
-  }
+    @GetMapping(value = "/managers/{id}")
+    public Manager getManagerById(@PathVariable String id) {
+        return userMapper.toRestManager(userService.getById(id));
+    }
 
-  @GetMapping(value = "/managers")
-  public List<Manager> getManagers(
-      @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize) {
-    return userService
-        .getByRole(User.Role.MANAGER, page, pageSize).stream()
-        .map(userMapper::toRestManager)
-        .collect(toUnmodifiableList());
-  }
+    @GetMapping(value = "/managers")
+    public List<Manager> getManagers(
+            @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize) {
+        return userService
+                .getByRole(User.Role.MANAGER, page, pageSize).stream()
+                .map(userMapper::toRestManager)
+                .collect(toUnmodifiableList());
+    }
 }

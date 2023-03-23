@@ -13,34 +13,34 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 class UserUpsertedServiceTest {
-  UserUpsertedService userUpsertedService;
-  CognitoComponent cognitoComponent;
+    UserUpsertedService userUpsertedService;
+    CognitoComponent cognitoComponent;
 
-  @BeforeEach
-  void setUp() {
-    cognitoComponent = mock(CognitoComponent.class);
-    userUpsertedService = new UserUpsertedService(cognitoComponent);
-  }
+    @BeforeEach
+    void setUp() {
+        cognitoComponent = mock(CognitoComponent.class);
+        userUpsertedService = new UserUpsertedService(cognitoComponent);
+    }
 
-  @Test
-  void newUser_triggers_cognitoUser_creation() {
-    String email = "test+" + randomUUID() + "@hei.school";
-    UserUpserted userUpserted = new UserUpserted().email(email);
-    when(cognitoComponent.createUser(email)).thenReturn(("newCognitoUsername"));
+    @Test
+    void newUser_triggers_cognitoUser_creation() {
+        String email = "test+" + randomUUID() + "@hei.school";
+        UserUpserted userUpserted = new UserUpserted().email(email);
+        when(cognitoComponent.createUser(email)).thenReturn(("newCognitoUsername"));
 
-    userUpsertedService.accept(userUpserted);
+        userUpsertedService.accept(userUpserted);
 
-    verify(cognitoComponent, times(1)).createUser(email);
-  }
+        verify(cognitoComponent, times(1)).createUser(email);
+    }
 
-  @Test
-  void existingCognitoUser_is_ignored() {
-    String email = "test+" + randomUUID() + "@hei.school";
-    UserUpserted userUpserted = new UserUpserted().email(email);
-    when(cognitoComponent.createUser(email)).thenThrow((UsernameExistsException.class));
+    @Test
+    void existingCognitoUser_is_ignored() {
+        String email = "test+" + randomUUID() + "@hei.school";
+        UserUpserted userUpserted = new UserUpserted().email(email);
+        when(cognitoComponent.createUser(email)).thenThrow((UsernameExistsException.class));
 
-    userUpsertedService.accept(userUpserted); // does not rethrow UsernameExistsException
+        userUpsertedService.accept(userUpserted); // does not rethrow UsernameExistsException
 
-    verify(cognitoComponent, times(1)).createUser(email);
-  }
+        verify(cognitoComponent, times(1)).createUser(email);
+    }
 }

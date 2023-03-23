@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import java.time.LocalDate;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -28,7 +29,8 @@ public class Promotion {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private String id;
-    private String promotionName;
+    private LocalDate promotionBegin;
+    private LocalDate promotionEnd;
     private String promotionRange;
     @ManyToMany(mappedBy = "promotions", fetch = LAZY)
     private List<User> students;

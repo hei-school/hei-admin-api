@@ -24,63 +24,63 @@ import static java.util.stream.Collectors.joining;
 @Configuration
 public class RequestLoggerConfigurer implements WebMvcConfigurer {
 
-  @Override
-  public void addInterceptors(InterceptorRegistry registry) {
-    registry.addInterceptor(new RequestLogger());
-  }
-
-  @AllArgsConstructor
-  @Slf4j
-  private static class RequestLogger implements HandlerInterceptor {
-
-    private static final String THREAD_OLD_NAME = "threadOldName";
-    private static final int REQUEST_ID_LENGTH = 8;
-    private static final String REQUEST_START_TIME = "startTime";
-
-    private static boolean shouldLog() {
-      return isAuthenticated();
-    }
-
-    private static boolean isAuthenticated() {
-      var securityContext = SecurityContextHolder.getContext();
-      return securityContext != null
-          && !(securityContext.getAuthentication() instanceof AnonymousAuthenticationToken);
-    }
-
     @Override
-    public boolean preHandle(
-        HttpServletRequest request, HttpServletResponse response, Object handler) {
-      request.setAttribute(REQUEST_START_TIME, currentTimeMillis());
-
-      Thread current = currentThread();
-      String oldThreadName = current.getName();
-      request.setAttribute(THREAD_OLD_NAME, oldThreadName);
-      current.setName(randomUUID().toString().substring(0, REQUEST_ID_LENGTH));
-
-      String parameters = request.getParameterMap().entrySet().stream()
-          .map(entry -> entry.getKey() + "=" + String.join(",", entry.getValue()))
-          .collect(joining(";"));
-      if (shouldLog()) {
-        Principal principal = AuthProvider.getPrincipal();
-        log.info("preHandle: "
-                + "userId={}, role={}, method={}, uri={}, parameters=[{}], "
-                + "handler={}, oldThreadName={}",
-            principal.getUserId(), principal.getRole(),
-            request.getMethod(), request.getRequestURI(), parameters, handler,
-            oldThreadName);
-      }
-      return true;
+    public void addInterceptors(InterceptorRegistry registry) {
+        registry.addInterceptor(new RequestLogger());
     }
 
-    @Override
-    public void afterCompletion(
-        HttpServletRequest request, HttpServletResponse response,
-        Object handler, @Nullable Exception ex) {
-      long duration = currentTimeMillis() - (long) request.getAttribute(REQUEST_START_TIME);
-      if (shouldLog()) {
-        log.info("afterCompletion: status={}, duration={}ms", response.getStatus(), duration, ex);
-      }
-      currentThread().setName(request.getAttribute(THREAD_OLD_NAME).toString());
+    @AllArgsConstructor
+    @Slf4j
+    private static class RequestLogger implements HandlerInterceptor {
+
+        private static final String THREAD_OLD_NAME = "threadOldName";
+        private static final int REQUEST_ID_LENGTH = 8;
+        private static final String REQUEST_START_TIME = "startTime";
+
+        private static boolean shouldLog() {
+            return isAuthenticated();
+        }
+
+        private static boolean isAuthenticated() {
+            var securityContext = SecurityContextHolder.getContext();
+            return securityContext != null
+                    && !(securityContext.getAuthentication() instanceof AnonymousAuthenticationToken);
+        }
+
+        @Override
+        public boolean preHandle(
+                HttpServletRequest request, HttpServletResponse response, Object handler) {
+            request.setAttribute(REQUEST_START_TIME, currentTimeMillis());
+
+            Thread current = currentThread();
+            String oldThreadName = current.getName();
+            request.setAttribute(THREAD_OLD_NAME, oldThreadName);
+            current.setName(randomUUID().toString().substring(0, REQUEST_ID_LENGTH));
+
+            String parameters = request.getParameterMap().entrySet().stream()
+                    .map(entry -> entry.getKey() + "=" + String.join(",", entry.getValue()))
+                    .collect(joining(";"));
+            if (shouldLog()) {
+                Principal principal = AuthProvider.getPrincipal();
+                log.info("preHandle: "
+                                + "userId={}, role={}, method={}, uri={}, parameters=[{}], "
+                                + "handler={}, oldThreadName={}",
+                        principal.getUserId(), principal.getRole(),
+                        request.getMethod(), request.getRequestURI(), parameters, handler,
+                        oldThreadName);
+            }
+            return true;
+        }
+
+        @Override
+        public void afterCompletion(
+                HttpServletRequest request, HttpServletResponse response,
+                Object handler, @Nullable Exception ex) {
+            long duration = currentTimeMillis() - (long) request.getAttribute(REQUEST_START_TIME);
+            if (shouldLog()) {
+                log.info("afterCompletion: status={}, duration={}ms", response.getStatus(), duration, ex);
+            }
+            currentThread().setName(request.getAttribute(THREAD_OLD_NAME).toString());
+        }
     }
-  }
 }

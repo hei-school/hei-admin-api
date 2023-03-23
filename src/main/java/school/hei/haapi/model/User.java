@@ -40,78 +40,78 @@ import static javax.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @NoArgsConstructor
 public class User implements Serializable {
-  @Id
-  @GeneratedValue(strategy = IDENTITY)
-  private String id;
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
+    private String id;
 
-  @NotBlank(message = "First name is mandatory")
-  private String firstName;
+    @NotBlank(message = "First name is mandatory")
+    private String firstName;
 
-  @NotBlank(message = "Last name is mandatory")
-  private String lastName;
+    @NotBlank(message = "Last name is mandatory")
+    private String lastName;
 
-  @NotBlank(message = "Email is mandatory")
-  @Email(message = "Email must be valid")
-  private String email;
+    @NotBlank(message = "Email is mandatory")
+    @Email(message = "Email must be valid")
+    private String email;
 
-  @NotBlank(message = "Reference is mandatory")
-  private String ref;
+    @NotBlank(message = "Reference is mandatory")
+    private String ref;
 
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
-  private Status status;
+    @Type(type = "pgsql_enum")
+    @Enumerated(EnumType.STRING)
+    private Status status;
 
-  @NotBlank(message = "Phone number is mandatory")
-  private String phone;
+    @NotBlank(message = "Phone number is mandatory")
+    private String phone;
 
-  private LocalDate birthDate;
+    private LocalDate birthDate;
 
-  private Instant entranceDatetime;
+    private Instant entranceDatetime;
 
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
-  private Sex sex;
+    @Type(type = "pgsql_enum")
+    @Enumerated(EnumType.STRING)
+    private Sex sex;
 
-  @NotBlank(message = "Address is mandatory")
-  private String address;
+    @NotBlank(message = "Address is mandatory")
+    private String address;
 
-  @Column(name = "\"role\"")
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
-  private Role role;
+    @Column(name = "\"role\"")
+    @Type(type = "pgsql_enum")
+    @Enumerated(EnumType.STRING)
+    private Role role;
 
-  @ManyToMany
-  @JoinTable(name = "has_promotion",
-          joinColumns = {@JoinColumn(name = "user_id")},
-          inverseJoinColumns = {@JoinColumn(name = "promotion_id")})
-  private List<Promotion> promotions;
+    @ManyToMany
+    @JoinTable(name = "student_promotion",
+            joinColumns = {@JoinColumn(name = "user_id")},
+            inverseJoinColumns = {@JoinColumn(name = "promotion_id")})
+    private List<Promotion> promotions;
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+            return false;
+        }
+        User user = (User) o;
+        return id != null && Objects.equals(id, user.id);
     }
-    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
-      return false;
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
     }
-    User user = (User) o;
-    return id != null && Objects.equals(id, user.id);
-  }
 
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
-  }
+    public enum Sex {
+        M, F
+    }
 
-  public enum Sex {
-    M, F
-  }
+    public enum Status {
+        ENABLED, DISABLED
+    }
 
-  public enum Status {
-    ENABLED, DISABLED
-  }
-
-  public enum Role {
-    STUDENT, TEACHER, MANAGER
-  }
+    public enum Role {
+        STUDENT, TEACHER, MANAGER
+    }
 }

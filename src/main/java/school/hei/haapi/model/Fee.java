@@ -39,64 +39,64 @@ import static javax.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Fee implements Serializable {
-  @Id
-  @GeneratedValue(strategy = IDENTITY)
-  private String id;
+    @Id
+    @GeneratedValue(strategy = IDENTITY)
+    private String id;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id", nullable = false)
-  private User student;
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User student;
 
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
-  private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status;
+    @Type(type = "pgsql_enum")
+    @Enumerated(EnumType.STRING)
+    private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status;
 
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
-  private school.hei.haapi.endpoint.rest.model.Fee.TypeEnum type;
+    @Type(type = "pgsql_enum")
+    @Enumerated(EnumType.STRING)
+    private school.hei.haapi.endpoint.rest.model.Fee.TypeEnum type;
 
-  private int totalAmount;
+    private int totalAmount;
 
-  private Instant updatedAt;
+    private Instant updatedAt;
 
-  private int remainingAmount;
+    private int remainingAmount;
 
-  private String comment;
+    private String comment;
 
-  @CreationTimestamp
-  @Getter(AccessLevel.NONE)
-  private Instant creationDatetime;
+    @CreationTimestamp
+    @Getter(AccessLevel.NONE)
+    private Instant creationDatetime;
 
-  private Instant dueDatetime;
+    private Instant dueDatetime;
 
-  @OneToMany(mappedBy = "fee")
-  private List<Payment> payments;
+    @OneToMany(mappedBy = "fee")
+    private List<Payment> payments;
 
-  public Instant getCreationDatetime() {
-    return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
-  }
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
+    public Instant getCreationDatetime() {
+        return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
     }
-    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
-      return false;
-    }
-    Fee fee = (Fee) o;
-    return totalAmount == fee.totalAmount
-        && remainingAmount == fee.remainingAmount
-        && Objects.equals(id, fee.id)
-        && Objects.equals(student.getId(), fee.student.getId())
-        && status == fee.status
-        && type == fee.type
-        && Objects.equals(creationDatetime, fee.creationDatetime)
-        && Objects.equals(dueDatetime, fee.dueDatetime);
-  }
 
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
-  }
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+            return false;
+        }
+        Fee fee = (Fee) o;
+        return totalAmount == fee.totalAmount
+                && remainingAmount == fee.remainingAmount
+                && Objects.equals(id, fee.id)
+                && Objects.equals(student.getId(), fee.student.getId())
+                && status == fee.status
+                && type == fee.type
+                && Objects.equals(creationDatetime, fee.creationDatetime)
+                && Objects.equals(dueDatetime, fee.dueDatetime);
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }

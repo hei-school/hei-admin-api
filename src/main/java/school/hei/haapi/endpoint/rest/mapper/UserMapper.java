@@ -8,10 +8,11 @@ import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.PromotionService;
 
+import static school.hei.haapi.service.PromotionService.definePromotionBeginning;
+import static school.hei.haapi.service.PromotionService.definePromotionEnd;
 import static school.hei.haapi.service.PromotionService.definePromotionName;
 import static school.hei.haapi.service.PromotionService.definePromotionRange;
 
@@ -20,6 +21,7 @@ import static school.hei.haapi.service.PromotionService.definePromotionRange;
 public class UserMapper {
     private final PromotionService promotionService;
     private final PromotionMapper promotionMapper;
+
     public Student toRestStudent(User user) {
         Student restStudent = new Student();
         restStudent.setId(user.getId());
@@ -98,13 +100,14 @@ public class UserMapper {
 
     public User toDomain(Student student) {
         List<school.hei.haapi.model.Promotion> promotions;
-        String name = definePromotionName(student.getEntranceDatetime());
-        if (promotionService.existsByName(name)) {
-            promotions = List.of(promotionService.getByName(name));
+        String range = definePromotionRange(student.getEntranceDatetime());
+        if (promotionService.existsByRange(range)) {
+            promotions = List.of(promotionService.getByRange(range));
         } else {
             promotions = List.of(school.hei.haapi.model.Promotion.builder()
                     .id(definePromotionName(student.getEntranceDatetime()) + "_id")
-                    .promotionName(definePromotionName(student.getEntranceDatetime()))
+                    .promotionBegin(definePromotionBeginning(student.getEntranceDatetime()))
+                    .promotionEnd(definePromotionEnd(student.getEntranceDatetime()))
                     .promotionRange(definePromotionRange(student.getEntranceDatetime()))
                     .build()
             );

@@ -17,44 +17,44 @@ import school.hei.haapi.service.UserService;
 @AllArgsConstructor
 public class AuthProvider extends AbstractUserDetailsAuthenticationProvider {
 
-  private static final String BEARER_PREFIX = "Bearer ";
-  private final UserService userService;
-  private final CognitoComponent cognitoComponent;
+    private static final String BEARER_PREFIX = "Bearer ";
+    private final UserService userService;
+    private final CognitoComponent cognitoComponent;
 
-  @Override
-  protected void additionalAuthenticationChecks(
-      UserDetails userDetails, UsernamePasswordAuthenticationToken token) {
-    // nothing
-  }
-
-  @Override
-  protected UserDetails retrieveUser(
-      String username, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
-    String bearer = getBearer(usernamePasswordAuthenticationToken);
-    if (bearer == null) {
-      throw new UsernameNotFoundException("Bad credentials");
+    @Override
+    protected void additionalAuthenticationChecks(
+            UserDetails userDetails, UsernamePasswordAuthenticationToken token) {
+        // nothing
     }
 
-    String email = cognitoComponent.getEmailByIdToken(bearer);
-    if (email == null) {
-      throw new UsernameNotFoundException("Bad credentials");
+    @Override
+    protected UserDetails retrieveUser(
+            String username, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
+        String bearer = getBearer(usernamePasswordAuthenticationToken);
+        if (bearer == null) {
+            throw new UsernameNotFoundException("Bad credentials");
+        }
+
+        String email = cognitoComponent.getEmailByIdToken(bearer);
+        if (email == null) {
+            throw new UsernameNotFoundException("Bad credentials");
+        }
+
+        return new Principal(userService.getByEmail(email), bearer);
     }
 
-    return new Principal(userService.getByEmail(email), bearer);
-  }
-
-  private String getBearer(
-      UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
-    Object tokenObject = usernamePasswordAuthenticationToken.getCredentials();
-    if (!(tokenObject instanceof String) || !((String) tokenObject).startsWith(BEARER_PREFIX)) {
-      return null;
+    private String getBearer(
+            UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
+        Object tokenObject = usernamePasswordAuthenticationToken.getCredentials();
+        if (!(tokenObject instanceof String) || !((String) tokenObject).startsWith(BEARER_PREFIX)) {
+            return null;
+        }
+        return ((String) tokenObject).substring(BEARER_PREFIX.length()).trim();
     }
-    return ((String) tokenObject).substring(BEARER_PREFIX.length()).trim();
-  }
 
-  public static Principal getPrincipal() {
-    SecurityContext context = SecurityContextHolder.getContext();
-    Authentication authentication = context.getAuthentication();
-    return (Principal) authentication.getPrincipal();
-  }
+    public static Principal getPrincipal() {
+        SecurityContext context = SecurityContextHolder.getContext();
+        Authentication authentication = context.getAuthentication();
+        return (Principal) authentication.getPrincipal();
+    }
 }

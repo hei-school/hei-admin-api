@@ -17,40 +17,40 @@ import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 @Service
 @AllArgsConstructor
 public class LateFeeService implements Consumer<LateFeeVerified> {
-  private final SesService sesService;
-  private final EventConf eventConf;
+    private final SesService sesService;
+    private final EventConf eventConf;
 
-  private static String emailSubject(User student, LateFeeVerified lateFee) {
-    return "Retard de paiement - "
-        + student.getRef()
-        + " - "
-        + lateFee.getComment();
-  }
+    private static String emailSubject(User student, LateFeeVerified lateFee) {
+        return "Retard de paiement - "
+                + student.getRef()
+                + " - "
+                + lateFee.getComment();
+    }
 
-  private static String formatName(User student) {
-    return student.getLastName()
-        + " "
-        + student.getFirstName();
-  }
+    private static String formatName(User student) {
+        return student.getLastName()
+                + " "
+                + student.getFirstName();
+    }
 
-  private static Context getMailContext(LateFeeVerified lateFee) {
-    Context initial = new Context();
-    initial.setVariable("fullName", formatName(lateFee.getStudent()));
-    initial.setVariable("comment", lateFee.getComment());
-    initial.setVariable("dueDatetime", instantToCommonDate(lateFee.getDueDatetime()));
-    initial.setVariable("remainingAmount", numberToReadable(lateFee.getRemainingAmount()));
-    initial.setVariable("remainingAmWords", numberToWords(lateFee.getRemainingAmount()));
-    return initial;
-  }
+    private static Context getMailContext(LateFeeVerified lateFee) {
+        Context initial = new Context();
+        initial.setVariable("fullName", formatName(lateFee.getStudent()));
+        initial.setVariable("comment", lateFee.getComment());
+        initial.setVariable("dueDatetime", instantToCommonDate(lateFee.getDueDatetime()));
+        initial.setVariable("remainingAmount", numberToReadable(lateFee.getRemainingAmount()));
+        initial.setVariable("remainingAmWords", numberToWords(lateFee.getRemainingAmount()));
+        return initial;
+    }
 
-  @Override
-  public void accept(LateFeeVerified lateFee) {
-    User student = lateFee.getStudent();
-    String recipient = student.getEmail();
-    String sender = eventConf.getSesSource();
-    String subject = emailSubject(student, lateFee);
-    String htmlBody = htmlToString("lateFeeEmail", getMailContext(lateFee));
-    sesService.sendEmail(sender, recipient, subject, htmlBody);
-  }
+    @Override
+    public void accept(LateFeeVerified lateFee) {
+        User student = lateFee.getStudent();
+        String recipient = student.getEmail();
+        String sender = eventConf.getSesSource();
+        String subject = emailSubject(student, lateFee);
+        String htmlBody = htmlToString("lateFeeEmail", getMailContext(lateFee));
+        sesService.sendEmail(sender, recipient, subject, htmlBody);
+    }
 
 }

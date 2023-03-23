@@ -2,7 +2,10 @@ package school.hei.haapi.service;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.Month;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -27,6 +30,16 @@ public class PromotionService {
         return "promotion" + lastTwoDigits;
     }
 
+    public static LocalDate definePromotionBeginning(Instant entranceDatetime) {
+        int year = entranceDatetime.atZone(ZoneOffset.UTC).getYear();
+        return LocalDate.of(year, Month.JULY, 1);
+    }
+
+    public static LocalDate definePromotionEnd(Instant entranceDatetime) {
+        int year = entranceDatetime.atZone(ZoneOffset.UTC).getYear();
+        return LocalDate.of(year + 1, Month.AUGUST, 31);
+    }
+
     public static String definePromotionRange(Instant entranceDatetime) {
         int year = instantToLocalDate(entranceDatetime).getYear();
         return year + "-" + (year + 1);
@@ -45,10 +58,11 @@ public class PromotionService {
         return promotionRepository.save(toCreate);
     }
 
-    public Promotion getByName(String name){
-        return promotionRepository.getPromotionByPromotionName(name);
+    public Promotion getByRange(String range) {
+        return promotionRepository.getPromotionByPromotionRange(range);
     }
-    public boolean existsByName(String name){
-        return promotionRepository.existsPromotionByPromotionName(name);
+
+    public boolean existsByRange(String range) {
+        return promotionRepository.existsPromotionByPromotionRange(range);
     }
 }

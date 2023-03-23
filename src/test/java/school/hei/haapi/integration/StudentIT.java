@@ -103,7 +103,8 @@ class StudentIT {
     public static Promotion promotion1() {
         Promotion promotion = new Promotion();
         promotion.setId("promotion21_id");
-        promotion.setName("promotion21");
+        promotion.setPromotionBegin(LocalDate.of(2021, 7, 1));
+        promotion.setPromotionEnd(LocalDate.of(2022, 8, 31));
         promotion.setPromotionRange("2021-2022");
         return promotion;
     }
@@ -111,7 +112,8 @@ class StudentIT {
     public static Promotion promotion2() {
         Promotion promotion = new Promotion();
         promotion.setId("promotion22_id");
-        promotion.setName("promotion22");
+        promotion.setPromotionBegin(LocalDate.of(2022, 7, 1));
+        promotion.setPromotionEnd(LocalDate.of(2023, 8, 31));
         promotion.setPromotionRange("2022-2023");
         return promotion;
     }
@@ -263,35 +265,35 @@ class StudentIT {
     }
 
     @Test
-    void manager_read_by_promotion_name_ok() throws ApiException {
+    void manager_read_by_promotion_range_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         UsersApi api = new UsersApi(manager1Client);
         List<Student> actualStudents = api.getStudents(1, 20, null,
-                null, null, promotion1().getName());
+                null, null, promotion1().getPromotionRange());
 
-        assertEquals(5, actualStudents.size());
+        assertEquals(6, actualStudents.size());
         assertTrue(actualStudents.contains(student1()));
         assertTrue(actualStudents.contains(student2()));
     }
 
     @Test
-    void manager_read_by_promotion_name_ignoring_case_ok() throws ApiException {
+    void manager_read_by_promotion_ignoring_case_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         UsersApi api = new UsersApi(manager1Client);
         List<Student> actualStudents = api.getStudents(1, 20, null,
-                null, null, "PrOmOtIoN21");
+                null, null, "2021-2022");
 
-        assertEquals("promotion21", student1().getPromotion().get(0).getName());
-        assertEquals(5, actualStudents.size());
+        assertEquals("2021-2022", student1().getPromotion().get(0).getPromotionRange());
+        assertEquals(6, actualStudents.size());
     }
 
     @Test
-    void manager_read_by_ref_and_promotion_name_ok() throws ApiException {
+    void manager_read_by_ref_and_promotion_range_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         UsersApi api = new UsersApi(manager1Client);
 
         List<Student> actualStudents = api.getStudents(1, 20, student1().getRef(),
-                null, null, promotion1().getName());
+                null, null, promotion1().getPromotionRange());
 
         assertEquals(1, actualStudents.size());
         assertTrue(actualStudents.contains(student1()));
@@ -382,10 +384,10 @@ class StudentIT {
 
         Student actual = api.getStudentById(STUDENT4_ID);
         Promotion actualPromotion = actual.getPromotion().get(0);
-        String expectedName = "promotion22";
+        String expectedRange = "2022-2023";
 
         assertEquals(promotion2(), actualPromotion);
-        assertEquals(expectedName, actualPromotion.getName());
+        assertEquals(expectedRange, actualPromotion.getPromotionRange());
     }
 
     @Test

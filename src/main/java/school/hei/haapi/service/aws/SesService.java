@@ -15,22 +15,22 @@ import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER
 @Service
 @AllArgsConstructor
 public class SesService {
-  private final SesClient client;
+    private final SesClient client;
 
-  public void sendEmail(String sender, String recipient,
-                        String subject, String htmlBody) {
-    SendEmailRequest emailRequest = SendEmailRequest.builder()
-        .source(sender)
-        .destination(destination -> destination.toAddresses(recipient))
-        .message(message -> {
-          message.subject(content -> content.data(subject));
-          message.body(body -> body.html(content -> content.data(htmlBody)));
-        })
-        .build();
-    try {
-      client.sendEmail(emailRequest);
-    } catch (AwsServiceException | SdkClientException exception) {
-      throw new ApiException(SERVER_EXCEPTION, exception.getMessage());
+    public void sendEmail(String sender, String recipient,
+                          String subject, String htmlBody) {
+        SendEmailRequest emailRequest = SendEmailRequest.builder()
+                .source(sender)
+                .destination(destination -> destination.toAddresses(recipient))
+                .message(message -> {
+                    message.subject(content -> content.data(subject));
+                    message.body(body -> body.html(content -> content.data(htmlBody)));
+                })
+                .build();
+        try {
+            client.sendEmail(emailRequest);
+        } catch (AwsServiceException | SdkClientException exception) {
+            throw new ApiException(SERVER_EXCEPTION, exception.getMessage());
+        }
     }
-  }
 }

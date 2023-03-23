@@ -10,17 +10,17 @@ import school.hei.haapi.repository.GroupRepository;
 @AllArgsConstructor
 public class GroupService {
 
-  private final GroupRepository repository;
+    private final GroupRepository repository;
 
-  public Group getById(String groupId) {
-    return repository.getById(groupId);
-  }
+    public Group getById(String groupId) {
+        return repository.getById(groupId);
+    }
 
-  public List<Group> getAll() {
-    return repository.findAll();
-  }
+    public List<Group> getAll() {
+        return repository.findAll();
+    }
 
-  public List<Group> saveAll(List<Group> groups) {
-    return repository.saveAll(groups);
-  }
+    public List<Group> saveAll(List<Group> groups) {
+        return repository.saveAll(groups);
+    }
 }

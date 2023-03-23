@@ -13,15 +13,15 @@ import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExi
 @Slf4j
 public class UserUpsertedService implements Consumer<UserUpserted> {
 
-  private final CognitoComponent cognitoComponent;
+    private final CognitoComponent cognitoComponent;
 
-  @Override
-  public void accept(UserUpserted userUpserted) {
-    String email = userUpserted.getEmail();
-    try {
-      cognitoComponent.createUser(email);
-    } catch (UsernameExistsException e) {
-      log.info("User already exists, do nothing: email={}", email);
+    @Override
+    public void accept(UserUpserted userUpserted) {
+        String email = userUpserted.getEmail();
+        try {
+            cognitoComponent.createUser(email);
+        } catch (UsernameExistsException e) {
+            log.info("User already exists, do nothing: email={}", email);
+        }
     }
-  }
 }

@@ -15,39 +15,39 @@ import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
 class EventConsumerTest {
-  EventConsumer eventConsumer;
-  EventServiceInvoker eventServiceInvoker;
+    EventConsumer eventConsumer;
+    EventServiceInvoker eventServiceInvoker;
 
-  static final Duration TIMEOUT = Duration.ofSeconds(3);
+    static final Duration TIMEOUT = Duration.ofSeconds(3);
 
-  @BeforeEach
-  void setUp() {
-    eventServiceInvoker = mock(EventServiceInvoker.class);
-    eventConsumer = new EventConsumer(eventServiceInvoker);
-  }
+    @BeforeEach
+    void setUp() {
+        eventServiceInvoker = mock(EventServiceInvoker.class);
+        eventConsumer = new EventConsumer(eventServiceInvoker);
+    }
 
-  @Test
-  void event_is_ack_if_eventServiceInvoker_succeeded() {
-    String email = "test+" + randomUUID() + "@hei.school";
-    TypedUserUpserted userUpserted = new TypedUserUpserted(new UserUpserted().email(email));
-    Runnable acknowledger = mock(Runnable.class);
+    @Test
+    void event_is_ack_if_eventServiceInvoker_succeeded() {
+        String email = "test+" + randomUUID() + "@hei.school";
+        TypedUserUpserted userUpserted = new TypedUserUpserted(new UserUpserted().email(email));
+        Runnable acknowledger = mock(Runnable.class);
 
-    eventConsumer.accept(List.of(new AcknowledgeableTypedEvent(userUpserted, acknowledger)));
+        eventConsumer.accept(List.of(new AcknowledgeableTypedEvent(userUpserted, acknowledger)));
 
-    verify(eventServiceInvoker, timeout(TIMEOUT.toMillis())).accept(userUpserted);
-    verify(acknowledger, timeout(TIMEOUT.toMillis())).run();
-  }
+        verify(eventServiceInvoker, timeout(TIMEOUT.toMillis())).accept(userUpserted);
+        verify(acknowledger, timeout(TIMEOUT.toMillis())).run();
+    }
 
-  @Test
-  void event_is_not_ack_if_eventServiceInvoker_failed() {
-    String email = "test+" + randomUUID() + "@hei.school";
-    TypedUserUpserted userUpserted = new TypedUserUpserted(new UserUpserted().email(email));
-    Runnable acknowledger = mock(Runnable.class);
-    doThrow(RuntimeException.class).when(eventServiceInvoker).accept(userUpserted);
+    @Test
+    void event_is_not_ack_if_eventServiceInvoker_failed() {
+        String email = "test+" + randomUUID() + "@hei.school";
+        TypedUserUpserted userUpserted = new TypedUserUpserted(new UserUpserted().email(email));
+        Runnable acknowledger = mock(Runnable.class);
+        doThrow(RuntimeException.class).when(eventServiceInvoker).accept(userUpserted);
 
-    eventConsumer.accept(List.of(new AcknowledgeableTypedEvent(userUpserted, acknowledger)));
+        eventConsumer.accept(List.of(new AcknowledgeableTypedEvent(userUpserted, acknowledger)));
 
-    verify(eventServiceInvoker, timeout(TIMEOUT.toMillis())).accept(userUpserted);
-    verify(acknowledger, timeout(TIMEOUT.toMillis()).times(0)).run();
-  }
+        verify(eventServiceInvoker, timeout(TIMEOUT.toMillis())).accept(userUpserted);
+        verify(acknowledger, timeout(TIMEOUT.toMillis()).times(0)).run();
+    }
 }

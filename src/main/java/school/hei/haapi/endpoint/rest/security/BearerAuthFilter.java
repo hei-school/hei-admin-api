@@ -14,27 +14,27 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 @Slf4j
 public class BearerAuthFilter extends AbstractAuthenticationProcessingFilter {
 
-  private final String authHeader;
+    private final String authHeader;
 
-  protected BearerAuthFilter(RequestMatcher requestMatcher, String authHeader) {
-    super(requestMatcher);
-    this.authHeader = authHeader;
-  }
+    protected BearerAuthFilter(RequestMatcher requestMatcher, String authHeader) {
+        super(requestMatcher);
+        this.authHeader = authHeader;
+    }
 
-  @Override
-  public Authentication attemptAuthentication(
-      HttpServletRequest request, HttpServletResponse response) {
-    String bearer = request.getHeader(authHeader);
-    return getAuthenticationManager()
-        .authenticate(new UsernamePasswordAuthenticationToken(bearer, bearer));
-  }
+    @Override
+    public Authentication attemptAuthentication(
+            HttpServletRequest request, HttpServletResponse response) {
+        String bearer = request.getHeader(authHeader);
+        return getAuthenticationManager()
+                .authenticate(new UsernamePasswordAuthenticationToken(bearer, bearer));
+    }
 
-  @Override
-  protected void successfulAuthentication(
-      HttpServletRequest request, HttpServletResponse response,
-      FilterChain chain, Authentication authenticated)
-      throws IOException, ServletException {
-    super.successfulAuthentication(request, response, chain, authenticated);
-    chain.doFilter(request, response);
-  }
+    @Override
+    protected void successfulAuthentication(
+            HttpServletRequest request, HttpServletResponse response,
+            FilterChain chain, Authentication authenticated)
+            throws IOException, ServletException {
+        super.successfulAuthentication(request, response, chain, authenticated);
+        chain.doFilter(request, response);
+    }
 }

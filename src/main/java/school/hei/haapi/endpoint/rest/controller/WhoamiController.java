@@ -9,12 +9,12 @@ import school.hei.haapi.endpoint.rest.security.model.Principal;
 @RestController
 public class WhoamiController {
 
-  @GetMapping("/whoami")
-  public Whoami hello(@AuthenticationPrincipal Principal principal) {
-    Whoami whoami = new Whoami();
-    whoami.setId(principal.getUserId());
-    whoami.setBearer(principal.getBearer());
-    whoami.setRole(Whoami.RoleEnum.valueOf(principal.getRole()));
-    return whoami;
-  }
+    @GetMapping("/whoami")
+    public Whoami hello(@AuthenticationPrincipal Principal principal) {
+        Whoami whoami = new Whoami();
+        whoami.setId(principal.getUserId());
+        whoami.setBearer(principal.getBearer());
+        whoami.setRole(Whoami.RoleEnum.valueOf(principal.getRole()));
+        return whoami;
+    }
 }

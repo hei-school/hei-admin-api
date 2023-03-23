@@ -10,24 +10,24 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class SentryConf {
 
-  private final String sentryDsn;
-  private final String env;
+    private final String sentryDsn;
+    private final String env;
 
-  private static final double TRACES_SAMPLE_RATE = 1.0;
+    private static final double TRACES_SAMPLE_RATE = 1.0;
 
-  public SentryConf(@Value("${sentry.dsn}") String sentryDsn, @Value("${env}") String env) {
-    this.sentryDsn = sentryDsn;
-    this.env = env;
-  }
+    public SentryConf(@Value("${sentry.dsn}") String sentryDsn, @Value("${env}") String env) {
+        this.sentryDsn = sentryDsn;
+        this.env = env;
+    }
 
-  @Bean
-  public OptionsConfiguration<SentryOptions> getSentryOptionsConf() {
-    OptionsConfiguration<SentryOptions> optionsConf = options -> {
-      options.setDsn(sentryDsn);
-      options.setEnvironment(env);
-      options.setTracesSampleRate(TRACES_SAMPLE_RATE);
-    };
-    Sentry.init(optionsConf);
-    return optionsConf;
-  }
+    @Bean
+    public OptionsConfiguration<SentryOptions> getSentryOptionsConf() {
+        OptionsConfiguration<SentryOptions> optionsConf = options -> {
+            options.setDsn(sentryDsn);
+            options.setEnvironment(env);
+            options.setTracesSampleRate(TRACES_SAMPLE_RATE);
+        };
+        Sentry.init(optionsConf);
+        return optionsConf;
+    }
 }

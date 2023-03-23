@@ -216,9 +216,9 @@ paths:
           description: "Filter students by last name, case is ignored"
           schema:
             type: string
-        - name: promotion_name
+        - name: promotion
           in: query
-          description: "Filter promotions by promotion name, case is ignored"
+          description: "Filter promotions by promotion, case is ignored"
           schema:
             type: string
       responses:
@@ -958,9 +958,13 @@ components:
       properties:
         id:
           type: string
-        name:
+        promotion_begin:
           type: string
-          example: promotion21
+          format: date
+
+        promotion_end:
+          type: string
+          format: date
         promotion_range:
           type: string
           example: 2021-2022

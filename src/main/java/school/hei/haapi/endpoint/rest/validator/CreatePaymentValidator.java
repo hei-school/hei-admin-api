@@ -7,9 +7,10 @@ import school.hei.haapi.model.exception.BadRequestException;
 
 @Component
 public class CreatePaymentValidator implements Consumer<CreatePayment> {
-  @Override public void accept(CreatePayment createPayment) {
-    if (createPayment.getAmount() == null) {
-      throw new BadRequestException("Amount is mandatory");
+    @Override
+    public void accept(CreatePayment createPayment) {
+        if (createPayment.getAmount() == null) {
+            throw new BadRequestException("Amount is mandatory");
+        }
     }
-  }
 }

@@ -8,6 +8,7 @@ import school.hei.haapi.model.Promotion;
 public interface PromotionRepository extends JpaRepository<Promotion, String> {
     Promotion getPromotionById(String promotionId);
 
-    Promotion getPromotionByPromotionName(String promotionName);
-    boolean existsPromotionByPromotionName(String name);
+    Promotion getPromotionByPromotionRange(String range);
+
+    boolean existsPromotionByPromotionRange(String range);
 }
