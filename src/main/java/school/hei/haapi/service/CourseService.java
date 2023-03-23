@@ -29,9 +29,12 @@ public class CourseService {
     public List<Course> getAllByCriteria(
             PageFromOne page, BoundedPageSize pageSize, String code, String name, Integer credits,
             String teacherFirstName, String teacherLastName, String codeOrder, String creditsOrder) {
-        return courseRepository
-                .findCoursesByCriteria(code, name, credits, teacherFirstName, teacherLastName,
-                        this.pagination(page, pageSize, codeOrder, creditsOrder));
+        Pageable pageable = this.pagination(page, pageSize, codeOrder, creditsOrder);
+        return (teacherFirstName == null && teacherLastName == null)
+                ? courseRepository.findAllContainsIgnoreCaseByCodeAndNameAndCredits(
+                code, name, credits, pageable)
+                : courseRepository.findAllContainsIgnoreCaseByCodeAndNameAndCreditsAndTeacher(
+                code, name, credits, teacherFirstName, teacherLastName, pageable);
     }
 
     private Pageable pagination(PageFromOne page, BoundedPageSize pageSize, String codeOrder, String creditsOrder) {
