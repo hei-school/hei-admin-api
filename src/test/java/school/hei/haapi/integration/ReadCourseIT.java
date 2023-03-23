@@ -66,7 +66,7 @@ public class ReadCourseIT {
 
         TeachingApi api = new TeachingApi(studen1Client);
         Course actual1 = api.getCourseById(COURSE1_ID);
-        List<Course> actualCourses = api.getCourses(null,null,"","","","","");
+        List<Course> actualCourses = api.getCourses(null,null,"","","","","","","");
 
         assertEquals(course1(), actual1);
         assertTrue(actualCourses.contains(course1()));
@@ -79,7 +79,7 @@ public class ReadCourseIT {
 
         TeachingApi api = new TeachingApi(teacher1Client);
         Course actual1 = api.getCourseById(COURSE1_ID);
-        List<Course> actualCourses = api.getCourses(null,null,"","","","","");
+        List<Course> actualCourses = api.getCourses(null,null,"","","","","","","");
 
         assertEquals(course1(), actual1);
         assertTrue(actualCourses.contains(course1()));
@@ -92,7 +92,7 @@ public class ReadCourseIT {
 
         TeachingApi api = new TeachingApi(manager1Client);
         Course actual1 = api.getCourseById(COURSE1_ID);
-        List<Course> actualCourses = api.getCourses(null,null,"","","","","");
+        List<Course> actualCourses = api.getCourses(null,null,"","","","","","","");
 
         assertEquals(course1(), actual1);
         assertTrue(actualCourses.contains(course1()));
