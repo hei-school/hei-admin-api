@@ -6,10 +6,16 @@ import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.Course;
+
+import javax.persistence.criteria.CriteriaBuilder;
+import javax.persistence.criteria.CriteriaQuery;
 import school.hei.haapi.model.User;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.*;
+import javax.persistence.criteria.Join;
+import javax.persistence.criteria.Order;
+import javax.persistence.criteria.Predicate;
+import javax.persistence.criteria.Root;
 import java.util.List;
 
 @Repository
@@ -17,18 +23,30 @@ import java.util.List;
 public class CourseDao {
     private EntityManager entityManager;
 
-    public List<Course> findByCriteria(String code, String name, Integer credits, String teacherFirstName, String teacherLastName,
+    public List<Course> findByCriteria(String code, String name, Integer credits, String teacherFirstName, String teacherLastName, Course.CreditsOrder creditsOrder, Course.CodeOrder codeOrder,
                                          Pageable pageable) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Course> query = builder.createQuery(Course.class);
         Root<Course> root = query.from(Course.class);
         Join<Course, User> teacherJoin = root.join("mainTeacher");
 
+
         Predicate hasCourseCode =
                 builder.or(
                         builder.like(builder.lower(root.get("code")), "%" + code + "%"),
                         builder.like(root.get("code"), "%" + code + "%")
                 );
+        Order codeOrderClause;
+        switch (codeOrder) {
+            case ASC:
+                codeOrderClause = builder.asc(root.get("code"));
+                break;
+            case DESC:
+                codeOrderClause = builder.desc(root.get("code"));
+                break;
+            default:
+                codeOrderClause = builder.asc(root.get("code"));
+        }
 
         Predicate hasCourseName =
                 builder.or(
@@ -41,6 +59,18 @@ public class CourseDao {
                         builder.or(
                                 builder.equal(root.get("credits"), credits)
                         ) : builder.conjunction();
+
+        Order creditsOrderClause;
+        switch (creditsOrder) {
+            case ASC:
+                creditsOrderClause = builder.asc(root.get("credits"));
+                break;
+            case DESC:
+                creditsOrderClause = builder.desc(root.get("credits"));
+                break;
+            default:
+                creditsOrderClause = builder.asc(root.get("credits"));
+        }
 
         Predicate hasTeacherFirstName =
                 builder.or(
@@ -56,7 +86,7 @@ public class CourseDao {
 
         query
                 .where(builder.and(hasCourseCode, hasCourseName, hasCredits, hasTeacherFirstName, hasTeacherLastName))
-                .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
+                .orderBy(creditsOrderClause, codeOrderClause, (Order) QueryUtils.toOrders(pageable.getSort(), root, builder));
 
         return entityManager.createQuery(query)
                 .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())

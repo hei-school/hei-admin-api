@@ -103,6 +103,7 @@ class CourseIT {
     assertTrue(actual.contains(course2()));
   }
 
+
   @Test
   void course_read_by_name_ignoring_case_ok() throws ApiException {
     ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
@@ -145,6 +146,26 @@ class CourseIT {
     List<Course> actual = api.getCourses(1, 20,null,null,null,"MAhEry","mahery",null,null);
 
     assertEquals(actual, List.of(course(), course2(), course3()));
+  }
+
+  @Test
+  void course_read_by_credits_desc_ok() throws ApiException {
+    ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teachingClient);
+
+    List<Course> actual = api.getCourses(1, 100,null,null,null,null,null,"DESC",null);
+
+    assertEquals(actual, List.of(course3(), course(), course2()));
+  }
+
+  @Test
+  void course_read_by_code_desc_ok() throws ApiException {
+    ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teachingClient);
+
+    List<Course> actual = api.getCourses(1, 100,null,null,null,null,null,null,"DESC");
+
+    assertEquals(actual, List.of(course3(), course2(), course()));
   }
 
   @Test

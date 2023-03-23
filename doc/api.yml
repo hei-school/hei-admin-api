@@ -425,13 +425,15 @@ paths:
           description: Filter courses by creditsOrder, case is ignored
           required: false
           schema:
-            type: string  
+            type: String
+            enum: [ASC, DESC]
         - name: codeOrder
           in: query
           description: Filter courses by codeOrder, case is ignored
           required: false
           schema:
-            type: string                
+            type: string
+            enum: [ASC, DESC]
       responses:
         '200':
           description: List of all courses
