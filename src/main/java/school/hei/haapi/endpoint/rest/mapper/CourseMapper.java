@@ -14,6 +14,7 @@ import school.hei.haapi.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
@@ -65,22 +66,25 @@ public class CourseMapper {
                 .build();
     }
     private school.hei.haapi.model.StudentCourse toDomainStudentCourse(User student, UpdateStudentCourse course){
+        school.hei.haapi.model.Course toLink = courseService.getById(course.getCourseId());
         if (!student.getRole().equals(User.Role.STUDENT)) {
             throw new BadRequestException("Only students can be linked to courses");
         }
-        school.hei.haapi.model.Course toLink = courseService.getById(course.getCourseId());
-        if (toLink == null) {
-            throw new NotFoundException("Course.id=" + course.getCourseId() + " is not found");
-        }
-        StudentCourse exist = courseService.getCoursesByStudentIdAndCourseId(student.getId(),toLink.getId());
-        if (exist==null){
+
+        if (toLink == null) throw new NotFoundException("Course.id=" + course.getCourseId() + " is not found");
+        if (!Objects.equals(course.getStatus(), CourseStatus.LINKED) && !Objects.equals(course.getStatus(), CourseStatus.UNLINKED))
+            throw new NotFoundException("Course.id=" + course.getCourseId() + " have wrong status");
+        List<StudentCourse> exists = courseService.getCoursesByStudentIdAndCourseId(student.getId(),toLink.getId());
+        if (exists.size()>1) throw new NotFoundException("student.id=" + student.getId() + " is in relation with course.id=" + toLink.getId() + "more than one time");
+        if (exists.size()==0){
             return school.hei.haapi.model.StudentCourse.builder()
                     .course(toLink)
                     .student(student)
                     .status(StudentCourse.CourseStatus.valueOf(course.getStatus().toString()))
                     .build();
         }
-        return exist;
+        exists.get(0).setStatus(StudentCourse.CourseStatus.valueOf(course.getStatus().toString()));
+        return exists.get(0);
     }
 
     public List<school.hei.haapi.model.StudentCourse> toDomainStudentCourse(String studentId, List<UpdateStudentCourse> toCreate){
