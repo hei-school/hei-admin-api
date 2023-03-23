@@ -31,7 +31,10 @@ public class Course implements Serializable {
     @NotBlank(message = "Credits name is mandatory")
     private int credits;
 
+    @NotBlank(message = "Credits name is mandatory")
+    private int total_hours;
+
     @OneToMany
     @JoinColumn(name = "main_teacher")
-    private User.Role main_teacher;
+    private User main_teacher;
 }
