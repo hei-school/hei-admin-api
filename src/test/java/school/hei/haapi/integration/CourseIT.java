@@ -2,13 +2,14 @@ package school.hei.haapi.integration;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
@@ -16,13 +17,12 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.User;
-import school.hei.haapi.repository.CourseRepository;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
-import software.amazon.awssdk.services.ses.endpoints.internal.Value;
 
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -40,6 +40,8 @@ public class CourseIT {
     private CognitoComponent cognitoComponentMock;
     @MockBean
     private EventBridgeClient eventBridgeClientMock;
+
+    private MockMvc mockMvc;
 
     private static ApiClient anApiClient(String token) {
         return TestUtils.anApiClient(token, CourseIT.ContextInitializer.SERVER_PORT);
@@ -69,6 +71,14 @@ public class CourseIT {
 
     }
 
+    static Course expected(){
+        String code = course1().getCode();
+        String name = course1().getName();
+        int credits = course1().getCredits();
+        String teacherFirstName = course1().getMain_teacher().getFirstName();
+        String teacherLastName = course1().getMain_teacher().getLastName();
+        return course1();
+    }
 
 
     @BeforeEach
@@ -78,9 +88,14 @@ public class CourseIT {
     }
 
     @Test
-    void course_get_ok() throws ApiException{
+    void course_get_ok() throws ApiException {
+        TeachingApi api = new TeachingApi();
+        List<school.hei.haapi.endpoint.rest.model.Course> actualCourse = api.getCourses(1,15);
 
+        assertEquals(expected(), actualCourse);
+        assertTrue(actualCourse.contains(course1()));
     }
+
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
 
