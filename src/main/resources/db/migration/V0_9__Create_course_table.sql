@@ -6,7 +6,7 @@ create table if not exists "course"
         constraint course_teacher_id_fk references "user"(id),
     code varchar unique not null,
     name varchar,
-    credits int not null,
+    credits integer not null,
     total_hours int not null
 );
 create index if not exists courses_teacher_id_index on "course" (teacher_id);

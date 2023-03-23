@@ -59,7 +59,7 @@ public class CourseMapper {
                 .name(createCourse.getName())
                 .credits(createCourse.getCredits())
                 .totalHours(createCourse.getTotalHours())
-                .MainTeacher(User.builder()
+                .mainTeacher(User.builder()
                         .id(createCourse.getMainTeacherId())
                         .build())
                 .build();

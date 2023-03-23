@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
@@ -41,28 +42,29 @@ public class CourseService {
             String name,
             String code,
             Integer credits,
-            String first_name,
-            String last_name
+            String teacherFirstName,
+            Sort.Direction codeOrder
     ){
-        if(name != null){
-            return repository.findByNameContainingIgnoreCase(name, pageableCreator(page, pageSize));
-        }
-        if(code != null){
-            return repository.findByCodeContainingIgnoreCase(code, pageableCreator(page, pageSize));
-        }
-        if(credits != null){
-            return repository.findByCredits(credits, pageableCreator(page, pageSize));
-        }
-        if(first_name != null) {
-            return repository.findByMainTeacherFirstName(first_name.toLowerCase(), pageableCreator(page, pageSize));
-        }
-        if(last_name != null) {
-            return repository.findByMainTeacherLastName(last_name.toLowerCase(), pageableCreator(page, pageSize));
-        }
-        else{
-            return repository.findAll(pageableCreator(page, pageSize)).toList();
-        }
-    }
+            if(codeOrder != null) {
+                return repository.findCoursesWithParams(
+                        name,
+                        code,
+                        teacherFirstName,
+                        credits,
+                        pageableCreator(page, pageSize, codeOrder, "code")
+                );
+            }
+            else{
+                return repository.findCoursesWithParams(
+                        name,
+                        code,
+                        teacherFirstName,
+                        credits,
+                        pageableCreator(page, pageSize, null, null)
+                );
+                }
+            }
+
 
     public List<StudentCourse> saveAllStudentCourses(String studentId, List<StudentCourse> toDomainStudentCourse) {
         return studentCourseRepository.saveAll(toDomainStudentCourse);
@@ -72,16 +74,12 @@ public class CourseService {
         return studentCourseRepository.getStudentCourseByStudentIdAndCourseId(studentId,courseId);
     }
 
-    private Pageable pageableCreator(PageFromOne page, BoundedPageSize pageSize){
+    private Pageable pageableCreator(PageFromOne page, BoundedPageSize pageSize, Sort.Direction order, String orderTarget){
         Pageable pageable = null;
-        if(page==null && pageSize==null){
-            pageable = PageRequest.of(0, 15);
-        }
-        else if(page==null){
-            pageable = PageRequest.of(0, pageSize.getValue());
-        }
-        else if(pageSize==null){
-            pageable = PageRequest.of(page.getValue()-1, 15);
+
+        if(orderTarget != null && order != null){
+            Sort sort = Sort.by(order, orderTarget);
+            pageable = PageRequest.of(page.getValue()-1, pageSize.getValue(), sort);
         }
         else{
             pageable = PageRequest.of(page.getValue()-1, pageSize.getValue());

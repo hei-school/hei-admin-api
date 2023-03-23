@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -60,15 +61,23 @@ public class CourseController {
 
     @GetMapping("/courses")
     public List<Course> getCourses(
-            @RequestParam(name = "page", required = false)PageFromOne page,
-            @RequestParam(name = "page_size", required = false)BoundedPageSize pageSize,
-            @RequestParam(name = "name", required = false)String name,
-            @RequestParam(name = "code", required = false)String code,
-            @RequestParam(name = "credits", required = false)Integer credits,
-            @RequestParam(name = " teacher_first_name", required = false)String TeacherFirstName,
-            @RequestParam(name = "teacher_last_name", required = false)String TeacherLastName
+            @RequestParam(name = "page", defaultValue = "1", required = false)PageFromOne page,
+            @RequestParam(name = "page_size", defaultValue = "15", required = false)BoundedPageSize pageSize,
+            @RequestParam(name = "name", defaultValue = "", required = false)String name,
+            @RequestParam(name = "code", defaultValue = "", required = false)String code,
+            @RequestParam(name = "credits", defaultValue = "", required = false)Integer credits,
+            @RequestParam(name = " teacher_first_name", required = false)String teacherFirstName,
+            @RequestParam(name = "codeOrder", required = false) Sort.Direction codeOrder
     ){
-        return courseService.getCourses(page, pageSize, name, code, credits, TeacherFirstName, TeacherLastName).stream()
+        return courseService.getCourses(
+                page,
+                pageSize,
+                name,
+                code,
+                credits,
+                teacherFirstName,
+                codeOrder
+                ).stream()
                 .map(courseMapper::toRestCourse)
                 .collect(Collectors.toList());
     }
