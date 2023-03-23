@@ -13,8 +13,15 @@ import java.util.List;
 @AllArgsConstructor
 public class CourseController {
     private final CourseService courseService;
+
     @GetMapping("/courses")
-    public List<Course> getAllCourseByTeacherFirstName (@RequestParam(name = "teacher_first_name") String teacherFirstName) {
-        return courseService.getAllCoursesByTeacherFirstName(teacherFirstName);
+    public List<Course> getAllCourseByTeacherFirstName(@RequestParam(name = "teacher_first_name", required = false) String teacherFirstName
+    ) {
+        if (teacherFirstName == null) {
+            return courseService.getAllCourse();
+        } else {
+            return courseService.getAllCoursesByTeacherFirstName(teacherFirstName);
+        }
+
     }
 }
