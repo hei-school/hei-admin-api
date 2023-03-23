@@ -19,6 +19,12 @@ values ('student1_id', 'Ryan', 'Andria', 'test+ryan@hei.school', 'STD21001', 'EN
         ('teacher3_id', 'Three', 'Teach', 'test+teacher3@hei.school', 'TCR21003', 'ENABLED', 'M',
                 '1990-01-02',
                 '2021-10-09T08:28:24.00Z', '0322411126', 'Adr 4', 'TEACHER'),
+        ('teacher4_id', 'Tokimahery', 'Ramarozaka', 'test+teacher4@hei.school', 'TCR21004', 'ENABLED', 'M',
+                        '1990-01-02',
+                        '2021-10-09T08:28:24.00Z', '0322411126', 'Adr 4', 'TEACHER'),
+        ('teacher5_id', 'Ryan', 'Andriamahery', 'test+teacher5@hei.school', 'TCR21005', 'ENABLED', 'M',
+                        '1990-01-02',
+                        '2021-10-09T08:28:24.00Z', '0322411126', 'Adr 4', 'TEACHER'),
        ('manager1_id', 'One', 'Manager', 'test+manager1@hei.school', 'MGR21001', 'ENABLED', 'M',
         '1890-01-01',
         '2021-09-08T08:25:29.00Z', '0322411127', 'Adr 5', 'MANAGER');

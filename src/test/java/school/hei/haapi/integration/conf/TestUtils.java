@@ -125,6 +125,38 @@ public class TestUtils {
     return teacher;
   }
 
+  public static Teacher teacher4() {
+    Teacher teacher = new Teacher();
+    teacher.setId("teacher4_id");
+    teacher.setFirstName("Tokimahery");
+    teacher.setLastName("Ramarozaka");
+    teacher.setEmail("test+teacher4@hei.school");
+    teacher.setRef("TCR21004");
+    teacher.setPhone("0322411126");
+    teacher.setStatus(EnableStatus.ENABLED);
+    teacher.setSex(Teacher.SexEnum.M);
+    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24.00Z"));
+    teacher.setAddress("Adr 4");
+    return teacher;
+  }
+
+  public static Teacher teacher5() {
+    Teacher teacher = new Teacher();
+    teacher.setId("teacher5_id");
+    teacher.setFirstName("Ryan");
+    teacher.setLastName("Andriamahery");
+    teacher.setEmail("test+teacher5@hei.school");
+    teacher.setRef("TCR21005");
+    teacher.setPhone("0322411126");
+    teacher.setStatus(EnableStatus.ENABLED);
+    teacher.setSex(Teacher.SexEnum.M);
+    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24.00Z"));
+    teacher.setAddress("Adr 4");
+    return teacher;
+  }
+
   public static int anAvailableRandomPort() {
     try {
       return new ServerSocket(0).getLocalPort();
