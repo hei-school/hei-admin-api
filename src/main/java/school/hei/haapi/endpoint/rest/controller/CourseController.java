@@ -35,7 +35,7 @@ public class CourseController {
     private final CourseMapper courseMapper;
 
     @PutMapping(value = "/courses")
-    public List<Course> createOrUpdateCourses(@RequestBody List<CrupdateCourse> toWrite) {
+    public List<Course> crupdateCourses(@RequestBody List<CrupdateCourse> toWrite) {
         var saved = courseService.saveAll(toWrite.stream()
                 .map(courseMapper::toDomain)
                 .collect(toUnmodifiableList()));
@@ -45,7 +45,7 @@ public class CourseController {
     }
 
     @PutMapping("/students/{studentId}/courses")
-    public List<Course> createFees(
+    public List<Course> createOrUpdateCourses(
             @PathVariable String studentId, @RequestBody List<UpdateStudentCourse> toCreate) {
 
         return courseService.saveAllStudentCourses(studentId,courseMapper.toDomainStudentCourse(studentId, toCreate)).stream()
@@ -53,7 +53,7 @@ public class CourseController {
                 .collect(Collectors.toList());
     }
     @GetMapping("/students/{studentId}/courses")
-    public List<Course> getFeesByStudentAndStatus(
+    public List<Course> getCoursesByStudentAndStatus(
             @PathVariable String studentId, @RequestParam(required = false) StudentCourse.CourseStatus status) {
         return courseMapper.toRestCourse(courseService.getByStudentIdAndStatus(studentId,status));
     }
@@ -61,13 +61,13 @@ public class CourseController {
     @GetMapping("/courses")
     public List<Course> getCourses(
 
-            @RequestParam(name = "code", required = false)String code,
-            @RequestParam(name = "name", required = false)String name,
-            @RequestParam(name = "credits", required = false)Integer credits,
-            @RequestParam(name = "teacher_first_name", required = false)String teacher_first_name,
-            @RequestParam(name = "teacher_last_name", required = false)String teacher_last_name,
-            @RequestParam(name = "creditsOrder", required = false)String creditsOrder,
-            @RequestParam(name = "codeOrder", required = false)String codeOrder,
+            @RequestParam(name = "code", required = false, defaultValue = "")String code,
+            @RequestParam(name = "name", required = false, defaultValue = "")String name,
+            @RequestParam(name = "credits", required = false, defaultValue = "0")Integer credits,
+            @RequestParam(name = "teacher_first_name", required = false, defaultValue = "")String teacher_first_name,
+            @RequestParam(name = "teacher_last_name", required = false, defaultValue = "")String teacher_last_name,
+            @RequestParam(name = "creditsOrder", required = false, defaultValue = "")String creditsOrder,
+            @RequestParam(name = "codeOrder", required = false, defaultValue = "")String codeOrder,
             @RequestParam(name = "page", required = false)PageFromOne page,
             @RequestParam(name = "page_size", required = false)BoundedPageSize pageSize
             ){

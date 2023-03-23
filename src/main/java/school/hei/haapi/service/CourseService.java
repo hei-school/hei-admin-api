@@ -49,12 +49,10 @@ public class CourseService {
     }
 
     public List<StudentCourse> saveAllStudentCourses(String studentId, List<StudentCourse> toDomainStudentCourse) {
-
-
         return studentCourseRepository.saveAll(toDomainStudentCourse);
     }
 
-    public StudentCourse getByStudentIdAndCourseId(String studentId, String courseId) {
+    public StudentCourse getCoursesByStudentIdAndCourseId(String studentId, String courseId) {
         return studentCourseRepository.getStudentCourseByStudentIdAndCourseId(studentId,courseId);
     }
 

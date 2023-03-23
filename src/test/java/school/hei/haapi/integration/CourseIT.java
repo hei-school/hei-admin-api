@@ -98,9 +98,8 @@ public class CourseIT {
     }
     public static CrupdateCourse someCreatableCourse() {
         CrupdateCourse createCourse = new CrupdateCourse();
-        createCourse.setId("COURSE21-" + randomUUID());
         createCourse.setName("Some name");
-        createCourse.setCode("Code");
+        createCourse.setCode("Code" + randomUUID());
         createCourse.setCredits(5);
         createCourse.setTotalHours(40);
         createCourse.setMainTeacherId("teacher1_id");
