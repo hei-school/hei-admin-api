@@ -35,30 +35,28 @@ public class CourseService {
         return studentCourseRepository.getStudentCourseByStudentIdAndStatus(studentId,newStatus);
     }
 
-    public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize){
-        List<Course> allCourses = new ArrayList<>();
-        if(page==null && pageSize==null){
-            Pageable pageable = PageRequest.of(0, 15);
-            allCourses = repository.findAll(pageable).toList();
+    public List<Course> getCourses(
+            PageFromOne page,
+            BoundedPageSize pageSize,
+            String name,
+            String code,
+            Integer credits
+    ){
+        if(name != null){
+            return repository.findByNameContainingIgnoreCase(name, pageableCreator(page, pageSize));
         }
-        else if(page==null){
-            Pageable pageable = PageRequest.of(1, pageSize.getValue());
-            allCourses = repository.findAll(pageable).toList();
+        if(code != null){
+            return repository.findByCodeContainingIgnoreCase(code, pageableCreator(page, pageSize));
         }
-        else if(pageSize==null){
-            Pageable pageable = PageRequest.of(page.getValue()-1, 15);
-            allCourses = repository.findAll(pageable).toList();
+        if(credits != null){
+            return repository.findByCredits(credits, pageableCreator(page, pageSize));
         }
         else{
-            Pageable pageable = PageRequest.of(page.getValue()-1, pageSize.getValue());
-            allCourses = repository.findAll(pageable).toList();
+            return repository.findAll(pageableCreator(page, pageSize)).toList();
         }
-        return allCourses;
     }
 
     public List<StudentCourse> saveAllStudentCourses(String studentId, List<StudentCourse> toDomainStudentCourse) {
-
-
         return studentCourseRepository.saveAll(toDomainStudentCourse);
     }
 
@@ -66,4 +64,20 @@ public class CourseService {
         return studentCourseRepository.getStudentCourseByStudentIdAndCourseId(studentId,courseId);
     }
 
+    private Pageable pageableCreator(PageFromOne page, BoundedPageSize pageSize){
+        Pageable pageable = null;
+        if(page==null && pageSize==null){
+            pageable = PageRequest.of(0, 15);
+        }
+        else if(page==null){
+            pageable = PageRequest.of(0, pageSize.getValue());
+        }
+        else if(pageSize==null){
+            pageable = PageRequest.of(page.getValue()-1, 15);
+        }
+        else{
+            pageable = PageRequest.of(page.getValue()-1, pageSize.getValue());
+        }
+        return pageable;
+    }
 }
