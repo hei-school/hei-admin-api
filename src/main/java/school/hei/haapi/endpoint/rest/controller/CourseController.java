@@ -41,10 +41,15 @@ public class CourseController {
 
   @GetMapping(value = "/courses")
   public List<Course> getCourses(
+      @RequestParam(value = "code", defaultValue = "") String code,
+      @RequestParam(value = "name", defaultValue = "") String name,
+      @RequestParam(value = "credits", defaultValue = "") Integer credits,
+      @RequestParam(value = "teacherFirstName", defaultValue = "") String teacherFirstName,
+      @RequestParam(value = "teacherLastName", defaultValue = "") String teacherLastName,
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize
   ) {
-    return service.getCourses(page, pageSize).stream()
+    return service.getByCriteria(code, name, credits, teacherFirstName, teacherLastName,page, pageSize ).stream()
         .map(courseMapper::toRest)
         .collect(toUnmodifiableList());
   }

@@ -20,12 +20,15 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.StudentCourseRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.repository.dao.FilterCourseDao;
 
 @Service
 @AllArgsConstructor
 public class CourseService {
   private final StudentCourseRepository repository;
   private final UserRepository userRepository;
+
+  private final FilterCourseDao filterCourseDao;
 
   public List<Course> getStudentCourses(String studentId, CourseStatus status) {
     CourseStatus status1 = status == null ? CourseStatus.LINKED: status;
@@ -54,5 +57,14 @@ public class CourseService {
     return repository.saveAll(toUpdate).stream()
         .map(StudentCourse::getCourse)
         .collect(Collectors.toUnmodifiableList());
+  }
+
+  public List<Course> getByCriteria(
+          String code, String name, Integer credits, String teacherFirstName, String teacherLastName,
+          PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable = PageRequest.of(
+            page.getValue() - 1,
+            pageSize.getValue());
+            return filterCourseDao.findByCriteria(code,name,credits,teacherFirstName,teacherLastName,pageable);
   }
 }
