@@ -20,6 +20,8 @@ public class TestUtils {
 
   public static final String STUDENT1_ID = "student1_id";
   public static final String STUDENT2_ID = "student2_id";
+  public static final String COURSE1_ID = "courses1_id";
+  public static final String COURSE3_ID = "courses3_id";
   public static final String TEACHER1_ID = "teacher1_id";
   public static final String TEACHER2_ID = "teacher2_id";
   public static final String MANAGER_ID = "manager1_id";
