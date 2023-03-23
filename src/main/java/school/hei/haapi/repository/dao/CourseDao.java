@@ -45,17 +45,24 @@ public class CourseDao {
         Predicate hasTeacherFirstName =
                 builder.or(
                         builder.like(builder.lower(teacherJoin.get("firstName")), "%" + teacherFirstName.toLowerCase() + "%"),
-                        builder.like(teacherJoin.get("firstName"), "%" + teacherFirstName + "%")
+                        builder.like(teacherJoin.get("firstName"), "%" + teacherFirstName.toLowerCase() + "%")
                 );
 
         Predicate hasTeacherLastName =
                 builder.or(
                         builder.like(builder.lower(teacherJoin.get("lastName")), "%" + teacherLastName.toLowerCase() + "%"),
-                        builder.like(teacherJoin.get("lastName"), "%" + teacherLastName + "%")
+                        builder.like(teacherJoin.get("lastName"), "%" + teacherLastName.toLowerCase() + "%")
                 );
 
+        Predicate hasTeacherFirstNameAndTeacherLastName;
+        if(!teacherFirstName.isEmpty() && teacherLastName.isEmpty()){
+            hasTeacherFirstNameAndTeacherLastName = hasTeacherFirstName;
+        } else if(teacherFirstName.isEmpty() && !teacherLastName.isEmpty()){
+            hasTeacherFirstNameAndTeacherLastName = hasTeacherFirstName;
+        } else hasTeacherFirstNameAndTeacherLastName = builder.or(hasTeacherFirstName, hasTeacherLastName);
+
         query
-                .where(builder.and(hasCourseCode, hasCourseName, hasCredits, hasTeacherFirstName, hasTeacherLastName))
+                .where(builder.and(hasCourseCode, hasCourseName, hasCredits, hasTeacherFirstNameAndTeacherLastName))
                 .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
         return entityManager.createQuery(query)
