@@ -17,16 +17,26 @@ public class CourseController {
     private CourseService service;
     @GetMapping("/courses")
     public List<Course> getCourse(
-            @RequestParam String code,
-            @RequestParam String name,
-            @RequestParam int credits,
-            @RequestParam String teacherFirstName,
-            @RequestParam String teacherLastName,
-            @RequestParam String codeOrder,
-            @RequestParam String creditsOrder,
-            @RequestParam PageFromOne page,
-            @RequestParam BoundedPageSize pageSize
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) int credits,
+            @RequestParam(required = false) String teacherFirstName,
+            @RequestParam(required = false) String teacherLastName,
+            @RequestParam(required = false) String codeOrder,
+            @RequestParam(required = false) String creditsOrder,
+            @RequestParam(defaultValue = "1") PageFromOne page,
+            @RequestParam(defaultValue = "15") BoundedPageSize pageSize
             ) {
-        return service.GetAllAndFiltreReturnedList(code,name,credits,teacherFirstName,teacherLastName,codeOrder,creditsOrder,page,pageSize);
+        return service.GetAllAndFiltreReturnedList(
+                code,
+                name,
+                credits,
+                teacherFirstName,
+                teacherLastName,
+                codeOrder,
+                creditsOrder,
+                page,
+                pageSize
+        );
     }
 }
