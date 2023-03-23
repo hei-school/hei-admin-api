@@ -91,7 +91,7 @@ public class CourseIT {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
         TeachingApi api = new TeachingApi(student1Client);
-        List<Course> actualCourses = api.getCourses(1, 15);
+        List<Course> actualCourses = api.getCourses(1, 15, null, null, null, null, null);
 
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
