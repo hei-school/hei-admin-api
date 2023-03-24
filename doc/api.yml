@@ -423,14 +423,14 @@ paths:
           required: false
         - name: creditsOrder
           in: query
-          description: order courses by credits
           schema:
-            $ref: '#/components/schemas/OrderType'
+            $ref: "#/components/schemas/OrderType"
+          required: false
         - name: codeOrder
           in: query
-          description: order courses by codes
           schema:
-            $ref: '#/components/schemas/OrderType'
+            $ref: "#/components/schemas/OrderType"
+          required: false
       responses:
         '200':
           description: List of all courses

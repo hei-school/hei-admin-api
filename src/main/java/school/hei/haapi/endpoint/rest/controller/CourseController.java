@@ -12,10 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.web.bind.annotation.*;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CourseStatus;
-import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
-import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.CourseFollowedRest;
@@ -30,10 +27,17 @@ public class CourseController {
 
   @GetMapping("/courses")
   public List<Course> getAllCourses(
-      @RequestParam(required = false) PageFromOne page,
-      @RequestParam(name = "page_size", required = false) BoundedPageSize pageSize
-  ) {
-    return courseService.getAllCourses(page, pageSize).stream().map(courseMapper::toRest)
+          @RequestParam(required = false) PageFromOne page,
+          @RequestParam(value = "page_size", required = false) BoundedPageSize pageSize,
+          @RequestParam(value = "code", required = false) String code,
+          @RequestParam(value = "name ", required = false) String name,
+          @RequestParam(value = "credits", required = false) Integer credits,
+          @RequestParam(value = "teacher_first_name", required = false) String teacher_first_name,
+          @RequestParam(value = "teacher_last_name", required = false  ) String teacher_last_name,
+          @RequestParam(value = "creditsOrder", required = false) OrderType creditsOrder,
+          @RequestParam(value = "codeOrder", required = false) OrderType codeOrder
+          ) {
+    return courseService.getAllCourses(page, pageSize, code, name, credits, teacher_first_name, teacher_last_name, creditsOrder, codeOrder).stream().map(courseMapper::toRest)
         .collect(Collectors.toUnmodifiableList());
   }
 

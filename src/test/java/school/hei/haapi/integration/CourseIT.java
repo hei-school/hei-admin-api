@@ -1,10 +1,9 @@
 package school.hei.haapi.integration;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
+
 import lombok.extern.slf4j.Slf4j;
-import org.hibernate.sql.Update;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,31 +12,24 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
-import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.client.ApiResponse;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.CourseFollowed;
-import school.hei.haapi.model.CourseFollowedRest;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.TeacherIT.teacher1;
 import static school.hei.haapi.integration.TeacherIT.teacher2;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -124,28 +116,65 @@ class CourseIT {
     List<Course> coursesLinked = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
     List<Course> coursesUnlinked = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.UNLINKED);
 
-    assertEquals(coursesUnlinked, List.of(course1()));
-    assertEquals(coursesLinked, List.of(course2()));
+    assertEquals(coursesUnlinked, List.of(course2()));
+    assertEquals(coursesLinked, List.of(course1()));
   }
 
   @Test
   void get_all_courses_ok() throws ApiException{
-    ApiClient student1Client = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(student1Client);
-    List<Course> courses = api.getCourses(1, 15, "", "", null, "", "", null, null);
+    ApiClient teacherClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacherClient);
+    List<Course> courses = api.getCourses(1, 15, null, null,null,null,null, null, null);
+
+    log.info("courses{}" , courses);
 
     assertTrue(courses.contains(course1()));
     assertTrue(courses.contains(course2()));
   }
 
   @Test
-  void get_all_courses_with_parameters_ok() throws ApiException{
+  void read_courses_by_name_ok() throws ApiException{
     ApiClient teacherClient = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacherClient);
-    List<Course> courses = api.getCourses(1,15, "PROG1", "Algorithme et structure de données", 10, "One", "Teacher", null, null );
+    List<Course> courses = api.getCourses(1,15, null, course2().getName(), course2().getCredits(), null , null, null, null);
 
-    assertEquals(courses.get(0), course1());
+    log.info("courses{}" , courses);
+
+    assertFalse(courses.contains(course1()));
+    assertTrue(courses.contains(course2()));
   }
+  @Test
+  void read_courses_by_credits_ok() throws ApiException{
+    ApiClient teacherClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacherClient);
+    List<Course> courses = api.getCourses(1,15, null, null, course2().getCredits(), null , null, null, null);
+
+    log.info("courses{}" , courses);
+
+    assertTrue(courses.contains(course2()));
+    assertFalse(courses.contains(course1()));
+  }
+  @Test
+  void read_courses_by_code_ok() throws ApiException{
+    ApiClient teacherClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacherClient);
+    List<Course> courses = api.getCourses(1,15, course2().getCode(), null, null, null , null, null, null);
+
+    log.info("courses{}" , courses);
+
+    assertEquals(courses.get(0), course2());
+  }
+  @Test
+  void read_courses_by_teacher_name_ok() throws ApiException{
+    ApiClient teacherClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacherClient);
+    List<Course> courses = api.getCourses(1,15, null, null, null, Objects.requireNonNull(course2().getMainTeacher()).getFirstName() , Objects.requireNonNull(course2().getMainTeacher()).getLastName(), null, null);
+
+    log.info("courses{}" , courses);
+
+    assertEquals(courses.get(0), course2());
+  }
+
 
   @Test
   void get_all_courses_order_by_credits_desc() throws ApiException{
@@ -153,7 +182,7 @@ class CourseIT {
     TeachingApi api = new TeachingApi(teacherClient);
     List<Course> courses = api.getCourses(1,15, null, null, null, null, null, OrderType.DESC, null);
 
-    assertEquals(courses.get(0),course1() );
+    assertEquals(courses.get(0),course2() );
   }
 
   @Test
@@ -171,14 +200,14 @@ class CourseIT {
     TeachingApi api = new TeachingApi(teacherClient);
     List<Course> courses = api.getCourses(1,15, null, null, null, null, null, null, OrderType.DESC);
 
-    assertEquals(courses.get(0),course2() );
+    assertEquals(courses.get(0),course1() );
   }
 
   @Test
   void get_all_courses_order_by_code_asc() throws ApiException{
     ApiClient teacherClient = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacherClient);
-    List<Course> courses = api.getCourses(1,15, null, null, null, null, null, OrderType.ASC, null);
+    List<Course> courses = api.getCourses(1,15, null, null, null, null, null, null, OrderType.ASC);
 
     assertEquals(courses.get(0),course1() );
   }
@@ -207,7 +236,7 @@ class CourseIT {
     List<Course> toBeCreated = api.crupdateCourses(List.of(new_course()));
     List<Course> toBeUpdated = api.crupdateCourses(List.of(to_be_updated()));
 
-    List<Course> allCourses = api.getCourses(1, 15, " ", "", null, "", "", null, null);
+    List<Course> allCourses = api.getCourses(1, 15, null, null, null, null, null, null, null);
     log.info("courses{}", allCourses);
 
     assertTrue(allCourses.contains(toBeCreated.get(0)));
