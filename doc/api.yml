@@ -379,6 +379,18 @@ paths:
       summary: Get all courses
       operationId: getCourses
       parameters:
+        - name: teacher_first_name
+          in: query
+          description: Filter courses by teacher first name
+          schema:
+            type: string
+          required: false
+        - name: teacher_last_name
+          in: query
+          description: Filter courses by teacher last name
+          schema:
+            type: string
+          required: false
         - name: creditsOrder
           in: query
           description: Order courses by their credits

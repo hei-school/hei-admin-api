@@ -14,12 +14,14 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.repository.CourseRepository;
+import school.hei.haapi.repository.dao.CourseManagerDao;
 
 @Service
 @AllArgsConstructor
 public class CourseService {
   private final CourseRepository repository;
 
+  private final CourseManagerDao courseManagerDao;
   private List<Order> retrieveOrders(OrderDirection creditsOrder, OrderDirection codeOrder){
     List<Order> orderList = new ArrayList<>();
     if(creditsOrder != null){
@@ -33,12 +35,14 @@ public class CourseService {
     }
     return orderList;
   }
-  public List<Course> getAllCourses(OrderDirection creditsOrder, OrderDirection codeOrder,
+  public List<Course> getAllCourses(String teacherFirstName, String teacherLastName,
+                                    OrderDirection creditsOrder,
+                                    OrderDirection codeOrder,
                                     PageFromOne page,
                                     BoundedPageSize pageSize) {
     List<Order> orders = retrieveOrders(creditsOrder, codeOrder);
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(orders));
-    return repository.findAll(pageable).getContent();
+    return courseManagerDao.findCoursesByCriteria(teacherFirstName, teacherLastName, pageable);
   }
 
   public Course getCourseById(String courseId) {
