@@ -89,7 +89,7 @@ public class CourseIT {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         TeachingApi api = new TeachingApi(student1Client);
 
-        List<Course> actualCourses = api.getCourses(1,10);
+        List<Course> actualCourses = api.getCourses(null, null,"ONE", null, null, null);
 
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
@@ -100,7 +100,7 @@ public class CourseIT {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
         TeachingApi api = new TeachingApi(teacher1Client);
 
-        List<Course> actualCourses = api.getCourses(1,10);
+        List<Course> actualCourses = api.getCourses(null, null,"ONE", null, null, null);
 
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
@@ -111,10 +111,25 @@ public class CourseIT {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         TeachingApi api = new TeachingApi(manager1Client);
 
-        List<Course> actualCourses = api.getCourses(1,10);
+        List<Course> actualCourses = api.getCourses(null, null,"ONE", null, null, null);
 
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
+    }
+
+    @Test
+    void read_course_with_criteria_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+
+        List<Course> actualByFirstName = api.getCourses(null, null,"ONE", null, null, null);
+        List<Course> actualBylastName = api.getCourses(null, null,null, "TEACH", null, null);
+
+        assertTrue(actualByFirstName.contains(course1()));
+        assertEquals(1, actualByFirstName.size());
+
+        assertTrue(actualBylastName.contains(course2()));
+        assertEquals(2, actualBylastName.size());
     }
 
     @Test

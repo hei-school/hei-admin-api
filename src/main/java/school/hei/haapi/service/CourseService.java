@@ -43,6 +43,19 @@ public class CourseService {
         courseStudentRepository.save(courseStudent);
     }
 
+    public List<Course> getByCriteria(PageFromOne page, BoundedPageSize pageSize, String firstName, String lastName) {
+        Pageable pageable = PageRequest.of(
+                page.getValue() - 1,
+                pageSize.getValue()
+        );
 
-
+        if (firstName != null && lastName != null) {
+            return repository.getByCriteria(firstName, lastName, pageable);
+        }else if (firstName == null && lastName != null) {
+            return repository.getByLastName(lastName, pageable);
+        } else if(firstName != null && lastName == null){
+            return repository.getByFirstName(firstName, pageable);
+        }
+        return repository.findAll(pageable).toList();
+    }
 }
