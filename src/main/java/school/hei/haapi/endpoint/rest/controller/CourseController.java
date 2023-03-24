@@ -25,10 +25,11 @@ public class CourseController {
       @RequestParam(name = "code" ,required = false) String code,
       @RequestParam(name = "name" ,required = false) String name,
       @RequestParam(name = "teacher_first_name" ,required = false) String teacherFirstName,
-      @RequestParam(name = "teacher_last_name" ,required = false) String teacherLasatName,
+      @RequestParam(name = "teacher_last_name" ,required = false) String teacherLastName,
       @RequestParam(name = "credits", required = false) Integer credits
   ) {
-    return courseService.getAllCourses(page, pageSize).stream().map(courseMapper::toRest)
+    return courseService.getAllCourses(page, pageSize, code, name, teacherFirstName,
+            teacherLastName, credits).stream().map(courseMapper::toRest)
         .collect(Collectors.toUnmodifiableList());
   }
 }

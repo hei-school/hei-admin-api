@@ -26,14 +26,4 @@ public class CourseMapper {
         .mainTeacher(userMapper.toRestTeacher(domain.getTeacher()));
   }
 
-  public school.hei.haapi.model.Course toDomain(CrupdateCourse rest){
-    return school.hei.haapi.model.Course.builder()
-        .idCourse(rest.getId())
-        .teacher(userRepository.getById(rest.getMainTeacherId()))
-        .code(rest.getCode())
-        .name(rest.getName())
-        .credits(rest.getCredits())
-        .totalHours(rest.getTotalHours())
-        .build();
-  }
 }

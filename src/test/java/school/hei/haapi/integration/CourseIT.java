@@ -77,13 +77,55 @@ class CourseIT {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  Course course1(){
+  Course course1() {
     return new Course()
         .id("course1_id")
         .code("PROG1")
         .name("Algorithme et structure de données")
         .credits(10)
         .totalHours(200)
+        .mainTeacher(new Teacher()
+            .id("teacher4_id")
+            .status(EnableStatus.ENABLED)
+            .ref("TCR21004")
+            .entranceDatetime(Instant.parse("2021-10-09T08:28:24.00Z"))
+            .sex(Teacher.SexEnum.M)
+            .address("Adr 4")
+            .birthDate(LocalDate.parse("1990-01-02"))
+            .lastName("Ramarozaka")
+            .firstName("Tokimahery")
+            .phone("0322411126")
+            .email("test+tokimahery@hei.school"));
+  }
+
+  Course course2() {
+    return new Course()
+        .id("course2_id")
+        .code("PROG3")
+        .name("POO avancée")
+        .credits(10)
+        .totalHours(200)
+        .mainTeacher(new Teacher()
+            .id("teacher5_id")
+            .status(EnableStatus.ENABLED)
+            .ref("TCR21005")
+            .entranceDatetime(Instant.parse("2021-10-09T08:28:24.00Z"))
+            .sex(Teacher.SexEnum.M)
+            .address("Adr 4")
+            .birthDate(LocalDate.parse("1990-01-02"))
+            .lastName("Andriamahery")
+            .firstName("Ryan")
+            .phone("0322411126")
+            .email("test+teacher5@hei.school"));
+  }
+
+  Course course3() {
+    return new Course()
+        .id("course3_id")
+        .code("WEB1")
+        .name("Interface homme machine")
+        .credits(8)
+        .totalHours(150)
         .mainTeacher(new Teacher()
             .id("teacher4_id")
             .status(EnableStatus.ENABLED)
@@ -105,13 +147,52 @@ class CourseIT {
   }
 
   @Test
-  void student_get_courses_filter_by_first_name_ok() throws ApiException{
+  void student_get_courses_without_filter_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
-    List<Course> courses = api.getCourses(1,15, null, null,null, null, null) ;
 
-    assertEquals(courses.get(0), course1());
+    List<Course> courses = api.getCourses(1, 15, null, null, null, null, null);
+
     assertTrue(courses.contains(course1()));
+    assertTrue(courses.contains(course2()));
+    assertTrue(courses.contains(course3()));
+  }
+
+  @Test
+  void student_get_courses_filter_by_teacher_first_name_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+
+    List<Course> course1 = api.getCourses(1, 15, null, null, null, "Tokimahery", null);
+    List<Course> course2 = api.getCourses(1, 15, null, null, null, "Ryan", null);
+
+    assertTrue(course1.contains(course1()));
+    assertTrue(course1.contains(course3()));
+    assertTrue(course2.contains(course2()));
+  }
+
+  @Test
+  void student_get_courses_filter_by_teacher_partial_first_name_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+
+    List<Course> courses = api.getCourses(1, 15, null, null, null, "Tok", null);
+
+    assertTrue(courses.contains(course1()));
+    assertTrue(courses.contains(course3()));
+    assertFalse(courses.contains(course2()));
+  }
+
+  @Test
+  void student_get_courses_filter_by_teacher_first_name_and_last_name() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+
+    List<Course> courses = api.getCourses(1, 15, null, null, null, "MahEry", "mahery");
+
+    courses.contains(course1());
+    courses.contains(course2());
+    courses.contains(course3());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
