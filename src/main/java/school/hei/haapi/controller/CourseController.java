@@ -1,82 +1,53 @@
-package school.hei.haapi.controller;
+package school.hei.haapi.endpoint.rest.controller;
 
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.web.bind.annotation.*;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
+import school.hei.haapi.endpoint.rest.model.CodeOrder;
 import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CourseStatus;
-import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
-import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
+import school.hei.haapi.endpoint.rest.model.CreditsOrder;
 import school.hei.haapi.model.BoundedPageSize;
+
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.CourseFollowedRest;
-import school.hei.haapi.service.CourseFilter;
 import school.hei.haapi.service.CourseService;
+
+import java.util.stream.Collectors;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 @RestController
 @AllArgsConstructor
 public class CourseController {
-
   private final CourseService courseService;
   private final CourseMapper courseMapper;
 
   @GetMapping("/courses")
-  public List<Course> getAllCourses(
-      @RequestParam(required = false) PageFromOne page,
-      @RequestParam(name = "page_size", required = false) BoundedPageSize pageSize,
-      @RequestParam(required = false) String code,
-      @RequestParam(required = false) String name,
-      @RequestParam(required = false) Integer credits,
-      @RequestParam(name = "teacher_first_name", required = false) String teacherFirstName,
-      @RequestParam(name = "teacher_last_name", required = false) String teacherLastName
-
+  public List<Course> getAllCourse (
+          @RequestParam(required = false, defaultValue="1") PageFromOne page,
+          @RequestParam(required = false,name = "page_size",defaultValue = "15") BoundedPageSize pageSize,
+          @RequestParam(required = false,name = "code") String code,
+          @RequestParam(required = false, name = "credits_order") CourseService.OrderBy creditsOrder,
+          @RequestParam(required = false, name = "code_order") CourseService.OrderBy codeOrder,
+          @RequestParam(required = false, name = "teacher_first_name") String teacherFirstName,
+          @RequestParam(required = false, name = "teacher_last_name") String teacherLastName
   ) {
-    CourseFilter filter = CourseFilter.builder()
-            .code(code)
-            .name(name)
-            .credits(credits)
-            .teacherFirstName(teacherFirstName)
-            .teacherLastName(teacherLastName)
-            .build();
-    return courseService.getAllCourses(filter, page, pageSize).stream().map(courseMapper::toRest)
-        .collect(Collectors.toUnmodifiableList());
+    return courseService.getAll(page, pageSize, code, creditsOrder, codeOrder,teacherFirstName,teacherLastName)
+            .stream().map(courseMapper::toRestCourse)
+            .collect(Collectors.toUnmodifiableList());
   }
 
-  @GetMapping("/students/{student_id}/courses")
-  public List<Course> getCourseFollowedByOneStudent(
-      @PathVariable(name = "student_id") String studentId,
-      @RequestParam(name = "status", required = false, defaultValue = "LINKED") CourseStatus status
-  ) {
-    return courseService.getCourseFollowedByOneStudent(studentId, status).stream()
-        .map(courseMapper::toRest).collect(Collectors.toUnmodifiableList());
-  }
-
-  @PutMapping("/courses")
-  public List<Course> crupdateCourse(
-      @RequestBody List<CrupdateCourse> toCrupdate){
-    return courseService.crupdateCourse(toCrupdate).stream().map(
-        courseMapper::toRest
-    ).collect(Collectors.toUnmodifiableList());
-  }
-
-  @PutMapping("/students/{student_id}/courses")
-  public List<Course> updateStudentCourseLink(
-          @PathVariable(name = "student_id") String studentId ,
-          @RequestBody List <UpdateStudentCourse> courseToUpdate
-          ){
-    return courseService.updateStudentCourseLink(courseToUpdate.stream().map(
-        rest -> courseMapper.toDomain(rest, studentId)
-        ).collect(Collectors.toUnmodifiableList()), studentId)
-            .stream()
-            .map(courseMapper::toRest).collect(Collectors.toUnmodifiableList());
+  @PutMapping(value = "/courses")
+  public List<Course> createOrUpdateCourses(@RequestBody List<CrupdateCourse> toWrite) {
+    var saved = courseService.saveAll(toWrite.stream()
+            .map(courseMapper::toDomain)
+            .collect(toUnmodifiableList()));
+    return saved.stream()
+            .map(courseMapper::toRest)
+            .collect(toUnmodifiableList());
   }
 }
