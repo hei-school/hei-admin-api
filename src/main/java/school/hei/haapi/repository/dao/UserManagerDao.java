@@ -16,7 +16,6 @@ import java.util.List;
 @AllArgsConstructor
 public class UserManagerDao {
   private EntityManager entityManager;
-
   public List<User> findByCriteria(User.Role role, String ref, String firstName, String lastName,
                                    Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();

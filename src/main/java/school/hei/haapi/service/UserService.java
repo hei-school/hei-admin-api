@@ -54,11 +54,9 @@ public class UserService {
             .userId(user.getId())
             .email(user.getEmail()));
   }
-
   public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
     return getByCriteria(role, "", "", "", page, pageSize);
   }
-
   public List<User> getByCriteria(
       User.Role role, String firstName, String lastName, String ref,
       PageFromOne page, BoundedPageSize pageSize) {
