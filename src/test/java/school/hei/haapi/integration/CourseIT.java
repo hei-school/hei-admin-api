@@ -202,13 +202,13 @@ class CourseIT {
   }
 
   @Test
-  void course_read_by_fiter_and_sort_and_pagination_ok() throws ApiException {
+  void course_read_by_filter_and_sort_and_pagination_ok() throws ApiException {
     ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teachingClient);
 
-    List<Course> actual = api.getCourses(1, 1,"PROG",null,null,"MAhEry","mahery","DESC","ASC");
-    List<Course> actual2 = api.getCourses(2, 1,"PROG",null,null,"MAhEry","mahery","DESC","ASC");
-    List<Course> actual3 = api.getCourses(1, 15,"PROG",null,null,null,"mahery","DESC","ASC");
+    List<Course> actual = api.getCourses(1, 1,"PROG",null,null,"MAhEry","mahery",OrderType.DESC,OrderType.ASC);
+    List<Course> actual2 = api.getCourses(2, 1,"PROG",null,null,"MAhEry","mahery",OrderType.DESC,OrderType.ASC);
+    List<Course> actual3 = api.getCourses(1, 15,"PROG",null,null,null,"mahery",OrderType.DESC,OrderType.ASC);
 
     assertTrue(actual.contains(course()));
     assertTrue(actual2.contains(course2()));
