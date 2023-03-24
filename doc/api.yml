@@ -389,50 +389,51 @@ paths:
           schema:
             $ref: '#/components/schemas/PageSize'
         - name: code
-            in: query
-            description: Set value to 15 by default if null is provided
-            schema:
-              type: string
-              example: SYS2
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            type: string
+            example: SYS2
         - name: name
-            in: query
-            description: Filter by name
-            schema:
-              type: string
-              example: Algorithmics
+          in: query
+          description: Filter by name
+          schema:
+            type: string
+            example: Algorithmics
         - name: credits
-            in: query
-            description: Filter by credits
-            schema:
-              type: integer
-              example: 10
+          in: query
+          description: Filter by credits
+          schema:
+            type: integer
+            example: 10
         - name: teacher_first_name
-            in: query
-            description: Filter by teacher firstname
-            schema:
-              type: string
-              example: maHeRY
+          in: query
+          description: Filter by teacher firstname
+          schema:
+            type: string
+            example: maHeRY
         - name: teacher_last_name
-            in: query
-            description: Filter by teacher lastname
-              type: string
-              example: maHeRY
+          in: query
+          description: Filter by teacher lastname
+          schema:
+            type: string
+            example: maHeRY
         - name: code_order
-            in: query
-            description: Sort by code
-            schema:
-              type: string
-              enum:
-                - ASC
-                - DESC
+          in: query
+          description: Sort by code
+          schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
         - name: credits_order
-            in: query
-            description: Sort by credits
-            schema:
-              type: string
-              enum:
-                - ASC
-                - DESC
+          in: query
+          description: Sort by credits
+          schema:
+            type: string
+            enum:
+              - ASC
+              - DESC
       responses:
         '200':
           description: List of all courses
