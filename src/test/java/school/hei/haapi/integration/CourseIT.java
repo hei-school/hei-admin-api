@@ -141,6 +141,35 @@ class CourseIT {
   }
 
 
+
+
+
+  @Test
+  void teacher_read_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+
+    List<Course> actual = getCoursesWithNoCriteria(api);
+
+    assertTrue(actual.contains(course1()));
+    assertTrue(actual.contains(course2()));
+    assertTrue(actual.contains(course3()));
+  }
+
+
+  @Test
+  void sort_and_order_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+
+    List<Course> actual =
+            api.getCourses(1, 25, null, null, null, null, null, ASC, ASC);
+
+    assertEquals(actual.get(0), course1());
+    assertEquals(actual.get(1), course3());
+    assertEquals(actual.get(2), course2());
+  }
+
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
