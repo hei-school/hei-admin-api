@@ -1,13 +1,11 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.response.CoursesResponse;
 import school.hei.haapi.endpoint.rest.response.CreateCourses;
+import school.hei.haapi.model.Course;
 import school.hei.haapi.service.CourseService;
 
 import java.util.HashMap;
@@ -40,13 +38,16 @@ public class CourseController {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    @GetMapping("/courses/code={code}")
-    public Map<String, Object> getCourseInfo(@PathVariable String code) {
-        Object[] result = courseService.findNameCreditsAndTeacherIdByCode(code);
-        Map<String, Object> courseInfo = new HashMap<>();
-        courseInfo.put("name", result[0]);
-        courseInfo.put("credits", result[1]);
-        courseInfo.put("teacher_id", result[2]);
-        return courseInfo;
+    @GetMapping("/courses")
+    public List<CoursesResponse> getCoursesByFilter(@RequestParam(required = false) String name, @RequestParam(required = false) String code) {
+        List<Course> courses;
+        if (name != null) {
+            courses = courseService.getCoursesByName(name);
+        } else if (code != null) {
+            courses = courseService.getCoursesByCode(code);
+        } else {
+            courses = courseService.getAllCourses();
+        }
+        return courses.stream().map(courseMapper::responseToRest).collect(Collectors.toList());
     }
 }

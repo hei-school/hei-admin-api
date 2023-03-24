@@ -20,7 +20,11 @@ public class CourseService {
         return courseRepository.saveAll(toUpdate);
     }
 
-    public Object[] findNameCreditsAndTeacherIdByCode(String code) {
-        return courseRepository.findNameCreditsAndTeacherIdByCode(code);
+    public List<Course> getCoursesByCode(String code) {
+        return courseRepository.findByCodeContainingIgnoreCase(code);
+    }
+
+    public List<Course> getCoursesByName(String name) {
+        return courseRepository.findByNameContainingIgnoreCase(name);
     }
 }

@@ -5,9 +5,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import school.hei.haapi.model.Course;
 
+import java.util.List;
+
 public interface CourseRepository extends JpaRepository<Course,String> {
 
-    @Query("SELECT c.name, c.credits, c.main_teacher.id FROM Course c WHERE c.code = :code")
-    Object[] findNameCreditsAndTeacherIdByCode(@Param("code") String code);
+    @Query("SELECT c FROM Course c WHERE LOWER(c.code) LIKE LOWER(concat('%', :code, '%'))")
+    List<Course> findByCodeContainingIgnoreCase(@Param("code") String code);
+
+    @Query("SELECT c FROM Course c WHERE LOWER(c.name) LIKE LOWER(concat('%', :name,'%'))")
+    List<Course> findByNameContainingIgnoreCase(@Param("name") String name);
 
 }
