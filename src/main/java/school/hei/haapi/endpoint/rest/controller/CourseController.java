@@ -19,12 +19,10 @@ public class CourseController {
     private final CourseMapper courseMapper;
     @GetMapping("/courses")
     public List<Course> getCourses(@RequestParam(name = "code",required = false, defaultValue = "ASC") String code,
-                                   @RequestParam(name = "name") String name,
+                                   @RequestParam(name = "name",required = false) String name,
                                    @RequestParam(name = "credits",required = false, defaultValue = "ASC") Integer credits,
-                                   @RequestParam(name = "teacher_first_name") String teacherFirstName,
-                                   @RequestParam(name = "teacher_last_name") String teacherLastName) {
-        Sort sortCredits = credits.equals("DESC") ? Sort.by("credits").descending() : Sort.by("credits").ascending();
-        Sort sortCode = code.equals("DESC") ? Sort.by("code").descending() : Sort.by("code").ascending();
+                                   @RequestParam(name = "teacher_first_name",required = false) String teacherFirstName,
+                                   @RequestParam(name = "teacher_last_name",required = false) String teacherLastName) {
         List<school.hei.haapi.model.Course> filter = courseService.getCourses(code, name, credits, teacherFirstName, teacherLastName);
         return filter.stream()
                 .map(courseMapper::toRest)
