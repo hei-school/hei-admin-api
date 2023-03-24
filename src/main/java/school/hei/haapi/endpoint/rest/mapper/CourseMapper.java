@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.model.Course;
 
@@ -8,6 +9,7 @@ import school.hei.haapi.repository.UserRepository;
 
 @Component
 @AllArgsConstructor
+@EqualsAndHashCode
 public class CourseMapper {
     private final UserMapper userMapper;
   private final UserRepository userRepository;

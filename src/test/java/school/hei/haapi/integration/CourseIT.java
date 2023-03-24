@@ -1,41 +1,31 @@
 package school.hei.haapi.integration;
 
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.com.fasterxml.jackson.core.type.TypeReference;
-import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CodeOrder;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CreditsOrder;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static school.hei.haapi.endpoint.rest.model.CodeOrder.ASC;
 import static school.hei.haapi.integration.TeacherIT.teacher1;
 import static school.hei.haapi.integration.TeacherIT.teacher2;
 import static school.hei.haapi.integration.conf.TestUtils.*;
@@ -102,41 +92,15 @@ public class CourseIT {
     public void setUp() {
         setUpCognito(cognitoComponentMock);
     }
-    @Autowired
-    private MockMvc mockMvc;
-    @Test
-    public void testGetAllCourse() throws Exception {
-        List<Course> expected = Arrays.asList(
-                course1(),
-                course2(),
-                course3()
-        );
-
-        MvcResult result = mockMvc.perform(get("/courses")
-                        .param("page", "1")
-                        .param("page_size", "2"))
-                .andExpect(status().isOk())
-                .andReturn();
-
-        // Parse the response JSON into a list of RestCourse objects
-        ObjectMapper mapper = new ObjectMapper();
-        List<Course> actual = mapper.readValue(result.getResponse().getContentAsString(),
-                new TypeReference<List<Course>>() {});
-
-        // Verify the output
-        assertEquals(expected, actual);
-    }
-
     @Test
     void student_read_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         TeachingApi api = new TeachingApi(student1Client);
+        List<Course> expectedCourses = Arrays.asList(course1(), course2(),course3());
 
-        List<Course> actualCourses = api.getCourses(1,15,ASC,null,null,null,null);
-        assertTrue(actualCourses.contains(course1()));
-        assertTrue(actualCourses.contains(course2()));
-        assertTrue(actualCourses.contains(course3()));
-
+        List<Course> actualCourses = api.getCourses(1,15,null,
+                null,null,null,null);
+        assertEquals(expectedCourses, actualCourses);
     }
 
     @Test
@@ -144,11 +108,13 @@ public class CourseIT {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
         TeachingApi api = new TeachingApi(teacher1Client);
 
-        List<Course> actualCourses = api.getCourses(1,10,null,
-                null,null,null,null);
+        List<Course> expectedCourses = Arrays.asList(course2(), course1());
 
-        assertTrue(actualCourses.contains(course1()));
-        assertTrue(actualCourses.contains(course2()));
+        List<Course> actualCourses = api.getCourses(
+                1, 15, CodeOrder.DESC, "a", CreditsOrder.ASC, "o",
+                "teacher");
+
+        assertEquals(expectedCourses, actualCourses);
     }
 
     @Test
@@ -156,11 +122,12 @@ public class CourseIT {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         TeachingApi api = new TeachingApi(manager1Client);
 
-        List<Course> actualCourses = api.getCourses(1,10,null,
-                null,null,null,null);
+        List<Course> expectedCourses = Arrays.asList(course1());
 
-        assertTrue(actualCourses.contains(course1()));
-        assertTrue(actualCourses.contains(course2()));
+        List<Course> actualCourses = api.getCourses(1,10,null,
+                "Algorithmique",null,null,null);
+
+        assertEquals(expectedCourses, actualCourses);
     }
 
     @Test
