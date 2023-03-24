@@ -100,5 +100,17 @@ public class CourseIT {
             assertTrue(actualCourse.contains(course1()));
         }
 
+        @Test
+        void course_read_ko() {
+            ApiClient teach1Client = anApiClient(TEACHER1_TOKEN);
+            TeachingApi api = new TeachingApi(teach1Client);
+
+            assertThrowsApiException(
+                    "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Bad request\"}",
+                    () -> api.getCourses(1, 6, "PROG8", "Algorithms", 13, "One", "Teacher", Order.DESC, Order.DESC));
+
+
+        }
+
     }
 }
