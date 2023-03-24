@@ -11,16 +11,15 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CodeOrder;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CreditsOrder;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-import java.time.Instant;
-import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -64,6 +63,16 @@ public class CourseIT {
         course.setCredits(2);
         course.setTotalHours(20);
         course.setMainTeacher(teacher2());
+        return course;
+    }
+    public static Course course3(){
+        Course course = new Course();
+        course.setId("course3_id");
+        course.setCode("WEB1");
+        course.setName("Interface");
+        course.setCredits(4);
+        course.setTotalHours(40);
+        course.setMainTeacher(teacher1());
         return course;
     }
 
@@ -124,12 +133,27 @@ public class CourseIT {
 
         List<Course> actualByFirstName = api.getCourses(null, null,"ONE", null, null, null);
         List<Course> actualBylastName = api.getCourses(null, null,null, "TEACH", null, null);
+        List<Course> actualCodeDesc = api.getCourses(null, null,null, null, null, CodeOrder.valueOf("DESC"));
+        List<Course> actualCodeAsc = api.getCourses(null, null,null, null, null, CodeOrder.valueOf("ASC"));
+        List<Course> actualCreditsDesc = api.getCourses(null, null,null, null, CreditsOrder.valueOf("DESC"), null);
+        List<Course> actualCreditsAsc = api.getCourses(null, null,null, null, CreditsOrder.valueOf("ASC"), null);
+        List<Course> actualMultiple = api.getCourses(1, 2, "ONE", null, CreditsOrder.valueOf("DESC"), null);
 
         assertTrue(actualByFirstName.contains(course1()));
-        assertEquals(1, actualByFirstName.size());
+        assertEquals(2, actualByFirstName.size());
 
         assertTrue(actualBylastName.contains(course2()));
-        assertEquals(2, actualBylastName.size());
+        assertEquals(3, actualBylastName.size());
+
+        assertEquals(Arrays.asList(course3(),course2(),course1()), actualCodeDesc);
+
+        assertEquals(Arrays.asList(course1(),course2(),course3()), actualCodeAsc);
+
+        assertEquals(Arrays.asList(course2(), course1(), course3()), actualCreditsAsc);
+
+        assertEquals(Arrays.asList(course3(),course1(),course2()), actualCreditsDesc);
+
+        assertEquals(Arrays.asList(course3(),course1()), actualMultiple);
     }
 
     @Test
