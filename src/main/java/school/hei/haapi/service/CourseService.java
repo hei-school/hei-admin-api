@@ -15,32 +15,24 @@ import java.util.List;
 public class CourseService {
     private final CourseRepository courseRepository;
 
-    public List<Course> getAllCourse (){
+    public List<Course> getAllCoursesBy (PageFromOne page,BoundedPageSize pageSize,String teacherFirstName,String teacherLastName,String code,String name,Integer credits){
+        Pageable pageable = PageRequest.of(page.getValue() -1 ,pageSize.getValue());
+        if(teacherFirstName != null){
+            return courseRepository.getCoursesByMainTeacherFirstName(teacherFirstName, pageable);
+        }
+        else if(teacherLastName != null){
+            return courseRepository.getCoursesByMainTeacherLastName(teacherLastName, pageable);
+        }
+        else if(code != null){
+            return courseRepository.getCoursesByCodeContainingIgnoreCase(code, pageable);
+        }
+        else if(name != null){
+            return courseRepository.getCoursesByNameContainingIgnoreCase(name, pageable);
+        }
+        else if(credits != null){
+            return courseRepository.getCoursesByCredits(credits, pageable);
+        }
         return courseRepository.findAll();
-    }
-    public List<Course> getAllCoursesByTeacherFirstName (PageFromOne page,BoundedPageSize pageSize,String teacherFirstName){
-        Pageable pageable = PageRequest.of(page.getValue() -1 ,pageSize.getValue());
-
-        return courseRepository.getCoursesByMainTeacherFirstName(teacherFirstName, pageable);
-    }
-    public List<Course> getAllCourseByTeacherLastName (PageFromOne page,BoundedPageSize pageSize,String teacherLastName){
-        Pageable pageable = PageRequest.of(page.getValue() -1 ,pageSize.getValue());
-        return courseRepository.getCoursesByMainTeacherLastName(teacherLastName, pageable);
-    }
-
-    public List<Course> getAllCourseByCode (PageFromOne page,BoundedPageSize pageSize,String code){
-        Pageable pageable = PageRequest.of(page.getValue() -1 ,pageSize.getValue());
-        return courseRepository.getCoursesByCodeContainingIgnoreCase(code, pageable);
-    }
-
-    public List<Course> getAllCourseByName(PageFromOne page,BoundedPageSize pageSize,String name){
-        Pageable pageable = PageRequest.of(page.getValue() -1 ,pageSize.getValue());
-        return courseRepository.getCoursesByNameContainingIgnoreCase(name, pageable);
-    }
-
-    public List<Course> getAllCourseByCredits(PageFromOne page,BoundedPageSize pageSize,Integer credits){
-        Pageable pageable = PageRequest.of(page.getValue() -1 ,pageSize.getValue());
-        return courseRepository.getCoursesByCredits(credits, pageable);
     }
 
 }
