@@ -40,7 +40,7 @@ public class UserService {
 
   @Transactional
   public List<User> saveAll(List<User> users) {
-    userValidator.accept(users);
+    userValidator.accept((school.hei.haapi.endpoint.rest.model.User) users);
     List<User> savedUsers = userRepository.saveAll(users);
     eventProducer.accept(users.stream()
         .map(this::toTypedEvent)

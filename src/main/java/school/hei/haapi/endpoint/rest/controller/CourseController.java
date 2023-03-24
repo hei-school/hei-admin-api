@@ -23,11 +23,13 @@ public class CourseController {
     public List<Course> getCourses(
             @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
             @RequestParam(value = "code", required = false, defaultValue = "") String code,
+            @RequestParam(value = "codeOrder", required = false, defaultValue = "DESC") String codeOrder,
             @RequestParam(value = "name", required = false, defaultValue = "") String name,
             @RequestParam(value = "credits", required = false, defaultValue = "") Integer credits,
+            @RequestParam(value = "creditsOrder", required = false, defaultValue = "DESC") String creditsOrder,
             @RequestParam(value = "teacher_first_name", required = false, defaultValue = "") String teacher_first_name,
             @RequestParam(value = "teacher_last_name", required = false, defaultValue = "") String teacher_last_name){
-        return  courseService.getByCriteria(code, name, credits, teacher_last_name, teacher_first_name,page, pageSize)
+        return  courseService.getByCriteria(code, codeOrder, name, credits, creditsOrder, teacher_last_name, teacher_first_name,page, pageSize)
                 .stream()
                 .map(courseMapper::toRest)
                 .collect(Collectors.toUnmodifiableList());

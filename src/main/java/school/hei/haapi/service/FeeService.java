@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,6 +14,7 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
+import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
@@ -31,6 +33,7 @@ public class FeeService {
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
+  private final FeeMapper feeMapper;
 
   private final EventProducer eventProducer;
 
@@ -44,7 +47,7 @@ public class FeeService {
 
   @Transactional
   public List<Fee> saveAll(List<Fee> fees) {
-    feeValidator.accept(fees);
+    feeValidator.accept(fees.stream().map(feeMapper::toRestFee).collect(Collectors.toUnmodifiableList()));
     return feeRepository.saveAll(fees);
   }
 
