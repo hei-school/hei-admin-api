@@ -101,7 +101,7 @@ public class CourseIT {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         UsersApi api = new UsersApi(student1Client);
 
-        List<Course> actual = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
+        List<Course> actual = (List<Course>) api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
 
     }
 
@@ -112,7 +112,7 @@ public class CourseIT {
 
         List<Course> expectCours = new ArrayList<>();
         expectCours.add(0,course1());
-        List<Course> actualCours = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
+        List<Course> actualCours = (List<Course>) api.getStudentCoursesById(STUDENT1_ID, CourseStatus.LINKED);
         assertEquals(actualCours, expectCours);
     }
 
@@ -123,7 +123,7 @@ public class CourseIT {
 
         List<Course> expectCours = new ArrayList<>();
         expectCours.add(0,course2());
-        List<Course> actualCours = api.getStudentCoursesById(STUDENT1_ID, CourseStatus.UNLINKED);
+        List<Course> actualCours = (List<Course>) api.getStudentCoursesById(STUDENT1_ID, CourseStatus.UNLINKED);
         assertEquals(actualCours, expectCours);
     }
 
@@ -134,7 +134,7 @@ public class CourseIT {
 
         List<Course> expectCours = new ArrayList<>();
         expectCours.add(0,course1());
-        List<Course> actualCours = api.getStudentCoursesById(STUDENT1_ID, null);
+        List<Course> actualCours = (List<Course>) api.getStudentCoursesById(STUDENT1_ID, null);
         assertEquals(actualCours, expectCours);
     }
 

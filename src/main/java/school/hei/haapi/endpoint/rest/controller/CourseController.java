@@ -31,9 +31,17 @@ public class CourseController {
                                    @RequestParam(value = "credits", required = false) Integer credits,
                                    @RequestParam(value = "teacher_first_name", required = false,
                                            defaultValue = "")
-                                   String teacherFirstName)
-                                    {
-        return courseService.findByCriteria(page, pageSize, code, name, credits, teacherFirstName)
-                .stream().map(courseMapper::toRest).collect(toUnmodifiableList());
+                                   String teacherFirstName,
+                                   @RequestParam(value = "teacher_last_name", required = false, defaultValue = "")String teacherLastName,
+                                   @RequestParam(value = "codeOrder", required = false,
+                                           defaultValue = "ASC")
+                                       String codeOrder,
+                                   @RequestParam(value = "creditsOrder", required = false,
+                                           defaultValue = "ASC")
+                                       String creditsOrder){
+        return courseService.findByCriteria(page, pageSize, code, name, credits, teacherFirstName, teacherLastName)
+                .stream()
+                .map(courseMapper::toRest)
+                .collect(toUnmodifiableList());
     }
 }

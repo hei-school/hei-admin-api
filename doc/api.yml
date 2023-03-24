@@ -388,6 +388,41 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: code
+          in: query
+          description: filter by course code
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: filter by course name
+          schema:
+            type: string
+        - name: credits
+          in: query
+          description: filter by course credits
+          schema:
+            type: integer
+        - name: teacher_first_name
+          in: query
+          description: filter by course teacher_first_name
+          schema:
+            type: string
+        - name: teacher_last_name
+          in: query
+          description: filter by course teacher_last_name
+          schema:
+            type: string
+        - name: codeOrder
+          in: query
+          description: order by code, default ASC
+          schema:
+            $ref: "#/components/schemas/Direction"
+        - name: creditsOrder
+          in: query
+          description: order by credit, default ASC
+          schema:
+            $ref: "#/components/schemas/Direction"
       responses:
         '200':
           description: List of all courses
@@ -1159,6 +1194,11 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    Direction:
+      type: string
+      enum:
+        - ASC
+        - DESC
     Page:
       type: integer
       description: Start at `1`
