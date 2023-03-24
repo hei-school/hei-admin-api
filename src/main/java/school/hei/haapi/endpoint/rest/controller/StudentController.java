@@ -58,7 +58,7 @@ public class StudentController {
         .collect(toUnmodifiableList());
   }
   @PutMapping("/students/{student_id}/courses")
-  public List<StudentCoursesResponse> linkOrUnlinkCoursesToStudent(@PathVariable String student_id,
+  public List<StudentCoursesResponse> UpdateSpecificStudentCourse(@PathVariable String student_id,
                                                                    @RequestBody List<UpdateCoursesToStudent> toUpdate){
     return studentCoursesService.updateCourseStatusToStudent(student_id, toUpdate)
             .stream()
@@ -66,10 +66,11 @@ public class StudentController {
             .collect(toUnmodifiableList());
   }
   @GetMapping("/students/{student_id}/courses")
-  public List<StudentCoursesResponse> linkOrUnlinkCoursesToStudent(@PathVariable String student_id ){
+  public List<StudentCoursesResponse> ReadSpecificStudentCourse(@PathVariable String student_id ){
     return studentCoursesService.getSpecificStudentCourses(student_id)
             .stream()
             .map(courseMapper::toRest)
             .collect(toUnmodifiableList());
   }
+
 }

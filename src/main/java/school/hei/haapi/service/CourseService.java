@@ -19,4 +19,25 @@ public class CourseService {
     public List<Course> updateOrCreateCourses(List<Course> toUpdate) {
         return courseRepository.saveAll(toUpdate);
     }
+
+    public List<Course> getCoursesByCode(String code) {
+        return courseRepository.findByCodeContainingIgnoreCase(code);
+    }
+
+    public List<Course> getCoursesByName(String name) {
+        return courseRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    public List<Course> getCoursesByCredits(int credits) {
+        return courseRepository.findAllByCredits(credits);
+    }
+
+    public List<Course> getCoursesByMainTeacherFirstName(String firstName) {
+        return courseRepository.findByMainTeacherFirstNameContainingIgnoreCase(firstName);
+    }
+
+    public List<Course> getCoursesByMainTeacherLastName(String lastName) {
+        return courseRepository.findByMainTeacherLastNameContainingIgnoreCase(lastName);
+    }
+
 }
