@@ -30,6 +30,8 @@ public class UserService {
 
   private final UserManagerDao userManagerDao;
 
+  private final PromotionService promotionService;
+
   public User getById(String userId) {
     return userRepository.getById(userId);
   }
@@ -38,35 +40,57 @@ public class UserService {
     return userRepository.getByEmail(email);
   }
 
+  public void crUpdateUsersPromotion(List<User> users) {
+    users.forEach(
+            user -> {
+              if (user.getRole().equals(User.Role.STUDENT)) {
+                user.getPromotions().forEach(
+                        promotion -> {
+                          if (!promotionService.existsByRange(promotion.getPromotionRange())) {
+                            promotionService.createPromotion(promotion);
+                          }
+                        }
+                );
+              }
+            }
+    );
+  }
+
   @Transactional
   public List<User> saveAll(List<User> users) {
     userValidator.accept(users);
+    crUpdateUsersPromotion(users);
     List<User> savedUsers = userRepository.saveAll(users);
     eventProducer.accept(users.stream()
-        .map(this::toTypedEvent)
-        .collect(toUnmodifiableList()));
+            .map(this::toTypedEvent)
+            .collect(toUnmodifiableList()));
     return savedUsers;
   }
 
+
   private TypedUserUpserted toTypedEvent(User user) {
     return new TypedUserUpserted(
-        new UserUpserted()
-            .userId(user.getId())
-            .email(user.getEmail()));
+            new UserUpserted()
+                    .userId(user.getId())
+                    .email(user.getEmail()));
   }
 
   public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
-    return getByCriteria(role, "", "", "", page, pageSize);
+    return getByCriteria(role, "", "", "", "", page, pageSize);
   }
 
   public List<User> getByCriteria(
-      User.Role role, String firstName, String lastName, String ref,
-      PageFromOne page, BoundedPageSize pageSize) {
+          User.Role role, String firstName, String lastName, String promotionRange, String ref,
+          PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(
-        page.getValue() - 1,
-        pageSize.getValue(),
-        Sort.by(ASC, "ref"));
-    return userManagerDao.findByCriteria(
-           role, ref, firstName, lastName, pageable);
+            page.getValue() - 1,
+            pageSize.getValue(),
+            Sort.by(ASC, "ref"));
+    if (promotionRange == null || promotionRange.equals("")) {
+      return userManagerDao.findByCriteria(
+              role, ref, firstName, lastName, pageable);
+    }
+    return userManagerDao.findByPromotionRange(role, pageable, ref, firstName, lastName,
+            promotionRange);
   }
 }

@@ -3,6 +3,7 @@ package school.hei.haapi.model;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -10,6 +11,9 @@ import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
@@ -75,6 +79,12 @@ public class User implements Serializable {
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   private Role role;
+
+  @ManyToMany
+  @JoinTable(name = "student_promotion",
+          joinColumns = {@JoinColumn(name = "user_id")},
+          inverseJoinColumns = {@JoinColumn(name = "promotion_id")})
+  private List<Promotion> promotions;
 
   @Override
   public boolean equals(Object o) {

@@ -1,18 +1,34 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.PromotionService;
+
+import static school.hei.haapi.service.PromotionService.definePromotionBeginning;
+import static school.hei.haapi.service.PromotionService.definePromotionEnd;
+import static school.hei.haapi.service.PromotionService.definePromotionName;
+import static school.hei.haapi.service.PromotionService.definePromotionRange;
 
 @Component
+@AllArgsConstructor
 public class UserMapper {
+  private final PromotionService promotionService;
+  private final PromotionMapper promotionMapper;
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
     restStudent.setId(user.getId());
+    List<school.hei.haapi.endpoint.rest.model.Promotion> restPromotions = user.getPromotions()
+            .stream()
+            .map(promotionMapper::toRest)
+            .collect(Collectors.toUnmodifiableList());
 
     restStudent.setFirstName(user.getFirstName());
     restStudent.setLastName(user.getLastName());
@@ -24,6 +40,7 @@ public class UserMapper {
     restStudent.setBirthDate(user.getBirthDate());
     restStudent.setSex(Student.SexEnum.fromValue(user.getSex().toString()));
     restStudent.setAddress(user.getAddress());
+    restStudent.setPromotion(restPromotions);
 
     return restStudent;
   }
@@ -66,35 +83,49 @@ public class UserMapper {
 
   public User toDomain(Teacher teacher) {
     return User.builder()
-        .role(User.Role.TEACHER)
-        .id(teacher.getId())
-        .firstName(teacher.getFirstName())
-        .lastName(teacher.getLastName())
-        .email(teacher.getEmail())
-        .ref(teacher.getRef())
-        .status(User.Status.valueOf(teacher.getStatus().toString()))
-        .phone(teacher.getPhone())
-        .entranceDatetime(teacher.getEntranceDatetime())
-        .birthDate(teacher.getBirthDate())
-        .sex(User.Sex.valueOf(teacher.getSex().toString()))
-        .address(teacher.getAddress())
-        .build();
+            .role(User.Role.TEACHER)
+            .id(teacher.getId())
+            .firstName(teacher.getFirstName())
+            .lastName(teacher.getLastName())
+            .email(teacher.getEmail())
+            .ref(teacher.getRef())
+            .status(User.Status.valueOf(teacher.getStatus().toString()))
+            .phone(teacher.getPhone())
+            .entranceDatetime(teacher.getEntranceDatetime())
+            .birthDate(teacher.getBirthDate())
+            .sex(User.Sex.valueOf(teacher.getSex().toString()))
+            .address(teacher.getAddress())
+            .build();
   }
 
   public User toDomain(Student student) {
+    List<school.hei.haapi.model.Promotion> promotions;
+    String range = definePromotionRange(student.getEntranceDatetime());
+    if (promotionService.existsByRange(range)) {
+      promotions = List.of(promotionService.getByRange(range));
+    } else {
+      promotions = List.of(school.hei.haapi.model.Promotion.builder()
+              .id(definePromotionName(student.getEntranceDatetime()) + "_id")
+              .promotionBegin(definePromotionBeginning(student.getEntranceDatetime()))
+              .promotionEnd(definePromotionEnd(student.getEntranceDatetime()))
+              .promotionRange(definePromotionRange(student.getEntranceDatetime()))
+              .build()
+      );
+    }
     return User.builder()
-        .role(User.Role.STUDENT)
-        .id(student.getId())
-        .firstName(student.getFirstName())
-        .lastName(student.getLastName())
-        .email(student.getEmail())
-        .ref(student.getRef())
-        .status(User.Status.valueOf(student.getStatus().toString()))
-        .phone(student.getPhone())
-        .entranceDatetime(student.getEntranceDatetime())
-        .birthDate(student.getBirthDate())
-        .sex(User.Sex.valueOf(student.getSex().toString()))
-        .address(student.getAddress())
-        .build();
+            .role(User.Role.STUDENT)
+            .id(student.getId())
+            .firstName(student.getFirstName())
+            .lastName(student.getLastName())
+            .email(student.getEmail())
+            .ref(student.getRef())
+            .status(User.Status.valueOf(student.getStatus().toString()))
+            .phone(student.getPhone())
+            .entranceDatetime(student.getEntranceDatetime())
+            .birthDate(student.getBirthDate())
+            .sex(User.Sex.valueOf(student.getSex().toString()))
+            .address(student.getAddress())
+            .promotions(promotions)
+            .build();
   }
 }

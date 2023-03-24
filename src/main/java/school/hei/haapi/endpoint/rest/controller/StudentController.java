@@ -30,25 +30,26 @@ public class StudentController {
 
   @GetMapping("/students")
   public List<Student> getStudents(
-      @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
-      @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
-      @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
-      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
-    return userService.getByCriteria(User.Role.STUDENT, firstName, lastName, ref, page, pageSize
-        ).stream()
-        .map(userMapper::toRestStudent)
-        .collect(toUnmodifiableList());
+          @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
+          @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
+          @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
+          @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
+          @RequestParam(value = "promotion_range", required = false, defaultValue = "") String promotionRange) {
+    return userService.getByCriteria(User.Role.STUDENT, firstName, lastName, promotionRange, ref, page, pageSize
+            ).stream()
+            .map(userMapper::toRestStudent)
+            .collect(toUnmodifiableList());
   }
 
   @PutMapping("/students")
   public List<Student> saveAll(@RequestBody List<Student> toWrite) {
     return userService
-        .saveAll(toWrite
+            .saveAll(toWrite
+                    .stream()
+                    .map(userMapper::toDomain)
+                    .collect(toUnmodifiableList()))
             .stream()
-            .map(userMapper::toDomain)
-            .collect(toUnmodifiableList()))
-        .stream()
-        .map(userMapper::toRestStudent)
-        .collect(toUnmodifiableList());
+            .map(userMapper::toRestStudent)
+            .collect(toUnmodifiableList());
   }
 }

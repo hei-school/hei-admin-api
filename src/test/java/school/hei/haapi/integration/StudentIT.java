@@ -21,6 +21,7 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Promotion;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -44,6 +45,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
@@ -84,8 +86,9 @@ class StudentIT {
     Instant birthday = faker.date().birthday().toInstant();
     int ageOfEntrance = 14 + (int) (Math.random() * 20);
     student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
-    student.setEntranceDatetime(birthday.plus(365L * ageOfEntrance, ChronoUnit.DAYS));
+    student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setAddress(faker.address().fullAddress());
+    student.setPromotion(List.of(promotion1()));
     return student;
   }
 
@@ -95,6 +98,24 @@ class StudentIT {
       studentList.add(someCreatableStudent());
     }
     return studentList;
+  }
+
+  public static Promotion promotion1() {
+    Promotion promotion = new Promotion();
+    promotion.setId("promotion21_id");
+    promotion.setPromotionBegin(LocalDate.of(2021, 7, 1));
+    promotion.setPromotionEnd(LocalDate.of(2022, 8, 31));
+    promotion.setPromotionRange("2021-2022");
+    return promotion;
+  }
+
+  public static Promotion promotion2() {
+    Promotion promotion = new Promotion();
+    promotion.setId("promotion22_id");
+    promotion.setPromotionBegin(LocalDate.of(2022, 7, 1));
+    promotion.setPromotionEnd(LocalDate.of(2023, 8, 31));
+    promotion.setPromotionRange("2022-2023");
+    return promotion;
   }
 
   public static Student student1() {
@@ -110,6 +131,7 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-01"));
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setAddress("Adr 1");
+    student.setPromotion(List.of(promotion1()));
     return student;
   }
 
@@ -126,6 +148,7 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
+    student.setPromotion(List.of(promotion1()));
     return student;
   }
 
@@ -142,6 +165,23 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
+    student.setPromotion(List.of(promotion1()));
+    return student;
+  }
+
+  public static Student student4() {
+    Student student = new Student();
+    student.setId("student4_id");
+    student.setFirstName("Four");
+    student.setLastName("Student");
+    student.setEmail("test+student4@hei.school");
+    student.setRef("STD21004");
+    student.setPhone("0322411125");
+    student.setStatus(EnableStatus.ENABLED);
+    student.setSex(Student.SexEnum.M);
+    student.setBirthDate(LocalDate.parse("2004-04-04"));
+    student.setEntranceDatetime(Instant.parse("2022-11-09T08:26:24.00Z"));
+    student.setAddress("Adr 4");
     return student;
   }
 
@@ -169,7 +209,7 @@ class StudentIT {
     assertThrowsForbiddenException(() -> api.getStudentById(TestUtils.STUDENT2_ID));
 
     assertThrowsForbiddenException(
-        () -> api.getStudents(1, 20, null, null, null));
+            () -> api.getStudents(1, 20, null, null, null, null));
   }
 
   @Test
@@ -178,7 +218,7 @@ class StudentIT {
     UsersApi api = new UsersApi(teacher1Client);
     Student actualStudent1 = api.getStudentById(STUDENT1_ID);
 
-    List<Student> actualStudents = api.getStudents(1, 20, null, null, null);
+    List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null);
 
     assertEquals(student1(), actualStudent1);
     assertTrue(actualStudents.contains(student1()));
@@ -206,7 +246,7 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, null, null, null);
+    List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null);
 
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
@@ -218,7 +258,42 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents = api.getStudents(1, 20, student1().getRef(),
-        student1().getFirstName(), student1().getLastName());
+            student1().getFirstName(), student1().getLastName(), null);
+
+    assertEquals(1, actualStudents.size());
+    assertTrue(actualStudents.contains(student1()));
+  }
+
+  @Test
+  void manager_read_by_promotion_range_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    List<Student> actualStudents = api.getStudents(1, 20, null,
+            null, null, promotion1().getPromotionRange());
+
+    assertEquals(6, actualStudents.size());
+    assertTrue(actualStudents.contains(student1()));
+    assertTrue(actualStudents.contains(student2()));
+  }
+
+  @Test
+  void manager_read_by_promotion_ignoring_case_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    List<Student> actualStudents = api.getStudents(1, 20, null,
+            null, null, "2021-2022");
+
+    assertEquals("2021-2022", student1().getPromotion().get(0).getPromotionRange());
+    assertEquals(6, actualStudents.size());
+  }
+
+  @Test
+  void manager_read_by_ref_and_promotion_range_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents = api.getStudents(1, 20, student1().getRef(),
+            null, null, promotion1().getPromotionRange());
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student1()));
@@ -229,7 +304,7 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, "std21001", null, null);
+    List<Student> actualStudents = api.getStudents(1, 20, "std21001", null, null, null);
 
     assertEquals("STD21001", student1().getRef());
     assertEquals(1, actualStudents.size());
@@ -241,7 +316,7 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, student1().getRef(), null, null);
+    List<Student> actualStudents = api.getStudents(1, 20, student1().getRef(), null, null, null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student1()));
@@ -252,9 +327,9 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, null, null, student2().getLastName());
+    List<Student> actualStudents = api.getStudents(1, 20, null, null, student2().getLastName(), null);
 
-    assertEquals(2, actualStudents.size());
+    assertEquals(3, actualStudents.size());
     assertTrue(actualStudents.contains(student2()));
     assertTrue(actualStudents.contains(student3()));
   }
@@ -265,7 +340,7 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents = api.getStudents(1, 20, student2().getRef(),
-        null, student2().getLastName());
+            null, student2().getLastName(), null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student2()));
@@ -275,9 +350,8 @@ class StudentIT {
   void manager_read_by_ref_and_bad_name_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-
     List<Student> actualStudents = api.getStudents(1, 20, student2().getRef(),
-        null, student1().getLastName());
+            null, student1().getLastName(), null);
 
     assertEquals(0, actualStudents.size());
     assertFalse(actualStudents.contains(student1()));
@@ -288,7 +362,7 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
     List<Student> toUpdate =
-        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));
+            api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));
     Student toUpdate0 = toUpdate.get(0);
     toUpdate0.setLastName("A new name zero");
     Student toUpdate1 = toUpdate.get(1);
@@ -302,19 +376,34 @@ class StudentIT {
   }
 
   @Test
+  void manager_write_new_student_automatically_promoted_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    api.createOrUpdateStudents(List.of(student4()));
+
+    Student actual = api.getStudentById(STUDENT4_ID);
+    Promotion actualPromotion = actual.getPromotion().get(0);
+    String expectedRange = "2022-2023";
+
+    assertEquals(promotion2(), actualPromotion);
+    assertEquals(expectedRange, actualPromotion.getPromotionRange());
+  }
+
+  @Test
   void manager_write_update_rollback_on_event_error() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
     Student toCreate = someCreatableStudent();
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
-        .thenThrow(RuntimeException.class);
+            .thenThrow(RuntimeException.class);
 
     assertThrowsApiException(
-        "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
-        () -> api.createOrUpdateStudents(List.of(toCreate)));
+            "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
+            () -> api.createOrUpdateStudents(List.of(toCreate)));
 
-    List<Student> actual = api.getStudents(1, 100, null, null, null);
+    List<Student> actual = api.getStudents(1, 100, null, null, null, null);
     assertFalse(actual.stream().anyMatch(s -> Objects.equals(toCreate.getEmail(), s.getEmail())));
   }
 
@@ -327,12 +416,12 @@ class StudentIT {
     listToCreate.add(studentToCreate);
 
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Request entries must be <= 10\"}",
-        () -> api.createOrUpdateStudents(listToCreate));
+            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Request entries must be <= 10\"}",
+            () -> api.createOrUpdateStudents(listToCreate));
 
-    List<Student> actual = api.getStudents(1, 100, null, null, null);
+    List<Student> actual = api.getStudents(1, 100, null, null, null, null);
     assertFalse(actual.stream().anyMatch(
-        s -> Objects.equals(studentToCreate.getEmail(), s.getEmail())));
+            s -> Objects.equals(studentToCreate.getEmail(), s.getEmail())));
   }
 
   @Test
@@ -341,13 +430,13 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any())).thenReturn(
-        PutEventsResponse.builder().entries(
-                PutEventsResultEntry.builder().eventId("eventId1").build(),
-                PutEventsResultEntry.builder().eventId("eventId2").build())
-            .build());
+            PutEventsResponse.builder().entries(
+                            PutEventsResultEntry.builder().eventId("eventId1").build(),
+                            PutEventsResultEntry.builder().eventId("eventId2").build())
+                    .build());
 
     List<Student> created =
-        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));
+            api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));
 
     ArgumentCaptor<PutEventsRequest> captor = ArgumentCaptor.forClass(PutEventsRequest.class);
     verify(eventBridgeClientMock, times(1)).putEvents(captor.capture());
