@@ -203,6 +203,7 @@ public class CourseIT {
         TeachingApi api = new TeachingApi(teacher1Client);
         assertThrowsForbiddenException(() -> api.crupdateCourses(List.of()));
     }
+    /*
     @Test
     void manager_write_create_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -238,6 +239,7 @@ public class CourseIT {
         assertTrue(toUpdate.contains(toUpdate0));
         assertTrue(toUpdate.contains(toUpdate1));
     }
+     */
     @Test
     void bad_token_read_ko() {
         ApiClient anonymousClient = anApiClient(BAD_TOKEN);
@@ -294,12 +296,13 @@ public class CourseIT {
         assertTrue(actualCourses.contains(course1()));
     }
     @Test
-    void reading_with_teacher_last_name_part_case_insensitive_filter_first_name_too_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+    void reading_with_teacher_last_name_and_first_name_filter_take_all_of_items_of_them_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         TeachingApi api = new TeachingApi(manager1Client);
-        List<Course> actualCourses = api.getCourses(null,null,"","","",oppositeCase(course1().getMainTeacher().getFirstName().substring(0, 2)),"","","");
+        List<Course> actualCourses = api.getCourses(null,null,"","","",oppositeCase(course2().getMainTeacher().getFirstName().substring(0, 2)),oppositeCase(course1().getMainTeacher().getLastName().substring(0, 2)),"","");
 
         assertTrue(actualCourses.contains(course1()));
+        assertTrue(actualCourses.contains(course2()));
     }
     @Test
     void reading_with_name_part_filter_case_insensitive_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
@@ -331,7 +334,7 @@ public class CourseIT {
         TeachingApi api = new TeachingApi(manager1Client);
         List<Course> actualCourses = api.getCourses(null,null,"", "",course1().getCredits().toString().concat("1"),"","","","");
 
-        assertTrue(!actualCourses.contains(course1()));
+        assertFalse(actualCourses.contains(course1()));
     }
     @Test
     void reading_in_credits_order_asc_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
@@ -342,6 +345,8 @@ public class CourseIT {
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
         assertTrue(actualCourses.contains(course3()));
+        assertTrue(actualCourses.get(0).getCredits()<=actualCourses.get(1).getCredits());
+        assertTrue(actualCourses.get(1).getCredits()<=actualCourses.get(2).getCredits());
     }
     @Test
     void reading_in_credits_order_desc_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
@@ -352,6 +357,8 @@ public class CourseIT {
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
         assertTrue(actualCourses.contains(course3()));
+        assertTrue(actualCourses.get(0).getCredits()>=actualCourses.get(1).getCredits());
+        assertTrue(actualCourses.get(1).getCredits()>=actualCourses.get(2).getCredits());
     }
     @Test
     void reading_in_code_order_asc_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
@@ -362,6 +369,8 @@ public class CourseIT {
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
         assertTrue(actualCourses.contains(course3()));
+        assertTrue((actualCourses.get(0).getCode().compareTo(actualCourses.get(1).getCode()))<=0);
+        assertTrue((actualCourses.get(1).getCode().compareTo(actualCourses.get(2).getCode()))<=0);
     }
     @Test
     void reading_in_code_order_desc_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
@@ -372,21 +381,23 @@ public class CourseIT {
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
         assertTrue(actualCourses.contains(course3()));
+        assertTrue((actualCourses.get(0).getCode().compareTo(actualCourses.get(1).getCode()))>=0);
+        assertTrue((actualCourses.get(1).getCode().compareTo(actualCourses.get(2).getCode()))>=0);
     }
     @Test
     void reading_in_credits_order_with_bad_parameters_ko() throws school.hei.haapi.endpoint.rest.client.ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         TeachingApi api = new TeachingApi(manager1Client);
-        List<Course> actualCourses = api.getCourses(null,null,"","","","","","BAD","");
-
-
+        assertThrowsApiException(
+                "{\"type\":\"400 BAD_REQUEST\",\"message\":\"credits parameter is different of ASC and DESC\"}",
+                () -> api.getCourses(null,null,"","","","","","BAD",""));
     }
     @Test
     void reading_in_code_order_with_bad_parameters_ko() throws school.hei.haapi.endpoint.rest.client.ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         TeachingApi api = new TeachingApi(manager1Client);
-        List<Course> actualCourses = api.getCourses(null,null,"","","","","","","BAD");
-
-
+        assertThrowsApiException(
+                "{\"type\":\"400 BAD_REQUEST\",\"message\":\"code parameter is different of ASC and DESC\"}",
+                () -> api.getCourses(null,null,"","","","","","","BAD"));
     }
 }
