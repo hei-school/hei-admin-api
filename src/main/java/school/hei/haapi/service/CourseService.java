@@ -20,6 +20,8 @@ import school.hei.haapi.repository.dao.CourseManagerDao;
 @AllArgsConstructor
 public class CourseService {
   private final CourseRepository repository;
+  private final CourseManagerDao courseManagerDao;
+
 
   private final CourseManagerDao courseManagerDao;
   private List<Order> retrieveOrders(OrderDirection creditsOrder, OrderDirection codeOrder){
@@ -35,14 +37,15 @@ public class CourseService {
     }
     return orderList;
   }
-  public List<Course> getAllCourses(String teacherFirstName, String teacherLastName,
+ 
+  public List<Course> getAllCourses(String code, String name, Integer credits, String teacherFirstName, String teacherLastName,
                                     OrderDirection creditsOrder,
                                     OrderDirection codeOrder,
                                     PageFromOne page,
                                     BoundedPageSize pageSize) {
     List<Order> orders = retrieveOrders(creditsOrder, codeOrder);
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(orders));
-    return courseManagerDao.findCoursesByCriteria(teacherFirstName, teacherLastName, pageable);
+    return courseManagerDao.findCoursesByCriteria(code, name, credits, teacherFirstName, teacherLastName, pageable);
   }
 
   public Course getCourseById(String courseId) {

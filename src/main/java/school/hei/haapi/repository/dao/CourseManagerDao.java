@@ -20,16 +20,17 @@ import school.hei.haapi.model.User;
 public class CourseManagerDao {
   private final EntityManager entityManager;
 
-  public List<Course> findCoursesByCriteria(String teacherFirstName, String teacherLastName,
+  public List<Course> findCoursesByCriteria(String code, String name, Integer credits, String teacherFirstName, String teacherLastName,
                                             Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
     Root<Course> root = query.from(Course.class);
     Join<Course, User> join = root.join("mainTeacher");
     List<Predicate> predicates = new ArrayList<>();
-
-    Predicate[] predicatesArray = retrieveNotNullPredicates(teacherFirstName, teacherLastName,
+    
+    Predicate[] predicatesArray = retrieveNotNullPredicates(code, name, credits, teacherFirstName, teacherLastName,
         builder, join, predicates);
+
     query
         .where(builder.and(predicates.toArray(predicatesArray)))
         .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
@@ -41,9 +42,26 @@ public class CourseManagerDao {
   }
 
   public Predicate[] retrieveNotNullPredicates(
-      String teacherFirstName, String teacherLastName, CriteriaBuilder builder, Join<Course,
+      String code, String name, Integer credits, String teacherFirstName, String teacherLastName, CriteriaBuilder builder, Join<Course,
       User> join, List<Predicate> predicates
   ) {
+
+    if (code != null) {
+      predicates.add(builder.or(
+          builder.like(root.get("code"), "%" + code + "%"),
+          builder.like(builder.lower(root.get("code")), "%" + code + "%")
+      ));
+    }
+    if (name != null) {
+      predicates.add(builder.or(
+          builder.like(root.get("name"), "%" + name + "%"),
+          builder.like(builder.lower(root.get("name")), "%" + name + "%")
+      ));
+    }
+    if (credits != null) {
+      predicates.add(builder.equal(root.get("credits"), credits)
+      );
+    }
     if (teacherFirstName != null) {
       predicates.add(builder.or(
           builder.like(join.get("firstName"), "%" + teacherFirstName + "%"),
