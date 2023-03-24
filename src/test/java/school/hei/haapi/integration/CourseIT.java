@@ -33,6 +33,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+import school.hei.haapi.endpoint.rest.model.OrderDirection;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.TestUtils;
 
@@ -67,7 +68,7 @@ public class CourseIT {
     course.setId(COURSE2_ID);
     course.setCode("WEB1");
     course.setName(null);
-    course.setCredits(2);
+    course.setCredits(5);
     course.setTotalHours(36);
     course.setMainTeacher(teacher1());
     return course;
@@ -143,7 +144,7 @@ public class CourseIT {
     TeachingApi api = new TeachingApi(teacher1Client);
 
     Course actual1 = api.getCourseById(COURSE1_ID);
-    List<Course> actualCourses = api.getCourses(1,3);
+    List<Course> actualCourses = api.getCourses(null, null, 1,3);
 
     assertEquals(course1(), actual1);
     assertTrue(actualCourses.contains(course1()));
@@ -156,7 +157,7 @@ public class CourseIT {
     TeachingApi api = new TeachingApi(manager1Client);
 
     Course actual1 = api.getCourseById(COURSE1_ID);
-    List<Course> actualCourses = api.getCourses(1,3);
+    List<Course> actualCourses = api.getCourses(null, null, 1,3);
 
     assertEquals(course1(), actual1);
     assertTrue(actualCourses.contains(course1()));
@@ -164,12 +165,36 @@ public class CourseIT {
   }
 
   @Test
+  void manager_read_filtered_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+
+    List<Course> actualNoFilter = api.getCourses(null, null, null, null);
+    List<Course> actualOrderedByCredit = api.getCourses(OrderDirection.ASC, null, 1, 20);
+    List<Course> actualOrderedByCode = api.getCourses(null, OrderDirection.ASC, 1,20);
+    List<Course> actualOrderedByCreditAndCode = api.getCourses(OrderDirection.DESC,
+        OrderDirection.DESC, null ,null);
+
+    assertEquals(3, actualNoFilter.size());
+    assertEquals(3, actualOrderedByCredit.size());
+    assertEquals(3, actualOrderedByCode.size());
+    assertEquals(3, actualOrderedByCreditAndCode.size());
+    assertTrue(actualNoFilter.containsAll(List.of(course1(), course2(), course3())));
+    assertTrue(actualOrderedByCredit.get(0).getCredits() < actualOrderedByCredit.get(1).getCredits());
+    assertEquals("MGT1", actualOrderedByCode.get(0).getCode());
+    assertEquals("PROG1", actualOrderedByCode.get(1).getCode());
+    assertEquals("WEB1", actualOrderedByCreditAndCode.get(0).getCode());
+    assertTrue(actualOrderedByCreditAndCode.get(0).getCredits() > actualOrderedByCreditAndCode.get(1).getCredits());
+    assertEquals("WEB1", actualOrderedByCreditAndCode.get(0).getCode());
+    assertEquals("PROG1", actualOrderedByCreditAndCode.get(1).getCode());
+  }
+  @Test
   void student_read_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
     ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(studentClient);
 
     Course actual1 = api.getCourseById(COURSE1_ID);
-    List<Course> actualCourses = api.getCourses(1,3);
+    List<Course> actualCourses = api.getCourses(null, null, 1,3);
 
     assertEquals(course1(), actual1);
     assertTrue(actualCourses.contains(course1()));

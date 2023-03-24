@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.OrderDirection;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -22,10 +23,12 @@ public class CourseController {
 
   @GetMapping(value = "/courses")
   public List<Course> getCourses(
+      @RequestParam(name = "creditsOrder", required = false) OrderDirection creditsOrder,
+      @RequestParam(name = "codeOrder", required = false) OrderDirection codeOrder,
       @RequestParam(name = "page", required = false, defaultValue = "1") PageFromOne page,
       @RequestParam(name = "page_size", required = false, defaultValue = "15") BoundedPageSize pageSize
   ){
-    return service.getAllCourses(page, pageSize).stream()
+    return service.getAllCourses(creditsOrder, codeOrder,page, pageSize).stream()
         .map(mapper::toRest)
         .collect(Collectors.toUnmodifiableList());
   }
