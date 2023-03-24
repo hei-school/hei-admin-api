@@ -1,4 +1,4 @@
-package school.hei.haapi.model.validator;
+package school.hei.haapi.endpoint.rest.model.validator;
 
 import java.util.List;
 import java.util.Set;
@@ -8,8 +8,8 @@ import javax.validation.ConstraintViolation;
 import javax.validation.Validator;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.endpoint.rest.model.User;
+import school.hei.haapi.endpoint.rest.model.exception.BadRequestException;
 
 @Component
 @AllArgsConstructor

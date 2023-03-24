@@ -1,7 +1,7 @@
-package school.hei.haapi.model;
+package school.hei.haapi.endpoint.rest.model;
 
 import lombok.Getter;
-import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.endpoint.rest.model.exception.BadRequestException;
 
 public class PageFromOne {
 

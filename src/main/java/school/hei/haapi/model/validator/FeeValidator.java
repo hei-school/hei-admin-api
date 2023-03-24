@@ -1,4 +1,4 @@
-package school.hei.haapi.model.validator;
+package school.hei.haapi.endpoint.rest.model.validator;
 
 import java.util.HashSet;
 import java.util.List;
@@ -6,8 +6,8 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.endpoint.rest.model.exception.BadRequestException;
+import school.hei.haapi.endpoint.rest.model.Fee;
 
 @Component
 public class FeeValidator implements Consumer<Fee> {
