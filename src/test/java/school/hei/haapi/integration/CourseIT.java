@@ -2,11 +2,16 @@ package school.hei.haapi.integration;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.shaded.com.fasterxml.jackson.core.type.TypeReference;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -21,12 +26,15 @@ import school.hei.haapi.integration.conf.TestUtils;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Arrays;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 import static school.hei.haapi.endpoint.rest.model.CodeOrder.ASC;
 import static school.hei.haapi.integration.TeacherIT.teacher1;
 import static school.hei.haapi.integration.TeacherIT.teacher2;
@@ -94,15 +102,37 @@ public class CourseIT {
     public void setUp() {
         setUpCognito(cognitoComponentMock);
     }
+    @Autowired
+    private MockMvc mockMvc;
+    @Test
+    public void testGetAllCourse() throws Exception {
+        List<Course> expected = Arrays.asList(
+                course1(),
+                course2(),
+                course3()
+        );
 
+        MvcResult result = mockMvc.perform(get("/courses")
+                        .param("page", "1")
+                        .param("page_size", "2"))
+                .andExpect(status().isOk())
+                .andReturn();
+
+        // Parse the response JSON into a list of RestCourse objects
+        ObjectMapper mapper = new ObjectMapper();
+        List<Course> actual = mapper.readValue(result.getResponse().getContentAsString(),
+                new TypeReference<List<Course>>() {});
+
+        // Verify the output
+        assertEquals(expected, actual);
+    }
 
     @Test
     void student_read_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         TeachingApi api = new TeachingApi(student1Client);
 
-        List<Course> actualCourses = api.getCourses(1,15,null,
-                null,null,null,null);
+        List<Course> actualCourses = api.getCourses(1,15,ASC,null,null,null,null);
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
         assertTrue(actualCourses.contains(course3()));

@@ -8,9 +8,9 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.CrossOrigin;
 import school.hei.haapi.endpoint.rest.model.CodeOrder;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.CreditsOrder;
 import school.hei.haapi.model.*;
-import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.CourseStudentRepository;
 
@@ -34,32 +34,37 @@ public class CourseService {
     }
 
     public List<Course> getByFilter(
-            PageFromOne page , BoundedPageSize pageSize, CodeOrder codeOrder, String name,
+            PageFromOne page, BoundedPageSize pageSize, CodeOrder codeOrder, String name,
             CreditsOrder creditsOrder, String teacherFirstName, String teacherLastName){
 
-        Pageable pageable = PageRequest.of(page.getValue(), pageSize.getValue(),Sort.by(ASC,"name"));
+        Pageable pageable = PageRequest.of(page.getValue(), pageSize.getValue());
+
         if (codeOrder != null) {
             Sort.Direction direction = codeOrder.getValue() == CodeOrder.ASC.getValue() ? ASC : DESC;
-            pageable = PageRequest.of(page.getValue(), pageSize.getValue(), Sort.by(direction, "code"));
+            pageable = PageRequest.of(page.getValue(), pageSize.getValue(),Sort.by(direction, "code"));
             return repository.findAll(pageable).toList();
         }
         else if (creditsOrder != null) {
             Sort.Direction direction = creditsOrder.getValue() == CreditsOrder.ASC.getValue() ? ASC : DESC;
-            pageable = PageRequest.of(page.getValue(), pageSize.getValue(), Sort.by(direction, "credits"));
+            pageable = PageRequest.of(page.getValue(), pageSize.getValue(),Sort.by(direction, "credits"));
             return repository.findAll(pageable).toList();
         }
         else if (name != null) {
-            return repository.getCourseByCourseNameContainingIgnoreCase(name, pageable);
-         } else if(teacherFirstName !=null){
-               return repository.getCourseByTeacherFirstNameContainingIgnoreCase(teacherFirstName,pageable);
-        } else if (teacherLastName != null) {
-            return repository.getCourseByTeacherLastNameContainingIgnoreCase(teacherLastName,pageable);
+            return repository.getCourseByNameContainingIgnoreCase(name, pageable);
         }
-        else if(teacherFirstName != null && teacherLastName != null){
-            return repository.getCourseByTeacherFirstNameContainingIgnoreCaseAndTeacherLastNameContainingIgnoreCase
-                    (teacherFirstName,teacherLastName,pageable);
+        else if (teacherFirstName != null && teacherLastName != null) {
+            return repository.getCourseByMainTeacherFirstNameAndLastName(
+                    teacherFirstName, teacherLastName, pageable);
         }
-        return repository.findAll(pageable).toList();
+        else if (teacherFirstName != null) {
+            return repository.getByMainTeacherFirstNameContainingIgnoreCase(teacherFirstName, pageable);
+        }
+        else if (teacherLastName != null) {
+            return repository.getByMainTeacherLastNameContainingIgnoreCase(teacherLastName, pageable);
+        }
+        else {
+            return repository.findAll(pageable).toList();
+        }
     }
 
   public List<Course> saveAll(List<Course> courses) {
@@ -71,6 +76,7 @@ public class CourseService {
                 .map(CourseStudent::getCourse)
                 .collect(Collectors.toList());
     }
+
     public void updateCourseStudentStatus(String studentId, String courseId, CourseStatus newStatus) {
         User student = userService.getById(studentId);
         Course course = repository.findById(courseId)

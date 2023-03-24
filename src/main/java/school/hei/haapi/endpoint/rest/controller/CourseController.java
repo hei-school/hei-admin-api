@@ -8,6 +8,7 @@ import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CodeOrder;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CreditsOrder;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.model.BoundedPageSize;
 
 import school.hei.haapi.model.PageFromOne;
@@ -17,7 +18,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
@@ -59,4 +59,6 @@ public class CourseController {
         .map(courseMapper::toRest)
         .collect(toUnmodifiableList());
   }
+
+
 }

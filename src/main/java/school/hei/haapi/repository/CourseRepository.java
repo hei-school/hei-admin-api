@@ -15,28 +15,25 @@ import java.util.List;
 @EnableJpaRepositories
 public interface CourseRepository extends JpaRepository<Course, String> {
 
-    @Query("SELECT c FROM Course c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%'))")
-    List<Course> getCourseByCourseNameContainingIgnoreCase(
-            @Param("name") String name,
+    List<Course> getCourseByNameContainingIgnoreCase(String name,Pageable pageable);
+
+    @Query("SELECT c FROM Course c WHERE LOWER(c.main_teacher.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))")
+    List<Course> getByMainTeacherFirstNameContainingIgnoreCase(
+            @Param("firstName") String firstName,
             Pageable pageable);
 
-    @Query("SELECT c FROM Course c JOIN User u ON c.mainTeacherId = u.id WHERE LOWER(u.firstName) LIKE LOWER(CONCAT('%', :firstName, '%'))")
-    List<Course> getCourseByTeacherFirstNameContainingIgnoreCase(
-            @Param("firstName") String firstName,
-            Pageable pageable
-    );
-
-    @Query("SELECT c FROM Course c JOIN User u ON c.mainTeacherId = u.id WHERE LOWER(u.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))")
-    List<Course> getCourseByTeacherLastNameContainingIgnoreCase(
+    @Query("SELECT c FROM Course c WHERE LOWER(c.main_teacher.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))")
+    List<Course> getByMainTeacherLastNameContainingIgnoreCase(
             @Param("lastName") String lastName,
             Pageable pageable
-    );
+            );
 
-    @Query("SELECT c FROM Course c JOIN User u ON c.mainTeacherId = u.id WHERE LOWER(u.firstName) LIKE LOWER(CONCAT('%', :firstName, '%')) AND LOWER(u.lastName) LIKE LOWER(CONCAT('%', :lastName, '%'))")
-    List<Course> getCourseByTeacherFirstNameContainingIgnoreCaseAndTeacherLastNameContainingIgnoreCase(
-            @Param("firstName") String firstName,
-            @Param("lastName") String lastName,
+
+    @Query("SELECT c FROM Course c WHERE lower(c.main_teacher.firstName) like %:teacherFirstName% and lower(c.main_teacher.lastName) like %:teacherLastName%")
+    List<Course> getCourseByMainTeacherFirstNameAndLastName(
+            @Param("teacherFirstName") String teacherFirstName,
+            @Param("teacherLastName") String teacherLastName,
             Pageable pageable
-    );
+            );
 
 }
