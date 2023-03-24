@@ -53,27 +53,8 @@ public class CourseService {
             pageSize = defaultPageSize;
         }
         Pageable pageable = PageRequest.of(page.getValue()-1, pageSize.getValue());
-        List<Course> result = courseManagerDao.findByCriteria(
+        return courseManagerDao.findByCriteria(
                 code, name, credits, teacher_first_name, teacher_last_name, creditsOrder, codeOrder, pageable);
-        switch(creditsOrder) {
-            case "DESC":
-                Collections.sort(result,(Course c1, Course c2)-> c2.getCredits()-c1.getCredits());
-                break;
-            case "ASC":
-                Collections.sort(result,(Course c1, Course c2)-> c1.getCredits()-c2.getCredits());
-                break;
-            default:
-        }
-        switch(codeOrder) {
-            case "DESC":
-                Collections.sort(result,(Course c1, Course c2)-> c2.getCode().compareTo(c1.getCode()));
-                break;
-            case "ASC":
-                Collections.sort(result,(Course c1, Course c2)-> c1.getCode().compareTo(c2.getCode()));
-                break;
-            default:
-        }
-        return result;
     }
 
 

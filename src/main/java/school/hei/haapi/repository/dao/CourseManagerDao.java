@@ -15,6 +15,7 @@ import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 import java.util.List;
+import java.util.Objects;
 
 @Repository
 @AllArgsConstructor
@@ -56,25 +57,44 @@ public class CourseManagerDao {
                         builder.like(teacher.get("lastName"), "%" + teacher_last_name + "%")
                 );
 
+        Predicate hasCourseCredits = builder.equal(root.get("credits"), credits);
+
         Predicate hasTeacherFirstNameAndHasTeacherLastName = null;
         hasTeacherFirstNameAndHasTeacherLastName = (teacher_first_name.length()>0 && teacher_last_name.length()>0)?
                 builder.or(hasTeacherFirstName,hasTeacherLastName):
                 builder.and(hasTeacherFirstName,hasTeacherLastName);
 
-        Predicate hasCourseCredits = builder.equal(root.get("credits"), credits);
 
         if (credits==null){
             query
-                    .where(builder.and(hasCourseCode,hasCourseName,hasTeacherFirstNameAndHasTeacherLastName,hasTeacherLastName))
-                    .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
+                    .where(builder.and(hasCourseCode,hasCourseName,hasTeacherFirstNameAndHasTeacherLastName));
         }else {
             query
-                    .where(builder.and(hasCourseCode,hasCourseName,hasTeacherFirstNameAndHasTeacherLastName,hasCourseCredits))
-                    .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
+                    .where(builder.and(hasCourseCode,hasCourseName,hasTeacherFirstNameAndHasTeacherLastName,hasCourseCredits));
         }
+
+        javax.persistence.criteria.Order codeArrange = builder.desc(root.get("code"));
+        if (Objects.equals(codeOrder, "ASC")){
+            codeArrange = builder.asc(root.get("code"));
+        }
+        javax.persistence.criteria.Order creditsArrange = builder.desc(root.get("credits"));
+        if (Objects.equals(creditsOrder, "ASC")){
+            creditsArrange = builder.asc(root.get("credits"));
+        }
+
+        if (creditsOrder.length()>0 && codeOrder.length()>0){
+            query.orderBy(codeArrange,creditsArrange);
+        } else if (creditsOrder.length()>0) {
+            query.orderBy(creditsArrange);
+        } else if (codeOrder.length()>0) {
+            query.orderBy(codeArrange);
+        }
+
         return entityManager.createQuery(query)
                 .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
                 .setMaxResults(pageable.getPageSize())
                 .getResultList();
     }
+
+
 }
