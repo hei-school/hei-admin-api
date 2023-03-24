@@ -24,14 +24,14 @@ public class CourseService {
         Pageable pageable = PageRequest.of(page, pageSize);
         return coursesRepository.findAll(pageable).toList();
     }
-    public List<Courses> getByFiltre(
+    public List<Courses> getByCriteria(
             String code , String name, Integer credits, String teacher_first_name, String teacher_last_name, PageFromOne page, BoundedPageSize pageSize
     ){
         Pageable pageable = PageRequest.of(
                 page.getValue() - 1,
                 pageSize.getValue(),
                 Sort.by(ASC, "ref"));
-        return courseManagerDao.findByFiltre(
+        return courseManagerDao.findByCriteria(
                 code, name, credits, teacher_first_name, teacher_last_name, pageable);
     }
 }

@@ -1,4 +1,4 @@
-package school.hei.haapi.endpoint.rest.model;
+package school.hei.haapi.model;
 
 import lombok.*;
 import org.hibernate.annotations.TypeDef;
@@ -35,7 +35,7 @@ public class Courses implements Serializable {
     @NotBlank(message = "Credits name is mandatory")
     private int credits;
     @NotBlank(message = "total-hours name is mandatory")
-    private String total_hours;
+    private Integer total_hours;
 
     @OneToMany
     @JoinColumn(name = "main_teacher_id")

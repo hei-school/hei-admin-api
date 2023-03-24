@@ -17,7 +17,7 @@ public class CourseMapperTest {
     CourseMapper courseMapper = mock(CourseMapper.class);
     @Test
     void course_to_domain_ok(){
-        Courses courses = Courses.builder()
+        Course courses = Courses.builder()
                 .id("1")
                 .name("Algorithme")
                 .code("PROG1")

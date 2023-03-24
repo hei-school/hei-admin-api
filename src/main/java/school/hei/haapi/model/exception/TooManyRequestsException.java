@@ -1,4 +1,4 @@
-package school.hei.haapi.endpoint.rest.model.exception;
+package school.hei.haapi.model.exception;
 
 public class TooManyRequestsException extends ApiException {
   public TooManyRequestsException(String message) {

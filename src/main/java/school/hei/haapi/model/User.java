@@ -1,4 +1,4 @@
-package school.hei.haapi.endpoint.rest.model;
+package school.hei.haapi.model;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -101,7 +101,7 @@ public class User implements Serializable {
   }
   @ManyToMany(mappedBy = "userStatus")
   private List<Courses> courseStatus;
-  @Override
+
   public void SetCourseStatus(List<Courses> param){
     if(this.role.equals(Role.STUDENT)){
       this.courseStatus=param;

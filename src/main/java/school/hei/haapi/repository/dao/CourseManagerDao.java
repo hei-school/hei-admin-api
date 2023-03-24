@@ -18,7 +18,7 @@ import java.util.List;
 public class CourseManagerDao {
     private EntityManager entityManager;
 
-    public List<Courses> findByFiltre(String code, String name, Integer credits, String teacher_first_name, String teacher_last_name, Pageable pageable) {
+    public List<Courses> findByCriteria(String code, String name, Integer credits, String teacher_first_name, String teacher_last_name, Pageable pageable) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Courses> query = builder.createQuery(Courses.class);
         Root<Courses> root = query.from(Courses.class);
