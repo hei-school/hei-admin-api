@@ -39,7 +39,7 @@ public class CourseController {
             ) {
         return courseService.getAll(page, pageSize, codeOrder, name,creditsOrder,teacherFirstName,teacherLastName)
                 .stream().map(courseMapper::toRestCourse)
-                .collect(Collectors.toUnmodifiableList());
+                .collect(Collectors.toList());
     }
 
   @PutMapping(value = "/courses")

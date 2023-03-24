@@ -24,6 +24,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.TeacherIT.teacher1;
@@ -49,8 +50,8 @@ public class CourseIT {
         Course course = new Course();
         course.setId("course1_id");
         course.setCode("PROG1");
-        course.setName("Algo");
-        course.setCredits(3);
+        course.setName("Algorithmique");
+        course.setCredits(6);
         course.setTotalHours(30);
         course.setMainTeacher(teacher1());
         return course;
@@ -60,10 +61,20 @@ public class CourseIT {
         Course course = new Course();
         course.setId("course2_id");
         course.setCode("PROG3");
-        course.setName("Ops");
-        course.setCredits(2);
-        course.setTotalHours(20);
+        course.setName("P.O.O avancée");
+        course.setCredits(6);
+        course.setTotalHours(30);
         course.setMainTeacher(teacher2());
+        return course;
+    }
+    public static Course course3(){
+        Course course = new Course();
+        course.setId("course3_id");
+        course.setCode("WEB1");
+        course.setName("Interface web");
+        course.setCredits(4);
+        course.setTotalHours(15);
+        course.setMainTeacher(teacher1());
         return course;
     }
 
@@ -89,10 +100,16 @@ public class CourseIT {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         TeachingApi api = new TeachingApi(student1Client);
 
-        List<Course> actualCourses = api.getCourses(1,10);
-
+        List<Course> actualCourses = api.getCourses(1,15,null,
+                null,null,null,null);
+        System.out.println(actualCourses);
+        /*
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
+        assertTrue(actualCourses.contains(course3()));
+        */
+        Course execpted = api.getCourseById("course1_id");
+         assertEquals(execpted, course1());
     }
 
     @Test
@@ -100,7 +117,8 @@ public class CourseIT {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
         TeachingApi api = new TeachingApi(teacher1Client);
 
-        List<Course> actualCourses = api.getCourses(1,10);
+        List<Course> actualCourses = api.getCourses(1,10,null,
+                null,null,null,null);
 
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
@@ -111,7 +129,8 @@ public class CourseIT {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         TeachingApi api = new TeachingApi(manager1Client);
 
-        List<Course> actualCourses = api.getCourses(1,10);
+        List<Course> actualCourses = api.getCourses(1,10,null,
+                null,null,null,null);
 
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));

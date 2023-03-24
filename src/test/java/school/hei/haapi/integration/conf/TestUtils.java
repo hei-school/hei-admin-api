@@ -36,6 +36,7 @@ public class TestUtils {
   public static final String COURSE1_ID = "course1_id";
 
   public static final String COURSE2_ID = "course2_id";
+  public static final String COURSE3_ID = "course3_id";
 
 
   public static final String BAD_TOKEN = "bad_token";
