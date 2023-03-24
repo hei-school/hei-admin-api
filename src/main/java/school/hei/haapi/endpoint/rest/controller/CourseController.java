@@ -21,11 +21,14 @@ public class CourseController {
         return courseService.getAllCourses();
     }
 
+    public List<Course> getAllInRepo(){
+        return courseService.getAllCourses();
+    }
     @GetMapping("/courses")
     public List<Course> getAllCourses(@RequestParam(value = "creditsOrder", required = false) String creditsOrder,
                                       @RequestParam(value = "codeOrder", required = false) String codeOrder) {
 
-        List<Course> courseList = getAllCourse();
+        List<Course> courseList = getAllInRepo();
 
         // Tri par ordre décroissant ou croissant des crédits
         if (creditsOrder != null && !creditsOrder.isEmpty()) {
@@ -44,7 +47,6 @@ public class CourseController {
                 courseList.sort(Comparator.comparing(Course::getCode).reversed());
             }
         }
-
         return courseList;
     }
 
