@@ -26,23 +26,12 @@ public class CourseController {
             @RequestParam(name = "teacher_last_name",required = false) String teacherLastName,
             @RequestParam(name = "code", required = false)String code,
             @RequestParam(name ="name", required = false)String name,
-            @RequestParam(name = "credits",required = false)Integer credits
+            @RequestParam(name = "credits",required = false)Integer credits,
+            @RequestParam(value = "creditsOrder", required = false) String creditsOrder,
+            @RequestParam(value = "codeOrder", required = false) String codeOrder
     ) {
-        return courseService.getAllCoursesBy(page,pageSize,teacherFirstName,teacherLastName,code,name,credits);
 
-    @GetMapping
-    public List<Course> getAllCourse(){
-        return courseService.getAllCourses();
-    }
-
-    public List<Course> getAllInRepo(){
-        return courseService.getAllCourses();
-    }
-    @GetMapping("/courses")
-    public List<Course> getAllCourses(@RequestParam(value = "creditsOrder", required = false) String creditsOrder,
-                                      @RequestParam(value = "codeOrder", required = false) String codeOrder) {
-
-        List<Course> courseList = getAllInRepo();
+        List<Course> courseList = courseService.getAllCoursesBy(page,pageSize,teacherFirstName,teacherLastName,code,name,credits);
 
         // Tri par ordre décroissant ou croissant des crédits
         if (creditsOrder != null && !creditsOrder.isEmpty()) {
@@ -63,5 +52,4 @@ public class CourseController {
         }
         return courseList;
     }
-
 }
