@@ -8,7 +8,5 @@ import java.util.List;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, String> {
-    /* List<Course> findAllByNameIgnoreCaseAndOrMainTeacherFirstNameIgnoreCaseAndOrMainTeacherLastNameIgnoreCaseAndCodeAndCredits();*/
-    List<Course> findAllByNameIgnoreCaseAndOrMainTeacherFirstNameAndOrMainTeacherLastNameAndOrCodeAnAndOrCreditsOrderByCodeDescCreditsDesc(
-            String name, String firstName, String lastName, String code, int credits);
+
 }
