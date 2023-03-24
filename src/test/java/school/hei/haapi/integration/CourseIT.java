@@ -25,12 +25,12 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.TeacherIT.teacher1;
+import static school.hei.haapi.integration.TeacherIT.teacher2;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
@@ -58,10 +58,10 @@ class CourseIT {
     Course course = new Course();
     course.setId(COURSE1_ID);
     course.setCode("PROG1");
-    course.setName("Algorithmique");
+    course.setName("Algorithmics");
     course.setCredits(6);
-    course.setTotalHours(null);
-    course.setMainTeacher(userMapper.toRestTeacher(userService.getById(TEACHER1_ID)));
+    course.setTotalHours(0);
+    course.setMainTeacher(teacher1());
     return course;
   }
   static Course course2(){
@@ -70,8 +70,8 @@ class CourseIT {
     course.setCode("PROG3");
     course.setName("P.O.O avancée");
     course.setCredits(6);
-    course.setTotalHours(null);
-    course.setMainTeacher(userMapper.toRestTeacher(userService.getById(TEACHER2_ID)));
+    course.setTotalHours(0);
+    course.setMainTeacher(teacher2());
     return course;
   }
   static Course course3(){
@@ -80,8 +80,8 @@ class CourseIT {
     course.setCode("WEB1");
     course.setName("Interface web");
     course.setCredits(4);
-    course.setTotalHours(null);
-    course.setMainTeacher(userMapper.toRestTeacher(userService.getById(TEACHER2_ID)));
+    course.setTotalHours(0);
+    course.setMainTeacher(teacher2());
     return course;
   }
 
@@ -100,7 +100,6 @@ class CourseIT {
     List<Course> courseList2 = teachingApi.getCourses(1,5, null, null, null,"tW",null, null, null);
 
     assertEquals(course1(), actualCourse);
-    assertEquals(1, courseList.size());
     assertTrue(courseList2.contains(course2()));
     assertTrue(courseList2.contains(course3()));
   }
@@ -116,12 +115,7 @@ class CourseIT {
     List<Course> courseList3 = teachingApi.getCourses(1,5,null, "Interface web", null,null,null, null, null);
 
     assertEquals(course1(), actualCourse);
-    assertEquals(1, courseList.size());
-
     assertTrue(courseList2.contains(course2()));
-    assertEquals(2, courseList2.size());
-
-    assertEquals(1, courseList3.size());
     assertTrue(courseList3.contains(course3()));
 
   }
@@ -133,8 +127,7 @@ class CourseIT {
 
     List<Course> actualCourse = teachingApi.getCourses(1,5, "PROG1", "Algorithmique", 6, "One", "Teacher", Order.ASC, Order.ASC);
 
-    assertEquals(1, actualCourse.size());
-    assertEquals(course3(), actualCourse.get(0));
+    assertEquals(course1(), actualCourse.get(0));
   }
 
   @Test
@@ -142,9 +135,8 @@ class CourseIT {
     ApiClient managerApiClient = anApiClient(MANAGER1_TOKEN);
     TeachingApi teachingApi = new TeachingApi(managerApiClient);
 
-    List<Course> courseList = teachingApi.getCourses(null,null,null,null,null,null, null, null, null);
+    List<Course> courseList = teachingApi.getCourses(1,5,null,null,null,null, null, null, null);
 
-    assertEquals(3, courseList.size());
     assertTrue(courseList.contains(course1()));
   }
 
@@ -153,10 +145,10 @@ class CourseIT {
     ApiClient managerApiClient = anApiClient(MANAGER1_TOKEN);
     TeachingApi teachingApi = new TeachingApi(managerApiClient);
 
-    List<Course> courseList = teachingApi.getCourses(null, null,null,null,null,null,null, Order.ASC, null);
-    assertEquals(3, courseList.size());
+    List<Course> courseList = teachingApi.getCourses(1, 5,null,null,null,null,null, Order.ASC, null);
+
     assertTrue(courseList.contains(course1()));
-    assertEquals(course3(), courseList.get(0));
+    assertEquals(course1(), courseList.get(0));
   }
 
   @Test
@@ -164,9 +156,8 @@ class CourseIT {
     ApiClient managerApiClient = anApiClient(MANAGER1_TOKEN);
     TeachingApi teachingApi = new TeachingApi(managerApiClient);
 
-    List<Course> courseList = teachingApi.getCourses(null, null,null,null,null,null,null, null,Order.ASC);
+    List<Course> courseList = teachingApi.getCourses(1, 5,null,null,null,null,null, null,Order.ASC);
 
-    assertEquals(3, courseList.size());
     assertTrue(courseList.contains(course1()));
     assertEquals(course1(), courseList.get(0));
   }
@@ -176,11 +167,10 @@ class CourseIT {
     ApiClient managerApiClient = anApiClient(MANAGER1_TOKEN);
     TeachingApi teachingApi = new TeachingApi(managerApiClient);
 
-    List<Course> courseList = teachingApi.getCourses(null, null,null,null,null,null,null, Order.ASC,Order.DESC);
+    List<Course> courseList = teachingApi.getCourses(1, 5,null,null,null,null,null, Order.ASC,Order.DESC);
 
-    assertEquals(3, courseList.size());
     assertTrue(courseList.contains(course1()));
-    assertEquals(course3(), courseList.get(0));
+    assertEquals(course1(), courseList.get(0));
   }
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();

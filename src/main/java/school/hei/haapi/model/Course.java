@@ -35,7 +35,7 @@ public class Course implements Serializable {
     private int totalHours;
 
     @OneToOne
-    @JoinColumn(name = "main_teacher", nullable = false, referencedColumnName = "id")
+    @JoinColumn(name = "mainTeacher", nullable = false, referencedColumnName = "id")
     private User mainTeacher;
 
     @Override

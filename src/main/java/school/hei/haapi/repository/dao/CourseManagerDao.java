@@ -8,10 +8,7 @@ import school.hei.haapi.model.Course;
 import school.hei.haapi.model.User;
 
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
+import javax.persistence.criteria.*;
 import java.util.List;
 
 @Repository
@@ -23,22 +20,23 @@ public class CourseManagerDao {
       CriteriaBuilder builder = entityManager.getCriteriaBuilder();
       CriteriaQuery<Course> query = builder.createQuery(Course.class);
       Root<Course> root = query.from(Course.class);
+      Join<Course, User> join = root.join("mainTeacher");
 
       Predicate hasTeacherLastName =
               builder.or(
-                      builder.like(builder.lower(root.get("lastName")), "%" + lastName + "%"),
-                      builder.like(root.get("lastName"), "%" + lastName + "%")
+                      builder.like(builder.lower(join.get("lastName")), "%" + lastName + "%"),
+                      builder.like(join.get("lastName"), "%" + lastName.toLowerCase() + "%")
               );
 
       Predicate hasTeacherFirstName =
               builder.or(
-                      builder.like(builder.lower(root.get("firstName")), "%" + firstName + "%"),
-                      builder.like(root.get("firstName"), "%" + firstName + "%")
+                      builder.like(builder.lower(join.get("firstName")), "%" + firstName + "%"),
+                      builder.like(join.get("firstName"), "%" + firstName.toLowerCase() + "%")
               );
 
       Predicate hasUserRole =
               builder.or(
-                      builder.equal(root.get("role"), role)
+                      builder.equal(join.get("role"), role)
               );
 
       query
