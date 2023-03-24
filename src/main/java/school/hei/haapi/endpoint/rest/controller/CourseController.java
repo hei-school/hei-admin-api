@@ -17,7 +17,7 @@ public class CourseController {
     private final CourseService courseService;
 
     @GetMapping("/courses")
-    public List<Course> getAllCourseByTeacherFirstName(
+    public List<Course> getAllCourseBy(
             @RequestParam(name = "page",required = false) PageFromOne page,
             @RequestParam(name = "page_size",required = false) BoundedPageSize pageSize,
             @RequestParam(name = "teacher_first_name", required = false) String teacherFirstName,
@@ -26,21 +26,6 @@ public class CourseController {
             @RequestParam(name ="name", required = false)String name,
             @RequestParam(name = "credits",required = false)Integer credits
     ) {
-      if(teacherFirstName != null){
-          return courseService.getAllCoursesByTeacherFirstName(page,pageSize,teacherFirstName);
-      }
-      else if(teacherLastName != null){
-          return courseService.getAllCourseByTeacherLastName(page,pageSize,teacherLastName);
-      }
-      else if(code != null){
-          return courseService.getAllCourseByCode(page,pageSize,code);
-      }
-      else if(name != null){
-          return courseService.getAllCourseByName(page,pageSize,name);
-      }
-      else if(credits != null){
-          return courseService.getAllCourseByCredits(page,pageSize,credits);
-      }
-return courseService.getAllCourse();
+        return courseService.getAllCoursesBy(page,pageSize,teacherFirstName,teacherLastName,code,name,credits);
     }
 }
