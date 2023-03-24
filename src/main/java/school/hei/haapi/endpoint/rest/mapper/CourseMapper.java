@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Course;
@@ -13,7 +12,6 @@ import school.hei.haapi.service.UserService;
 @Component
 @AllArgsConstructor
 public class CourseMapper {
-  private final CourseService service;
   private final UserService userService;
   private final UserMapper userMapper;
 
@@ -32,28 +30,14 @@ public class CourseMapper {
 
   public school.hei.haapi.model.Course toDomain(CrupdateCourse rest) {
     User domainTeacher = userService.getById(rest.getMainTeacherId());
-    if (service.getById(rest.getId()) == null
-        && service.getByCode(rest.getCode()) == null) {
-
-      return school.hei.haapi.model.Course
-          .builder()
-          .id(rest.getId())
-          .code(rest.getCode())
-          .credits(rest.getCredits())
-          .totalHours(rest.getTotalHours())
-          .mainTeacher(domainTeacher)
-          .name(rest.getName())
-          .build();
-    }
     return school.hei.haapi.model.Course
         .builder()
         .id(rest.getId())
-        .mainTeacher(domainTeacher)
         .code(rest.getCode())
         .credits(rest.getCredits())
-        .name(rest.getName())
         .totalHours(rest.getTotalHours())
+        .mainTeacher(domainTeacher)
+        .name(rest.getName())
         .build();
   }
-
 }
