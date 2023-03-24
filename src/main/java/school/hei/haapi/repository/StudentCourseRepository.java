@@ -12,8 +12,6 @@ import java.util.List;
 
 @Repository
 public interface StudentCourseRepository extends JpaRepository<StudentCourse, String> {
-
-    List<StudentCourse> getStudentCourseByStudentIdAndStatus(String studentId,
-                                                             StudentCourse.CourseStatus status);
+    List<StudentCourse> getStudentCourseByStudentIdAndStatus(String studentId, StudentCourse.CourseStatus status);
     StudentCourse getStudentCourseByStudentIdAndCourseId(String studentId, String courseId);
 }
