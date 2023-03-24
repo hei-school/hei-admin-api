@@ -3,6 +3,8 @@ package school.hei.haapi.service;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
@@ -21,18 +23,22 @@ public class CourseService {
 
     private final CourseManagerDao courseManagerDao;
 
-    public List<Course> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize){
-        return getByCriteria(role , " " , " ", page, pageSize, "" , "");
+    public List<Course> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
+        return getByCriteria(role, " ", " ", page, pageSize, null, null);
     }
 
     public List<Course> getByCriteria(
-            User.Role role , String firstName , String lastName , PageFromOne page , BoundedPageSize pageSize ,
-            String codeOrder , String creditsOrder
-    ){
+            User.Role role, String firstName, String lastName, PageFromOne page, BoundedPageSize pageSize,
+            Direction codeOrder, Direction creditsOrder
+    ) {
         Pageable pageable = PageRequest.of(
                 page.getValue() - 1,
-                pageSize.getValue());
+                pageSize.getValue(),
+                Sort.by(codeOrder, "code").and(
+                        Sort.by(creditsOrder, "credits")
+                ));
+        return courseManagerDao.findByCriteria(role, firstName, lastName, pageable);
 
-        return courseManagerDao.findByCriteria(role , firstName , lastName , pageable);
     }
 }
+

@@ -1,6 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Direction;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -22,10 +24,10 @@ public class CourseController {
     public List<Course> getCourses(@RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
                                    @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
                                    @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
-                                   @RequestParam(value = "code_order", required = false) String codeOrder,
-                                   @RequestParam(value = "credits_order", required = false) String creditOrder)
+                                   @RequestParam(value = "code_order", required = false, defaultValue = "ASC") Direction codeOrder,
+                                   @RequestParam(value = "credits_order", required = false, defaultValue = "ASC") Direction creditOrder)
     {
-        return service.getByCriteria(User.Role.TEACHER , firstName , lastName , page , pageSize , codeOrder , creditOrder)
+        return service.getByCriteria(User.Role.TEACHER , firstName , lastName , page , pageSize , codeOrder ,creditOrder)
                 .stream()
                 .map(mapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
