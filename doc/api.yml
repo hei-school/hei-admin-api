@@ -388,6 +388,41 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: code
+          in: query
+          description: Containing the provided `code`
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: Containing the provided `name`
+          schema:
+            type: string
+        - name: credits
+          in: query
+          description: Has exactly the provided `credits`
+          schema:
+            type: integer
+        - name: teacher_first_name
+          in: query
+          description: Containing the provided `teacher_first_name`
+          schema:
+            type: string
+        - name: teacher_last_name
+          in: query
+          description: Containing the provided `teacher_last_name`
+          schema:
+            type: string
+        - name: creditsOrder
+          in: query
+          description: sort rows by the provided `credits order`. default is `ASC`
+          schema:
+            $ref: "#/components/schemas/SortDirection"
+        - name: codeOrder
+          in: query
+          description: sort rows by the provided `code order`.default is `ASC`
+          schema:
+            $ref: "#/components/schemas/SortDirection"
       responses:
         '200':
           description: List of all courses
@@ -1058,6 +1093,11 @@ components:
       enum:
         - LINKED
         - UNLINKED
+    SortDirection:
+      type: string
+      enum:
+        - ASC
+        - DESC
     UpdateStudentCourse:
       type: object
       properties:
