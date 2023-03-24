@@ -17,8 +17,8 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.test.util.AssertionErrors.assertEquals;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -81,6 +81,16 @@ public class CourseIT {
         Courses actual = api.getCoursesByFilter(COURSES_FILTER);
 
         assertEquals(course1(), actual);
+    }
+    @Test
+    void courses_read_ok() {
+        ApiClient courses1Client = anApiClient(COURSES_TOKEN);
+
+        CoursesApi api = new CoursesApi(courses1Client);
+        assertThrowsForbiddenException(
+                () -> api.getByFilter(COURSES_FILTER));
+        assertThrowsForbiddenException(
+                () -> api.getCourses(1, "DONNE-3", null, null, null));
     }
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
