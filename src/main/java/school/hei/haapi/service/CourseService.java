@@ -16,6 +16,7 @@ import school.hei.haapi.repository.StudentCourseRepository;
 import school.hei.haapi.repository.dao.CourseManagerDao;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -43,18 +44,38 @@ public class CourseService {
             throw new BadRequestException("credits parameter is different of ASC and DESC");
         if (codeOrder.length()>0 && !codeOrder.equals("ASC") && !codeOrder.equals("DESC"))
             throw new BadRequestException("code parameter is different of ASC and DESC");
-         if(page==null){
-             PageFromOne defaultPage = new PageFromOne(1);
-             page = defaultPage;
+        if(page==null){
+            PageFromOne defaultPage = new PageFromOne(1);
+            page = defaultPage;
         }
-         if(pageSize==null){
-             BoundedPageSize defaultPageSize = new BoundedPageSize(15);
-             pageSize = defaultPageSize;
+        if(pageSize==null){
+            BoundedPageSize defaultPageSize = new BoundedPageSize(15);
+            pageSize = defaultPageSize;
         }
         Pageable pageable = PageRequest.of(page.getValue()-1, pageSize.getValue());
-        return courseManagerDao.findByCriteria(
+        List<Course> result = courseManagerDao.findByCriteria(
                 code, name, credits, teacher_first_name, teacher_last_name, creditsOrder, codeOrder, pageable);
+        switch(creditsOrder) {
+            case "DESC":
+                Collections.sort(result,(Course c1, Course c2)-> c2.getCredits()-c1.getCredits());
+                break;
+            case "ASC":
+                Collections.sort(result,(Course c1, Course c2)-> c1.getCredits()-c2.getCredits());
+                break;
+            default:
+        }
+        switch(codeOrder) {
+            case "DESC":
+                Collections.sort(result,(Course c1, Course c2)-> c2.getCode().compareTo(c1.getCode()));
+                break;
+            case "ASC":
+                Collections.sort(result,(Course c1, Course c2)-> c1.getCode().compareTo(c2.getCode()));
+                break;
+            default:
+        }
+        return result;
     }
+
 
     public List<StudentCourse> saveAllStudentCourses(String studentId, List<StudentCourse> toDomainStudentCourse) {
         return studentCourseRepository.saveAll(toDomainStudentCourse);
