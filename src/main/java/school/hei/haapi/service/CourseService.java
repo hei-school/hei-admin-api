@@ -36,4 +36,8 @@ public class CourseService {
         return courseRepository.findByMainTeacherFirstNameContainingIgnoreCase(firstName);
     }
 
+    public List<Course> getCoursesByMainTeacherLastName(String lastName) {
+        return courseRepository.findByMainTeacherLastNameContainingIgnoreCase(lastName);
+    }
+
 }
