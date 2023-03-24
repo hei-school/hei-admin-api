@@ -2,10 +2,12 @@ package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.repository.CourseRepository;
 
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 @Service
@@ -45,7 +47,21 @@ public class CourseService {
                     .filter(course -> course.getMainTeacher().getLastName().contains(teacherLastName))
                     .collect(Collectors.toList());
         }
+        if (credits != null) {
+            Comparator<Course> comparator = Comparator.comparing(Course::getCredits);
+            if (credits.equals("DESC")) {
+                comparator = comparator.reversed();
+            }
+            courses = courses.stream().sorted(comparator).collect(Collectors.toList());
+        }
 
+        if (code != null) {
+            Comparator<Course> comparator = Comparator.comparing(Course::getCode);
+            if (code.equals("DESC")) {
+                comparator = comparator.reversed();
+            }
+            courses = courses.stream().sorted(comparator).collect(Collectors.toList());
+        }
         return courses;
     }
 }
