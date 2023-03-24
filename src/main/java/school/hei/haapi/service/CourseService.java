@@ -29,14 +29,14 @@ public class CourseService {
         return repository.saveAll(courses);
     }
 
-    public Course getById(String courseId){return repository.getById(courseId);}
+    public Course getCourseById(String courseId){return repository.getById(courseId);}
 
-    public List<StudentCourse> getByStudentIdAndStatus(String studentId, StudentCourse.CourseStatus status) {
+    public List<StudentCourse> getCourseByStudentIdAndStatus(String studentId, StudentCourse.CourseStatus status) {
         StudentCourse.CourseStatus newStatus = status==null?StudentCourse.CourseStatus.LINKED:status;
         return studentCourseRepository.getStudentCourseByStudentIdAndStatus(studentId,newStatus);
     }
 
-    public List<Course> getCourses(
+    public List<Course> getCourse(
             PageFromOne page,
             BoundedPageSize pageSize,
             String name,
@@ -48,16 +48,6 @@ public class CourseService {
             Sort.Direction codeOrder
     )
     {
-            if(codeOrder != null) {
-                return repository.findCoursesWithParams(
-                        name,
-                        code,
-                        teacherFirstName,
-                        teacherLastName,
-                        credits,
-                        pageableCreator(page, pageSize, codeOrder, "code")
-                );
-            }
             if (creditsOrder != null) {
                 return repository.findCoursesWithParams(
                         name,
@@ -66,6 +56,16 @@ public class CourseService {
                         teacherLastName,
                         credits,
                         pageableCreator(page, pageSize, creditsOrder, "credits")
+                );
+            }
+            if(codeOrder != null) {
+                return repository.findCoursesWithParams(
+                        name,
+                        code,
+                        teacherFirstName,
+                        teacherLastName,
+                        credits,
+                        pageableCreator(page, pageSize, codeOrder, "code")
                 );
             }
             else{
@@ -85,7 +85,7 @@ public class CourseService {
         return studentCourseRepository.saveAll(toDomainStudentCourse);
     }
 
-    public StudentCourse getByStudentIdAndCourseId(String studentId, String courseId) {
+    public StudentCourse getCourseByStudentIdAndCourseId(String studentId, String courseId) {
         return studentCourseRepository.getStudentCourseByStudentIdAndCourseId(studentId,courseId);
     }
 
