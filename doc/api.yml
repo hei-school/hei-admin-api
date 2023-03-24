@@ -10,10 +10,8 @@ info:
     or [prod](https://prod-hei-admin.auth.eu-west-3.amazoncognito.com/oauth2/authorize?client_id=i8bg538jpfu6mqmqb61m26trd&response_type=token&scope=email+openid&redirect_uri=https%3A%2F%2Fapi-prod.hei.school%2Fwhoami)
     authentication service.
     Then, start playing with our system!
-
     The implementation of our API is [publicly disclosed](https://github.com/hei-school/hei-admin-api).
     You are welcome to try and compromise it. Happy hacking!
-
 servers:
   - url: 'https://api-dev.hei.school'
   - url: 'https://api-prod.hei.school'
@@ -209,7 +207,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Course'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -388,6 +388,36 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: code
+          in: query
+          description: "Filter course by code, case is ignored"
+          required: false
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: "Filter course by name, case is ignored"
+          required: false
+          schema:
+            type: string
+        - name: credits
+          in: query
+          description: "Filter course by credits, case is ignored"
+          required: false
+          schema:
+            type: string
+        - name: teacher_first_name
+          in: query
+          description: "Filter course by teacher first name, case is ignored"
+          required: false
+          schema:
+            type: string
+        - name: teacher_last_name
+          in: query
+          description: "Filter course by teacher last name, case is ignored"
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: List of all courses

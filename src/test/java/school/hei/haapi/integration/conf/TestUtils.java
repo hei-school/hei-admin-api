@@ -32,6 +32,9 @@ public class TestUtils {
   public static final String PAYMENT1_ID = "payment1_id";
   public static final String PAYMENT2_ID = "payment2_id";
   public static final String PAYMENT4_ID = "payment4_id";
+  public static final String COURSE1_ID = "course1_id";
+  public static final String COURSE2_ID = "course2_id";
+  public static final String COURSE3_ID = "course3_id";
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
@@ -44,7 +47,7 @@ public class TestUtils {
     client.setHost("localhost");
     client.setPort(serverPort);
     client.setRequestInterceptor(httpRequestBuilder ->
-        httpRequestBuilder.header("Authorization", "Bearer " + token));
+            httpRequestBuilder.header("Authorization", "Bearer " + token));
     return client;
   }
 
@@ -57,7 +60,7 @@ public class TestUtils {
 
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {
     when(eventBridgeClient.putEvents((PutEventsRequest) any())).thenReturn(
-        PutEventsResponse.builder().build()
+            PutEventsResponse.builder().build()
     );
   }
 
@@ -70,8 +73,8 @@ public class TestUtils {
     ApiException apiException = assertThrows(ApiException.class, executable);
     String responseBody = apiException.getResponseBody();
     assertEquals("{"
-        + "\"type\":\"403 FORBIDDEN\","
-        + "\"message\":\"Access is denied\"}", responseBody);
+            + "\"type\":\"403 FORBIDDEN\","
+            + "\"message\":\"Access is denied\"}", responseBody);
   }
 
   public static boolean isValidUUID(String candidate) {
