@@ -58,7 +58,7 @@ class FeeIT {
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(0);
     fee.setComment("Comment");
-    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24.00Z"));
+    fee.setUpdatedAt(Instant.parse("2023-02-08T05:30:24.00Z"));
     fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
     return fee;
@@ -73,7 +73,7 @@ class FeeIT {
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(0);
     fee.setComment("Comment");
-    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24.00Z"));
+    fee.setUpdatedAt(Instant.parse("2023-02-08T05:30:24.00Z"));
     fee.creationDatetime(Instant.parse("2021-11-10T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
     return fee;
@@ -88,7 +88,7 @@ class FeeIT {
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(5000);
     fee.setComment("Comment");
-    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24.00Z"));
+    fee.setUpdatedAt(Instant.parse("2023-02-08T05:30:24.00Z"));
     fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
     return fee;
@@ -134,6 +134,7 @@ class FeeIT {
     assertEquals(2, actualFees2.size());
     assertTrue(actualFees1.contains(fee1()));
     assertTrue(actualFees1.contains(fee2()));
+
     assertTrue(actualFees1.contains(fee3()));
     assertTrue(actualFees2.contains(fee1()));
     assertTrue(actualFees2.contains(fee2()));

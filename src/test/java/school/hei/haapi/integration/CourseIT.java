@@ -15,10 +15,7 @@ import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -134,6 +131,20 @@ public class CourseIT {
     return crupdateCourse;
   }
 
+  static UpdateStudentCourse updateStudentCourse1(){
+        UpdateStudentCourse studentCourse = new UpdateStudentCourse();
+        studentCourse.setCourseId("course1_id");
+        studentCourse.setStatus(CourseStatus.UNLINKED);
+        return studentCourse;
+    }
+  static UpdateStudentCourse updateStudentCourse2(){
+      UpdateStudentCourse studentCourse = new UpdateStudentCourse();
+      studentCourse.setCourseId("course2_id");
+      studentCourse.setStatus(CourseStatus.LINKED);
+      return studentCourse;
+  }
+
+
 
   @BeforeEach
   void setUp() {
@@ -149,20 +160,12 @@ public class CourseIT {
     assertTrue(actual.contains(course1()));
   }
   @Test
-  void student_read_courses_ok() throws ApiException {
+  void student_update_status_courses_ko() throws ApiException {
     ApiClient student = anApiClient(STUDENT1_TOKEN);
     UsersApi usersApi = new UsersApi(student);
-  }
-  @Test
-  void student_create_courses_ko() throws ApiException {
-    ApiClient student = anApiClient(STUDENT1_TOKEN);
-    UsersApi usersApi = new UsersApi(student);
-  }
-
-  @Test
-  void manager_create_courses_ok() throws ApiException {
-    ApiClient student = anApiClient(STUDENT1_TOKEN);
-    UsersApi usersApi = new UsersApi(student);
+    assertThrowsApiException(
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> usersApi.updateStudentCourses("student1_id",List.of()));
   }
 
   @Test
@@ -188,10 +191,18 @@ public class CourseIT {
   void manager_crupdate_ok() throws ApiException {
     ApiClient manager = anApiClient(MANAGER1_TOKEN);
     TeachingApi teachingApi = new TeachingApi(manager);
-    UsersApi usersApi = new UsersApi(manager);
     List<Course> actual = teachingApi.crupdateCourses(List.of(updatedCourse()));
+      System.out.println(actual.get(0));
     assertTrue(actual.contains(course3()));
   }
+    @Test
+    void manager_update_status_courses_ok() throws ApiException {
+        ApiClient student = anApiClient(MANAGER1_TOKEN);
+        UsersApi usersApi = new UsersApi(student);
+        List<Course> actual = usersApi.updateStudentCourses("student1_id",List.of(updateStudentCourse1()));
+        assertEquals(1,actual.size());
+        assertTrue(actual.contains(course1()));
+    }
 
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
