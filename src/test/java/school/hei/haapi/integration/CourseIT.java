@@ -87,6 +87,18 @@ class CourseIT {
     assertThrowsForbiddenException(() -> getCoursesWithNoCriteria(api));
   }
 
+  @Test
+  void student_read_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+
+    List<Course> actual = getCoursesWithNoCriteria(api);
+
+    assertTrue(actual.contains(course1()));
+    assertTrue(actual.contains(course2()));
+    assertTrue(actual.contains(course3()));
+  }
+
 
   @BeforeEach
   void setUp() {
