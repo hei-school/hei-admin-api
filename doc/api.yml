@@ -412,10 +412,14 @@ paths:
           in: query
           required: false
           description: Filter response by credits
+          schema:
+            $ref: "#/components/schemas/Sort"
         - name: codeOrder
           in: query
           required: false
           description: Filter response by code
+          schema:
+            $ref: "#/components/schemas/Sort"
       responses:
         '200':
           description: List of all courses
@@ -1193,7 +1197,12 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
-
+    Sort:
+      type: string
+      default: ASC
+      enum:
+        - ASC
+        - DESC
     Exception:
       type: object
       properties:
