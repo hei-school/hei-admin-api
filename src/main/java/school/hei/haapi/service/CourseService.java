@@ -1,60 +1,69 @@
 package school.hei.haapi.service;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
-import school.hei.haapi.endpoint.rest.model.BadRequestException;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
+import school.hei.haapi.model.Course;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseFollowed;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.StudentCourse;
+import school.hei.haapi.model.CourseFollowedRest;
+import school.hei.haapi.repository.CourseFollowedRepository;
 import school.hei.haapi.repository.CourseRepository;
-import school.hei.haapi.repository.StudentCourseRepository;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 @Service
 @AllArgsConstructor
 public class CourseService {
-    private final CourseRepository repository;
-    private final StudentCourseRepository studentCourseRepository;
+    private final CourseFollowedRepository courseFollowedRepository;
+    private final CourseMapper courseMapper;
+    private final CourseRepository courseRepository;
 
-    public List<Course> saveAll(List<Course> courses) {
-        return repository.saveAll(courses);
+    public List<CourseFollowed> getCourseFollowedByOneStudent(String studentId,
+                                                              CourseStatus status) {
+        return courseFollowedRepository.findAllByStudentIdAndStatus(studentId, status);
     }
 
-
-    public Course getById(String courseId){return repository.getById(courseId);}
-
-    public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize){
-        List<Course> allCourses = new ArrayList<>();
-        if(page==null && pageSize==null){
-            Pageable pageable = PageRequest.of(0, 15);
-            allCourses = repository.findAll(pageable).toList();
-        }
-        else if(page==null){
-            Pageable pageable = PageRequest.of(1, pageSize.getValue());
-            allCourses = repository.findAll(pageable).toList();
-        }
-        else if(pageSize==null){
-            Pageable pageable = PageRequest.of(page.getValue()-1, 15);
-            allCourses = repository.findAll(pageable).toList();
-        }
-        else{
-            Pageable pageable = PageRequest.of(page.getValue()-1, pageSize.getValue());
-            allCourses = repository.findAll(pageable).toList();
-        }
-        return allCourses;
+    public List<Course> crupdateCourse(List<CrupdateCourse> toCrupdate){
+        List<Course> toDomain = toCrupdate.stream().map(
+                course -> courseMapper.toDomain(course)
+        ).collect(Collectors.toUnmodifiableList());
+        return courseRepository.saveAll(toDomain);
     }
 
-        public List<StudentCourse> getByStudentIdAndStatus(String studentId, StudentCourse.CourseStatus status) {
-        return studentCourseRepository.getStudentCourseByStudentIdAndStatus(studentId,status);
+    public List<Course> getAllCourses(school.hei.haapi.service.CourseFilter filter, PageFromOne page, BoundedPageSize pageSize){
+        Pageable pageable = PageRequest.of((page == null ? 1 : page.getValue() - 1 ),
+                pageSize == null ? 15 : pageSize.getValue());
+        if (filter.getCode() != null && !filter.getCode().isEmpty()) {
+            return courseRepository.findByCodeContainingIgnoreCase(filter.getCode(), pageable);
+        } else if (filter.getName() != null && !filter.getName().isEmpty()) {
+            return courseRepository.findByNameContainingIgnoreCase(filter.getName(), pageable);
+        } else if (filter.getCredits() != null) {
+            return courseRepository.findByCredits(filter.getCredits(), pageable);
+        } else if (filter.getTeacherFirstName() != null && !filter.getTeacherFirstName().isEmpty() && filter.getTeacherLastName() != null && !filter.getTeacherLastName().isEmpty()) {
+            return courseRepository.findByTeacherFirstNameContainingIgnoreCaseAndTeacherLastNameContainingIgnoreCase(filter.getTeacherFirstName(), filter.getTeacherLastName(), pageable);
+        } else if (filter.getTeacherFirstName() != null && !filter.getTeacherFirstName().isEmpty()) {
+            return courseRepository.findByTeacherFirstNameContainingIgnoreCase(filter.getTeacherFirstName(), pageable);
+        } else if (filter.getTeacherLastName() != null && !filter.getTeacherLastName().isEmpty()) {
+            return courseRepository.findByTeacherLastNameContainingIgnoreCase(filter.getTeacherLastName(), pageable);
+        } else {
+            return courseRepository.findAll(pageable).stream().collect(Collectors.toList());
+        }
+    };
 
-            
+
+    public List<CourseFollowed> updateStudentCourseLink(List<CourseFollowed> studentCourseToUpdate,
+                                                        String studentId){
+        return courseFollowedRepository.saveAll(studentCourseToUpdate);
     }
+
 }

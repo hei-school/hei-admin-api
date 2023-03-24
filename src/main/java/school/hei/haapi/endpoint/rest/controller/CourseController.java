@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.StudentCourse;
 import school.hei.haapi.service.CourseService;
@@ -30,14 +31,32 @@ public class CourseController {
 
 
 
+
     @GetMapping("/courses")
-    public List<Course> getCourses(
-            @RequestParam(name = "page", required = false)PageFromOne page,
-            @RequestParam(name = "page_size", required = false)BoundedPageSize pageSize
-    ){
-        return courseService.getCourses(page, pageSize).stream()
-                .map(courseMapper::toRestCourse)
-                .collect(Collectors.toList());
+    public List<Course> getAllCourses(
+            @RequestParam(required = false) PageFromOne page,
+            @RequestParam(name = "page_size", required = false) BoundedPageSize pageSize,
+            @RequestParam(required = false) String code,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) Integer credits,
+            @RequestParam(name = "teacher_first_name", required = false) String teacherFirstName,
+            @RequestParam(name = "teacher_last_name", required = false) String teacherLastName
+
+    ) {
+
+        CourseFilter filter = CourseFilter.builder()
+                .code(code)
+                .name(name)
+                .credits(credits)
+                .teacherFirstName(teacherFirstName)
+                .teacherLastName(teacherLastName)
+                .build();
+        return courseService.getAllCourses(filter, page, pageSize).stream().map(courseMapper::toRest)
+                .collect(Collectors.toUnmodifiableList());
+    }
+    @GetMapping("/courses/{id}")
+    public Course getCoursesById(@PathVariable String id) {
+        return courseMapper.toRestCourse(courseService.getById(id));
     }
 
 

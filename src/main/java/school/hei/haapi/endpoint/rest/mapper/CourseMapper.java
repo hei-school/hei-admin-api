@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
+import school.hei.haapi.model.Course;
 import school.hei.haapi.model.StudentCourse;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
