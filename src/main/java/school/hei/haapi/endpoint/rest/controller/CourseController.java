@@ -46,11 +46,16 @@ public class CourseController {
             @RequestParam(name = "orderByCredit") String orderByCredit,
             @RequestParam(name = "direction1") String direction1,
             @RequestParam(name = "direction2") String direction2,
+            @RequestParam(name = "code", required = false) String code,
+            @RequestParam(name = "name", required = false) String name,
+            @RequestParam(name = "credits", required = false) Integer credits,
+            @RequestParam(name = "teacher_first_name", required = false) String teacherFirstName,
+            @RequestParam(name = "teacher_last_name", required = false) String teacherLastName,
             @RequestParam(name = "page") PageFromOne page,
             @RequestParam(name = "page_size") BoundedPageSize page_size
     ) {
         return service.orderedCourse(orderByCode, orderByCredit,Sort.Direction.fromString(direction1),
-                        Sort.Direction.fromString(direction2), page, page_size).stream()
+                        Sort.Direction.fromString(direction2),name, code, credits, teacherFirstName, teacherLastName,page, page_size).stream()
                 .map(courseMapper::toRest)
                 .collect(toUnmodifiableList());
     }

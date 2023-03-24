@@ -58,6 +58,16 @@ class CourseIT {
                 .totalHours(40)
                 .mainTeacher(teacher1());
     }
+    public static Course course1() {
+        Course course = new Course();
+        course.setId("course1_id");
+        course.setName("Name of course one");
+        course.setCode("CRS21001");
+        course.setCredits(1);
+        course.setTotalHours(1);
+        course.setMainTeacher(teacher1());
+        return course;
+    }
 
     static UpdateStudentCourse courseToUpdate() {
         return new UpdateStudentCourse()
@@ -75,10 +85,31 @@ class CourseIT {
         ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
         TeachingApi api = new TeachingApi(teachingClient);
 
-        List<Course> actual = api.getCourses(1, 20);
+        List<Course> actual = api.getCourses(1, 20, null,null,null,null,null,null);
 
         assertTrue(actual.contains(course()));
     }
+
+    @Test
+    void order_course_read_ok() throws ApiException {
+        ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
+        TeachingApi api = new TeachingApi(teachingClient);
+    }
+    @Test
+    void order_course_read_ko() throws ApiException {
+        ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
+        TeachingApi api = new TeachingApi(teachingClient);
+
+        assertThrowsApiException( "{\"type\":\"404 NOT_FOUND\",\"message\":\"user not found\"}" ,  () -> api.getCourses( course1().getCode(),
+                course1().getName(),
+                course1().getCredits(),
+                course1().getMainTeacher().getFirstName(), course1().getMainTeacher().getLastName(),
+                creditsOrderDESC,
+                codeOrderASC,
+                1,
+                15));
+    }
+
 
     @Test
     void manager_update_student_course_ko() throws ApiException {

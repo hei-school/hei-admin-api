@@ -57,11 +57,16 @@ public class CourseService {
                 .collect(Collectors.toUnmodifiableList());
     }
     public List<Course> orderedCourse(String orderByCode, String orderByCredit, Sort.Direction direction1,
-                                      Sort.Direction direction2,PageFromOne page,BoundedPageSize pageSize){
+                                      Sort.Direction direction2,
+                                      String name, String code, Integer credits, String teacherFirstName,
+                                      String teacherLastName,PageFromOne page,BoundedPageSize pageSize){
         Pageable pageable = PageRequest.of(
                 page.getValue()-1,
                 pageSize.getValue());
 
-        return courseDao.findAllOrderedBy(orderByCode,orderByCredit,direction1,direction2,pageable);
+        return courseDao.findAllOrderedBy(orderByCode,orderByCredit,direction1,direction2,name, code,
+                credits, teacherFirstName, teacherLastName,pageable);
     }
 }
+
+
