@@ -9,5 +9,5 @@ create table if not exists "course"
     credits           integer                  not null,
     total_hours       integer                  not null,
     main_teacher_id   varchar     not null
-        constraint maint_teacher_id_fk references "user"(id)
+        constraint main_teacher_id_fk references "user"(id)
 );
