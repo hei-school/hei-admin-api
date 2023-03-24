@@ -22,18 +22,10 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
 import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.teacher1;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -58,6 +50,24 @@ class CourseIT {
         .totalHours(40)
         .mainTeacher(teacher1());
   }
+  static Course course1() {
+    return new Course()
+            .id("course2_id")
+            .code("PROG3")
+            .name("POO")
+            .credits(6)
+            .totalHours(50)
+            .mainTeacher(teacher2());
+  }
+  static Course course2() {
+    return new Course()
+            .id("course3_id")
+            .code("WEB1")
+            .name("Interface web")
+            .credits(5)
+            .totalHours(30)
+            .mainTeacher(teacher1());
+  }
 
   static UpdateStudentCourse courseToUpdate() {
     return new UpdateStudentCourse()
@@ -76,10 +86,34 @@ class CourseIT {
     TeachingApi api = new TeachingApi(teachingClient);
 
     List<Course> actual = api.getCourses(1, 20, null, null,null,null,null);
+    assertEquals(actual, List.of(course(),course1(),course2()));
+  }
+  @Test
+  void course_filter_ignoring_case_read_ok() throws ApiException {
+    ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teachingClient);
 
-    assertTrue(actual.contains(course()));
+    List<Course> actual = api.getCourses(1, 20, null, null,null,"MahEry",null);
+
+    assertTrue(actual.contains(course1()));
+  }
+  @Test
+  void course_filter_incomplete_name_read_ok() throws ApiException {
+    ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teachingClient);
+
+    List<Course> actual = api.getCourses(1, 20, null, null,null,"Tok",null);
+    assertTrue(actual.contains(course1()));
   }
 
+  @Test
+  void course_filter_different_read_ok() throws ApiException {
+    ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teachingClient);
+
+    List<Course> actual = api.getCourses(1, 20, null, null,null,"MaHery","mahery");
+    assertEquals(actual, List.of(course(),course1(),course2()));
+  }
   @Test
   void student_course_read_ok() throws ApiException {
     ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
