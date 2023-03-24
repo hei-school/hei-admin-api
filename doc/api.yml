@@ -424,16 +424,14 @@ paths:
           in: query
           description: Filter courses by creditsOrder, case is ignored
           required: false
-          schema:
-            type: String
-            enum: [ASC, DESC]
+          schema: 
+            $ref: '#/components/schemas/OrderType'
         - name: codeOrder
           in: query
           description: Filter courses by codeOrder, case is ignored
           required: false
           schema:
-            type: string
-            enum: [ASC, DESC]
+            $ref: '#/components/schemas/OrderType'
       responses:
         '200':
           description: List of all courses
@@ -1249,3 +1247,6 @@ components:
       example:
         type: InternalServerException
         message: Unexpected error
+    OrderType:
+      type: string
+      enum: [ASC, DESC]

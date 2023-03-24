@@ -23,7 +23,8 @@ import java.util.List;
 public class CourseDao {
     private EntityManager entityManager;
 
-    public List<Course> findByCriteria(String code, String name, Integer credits, String teacherFirstName, String teacherLastName, Course.CreditsOrder creditsOrder, Course.CodeOrder codeOrder,
+    public List<Course> findByCriteria(String code, String name, Integer credits, String teacherFirstName,
+                                       String teacherLastName, Course.OrderType creditsOrder, Course.OrderType codeOrder,
                                          Pageable pageable) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<Course> query = builder.createQuery(Course.class);
@@ -33,22 +34,14 @@ public class CourseDao {
 
         Predicate hasCourseCode =
                 builder.or(
-                        builder.like(builder.lower(root.get("code")), "%" + code + "%"),
-                        builder.like(root.get("code"), "%" + code + "%")
+                        builder.like(builder.lower(root.get("code")), "%" + code.toLowerCase() + "%"),
+                        builder.like(root.get("code"), "%" + code.toLowerCase() + "%")
                 );
-
-        List<Order> codeOrderClause = new ArrayList<>();
-        if (creditsOrder == Course.CreditsOrder.ASC) {
-            codeOrderClause.add(builder.asc(root.get("code")));
-        } else if (creditsOrder == Course.CreditsOrder.DESC) {
-            codeOrderClause.add(builder.desc(root.get("code")));
-        }
-        codeOrderClause.addAll(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
         Predicate hasCourseName =
                 builder.or(
-                        builder.like(builder.lower(root.get("name")), "%" + name + "%"),
-                        builder.like(root.get("name"), "%" + name + "%")
+                        builder.like(builder.lower(root.get("name")), "%" + name.toLowerCase() + "%"),
+                        builder.like(root.get("name"), "%" + name.toLowerCase() + "%")
                 );
 
         Predicate hasCredits =
@@ -56,15 +49,6 @@ public class CourseDao {
                         builder.or(
                                 builder.equal(root.get("credits"), credits)
                         ) : builder.conjunction();
-
-
-        List<Order> creditsOrderClause = new ArrayList<>();
-        if (creditsOrder == Course.CreditsOrder.ASC) {
-            creditsOrderClause.add(builder.asc(root.get("credits")));
-        } else if (creditsOrder == Course.CreditsOrder.DESC) {
-            creditsOrderClause.add(builder.desc(root.get("credits")));
-        }
-        creditsOrderClause.addAll(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
         Predicate hasTeacherFirstName =
                 builder.or(
@@ -86,9 +70,28 @@ public class CourseDao {
         } else hasTeacherFirstNameAndTeacherLastName = builder.or(hasTeacherFirstName, hasTeacherLastName);
 
 
+        List<Order> orders = new ArrayList<>();
+
+        if (creditsOrder == Course.OrderType.ASC) {
+            orders.add(builder.asc(root.get("credits")));
+        } else if (creditsOrder == Course.OrderType.DESC) {
+            orders.add(builder.desc(root.get("credits")));
+        }
+
+        if (codeOrder == Course.OrderType.ASC) {
+            orders.add(builder.asc(root.get("code")));
+        } else if (codeOrder == Course.OrderType.DESC) {
+            orders.add(builder.desc(root.get("code")));
+        }
+
+        if (orders.isEmpty()) {
+            orders.add(builder.asc(root.get("code")));
+        }
+
         query
                 .where(builder.and(hasCourseCode, hasCourseName, hasCredits, hasTeacherFirstNameAndTeacherLastName))
-                .orderBy(creditsOrderClause);
+                .orderBy(orders)
+                .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
         return entityManager.createQuery(query)
                 .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())

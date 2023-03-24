@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.Course;
 import org.springframework.data.domain.PageRequest;
@@ -41,7 +42,8 @@ public class CourseService {
 
 
   public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize, String code, String name, Integer credits,
-                                 String teacherFirstName, Course.CodeOrder codeOrder, Course.CreditsOrder creditsOrder, String teacherLastName) {
+                                 String teacherFirstName, Course.OrderType codeOrder, Course.OrderType creditsOrder,
+                                 String teacherLastName) {
     int pageValue = page.getValue() - 1;
     int pageSizeValue = pageSize.getValue();
     Pageable pageable = PageRequest.of(pageValue, pageSizeValue);

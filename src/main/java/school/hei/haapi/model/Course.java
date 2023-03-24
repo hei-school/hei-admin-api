@@ -38,10 +38,7 @@ public class Course implements Serializable {
   @ManyToOne(cascade = CascadeType.ALL)
   @JoinColumn(name = "user_id", nullable = false)
   private User mainTeacher;
-  public enum CreditsOrder {
-    ASC, DESC
-  }
-  public enum CodeOrder {
+  public enum OrderType {
     ASC, DESC
   }
 }

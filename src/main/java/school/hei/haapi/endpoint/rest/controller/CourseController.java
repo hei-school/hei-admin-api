@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -48,10 +49,12 @@ public class CourseController {
           @RequestParam(value = "credits", required = false, defaultValue = "") Integer credits,
           @RequestParam(value = "teacher_first_name", required = false, defaultValue = "") String teacherFirstName,
           @RequestParam(value = "teacher_last_name", required = false, defaultValue = "") String teacherLastname,
-          @RequestParam(value = "creditsOrder", required = false, defaultValue = "ASC") String creditsOrder,
-          @RequestParam(value = "codeOrder", required = false, defaultValue = "ASC") String codeOrder
+          @RequestParam(value = "creditsOrder", required = false, defaultValue = "") school.hei.haapi.model.Course.OrderType creditsOrder,
+          @RequestParam(value = "codeOrder", required = false, defaultValue = "") school.hei.haapi.model.Course.OrderType codeOrder
           ) {
-    return service.getCourses(page, pageSize, code, name, credits, teacherFirstName, school.hei.haapi.model.Course.CodeOrder.valueOf(codeOrder), school.hei.haapi.model.Course.CreditsOrder.valueOf(creditsOrder), teacherLastname ).stream()
+    return service.getCourses(page, pageSize, code, name, credits, teacherFirstName, codeOrder,
+                    creditsOrder, teacherLastname )
+        .stream()
         .map(courseMapper::toRest)
         .collect(toUnmodifiableList());
   }

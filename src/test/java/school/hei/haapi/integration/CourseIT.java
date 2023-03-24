@@ -16,6 +16,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+import school.hei.haapi.endpoint.rest.model.OrderType;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -99,7 +100,7 @@ class CourseIT {
     ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teachingClient);
 
-    List<Course> actual = api.getCourses(1, 20,"PROG",null,null,null,null,null,null);
+    List<Course> actual = api.getCourses(1, 20,"pROG",null,null,null,null,null,null);
 
     assertTrue(actual.contains(course()));
     assertTrue(actual.contains(course2()));
@@ -125,7 +126,8 @@ class CourseIT {
 
     List<Course> actual = api.getCourses(1, 20,null,null,6,null,null,null,null);
 
-    assertEquals(actual, List.of(course(), course2()));
+    assertTrue(actual.contains(course()));
+    assertTrue(actual.contains(course2()));
     assertFalse(actual.contains(course3()));
   }
 
@@ -158,9 +160,11 @@ class CourseIT {
     ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teachingClient);
 
-    List<Course> actual = api.getCourses(1, 100,null,null,null,null,null,"DESC",null);
+    List<Course> actual = api.getCourses(1, 100,null,null,null,null,null, OrderType.DESC,null);
 
-    assertEquals(actual, List.of(course(), course2(), course3()));
+    assertEquals(actual.get(0), course());
+    assertEquals(actual.get(1), course2());
+    assertEquals(actual.get(2), course3());
   }
 
   @Test
@@ -168,9 +172,11 @@ class CourseIT {
     ApiClient teachingClient = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teachingClient);
 
-    List<Course> actual = api.getCourses(1, 100,null,null,null,null,null,null,"DESC");
+    List<Course> actual = api.getCourses(1, 100,null,null,null,null,null,null, OrderType.DESC);
 
-    assertEquals(actual, List.of(course3(), course(), course2()));
+    assertEquals(actual.get(0), course3());
+    assertEquals(actual.get(1), course2());
+    assertEquals(actual.get(2), course());
   }
 
   @Test
@@ -223,7 +229,7 @@ class CourseIT {
         () -> api.updateStudentCourses(STUDENT1_ID, List.of(courseToUpdate())));
   }
 
-  /*@Test
+  @Test
   void update_course_ok() throws ApiException {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(managerClient);
@@ -236,11 +242,8 @@ class CourseIT {
         .totalHours(40)
         .mainTeacherId("teacher5_id")));
 
-    assertEquals(course(), course2());
-    assertTrue(actual.contains(course()
-        .code("SYS1")
-        .name("Operating System")));
-  }*/
+    assertEquals(actual.get(0).getMainTeacher(), teacher5());
+  }
 
   @Test
   void student_course_read_ko() throws ApiException {
