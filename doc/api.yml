@@ -407,6 +407,18 @@ paths:
           description: filter by teacher last-name
           schema:
             $ref: '#/components/schemas/teacher'
+        - name: creditsOrder
+          in: query
+          required: false
+          description: Sort by credits 
+          schema:
+            $ref: '#/components/schemas/creditsOrder'
+        - name: codeOrder
+          in: query
+          required: false
+          description: Sort by code 
+          schema:
+            $ref: '#/components/schemas/codeOrder'
         - name: page
           in: query
           schema:
@@ -1198,12 +1210,18 @@ components:
     code:
       type: string
       description: should be a proper course code
+    codeOrder:
+      type: string
+      description: possible value = ASC, DESC
     name:
       type: integer
       description: should be a proper course name(insensitive case)
     credits:
       type: integer
-      description: should be a correct credits 
+      description: should be a correct credits
+    creditsOrder:
+      type: string
+      description: possible value = ASC, DESC
     teacher:
       type: string
       description: first-name or -last name (insensitive case)

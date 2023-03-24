@@ -92,7 +92,6 @@ public class CourseIT {
             () -> api.getCourses(1,15));
     }
 
-    void
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
 
