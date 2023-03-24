@@ -16,7 +16,8 @@ public class FeeValidator implements Consumer<Fee> {
     fees.forEach(this::accept);
   }
 
-  @Override public void accept(Fee fee) {
+  @Override
+  public void accept(Fee fee) {
     Set<String> violationMessages = new HashSet<>();
     if (fee.getStudent() == null) {
       violationMessages.add("Student is mandatory");
