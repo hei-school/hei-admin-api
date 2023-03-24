@@ -44,8 +44,10 @@ public class CourseService {
             Integer credits,
             String teacherFirstName,
             String teacherLastName,
+            Sort.Direction creditsOrder,
             Sort.Direction codeOrder
-    ){
+    )
+    {
             if(codeOrder != null) {
                 return repository.findCoursesWithParams(
                         name,
@@ -54,6 +56,16 @@ public class CourseService {
                         teacherLastName,
                         credits,
                         pageableCreator(page, pageSize, codeOrder, "code")
+                );
+            }
+            if (creditsOrder != null) {
+                return repository.findCoursesWithParams(
+                        name,
+                        code,
+                        teacherFirstName,
+                        teacherLastName,
+                        credits,
+                        pageableCreator(page, pageSize, creditsOrder, "credits")
                 );
             }
             else{
@@ -65,8 +77,8 @@ public class CourseService {
                         credits,
                         pageableCreator(page, pageSize, null, null)
                 );
-                }
             }
+    }
 
 
     public List<StudentCourse> saveAllStudentCourses(String studentId, List<StudentCourse> toDomainStudentCourse) {
@@ -77,7 +89,7 @@ public class CourseService {
         return studentCourseRepository.getStudentCourseByStudentIdAndCourseId(studentId,courseId);
     }
 
-    private Pageable pageableCreator(PageFromOne page, BoundedPageSize pageSize, Sort.Direction order, String orderTarget){
+    private Pageable pageableCreator(PageFromOne page, BoundedPageSize pageSize,Sort.Direction order, String orderTarget){
         Pageable pageable = null;
 
         if(orderTarget != null && order != null){
