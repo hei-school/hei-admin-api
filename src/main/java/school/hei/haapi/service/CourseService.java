@@ -22,11 +22,12 @@ public class CourseService {
     private final CourseManagerDao courseManagerDao;
 
     public List<Course> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize){
-        return getByCriteria(role , " " , " ", page, pageSize);
+        return getByCriteria(role , " " , " ", page, pageSize, "" , "");
     }
 
     public List<Course> getByCriteria(
-            User.Role role , String firstName , String lastName , PageFromOne page , BoundedPageSize pageSize
+            User.Role role , String firstName , String lastName , PageFromOne page , BoundedPageSize pageSize ,
+            String codeOrder , String creditsOrder
     ){
         Pageable pageable = PageRequest.of(
                 page.getValue() - 1,
