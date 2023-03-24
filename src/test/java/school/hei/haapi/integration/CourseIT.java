@@ -297,7 +297,7 @@ public class CourseIT {
     void reading_with_teacher_last_name_part_case_insensitive_filter_first_name_too_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         TeachingApi api = new TeachingApi(manager1Client);
-        List<Course> actualCourses = api.getCourses(null,null,"","","","",oppositeCase(course1().getMainTeacher().getFirstName().substring(0, 2)),"","");
+        List<Course> actualCourses = api.getCourses(null,null,"","","",oppositeCase(course1().getMainTeacher().getFirstName().substring(0, 2)),"","","");
 
         assertTrue(actualCourses.contains(course1()));
     }

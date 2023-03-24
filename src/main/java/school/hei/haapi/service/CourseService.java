@@ -39,6 +39,10 @@ public class CourseService {
     }
 
     public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize,String code,String name,Integer credits,String teacher_first_name,String teacher_last_name,String creditsOrder,String codeOrder){
+        if (creditsOrder.length()>0 && !creditsOrder.equals("ASC") && !creditsOrder.equals("DESC"))
+            throw new BadRequestException("credits parameter is different of ASC and DESC");
+        if (codeOrder.length()>0 && !codeOrder.equals("ASC") && !codeOrder.equals("DESC"))
+            throw new BadRequestException("code parameter is different of ASC and DESC");
          if(page==null){
              PageFromOne defaultPage = new PageFromOne(1);
              page = defaultPage;
@@ -56,7 +60,7 @@ public class CourseService {
         return studentCourseRepository.saveAll(toDomainStudentCourse);
     }
 
-    public StudentCourse getCoursesByStudentIdAndCourseId(String studentId, String courseId) {
+    public List<StudentCourse> getCoursesByStudentIdAndCourseId(String studentId, String courseId) {
         return studentCourseRepository.getStudentCourseByStudentIdAndCourseId(studentId,courseId);
     }
 

@@ -84,6 +84,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(POST, "/students/*/fees/*/payments").hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/students/*/fees").hasAnyRole(MANAGER.getRole())
         .antMatchers(POST, "/students/*/fees").hasAnyRole(MANAGER.getRole())
+            .antMatchers(GET, "/students/*/courses/**").hasAnyRole(MANAGER.getRole())
             .antMatchers(GET, "/students/*/courses").hasAnyRole(MANAGER.getRole())
             .requestMatchers(new SelfMatcher(GET, "/students/*/courses")).hasAnyRole(STUDENT.getRole())
             .antMatchers(PUT, "/students/*/courses").hasAnyRole(MANAGER.getRole())
@@ -103,7 +104,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/groups").authenticated()
         .antMatchers(GET, "/groups/*").authenticated()
         .antMatchers(PUT, "/groups/**").hasAnyRole(MANAGER.getRole())
-        .antMatchers(GET, "/courses/**").hasAnyRole(MANAGER.getRole())
+        .antMatchers(GET, "/courses/**").hasAnyRole(STUDENT.getRole(), TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(PUT, "/courses/**").hasAnyRole(MANAGER.getRole())
         .antMatchers("/**").denyAll()
 
