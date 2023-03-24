@@ -407,14 +407,12 @@ paths:
           name: creditsOrder
           description: Sorts courses by ascending or descending order of credits
           schema:
-            type: string
-            enum: [ ASC, DESC ]
+            $ref: "#/components/schemas/SortOrder"
         - in: query
           name: codeOrder
           description: Sorts courses by ascending or descending order of UE code
           schema:
-            type: string
-            enum: [ ASC, DESC ]
+            $ref: "#/components/schemas/SortOrder"
 
         -  in: query
            name: page
@@ -1095,6 +1093,11 @@ components:
       enum:
         - LINKED
         - UNLINKED
+    SortOrder:
+      type: string
+      enum:
+        - ASC
+        - DESC
     UpdateStudentCourse:
       type: object
       properties:

@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import org.thymeleaf.util.StringUtils;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
+import school.hei.haapi.endpoint.rest.model.SortOrder;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.User;
@@ -22,6 +23,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.repository.dao.CourseManagerDao;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -34,6 +36,7 @@ public class CourseService {
     private final CourseRepository courseRepository;
     private final UserRepository userRepository;
     private final CourseValidator courseValidator;
+    private final CourseManagerDao courseManagerDao;
 
     public Course updateCourseStatus(String student_id, String course_id, CourseStatus status) {
         Course course = courseRepository.findById(course_id).orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, String.format("", course_id)));
@@ -63,7 +66,7 @@ public class CourseService {
         return courseRepository.saveAll(courses);
     }
 
-    public List<Course> findCoursesByParams(String code, String name, Integer credits, String teacherFirstName, String teacherLastName, String creditsOrder, String codeOrder, int page, int pageSize) {
+    public List<Course> getAll(String code, String name, Integer credits, String teacherFirstName, String teacherLastName, SortOrder creditsOrder, SortOrder codeOrder, int page, int pageSize) {
         int pageValue = 1;
         int pageSizeValue = 15;
         if (page != 0) pageValue = page;
@@ -71,21 +74,16 @@ public class CourseService {
         if (page != 0) pageValue = page;
         if (pageSize != 0) pageSizeValue = pageSize;
         Pageable pageableWithSort = PageRequest.of(pageValue - 1, pageSizeValue);
-            User teacher;
-        List<User> user = userRepository.getByLastName(teacherLastName);
-        List<User> filteredList = user.stream()
-                .filter(u -> u.getFirstName().toLowerCase().contains(u.getFirstName().toLowerCase()) && (u.getRole() == User.Role.TEACHER))
-                .collect(Collectors.toList());
-       if(filteredList.isEmpty()){
-           throw new NotFoundException("user not found");
-       } else  teacher = filteredList.get(0);
-        return courseRepository.findCoursesByCodeAndNameAndCreditsAndTeacherNameOrderByCreditsAndCode(
+
+        return courseManagerDao.findByCriteria(
                 code,
                 name,
                 credits,
-                teacher.getId(),
+                teacherFirstName,
+                teacherLastName,
                 creditsOrder,
                 codeOrder,
-                pageableWithSort);
+                pageableWithSort
+        );
     }
 }
