@@ -111,6 +111,35 @@ class CourseIT {
     assertTrue(actual.contains(course3()));
   }
 
+  @Test
+  void filter_by_teacher_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+
+    List<Course> byFirstName = api.getCourses(1, 25, null, null, null, "T", null, null, null);
+    List<Course> byLastName = api.getCourses(1, 25, null, null, null, null, "th", null, null);
+
+    assertFalse(byFirstName.contains(course1()));
+    assertTrue(byFirstName.contains(course2()));
+    assertTrue(byFirstName.contains(course3()));
+
+    assertTrue(byLastName.contains(course1()));
+    assertTrue(byLastName.contains(course2()));
+    assertTrue(byLastName.contains(course3()));
+  }
+
+  @Test
+  void filter_by_criteria_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+
+    List<Course> actual = api.getCourses(1, 25, "PROG3", null, 6, null, null, null, null);
+
+    assertTrue(actual.contains(course1()));
+    assertFalse(actual.contains(course2()));
+    assertTrue(actual.contains(course3()));
+  }
+
 
   @BeforeEach
   void setUp() {
