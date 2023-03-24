@@ -68,7 +68,7 @@ public class CourseMapper {
         if (!student.getRole().equals(User.Role.STUDENT)) {
             throw new BadRequestException("Only students can be linked to courses");
         }
-        school.hei.haapi.model.Course toSave = courseService.getById(course.getCourseId());
+        school.hei.haapi.model.Course toSave = courseService.getCourseById(course.getCourseId());
         if (toSave == null) {
             throw new NotFoundException("Course.id=" + course.getCourseId() + " is not found");
         }
