@@ -55,6 +55,18 @@ public class CourseIT {
     @MockBean
     private CognitoComponent cognitoComponentMock;
 
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private CourseService courseService;
+
+    @MockBean
+    private CourseMapper courseMapper;
+
     private static ApiClient anApiClient(String token) {
         return TestUtils.anApiClient(token, GroupIT.ContextInitializer.SERVER_PORT);
     }
@@ -151,5 +163,45 @@ public class CourseIT {
         assertEquals(actualCours, expectCours);
     }
 
+
+    @Test
+    void getCourses_withParams_returnsMatchingCourses() throws Exception {
+        // Given
+        Course course1 = new Course();
+        course1.setCode("PROG1");
+        course1.setName("Algorithmics");
+        course1.setCredits(3);
+
+        Course course2 = new Course();
+        course2.setCode("WEB1");
+        course2.setName("Web development");
+        course2.setCredits(2);
+
+        List<Course> expectedCourses = Arrays.asList(course1, course2);
+        when(courseService.getCourses(anyString(), anyString(), anyString(), anyString(), anyString(), any(Pagination.class)))
+                .thenReturn(expectedCourses);
+
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/courses")
+                        .param("code", "PROG1")
+                        .param("name", "algorithm")
+                        .param("credits", "3")
+                        .param("teacher_first_name", "John")
+                        .param("teacher_last_name", "Doe")
+                        .param("creditsOrder", "asc")
+                        .param("codeOrder", "desc")
+                        .param("page", "1")
+                        .param("page_size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andReturn();
+
+        // Then
+        List<Course> actualCourses = Arrays.asList(objectMapper.readValue(result.getResponse().getContentAsString(), Course[].class));
+        for (int i = 0; i < expectedCourses.size(); i++) {
+            assertEquals(expectedCourses.get(i), actualCourses.get(i));
+        }
+
+    }
 
 }
