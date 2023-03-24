@@ -413,6 +413,16 @@ paths:
           description: filter by course teacher_last_name
           schema:
             type: string
+        - name: codeOrder
+          in: query
+          description: order by code, default ASC
+          schema:
+            $ref: "#/components/schemas/Direction"
+        - name: creditsOrder
+          in: query
+          description: order by credit, default ASC
+          schema:
+            $ref: "#/components/schemas/Direction"
       responses:
         '200':
           description: List of all courses
@@ -1184,6 +1194,11 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    Direction:
+      type: string
+      enum:
+        - ASC
+        - DESC
     Page:
       type: integer
       description: Start at `1`
