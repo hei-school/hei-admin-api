@@ -14,7 +14,7 @@ import java.util.List;
 @Repository
 @EnableJpaRepositories
 public interface CourseRepository extends JpaRepository<Course, String> {
-   /**
+
     @Query("SELECT c FROM Course c WHERE LOWER(c.name) LIKE LOWER(CONCAT('%', :name, '%'))")
     List<Course> getCourseByCourseNameContainingIgnoreCase(
             @Param("name") String name,
@@ -38,5 +38,5 @@ public interface CourseRepository extends JpaRepository<Course, String> {
             @Param("lastName") String lastName,
             Pageable pageable
     );
-            **/
+
 }

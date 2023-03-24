@@ -33,7 +33,6 @@ public class CourseService {
             CreditsOrder creditsOrder, String teacherFirstName, String teacherLastName){
 
         Pageable pageable = PageRequest.of(page.getValue(), pageSize.getValue());
-/*
         if (codeOrder != null) {
             Sort.Direction direction = codeOrder.getValue() == CodeOrder.ASC.getValue() ? ASC : DESC;
             pageable = PageRequest.of(page.getValue(), pageSize.getValue(), Sort.by(direction, "code"));
@@ -55,7 +54,7 @@ public class CourseService {
             return repository.getCourseByTeacherFirstNameContainingIgnoreCaseAndTeacherLastNameContainingIgnoreCase
                     (teacherFirstName,teacherLastName,pageable);
         }
-        */
+
         return repository.findAll(pageable).toList();
     }
 
