@@ -20,13 +20,13 @@ public class CourseService {
 
         if (code != null) {
             courses = courses.stream()
-                    .filter(course -> course.getCode().contains(code))
+                    .filter(course -> course.getCode().toLowerCase().contains(code.toLowerCase()))
                     .collect(Collectors.toList());
         }
 
         if (name != null) {
             courses = courses.stream()
-                    .filter(course -> course.getName().contains(name))
+                    .filter(course -> course.getName().toLowerCase().contains(name.toLowerCase()))
                     .collect(Collectors.toList());
         }
 
@@ -38,13 +38,13 @@ public class CourseService {
 
         if (teacherFirstName != null) {
             courses = courses.stream()
-                    .filter(course -> course.getMainTeacher().getFirstName().contains(teacherFirstName))
+                    .filter(course -> course.getMainTeacher().getFirstName().toLowerCase().contains(teacherFirstName.toLowerCase()))
                     .collect(Collectors.toList());
         }
 
         if (teacherLastName != null) {
             courses = courses.stream()
-                    .filter(course -> course.getMainTeacher().getLastName().contains(teacherLastName))
+                    .filter(course -> course.getMainTeacher().getLastName().toLowerCase().contains(teacherLastName.toLowerCase()))
                     .collect(Collectors.toList());
         }
         if (credits != null) {
