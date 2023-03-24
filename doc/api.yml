@@ -390,6 +390,28 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: teacher_first_name
+          in: query
+          description: Set value to full or partial teacher first_name
+          required: false
+          schema:
+            $ref: '#/components/schemas/TeacherFirstName'
+        - name: teacher_last_name
+          in: query
+          description: Set value to full or partial teacher last_name
+          required: false
+          schema:
+            $ref: '#/components/schemas/TeacherLastName'
+        - name: creditsOrder
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/CreditsOrder'
+        - name: codeOrder
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/CodeOrder'
       responses:
         '200':
           description: List of all courses
@@ -1167,6 +1189,22 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
+    TeacherFirstName:
+      type: string
+      description: Full or partial / uppercase or lowercase
+    TeacherLastName:
+      type: string
+      description: Full or partial / uppercase or lowercase
+    CreditsOrder:
+      type: string
+      enum:
+        - DESC
+        - ASC
+    CodeOrder:
+      type: string
+      enum:
+        - DESC
+        - ASC
 
     Exception:
       type: object
