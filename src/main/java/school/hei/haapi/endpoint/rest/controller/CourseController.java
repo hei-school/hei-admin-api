@@ -15,11 +15,12 @@ import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
+@RequestMapping("/courses")
 public class CourseController {
     private final CourseService courseService;
     private final CourseMapper courseMapper;
 
-    @GetMapping("/courses")
+    @GetMapping
     public List<CoursesResponse> getAllCourses() {
         return courseService.getAllCourses()
                 .stream()
@@ -27,7 +28,7 @@ public class CourseController {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    @PutMapping("/courses")
+    @PutMapping
     public List<CoursesResponse> updateOrCreateCourses(List<CreateCourses> toUpdate) {
         return courseService.updateOrCreateCourses(toUpdate
                     .stream()
@@ -38,16 +39,21 @@ public class CourseController {
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    @GetMapping("/courses")
-    public List<CoursesResponse> getCoursesByFilter(@RequestParam(required = false) String name, @RequestParam(required = false) String code) {
+    @GetMapping
+    public List<CoursesResponse> getCoursesByFilter(@RequestParam(required = false) String name,
+                                                    @RequestParam(required = false) String code,
+                                                    @RequestParam(required = false) Integer credits) {
         List<Course> courses;
         if (name != null) {
             courses = courseService.getCoursesByName(name);
         } else if (code != null) {
             courses = courseService.getCoursesByCode(code);
+        } else if (credits != null) {
+            courses = courseService.getCoursesByCredits(credits);
         } else {
             courses = courseService.getAllCourses();
         }
         return courses.stream().map(courseMapper::responseToRest).collect(Collectors.toList());
     }
+
 }

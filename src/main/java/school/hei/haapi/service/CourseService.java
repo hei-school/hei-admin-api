@@ -27,4 +27,9 @@ public class CourseService {
     public List<Course> getCoursesByName(String name) {
         return courseRepository.findByNameContainingIgnoreCase(name);
     }
+
+    public List<Course> getCoursesByCredits(int credits) {
+        return courseRepository.findAllByCredits(credits);
+    }
+
 }
