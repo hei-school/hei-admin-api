@@ -4,8 +4,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.Course;
-import school.hei.haapi.service.CourseService;
-import school.hei.haapi.service.UserService;
 
 @Component
 @AllArgsConstructor

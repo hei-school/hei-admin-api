@@ -388,52 +388,54 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+          required: false
         - name: code
           in: query
           description: Set value to 15 by default if null is provided
           schema:
             type: string
             example: SYS2
+          required: false
         - name: name
           in: query
           description: Filter by name
           schema:
             type: string
             example: Algorithmics
+          required: false
         - name: credits
           in: query
           description: Filter by credits
           schema:
             type: integer
             example: 10
+          required: false
         - name: teacher_first_name
           in: query
           description: Filter by teacher firstname
           schema:
             type: string
             example: maHeRY
+          required: false
         - name: teacher_last_name
           in: query
           description: Filter by teacher lastname
           schema:
             type: string
             example: maHeRY
+          required: false
         - name: code_order
           in: query
           description: Sort by code
           schema:
-            type: string
-            enum:
-              - ASC
-              - DESC
+            $ref: '#/components/schemas/Order'
+          required: false
         - name: credits_order
           in: query
           description: Sort by credits
           schema:
-            type: string
-            enum:
-              - ASC
-              - DESC
+            $ref: '#/components/schemas/Order'
+          required: false
       responses:
         '200':
           description: List of all courses
@@ -1118,6 +1120,11 @@ components:
       properties:
         main_teacher:
           $ref: '#/components/schemas/Teacher'
+    Order:
+      type: string
+      enum:
+        - ASC
+        - DESC
     CreateFee:
       type: object
       properties:
