@@ -15,11 +15,13 @@ public interface CourseRepository extends JpaRepository<Course, String> {
             "lower(c.code) like lower(concat('%', cast(:code as text), '%')) " +
             "OR lower(c.name) like lower(concat('%', cast(:name as text), '%')) " +
             "OR lower(c.mainTeacher.firstName) like lower(concat('%', cast(:teacher_first_name as text), '%')) " +
+            "OR lower(c.mainTeacher.lastName) like lower(concat('%', cast(:teacher_last_name as text), '%'))" +
             "OR (:credits is null or c.credits = :credits) ")
     List<Course> findCoursesWithParams(
             @Param("name") String name,
             @Param("code") String code,
             @Param("teacher_first_name")String teacherFirstName,
+            @Param("teacher_last_name")String teacherLastName,
             @Param("credits") Integer credits,
             Pageable pageable);
 

@@ -43,6 +43,7 @@ public class CourseService {
             String code,
             Integer credits,
             String teacherFirstName,
+            String teacherLastName,
             Sort.Direction codeOrder
     ){
             if(codeOrder != null) {
@@ -50,6 +51,7 @@ public class CourseService {
                         name,
                         code,
                         teacherFirstName,
+                        teacherLastName,
                         credits,
                         pageableCreator(page, pageSize, codeOrder, "code")
                 );
@@ -59,6 +61,7 @@ public class CourseService {
                         name,
                         code,
                         teacherFirstName,
+                        teacherLastName,
                         credits,
                         pageableCreator(page, pageSize, null, null)
                 );
