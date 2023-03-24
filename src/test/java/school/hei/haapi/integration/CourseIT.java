@@ -78,9 +78,9 @@ public class CourseIT {
     }
 
     @Test
-    void course_get_pageable_ok() throws ApiException {
+    void course_get_ok() throws ApiException {
         TeachingApi api = new TeachingApi();
-        List<school.hei.haapi.endpoint.rest.model.Course> actualCourse = api.getCourses(1,15);
+        List<school.hei.haapi.endpoint.rest.model.Course> actualCourse = api.getCourses("PRog1","aLgo", 4, "One", "teacher", "ASC","ASC", 1, 15);
 
         assertTrue(actualCourse.contains(course1()));
     }
@@ -88,8 +88,8 @@ public class CourseIT {
     @Test
     void course_get_ko() throws ApiException{
         TeachingApi api = new TeachingApi();
-        assertThrowsApiException("{\"type\":\"404 NOT_FOUND\",\"message\"}",
-            () -> api.getCourses(1,15));
+        assertThrowsApiException("{\"type\":\"400 BAD_REQUEST\"}",
+            () -> api.getCourses("prog","algo", 4, "Toky", "Ramarozaka", null, null, -1, 15);
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
