@@ -16,6 +16,7 @@ import school.hei.haapi.model.exception.ApiException;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 
@@ -24,6 +25,9 @@ import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 @ContextConfiguration(initializers = CourseIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class CourseIT {
+    public static final String MANAGER1_TOKEN = "manager1_token";
+    public static final String COURSES_TOKEN = "course1_token";
+    public static final String COURSES_FILTER = "Courses_filter";
 
     @MockBean
     private SentryConf sentryConf;
@@ -72,7 +76,11 @@ public class CourseIT {
 
     @Test
     void courses_read_ok() throws ApiException{
-        ApiClient
+        ApiClient courses1 = anApiClient(COURSES_TOKEN);
+        CoursesApi api =  new CoursesApi(courses1);
+        Courses actual = api.getCoursesByFilter(COURSES_FILTER);
+
+        assertEquals(course1(), actual);
     }
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
