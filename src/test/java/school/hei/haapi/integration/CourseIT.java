@@ -90,6 +90,15 @@ public class CourseIT {
 
             assertTrue(actualCourse.contains(course1()));
         }
+        @Test
+        void course_filter_by_name_not_complete_ok() throws ApiException {
+            ApiClient teach1Client = anApiClient(TEACHER1_TOKEN);
+            TeachingApi api = new TeachingApi(teach1Client);
+
+            List<Course> actualCourse = api.getCourses(1, 6, "PROG1", "Algorithms", 13, "On", "Tea", Order.DESC, Order.DESC);
+
+            assertTrue(actualCourse.contains(course1()));
+        }
 
     }
 }
