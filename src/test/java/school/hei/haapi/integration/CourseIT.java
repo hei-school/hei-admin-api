@@ -6,13 +6,16 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Student;
@@ -21,6 +24,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.model.StudentCourse;
+import school.hei.haapi.service.CourseService;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -54,6 +58,18 @@ public class CourseIT {
 
     @MockBean
     private CognitoComponent cognitoComponentMock;
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @MockBean
+    private CourseService courseService;
+
+    @MockBean
+    private CourseMapper courseMapper;
 
     private static ApiClient anApiClient(String token) {
         return TestUtils.anApiClient(token, GroupIT.ContextInitializer.SERVER_PORT);
@@ -137,6 +153,46 @@ public class CourseIT {
         List<Course> actualCours = api.getStudentCoursesById(STUDENT1_ID, null);
         assertEquals(actualCours, expectCours);
     }
+
+    @Test
+    void testGetCoursesWithParametersReturnsMatchingCourses() throws Exception {
+        // Given
+        Course course1 = new Course();
+        course1.setCode("PROG1");
+        course1.setName("Algorithmics");
+        course1.setCredits(3);
+
+        Course course2 = new Course();
+        course2.setCode("WEB1");
+        course2.setName("Web development");
+        course2.setCredits(2);
+
+        List<Course> expectedCourses = Arrays.asList(course1, course2);
+        when(courseService.getCourses(anyString(), anyString(), anyString(), anyString(), anyString(), any(Pagination.class)))
+                .thenReturn(expectedCourses);
+
+        // When
+        MvcResult result = mockMvc.perform(MockMvcRequestBuilders.get("/courses")
+                        .param("code", "PROG1")
+                        .param("name", "algorithm")
+                        .param("credits", "3")
+                        .param("teacher_first_name", "John")
+                        .param("teacher_last_name", "Doe")
+                        .param("creditsOrder", "asc")
+                        .param("codeOrder", "desc")
+                        .param("page", "1")
+                        .param("page_size", "10"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType("application/json"))
+                .andExpect(jsonPath("$", hasSize(2)))
+                .andReturn();
+
+        // Then
+        List<Course> actualCourses = Arrays.asList(objectMapper.readValue(result.getResponse().getContentAsString(), Course[].class));
+        assertEquals(expectedCourses, actualCourses);
+    }
+
+
 
 
 }
