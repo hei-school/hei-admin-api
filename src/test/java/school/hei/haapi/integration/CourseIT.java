@@ -12,20 +12,19 @@ import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-import java.time.Instant;
-import java.time.LocalDate;
+import java.util.Collections;
 import java.util.List;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -46,39 +45,34 @@ public class CourseIT {
     public static Course course1() {
         Course course = new Course();
         course.setId("course1_id");
-        course.setName("Name of course one");
-        course.setCode("CRS21001");
-        course.setCredits(1);
-        course.setTotalHours(1);
-        course.setMainTeacher(teacher1());
+        course.setName("Algorithmique");
+        course.setCode("PROG1");
+        course.setCredits(6);
+        course.setTotalHours(12);
+        course.setMainTeacher(TeacherIT.teacher1());
         return course;
     }
 
     public static Course course2() {
         Course course = new Course();
         course.setId("course2_id");
-        course.setName("Name of course two");
-        course.setCode("CRS21002");
-        course.setCredits(2);
-        course.setTotalHours(2);
-        course.setMainTeacher(teacher1());
+        course.setName("P.O.O avancée");
+        course.setCode("PROG3");
+        course.setCredits(6);
+        course.setTotalHours(48);
+        course.setMainTeacher(TeacherIT.teacher2());
         return course;
     }
 
-    public static Teacher teacher1() {
-        Teacher teacher = new Teacher();
-        teacher.setId("teacher1_id");
-        teacher.setFirstName("One");
-        teacher.setLastName("Teacher");
-        teacher.setEmail("test+teacher1@hei.school");
-        teacher.setRef("TCR21001");
-        teacher.setPhone("0322411125");
-        teacher.setStatus(EnableStatus.ENABLED);
-        teacher.setSex(Teacher.SexEnum.F);
-        teacher.setBirthDate(LocalDate.parse("1990-01-01"));
-        teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
-        teacher.setAddress("Adr 3");
-        return teacher;
+    public static Course course3() {
+        Course course = new Course();
+        course.setId("course3_id");
+        course.setName("Interface web");
+        course.setCode("WEB1");
+        course.setCredits(4);
+        course.setTotalHours(24);
+        course.setMainTeacher(TeacherIT.teacher1());
+        return course;
     }
 
     @BeforeEach
@@ -87,15 +81,66 @@ public class CourseIT {
     }
 
     @Test
-    void student_read_ok() throws ApiException {
+    void user_read_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-
         TeachingApi api = new TeachingApi(student1Client);
+
         List<Course> actualCourses = api
                 .getCourses(null, null, null, null, null, null, null, null, null);
 
+        assertEquals(3, actualCourses.size());
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
+        assertTrue(actualCourses.contains(course3()));
+    }
+
+    @Test
+    void user_read_with_filter_teacher_name_ok() throws ApiException {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        TeachingApi api = new TeachingApi(student1Client);
+
+        List<Course> actual = api
+                .getCourses(null, null, null, null, null, "one", null, null, null);
+
+        assertEquals(2, actual.size());
+        assertEquals(List.of(course1(),course3()), actual);
+    }
+
+    @Test
+    void user_read_with_sort_ok() throws ApiException {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        TeachingApi api = new TeachingApi(student1Client);
+
+        List<Course> actualASC = api
+                .getCourses(null, null, null, null, null, null, null, "ASC", "DESC");
+        List<Course> actualDESC = api
+                .getCourses(null, null, null, null, null, null, null, "DESC", "ASC");
+
+        assertEquals(actualASC.size(), actualDESC.size());
+        Collections.reverse(actualASC);
+        assertEquals(actualDESC, actualASC);
+    }
+
+    @Test
+    void user_read_with_sort_ko() throws ApiException {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        TeachingApi api = new TeachingApi(student1Client);
+
+        assertThrowsApiException(
+                "{\"type\":\"400 BAD_REQUEST\",\"message\":\"codeOrder value must be ASC or DESC\"}",
+                () -> api.getCourses(null, null, null, null, null, null, null, "test", "test"));
+    }
+
+    @Test
+    void user_read_with_filter_ok() throws ApiException {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        TeachingApi api = new TeachingApi(student1Client);
+
+        List<Course> actual = api
+                .getCourses(1, 15, "prog", "aLgo", "6", "ONE", "tEa", "ASC", "DESC");
+
+        assertEquals(1, actual.size());
+        assertEquals(List.of(course1()), actual);
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
