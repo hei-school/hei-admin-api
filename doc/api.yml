@@ -403,6 +403,11 @@ paths:
           description: Has exactly the provided `credits`
           schema:
             type: integer
+        - name: code
+          in: query
+          description: Containing the provided `code`
+          schema:
+            type: string
         - name: teacher_first_name
           in: query
           description: Containing the provided `teacher_first_name`
