@@ -74,8 +74,6 @@ class CourseIT {
         course2.setCode("WEB1");
         course2.setName("IHM");
         course2.setCredits(50);
-        course2.setTotalHours(50);
-        course2.setMainTeacher(teacher1());
         return course2;
     }
 
@@ -85,8 +83,6 @@ class CourseIT {
         course3.setCode("DB1");
         course3.setName("bases de données");
         course3.setCredits(50);
-        course3.setTotalHours(null);
-        course3.setMainTeacher(null);
         return course3;
     }
 
@@ -96,8 +92,6 @@ class CourseIT {
         course4.setCode("AI1");
         course4.setName("intelligence artificielle");
         course4.setCredits(75);
-        course4.setTotalHours(null);
-        course4.setMainTeacher(null);
         return course4;
     }
 
@@ -107,8 +101,6 @@ class CourseIT {
         course5.setCode("SE1");
         course5.setName("ingénierie logicielle");
         course5.setCredits(60);
-        course5.setTotalHours(null);
-        course5.setMainTeacher(null);
         return course5;
     }
 
@@ -126,7 +118,7 @@ class CourseIT {
 
         TeachingApi api = new TeachingApi(student1Client);
 
-        List<Course> actual1 = api.getCourses(1,6,null,null,null,null,null);
+        List<Course> actual1 = api.getCourses(1,6,null,null,null,null,null,null,null);
 
         assertEquals(5, actual1.size());
     }
@@ -138,7 +130,7 @@ class CourseIT {
 
         TeachingApi api = new TeachingApi(student1Client);
 
-        List<Course> actual1 = api.getCourses(1,6,"DB",null,null,null,null);
+        List<Course> actual1 = api.getCourses(1,6,null,null,"DB",null,null,null,null);
 
         assertEquals(course3(), actual1.get(0));
     }
@@ -150,7 +142,7 @@ class CourseIT {
 
         TeachingApi api = new TeachingApi(student1Client);
 
-        List<Course> actual1 = api.getCourses(1,6,null,"ingénierie",null,null,null);
+        List<Course> actual1 = api.getCourses(1,6,null,null,null,"ingénierie",null,null,null);
 
         assertEquals(course5(), actual1.get(0));
     }
@@ -162,7 +154,7 @@ class CourseIT {
 
         TeachingApi api = new TeachingApi(student1Client);
 
-        List<Course> actual1 = api.getCourses(1,6,null,null,75,null,null);
+        List<Course> actual1 = api.getCourses(1,6,null,null,null,null,75,null,null);
 
         assertEquals(course4(), actual1.get(0));
     }
@@ -174,7 +166,7 @@ class CourseIT {
 
         TeachingApi api = new TeachingApi(student1Client);
 
-        List<Course> actual1 = api.getCourses(1,6,null,null,null,"One",null);
+        List<Course> actual1 = api.getCourses(1,6,null,null,null,null,null,"One",null);
 
         assertEquals(course2(), actual1.get(0));
     }
@@ -187,7 +179,7 @@ class CourseIT {
 
         TeachingApi api = new TeachingApi(student1Client);
 
-        List<Course> actual1 = api.getCourses(1,6,null,null,null,null,"Teacher");
+        List<Course> actual1 = api.getCourses(1,6,null,null,null,null,null,null,"Teacher");
 
         List<Course> expected = new ArrayList<>();
         expected.add(course1());
@@ -196,6 +188,57 @@ class CourseIT {
         assertEquals(expected, actual1);
     }
 
+    @Test
+    public void test_Course_In_ASC_credits_order() throws ApiException {
+
+        ApiClient student1Client = anApiClient();
+
+        TeachingApi api = new TeachingApi(student1Client);
+
+        List<Course> actual = api.getCourses(1,6,"ASC",null,null,null,null,null,null);
+
+        assertEquals(course5(), actual.get(3));
+        assertEquals(course4(), actual.get(4));
+    }
+
+    @Test
+    public void test_Course_In_DESC_credits_order() throws ApiException {
+
+        ApiClient student1Client = anApiClient();
+
+        TeachingApi api = new TeachingApi(student1Client);
+
+        List<Course> actual = api.getCourses(1,6,"DESC",null,null,null,null,null,null);
+
+        assertEquals(course4(), actual.get(0));
+        assertEquals(course5(), actual.get(1));
+    }
+
+    @Test
+    public void test_Course_In_ASC_code_order() throws ApiException {
+
+        ApiClient student1Client = anApiClient();
+
+        TeachingApi api = new TeachingApi(student1Client);
+
+        List<Course> actual = api.getCourses(1,6,null,"ASC",null,null,null,null,null);
+
+        assertEquals(course4(), actual.get(0));
+        assertEquals(course3(), actual.get(1));
+    }
+
+    @Test
+    public void test_Course_In_DESC_code_order() throws ApiException {
+
+        ApiClient student1Client = anApiClient();
+
+        TeachingApi api = new TeachingApi(student1Client);
+
+        List<Course> actual = api.getCourses(1,6,null,"DESC",null,null,null,null,null);
+
+        assertEquals(course2(), actual.get(0));
+        assertEquals(course5(), actual.get(1));
+    }
 
     @Test
     void get_all_course_with_all_params() throws ApiException {
@@ -204,7 +247,7 @@ class CourseIT {
 
         TeachingApi api = new TeachingApi(student1Client);
 
-        List<Course> actual1 = api.getCourses(1,6,"AI","intelligence",75,null,null);
+        List<Course> actual1 = api.getCourses(1,6,null,null,"AI","intelligence",75,null,null);
 
         assertEquals(course4(), actual1.get(0));
     }
