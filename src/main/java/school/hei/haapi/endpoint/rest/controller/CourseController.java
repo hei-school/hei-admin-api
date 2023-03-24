@@ -5,7 +5,9 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
+import school.hei.haapi.endpoint.rest.model.CodeOrder;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CreditsOrder;
 import school.hei.haapi.model.BoundedPageSize;
 
 import school.hei.haapi.model.PageFromOne;
@@ -28,9 +30,14 @@ public class CourseController {
     @GetMapping("/courses")
     public List<Course> getAllCourse (
             @RequestParam(required = false, defaultValue="1") PageFromOne page,
-            @RequestParam(required = false,name = "page_size",defaultValue = "15") BoundedPageSize pageSize
+            @RequestParam(required = false,name = "page_size",defaultValue = "15") BoundedPageSize pageSize,
+            @RequestParam(required = false, name = "code_order") CodeOrder codeOrder,
+            @RequestParam(required = false,name = "name") String name,
+            @RequestParam(required = false, name = "credits_order") CreditsOrder creditsOrder,
+            @RequestParam(required = false, name = "teacher_first_name") String teacherFirstName,
+            @RequestParam(required = false, name = "teacher_last_name") String teacherLastName
             ) {
-        return courseService.getAll(page, pageSize)
+        return courseService.getAll(page, pageSize, codeOrder, name,creditsOrder,teacherFirstName,teacherLastName)
                 .stream().map(courseMapper::toRestCourse)
                 .collect(Collectors.toUnmodifiableList());
     }
