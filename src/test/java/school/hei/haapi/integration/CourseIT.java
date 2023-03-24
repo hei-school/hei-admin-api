@@ -19,12 +19,15 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.model.Course;
 import school.hei.haapi.model.StudentCourse;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.anyString;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.StudentIT.student2;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
@@ -98,15 +101,7 @@ public class CourseIT {
         setUpCognito(cognitoComponentMock);
     }
     @Test
-    void manager_read_courses_with_params_ok(){
-      /*  ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-        UsersApi api = new UsersApi(manager1Client);
-        Course actual1 = api.getStudentCoursesById()
-        List<Course> actualCourses = api.getCourse(null,null,"","","","","");
-        assertEquals(course1(), actual1);
-        assertTrue(actualCourses.contains(course1()));
-       */
-    }
+
     @Test
     void student_read_hes_course_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
