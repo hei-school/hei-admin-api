@@ -1,4 +1,4 @@
-package school.hei.haapi.model.exception;
+package school.hei.haapi.endpoint.rest.model.exception;
 
 public class NotFoundException extends ApiException {
   public NotFoundException(String message) {

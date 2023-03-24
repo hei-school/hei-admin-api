@@ -1,12 +1,12 @@
-package school.hei.haapi.model.validator;
+package school.hei.haapi.endpoint.rest.model.validator;
 
 import java.util.List;
 import java.util.function.Consumer;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.Payment;
-import school.hei.haapi.model.exception.BadRequestException;
-import school.hei.haapi.model.exception.NotImplementedException;
+import school.hei.haapi.endpoint.rest.model.Payment;
+import school.hei.haapi.endpoint.rest.model.exception.BadRequestException;
+import school.hei.haapi.endpoint.rest.model.exception.NotImplementedException;
+import school.hei.haapi.endpoint.rest.model.Fee;
 
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
 

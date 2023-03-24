@@ -7,6 +7,7 @@ import school.hei.haapi.repository.types.PostgresEnumType;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
+import java.util.List;
 
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -19,6 +20,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class Courses implements Serializable {
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -41,8 +43,8 @@ public class Courses implements Serializable {
     @ManyToMany
     @JoinTable(
             name= "linked_or_unliked",
-            JoinColumn=@JoinColumn(name = "User_id"),
-            inverseJoinColumn=@JoinColumn(name = "course_id")
+            joinColumns=@JoinColumn(name = "User_id"),
+            inverseJoinColumns=@JoinColumn(name = "course_id")
     )
     private List<User> userStatus;
 }

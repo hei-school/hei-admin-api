@@ -1,4 +1,4 @@
-package school.hei.haapi.model;
+package school.hei.haapi.endpoint.rest.model;
 
 import java.io.Serializable;
 import java.time.Instant;
