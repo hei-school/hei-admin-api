@@ -30,14 +30,6 @@ public class CourseController {
     @GetMapping("/courses")
     public List<Course> getAllCourse (
             @RequestParam(required = false, defaultValue="1") PageFromOne page,
-            @RequestParam(required = false,name = "page_size",defaultValue = "15") BoundedPageSize pageSize){
-        return courseService.getAll(page,pageSize)
-                .stream().map(courseMapper::toRestCourse)
-                .collect(Collectors.toList());
-    }
-    @GetMapping("/courses")
-    public List<Course> getAllCourseWithFilter (
-            @RequestParam(required = false, defaultValue="1") PageFromOne page,
             @RequestParam(required = false,name = "page_size",defaultValue = "15") BoundedPageSize pageSize,
             @RequestParam(required = false, name = "code_order") CodeOrder codeOrder,
             @RequestParam(required = false,name = "name") String name,
@@ -45,9 +37,16 @@ public class CourseController {
             @RequestParam(required = false, name = "teacher_first_name") String teacherFirstName,
             @RequestParam(required = false, name = "teacher_last_name") String teacherLastName
             ) {
-        return courseService.getByFilter(page, pageSize, codeOrder, name,creditsOrder,teacherFirstName,teacherLastName)
+        if (codeOrder == null && name == null && creditsOrder == null && teacherFirstName == null
+                && teacherLastName == null) {
+            return courseService.getAll(page,pageSize)
+                    .stream().map(courseMapper::toRestCourse)
+                    .collect(Collectors.toList());
+        } else{
+        return courseService.getByFilter(page, pageSize, codeOrder, name,creditsOrder,
+                        teacherFirstName,teacherLastName)
                 .stream().map(courseMapper::toRestCourse)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList()); }
     }
 
   @PutMapping(value = "/courses")
