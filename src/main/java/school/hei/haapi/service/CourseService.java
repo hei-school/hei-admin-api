@@ -31,7 +31,7 @@ public class CourseService {
                     Sort.by(codeOrder , "code")
             );
     Pageable pageable = PageRequest.of(page,perPage,sort);
-    return repository.findCoursesByCreditsIsNullOrCreditsEqualsAndAndCodeIsContainingIgnoreCaseAndNameContainingIgnoreCaseAndMain_teacherContainingIgnoreCaseAndCodeIsContainingIgnoreCase(
+    return repository.findCoursesByCreditsIsNullOrCreditsEqualsAndCodeIsContainingIgnoreCaseAndNameContainingIgnoreCaseAndMain_teacherContainingIgnoreCaseAndCodeIsContainingIgnoreCase(
             name,
             code,
             credits,

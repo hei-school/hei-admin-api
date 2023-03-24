@@ -8,7 +8,7 @@ import school.hei.haapi.model.Course;
 import java.util.List;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, String> {
-  List<Course> findCoursesByCreditsIsNullOrCreditsEqualsAndAndCodeIsContainingIgnoreCaseAndNameContainingIgnoreCaseAndMain_teacherContainingIgnoreCaseAndCodeIsContainingIgnoreCase(
+  List<Course> findCoursesByCreditsIsNullOrCreditsEqualsAndCodeIsContainingIgnoreCaseAndNameContainingIgnoreCaseAndMain_teacherContainingIgnoreCaseAndCodeIsContainingIgnoreCase(
           String name,
           String code,
           Integer credits,
