@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.Course;
 import java.util.stream.Collectors;
@@ -47,6 +48,33 @@ public class CourseService {
     int pageValue = page.getValue() - 1;
     int pageSizeValue = pageSize.getValue();
     Pageable pageable = PageRequest.of(pageValue, pageSizeValue);
+    return courseRepository.findAll(pageable).toList();
+  }
+
+  public List<Course> getCoursesByTri(PageFromOne page, BoundedPageSize pageSize, String creditsOrder, String codeOrder) {
+    Pageable pageable;
+    int pageValue = page.getValue() - 1;
+    int pageSizeValue = pageSize.getValue();
+
+    if (creditsOrder != null) {
+      if (creditsOrder.equals("ASC")) {
+        pageable = PageRequest.of(pageValue, pageSizeValue, Sort.by(Sort.Direction.ASC, "credits"));
+      } else if (creditsOrder.equals("DESC")) {
+        pageable = PageRequest.of(pageValue, pageSizeValue, Sort.by(Sort.Direction.DESC, "credits"));
+      } else {
+        pageable = PageRequest.of(pageValue, pageSizeValue);
+      }
+    } else if (codeOrder != null) {
+      if (codeOrder.equals("ASC")) {
+        pageable = PageRequest.of(pageValue, pageSizeValue, Sort.by(Sort.Direction.ASC, "code"));
+      } else if (codeOrder.equals("DESC")) {
+        pageable = PageRequest.of(pageValue, pageSizeValue, Sort.by(Sort.Direction.DESC, "code"));
+      } else {
+        pageable = PageRequest.of(pageValue, pageSizeValue);
+      }
+    } else {
+      pageable = PageRequest.of(pageValue, pageSizeValue);
+    }
     return courseRepository.findAll(pageable).toList();
   }
 
