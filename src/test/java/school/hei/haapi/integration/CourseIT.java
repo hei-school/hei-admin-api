@@ -1,6 +1,7 @@
 package school.hei.haapi.integration;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -12,13 +13,17 @@ import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.exception.ApiException;
 
+import static org.hibernate.validator.internal.util.Contracts.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.test.util.AssertionErrors.assertEquals;
+import static org.springframework.test.util.AssertionErrors.assertFalse;
 import static school.hei.haapi.integration.TeacherIT.teacher1;
 import static school.hei.haapi.integration.TeacherIT.teacher2;
 import static school.hei.haapi.integration.TeacherIT.teacher3;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -66,6 +71,22 @@ class CourseIT {
     course.setMainTeacher(teacher3());
     return course;
   }
+
+  static List<Course> getCoursesWithNoCriteria(TeachingApi api)
+          throws ApiException {
+    return api.getCourses(1, 25, null, null, null, null, null, null, null);
+  }
+
+
+
+  @Test
+  void badtoken_read_ko() {
+    ApiClient anonymousClient = anApiClient(BAD_TOKEN);
+
+    TeachingApi api = new TeachingApi(anonymousClient);
+    assertThrowsForbiddenException(() -> getCoursesWithNoCriteria(api));
+  }
+
 
   @BeforeEach
   void setUp() {
