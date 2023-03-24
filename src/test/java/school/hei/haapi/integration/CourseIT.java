@@ -12,7 +12,10 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+
+import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -60,6 +63,26 @@ public class CourseIT {
         return course;
     }
 
+    public static CrupdateCourse someCreatableCourse() {
+        CrupdateCourse newCourse = new CrupdateCourse();
+        newCourse.setName("some course");
+        newCourse.setCredits(10);
+        newCourse.setTotalHours(200);
+        newCourse.setCode("code");
+        newCourse.setMainTeacherId(TEACHER2_ID);
+        return newCourse;
+    }
+
+    public static Course someCreatedCourse(){
+        Course course = new Course();
+        course.setMainTeacher(TeacherIT.teacher2());
+        course.setCode("code");
+        course.setCredits(10);
+        course.setTotalHours(200);
+        course.setName("some course");
+        return course;
+    }
+
     @BeforeEach
     void setUp() {
         setUpCognito(cognitoComponentMock);
@@ -102,6 +125,33 @@ public class CourseIT {
         assertEquals(course1(), actual1);
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course3()));
+    }
+
+    @Test
+    void student_write_update_ko() {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        TeachingApi api = new TeachingApi(student1Client);
+
+        assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
+    }
+
+    @Test
+    void teacher_write_update_ko() {
+        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+        TeachingApi api = new TeachingApi(teacher1Client);
+
+        assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
+    }
+
+    @Test
+    void manager_write_update_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> toCrupdate = api.crupdateCourses(List.of(someCreatableCourse()));
+        Course expected = someCreatedCourse();
+
+        assertEquals(1, toCrupdate.size());
+        assertTrue(toCrupdate.contains(expected));
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
