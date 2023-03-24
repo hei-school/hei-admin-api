@@ -5,7 +5,9 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.repository.CourseRepository;
 
 import java.util.List;
@@ -23,14 +25,14 @@ public class CourseService {
           Integer credits,
           Sort.Direction creditOrder,
           Sort.Direction codeOrder,
-          int page,
-          int perPage
+          BoundedPageSize page,
+          PageFromOne perPage
   ){
     Sort sort = Sort.by(creditOrder , "credits")
             .and(
                     Sort.by(codeOrder , "code")
             );
-    Pageable pageable = PageRequest.of(page,perPage,sort);
+    Pageable pageable = PageRequest.of(page.getValue(), perPage.getValue(),sort);
     return repository.findCoursesByCreditsIsNullOrCreditsEqualsAndCodeIsContainingIgnoreCaseAndNameContainingIgnoreCaseAndMain_teacherContainingIgnoreCaseAndCodeIsContainingIgnoreCase(
             name,
             code,
