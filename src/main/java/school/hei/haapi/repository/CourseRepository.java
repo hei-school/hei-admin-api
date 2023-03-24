@@ -18,4 +18,7 @@ public interface CourseRepository extends JpaRepository<Course,String> {
     @Query("SELECT c FROM Course c WHERE c.credits = :credits")
     List<Course> findAllByCredits(@Param("credits") int credits);
 
+    @Query("SELECT c FROM Course c JOIN c.main_teacher t WHERE LOWER(t.first_name) LIKE LOWER(concat('%', :firstName,'%'))")
+    List<Course> findByMainTeacherFirstNameContainingIgnoreCase(@Param("firstName") String firstName);
+
 }

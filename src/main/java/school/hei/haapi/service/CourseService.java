@@ -32,4 +32,8 @@ public class CourseService {
         return courseRepository.findAllByCredits(credits);
     }
 
+    public List<Course> getCoursesByMainTeacherFirstName(String firstName) {
+        return courseRepository.findByMainTeacherFirstNameContainingIgnoreCase(firstName);
+    }
+
 }

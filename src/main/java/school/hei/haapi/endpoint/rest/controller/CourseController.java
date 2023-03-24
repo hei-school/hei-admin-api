@@ -42,7 +42,8 @@ public class CourseController {
     @GetMapping
     public List<CoursesResponse> getCoursesByFilter(@RequestParam(required = false) String name,
                                                     @RequestParam(required = false) String code,
-                                                    @RequestParam(required = false) Integer credits) {
+                                                    @RequestParam(required = false) Integer credits,
+                                                    @RequestParam(required = false) String teacher_first_name) {
         List<Course> courses;
         if (name != null) {
             courses = courseService.getCoursesByName(name);
@@ -50,10 +51,11 @@ public class CourseController {
             courses = courseService.getCoursesByCode(code);
         } else if (credits != null) {
             courses = courseService.getCoursesByCredits(credits);
+        } else if (teacher_first_name != null) {
+            courses = courseService.getCoursesByMainTeacherFirstName(teacher_first_name);
         } else {
             courses = courseService.getAllCourses();
         }
         return courses.stream().map(courseMapper::responseToRest).collect(Collectors.toList());
     }
-
 }
