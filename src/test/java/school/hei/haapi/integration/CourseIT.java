@@ -99,6 +99,18 @@ class CourseIT {
     assertTrue(actual.contains(course3()));
   }
 
+  @Test
+  void manager_read_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+
+    List<Course> actual = getCoursesWithNoCriteria(api);
+
+    assertTrue(actual.contains(course1()));
+    assertTrue(actual.contains(course2()));
+    assertTrue(actual.contains(course3()));
+  }
+
 
   @BeforeEach
   void setUp() {
