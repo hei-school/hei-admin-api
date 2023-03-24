@@ -84,6 +84,18 @@ public class CourseIT {
         Course secondCourseOrderByCode = coursesOrderByCode.get(1);
         List<Course> coursesFilteredByTeacherFirstNameOrderByCreditsAndCode = api.getCourses(null,
                 null, null, "One", null, Order.DESC, Order.ASC, 1, 20);
+        Course previousCourse = null;
+        for (Course course : coursesFilteredByTeacherFirstNameOrderByCreditsAndCode) {
+            if (previousCourse != null) {
+                assertTrue(course.getCredits() <= previousCourse.getCredits());
+            }
+            previousCourse = course;
+        }
+        previousCourse = null;
+        for (Course course : coursesFilteredByTeacherFirstNameOrderByCreditsAndCode) {
+            if (previousCourse != null && course.getCredits() == previousCourse.getCredits()) {
+                assertTrue(course.getCode().compareTo(previousCourse.getCode()) >= 0);
+            }
 
         assertEquals(3, allCourses.size());
         assertEquals(2, coursesFilteredByCode.size());
@@ -96,7 +108,10 @@ public class CourseIT {
         assertEquals(3, coursesOrderByCode.size());
         assertTrue(firstCourseOrderByCode.getCode().compareTo(secondCourseOrderByCode.getCode()) >= 0);
         assertEquals(2, coursesFilteredByTeacherFirstNameOrderByCreditsAndCode.size());
-    }
+        assertTrue(course.getCode().compareTo(previousCourse.getCode()) >= 0);
+
+
+        }
 
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
