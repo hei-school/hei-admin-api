@@ -12,12 +12,20 @@ import java.util.List;
 @Repository
 public interface CourseRepository extends JpaRepository<Course, String> {
     @Query(value = "SELECT c.id, c.code, c.name, c.credits, c.total_hours, c.main_teacher_id "
-            +"FROM course c inner join \"user\" u "
+            +"FROM course c join \"user\" u "
             +"ON c.main_teacher_id=u.id "
             +"WHERE u.first_name ILIKE CONCAT('%',:first_name,'%') "
-            +"OR u.last_name ILIKE CONCAT('%',:last_name,'%') ",
-            nativeQuery = true)
-    List<Course> getByCriteria(@Param("first_name")String first_name,
-                      @Param("last_name")String last_name,
-                      Pageable pageable);
+            +"OR u.last_name ILIKE CONCAT('%',:last_name,'%')", nativeQuery = true)
+    List<Course> getByCriteria(@Param("first_name") String first_name,
+                       @Param("last_name")String last_name, Pageable pageable);
+    @Query(value = "SELECT c.id, c.code, c.name, c.credits, c.total_hours, c.main_teacher_id "
+            +"FROM course c join \"user\" u "
+            +"ON c.main_teacher_id=u.id "
+            +"WHERE u.first_name ILIKE CONCAT('%',:first_name,'%')", nativeQuery = true)
+    List<Course> getByFirstName(@Param("first_name") String first_name, Pageable pageable);
+    @Query(value = "SELECT c.id, c.code, c.name, c.credits, c.total_hours, c.main_teacher_id "
+            +"FROM course c join \"user\" u "
+            +"ON c.main_teacher_id=u.id "
+            +"WHERE u.last_name ILIKE CONCAT('%',:last_name,'%')", nativeQuery = true)
+    List<Course> getByLastName(@Param("last_name")String last_name, Pageable pageable);
 }
