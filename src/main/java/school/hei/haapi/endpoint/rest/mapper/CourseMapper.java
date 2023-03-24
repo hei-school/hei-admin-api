@@ -18,6 +18,7 @@ public class CourseMapper {
                 .name(course.getName())
                 .code(course.getCode())
                 .credits(course.getCredits())
+                .totalHours(course.getTotalHours())
                 .mainTeacher(teacher);
     }
 }
