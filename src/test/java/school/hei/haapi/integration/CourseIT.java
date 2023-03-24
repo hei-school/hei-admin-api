@@ -384,6 +384,26 @@ public class CourseIT {
         assertTrue((actualCourses.get(0).getCode().compareTo(actualCourses.get(1).getCode()))>=0);
         assertTrue((actualCourses.get(1).getCode().compareTo(actualCourses.get(2).getCode()))>=0);
     }
+
+    @Test
+    void reading_creditsOrder_have_higher_priority_than_codeOrder_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        List<Course> expectedCourses1 = List.of(course1(),course2(),course3());
+        List<Course> expectedCourses2 = List.of(course1(),course3(),course2());
+        List<Course> actualCourses1 = api.getCourses(null,null,"","","","","","DESC","");
+
+        Integer index0 = 0;
+        Integer index1 = 1;
+        Integer index2 = 2;
+        assertEquals(actualCourses1.get(index0), expectedCourses1.get(index0));
+        assertEquals(actualCourses1.get(index1), expectedCourses1.get(index1));
+        assertEquals(actualCourses1.get(index2), expectedCourses1.get(index2));
+        List<Course> actualCourses2 = api.getCourses(null,null,"","","","","","DESC","ASC");
+        assertEquals(actualCourses2.get(index0), expectedCourses2.get(index0));
+        assertEquals(actualCourses2.get(index1), expectedCourses2.get(index1));
+        assertEquals(actualCourses2.get(index2), expectedCourses2.get(index2));
+    }
     @Test
     void reading_in_credits_order_with_bad_parameters_ko() throws school.hei.haapi.endpoint.rest.client.ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
