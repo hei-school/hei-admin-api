@@ -83,7 +83,7 @@ public class CourseManagerDao {
         }
 
         if (creditsOrder.length()>0 && codeOrder.length()>0){
-            query.orderBy(codeArrange,creditsArrange);
+            query.orderBy(creditsArrange,codeArrange);
         } else if (creditsOrder.length()>0) {
             query.orderBy(creditsArrange);
         } else if (codeOrder.length()>0) {
