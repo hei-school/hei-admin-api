@@ -404,6 +404,25 @@ public class CourseIT {
         assertEquals(actualCourses2.get(index1), expectedCourses2.get(index1));
         assertEquals(actualCourses2.get(index2), expectedCourses2.get(index2));
     }
+
+    @Test
+    void reading_filter_before_pagination_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+        Integer pageSize = 2;
+        String codeOrder = "ASC";
+        List<Course> expectedCourses1 = List.of(course1(),course2());
+        List<Course> expectedCourses2 = List.of(course3(),course1());
+        List<Course> actualCourses1 = api.getCourses(null,pageSize,"","","","","","","");
+
+        Integer index0 = 0;
+        Integer index1 = 1;
+        assertEquals(actualCourses1.get(index0), expectedCourses1.get(index0));
+        assertEquals(actualCourses1.get(index1), expectedCourses1.get(index1));
+        List<Course> actualCourses2 = api.getCourses(null,null,"","","","","","",codeOrder);
+        assertEquals(actualCourses2.get(index0), expectedCourses2.get(index0));
+        assertEquals(actualCourses2.get(index1), expectedCourses2.get(index1));
+    }
     @Test
     void reading_in_credits_order_with_bad_parameters_ko() throws school.hei.haapi.endpoint.rest.client.ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
