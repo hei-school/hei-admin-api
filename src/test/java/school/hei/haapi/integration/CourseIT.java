@@ -27,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.CodeOrder.ASC;
 import static school.hei.haapi.integration.TeacherIT.teacher1;
 import static school.hei.haapi.integration.TeacherIT.teacher2;
 import static school.hei.haapi.integration.conf.TestUtils.*;
@@ -102,14 +103,10 @@ public class CourseIT {
 
         List<Course> actualCourses = api.getCourses(1,15,null,
                 null,null,null,null);
-        System.out.println(actualCourses);
-        /*
         assertTrue(actualCourses.contains(course1()));
         assertTrue(actualCourses.contains(course2()));
         assertTrue(actualCourses.contains(course3()));
-        */
-        Course execpted = api.getCourseById("course1_id");
-         assertEquals(execpted, course1());
+
     }
 
     @Test
