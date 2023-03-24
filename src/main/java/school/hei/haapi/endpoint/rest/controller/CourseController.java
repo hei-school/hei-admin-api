@@ -3,6 +3,8 @@ package school.hei.haapi.endpoint.rest.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import net.bytebuddy.TypeCache;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -19,6 +21,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.StudentCourse;
 import school.hei.haapi.service.CourseService;
+import org.springframework.data.domain.Sort;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
@@ -37,14 +40,17 @@ public class CourseController {
         return service.createOrUpdateCourse(toSave).stream().map(courseMapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
     }
-
-
     @GetMapping(value = "/courses")
     public List<Course> getCourses(
+            @RequestParam(name = "orderByCode") String orderByCode,
+            @RequestParam(name = "orderByCredit") String orderByCredit,
+            @RequestParam(name = "direction1") String direction1,
+            @RequestParam(name = "direction2") String direction2,
             @RequestParam(name = "page") PageFromOne page,
-            @RequestParam(name = "page_size") BoundedPageSize pageSize
+            @RequestParam(name = "page_size") BoundedPageSize page_size
     ) {
-        return service.getCourses(page, pageSize).stream()
+        return service.orderedCourse(orderByCode, orderByCredit,Sort.Direction.fromString(direction1),
+                        Sort.Direction.fromString(direction2), page, page_size).stream()
                 .map(courseMapper::toRest)
                 .collect(toUnmodifiableList());
     }

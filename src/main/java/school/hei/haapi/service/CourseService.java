@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.Course;
 import java.util.stream.Collectors;
@@ -20,12 +21,14 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.StudentCourseRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.repository.dao.CourseDao;
 
 @Service
 @AllArgsConstructor
 public class CourseService {
     private final StudentCourseRepository repository;
     private final UserRepository userRepository;
+    private CourseDao courseDao;
 
     public List<Course> getStudentCourses(String studentId, CourseStatus status) {
         CourseStatus status1 = status == null ? CourseStatus.LINKED: status;
@@ -52,5 +55,13 @@ public class CourseService {
         return repository.saveAll(toUpdate).stream()
                 .map(StudentCourse::getCourse)
                 .collect(Collectors.toUnmodifiableList());
+    }
+    public List<Course> orderedCourse(String orderByCode, String orderByCredit, Sort.Direction direction1,
+                                      Sort.Direction direction2,PageFromOne page,BoundedPageSize pageSize){
+        Pageable pageable = PageRequest.of(
+                page.getValue()-1,
+                pageSize.getValue());
+
+        return courseDao.findAllOrderedBy(orderByCode,orderByCredit,direction1,direction2,pageable);
     }
 }
