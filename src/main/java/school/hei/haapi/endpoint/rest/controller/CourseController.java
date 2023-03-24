@@ -30,8 +30,8 @@ public class CourseController {
 
   @GetMapping(value = "/courses")
   public List<Course> getCourses(
-      @RequestParam(value = "code", required = false, defaultValue = "") String code,
-      @RequestParam(value = "name", required = false, defaultValue = "") String name,
+      @RequestParam(value = "code", required = false) String code,
+      @RequestParam(value = "name", required = false) String name,
       @RequestParam(value = "credits", required = false) Integer credits,
       @RequestParam(name = "teacher_first_name", required = false) String teacherFirstName,
       @RequestParam(name = "teacher_last_name", required = false) String teacherLastName,

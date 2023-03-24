@@ -22,8 +22,6 @@ public class CourseService {
   private final CourseRepository repository;
   private final CourseManagerDao courseManagerDao;
 
-
-  private final CourseManagerDao courseManagerDao;
   private List<Order> retrieveOrders(OrderDirection creditsOrder, OrderDirection codeOrder){
     List<Order> orderList = new ArrayList<>();
     if(creditsOrder != null){

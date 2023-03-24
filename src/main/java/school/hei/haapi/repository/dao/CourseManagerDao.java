@@ -29,7 +29,7 @@ public class CourseManagerDao {
     List<Predicate> predicates = new ArrayList<>();
     
     Predicate[] predicatesArray = retrieveNotNullPredicates(code, name, credits, teacherFirstName, teacherLastName,
-        builder, join, predicates);
+        builder, root, join, predicates);
 
     query
         .where(builder.and(predicates.toArray(predicatesArray)))
@@ -42,7 +42,8 @@ public class CourseManagerDao {
   }
 
   public Predicate[] retrieveNotNullPredicates(
-      String code, String name, Integer credits, String teacherFirstName, String teacherLastName, CriteriaBuilder builder, Join<Course,
+      String code, String name, Integer credits, String teacherFirstName, String teacherLastName,
+      CriteriaBuilder builder, Root<Course> root, Join<Course,
       User> join, List<Predicate> predicates
   ) {
 

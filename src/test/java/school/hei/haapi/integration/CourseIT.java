@@ -173,20 +173,32 @@ public class CourseIT {
     TeachingApi api = new TeachingApi(manager1Client);
 
 
-    List<Course> actualFilteredByCode = api.getCourses("PROG1",null,null,null, null, null, null);
-    List<Course> actualFilteredByName = api.getCourses(null,"name",null,null, null, null, null);
-    List<Course> actualFilteredByCredits = api.getCourses(null,null,2,null, null, null, null);
-    List<Course> actualFilteredByTeacherFirstName = api.getCourses(null,null,null,"tWo", null, null, null);
-    List<Course> actualFilteredByTeacherLastName = api.getCourses(null,null,null,null, "Teacher", null, null);
-    List<Course> actualFilteredByTeacherFirstNameContaining = api.getCourses(null,null,null,"O", null, null, null);
-    List<Course> actualFilteredByTeacherLastNameContaining = api.getCourses(null,null,null,null, "eAc", null,
+    List<Course> actualFilteredByCode = api.getCourses("PROG1",null,null,null, null, null, null,
+        null, null);
+    List<Course> actualFilteredByName = api.getCourses(null,"name",null,null, null, null, null,
+        null, null);
+    List<Course> actualFilteredByCredits = api.getCourses(null,null,2,null, null, null, null,
+        null, null);
+    List<Course> actualFilteredByTeacherFirstName = api.getCourses(null,null,null,"tWo", null,
+        null, null, null, null);
+    List<Course> actualFilteredByTeacherLastName = api.getCourses(null,null,null,null,
+        "Teacher"
+        , null, null, null, null);
+    List<Course> actualFilteredByTeacherFirstNameContaining = api.getCourses(null,null,null,"O",
+        null, null, null, null, null);
+    List<Course> actualFilteredByTeacherLastNameContaining = api.getCourses(null,null,null,null,
+        "eAc", null, null, null,
         null);
     List<Course> actualFilteredByTeacherFirstAndLastName = api.getCourses(null,null,null,"oNE", "teaCHeR", null,
+        null, null, null);
+    List<Course> actualNoFilter = api.getCourses(null, null, null, null, null, null, null, null,
         null);
-    List<Course> actualNoFilter = api.getCourses(null, null, null, null, null, null);
-    List<Course> actualOrderedByCredit = api.getCourses(null, null, OrderDirection.ASC, null, 1, 20);
-    List<Course> actualOrderedByCode = api.getCourses(null, null, OrderDirection.ASC, null, 1,20);
-    List<Course> actualOrderedByCreditAndCode = api.getCourses(null,null,OrderDirection.DESC,
+    List<Course> actualOrderedByCredit = api.getCourses(null, null, null, null, null,
+        OrderDirection.ASC, null, 1, 20);
+    List<Course> actualOrderedByCode = api.getCourses(null, null, null, null, null, null,
+        OrderDirection.ASC, 1,20);
+    List<Course> actualOrderedByCreditAndCode = api.getCourses(null, null, null, null,null,
+        OrderDirection.DESC,
         OrderDirection.DESC, null ,null);
 
     assertEquals(1, actualFilteredByCode.size());
