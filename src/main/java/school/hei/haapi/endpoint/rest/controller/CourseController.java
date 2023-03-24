@@ -9,15 +9,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import school.hei.haapi.endpoint.rest.controller.response.UpdateStudentCourseStatusResponse;
-import school.hei.haapi.endpoint.rest.mapper.StudentCourseMapper;
-import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
-import school.hei.haapi.model.CodeEnum;
-import school.hei.haapi.model.CreditEnum;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
+import school.hei.haapi.endpoint.rest.mapper.StudentCourseMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseOrder;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.CourseService;
@@ -38,15 +36,26 @@ public class CourseController {
   private final StudentCourseMapper studentCourseMapper;
 
   @GetMapping("/courses")
-  public List<Course> getCourses(@RequestParam(value = "page", defaultValue = "1") PageFromOne page,
-                                 @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize,
-                                 @RequestParam(value = "code", required = false, defaultValue = "") String code,
-                                 @RequestParam(value = "name", required = false, defaultValue = "") String name,
-                                 @RequestParam(value = "credits",required = false) Integer credits,
-                                 @RequestParam(value = "teacher_first_name", required = false, defaultValue = "") String teacher_first_name,
-                                 @RequestParam(value = "teacher_last_name", required = false, defaultValue = "") String teacher_last_name
-                                 ) {
-    return service.getCourses(page, pageSize, code, name, credits, teacher_first_name, teacher_last_name)
+  public List<Course> getCourses(
+      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+      @RequestParam(value = "page_size", defaultValue = "15")
+      BoundedPageSize pageSize,
+      @RequestParam(value = "code", required = false, defaultValue = "")
+      String code,
+      @RequestParam(value = "name", required = false, defaultValue = "")
+      String name,
+      @RequestParam(value = "credits", required = false) Integer credits,
+      @RequestParam(value = "teacher_first_name", required = false, defaultValue = "")
+      String teacherFirstName,
+      @RequestParam(value = "teacher_last_name", required = false, defaultValue = "")
+      String teacherLastName,
+      @RequestParam(value = "codeOrder", required = false)
+      CourseOrder codeOrder,
+      @RequestParam(value = "creditsOrder", required = false)
+      CourseOrder creditsOrder
+  ) {
+    return service.getCourses(page, pageSize, code, name, credits, teacherFirstName,
+            teacherLastName, codeOrder, creditsOrder)
         .stream()
         .map(mapper::toRest)
         .collect(Collectors.toUnmodifiableList());
@@ -64,8 +73,11 @@ public class CourseController {
   ) {
     if (status.equals(CourseStatus.UNLINKED)) {
       return service.getUnlinkedCoursesByStudentId(studentId);
+    } else if (status.equals(CourseStatus.LINKED)) {
+      return service.getLinkedCoursesByStudentId(studentId);
     }
     return service.getLinkedCoursesByStudentId(studentId);
+
   }
 
   @PutMapping("/courses")
@@ -80,15 +92,17 @@ public class CourseController {
   }
 
   @PutMapping("/students/{student_id}/courses")
-  public List<Course> updateStatus(@PathVariable String student_id, @RequestBody List<UpdateStudentCourse> updateStudentCourseStatusResponse) {
+  public List<Course> updateStatus(
+      @PathVariable("student_id") String studentId,
+      @RequestBody List<UpdateStudentCourse> updateStudentCourseStatusResponse) {
     return
-            studentCourseService.updateCoursesStatuses(student_id,
-                            updateStudentCourseStatusResponse
-                                    .stream()
-                                    .map(studentCourseMapper::toConvert)
-                                    .collect(Collectors.toUnmodifiableList()))
+        studentCourseService.updateCoursesStatuses(studentId,
+                updateStudentCourseStatusResponse
                     .stream()
-                    .map(mapper::toRest)
-                    .collect(toUnmodifiableList());
+                    .map(studentCourseMapper::toConvert)
+                    .collect(Collectors.toUnmodifiableList()))
+            .stream()
+            .map(mapper::toRest)
+            .collect(toUnmodifiableList());
   }
 }

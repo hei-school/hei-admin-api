@@ -209,7 +209,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Course'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -418,6 +420,16 @@ paths:
             $ref: '#/components/schemas/teacher_last_name'
           description: Set value to null if not provided
           required: false
+        - name: codeOrder
+          in: query
+          description: order courses by code
+          schema:
+            $ref: "#/components/schemas/CourseOrder"
+        - name: creditsOrder
+          in: query
+          description: order courses by credits
+          schema:
+            $ref: "#/components/schemas/CourseOrder"
 
       responses:
         '200':
@@ -1221,16 +1233,11 @@ components:
     teacher_last_name:
       type: string
       description: The lastname of the teacher
-    creditsOrder:
+    CourseOrder:
       type: string
       enum:
-        - DESC
         - ASC
-    codeOrder:
-      type: string
-      enum:
         - DESC
-        - ASC
 
     Exception:
       type: object

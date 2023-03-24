@@ -2,15 +2,21 @@ package school.hei.haapi.service;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.*;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.hei.haapi.model.*;
+import school.hei.haapi.endpoint.rest.model.CourseOrder;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.StudentCourse;
 import school.hei.haapi.model.validator.CourseValidator;
 import school.hei.haapi.repository.CourseRepository;
 
-import static org.springframework.data.domain.ExampleMatcher.GenericPropertyMatchers.contains;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @AllArgsConstructor
@@ -23,15 +29,22 @@ public class CourseService {
                                  String code,
                                  String name,
                                  Integer credits,
-                                 String teacher_first_name,
-                                 String teacher_last_name) {
+                                 String teacherFirstName,
+                                 String teacherLastName,
+                                 CourseOrder codeOrder,
+                                 CourseOrder creditsOrder) {
+    Sort codeOrderSort =
+        Sort.by(codeOrder == CourseOrder.ASC || codeOrder == null ? ASC : DESC, "code");
+    Sort creditsOrderSort =
+        Sort.by(creditsOrder == CourseOrder.ASC || codeOrder == null ? ASC : DESC, "credits");
 
-    Pageable pageable = PageRequest.of(
-        page.getValue() - 1,
-        pageSize.getValue(),
-        Sort.by(ASC, "code"));
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1,
+            pageSize.getValue(),
+            creditsOrderSort.and(codeOrderSort));
 
-    return repository.findAllFiltered(code,name,credits,teacher_first_name,teacher_last_name,pageable);
+    return repository.findAllFiltered(code, name, credits, teacherFirstName, teacherLastName,
+        pageable);
   }
 
   public List<Course> getUnlinkedCoursesByStudentId(String studentId) {
@@ -48,9 +61,6 @@ public class CourseService {
     return repository.findCourseById(courseId);
   }
 
-  public Course getByCode(String code) {
-    return repository.findCourseByCode(code);
-  }
 
   @Transactional
   public List<Course> crupdateCourses(List<Course> toWrite) {
