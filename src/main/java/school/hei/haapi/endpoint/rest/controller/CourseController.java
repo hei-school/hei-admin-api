@@ -67,6 +67,7 @@ public class CourseController {
             @RequestParam(name = "code", defaultValue = "", required = false)String code,
             @RequestParam(name = "credits", defaultValue = "", required = false)Integer credits,
             @RequestParam(name = " teacher_first_name", required = false)String teacherFirstName,
+            @RequestParam(name = "teacher_last_name", required = false)String teacherLastName,
             @RequestParam(name = "codeOrder", required = false) Sort.Direction codeOrder
     ){
         return courseService.getCourses(
@@ -76,6 +77,7 @@ public class CourseController {
                 code,
                 credits,
                 teacherFirstName,
+                teacherLastName,
                 codeOrder
                 ).stream()
                 .map(courseMapper::toRestCourse)
