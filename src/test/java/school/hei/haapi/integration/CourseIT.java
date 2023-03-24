@@ -151,7 +151,7 @@ class CourseIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
 
-    List<Course> courses = api.getCourses(1, 15, null, null, null, null, null);
+    List<Course> courses = api.getCourses(1, 15, null, null, null, null, null, null);
 
     assertTrue(courses.contains(course1()));
     assertTrue(courses.contains(course2()));
@@ -163,8 +163,8 @@ class CourseIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
 
-    List<Course> course1 = api.getCourses(1, 15, null, null, null, "Tokimahery", null);
-    List<Course> course2 = api.getCourses(1, 15, null, null, null, "Ryan", null);
+    List<Course> course1 = api.getCourses(1, 15, null, null, null, "Tokimahery", null, null);
+    List<Course> course2 = api.getCourses(1, 15, null, null, null, "Ryan", null, null);
 
     assertTrue(course1.contains(course1()));
     assertTrue(course1.contains(course3()));
@@ -176,7 +176,7 @@ class CourseIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
 
-    List<Course> courses = api.getCourses(1, 15, null, null, null, "Tok", null);
+    List<Course> courses = api.getCourses(1, 15, null, null, null, "Tok", null, null);
 
     assertTrue(courses.contains(course1()));
     assertTrue(courses.contains(course3()));
@@ -188,7 +188,7 @@ class CourseIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
 
-    List<Course> courses = api.getCourses(1, 15, null, null, null, "MahEry", "mahery");
+    List<Course> courses = api.getCourses(1, 15, null, null, null, "MahEry", "mahery", null);
 
     courses.contains(course1());
     courses.contains(course2());

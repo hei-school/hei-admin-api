@@ -413,6 +413,11 @@ paths:
           description: Course teacher's last name
           schema:
             type: string
+        - name: creditsOrder
+          in: query
+          description: Order by credits
+          schema:
+            $ref: '#/components/schemas/OrderDirection'
 
       responses:
         '200':
@@ -1229,3 +1234,8 @@ components:
       example:
         type: InternalServerException
         message: Unexpected error
+    OrderDirection:
+      type: string
+      enum:
+        - ASC
+        - DESC
