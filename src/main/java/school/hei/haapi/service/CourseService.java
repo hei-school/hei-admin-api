@@ -28,11 +28,16 @@ public class CourseService {
     private final CourseStudentRepository courseStudentRepository;
     private final UserService userService;
 
-    public List<Course> getAll(
+    public List<Course> getAll(PageFromOne page, BoundedPageSize pageSize){
+        Pageable pageable = PageRequest.of(page.getValue(), pageSize.getValue());
+        return repository.findAll(pageable).toList();
+    }
+
+    public List<Course> getByFilter(
             PageFromOne page , BoundedPageSize pageSize, CodeOrder codeOrder, String name,
             CreditsOrder creditsOrder, String teacherFirstName, String teacherLastName){
 
-        Pageable pageable = PageRequest.of(page.getValue(), pageSize.getValue());
+        Pageable pageable = PageRequest.of(page.getValue(), pageSize.getValue(),Sort.by(ASC,"name"));
         if (codeOrder != null) {
             Sort.Direction direction = codeOrder.getValue() == CodeOrder.ASC.getValue() ? ASC : DESC;
             pageable = PageRequest.of(page.getValue(), pageSize.getValue(), Sort.by(direction, "code"));
@@ -54,7 +59,6 @@ public class CourseService {
             return repository.getCourseByTeacherFirstNameContainingIgnoreCaseAndTeacherLastNameContainingIgnoreCase
                     (teacherFirstName,teacherLastName,pageable);
         }
-
         return repository.findAll(pageable).toList();
     }
 
