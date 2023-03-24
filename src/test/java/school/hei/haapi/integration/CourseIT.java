@@ -95,6 +95,26 @@ public class CourseIT {
     }
 
     @Test
+    void pagination_ok() throws ApiException{
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        TeachingApi api = new TeachingApi(student1Client);
+
+        List<Course> actual1 = api
+                .getCourses(null,null,null,null,null,null,null,null,null);
+        List<Course> actual2= api
+                .getCourses(2,1,null,null,null,null,null,null,null);
+        List<Course> actual3 = api
+                .getCourses(2,2,null,null,null,null,null,null,null);
+
+        assertEquals(3,actual1.size());
+        assertEquals(List.of(course1(),course2(),course3()),actual1);
+        assertEquals(1,actual2.size());
+        assertEquals(List.of(course2()),actual2);
+        assertEquals(1,actual3.size());
+        assertEquals(List.of(course3()),actual3);
+    }
+
+    @Test
     void user_read_with_filter_teacher_name_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         TeachingApi api = new TeachingApi(student1Client);
