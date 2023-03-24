@@ -399,7 +399,7 @@ paths:
           in: query
           description: filter course with name
           schema:
-            $ref: '#/components/schemas/Name'
+            type: string
         - name: creditsOrder
           in: query
           description: filter course with credits order by ASC or DESC
@@ -409,12 +409,12 @@ paths:
           in: query
           description: filter course with name of the main teacher
           schema:
-            $ref: '#/components/schemas/Teacher_first_name'
+            type: string
         - name: teacher_last_name
           in: query
           description: filter course with name of the main teacher
           schema:
-            $ref: '#/components/schemas/Teacher_last_name'
+            type: string
       responses:
         '200':
           description: List of all courses
@@ -1198,21 +1198,12 @@ components:
         - ASC
         - DESC
       description: code of the course order by ASC or DESC
-    Name:
-      type: string
-      description: The name of the course
     CreditsOrder:
       type: string
       enum:
         - ASC
         - DESC
       description: credit of the course order by ASC or DESC
-    Teacher_first_name:
-      type: string
-      description: The first name of the main teacher of the course
-    Teacher_last_name:
-      type: string
-      description: The last name of the main teacher of the course
     Exception:
       type: object
       properties:
