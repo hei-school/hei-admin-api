@@ -29,14 +29,14 @@ public class CourseService {
         return repository.saveAll(courses);
     }
 
-    public Course getById(String courseId){return repository.getById(courseId);}
+    public Course getCourseById(String courseId){return repository.getById(courseId);}
 
-    public List<StudentCourse> getByStudentIdAndStatus(String studentId, StudentCourse.CourseStatus status) {
+    public List<StudentCourse> getCourseByStudentIdAndStatus(String studentId, StudentCourse.CourseStatus status) {
         StudentCourse.CourseStatus newStatus = status==null?StudentCourse.CourseStatus.LINKED:status;
         return studentCourseRepository.getStudentCourseByStudentIdAndStatus(studentId,newStatus);
     }
 
-    public List<Course> getCourses(
+    public List<Course> getCourse(
             PageFromOne page,
             BoundedPageSize pageSize,
             String name,
@@ -44,8 +44,20 @@ public class CourseService {
             Integer credits,
             String teacherFirstName,
             String teacherLastName,
+            Sort.Direction creditsOrder,
             Sort.Direction codeOrder
-    ){
+    )
+    {
+            if (creditsOrder != null) {
+                return repository.findCoursesWithParams(
+                        name,
+                        code,
+                        teacherFirstName,
+                        teacherLastName,
+                        credits,
+                        pageableCreator(page, pageSize, creditsOrder, "credits")
+                );
+            }
             if(codeOrder != null) {
                 return repository.findCoursesWithParams(
                         name,
@@ -65,19 +77,19 @@ public class CourseService {
                         credits,
                         pageableCreator(page, pageSize, null, null)
                 );
-                }
             }
+    }
 
 
     public List<StudentCourse> saveAllStudentCourses(String studentId, List<StudentCourse> toDomainStudentCourse) {
         return studentCourseRepository.saveAll(toDomainStudentCourse);
     }
 
-    public StudentCourse getByStudentIdAndCourseId(String studentId, String courseId) {
+    public StudentCourse getCourseByStudentIdAndCourseId(String studentId, String courseId) {
         return studentCourseRepository.getStudentCourseByStudentIdAndCourseId(studentId,courseId);
     }
 
-    private Pageable pageableCreator(PageFromOne page, BoundedPageSize pageSize, Sort.Direction order, String orderTarget){
+    private Pageable pageableCreator(PageFromOne page, BoundedPageSize pageSize,Sort.Direction order, String orderTarget){
         Pageable pageable = null;
 
         if(orderTarget != null && order != null){

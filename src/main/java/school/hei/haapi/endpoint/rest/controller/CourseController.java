@@ -56,11 +56,11 @@ public class CourseController {
     @GetMapping("/students/{studentId}/courses")
     public List<Course> getFeesByStudentAndStatus(
             @PathVariable String studentId, @RequestParam(required = false) StudentCourse.CourseStatus status) {
-        return courseMapper.toRestCourse(courseService.getByStudentIdAndStatus(studentId,status));
+        return courseMapper.toRestCourse(courseService.getCourseByStudentIdAndStatus(studentId, status));
     }
 
     @GetMapping("/courses")
-    public List<Course> getCourses(
+    public List<Course> getCourse(
             @RequestParam(name = "page", defaultValue = "1", required = false)PageFromOne page,
             @RequestParam(name = "page_size", defaultValue = "15", required = false)BoundedPageSize pageSize,
             @RequestParam(name = "name", defaultValue = "", required = false)String name,
@@ -68,9 +68,10 @@ public class CourseController {
             @RequestParam(name = "credits", defaultValue = "", required = false)Integer credits,
             @RequestParam(name = " teacher_first_name", required = false)String teacherFirstName,
             @RequestParam(name = "teacher_last_name", required = false)String teacherLastName,
-            @RequestParam(name = "codeOrder", required = false) Sort.Direction codeOrder
+            @RequestParam(name = "credits_order", required = false) Sort.Direction creditsOrder,
+            @RequestParam(name = "code_order", required = false) Sort.Direction codeOrder
     ){
-        return courseService.getCourses(
+        return courseService.getCourse(
                 page,
                 pageSize,
                 name,
@@ -78,9 +79,10 @@ public class CourseController {
                 credits,
                 teacherFirstName,
                 teacherLastName,
+                creditsOrder,
                 codeOrder
-                ).stream()
-                .map(courseMapper::toRestCourse)
-                .collect(Collectors.toList());
+        ).stream()
+        .map(courseMapper::toRestCourse)
+        .collect(Collectors.toList());
     }
 }

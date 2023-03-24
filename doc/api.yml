@@ -1227,10 +1227,22 @@ components:
       description: course by teacher_last_name
     CreditsOrder:
       type: string
-      description: ASC or DESC
+      enum:
+        - asc
+        - desc
+      description: >
+        Sort order
+        * `asc` - Ascending, from 1 to n
+        * `desc` - Descending, from n to 1
     CodeOrder:
       type: string
-      description: ASC or DESC
+      enum:
+        - asc
+        - desc
+      description: >
+        Sort order
+        * `asc` - Ascending, from A to Z
+        * `desc` - Descending, from Z to A
     Exception:
       type: object
       properties:
