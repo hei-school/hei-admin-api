@@ -23,10 +23,9 @@ public class StudentCourseService {
     private final CourseService courseService;
 
         public List<Course> updateCoursesStatuses(String student_id, List<UpdateStudentCourseStatusResponse> updateStudentCourses){
-            if(studentCourseRepository.findById(student_id).isEmpty()){
-                throw new NotFoundException("Student" + student_id + " not found");
-            }
-            else {
+            List<StudentCourse> oneStudentCourse = new ArrayList<>();
+            oneStudentCourse.add(studentCourseRepository.getById(student_id));
+            if( oneStudentCourse.size() > 0){
                 List<Course> updatedCourses = new ArrayList<>();
                 for(UpdateStudentCourseStatusResponse course : updateStudentCourses) {
                     StudentCourse studentCourse = studentCourseRepository.findByCourse_IdAndStudent_Id(course.getCourse_id(),student_id);
@@ -36,6 +35,6 @@ public class StudentCourseService {
                 }
                 return updatedCourses;
             }
+            else { throw new NotFoundException("Student# " + student_id + " not found"); }
+            }
         }
-
-}
