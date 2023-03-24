@@ -17,7 +17,10 @@ public class CourseService {
     private final UserRepository userRepository;
 
     private final CourseRepository courseRepository;
-    public List<Course> getCourses(PageFromOne page, BoundedPageSize pageSize) {
+    public List<Course> getCourses(
+            PageFromOne page,
+            BoundedPageSize pageSize
+    ) {
         int pageValue = page.getValue() - 1;
         int pageSizeValue = pageSize.getValue();
         Pageable pageable = PageRequest.of(pageValue, pageSizeValue);
