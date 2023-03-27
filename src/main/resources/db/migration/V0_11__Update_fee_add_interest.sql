@@ -1,0 +1,1 @@
+alter table "fee" add column interest integer default 0;

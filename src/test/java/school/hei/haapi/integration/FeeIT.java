@@ -1,9 +1,14 @@
 package school.hei.haapi.integration;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
+
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -13,7 +18,10 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CreatePayment;
+import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -30,6 +38,7 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT_WITH_GRACE_DELAY_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
@@ -39,202 +48,295 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @Testcontainers
 @ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class FeeIT {
-  @MockBean
-  private SentryConf sentryConf;
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+    @MockBean
+    private SentryConf sentryConf;
+    @MockBean
+    private CognitoComponent cognitoComponentMock;
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, FeeIT.ContextInitializer.SERVER_PORT);
-  }
-
-  static Fee fee1() {
-    Fee fee = new Fee();
-    fee.setId(FEE1_ID);
-    fee.setStudentId(STUDENT1_ID);
-    fee.setStatus(Fee.StatusEnum.PAID);
-    fee.setType(Fee.TypeEnum.TUITION);
-    fee.setTotalAmount(5000);
-    fee.setRemainingAmount(0);
-    fee.setComment("Comment");
-    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
-    fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    fee.setDueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
-    return fee;
-  }
-
-  static Fee fee2() {
-    Fee fee = new Fee();
-    fee.setId(FEE2_ID);
-    fee.setStudentId(STUDENT1_ID);
-    fee.setStatus(Fee.StatusEnum.PAID);
-    fee.setType(Fee.TypeEnum.HARDWARE);
-    fee.setTotalAmount(5000);
-    fee.setRemainingAmount(0);
-    fee.setComment("Comment");
-    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
-    fee.creationDatetime(Instant.parse("2021-11-10T08:25:24.00Z"));
-    fee.setDueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
-    return fee;
-  }
-
-  static Fee fee3() {
-    Fee fee = new Fee();
-    fee.setId(FEE3_ID);
-    fee.setStudentId(STUDENT1_ID);
-    fee.setStatus(Fee.StatusEnum.LATE);
-    fee.setType(Fee.TypeEnum.TUITION);
-    fee.setTotalAmount(5000);
-    fee.setRemainingAmount(5000);
-    fee.setComment("Comment");
-    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
-    fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
-    fee.setDueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
-    return fee;
-  }
-
-  static CreateFee creatableFee1() {
-    return new CreateFee()
-        .type(CreateFee.TypeEnum.TUITION)
-        .totalAmount(5000)
-        .comment("Comment")
-        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
-  }
-
-  @BeforeEach
-  void setUp() {
-    setUpCognito(cognitoComponentMock);
-  }
-
-  @Test
-  void student_read_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
-
-    Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
-
-    assertEquals(fee1(), actualFee);
-    assertTrue(actual.contains(fee1()));
-    assertTrue(actual.contains(fee2()));
-    assertTrue(actual.contains(fee3()));
-  }
-
-  @Test
-  void manager_read_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-
-    Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 5, null);
-    List<Fee> actualFees2 = api.getFees(String.valueOf(Fee.StatusEnum.PAID), 1, 10);
-
-    assertEquals(fee1(), actualFee);
-    assertEquals(2, actualFees2.size());
-    assertTrue(actualFees1.contains(fee1()));
-    assertTrue(actualFees1.contains(fee2()));
-    assertTrue(actualFees1.contains(fee3()));
-    assertTrue(actualFees2.contains(fee1()));
-    assertTrue(actualFees2.contains(fee2()));
-  }
-
-  @Test
-  void student_read_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
-
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFees(STUDENT2_ID, null, null, null));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getFees(null, null, null));
-  }
-
-  @Test
-  void teacher_read_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    PayingApi api = new PayingApi(teacher1Client);
-
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFees(STUDENT2_ID, null, null, null));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getFees(null, null, null));
-  }
-
-  @Test
-  void manager_write_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-
-    List<Fee> actual = api.createStudentFees(STUDENT1_ID, List.of(creatableFee1()));
-
-    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
-    assertTrue(expected.containsAll(actual));
-  }
-
-  @Test
-  void student_write_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
-
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createStudentFees(STUDENT1_ID, List.of()));
-  }
-
-  @Test
-  void teacher_write_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    PayingApi api = new PayingApi(teacher1Client);
-
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createStudentFees(STUDENT1_ID, List.of()));
-  }
-
-  @Test
-  void manager_write_with_some_bad_fields_ko() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-    CreateFee toCreate1 = creatableFee1().totalAmount(null);
-    CreateFee toCreate2 = creatableFee1().totalAmount(-1);
-    CreateFee toCreate3 = creatableFee1().dueDatetime(null);
-    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
-
-    ApiException exception1 = assertThrows(ApiException.class,
-        () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate1)));
-    ApiException exception2 = assertThrows(ApiException.class,
-        () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate2)));
-    ApiException exception3 = assertThrows(ApiException.class,
-        () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate3)));
-
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
-    assertEquals(expected.size(), actual.size());
-    assertTrue(expected.containsAll(actual));
-    String exceptionMessage1 = exception1.getMessage();
-    String exceptionMessage2 = exception2.getMessage();
-    String exceptionMessage3 = exception3.getMessage();
-    assertTrue(exceptionMessage1.contains("Total amount is mandatory"));
-    assertTrue(exceptionMessage2.contains("Total amount must be positive"));
-    assertTrue(exceptionMessage3.contains("Due datetime is mandatory"));
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
+    private static ApiClient anApiClient(String token) {
+        return TestUtils.anApiClient(token, FeeIT.ContextInitializer.SERVER_PORT);
     }
-  }
+
+    static Fee fee1() {
+        Fee fee = new Fee();
+        fee.setId(FEE1_ID);
+        fee.setStudentId(STUDENT1_ID);
+        fee.setStatus(Fee.StatusEnum.PAID);
+        fee.setType(Fee.TypeEnum.TUITION);
+        fee.setTotalAmount(5000);
+        fee.setRemainingAmount(0);
+        fee.setComment("Comment");
+        fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
+        fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+        fee.setDueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+        return fee;
+    }
+
+    static Fee fee2() {
+        Fee fee = new Fee();
+        fee.setId(FEE2_ID);
+        fee.setStudentId(STUDENT1_ID);
+        fee.setStatus(Fee.StatusEnum.PAID);
+        fee.setType(Fee.TypeEnum.HARDWARE);
+        fee.setTotalAmount(5000);
+        fee.setRemainingAmount(0);
+        fee.setComment("Comment");
+        fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
+        fee.creationDatetime(Instant.parse("2021-11-10T08:25:24.00Z"));
+        fee.setDueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
+        return fee;
+    }
+
+    static Fee fee3() {
+        Fee fee = new Fee();
+        fee.setId(FEE3_ID);
+        fee.setStudentId(STUDENT1_ID);
+        fee.setStatus(Fee.StatusEnum.LATE);
+        fee.setType(Fee.TypeEnum.TUITION);
+        fee.setTotalAmount(5000);
+        fee.setRemainingAmount(5000);
+        fee.setComment("Comment");
+        fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
+        fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
+        fee.setDueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
+        return fee;
+    }
+
+    static CreateFee creatableFee1() {
+        return new CreateFee()
+                .type(CreateFee.TypeEnum.TUITION)
+                .totalAmount(5000)
+                .comment("Comment")
+                .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+    }
+
+    static CreateFee creatableFee2() {
+        return new CreateFee()
+                .type(CreateFee.TypeEnum.TUITION)
+                .totalAmount(1000)
+                .comment("Comment")
+                .dueDatetime(Instant.now().minus(Duration.ofDays(10)));
+    }
+
+    static CreateDelayPenaltyChange creatableDelayPenalty1() {
+        return new CreateDelayPenaltyChange()
+                .interestPercent(2)
+                .graceDelay(5)
+                .interestTimeRate(CreateDelayPenaltyChange.InterestTimeRateEnum.DAILY)
+                .applicabilityDelayAfterGrace(2);
+    }
+
+    static CreateDelayPenaltyChange creatableDelayPenaltyWithGraceDelay10() {
+        return new CreateDelayPenaltyChange()
+                .interestPercent(2)
+                .graceDelay(10)
+                .interestTimeRate(CreateDelayPenaltyChange.InterestTimeRateEnum.DAILY)
+                .applicabilityDelayAfterGrace(2);
+    }
+
+    static CreateDelayPenaltyChange creatableDelayPenalty2() {
+        return new CreateDelayPenaltyChange()
+                .interestPercent(2)
+                .graceDelay(5)
+                .interestTimeRate(CreateDelayPenaltyChange.InterestTimeRateEnum.DAILY)
+                .applicabilityDelayAfterGrace(5);
+    }
+
+    static CreatePayment createPayment(int amount) {
+        return new CreatePayment()
+                .type(CreatePayment.TypeEnum.CASH)
+                .comment("comment")
+                .amount(amount);
+    }
+
+    @BeforeEach
+    void setUp() {
+        setUpCognito(cognitoComponentMock);
+    }
+
+    @Test
+    void student_read_ok() throws ApiException {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        PayingApi api = new PayingApi(student1Client);
+
+        Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
+        List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+
+        assertEquals(fee1(), actualFee);
+        assertTrue(actual.contains(fee1()));
+        assertTrue(actual.contains(fee2()));
+    }
+
+    @Test
+    @Order(1)
+    void manager_read_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        PayingApi api = new PayingApi(manager1Client);
+
+        Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
+        List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+        List<Fee> actualFees2 = api.getFees(String.valueOf(Fee.StatusEnum.PAID), 1, 10);
+
+        assertEquals(fee1(), actualFee);
+        assertEquals(2, actualFees2.size());
+        assertTrue(actualFees1.contains(fee1()));
+        assertTrue(actualFees1.contains(fee2()));
+        assertTrue(actualFees1.contains(fee3()));
+        assertTrue(actualFees2.contains(fee1()));
+        assertTrue(actualFees2.contains(fee2()));
+    }
+
+    @Test
+    void student_read_ko() {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        PayingApi api = new PayingApi(student1Client);
+
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getStudentFees(STUDENT2_ID, null, null, null));
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getFees(null, null, null));
+    }
+
+    @Test
+    void teacher_read_ko() {
+        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+        PayingApi api = new PayingApi(teacher1Client);
+
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getStudentFees(STUDENT2_ID, null, null, null));
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getFees(null, null, null));
+    }
+
+    @Test
+    void manager_write_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        PayingApi api = new PayingApi(manager1Client);
+
+        List<Fee> actual = api.createStudentFees(STUDENT1_ID, List.of(creatableFee1()));
+
+        List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+        assertTrue(expected.containsAll(actual));
+    }
+
+    @Test
+    void student_write_ko() {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        PayingApi api = new PayingApi(student1Client);
+
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.createStudentFees(STUDENT1_ID, List.of()));
+    }
+
+    @Test
+    void teacher_write_ko() {
+        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+        PayingApi api = new PayingApi(teacher1Client);
+
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.createStudentFees(STUDENT1_ID, List.of()));
+    }
+
+    @Test
+    void manager_write_with_some_bad_fields_ko() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        PayingApi api = new PayingApi(manager1Client);
+        CreateFee toCreate1 = creatableFee1().totalAmount(null);
+        CreateFee toCreate2 = creatableFee1().totalAmount(-1);
+        CreateFee toCreate3 = creatableFee1().dueDatetime(null);
+        List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+
+        ApiException exception1 = assertThrows(ApiException.class,
+                () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate1)));
+        ApiException exception2 = assertThrows(ApiException.class,
+                () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate2)));
+        ApiException exception3 = assertThrows(ApiException.class,
+                () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate3)));
+
+        List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+        assertEquals(expected.size(), actual.size());
+        assertTrue(expected.containsAll(actual));
+        String exceptionMessage1 = exception1.getMessage();
+        String exceptionMessage2 = exception2.getMessage();
+        String exceptionMessage3 = exception3.getMessage();
+        assertTrue(exceptionMessage1.contains("Total amount is mandatory"));
+        assertTrue(exceptionMessage2.contains("Total amount must be positive"));
+        assertTrue(exceptionMessage3.contains("Due datetime is mandatory"));
+    }
+
+    @Test
+    void update_late_fees() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        PayingApi api = new PayingApi(manager1Client);
+        CreatePayment creatablePayment1 = createPayment(500);
+        List<Fee> actualFees = api.createStudentFees(STUDENT1_ID, List.of(creatableFee2()));
+        api.createStudentPayments(STUDENT1_ID, actualFees.get(0).getId(),List.of(creatablePayment1));
+        api.createDelayPenaltyChange(creatableDelayPenalty1());
+        api.createStudentPayments(STUDENT1_ID, actualFees.get(0).getId(),List.of(creatablePayment1));
+
+        Fee actual = api.getStudentFeeById(STUDENT1_ID, actualFees.get(0).getId());
+        int expectedRemainingAmount = 20;
+        Fee.StatusEnum expectedFeeStatus = Fee.StatusEnum.LATE;
+        assertEquals(expectedRemainingAmount,actual.getRemainingAmount());
+        assertEquals(expectedFeeStatus,actual.getStatus());
+
+
+        CreatePayment creatablePayment2 = createPayment(20);
+        api.createStudentPayments(STUDENT1_ID, actualFees.get(0).getId(),List.of(creatablePayment2));
+        actual = api.getStudentFeeById(STUDENT1_ID, actualFees.get(0).getId());
+        expectedRemainingAmount = 0;
+        expectedFeeStatus = Fee.StatusEnum.PAID;
+        assertEquals(expectedRemainingAmount,actual.getRemainingAmount());
+        assertEquals(expectedFeeStatus,actual.getStatus());
+    }
+
+
+    @Test
+    void update_late_fees_student_with_grace_delay() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        PayingApi api = new PayingApi(manager1Client);
+        CreatePayment creatablePayment1 = createPayment(500);
+        List<Fee> actualFees = api.createStudentFees(STUDENT_WITH_GRACE_DELAY_ID, List.of(creatableFee2()));
+        api.createStudentPayments(STUDENT_WITH_GRACE_DELAY_ID, actualFees.get(0).getId(),List.of(creatablePayment1));
+        api.createDelayPenaltyChange(creatableDelayPenaltyWithGraceDelay10());
+        api.createStudentPayments(STUDENT_WITH_GRACE_DELAY_ID, actualFees.get(0).getId(),List.of(creatablePayment1));
+
+        Fee actual = api.getStudentFeeById(STUDENT_WITH_GRACE_DELAY_ID, actualFees.get(0).getId());
+        int expectedRemainingAmount = 20;
+        Fee.StatusEnum expectedFeeStatus = Fee.StatusEnum.LATE;
+        assertEquals(expectedRemainingAmount,actual.getRemainingAmount());
+        assertEquals(expectedFeeStatus,actual.getStatus());
+
+
+        CreatePayment creatablePayment2 = createPayment(20);
+        api.createStudentPayments(STUDENT_WITH_GRACE_DELAY_ID, actualFees.get(0).getId(),List.of(creatablePayment2));
+        actual = api.getStudentFeeById(STUDENT_WITH_GRACE_DELAY_ID, actualFees.get(0).getId());
+        expectedRemainingAmount = 0;
+        expectedFeeStatus = Fee.StatusEnum.PAID;
+        assertEquals(expectedRemainingAmount,actual.getRemainingAmount());
+        assertEquals(expectedFeeStatus,actual.getStatus());
+    }
+
+    static class ContextInitializer extends AbstractContextInitializer {
+        public static final int SERVER_PORT = anAvailableRandomPort();
+
+        @Override
+        public int getServerPort() {
+            return SERVER_PORT;
+        }
+    }
 }

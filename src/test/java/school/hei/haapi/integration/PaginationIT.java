@@ -96,7 +96,7 @@ class PaginationIT {
 
     assertEquals(pageSize, page1.size());
     assertEquals(pageSize, page2.size());
-    assertEquals(2, page3.size());
+    assertEquals(3, page3.size());
     assertEquals(0, page4.size());
     assertEquals(0, page100.size());
     // students are ordered by ref
