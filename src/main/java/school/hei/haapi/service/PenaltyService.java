@@ -12,8 +12,11 @@ import java.util.List;
 public class PenaltyService {
     private final PenaltyRepository penaltyRepository;
 
-    public List<Penalty> getAll() {
-        return penaltyRepository.findAll();
+    public Penalty getAll()
+    {
+        List<Penalty> result = penaltyRepository.findAll();
+
+        return result.get(0);
     }
 
 }

@@ -12,9 +12,8 @@ import java.util.List;
 @AllArgsConstructor
 public class PenaltyController {
     private PenaltyService service;
-
     @GetMapping("/delay_penalty")
-    public List<Penalty> getAll(){
+    public Penalty getAll(){
         return service.getAll();
     }
 

@@ -6,6 +6,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -30,21 +31,17 @@ import static school.hei.haapi.integration.conf.TestUtils.*;
 public class PenaltyIT {
 
     @MockBean
+    private SentryConf sentryConf;
+
+    @MockBean
     private CognitoComponent cognitoComponentMock;
 
     @MockBean
     private EventBridgeClient eventBridgeClientMock;
 
 
-    private static ApiClient anApiClient() {
-        return TestUtils.anApiClient(TestUtils.STUDENT1_TOKEN, PenaltyIT.ContextInitializer.SERVER_PORT);
-    }
-
-
-    @BeforeEach
-    public void setUp() {
-        setUpCognito(cognitoComponentMock);
-        setUpEventBridge(eventBridgeClientMock);
+    private static ApiClient anApiClient(String token) {
+        return TestUtils.anApiClient(token, PenaltyIT.ContextInitializer.SERVER_PORT);
     }
 
     static DelayPenalty penalty1(){
@@ -57,16 +54,22 @@ public class PenaltyIT {
         penalty1.setCreationDatetime(Instant.parse("2022-02-01 10:00:00"));
         return penalty1;
     }
+
+    @BeforeEach
+    public void setUp() {
+        setUpCognito(cognitoComponentMock);
+        setUpEventBridge(eventBridgeClientMock);
+    }
+
     @Test
     void get_all_penality_without_any_params() throws ApiException{
 
-        ApiClient student1Client = anApiClient();
-
+        ApiClient student1Client = anApiClient(MANAGER1_TOKEN);
         PayingApi api = new PayingApi(student1Client);
 
-        List<DelayPenalty> actual1 = (List<DelayPenalty>) api.getDelayPenalty();
+        DelayPenalty actual1 = api.getDelayPenalty();
 
-        assertEquals(penalty1(), actual1.get(0));
+        assertEquals(penalty1(), actual1);
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
