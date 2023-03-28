@@ -14,11 +14,8 @@ import java.util.List;
 public class PenaltyController {
     private PenaltyService service;
 
-    private PenaltyRepository repository;
-
-
     @GetMapping("/delay_penalty")
-    public List<Penalty> getAllCourse(){
+    public List<Penalty> getAll(){
         return service.getAll();
     }
 
