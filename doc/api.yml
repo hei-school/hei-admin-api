@@ -617,7 +617,7 @@ paths:
           $ref: '#/components/responses/500'
 
   /delay_penalty_change:
-    post:
+    put:
       tags:
         - Paying
       summary: Change current delay penalty configuration
