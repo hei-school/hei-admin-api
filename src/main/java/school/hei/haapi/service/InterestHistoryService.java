@@ -48,17 +48,17 @@ public class InterestHistoryService {
       if (actualDate.after(todayDate)) {
         break;
       } else if (actualDate.before(interestHistory.getInterestEnd())) {
-        for (Date i = actualDate; i.before(interestHistory.getInterestEnd()); i=getNextDate(i,interestHistory.getInterestTimeRate())) {
+        for (Date i = actualDate; !i.after(interestHistory.getInterestEnd()); i=getNextDate(i,interestHistory.getInterestTimeRate())) {
           if (i.after(todayDate)) {
             break;
           }else {
-            amount = totalamount*interestHistory.getInterestRate();
+            amount = totalamount*interestHistory.getInterestRate()/100;
             totalamount += amount;
             actualDate = getNextDate(i,interestHistory.getInterestTimeRate());
           }
         }
       }
     }
-    return amount;
+    return (totalamount - fee.getTotalAmount());
   }
 }
