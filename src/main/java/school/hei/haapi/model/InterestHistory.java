@@ -2,6 +2,7 @@ package school.hei.haapi.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import java.util.Date;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class InterestHistory {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -32,7 +34,6 @@ public class InterestHistory {
     @JoinColumn(name = "fee_id",nullable = false)
     private Fee fee;
     private int interestRate;
-    private int interestTimeRate;
     private Date interestStart;
     private Date interestEnd;
 
