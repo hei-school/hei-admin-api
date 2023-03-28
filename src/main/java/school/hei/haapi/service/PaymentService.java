@@ -34,6 +34,11 @@ public class PaymentService {
     return paymentRepository.getByStudentIdAndFeeId(studentId, feeId, pageable);
   }
 
+  public List<Payment> getAllPaymentByStudentIdAndFeeId(
+          String studentId, String feeId) {
+    return paymentRepository.getAllPaymentByStudentIdAndFeeId(studentId, feeId);
+  }
+
   public void computeRemainingAmount(String feeId, int amount) {
     Fee associatedFee = feeService.getById(feeId);
     associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() - amount);
