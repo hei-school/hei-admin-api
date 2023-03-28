@@ -25,10 +25,10 @@ public class DelayPenaltyController {
   }
 
   @GetMapping(value = "/delay_penalty")
-  public List<DelayPenalty> getDelayPenalties() {
+  public DelayPenalty getDelayPenalties() {
     return delayPenaltyService.getAll().stream()
         .map(delayPenaltyMapper::toRest)
-        .collect(toUnmodifiableList());
+        .collect(toUnmodifiableList()).get(0);
   }
 
   /*
