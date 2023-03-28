@@ -34,7 +34,6 @@ public class InterestHistory {
     @JoinColumn(name = "fee_id",nullable = false)
     private Fee fee;
     private int interestRate;
-    private int interestTimeRate;
     private Date interestStart;
     private Date interestEnd;
 

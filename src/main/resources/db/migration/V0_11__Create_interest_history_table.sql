@@ -7,7 +7,6 @@ create table if not exists "interest_history"
     fee_id           varchar                  not null
             constraint interest_history_fee_id_fk references "fee"(id),
     interest_rate               integer                  not null,
-    interest_time_rate               integer                  not null,
     interest_start               DATE                  not null,
     interest_end               DATE                  not null
 );
