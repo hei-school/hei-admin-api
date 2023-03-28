@@ -16,7 +16,6 @@ import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -65,10 +64,9 @@ public class PenaltyIT {
 
         PayingApi api = new PayingApi(student1Client);
 
-        DelayPenalty actual1 = api.getDelayPenalty();
-        List<DelayPenalty> pen = new ArrayList<>();
+        List<DelayPenalty> actual1 = (List<DelayPenalty>) api.getDelayPenalty();
 
-        assertEquals(penalty1(), pen.add(actual1));
+        assertEquals(penalty1(), actual1.get(0));
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
