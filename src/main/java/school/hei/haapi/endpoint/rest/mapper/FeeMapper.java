@@ -1,17 +1,10 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.util.List;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.validator.CreateFeeValidator;
-import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -20,8 +13,14 @@ import school.hei.haapi.service.InterestHistoryService;
 import school.hei.haapi.service.PaymentService;
 import school.hei.haapi.service.UserService;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
+import java.time.ZoneId;
+import java.util.List;
+import java.util.Objects;
+
 import static java.util.stream.Collectors.toUnmodifiableList;
-import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
 
 @Component
@@ -29,7 +28,6 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
 public class FeeMapper {
 
   private final InterestHistoryService interestHistoryService;
-
   private final PaymentService paymentService;
   private final UserService userService;
   private final CreateFeeValidator createFeeValidator;
@@ -52,8 +50,13 @@ public class FeeMapper {
 
 
     if (!fee.getStatus().equals(Fee.StatusEnum.PAID)){
+      ZoneId zone = ZoneId.of("UTC");
+      LocalDate today = LocalDate.ofInstant(Instant.now(), zone);
+      LocalDate dueTime = LocalDate.ofInstant(fee.getDueDatetime(), zone);
+//TODO change dueTime.plusDays
+      if ( Period.between(today, dueTime.plusDays(0000)).getDays()>=0){
 
-
+      }
     }
     return new Fee()
         .id(fee.getId())
