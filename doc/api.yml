@@ -617,7 +617,7 @@ paths:
           $ref: '#/components/responses/500'
 
   /delay_penalty_change:
-    post:
+    put:
       tags:
         - Paying
       summary: Change current delay penalty configuration
@@ -1115,7 +1115,7 @@ components:
       properties:
         interest_percent:
           type: integer
-        interest_timerate:
+        interest_time_rate:
           type: string
           enum:
             - DAILY
