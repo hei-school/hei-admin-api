@@ -95,6 +95,7 @@ private void feesRemainaingAmountUpdater(Fee fee){
 
     int renewRemainingAmount = (int) (fee.getRemainingAmount() * Math.pow((1+theDelayPenalty.getInterestPercent()), numberOfLateDay));
     fee.setRemainingAmount(renewRemainingAmount);
+    fee.setTotalAmount(renewRemainingAmount);
 }
 
   private Fee updateFeeStatus(Fee initialFee) {
