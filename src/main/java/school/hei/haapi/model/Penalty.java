@@ -1,11 +1,9 @@
 package school.hei.haapi.model;
 
 import lombok.*;
+import org.hibernate.annotations.Type;
 
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -25,6 +23,8 @@ public class Penalty implements Serializable {
 
     private Integer interestPercent;
 
+    @Type(type="pgsql_enum")
+    @Enumerated(EnumType.STRING)
     private TimeRate interestTimeRate;
 
     private Integer graceDelay;
