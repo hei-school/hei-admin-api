@@ -5,7 +5,6 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.model.Penalty;
 import school.hei.haapi.service.PenaltyService;
 
