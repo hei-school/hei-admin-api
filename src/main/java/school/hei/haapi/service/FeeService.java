@@ -67,9 +67,13 @@ public class FeeService {
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
     if (status != null) {
-      return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
+      List<Fee>fees = feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
+      fees.forEach(fee -> feesChecker(fee));
+      return fees;
     }
-    return feeRepository.getByStudentId(studentId, pageable);
+    List<Fee>fees = feeRepository.getByStudentId(studentId, pageable);
+    fees.forEach(fee -> feesChecker(fee));
+    return fees;
   }
 
 private void feesChecker(Fee fee){
@@ -84,7 +88,8 @@ private void feesSetter(Fee fee){
     Instant penalityDelay = fee.getDueDatetime().plus(graceDelay);
     Long numberOfLateDay = Duration.between(penalityDelay, now).toDays();
 
-    Long renewRemainingAmount = fee.getRemainingAmount() * (1+)
+    int renewRemainingAmount = (int) (fee.getRemainingAmount() * Math.pow((1+fee.getDelayPenalty().getInterestPercent()), numberOfLateDay));
+    fee.setRemainingAmount(renewRemainingAmount);
 }
 
   private Fee updateFeeStatus(Fee initialFee) {
