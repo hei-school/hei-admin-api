@@ -5,6 +5,9 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.BoundedPageSize;
@@ -13,6 +16,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.FeeValidator;
+import school.hei.haapi.repository.DelayRepository;
 import school.hei.haapi.repository.FeeRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -20,6 +24,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
@@ -31,6 +36,7 @@ class FeeServiceTest {
   FeeRepository feeRepository;
   FeeValidator feeValidator;
   EventProducer eventProducer;
+  DelayRepository delayRepository;
 
   static User student1() {
     return User.builder()
@@ -66,6 +72,12 @@ class FeeServiceTest {
     Instant today = Instant.now();
     Instant tomorrow = today.plus(1, ChronoUnit.DAYS);
     return createSomeFee(TestUtils.FEE1_ID, paymentAmount, UNPAID, tomorrow, today);
+  }
+
+  static List<Fee> someLateFee(){
+    Instant creationTime = Instant.parse("2022-01-01T00:00:00.00Z");
+    Instant dueTime = Instant.now().minus(5, ChronoUnit.DAYS);
+    return List.of(createSomeFee(TestUtils.FEE1_ID, 200, LATE, dueTime, creationTime));
   }
 
   static Fee createMockedFee(
@@ -113,7 +125,8 @@ class FeeServiceTest {
     feeRepository = mock(FeeRepository.class);
     feeValidator = mock(FeeValidator.class);
     eventProducer = mock(EventProducer.class);
-    subject = new FeeService(feeRepository, feeValidator, eventProducer);
+    delayRepository = mock(DelayRepository.class);
+    subject = new FeeService(delayRepository, feeRepository, feeValidator, eventProducer);
   }
 
   @Test
@@ -147,6 +160,26 @@ class FeeServiceTest {
     assertEquals(UNPAID, actual.getStatus());
     assertEquals(rest, actual.getRemainingAmount());
     assertTrue(actual.getDueDatetime().isAfter(Instant.now()));
+  }
+
+  @Test
+  void fee_modification(){
+    List<Fee> fee = someLateFee();
+    PageFromOne page1 = new PageFromOne(1);
+    BoundedPageSize pageSize = new BoundedPageSize(10);
+    double remainingAmountExpected = 220816.16064;
+    Pageable pageable = PageRequest.of(
+            page1.getValue() - 1,
+            pageSize.getValue(),
+            Sort.by(DESC, "dueDatetime"));
+    when(feeRepository.getByStudentId(TestUtils.FEE1_ID, pageable)).thenReturn(someLateFee());
+    when(feeRepository.getFeesByStudentIdAndStatus(TestUtils.STUDENT1_ID, LATE, pageable)).thenReturn(someLateFee());
+
+    List<Fee> actual = subject.getFeesByStudentId(TestUtils.STUDENT1_ID, page1, pageSize, LATE);
+
+    assertEquals(LATE, actual.get(0).getStatus());
+    assertEquals(remainingAmountExpected, actual.get(0).getRemainingAmount());
+    assertTrue(actual.get(0).getDueDatetime().isBefore(Instant.now()));
   }
 
   @Test
