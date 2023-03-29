@@ -16,4 +16,5 @@ public class PenaltyService {
         return penaltyRepository.findAll();
     }
 
+    public Penalty saveOrUpdate(Penalty penalty) { return penaltyRepository.save(penalty); }
 }
