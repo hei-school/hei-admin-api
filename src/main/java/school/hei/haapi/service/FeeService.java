@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import javax.transaction.Transactional;
@@ -71,14 +72,19 @@ public class FeeService {
     return feeRepository.getByStudentId(studentId, pageable);
   }
 
-public void feesChecker(Fee fee){
+private void feesChecker(Fee fee){
     if(fee.getStatus() == LATE){
-
+      feesSetter(fee);
     }
 }
 
-public void feesSetter(Fee fee){
+private void feesSetter(Fee fee){
+    Instant now = Instant.now();
+    Duration graceDelay = Duration.ofDays(10);
+    Instant penalityDelay = fee.getDueDatetime().plus(graceDelay);
+    Long numberOfLateDay = Duration.between(penalityDelay, now).toDays();
 
+    Long renewRemainingAmount = fee.getRemainingAmount() * (1+)
 }
 
   private Fee updateFeeStatus(Fee initialFee) {

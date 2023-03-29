@@ -17,6 +17,8 @@ create table if not exists "fee"
     total_amount      integer                  not null,
     comment           varchar                  not null,
     creation_datetime timestamp with time zone not null default now(),
-    due_datetime      timestamp with time zone not null
+    due_datetime      timestamp with time zone not null,
+    delay_penalty_id  varchar
+        constraint delay_penalty_id_fk references "delay_penalty"(id)
 );
 create index if not exists fee_user_id_index on "fee" (user_id);
