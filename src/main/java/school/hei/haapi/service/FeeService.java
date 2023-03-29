@@ -15,9 +15,11 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
+import school.hei.haapi.repository.DelayRepository;
 import school.hei.haapi.repository.FeeRepository;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -27,6 +29,8 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.*;
 @AllArgsConstructor
 @Slf4j
 public class FeeService {
+
+  private DelayRepository delayRepository;
 
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
@@ -84,11 +88,12 @@ private void feesChecker(Fee fee){
 
 private void feesSetter(Fee fee){
     Instant now = Instant.now();
+    DelayPenalty theDelayPenalty = delayRepository.get();
     Duration graceDelay = Duration.ofDays(10);
     Instant penalityDelay = fee.getDueDatetime().plus(graceDelay);
     Long numberOfLateDay = Duration.between(penalityDelay, now).toDays();
 
-    int renewRemainingAmount = (int) (fee.getRemainingAmount() * Math.pow((1+fee.getDelayPenalty().getInterestPercent()), numberOfLateDay));
+    int renewRemainingAmount = (int) (fee.getRemainingAmount() * Math.pow((1+theDelayPenalty.getInterestPercent()), numberOfLateDay));
     fee.setRemainingAmount(renewRemainingAmount);
 }
 
