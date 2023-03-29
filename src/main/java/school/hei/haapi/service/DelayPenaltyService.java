@@ -19,7 +19,10 @@ public class DelayPenaltyService {
     return delayPenaltyRepository.findAll();
   }
 
-  public List<DelayPenalty> saveAll(List<DelayPenalty> delayPenalties) {
-    return delayPenaltyRepository.saveAll(delayPenalties);
+  public DelayPenalty save(DelayPenalty delayPenalties) {
+    return delayPenaltyRepository.save(delayPenalties);
+  }
+  public DelayPenalty getFirstItem(){
+      return delayPenaltyRepository.findAll().get(0);
   }
 }

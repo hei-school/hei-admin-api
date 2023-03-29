@@ -1,13 +1,19 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.time.Instant;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.service.DelayPenaltyService;
 
 @Component
+@AllArgsConstructor
 public class DelayPenaltyMapper {
+  DelayPenaltyService delayPenaltyService;
+
   public school.hei.haapi.endpoint.rest.model.DelayPenalty toRest(DelayPenalty delayPenalty) {
     var restDelayPenalty = new school.hei.haapi.endpoint.rest.model.DelayPenalty();
     restDelayPenalty.setId(delayPenalty.getId());
@@ -19,9 +25,15 @@ public class DelayPenaltyMapper {
     restDelayPenalty.setInterestPercent(delayPenalty.getInterestPercent());
     return restDelayPenalty;
   }
+
   public DelayPenalty toDomain(CreateDelayPenaltyChange createDelayPenaltyChange) {
+    String delayPenaltyId = delayPenaltyService.getFirstItem().getId();
+    Instant delayPenaltyCreateDateTime = delayPenaltyService.getFirstItem().getCreationDatetime();
     return DelayPenalty.builder()
+        .id(delayPenaltyId)
         .interestPercent(createDelayPenaltyChange.getInterestPercent())
+        .creationDatetime(delayPenaltyCreateDateTime)
+        .lastUpdateDate(Instant.now())
         .interestTimeRate(toDomainDelayInterest(
             Objects.requireNonNull(createDelayPenaltyChange.getInterestTimerate())))
         .graceDelay(createDelayPenaltyChange.getGraceDelay())
@@ -36,7 +48,7 @@ public class DelayPenaltyMapper {
         return school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum.DAILY;
       default:
         throw new BadRequestException(
-            "Unexpected delayPenaltyInterestTimerate: " + createDelayPenalty.getValue());
+            "Unexpected delayPenaltyInterestTimeRate: " + createDelayPenalty.getValue());
     }
   }
 }
