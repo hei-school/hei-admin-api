@@ -20,8 +20,7 @@ import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.*;
 
 @Service
 @AllArgsConstructor
@@ -71,6 +70,16 @@ public class FeeService {
     }
     return feeRepository.getByStudentId(studentId, pageable);
   }
+
+public void feesChecker(Fee fee){
+    if(fee.getStatus() == LATE){
+
+    }
+}
+
+public void feesSetter(Fee fee){
+
+}
 
   private Fee updateFeeStatus(Fee initialFee) {
     if (initialFee.getRemainingAmount() == 0) {
