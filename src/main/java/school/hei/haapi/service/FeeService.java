@@ -82,11 +82,11 @@ public class FeeService {
 
 private void feesChecker(Fee fee){
     if(fee.getStatus() == LATE){
-      feesSetter(fee);
+      feesRemainaingAmountUpdater(fee);
     }
 }
 
-private void feesSetter(Fee fee){
+private void feesRemainaingAmountUpdater(Fee fee){
     Instant now = Instant.now();
     DelayPenalty theDelayPenalty = delayRepository.get();
     Duration graceDelay = Duration.ofDays(10);
