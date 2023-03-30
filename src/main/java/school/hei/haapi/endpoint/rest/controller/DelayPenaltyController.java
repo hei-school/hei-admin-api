@@ -26,9 +26,7 @@ public class DelayPenaltyController {
 
   @GetMapping(value = "/delay_penalty")
   public DelayPenalty getDelayPenalties() {
-    return delayPenaltyService.getAll().stream()
-        .map(delayPenaltyMapper::toRest)
-        .collect(toUnmodifiableList()).get(0);
+    return delayPenaltyMapper.toRest(delayPenaltyService.getLastItem());
   }
 
   @PutMapping(value = "/delay_penalty_change")

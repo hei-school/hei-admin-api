@@ -35,8 +35,13 @@ public class DelayPenaltyService {
   public DelayPenalty save(DelayPenalty delayPenalties) {
     return delayPenaltyRepository.save(delayPenalties);
   }
-  public DelayPenalty getFirstItem(){
-      return delayPenaltyRepository.findAll().get(0);
+
+  public DelayPenalty getFirstItem() {
+    return delayPenaltyRepository.findAll().get(0);
+  }
+  public DelayPenalty getLastItem() {
+    int indexOfLastItem = delayPenaltyRepository.findAll().size()-1;
+    return delayPenaltyRepository.findAll().get(indexOfLastItem);
   }
 
   private Fee updateLateFee(Fee fee){

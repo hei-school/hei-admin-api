@@ -27,10 +27,8 @@ public class DelayPenaltyMapper {
   }
 
   public DelayPenalty toDomain(CreateDelayPenaltyChange createDelayPenaltyChange) {
-    String delayPenaltyId = delayPenaltyService.getFirstItem().getId();
     Instant delayPenaltyCreateDateTime = delayPenaltyService.getFirstItem().getCreationDatetime();
     return DelayPenalty.builder()
-        .id(delayPenaltyId)
         .interestPercent(createDelayPenaltyChange.getInterestPercent())
         .creationDatetime(delayPenaltyCreateDateTime)
         .lastUpdateDate(Instant.now())
