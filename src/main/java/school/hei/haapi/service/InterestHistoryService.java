@@ -2,8 +2,6 @@ package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.model.DelayPenalty;
-import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.InterestHistory;
 import school.hei.haapi.repository.InterestHistoryRepository;
 
@@ -38,7 +36,7 @@ public class InterestHistoryService {
   }
 
   public int getInterestAmount(String feeId){
-    Fee fee = feeService.getById(feeId);
+    /*Fee fee = feeService.getById(feeId);
     List<InterestHistory> interestHistories = getAllByFeeId(feeId);
     Date todayDate = new Date();
     Date actualDate = interestHistories.get(0).getInterestStart();
@@ -60,5 +58,8 @@ public class InterestHistoryService {
       }
     }
     return (totalamount - fee.getTotalAmount());
+
+     */
+    return 10000;
   }
 }

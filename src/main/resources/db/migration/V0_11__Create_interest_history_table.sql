@@ -9,5 +9,6 @@ create table if not exists "interest_history"
     interest_rate               integer                  not null,
     interest_time_rate               integer                  not null,
     interest_start               DATE                  not null,
-    interest_end               DATE                  not null
+    interest_end                DATE                  not null,
+    is_active                    boolean     not null    default true
 );

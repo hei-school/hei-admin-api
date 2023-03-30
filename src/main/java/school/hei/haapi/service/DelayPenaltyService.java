@@ -48,15 +48,16 @@ public class DelayPenaltyService {
       if ( Period.between(today, dueTime.plusDays(generalRule.getGraceDelay())).getDays()>=0){
         List<InterestHistory> interestHistories = interestHistoryService.getAllByFeeId(fee.getId());
         if (interestHistories.size()==0){
-          //toDO create InterestHistory
+          //toDO change to LocalDate
           java.util.Date InterestStart = java.util.Date.from(dueTime.plusDays(generalRule.getGraceDelay()+1).atTime(12,0).toInstant(ZoneOffset.UTC));
           java.util.Date InterestEnd = java.util.Date.from(dueTime.plusDays(generalRule.getGraceDelay()+1+ generalRule.getApplicabilityDelayAfterGrace()).atTime(12,0).toInstant(ZoneOffset.UTC));
           InterestHistory toCreate = InterestHistory.builder()
                   .fee(fee)
                   .interestRate(generalRule.getInterestPercent())
                   .interestTimeRate(convertInterestTimeRateToDayNumber(generalRule.getInterestTimeRate()))
-                  .interestStart(InterestStart)
-                  .interestEnd(InterestEnd)
+
+                  //.interestStart(InterestStart)
+                  //.interestEnd(InterestEnd)
                   .build();
           interestHistoryService.saveAll(List.of(toCreate));
           interestHistories = interestHistoryService.getAllByFeeId(fee.getId());
