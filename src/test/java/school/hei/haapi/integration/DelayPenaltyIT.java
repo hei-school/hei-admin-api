@@ -17,7 +17,6 @@ import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 import java.time.Instant;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -26,9 +25,9 @@ import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = PenaltyIT.ContextInitializer.class)
+@ContextConfiguration(initializers = DelayPenaltyIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-public class PenaltyIT {
+public class DelayPenaltyIT {
 
     @MockBean
     private SentryConf sentryConf;
@@ -41,18 +40,18 @@ public class PenaltyIT {
 
 
     private static ApiClient anApiClient(String token) {
-        return TestUtils.anApiClient(token, PenaltyIT.ContextInitializer.SERVER_PORT);
+        return TestUtils.anApiClient(token, DelayPenaltyIT.ContextInitializer.SERVER_PORT);
     }
 
-    static DelayPenalty penalty1(){
-        DelayPenalty penalty1 = new DelayPenalty();
-        penalty1.setId("1");
-        penalty1.setInterestPercent(2);
-        penalty1.setInterestTimerate(DAILY);
-        penalty1.setGraceDelay(7);
-        penalty1.setApplicabilityDelayAfterGrace(25);
-        penalty1.setCreationDatetime(Instant.parse("2022-02-01 10:00:00"));
-        return penalty1;
+    static DelayPenalty delayPenalty1(){
+        DelayPenalty delayPenalty1 = new DelayPenalty();
+        delayPenalty1.setId("1");
+        delayPenalty1.setInterestPercent(2);
+        delayPenalty1.setInterestTimerate(DAILY);
+        delayPenalty1.setGraceDelay(7);
+        delayPenalty1.setApplicabilityDelayAfterGrace(25);
+        delayPenalty1.setCreationDatetime(Instant.parse("2022-02-01 10:00:00"));
+        return delayPenalty1;
     }
 
     @BeforeEach
@@ -69,7 +68,7 @@ public class PenaltyIT {
 
         DelayPenalty actual1 = api.getDelayPenalty();
 
-        assertEquals(penalty1(), actual1);
+        assertEquals(delayPenalty1(), actual1);
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
