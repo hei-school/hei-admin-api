@@ -14,6 +14,7 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
@@ -31,7 +32,6 @@ public class FeeService {
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
-
   private final EventProducer eventProducer;
 
   public Fee getById(String id) {
