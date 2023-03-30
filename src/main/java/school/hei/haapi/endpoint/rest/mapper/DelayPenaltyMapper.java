@@ -14,4 +14,12 @@ public class DelayPenaltyMapper {
                 .applicabilityDelayAfterGrace(delayPenalty.getApplicabilityDelayAfterGrace())
                 .creationDatetime(delayPenalty.getCreationDatetime());
     }
+    public DelayPenalty toUpdate(school.hei.haapi.model.DelayPenalty toUpdate){
+        DelayPenalty newValue = new DelayPenalty();
+        newValue.setInterestPercent(toUpdate.getInterestPercent());
+        newValue.setInterestTimerate(toUpdate.getInterestTimerate());
+        newValue.setGraceDelay(toUpdate.getGraceDelay());
+        newValue.setApplicabilityDelayAfterGrace(toUpdate.getApplicabilityDelayAfterGrace());
+        return newValue;
+    }
 }
