@@ -2,6 +2,7 @@ package school.hei.haapi.service.utils;
 
 import java.text.NumberFormat;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -32,4 +33,8 @@ public class DataFormatterUtils {
     return intConverter.asWords(number).toUpperCase();
   }
 
+  public static LocalDate takeLocalDate(){
+    ZoneId zone = ZoneId.of("UTC");
+    return LocalDate.ofInstant(Instant.now(), zone);
+  }
 }
