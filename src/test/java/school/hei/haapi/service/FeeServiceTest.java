@@ -117,11 +117,8 @@ class FeeServiceTest {
     feeRepository = mock(FeeRepository.class);
     feeValidator = mock(FeeValidator.class);
     eventProducer = mock(EventProducer.class);
-    delayPenaltyService = mock(DelayPenaltyService.class);
-    interestHistoryService = mock(InterestHistoryService.class);
-    paymentService = mock(PaymentService.class);
 
-    subject = new FeeService(feeRepository, feeValidator, eventProducer,delayPenaltyService,interestHistoryService,paymentService);
+    subject = new FeeService(feeRepository, feeValidator, eventProducer);
   }
 
   @Test
