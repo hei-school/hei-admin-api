@@ -13,8 +13,10 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.InterestHistory;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.DelayPenaltyService;
 import school.hei.haapi.service.InterestHistoryService;
 import school.hei.haapi.service.UserService;
+import school.hei.haapi.service.utils.DataFormatterUtils;
 
 import java.util.List;
 
@@ -25,6 +27,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 public class IntrestHistoryController {
 
   private final InterestHistoryService interestHistoryService;
+  private final DelayPenaltyService delayPenaltyService;
 
   @GetMapping(value = "/interest/{fee_id}/fee")
   public List<InterestHistory> getInterest(@PathVariable String fee_id) {
@@ -33,6 +36,11 @@ public class IntrestHistoryController {
   @GetMapping(value = "/interest/{fee_id}/fee/amount")
   public int getInterestAmount(@PathVariable String fee_id) {
     return interestHistoryService.getInterestAmount(fee_id);
+  }
+  @PutMapping(value = "/interest/{fee_id}/fee/{rate}")
+  public List<InterestHistory> getInterest(@PathVariable String fee_id, @PathVariable int rate) {
+    delayPenaltyService.ChangeInterestByInterestPercent(rate, interestHistoryService.getAllByFeeId(fee_id));
+    return interestHistoryService.getAllByFeeId(fee_id);
   }
 
 }

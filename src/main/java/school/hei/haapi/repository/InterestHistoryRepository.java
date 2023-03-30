@@ -10,5 +10,5 @@ import java.util.List;
 
 @Repository
 public interface InterestHistoryRepository extends JpaRepository<InterestHistory, String> {
-    List<InterestHistory> getByFeeId(String feeId);
+    List<InterestHistory> getByFeeIdOrderByInterestStartDesc(String feeId);
 }

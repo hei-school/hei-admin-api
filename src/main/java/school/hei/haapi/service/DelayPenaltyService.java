@@ -7,12 +7,15 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.InterestHistory;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.DelayPenaltyRepository;
+import school.hei.haapi.service.utils.DataFormatterUtils;
 
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.Period;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 @Service
@@ -23,6 +26,45 @@ public class DelayPenaltyService {
   private final InterestHistoryService interestHistoryService;
 
   private final PaymentService paymentService;
+
+  public void ChangeInterestByInterestPercent(int newPercent, List<InterestHistory> interestHistories){
+    LocalDate today = DataFormatterUtils.takeLocalDate();
+    InterestHistory interestHistory = interestHistories.get(interestHistories.size()-1);
+    if (interestHistory.getInterestEnd().isAfter(today)) {
+      List<InterestHistory> newInterestHistories = new ArrayList<>();
+      InterestHistory firstPartInterestHistory = InterestHistory.builder()
+              .id(interestHistory.getId())
+              .fee(interestHistory.getFee())
+              .interestEnd(today.minusDays(1))
+              .interestStart(interestHistory.getInterestStart())
+              .interestRate(interestHistory.getInterestRate())
+              .interestTimeRate(interestHistory.getInterestTimeRate())
+              .build();
+      newInterestHistories.add(firstPartInterestHistory);
+      InterestHistory secondPartInterestHistory = InterestHistory.builder()
+              .fee(interestHistory.getFee())
+              .interestEnd(interestHistory.getInterestEnd())
+              .interestStart(today)
+              .interestRate(interestHistory.getInterestRate())
+              .interestTimeRate(interestHistory.getInterestTimeRate())
+              .build();
+      newInterestHistories.add(secondPartInterestHistory);
+      interestHistoryService.saveAll(newInterestHistories);
+    }
+  }
+
+  private void ChangeInterestByApplicabilityDelayAfterGrace(int newApplicabilityDelayAfterGrace, List<InterestHistory> interestHistories){
+    LocalDate today = DataFormatterUtils.takeLocalDate();
+    if (interestHistories.get(interestHistories.size()-1).getInterestEnd().isAfter(today)) {
+      for (int i = 0; i < 2; i++) {
+
+      }
+    }else {
+      for (int i = 0; i < 2; i++) {
+        
+      }
+    }
+  }
 
   public DelayPenalty getById(String delayId) {
     return delayPenaltyRepository.getById(delayId);
