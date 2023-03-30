@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.dao.DataAccessException;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.repository.DelayPenaltyRepository;
@@ -12,5 +13,17 @@ public class DelayPenaltyService {
 
     public DelayPenalty getDelayPenalty() {
         return repository.findFirstBy();
+    }
+    public DelayPenalty putDelayPenalty(DelayPenalty newValues){
+        try {
+            DelayPenalty currentValue = repository.findFirstBy();
+            currentValue.setInterestPercent(newValues.getInterestPercent());
+            currentValue.setInterestTimerate(newValues.getInterestTimerate());
+            currentValue.setGraceDelay(newValues.getGraceDelay());
+            currentValue.setApplicabilityDelayAfterGrace(newValues.getApplicabilityDelayAfterGrace());
+            return repository.save(currentValue);
+        } catch (DataAccessException e) {
+            throw new RuntimeException("Failed to update delay penalty", e);
+        }
     }
 }
