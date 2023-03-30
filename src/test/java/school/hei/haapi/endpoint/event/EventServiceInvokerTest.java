@@ -1,21 +1,22 @@
 package school.hei.haapi.endpoint.event;
 
-import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
 import school.hei.haapi.model.User;
+import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.service.LateFeeService;
+import school.hei.haapi.service.PaymentService;
 import school.hei.haapi.service.UserUpsertedService;
 import school.hei.haapi.service.aws.SesService;
 
+import java.time.Instant;
+
 import static java.util.UUID.randomUUID;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.*;
 
 class EventServiceInvokerTest {
   EventServiceInvoker eventServiceInvoker;
@@ -23,6 +24,8 @@ class EventServiceInvokerTest {
   LateFeeService lateFeeService;
   SesService sesService;
   EventConf eventConf;
+  PaymentService paymentService;
+  FeeRepository feeRepository;
 
   static User randomStudent() {
     return User.builder()
@@ -45,7 +48,9 @@ class EventServiceInvokerTest {
     userUpsertedService = mock(UserUpsertedService.class);
     sesService = mock(SesService.class);
     eventConf = mock(EventConf.class);
-    lateFeeService = new LateFeeService(sesService, eventConf);
+    paymentService = mock(PaymentService.class);
+    feeRepository = mock(FeeRepository.class);
+    lateFeeService = new LateFeeService(sesService, eventConf,paymentService,feeRepository);
     eventServiceInvoker = new EventServiceInvoker(userUpsertedService, lateFeeService);
   }
 

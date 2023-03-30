@@ -60,7 +60,6 @@ public class DelayPenaltyService {
                   .fee(fee)
                   .interestRate(generalRule.getInterestPercent())
                   .interestTimeRate(convertInterestTimeRateToDayNumber(generalRule.getInterestTimeRate()))
-
                   //.interestStart(InterestStart)
                   //.interestEnd(InterestEnd)
                   .build();
