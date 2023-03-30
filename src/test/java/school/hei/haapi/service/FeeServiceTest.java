@@ -1,8 +1,5 @@
 package school.hei.haapi.service;
 
-import java.time.Instant;
-import java.time.temporal.ChronoUnit;
-import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
@@ -14,6 +11,10 @@ import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
+
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -31,6 +32,9 @@ class FeeServiceTest {
   FeeRepository feeRepository;
   FeeValidator feeValidator;
   EventProducer eventProducer;
+  DelayPenaltyService delayPenaltyService;
+  InterestHistoryService interestHistoryService;
+  PaymentService paymentService;
 
   static User student1() {
     return User.builder()
@@ -113,7 +117,11 @@ class FeeServiceTest {
     feeRepository = mock(FeeRepository.class);
     feeValidator = mock(FeeValidator.class);
     eventProducer = mock(EventProducer.class);
-    subject = new FeeService(feeRepository, feeValidator, eventProducer);
+    delayPenaltyService = mock(DelayPenaltyService.class);
+    interestHistoryService = mock(InterestHistoryService.class);
+    paymentService = mock(PaymentService.class);
+
+    subject = new FeeService(feeRepository, feeValidator, eventProducer,delayPenaltyService,interestHistoryService,paymentService);
   }
 
   @Test
