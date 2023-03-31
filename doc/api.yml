@@ -1116,9 +1116,7 @@ components:
         interest_percent:
           type: integer
         interest_timerate:
-          type: string
-          enum:
-            - DAILY
+          $ref: '#/components/schemas/InterestTimerate'
         grace_delay:
           type: integer
         applicability_delay_after_grace:
@@ -1133,6 +1131,10 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    InterestTimerate:
+      type: string
+      enum:
+        - DAILY
     CreatePayment:
       type: object
       properties:
