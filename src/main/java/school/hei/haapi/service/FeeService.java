@@ -23,7 +23,8 @@ import school.hei.haapi.repository.DelayRepository;
 import school.hei.haapi.repository.FeeRepository;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.*;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 
 @Service
 @AllArgsConstructor
