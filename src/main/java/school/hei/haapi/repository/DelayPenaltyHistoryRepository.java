@@ -11,15 +11,8 @@ import java.util.List;
 
 @Repository
 public interface DelayPenaltyHistoryRepository extends JpaRepository<DelayPenaltyHistory, String> {
-   /* @Query(value = "select dph from delay_penalty_history dph"
-            + " where CAST(dph.endDate as LocalDate) as date <= :interest_start as date and CAST(dph.startDate as LocalDate) as date >= :interest_end as date", nativeQuery=true)
 
-    */
-   /*@Query(value = "select dph from DelayPenaltyHistory dph"
-           + " where dph.endDate  <= :interest_start and dph.startDate >= :interest_end")
-
-    */
     @Query(value = "select dph from DelayPenaltyHistory dph"
-           + " where dph.endDate  >= :interest_start and dph.startDate <= :interest_end")
+           + " where (dph.endDate  >= :interest_start or dph.endDate=null ) and dph.startDate <= :interest_end")
     List<DelayPenaltyHistory> findDelayPenaltyHistoriesByInterestStartAndEnd(@Param("interest_start")LocalDate start, @Param("interest_end")LocalDate end);
 }

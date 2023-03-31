@@ -12,3 +12,4 @@ create table if not exists "delay_penalty_history"
     end_date                date ,
     creation_date            timestamp with time zone
 );
+create index if not exists delay_penalty_history_start_date_end_date_index on "delay_penalty_history" (start_date,end_date);
