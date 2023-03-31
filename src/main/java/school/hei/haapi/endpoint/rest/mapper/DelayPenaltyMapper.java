@@ -1,7 +1,10 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
+
+import java.util.Objects;
 
 @Component
 public class DelayPenaltyMapper {
@@ -13,5 +16,30 @@ public class DelayPenaltyMapper {
                 .graceDelay(delayPenalty.getGraceDelay())
                 .applicabilityDelayAfterGrace(delayPenalty.getApplicabilityDelayAfterGrace())
                 .creationDatetime(delayPenalty.getCreationDatetime());
+    }
+
+    public DelayPenalty toUpdate(school.hei.haapi.model.DelayPenalty toUpdate){
+        DelayPenalty newValue = new DelayPenalty();
+        newValue.setInterestPercent(toUpdate.getInterestPercent());
+        newValue.setInterestTimerate(toUpdate.getInterestTimerate());
+        newValue.setGraceDelay(toUpdate.getGraceDelay());
+        newValue.setApplicabilityDelayAfterGrace(toUpdate.getApplicabilityDelayAfterGrace());
+        return newValue;
+    }
+
+    public school.hei.haapi.model.DelayPenalty toDomain(CreateDelayPenaltyChange delayPenaltyChange) {
+        school.hei.haapi.model.DelayPenalty delayPenalty = new school.hei.haapi.model.DelayPenalty();
+        delayPenalty.setInterestPercent(delayPenaltyChange.getInterestPercent());
+        delayPenalty.setInterestTimerate(this.toDomainInterestTimerate(delayPenaltyChange.getInterestTimerate()));
+        delayPenalty.setGraceDelay(delayPenaltyChange.getGraceDelay());
+        delayPenalty.setApplicabilityDelayAfterGrace(delayPenaltyChange.getApplicabilityDelayAfterGrace());
+        return delayPenalty;
+    }
+
+    private DelayPenalty.InterestTimerateEnum toDomainInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum timerateEnum) {
+        if (Objects.requireNonNull(timerateEnum) == CreateDelayPenaltyChange.InterestTimerateEnum.DAILY) {
+            return DelayPenalty.InterestTimerateEnum.DAILY;
+        }
+        return DelayPenalty.InterestTimerateEnum.DAILY;
     }
 }
