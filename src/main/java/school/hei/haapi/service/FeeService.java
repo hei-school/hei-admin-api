@@ -1,6 +1,8 @@
 package school.hei.haapi.service;
 
+import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -14,6 +16,7 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
@@ -31,8 +34,13 @@ public class FeeService {
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
-
+ private final PenaltyService penaltyService;
   private final EventProducer eventProducer;
+
+  public static double interestComposeCalc(Integer initialAmount, Integer interest, Long duration) {
+    double InterestInPercent = interest / 100;
+    return initialAmount * Math.pow(1 + InterestInPercent, duration);
+  }
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
@@ -62,16 +70,47 @@ public class FeeService {
   public List<Fee> getFeesByStudentId(
       String studentId, PageFromOne page, BoundedPageSize pageSize,
       school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
+    DelayPenalty delayPenalty = penaltyService.getActualDelayPenalty();
     Pageable pageable = PageRequest.of(
         page.getValue() - 1,
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
     if (status != null) {
+      List<Fee> fees = feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
+      applyLateFees(fees,delayPenalty);
       return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
     }
+    List<Fee> fees = feeRepository.getByStudentId(studentId, pageable);
+    applyLateFees(fees,delayPenalty);
     return feeRepository.getByStudentId(studentId, pageable);
   }
 
+  public void applyLateFees(List<Fee> fees, DelayPenalty delayPenalty) {
+    // Maka date androany
+    Instant now = Instant.now();
+    //Maka anze ilaina ampitombona anle écolage
+    Integer interestPercent = delayPenalty.getInterestPercent();
+    DelayPenalty.InterestTimerateEnum interestTimeRate = delayPenalty.getInterestTimeRate();
+    Integer graceDelay = delayPenalty.getGraceDelay();
+    Integer applicabilityDelayAfterGrace = delayPenalty.getApplicabilityDelayAfterGrace();
+    // Manao boucle mitety anle fees natao en parametre de manova anle totalAmount
+    for (Fee fee : fees) {
+      //Maka anle date tokony nandoavana ecolage
+      Instant dueDateTime = fee.getDueDatetime();
+      if (now.isAfter(dueDateTime.plus(Duration.ofDays(graceDelay)))) {
+        //Maka total jours de retard
+        Long daysLate = ChronoUnit.DAYS.between(dueDateTime, now);
+        //Manampya anle izy @zay
+        double lateFeeAmount = interestComposeCalc(fee.getTotalAmount(), interestPercent, daysLate);
+        if (daysLate > applicabilityDelayAfterGrace) {
+          fee.setTotalAmount(fee.getTotalAmount() + (int) lateFeeAmount);
+          fee.setRemainingAmount(fee.getRemainingAmount() + (int) lateFeeAmount);
+        }
+      }
+    }
+    //alefa anaty base
+    feeRepository.saveAll(fees);
+  }
   private Fee updateFeeStatus(Fee initialFee) {
     if (initialFee.getRemainingAmount() == 0) {
       initialFee.setStatus(PAID);
