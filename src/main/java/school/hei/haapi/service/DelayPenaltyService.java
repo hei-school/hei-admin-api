@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenalty;
+import school.hei.haapi.model.DelayPenaltyHistory;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.InterestHistory;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -85,6 +86,10 @@ public class DelayPenaltyService {
     int indexOfLastItem = delayPenaltyRepository.findAll().size()-1;
     return delayPenaltyRepository.findAll().get(indexOfLastItem);
   }
+  public DelayPenalty getBeforeLastItem() {
+    int indexOfLastItem = delayPenaltyRepository.findAll().size()-2;
+    return delayPenaltyRepository.findAll().get(indexOfLastItem);
+  }
 
   private Fee updateLateFee(Fee fee){
     if (!fee.getStatus().equals(school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID)){
@@ -114,7 +119,6 @@ public class DelayPenaltyService {
     }
     return fee;
   }
-
 
 
 
