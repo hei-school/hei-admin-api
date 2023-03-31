@@ -30,7 +30,7 @@ public class DelayPenalty implements Serializable {
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
     private school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum interestTimerateEnum;
-    private Integer graceDelay;
+    private int graceDelay;
     private int applicabilityDelayAfterGrace;
     @CreationTimestamp
     @Getter(AccessLevel.NONE)
