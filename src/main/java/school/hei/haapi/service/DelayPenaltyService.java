@@ -15,15 +15,11 @@ public class DelayPenaltyService {
         return repository.findFirstBy();
     }
     public DelayPenalty putDelayPenalty(DelayPenalty newValues){
-        try {
             DelayPenalty currentValue = repository.findFirstBy();
             currentValue.setInterestPercent(newValues.getInterestPercent());
             currentValue.setInterestTimerate(newValues.getInterestTimerate());
             currentValue.setGraceDelay(newValues.getGraceDelay());
             currentValue.setApplicabilityDelayAfterGrace(newValues.getApplicabilityDelayAfterGrace());
             return repository.save(currentValue);
-        } catch (DataAccessException e) {
-            throw new RuntimeException("Failed to update delay penalty", e);
-        }
     }
 }
