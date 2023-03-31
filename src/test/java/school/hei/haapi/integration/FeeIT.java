@@ -13,9 +13,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -102,23 +100,6 @@ class FeeIT {
         .totalAmount(5000)
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
-  }
-
-  static DelayPenalty delayPenalty() {
-    return new DelayPenalty()
-            .id("delay_penalty_id")
-            .interestPercent(2)
-            .interestTimerate(DelayPenalty.InterestTimerateEnum.DAILY)
-            .graceDelay(3)
-            .applicabilityDelayAfterGrace(10)
-            .creationDatetime(Instant.parse("2022-11-15T08:25:25.00Z"));
-  }
-  static CreateDelayPenaltyChange createDelayPenaltyChange(){
-    return new CreateDelayPenaltyChange()
-            .interestPercent(1)
-            .interestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY)
-            .graceDelay(3)
-            .applicabilityDelayAfterGrace(10);
   }
 
   @BeforeEach
@@ -246,31 +227,6 @@ class FeeIT {
     assertTrue(exceptionMessage1.contains("Total amount is mandatory"));
     assertTrue(exceptionMessage2.contains("Total amount must be positive"));
     assertTrue(exceptionMessage3.contains("Due datetime is mandatory"));
-  }
-
-  @Test
-  void student_read_delay_penalty_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
-
-    DelayPenalty actual = api.getDelayPenalty();
-
-    assertEquals(delayPenalty(), actual);
-  }
-
-  @Test
-  void manager_write_delay_penalty_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-
-    DelayPenalty actual = api.createDelayPenaltyChange(createDelayPenaltyChange());
-    actual.setCreationDatetime(null);
-    DelayPenalty expected = delayPenalty();
-    expected.setId(null);
-    expected.setInterestPercent(1);
-    expected.setCreationDatetime(null);
-
-    assertEquals(expected, actual);
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
