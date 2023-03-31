@@ -257,18 +257,20 @@ class FeeIT {
 
     assertEquals(delayPenalty(), actual);
   }
+
   @Test
   void manager_write_delay_penalty_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
     DelayPenalty actual = api.createDelayPenaltyChange(createDelayPenaltyChange());
-    DelayPenalty expected = new DelayPenalty();
-    expected.setInterestPercent(5);
-    expected.setGraceDelay(2);
+    actual.setCreationDatetime(null);
+    DelayPenalty expected = delayPenalty();
+    expected.setId(null);
+    expected.setInterestPercent(1);
+    expected.setCreationDatetime(null);
 
-    assertEquals(expected.getInterestPercent(), actual.getInterestPercent());
-    assertEquals(expected.getGraceDelay(), actual.getGraceDelay());
+    assertEquals(expected, actual);
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
