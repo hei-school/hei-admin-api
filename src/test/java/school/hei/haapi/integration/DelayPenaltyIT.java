@@ -47,7 +47,7 @@ public class DelayPenaltyIT {
     penalty.setInterestTimerate(DelayPenalty.InterestTimerateEnum.DAILY);
     penalty.setGraceDelay(0);
     penalty.setApplicabilityDelayAfterGrace(0);
-    penalty.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    penalty.setCreationDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
     return penalty;
   }
 
@@ -100,12 +100,11 @@ public class DelayPenaltyIT {
   @Test
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-
     PayingApi api = new PayingApi(manager1Client);
-    List<DelayPenalty> delayPenalties = Collections.singletonList(api.getDelayPenalty());
 
-    assertTrue(delayPenalties.contains(penalty1()));
-    assertTrue(delayPenalties.contains(penalty2()));
+    DelayPenalty actual = api.getDelayPenalty();
+
+    assertEquals(penalty1() , actual);
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

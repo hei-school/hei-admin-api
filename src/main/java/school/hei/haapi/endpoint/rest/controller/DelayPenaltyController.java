@@ -7,10 +7,6 @@ import school.hei.haapi.endpoint.rest.mapper.DelayPenaltyMapper;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.service.DelayPenaltyService;
 
-import java.util.List;
-
-import static java.util.stream.Collectors.toUnmodifiableList;
-
 @RestController
 @AllArgsConstructor
 public class DelayPenaltyController {
@@ -20,9 +16,7 @@ public class DelayPenaltyController {
     private final DelayPenaltyMapper mapper;
 
     @GetMapping("/delay_penalty")
-    public List<DelayPenalty> getDelayPenalty(){
-        return service.getDelayPenalty().stream()
-                .map(mapper::toRest)
-                .collect(toUnmodifiableList());
+    public DelayPenalty getCurrentDelayPenalty(){
+        return mapper.toRest(service.getCurrentDelay());
     }
 }
