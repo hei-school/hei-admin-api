@@ -95,6 +95,7 @@ public class FeeService {
         Integer applicabilityDelayAfterGrace = delayPenalty.getApplicabilityDelayAfterGrace();
         System.out.println("applicabilityDelayAfterGrace" + applicabilityDelayAfterGrace);
         for (Fee fee : fees) {
+            updateFeeStatus(fee);
             Instant dueDateTime = fee.getDueDatetime();
             System.out.println("dueDateTime"+ dueDateTime);
             if (now.isAfter(dueDateTime.plus(Duration.ofDays(graceDelay)))) {
@@ -105,6 +106,7 @@ public class FeeService {
                 if (daysToApplyPenalty > 0) {
                     double lateFeeAmount = interestComposeCalc(fee.getTotalAmount(), interestPercent, daysToApplyPenalty);
                     fee.setTotalAmount(fee.getTotalAmount() + (int) lateFeeAmount);
+                    fee.setRemainingAmount(fee.getRemainingAmount() + (int) lateFeeAmount );
                 }
             }
         }

@@ -53,12 +53,12 @@ class FeeIT {
     Fee fee = new Fee();
     fee.setId(FEE1_ID);
     fee.setStudentId(STUDENT1_ID);
-    fee.setStatus(Fee.StatusEnum.PAID);
+    fee.setStatus(Fee.StatusEnum.LATE);
     fee.setType(Fee.TypeEnum.TUITION);
-    fee.setTotalAmount(5000);
-    fee.setRemainingAmount(0);
+    fee.setTotalAmount(80000);
+    fee.setRemainingAmount(75000);
+    fee.updatedAt(Instant.now());
     fee.setComment("Comment");
-    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
     fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
     return fee;
