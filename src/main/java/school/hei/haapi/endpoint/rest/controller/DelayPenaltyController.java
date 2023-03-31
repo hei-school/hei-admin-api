@@ -19,8 +19,9 @@ public class DelayPenaltyController {
     public DelayPenalty getDelayPenalty() {
         return delayPenaltyMapper.toRest(delayPenaltyService.getDelayPenalty());
     }
+
     @PutMapping("/delay_penalty_change")
-    public DelayPenalty putDelayPenalty(CreateDelayPenaltyChange toUpdate){
-        return delayPenaltyMapper.toUpdate(delayPenaltyService.putDelayPenalty(toUpdate));
+    public DelayPenalty putDelayPenalty(CreateDelayPenaltyChange toUpdate) {
+        return delayPenaltyMapper.toUpdate(delayPenaltyService.putDelayPenalty(delayPenaltyMapper.toDomain(toUpdate)));
     }
 }

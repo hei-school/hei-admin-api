@@ -2,7 +2,6 @@ package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.validator.DelayPenaltyValidator;
 import school.hei.haapi.repository.DelayPenaltyRepository;
@@ -15,7 +14,7 @@ public class DelayPenaltyService {
     public DelayPenalty getDelayPenalty() {
         return repository.findFirstBy();
     }
-    public DelayPenalty putDelayPenalty(CreateDelayPenaltyChange newValues){
+    public DelayPenalty putDelayPenalty(DelayPenalty newValues){
             DelayPenalty currentValue = repository.findFirstBy();
             currentValue.setInterestPercent(newValues.getInterestPercent());
             currentValue.setInterestTimerate(newValues.getInterestTimerate());
