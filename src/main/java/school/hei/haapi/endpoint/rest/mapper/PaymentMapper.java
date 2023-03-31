@@ -65,13 +65,4 @@ public class PaymentMapper {
         throw new BadRequestException("Unexpected paymentType: " + createPaymentType.getValue());
     }
   }
-  public Payment toRestPayments(school.hei.haapi.model.Payment payment) {
-    school.hei.haapi.model.Payment restPayment = new Payment();
-    restPayment.setId(payment.getId());
-    restPayment.setFee(payment.getFee());
-    restPayment.setAmount(payment.getAmount());
-    restPayment.setComment(payment.getComment());
-    restPayment.setCreationDatetime(payment.getCreationDatetime());
-   
-  }
 }
