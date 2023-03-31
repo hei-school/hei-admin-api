@@ -17,6 +17,9 @@ public class CreateDelayPenaltyValidator implements Consumer<CreateDelayPenaltyC
         if (delayPenaltyChange.getInterestPercent() == null) {
             violationMessages.add("interest_percent is mandatory");
         }
+        if (delayPenaltyChange.getInterestTimerate() == null) {
+            violationMessages.add("interest_timerate is mandatory");
+        }
         if (delayPenaltyChange.getGraceDelay() == null) {
             violationMessages.add("grace_delay is mandatory");
         }
