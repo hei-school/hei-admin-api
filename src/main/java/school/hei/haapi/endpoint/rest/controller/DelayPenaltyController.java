@@ -17,7 +17,7 @@ public class DelayPenaltyController {
     private DelayPenaltyService service;
     private DelayPenaltyMapper mapper;
 
-    @GetMapping("/delays_penalty")
+    @GetMapping("/delay_penalty")
     public List<DelayPenalty> getDelayPenalty() {
         return service.getAll().stream()
                 .map(mapper::toRest)
