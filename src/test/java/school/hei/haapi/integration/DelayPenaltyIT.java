@@ -19,7 +19,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 
 import java.time.Instant;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 
@@ -30,27 +30,27 @@ import static school.hei.haapi.integration.conf.TestUtils.*;
 public class DelayPenaltyIT {
 
     @MockBean
-    private SentryConf sentryConf;
+  private SentryConf sentryConf;
 
-    @MockBean
-    private CognitoComponent cognitoComponentMock;
+  @MockBean
+  private CognitoComponent cognitoComponentMock;
 
-    private static ApiClient anApiClient(String token) {
-        return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
-    }
+  private static ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+  }
 
-    public static school.hei.haapi.endpoint.rest.model.DelayPenalty delayPenalty1() {
-        school.hei.haapi.endpoint.rest.model.DelayPenalty delayPenalty = new school.hei.haapi.endpoint.rest.model.DelayPenalty();
-        delayPenalty.setId("delayPenalty1_id");
-        delayPenalty.setInterestPercent(0);
-        delayPenalty.setInterestTimerate(school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum.fromValue("Daily"));
-        delayPenalty.setGraceDelay(0);
-        delayPenalty.setApplicabilityDelayAfterGrace(0);
-        delayPenalty.setCreationDatetime(Instant.parse("2023-03-31T06:00:45.279Z"));
-        return delayPenalty;
-    }
+  public static school.hei.haapi.endpoint.rest.model.DelayPenalty delayPenalty1() {
+    school.hei.haapi.endpoint.rest.model.DelayPenalty delayPenalty = new school.hei.haapi.endpoint.rest.model.DelayPenalty();
+    delayPenalty.setId("delayPenalty1_id");
+    delayPenalty.setInterestPercent(0);
+    delayPenalty.setInterestTimerate(school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum.fromValue("Daily"));
+    delayPenalty.setGraceDelay(0);
+    delayPenalty.setApplicabilityDelayAfterGrace(0);
+    delayPenalty.setCreationDatetime(Instant.parse("2023-03-31T06:00:45.279Z"));
+    return delayPenalty;
+  }
 
-    public static CreateDelayPenaltyChange delayPenaltyChange1() {
+  public static CreateDelayPenaltyChange delayPenaltyChange1() {
         CreateDelayPenaltyChange delayPenaltyChange = new CreateDelayPenaltyChange();
         delayPenaltyChange.setGraceDelay(1);
         delayPenaltyChange.setApplicabilityDelayAfterGrace(1);
@@ -58,23 +58,25 @@ public class DelayPenaltyIT {
         return delayPenaltyChange;
     }
 
-    @BeforeEach
-    public void setUp() {
-        setUpCognito(cognitoComponentMock);
-    }
 
-    @Test
-    void student_read_ok() throws ApiException {
-        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-        PayingApi api = new PayingApi(student1Client);
 
-        DelayPenalty actualDelay = api.getDelayPenalty();
+  @BeforeEach
+  public void setUp() {
+    setUpCognito(cognitoComponentMock);
+  }
 
-        assertEquals(delayPenalty1(), actualDelay);
+  @Test
+  void student_read_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    PayingApi api = new PayingApi(student1Client);
 
-    }
+    DelayPenalty actualDelay = api.getDelayPenalty();
 
-    @Test
+    assertEquals(delayPenalty1(), actualDelay);
+
+  }
+
+  @Test
     void student_write_ko() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         PayingApi api = new PayingApi(student1Client);
@@ -87,12 +89,13 @@ public class DelayPenaltyIT {
     }
 
 
-    static class ContextInitializer extends AbstractContextInitializer {
-        public static final int SERVER_PORT = anAvailableRandomPort();
+  static class ContextInitializer extends AbstractContextInitializer {
+    public static final int SERVER_PORT = anAvailableRandomPort();
 
-        @Override
-        public int getServerPort() {
-            return SERVER_PORT;
-        }
+    @Override
+    public int getServerPort() {
+      return SERVER_PORT;
     }
+  }
 }
+

@@ -13,13 +13,13 @@ import school.hei.haapi.repository.DelayPenaltyRepository;
 @AllArgsConstructor
 @Slf4j
 public class DelayPenaltyService {
-    private final DelayPenaltyRepository delayPenaltyRepository;
+  private final DelayPenaltyRepository delayPenaltyRepository;
 
-    public DelayPenalty getDelayPenalty(){
-        return delayPenaltyRepository.findAll().get(0);
-    }
+  public DelayPenalty getDelayPenalty(){
+    return delayPenaltyRepository.findAll().get(0);
+  }
 
-    public DelayPenalty updateDelayPenalty(@RequestBody DelayPenalty changes) {
+  public DelayPenalty updateDelayPenalty(@RequestBody DelayPenalty changes) {
         return delayPenaltyRepository.save(changes);
     }
 }
