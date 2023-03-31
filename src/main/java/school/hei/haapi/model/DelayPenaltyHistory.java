@@ -29,8 +29,8 @@ public class DelayPenaltyHistory {
   private String id;
   private int interestPercent;
   private int timeFrequency;
-  private Instant start;
-  private Instant end;
+  private Instant startDate;
+  private Instant endDate;
   @ManyToOne
   @JoinColumn(name = "delay_penalty_id", nullable = false)
   private DelayPenalty delayPenalty;
