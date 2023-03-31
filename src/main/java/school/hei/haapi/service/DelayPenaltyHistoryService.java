@@ -5,16 +5,23 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenaltyHistory;
 import school.hei.haapi.repository.DelayPenaltyHistoryRepository;
 
+import java.time.LocalDate;
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class DelayPenaltyHistoryService {
-  private final DelayPenaltyHistoryRepository delayPenaltyHistoryRepository;
+  private final DelayPenaltyHistoryRepository repository;
 
   public DelayPenaltyHistory getById(String delayHistory) {
-    return delayPenaltyHistoryRepository.getById(delayHistory);
+    return repository.getById(delayHistory);
   }
 
   public DelayPenaltyHistory save(DelayPenaltyHistory delayPenaltyHistory) {
-    return delayPenaltyHistoryRepository.save(delayPenaltyHistory);
+    return repository.save(delayPenaltyHistory);
+  }
+
+  public List<DelayPenaltyHistory> findDelayPenaltyHistoriesByInterestStartAndEnd(LocalDate InterestStart, LocalDate InterestEnd){
+    return repository.findDelayPenaltyHistoriesByInterestStartAndEnd(InterestStart,InterestEnd);
   }
 }

@@ -8,6 +8,7 @@ create table if not exists "delay_penalty_history"
             constraint delay_penalty_history_delay_penalty_id_fk references "delay_penalty"(id),
     interest_percent               integer                  not null,
     time_frequency               integer                  not null,
-    start_date               timestamp with time zone,
-    end_date                timestamp with time zone
+    start_date               date ,
+    end_date                date ,
+    creation_date            timestamp with time zone
 );
