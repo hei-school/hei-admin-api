@@ -13,6 +13,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.model.Fee;
@@ -111,6 +112,13 @@ class FeeIT {
             .graceDelay(3)
             .applicabilityDelayAfterGrace(10)
             .creationDatetime(Instant.parse("2022-11-15T08:25:25.00Z"));
+  }
+  static CreateDelayPenaltyChange createDelayPenaltyChange(){
+    return new CreateDelayPenaltyChange()
+            .interestPercent(1)
+            .interestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY)
+            .graceDelay(3)
+            .applicabilityDelayAfterGrace(10);
   }
 
   @BeforeEach
@@ -248,6 +256,17 @@ class FeeIT {
     DelayPenalty actual = api.getDelayPenalty();
 
     assertEquals(delayPenalty(), actual);
+  }
+  @Test
+  void manager_write_delay_penalty_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    DelayPenalty actual = api.createDelayPenaltyChange(createDelayPenaltyChange());
+
+    DelayPenalty expect = api.getDelayPenalty();
+
+    assertEquals(actual.getInterestPercent(),expect.getInterestPercent());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
