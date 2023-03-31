@@ -263,10 +263,12 @@ class FeeIT {
     PayingApi api = new PayingApi(manager1Client);
 
     DelayPenalty actual = api.createDelayPenaltyChange(createDelayPenaltyChange());
+    DelayPenalty expected = new DelayPenalty();
+    expected.setInterestPercent(5);
+    expected.setGraceDelay(2);
 
-    DelayPenalty expect = api.getDelayPenalty();
-
-    assertEquals(actual.getInterestPercent(),expect.getInterestPercent());
+    assertEquals(expected.getInterestPercent(), actual.getInterestPercent());
+    assertEquals(expected.getGraceDelay(), actual.getGraceDelay());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
