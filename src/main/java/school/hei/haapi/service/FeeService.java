@@ -5,6 +5,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.transaction.Transactional;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -31,130 +32,128 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 @Slf4j
 public class FeeService {
 
-  private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
-  private final FeeRepository feeRepository;
-  private final FeeValidator feeValidator;
- private final PenaltyService penaltyService;
-  private final EventProducer eventProducer;
+    private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
+    private final FeeRepository feeRepository;
+    private final FeeValidator feeValidator;
+    private final PenaltyService penaltyService;
+    private final EventProducer eventProducer;
 
-  public static double interestComposeCalc(Integer initialAmount, Integer interest, Long duration) {
-    double InterestInPercent = interest / 100;
-    return initialAmount * Math.pow(1 + InterestInPercent, duration);
-  }
-
-  public Fee getById(String id) {
-    return updateFeeStatus(feeRepository.getById(id));
-  }
-
-  public Fee getByStudentIdAndFeeId(String studentId, String feeId) {
-    return updateFeeStatus(feeRepository.getByStudentIdAndId(studentId, feeId));
-  }
-
-  @Transactional
-  public List<Fee> saveAll(List<Fee> fees) {
-    feeValidator.accept(fees);
-    return feeRepository.saveAll(fees);
-  }
-
-  public List<Fee> getFees(
-      PageFromOne page, BoundedPageSize pageSize,
-      school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
-    if (status != null) {
-      return feeRepository.getFeesByStatus(status, pageable);
+    public static double interestComposeCalc(Integer initialAmount, Integer interest, Long duration) {
+        double InterestInPercent = interest / 100;
+        return initialAmount * Math.pow(1 + InterestInPercent, duration);
     }
-    return feeRepository.getFeesByStatus(DEFAULT_STATUS, pageable);
-  }
 
-  public List<Fee> getFeesByStudentId(
-      String studentId, PageFromOne page, BoundedPageSize pageSize,
-      school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
-    DelayPenalty delayPenalty = penaltyService.getActualDelayPenalty();
-    Pageable pageable = PageRequest.of(
-        page.getValue() - 1,
-        pageSize.getValue(),
-        Sort.by(DESC, "dueDatetime"));
-    if (status != null) {
-      List<Fee> fees = feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
-      applyLateFees(fees,delayPenalty);
-      return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
+    public Fee getById(String id) {
+        return updateFeeStatus(feeRepository.getById(id));
     }
-    List<Fee> fees = feeRepository.getByStudentId(studentId, pageable);
-    applyLateFees(fees,delayPenalty);
-    return feeRepository.getByStudentId(studentId, pageable);
-  }
 
-  public void applyLateFees(List<Fee> fees, DelayPenalty delayPenalty) {
-    // Maka date androany
-    Instant now = Instant.now();
-    //Maka anze ilaina ampitombona anle écolage
-    Integer interestPercent = delayPenalty.getInterestPercent();
-    DelayPenalty.InterestTimerateEnum interestTimeRate = delayPenalty.getInterestTimeRate();
-    Integer graceDelay = delayPenalty.getGraceDelay();
-    Integer applicabilityDelayAfterGrace = delayPenalty.getApplicabilityDelayAfterGrace();
-    // Manao boucle mitety anle fees natao en parametre de manova anle totalAmount
-    for (Fee fee : fees) {
-      //Maka anle date tokony nandoavana ecolage
-      Instant dueDateTime = fee.getDueDatetime();
-      if (now.isAfter(dueDateTime.plus(Duration.ofDays(graceDelay)))) {
-        //Maka total jours de retard
-        Long daysLate = ChronoUnit.DAYS.between(dueDateTime, now);
-        //Manampya anle izy @zay
-        double lateFeeAmount = interestComposeCalc(fee.getTotalAmount(), interestPercent, daysLate);
-        if (daysLate > applicabilityDelayAfterGrace) {
-          fee.setTotalAmount(fee.getTotalAmount() + (int) lateFeeAmount);
-          fee.setRemainingAmount(fee.getRemainingAmount() + (int) lateFeeAmount);
+    public Fee getByStudentIdAndFeeId(String studentId, String feeId) {
+        return updateFeeStatus(feeRepository.getByStudentIdAndId(studentId, feeId));
+    }
+
+    @Transactional
+    public List<Fee> saveAll(List<Fee> fees) {
+        feeValidator.accept(fees);
+        return feeRepository.saveAll(fees);
+    }
+
+    public List<Fee> getFees(
+            PageFromOne page, BoundedPageSize pageSize,
+            school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
+        Pageable pageable =
+                PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
+        if (status != null) {
+            return feeRepository.getFeesByStatus(status, pageable);
         }
-      }
+        return feeRepository.getFeesByStatus(DEFAULT_STATUS, pageable);
     }
-    //alefa anaty base
-    feeRepository.saveAll(fees);
-  }
-  private Fee updateFeeStatus(Fee initialFee) {
-    if (initialFee.getRemainingAmount() == 0) {
-      initialFee.setStatus(PAID);
-    } else if (Instant.now().isAfter(initialFee.getDueDatetime())) {
-      initialFee.setStatus(LATE);
-    }
-    return initialFee;
-  }
 
-  @Scheduled(cron = "0 0 * * * *")
-  public void updateFeesStatusToLate() {
-    List<Fee> unpaidFees = feeRepository.getUnpaidFees();
-    unpaidFees.forEach(fee -> {
-      updateFeeStatus(fee);
-      log.info("Fee with id." + fee.getId() + " is going to be updated from UNPAID to LATE");
-    });
-    feeRepository.saveAll(unpaidFees);
-  }
-
-  private TypedLateFeeVerified toTypedEvent(Fee fee) {
-    return new TypedLateFeeVerified(
-        LateFeeVerified.builder()
-            .type(fee.getType())
-            .student(fee.getStudent())
-            .comment(fee.getComment())
-            .remainingAmount(fee.getRemainingAmount())
-            .dueDatetime(fee.getDueDatetime())
-            .build()
-    );
-  }
-
-  /*
-   * An email will be sent to user with late fees
-   * every morning at 8am (UTC+3)
-   * */
-  @Scheduled(cron = "0 0 8 * * *")
-  public void sendLateFeesEmail() {
-    List<Fee> lateFees = feeRepository.getFeesByStatus(LATE);
-    lateFees.forEach(
-        fee -> {
-          eventProducer.accept(List.of(toTypedEvent(fee)));
-          log.info("Late Fee with id." + fee.getId() + " is sent to Queue");
+    public List<Fee> getFeesByStudentId(
+            String studentId, PageFromOne page, BoundedPageSize pageSize,
+            school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
+        DelayPenalty delayPenalty = penaltyService.getActualDelayPenalty();
+        Pageable pageable = PageRequest.of(
+                page.getValue() - 1,
+                pageSize.getValue(),
+                Sort.by(DESC, "dueDatetime"));
+        if (status != null) {
+            List<Fee> fees = feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
+            applyLateFees(fees, delayPenalty);
+            return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
         }
-    );
-  }
+        List<Fee> fees = feeRepository.getByStudentId(studentId, pageable);
+        applyLateFees(fees, delayPenalty);
+        return feeRepository.getByStudentId(studentId, pageable);
+    }
+    public void applyLateFees(List<Fee> fees, DelayPenalty delayPenalty) {
+        Instant now = Instant.now();
+        System.out.println("now" + now);
+        Integer interestPercent = delayPenalty.getInterestPercent();
+        System.out.println("interestPercent" + interestPercent);
+        Integer graceDelay = delayPenalty.getGraceDelay();
+        System.out.println("graceDelay" + graceDelay);
+        Integer applicabilityDelayAfterGrace = delayPenalty.getApplicabilityDelayAfterGrace();
+        System.out.println("applicabilityDelayAfterGrace" + applicabilityDelayAfterGrace);
+        for (Fee fee : fees) {
+            Instant dueDateTime = fee.getDueDatetime();
+            System.out.println("dueDateTime"+ dueDateTime);
+            if (now.isAfter(dueDateTime.plus(Duration.ofDays(graceDelay)))) {
+                Long daysLate = ChronoUnit.DAYS.between(dueDateTime, now);
+                System.out.println("daysLate"+ daysLate);
+                Long daysToApplyPenalty = Math.min(daysLate - graceDelay, applicabilityDelayAfterGrace);
+                System.out.println("daysToApplyPenalty" + daysToApplyPenalty);
+                if (daysToApplyPenalty > 0) {
+                    double lateFeeAmount = interestComposeCalc(fee.getTotalAmount(), interestPercent, daysToApplyPenalty);
+                    fee.setTotalAmount(fee.getTotalAmount() + (int) lateFeeAmount);
+                }
+            }
+        }
+        feeRepository.saveAll(fees);
+    }
+    private Fee updateFeeStatus(Fee initialFee) {
+        if (initialFee.getRemainingAmount() == 0) {
+            initialFee.setStatus(PAID);
+        } else if (Instant.now().isAfter(initialFee.getDueDatetime())) {
+            initialFee.setStatus(LATE);
+        }
+        return initialFee;
+    }
+
+    @Scheduled(cron = "0 0 * * * *")
+    public void updateFeesStatusToLate() {
+        List<Fee> unpaidFees = feeRepository.getUnpaidFees();
+        unpaidFees.forEach(fee -> {
+            updateFeeStatus(fee);
+            log.info("Fee with id." + fee.getId() + " is going to be updated from UNPAID to LATE");
+        });
+        feeRepository.saveAll(unpaidFees);
+    }
+
+    private TypedLateFeeVerified toTypedEvent(Fee fee) {
+        return new TypedLateFeeVerified(
+                LateFeeVerified.builder()
+                        .type(fee.getType())
+                        .student(fee.getStudent())
+                        .comment(fee.getComment())
+                        .remainingAmount(fee.getRemainingAmount())
+                        .dueDatetime(fee.getDueDatetime())
+                        .build()
+        );
+    }
+
+    /*
+     * An email will be sent to user with late fees
+     * every morning at 8am (UTC+3)
+     * */
+    @Scheduled(cron = "0 0 8 * * *")
+    public void sendLateFeesEmail() {
+        List<Fee> lateFees = feeRepository.getFeesByStatus(LATE);
+        lateFees.forEach(
+                fee -> {
+                    eventProducer.accept(List.of(toTypedEvent(fee)));
+                    log.info("Late Fee with id." + fee.getId() + " is sent to Queue");
+                }
+        );
+    }
 
 }
