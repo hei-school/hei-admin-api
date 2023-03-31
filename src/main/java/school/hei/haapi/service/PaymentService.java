@@ -51,11 +51,5 @@ public class PaymentService {
         payment -> computeRemainingAmount(payment.getFee().getId(), payment.getAmount()));
     return paymentRepository.saveAll(toCreate);
   }
-  @Transactional
-  public List<Payment> save( List<Payment> payments) {
-    paymentValidator.accept(toCreate);
-    List<Payment> savedPayement = PaymentRepository.saveAll(payments);
-    return savedPayement;
-    
-  }
+
 }
