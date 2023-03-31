@@ -1,5 +1,9 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
@@ -40,6 +44,11 @@ public class FeeMapper {
     if (!student.getRole().equals(User.Role.STUDENT)) {
       throw new BadRequestException("Only students can have fees");
     }
+    Instant instant = Instant.now();
+    ZoneId zoneId = ZoneId.systemDefault();
+    ZonedDateTime zonedDateTime = instant.atZone(zoneId);
+    LocalDate localDate = zonedDateTime.toLocalDate();
+
     return school.hei.haapi.model.Fee.builder()
         .student(student)
         .type(toDomainFeeType(Objects.requireNonNull(createFee.getType())))
@@ -50,6 +59,7 @@ public class FeeMapper {
         .comment(createFee.getComment())
         .creationDatetime(createFee.getCreationDatetime())
         .dueDatetime(createFee.getDueDatetime())
+        .lastAmountUpdate(localDate)
         .build();
   }
 

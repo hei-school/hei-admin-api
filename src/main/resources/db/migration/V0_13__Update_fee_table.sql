@@ -1,0 +1,1 @@
+alter table "fee" add column last_amount_update date default now();

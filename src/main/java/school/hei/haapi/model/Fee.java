@@ -2,6 +2,7 @@ package school.hei.haapi.model;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
@@ -75,7 +76,7 @@ public class Fee implements Serializable {
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
   }
-
+  private LocalDate lastAmountUpdate;
   @Override
   public boolean equals(Object o) {
     if (this == o) {
