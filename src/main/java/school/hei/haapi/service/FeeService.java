@@ -71,30 +71,46 @@ public class FeeService {
         Sort.by(DESC, "dueDatetime"));
     if (status != null) {
       List<Fee>fees = feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
-      fees.forEach(fee -> feesChecker(fee));
+      fees.forEach(fee -> feesStatusCheker(fee));
       return fees;
     }
     List<Fee>fees = feeRepository.getByStudentId(studentId, pageable);
-    fees.forEach(fee -> feesChecker(fee));
+    fees.forEach(fee -> feesStatusCheker(fee));
     return fees;
   }
 
-private void feesChecker(Fee fee){
+private void feesStatusCheker(Fee fee){
     if(fee.getStatus() == LATE){
-      feesRemainaingAmountUpdater(fee);
+      feesRemainingAmountUpdater(fee);
     }
 }
 
-private void feesRemainaingAmountUpdater(Fee fee){
-    Instant now = Instant.now();
-    DelayPenalty theDelayPenalty = delayPenaltyService.getCurrentDelayPenalty();
-    Duration graceDelay = Duration.ofDays(10);
-    Instant penalityDelay = fee.getDueDatetime().plus(graceDelay);
-    Long numberOfLateDay = Duration.between(penalityDelay, now).toDays();
+  /***
+   *
+   * @param fee: this "fee" will be updated if its status is still "LATE" after the day of grace.
+   */
+  private void feesRemainingAmountUpdater(Fee fee){
+    double remainingAmount = 0;
+    final int feeRemainingAmount = fee.getRemainingAmount();
+    DelayPenalty delayPenalty = delayPenaltyService.getCurrentDelayPenalty();
+    Duration graceDelay = Duration.ofDays(delayPenalty.getGraceDelay()+1);
+    Instant beginingOfDelayPenalty = fee.getDueDatetime().plus(graceDelay);
+    double interestPercent = delayPenalty.getInterestPercent() / 100;
 
-    int renewRemainingAmount = (int) (fee.getRemainingAmount() * Math.pow((1+theDelayPenalty.getInterestPercent()), numberOfLateDay));
-    fee.setRemainingAmount(renewRemainingAmount);
-    fee.setTotalAmount(renewRemainingAmount);
+    if(Instant.now().isBefore(beginingOfDelayPenalty.plus(Duration.ofDays(delayPenalty.getApplicabilityDelayAfterGrace())))){
+       remainingAmount = ( feeRemainingAmount * Math
+                                        .pow(1+interestPercent,
+                                        Instant.now()
+                                                .compareTo(fee.getDueDatetime()
+                                                .plus(Duration.ofDays(delayPenalty.getApplicabilityDelayAfterGrace())))) );
+    }
+    else {
+      remainingAmount = ( feeRemainingAmount * Math
+                                        .pow(1+interestPercent,
+                                        delayPenalty.getApplicabilityDelayAfterGrace()
+              ));
+    }
+    fee.setRemainingAmount((int) remainingAmount);
 }
 
   private Fee updateFeeStatus(Fee initialFee) {
