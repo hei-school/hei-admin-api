@@ -28,7 +28,7 @@ public class FeeMapper {
         .studentId(fee.getStudent().getId())
         .status(fee.getStatus())
         .type(fee.getType())
-        .totalAmount(fee.getTotalAmount())
+        .totalAmount((int) (fee.getTotalAmount() + fee.getInterest()))
         .remainingAmount(fee.getRemainingAmount())
         .comment(fee.getComment())
         .creationDatetime(fee.getCreationDatetime())
