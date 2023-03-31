@@ -45,4 +45,15 @@ public class PaymentController {
         .map(paymentMapper::toRestPayment)
         .collect(toUnmodifiableList());
   }
+  @PutMapping("/payments")
+  public List<Payment> saveAll(@RequestBody List<Payment> toWrite) {
+    return paymentService
+        .saveAll(toWrite
+            .stream()
+            .map(paymentMapper::toDomain)
+            .collect(toUnmodifiableList()))
+        .stream()
+        .map(paymentMapper::toRestPayments)
+        .collect(toUnmodifiableList());
+  }
 }
