@@ -69,6 +69,8 @@ public class Fee implements Serializable {
 
   private Instant dueDatetime;
 
+  private double interest;
+
   @OneToMany(mappedBy = "fee")
   private List<Payment> payments;
 
