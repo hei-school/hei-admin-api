@@ -72,17 +72,17 @@ public class FeeService {
         Sort.by(DESC, "dueDatetime"));
     if (status != null) {
       List<Fee>fees = feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
-      fees.forEach(fee -> feesStatusCheker(fee));
+      fees.forEach(fee -> checkFeeStatus(fee));
       return fees;
     }
     List<Fee>fees = feeRepository.getByStudentId(studentId, pageable);
-    fees.forEach(fee -> feesStatusCheker(fee));
+    fees.forEach(fee -> checkFeeStatus(fee));
     return fees;
   }
 
-private void feesStatusCheker(Fee fee){
+private void checkFeeStatus(Fee fee){
     if(fee.getStatus() == LATE){
-      feesRemainingAmountUpdater(fee);
+      updateFeesRemainingAmount(fee);
     }
 }
 
@@ -90,21 +90,24 @@ private void feesStatusCheker(Fee fee){
    *
    * @param fee: this "fee" will be updated if its status is still "LATE" after the day of grace.
    */
-  private void feesRemainingAmountUpdater(Fee fee){
+  private void updateFeesRemainingAmount(Fee fee){
     double remainingAmount = 0;
     final int feeRemainingAmount = fee.getRemainingAmount();
     DelayPenalty delayPenalty = delayPenaltyService.getCurrentDelayPenalty();
-    Duration graceDelay = Duration.ofDays(delayPenalty.getGraceDelay()+1);
-    Instant beginingOfDelayPenalty = fee.getDueDatetime().plus(graceDelay);
+    Duration numberInDayOfGraceDelay = Duration.ofDays(delayPenalty.getGraceDelay()+1);
+    Instant firstDayOfApplicabilityDelayAfterGrace = fee.getDueDatetime().plus(numberInDayOfGraceDelay);
     double interestPercent = delayPenalty.getInterestPercent() / 100;
 
-    if(Instant.now().isBefore(beginingOfDelayPenalty.plus(Duration.ofDays(delayPenalty.getApplicabilityDelayAfterGrace())))){
+    //Before each we check if we are always in the month or in the interval of the month.
+    if(Instant.now().isBefore(firstDayOfApplicabilityDelayAfterGrace.plus(Duration.ofDays(delayPenalty.getApplicabilityDelayAfterGrace())))){
        remainingAmount = ( feeRemainingAmount * Math
                                         .pow(1+interestPercent,
                                         Instant.now()
                                                 .compareTo(fee.getDueDatetime()
                                                 .plus(Duration.ofDays(delayPenalty.getApplicabilityDelayAfterGrace())))) );
     }
+    //else if the delayOfApplicability or if month is finish we set directly the remainingAmount with
+    //the correct amount in params the number of day of applicability delay.
     else {
       remainingAmount = ( feeRemainingAmount * Math
                                         .pow(1+interestPercent,
