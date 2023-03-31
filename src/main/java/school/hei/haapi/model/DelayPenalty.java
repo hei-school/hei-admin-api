@@ -26,11 +26,11 @@ public class DelayPenalty implements Serializable {
     @GeneratedValue(strategy = IDENTITY)
     private String id;
 
-    private int interestPercent;
+    private double interestPercent;
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
     private school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum interestTimerateEnum;
-    private int graceDelay;
+    private Integer graceDelay;
     private int applicabilityDelayAfterGrace;
     @CreationTimestamp
     @Getter(AccessLevel.NONE)
