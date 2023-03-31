@@ -5,6 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.DelayPenaltyMapper;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.service.DelayPenaltyService;
 
@@ -19,7 +20,7 @@ public class DelayPenaltyController {
         return delayPenaltyMapper.toRest(delayPenaltyService.getDelayPenalty());
     }
     @PutMapping("/delay_penalty_change")
-    public DelayPenalty putDelayPenalty(school.hei.haapi.model.DelayPenalty toUpdate){
+    public DelayPenalty putDelayPenalty(CreateDelayPenaltyChange toUpdate){
         return delayPenaltyMapper.toUpdate(delayPenaltyService.putDelayPenalty(toUpdate));
     }
 }
