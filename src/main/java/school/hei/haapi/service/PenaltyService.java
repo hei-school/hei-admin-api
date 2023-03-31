@@ -1,11 +1,11 @@
 package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
-import school.hei.haapi.model.Group;
-import school.hei.haapi.model.Penalty;
-import school.hei.haapi.repository.PenaltyRepository;
+import school.hei.haapi.model.DelayPenalty;
+import school.hei.haapi.repository.DelayPenaltyRepository;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -13,27 +13,16 @@ import java.util.Optional;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class PenaltyService {
-    private final PenaltyRepository penaltyRepository;
+    private final DelayPenaltyRepository penaltyRepository;
 
-    public List<Penalty> getAll() {
-        return penaltyRepository.findAll();
+    public DelayPenalty getActualDelayPenalty() {
+        List<DelayPenalty> response = penaltyRepository.findAll();
+        return response.get(0);
     }
 
-    public Penalty update(CreateDelayPenaltyChange restPenalty) {
-        Optional<Penalty> optionalPenalty = penaltyRepository.findAll().stream().findFirst();
-        if (optionalPenalty.isPresent()) {
-            Penalty firstPenalty = optionalPenalty.get();
-            return penaltyRepository.save(Penalty.builder()
-                    .id(firstPenalty.getId())
-                            .interestPercent(restPenalty.getInterestPercent())
-                            .interestTimeRate(Penalty.TimeRate.valueOf(restPenalty.getInterestTimerate().getValue()))
-                            .graceDelay(restPenalty.getGraceDelay())
-                            .applicabilityDelayAfterGrace(restPenalty.getApplicabilityDelayAfterGrace())
-                            .creationDateTime(firstPenalty.getCreationDateTime())
-                    .build());
-        } else {
-            throw new NoSuchElementException("Aucune pénalité trouvée à modifier");
-        }
+    public DelayPenalty modifyActualPenalty (DelayPenalty delayPenalty) {
+        return penaltyRepository.save(delayPenalty);
     }
 }

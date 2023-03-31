@@ -5,23 +5,27 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.rest.mapper.PenaltyMapper;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
-import school.hei.haapi.model.Penalty;
+import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.service.PenaltyService;
 
-import java.util.List;
 
 @RestController
 @AllArgsConstructor
 public class PenaltyController {
     private PenaltyService penaltyService;
 
-    @GetMapping("/delay_penalty")
-    public List<Penalty> getAllPenalty(){
-        return penaltyService.getAll();
-    }
+    private final PenaltyMapper penaltyMapper;
 
-    @PutMapping("delay_penalty_change")
-    public Penalty createOrUpdatePenalty(@RequestBody CreateDelayPenaltyChange restPenalty)
-    { return penaltyService.update(restPenalty);}
+    @GetMapping("/delay_penalty")
+    public school.hei.haapi.endpoint.rest.model.DelayPenalty getActualConfig () {
+        DelayPenalty delayPenalty = penaltyService.getActualDelayPenalty();
+        return penaltyMapper.toRestDelayPenalty(delayPenalty);
+    }
+    @PutMapping("/delay_penalty_change")
+    public school.hei.haapi.endpoint.rest.model.DelayPenalty createOrUpdatePenalty(@RequestBody CreateDelayPenaltyChange restPenalty) {
+        DelayPenalty delayPenalty = penaltyService.modifyActualPenalty(penaltyMapper.toDomain(restPenalty));
+        return penaltyMapper.toRestDelayPenalty(delayPenalty);
+    }
 }

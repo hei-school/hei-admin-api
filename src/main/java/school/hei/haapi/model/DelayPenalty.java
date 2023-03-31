@@ -27,7 +27,6 @@ public class DelayPenalty implements Serializable {
     @GeneratedValue(strategy = IDENTITY)
     private String id;
 
-    @NotBlank
     @Column(name = "interest_percent")
     private Integer interestPercent;
 
@@ -36,15 +35,12 @@ public class DelayPenalty implements Serializable {
     @Enumerated(EnumType.STRING)
     private InterestTimerateEnum InterestTimeRate;
 
-    @NotBlank
     @Column(name = "grace_delay")
     private Integer graceDelay;
 
-    @NotBlank
     @Column(name = "applicability_delay_after_grace")
     private Integer applicabilityDelayAfterGrace;
 
-    @NotBlank
     @Column(name = "creation_datetime")
     private Instant creationDateTime;
 
