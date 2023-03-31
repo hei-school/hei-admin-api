@@ -29,8 +29,7 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.*;
 @AllArgsConstructor
 @Slf4j
 public class FeeService {
-
-  private DelayRepository delayRepository;
+  private final DelayPenaltyService delayPenaltyService;
 
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
@@ -88,7 +87,7 @@ private void feesChecker(Fee fee){
 
 private void feesRemainaingAmountUpdater(Fee fee){
     Instant now = Instant.now();
-    DelayPenalty theDelayPenalty = delayRepository.get();
+    DelayPenalty theDelayPenalty = delayPenaltyService.getCurrentDelayPenalty();
     Duration graceDelay = Duration.ofDays(10);
     Instant penalityDelay = fee.getDueDatetime().plus(graceDelay);
     Long numberOfLateDay = Duration.between(penalityDelay, now).toDays();
