@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 
 import java.util.List;
@@ -10,7 +11,7 @@ import java.util.List;
 @AllArgsConstructor
 public class DelayPenaltyService {
     private final DelayPenaltyRepository repository;
-    public List<DelayPenaltyService> getAllDelayPenalty() {
+    public DelayPenalty getAllDelayPenalty() {
         return repository.findAll().get(0);
     }
 }
