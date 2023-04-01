@@ -3,13 +3,13 @@ package school.hei.haapi.model;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
+import org.springframework.lang.NonNull;
+import org.springframework.lang.NonNullApi;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.annotation.Nonnull;
+import javax.persistence.*;
+import javax.validation.constraints.NotEmpty;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -27,18 +27,31 @@ import static javax.persistence.GenerationType.IDENTITY;
 public class DelayPenalty implements Serializable {
     @Id
     @GeneratedValue(strategy = IDENTITY)
+    @NotNull(message = "must not be null")
     private String id;
+
+    @Column(nullable = false)
+    @NotEmpty
+    @NotNull(message = "must not be null")
     private int interestPercent;
 
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
+    @NotEmpty
+    @NotNull(message = "must not be null")
     private school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum interestTimerate;
 
+    @Column(nullable = false)
+    @NotEmpty
+    @NotNull(message = "must not be null")
     private int graceDelay;
 
+    @Column(nullable = false)
+    @NotNull(message = "must not be null")
     private int applicabilityDelayAfterGrace;
 
     @CreationTimestamp
-    @Getter(AccessLevel.NONE)
+    @NotNull(message = "must not be null")
+    @NotEmpty
     private Instant creationDatetime;
 }
