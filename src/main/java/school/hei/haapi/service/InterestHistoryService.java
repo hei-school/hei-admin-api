@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.DelayPenaltyHistory;
@@ -75,7 +76,10 @@ public class InterestHistoryService {
 
   public int getInterestAmount(String feeId){
     Fee fee = feeService.getById(feeId);
-    DelayPenalty configGeneral = delayPenaltyRepository.findAll().get(0);
+    DelayPenalty configGeneral = delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).size()>0?
+            delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).get(0):
+            null;
+    //TODO calcul pour configGeneral == null and else
     LocalDate interestStart = LocalDate.ofInstant(fee.getDueDatetime(), ZoneId.of("UTC")).plusDays(configGeneral.getGraceDelay());
     LocalDate interestEnd = interestStart.plusDays(configGeneral.getApplicabilityDelayAfterGrace());
     LocalDate todayDate = DataFormatterUtils.takeLocalDate();
