@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
@@ -23,13 +24,13 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "\"delay_penalty\"")
+@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
+@Builder(toBuilder = true)
 @Getter
 @Setter
-@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
-@ToString
-@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@ToString
 public class DelayPenalty implements Serializable {
     @Id
     @GeneratedValue(strategy = IDENTITY)
@@ -39,10 +40,8 @@ public class DelayPenalty implements Serializable {
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
     private school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum interestTimerate;
-
-    private int graceDelay;
-
-    private int applicabilityDelayAfterGrace;
-
+    @CreationTimestamp
     private Instant creationDatetime;
+    private int graceDelay;
+    private int applicabilityDelayAfterGrace;
 }
