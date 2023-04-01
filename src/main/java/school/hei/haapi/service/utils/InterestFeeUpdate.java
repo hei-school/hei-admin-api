@@ -34,32 +34,29 @@ public class InterestFeeUpdate {
             long NOW = Instant.now().getEpochSecond() / 86400;
             long firstDayOfInterestApplication = (fee.getDueDatetime().getEpochSecond() / 86400) + delayPenalty.getGraceDelay();
             long lastDayOfInterestApplication = firstDayOfInterestApplication + delayPenalty.getApplicabilityDelayAfterGrace();
-            double baseAmount = fee.getTotalAmount();
             if (NOW > firstDayOfInterestApplication && NOW <= lastDayOfInterestApplication) {
                 long numberOfDayToApplyInterest = NOW - firstDayOfInterestApplication;
-                fee.setInterest(this.calculInterest(
-                        baseAmount,
+                fee.setInterest(this.calculateInterest(
+                        fee.getTotalAmount(),
                         delayPenalty.getInterestPercent(),
                         numberOfDayToApplyInterest));
             } else if (NOW > lastDayOfInterestApplication) {
-                long numberOfDayToApplyInterest = delayPenalty.getApplicabilityDelayAfterGrace();
-                fee.setInterest(this.calculInterest(
-                        baseAmount,
+                fee.setInterest(this.calculateInterest(
+                        fee.getTotalAmount(),
                         delayPenalty.getInterestPercent(),
-                        numberOfDayToApplyInterest
-                ));
+                        delayPenalty.getApplicabilityDelayAfterGrace()));
             }
             return fee;
         }
         return null;
     }
 
-    private double calculInterest(double baseAmount, int interestPercent, long numberOfDays) {
+    private int calculateInterest(double baseAmount, int interestPercent, long numberOfDays) {
         double interest = 0;
         for (int i = 0; i < numberOfDays; i++) {
             interest += baseAmount * interestPercent / 100;
             baseAmount += interest;
         }
-        return interest;
+        return (int) interest;
     }
 }
