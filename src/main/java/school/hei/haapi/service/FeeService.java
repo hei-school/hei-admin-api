@@ -11,10 +11,13 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
+import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.InterestHistoryRepository;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
@@ -28,13 +31,15 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 @AllArgsConstructor
 @Slf4j
 public class FeeService {
+  private final InterestHistoryRepository interestHistoryRepository;
 
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
 
   private final EventProducer eventProducer;
-
+  private final DelayPenaltyRepository delayPenaltyRepository;
+  private final InterestHistoryService interestHistoryService;
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
@@ -84,6 +89,28 @@ public class FeeService {
       initialFee.setStatus(LATE);
     }
     return initialFee;
+  }
+
+  public  void updateFeesInterest () {
+    //DelayPenalty delayPenalty = delayPenaltyRepository.findAll().get(0);
+    List<Fee> fees = feeRepository.getNotPaidFees();
+    //String value = "";
+    fees.forEach(fee -> {
+      int intesestAmount = interestHistoryService.getInterestAmount(fee.getId());
+      fee.setTotalAmount(fee.getTotalAmount()-fee.getInterestAmount()+intesestAmount);
+      fee.setRemainingAmount(fee.getRemainingAmount()-fee.getInterestAmount()+intesestAmount);
+      fee.setInterestAmount(intesestAmount);
+      updateFeeStatus(fee);
+      log.info("Fee with id." + fee.getId() + " is going to be updated");
+      //value = value + intesestAmount + "\n";
+    });
+    feeRepository.saveAll(fees);
+    //return value;
+  }
+
+  @Scheduled(cron = "0 0 * * * *")
+  public void automaticUpdateFeesInterest() {
+    updateFeesInterest();
   }
 
   @Scheduled(cron = "0 0 * * * *")

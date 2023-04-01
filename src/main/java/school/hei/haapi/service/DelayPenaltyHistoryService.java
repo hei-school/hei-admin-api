@@ -90,10 +90,11 @@ public class DelayPenaltyHistoryService {
                 "Unexpected delay Penalty Interest Time rate: " + interestTimeRate.getValue());
     }
   }
-  public List<DelayPenaltyHistory> findDelayPenaltyHistoriesByInterestStartAndEnd(LocalDate InterestStart, LocalDate InterestEnd){
-    List<DelayPenaltyHistory> repositoryDelayPenaltyHistories = repository.findDelayPenaltyHistoriesByInterestStartAndEnd(InterestStart,InterestEnd);
+  public List<DelayPenaltyHistory> findDelayPenaltyHistoriesByInterestStartAndEnd(LocalDate interestStart, LocalDate interestEnd){
+    List<DelayPenaltyHistory> repositoryDelayPenaltyHistories = repository.findDelayPenaltyHistoriesByInterestStartAndEnd(interestStart,interestEnd);
 
-    if (repositoryDelayPenaltyHistories.size() == 0) {
+    if (repositoryDelayPenaltyHistories.size() == 0 && !interestStart.isAfter(repository.findAll().get(0).getEndDate())) {
+
       repositoryDelayPenaltyHistories = Arrays.asList(getLastItem());
     }
 
