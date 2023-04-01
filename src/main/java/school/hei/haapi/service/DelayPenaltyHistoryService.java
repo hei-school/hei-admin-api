@@ -8,13 +8,13 @@ import school.hei.haapi.model.DelayPenaltyHistory;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.DelayPenaltyHistoryRepository;
 import school.hei.haapi.service.utils.DataFormatterUtils;
+
 import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Objects;
 
 @Service
 @AllArgsConstructor
@@ -34,21 +34,31 @@ public class DelayPenaltyHistoryService {
   }
 
   @Transactional
-  public void updateWhenUpdatedDelayPenalty(DelayPenalty newDelayPenalty) {
+  public void updateWhenUpdatedDelayPenalty(DelayPenalty lastDelayPenalty, DelayPenalty newDelayPenalty) {
     DelayPenaltyHistory lastDelayPenaltyHistoryToModify = getLastItem();
-    lastDelayPenaltyHistoryToModify.setEndDate(DataFormatterUtils.takeLocalDate());
     DelayPenaltyHistory newDelayPenaltyHistory = DelayPenaltyHistory.builder()
             .delayPenalty(newDelayPenalty)
             .interestPercent(newDelayPenalty.getInterestPercent())
-            .timeFrequency(dayFrequency(Objects.requireNonNull(newDelayPenalty.getInterestTimeRate())))
+            .timeFrequency(dayFrequency(newDelayPenalty.getInterestTimeRate()))
             .startDate(DataFormatterUtils.takeLocalDate())
             .endDate(null)
             .creationDate(Instant.now()).build();
-    saveAll(List.of(lastDelayPenaltyHistoryToModify,newDelayPenaltyHistory));
+    if (lastDelayPenaltyHistoryToModify!=null){
+      lastDelayPenaltyHistoryToModify.setInterestPercent(lastDelayPenalty.getInterestPercent());
+      lastDelayPenaltyHistoryToModify.setTimeFrequency(dayFrequency(lastDelayPenalty.getInterestTimeRate()));
+      lastDelayPenaltyHistoryToModify.setStartDate(LocalDate.ofInstant(lastDelayPenalty.getLastUpdateDate(),ZoneId.of("UTC")));
+      lastDelayPenaltyHistoryToModify.setEndDate(DataFormatterUtils.takeLocalDate());
+      repository.saveAll(List.of(lastDelayPenaltyHistoryToModify,newDelayPenaltyHistory));
+    }else {
+      repository.save(newDelayPenaltyHistory);
+    }
   }
 
   private DelayPenaltyHistory getLastItem() {
-    return repository.findAll(Sort.by(Sort.Direction.DESC, "creationDate")).get(0);
+
+    return repository.findAll(Sort.by(Sort.Direction.DESC, "creationDate")).size()>0?
+            repository.findAll(Sort.by(Sort.Direction.DESC, "creationDate")).get(0)
+            : null;
   }
 
   private DelayPenaltyHistory getFirstItem() {

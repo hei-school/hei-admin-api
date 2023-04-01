@@ -75,9 +75,10 @@ public class DelayPenaltyService {
     return repository.save(delayPenalties);
   }
 
-  public DelayPenalty updateDelayPenalty(DelayPenalty delayPenalties) {
-    delayPenaltyHistoryService.updateWhenUpdatedDelayPenalty(delayPenalties);
-    return repository.save(delayPenalties);
+  public DelayPenalty updateDelayPenalty(DelayPenalty newDelayPenalties) {
+    DelayPenalty lastDelayPenalty = getLastUpdated();
+    delayPenaltyHistoryService.updateWhenUpdatedDelayPenalty(lastDelayPenalty,newDelayPenalties);
+    return repository.save(newDelayPenalties);
   }
 
   public DelayPenalty getFirstItem() {
@@ -85,7 +86,10 @@ public class DelayPenaltyService {
   }
 
   public DelayPenalty getLastUpdated() {
-    return repository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).get(0);
+    return repository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).size()>0?
+            repository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).get(0):
+            null;
+
   }
 
 }
