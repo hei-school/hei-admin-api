@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.DelayPenaltyHistory;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.validator.DelayPenaltyHistoryValidator;
 import school.hei.haapi.repository.DelayPenaltyHistoryRepository;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
@@ -20,16 +21,19 @@ import java.util.List;
 @AllArgsConstructor
 public class DelayPenaltyHistoryService {
   private final DelayPenaltyHistoryRepository repository;
+  private  final DelayPenaltyHistoryValidator delayPenaltyHistoryValidator;
 
   public DelayPenaltyHistory getById(String delayHistory) {
     return repository.getById(delayHistory);
   }
 
   public DelayPenaltyHistory save(DelayPenaltyHistory delayPenaltyHistory) {
+    delayPenaltyHistoryValidator.accept(delayPenaltyHistory);
     return repository.save(delayPenaltyHistory);
   }
 
   public List<DelayPenaltyHistory> saveAll(List<DelayPenaltyHistory> delayPenaltyHistories) {
+    delayPenaltyHistoryValidator.accept(delayPenaltyHistories);
     return repository.saveAll(delayPenaltyHistories);
   }
 
@@ -43,6 +47,7 @@ public class DelayPenaltyHistoryService {
             .startDate(DebutOfApplicationOfConfGen)
             .endDate(null)
             .creationDate(Instant.now()).build();
+    delayPenaltyHistoryValidator.accept(newDelayPenaltyHistory);
     DelayPenaltyHistory lastDelayPenaltyHistoryToModify = getLastItem();
     if (lastDelayPenaltyHistoryToModify!=null){
       newDelayPenaltyHistory.setStartDate(DataFormatterUtils.takeLocalDate());
@@ -52,6 +57,7 @@ public class DelayPenaltyHistoryService {
       if (!lastDelayPenaltyHistoryToModify.getStartDate().isEqual(DebutOfApplicationOfConfGen)){
         lastDelayPenaltyHistoryToModify.setStartDate(LocalDate.ofInstant(lastDelayPenalty.getLastUpdateDate(),ZoneId.of("UTC")));
       }
+      delayPenaltyHistoryValidator.accept(lastDelayPenaltyHistoryToModify);
       repository.saveAll(List.of(lastDelayPenaltyHistoryToModify,newDelayPenaltyHistory));
     }else {
       repository.save(newDelayPenaltyHistory);
