@@ -1,7 +1,10 @@
 package school.hei.haapi.integration;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -30,6 +33,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @Testcontainers
 @ContextConfiguration(initializers = DelayPenaltyIT.ContextInitializer.class)
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DelayPenaltyIT {
   @MockBean
   private SentryConf sentryConf;
@@ -64,6 +68,7 @@ class DelayPenaltyIT {
   }
 
   @Test
+  @Order(1)
   void student_read_delay_penalty_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
@@ -74,18 +79,20 @@ class DelayPenaltyIT {
   }
 
   @Test
+  @Order(2)
   void manager_write_delay_penalty_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
     DelayPenalty actual = api.createDelayPenaltyChange(createDelayPenaltyChange());
+    actual.setId(null);
     actual.setCreationDatetime(null);
-    DelayPenalty expected = delayPenalty();
-    expected.setId(null);
-    expected.setInterestPercent(1);
-    expected.setCreationDatetime(null);
+    DelayPenalty excepted = delayPenalty();
+    excepted.setId(null);
+    excepted.setInterestPercent(1);
+    excepted.setCreationDatetime(null);
 
-    assertEquals(expected, actual);
+    assertEquals(excepted, actual);
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

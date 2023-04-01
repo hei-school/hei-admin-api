@@ -1,0 +1,1 @@
+alter table "fee" add column interest real not null default 0;
