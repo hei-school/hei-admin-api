@@ -29,7 +29,7 @@ public class FeeMapper {
         .status(fee.getStatus())
         .type(fee.getType())
         .totalAmount((int) (fee.getTotalAmount() + fee.getInterest()))
-        .remainingAmount(fee.getRemainingAmount())
+        .remainingAmount((int) (fee.getRemainingAmount() + fee.getInterest()))
         .comment(fee.getComment())
         .creationDatetime(fee.getCreationDatetime())
         .updatedAt(fee.getUpdatedAt())
