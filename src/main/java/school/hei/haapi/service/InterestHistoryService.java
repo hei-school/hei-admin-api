@@ -9,6 +9,7 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.InterestHistory;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.DelayPenaltyRepository;
+import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.InterestHistoryRepository;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
@@ -30,7 +31,7 @@ public class InterestHistoryService {
   }
 
   private final InterestHistoryRepository repository;
-  private final FeeService feeService;
+  private final FeeRepository feeRepository;
   private final DelayPenaltyRepository delayPenaltyRepository;
   private final DelayPenaltyHistoryService delayPenaltyHistoryService;
 
@@ -47,7 +48,7 @@ public class InterestHistoryService {
   }
 
   public int getInterestAmount1(String feeId){
-    Fee fee = feeService.getById(feeId);
+    Fee fee = feeRepository.getById(feeId);
     List<InterestHistory> interestHistories = getAllByFeeId(feeId);
     LocalDate todayDate = DataFormatterUtils.takeLocalDate();
     LocalDate actualDate = interestHistories.get(0).getInterestStart();
@@ -75,7 +76,7 @@ public class InterestHistoryService {
 
 
   public int getInterestAmount(String feeId){
-    Fee fee = feeService.getById(feeId);
+    Fee fee = feeRepository.getById(feeId);
     DelayPenalty configGeneral = delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).size()>0?
             delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).get(0):
             null;

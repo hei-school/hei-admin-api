@@ -10,7 +10,9 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.FeeValidator;
+import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.InterestHistoryRepository;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -34,6 +36,8 @@ class FeeServiceTest {
   EventProducer eventProducer;
   DelayPenaltyService delayPenaltyService;
   InterestHistoryService interestHistoryService;
+  DelayPenaltyRepository delayPenaltyRepository;
+  InterestHistoryRepository interestHistoryRepository;
   PaymentService paymentService;
 
   static User student1() {
@@ -114,11 +118,14 @@ class FeeServiceTest {
 
   @BeforeEach
   void setUp() {
+    interestHistoryRepository = mock(InterestHistoryRepository.class);
     feeRepository = mock(FeeRepository.class);
     feeValidator = mock(FeeValidator.class);
     eventProducer = mock(EventProducer.class);
+    delayPenaltyRepository = mock(DelayPenaltyRepository.class);
+    interestHistoryService = mock(InterestHistoryService.class);
 
-    subject = new FeeService(feeRepository, feeValidator, eventProducer);
+    subject = new FeeService(interestHistoryRepository, feeRepository, feeValidator, eventProducer, delayPenaltyRepository, interestHistoryService);
   }
 
   @Test
