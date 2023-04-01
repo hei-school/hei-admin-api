@@ -1,5 +1,6 @@
 package school.hei.haapi.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -17,4 +18,8 @@ public interface PaymentRepository extends JpaRepository<Payment, String> {
   @Query(value = "select p from Payment p join Fee f on f.id = p.fee.id"
           + " where f.student.id = :student_id and f.id = :fee_id")
   List<Payment> getAllPaymentByStudentIdAndFeeId(@Param("student_id") String studentId, @Param("fee_id") String feeId);
+
+  @Query(value = "select p from Payment p where p.fee.id = :fee_id and p.creationDatetime <= :last_date")
+  List<Payment> getPaymentAmountByFeeAndDate(@Param("fee_id") String feeId, @Param("last_date") LocalDate lastDate);
+
 }
