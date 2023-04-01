@@ -1,0 +1,1 @@
+alter table "fee" add column next_delay_penalty_scheduling timestamp with time zone;
