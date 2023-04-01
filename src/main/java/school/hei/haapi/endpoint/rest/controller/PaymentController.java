@@ -42,18 +42,7 @@ public class PaymentController {
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize) {
     return paymentService.getByStudentIdAndFeeId(studentId, feeId, page, pageSize).stream()
-        .map(paymentMapper::toRestPayment)
-        .collect(toUnmodifiableList());
-  }
-  @PutMapping("/payments")
-  public List<Payment> saveAll(@RequestBody List<Payment> toWrite) {
-    return paymentService
-        .saveAll(toWrite
-            .stream()
-            .map(paymentMapper::toDomain)
-            .collect(toUnmodifiableList()))
-        .stream()
-        .map(paymentMapper::toRestPayments)
-        .collect(toUnmodifiableList());
+            .map(paymentMapper::toRestPayment)
+            .collect(toUnmodifiableList());
   }
 }
