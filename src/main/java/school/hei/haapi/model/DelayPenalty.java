@@ -2,8 +2,11 @@ package school.hei.haapi.model;
 
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -19,6 +22,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @ToString
 @Builder
 @AllArgsConstructor
+@EqualsAndHashCode
 @NoArgsConstructor
 public class DelayPenalty implements Serializable {
     @Id
@@ -26,14 +30,15 @@ public class DelayPenalty implements Serializable {
     private String id;
     private int interestPercent;
 
-    //délai d'intérêt
-    private String interestTimerate;
+    @Type(type = "pgsql_enum")
+    @Enumerated(EnumType.STRING)
+    private school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum interestTimerate;
 
     private int graceDelay;
 
     private int applicabilityDelayAfterGrace;
 
     @CreationTimestamp
+    @Getter(AccessLevel.NONE)
     private Instant creationDatetime;
-
 }

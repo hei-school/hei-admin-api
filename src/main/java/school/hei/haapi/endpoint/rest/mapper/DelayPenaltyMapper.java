@@ -16,7 +16,7 @@ public class DelayPenaltyMapper {
                         .graceDelay(delayPenalty.getGraceDelay())
                         .creationDatetime(delayPenalty.getCreationDatetime())
                         .applicabilityDelayAfterGrace(delayPenalty.getApplicabilityDelayAfterGrace())
-                        .interestTimerate(DelayPenalty.InterestTimerateEnum.valueOf(delayPenalty.getInterestTimerate()))
+                        .interestTimerate(delayPenalty.getInterestTimerate())
                         .interestPercent(delayPenalty.getInterestPercent());
 
 
