@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
@@ -33,7 +34,9 @@ public class DelayPenalty implements Serializable {
     @GeneratedValue(strategy = IDENTITY)
     private String id;
     private int interestPercent;
+    // todo use enum here
     private String interestTimerate;
+    @CreationTimestamp
     private Instant creationDatetime;
     private int graceDelay;
     private int applicabilityDelayAfterGrace;
