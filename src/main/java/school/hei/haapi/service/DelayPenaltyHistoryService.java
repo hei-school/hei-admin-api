@@ -28,11 +28,6 @@ public class DelayPenaltyHistoryService {
     return repository.save(delayPenaltyHistory);
   }
 
-  public List<DelayPenaltyHistory> findDelayPenaltyHistoriesByInterestStartAndEnd(
-      LocalDate InterestStart, LocalDate InterestEnd) {
-    return repository.findDelayPenaltyHistoriesByInterestStartAndEnd(InterestStart, InterestEnd);
-  }
-
   public DelayPenaltyHistory toBeSaved(DelayPenalty delayPenalty) {
     DelayPenaltyHistory previousDelayPenalty = getBeforeLastItem();
     DelayPenaltyHistory lastDelayPenalty = getLastItem();
@@ -79,7 +74,21 @@ public class DelayPenaltyHistoryService {
         return 1;
       default:
         throw new BadRequestException(
-            "Unexpected delay Penalty Interest Time rate: " + interestTimeRate.getValue());
+                "Unexpected delay Penalty Interest Time rate: " + interestTimeRate.getValue());
     }
   }
+  public List<DelayPenaltyHistory> findDelayPenaltyHistoriesByInterestStartAndEnd(LocalDate InterestStart, LocalDate InterestEnd){
+    return removeUnusedDelayPenaltyHistories(repository.findDelayPenaltyHistoriesByInterestStartAndEnd(InterestStart,InterestEnd));
+  }
+
+  public List<DelayPenaltyHistory> removeUnusedDelayPenaltyHistories(List<DelayPenaltyHistory> delayPenaltyHistoryList){
+    for (int i = 0; i < delayPenaltyHistoryList.size(); i++) {
+      if (delayPenaltyHistoryList.get(i).getStartDate().isEqual(delayPenaltyHistoryList.get(i).getEndDate())){
+        delayPenaltyHistoryList.remove(i);
+      }
+    }
+    return delayPenaltyHistoryList;
+  }
+
+
 }
