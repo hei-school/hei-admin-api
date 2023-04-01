@@ -16,6 +16,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
+import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -23,8 +24,12 @@ import school.hei.haapi.integration.conf.TestUtils;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE7_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -49,8 +54,8 @@ class DelayPenaltyIT {
             .id("delay_penalty_id")
             .interestPercent(2)
             .interestTimerate(DelayPenalty.InterestTimerateEnum.DAILY)
-            .graceDelay(3)
-            .applicabilityDelayAfterGrace(10)
+            .graceDelay(10)
+            .applicabilityDelayAfterGrace(3)
             .creationDatetime(Instant.parse("2022-11-15T08:25:25.00Z"));
   }
 
@@ -58,8 +63,8 @@ class DelayPenaltyIT {
     return new CreateDelayPenaltyChange()
             .interestPercent(1)
             .interestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY)
-            .graceDelay(3)
-            .applicabilityDelayAfterGrace(10);
+            .graceDelay(10)
+            .applicabilityDelayAfterGrace(3);
   }
 
   @BeforeEach
@@ -93,6 +98,22 @@ class DelayPenaltyIT {
     excepted.setCreationDatetime(null);
 
     assertEquals(excepted, actual);
+  }
+
+  @Test
+  @Order(3)
+  void student_fee_change_after_change_delay_penalty_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    Fee fee6 = api.getStudentFeeById(STUDENT1_ID,FEE6_ID);
+    CreateDelayPenaltyChange createDelayPenaltyChange = createDelayPenaltyChange();
+    createDelayPenaltyChange.setInterestPercent(5);
+    DelayPenalty delayPenalty = api.createDelayPenaltyChange(createDelayPenaltyChange);
+
+    Fee actualFee6 = api.getStudentFeeById(STUDENT1_ID,FEE6_ID);
+    assertTrue(fee6.getTotalAmount() < actualFee6.getTotalAmount());
+    assertEquals((5000+800),actualFee6.getTotalAmount());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
