@@ -3,10 +3,6 @@ package school.hei.haapi.model;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
-import org.springframework.lang.NonNull;
-import org.springframework.lang.NonNullApi;
-
-import javax.annotation.Nonnull;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
