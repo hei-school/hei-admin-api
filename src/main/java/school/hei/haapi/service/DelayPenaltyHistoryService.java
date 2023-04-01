@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -12,13 +13,13 @@ import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.DelayPenaltyHistory;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.DelayPenaltyHistoryRepository;
+import school.hei.haapi.service.utils.DataFormatterUtils;
 
 @Service
 @AllArgsConstructor
 public class DelayPenaltyHistoryService {
   private final DelayPenaltyHistoryRepository repository;
   private final DelayPenaltyHistoryRepository delayPenaltyHistoryRepository;
-  private final DelayPenaltyService delayPenaltyService;
 
   public DelayPenaltyHistory getById(String delayHistory) {
     return repository.getById(delayHistory);
@@ -62,6 +63,10 @@ public class DelayPenaltyHistoryService {
     return delayPenaltyHistoryRepository.findAll().get(indexOfLastItem);
   }
 
+  private DelayPenaltyHistory getFirstItem() {
+    return delayPenaltyHistoryRepository.findAll().get(0);
+  }
+
   private DelayPenaltyHistory getBeforeLastItem() {
     int indexOfLastItem = delayPenaltyHistoryRepository.findAll().size() - 2;
     return delayPenaltyHistoryRepository.findAll().get(indexOfLastItem);
@@ -78,17 +83,30 @@ public class DelayPenaltyHistoryService {
     }
   }
   public List<DelayPenaltyHistory> findDelayPenaltyHistoriesByInterestStartAndEnd(LocalDate InterestStart, LocalDate InterestEnd){
-    return removeUnusedDelayPenaltyHistories(repository.findDelayPenaltyHistoriesByInterestStartAndEnd(InterestStart,InterestEnd));
+    List<DelayPenaltyHistory> repositoryDelayPenaltyHistories = repository.findDelayPenaltyHistoriesByInterestStartAndEnd(InterestStart,InterestEnd);
+
+    if (repositoryDelayPenaltyHistories.size() == 0) {
+      repositoryDelayPenaltyHistories = Arrays.asList(getFirstItem());
+    }
+
+return removeUnusedDelayPenaltyHistories(repositoryDelayPenaltyHistories);
   }
 
-  public List<DelayPenaltyHistory> removeUnusedDelayPenaltyHistories(List<DelayPenaltyHistory> delayPenaltyHistoryList){
+  public List<DelayPenaltyHistory> removeUnusedDelayPenaltyHistories(List<DelayPenaltyHistory> delayPenaltyHistoryList) {
     for (int i = 0; i < delayPenaltyHistoryList.size(); i++) {
-      if (delayPenaltyHistoryList.get(i).getStartDate().isEqual(delayPenaltyHistoryList.get(i).getEndDate())){
-        delayPenaltyHistoryList.remove(i);
+      if (delayPenaltyHistoryList.get(i).getEndDate() != null) {
+        if (delayPenaltyHistoryList.get(i).getStartDate().isEqual(delayPenaltyHistoryList.get(i).getEndDate())) {
+          delayPenaltyHistoryList.remove(i);
+        }
+      } else {
+          DelayPenaltyHistory end = delayPenaltyHistoryList.get(i);
+          end.setEndDate(LocalDate.now());
+          delayPenaltyHistoryList.set(i, end);
       }
     }
-    return delayPenaltyHistoryList;
-  }
+      return delayPenaltyHistoryList;
+    }
+
 
 
 }

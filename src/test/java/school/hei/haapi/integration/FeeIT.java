@@ -113,7 +113,7 @@ class FeeIT {
     PayingApi api = new PayingApi(student1Client);
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 10, null);
 
     assertEquals(fee1(), actualFee);
     assertTrue(actual.contains(fee1()));
@@ -127,7 +127,7 @@ class FeeIT {
     PayingApi api = new PayingApi(manager1Client);
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 10, null);
     List<Fee> actualFees2 = api.getFees(String.valueOf(Fee.StatusEnum.PAID), 1, 10);
 
     assertEquals(fee1(), actualFee);
@@ -178,7 +178,7 @@ class FeeIT {
 
     List<Fee> actual = api.createStudentFees(STUDENT1_ID, List.of(creatableFee1()));
 
-    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 10, null);
     assertTrue(expected.containsAll(actual));
   }
 

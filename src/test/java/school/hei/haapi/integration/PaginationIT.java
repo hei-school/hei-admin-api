@@ -109,14 +109,14 @@ class PaginationIT {
   void fees_pages_are_ordered_by_due_datetime_desc() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
-    int pageSize = 2;
+    int pageSize = 4;
 
     List<Fee> page1 = api.getStudentFees(STUDENT1_ID, 1, pageSize, null);
     List<Fee> page2 = api.getStudentFees(STUDENT1_ID, 2, pageSize, null);
     List<Fee> page3 = api.getStudentFees(STUDENT1_ID, 3, pageSize, null);
 
     assertEquals(pageSize, page1.size());
-    assertEquals(2, page2.size());
+    assertEquals(3, page2.size());
     assertEquals(0, page3.size());
     assertTrue(isAfter(page1.get(0).getDueDatetime(), page1.get(1).getDueDatetime()));
     assertTrue(isAfter(page1.get(1).getDueDatetime(), page2.get(0).getDueDatetime()));
