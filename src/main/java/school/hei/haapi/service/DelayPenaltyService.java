@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import org.springframework.web.bind.annotation.RequestBody;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 
@@ -16,5 +17,9 @@ public class DelayPenaltyService {
 
     public DelayPenalty getDelayPenalty(){
         return delayPenaltyRepository.findAll().get(0);
+    }
+
+    public DelayPenalty updateDelayPenalty(@RequestBody DelayPenalty changes) {
+        return delayPenaltyRepository.save(changes);
     }
 }

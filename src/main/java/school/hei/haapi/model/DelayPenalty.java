@@ -21,15 +21,15 @@ import java.time.Instant;
 @NoArgsConstructor
 public class DelayPenalty implements Serializable {
     private String id;
-    private int interest_percent;
+    private int interestPercent;
 
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
-    private school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum interest_timerate;
+    private school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum interestTimerate;
 
-    private int grace_delay;
+    private int graceDelay;
 
-    private int applicability_delay_after_grace;
+    private int applicabilityDelayAfterGrace;
 
-    private Instant creation_datetime;
+    private Instant creationDatetime;
 }
