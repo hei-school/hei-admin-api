@@ -5,12 +5,14 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.validator.DelayPenaltyValidator;
 import school.hei.haapi.repository.DelayPenaltyRepository;
+import school.hei.haapi.service.utils.InterestFeeUpdate;
 
 @Service
 @AllArgsConstructor
 public class DelayPenaltyService {
     private final DelayPenaltyRepository repository;
     private final DelayPenaltyValidator validator;
+    private final InterestFeeUpdate interestFeeUpdate;
     public DelayPenalty getDelayPenalty() {
         return repository.findFirstBy();
     }
@@ -21,6 +23,8 @@ public class DelayPenaltyService {
             currentValue.setGraceDelay(newValues.getGraceDelay());
             currentValue.setApplicabilityDelayAfterGrace(newValues.getApplicabilityDelayAfterGrace());
             validator.accept(currentValue);
-            return repository.save(currentValue);
+            DelayPenalty newDelayPenalty = repository.save(currentValue);
+            interestFeeUpdate.updateInterestFees(newDelayPenalty);
+            return newDelayPenalty;
     }
 }

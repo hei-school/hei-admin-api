@@ -43,7 +43,7 @@ public class InterestFeeUpdate {
         }
     }
 
-    public double calculInterest(double baseAmount, int interestPercent, int numberOfDays) {
+    private double calculInterest(double baseAmount, int interestPercent, int numberOfDays) {
         double interest = 0;
         for (int i = 0; i < numberOfDays; i++) {
             interest += baseAmount * interestPercent / 100;
