@@ -60,12 +60,13 @@ class DelayPenaltyIT {
   }
 
   @BeforeEach
+  @Order(0)
   void setUp() {
     setUpCognito(cognitoComponentMock);
   }
 
   @Test
-  @Order(4)
+  @Order(1)
   void student_read_delay_penalty_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
@@ -74,7 +75,6 @@ class DelayPenaltyIT {
 
     assertEquals(delayPenalty(), actual);
   }
-
   @Test
   @Order(2)
   void manager_write_delay_penalty_ok() throws ApiException {
@@ -90,7 +90,6 @@ class DelayPenaltyIT {
 
     assertEquals(actual, excepted);
   }
-
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
 
