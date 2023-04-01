@@ -5,6 +5,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.InterestHistory;
+import school.hei.haapi.model.validator.DelayPenaltyValidator;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
@@ -19,7 +20,7 @@ public class DelayPenaltyService {
 
   private final InterestHistoryService interestHistoryService;
 
-  private final PaymentService paymentService;
+  private final DelayPenaltyValidator delayPenaltyValidator;
 
   private final DelayPenaltyHistoryService delayPenaltyHistoryService;
 
@@ -72,13 +73,15 @@ public class DelayPenaltyService {
   }
 
   public DelayPenalty save(DelayPenalty delayPenalties) {
+    delayPenaltyValidator.accept(delayPenalties);
     return repository.save(delayPenalties);
   }
 
-  public DelayPenalty updateDelayPenalty(DelayPenalty newDelayPenalties) {
+  public DelayPenalty updateDelayPenalty(DelayPenalty newDelayPenalty) {
+    delayPenaltyValidator.accept(newDelayPenalty);
     DelayPenalty lastDelayPenalty = getLastUpdated();
-    delayPenaltyHistoryService.updateWhenUpdatedDelayPenalty(lastDelayPenalty,newDelayPenalties);
-    return repository.save(newDelayPenalties);
+    delayPenaltyHistoryService.updateWhenUpdatedDelayPenalty(lastDelayPenalty,newDelayPenalty);
+    return repository.save(newDelayPenalty);
   }
 
   public DelayPenalty getFirstItem() {
