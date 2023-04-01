@@ -2,7 +2,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.model.DelayPenalty;
+import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.service.DelayPenaltyService;
 
 @Component
@@ -10,14 +10,13 @@ import school.hei.haapi.service.DelayPenaltyService;
 public class DelayPenaltyMapper {
     private final DelayPenaltyService service;
 
-    public DelayPenalty ToRest(DelayPenalty delayPenalty){
-        return DelayPenalty.builder()
+    public DelayPenalty toRest(school.hei.haapi.model.DelayPenalty delayPenalty){
+        return new DelayPenalty()
                 .id(delayPenalty.getId())
                 .interestPercent(delayPenalty.getInterestPercent())
-                .interestTimerateEnum(delayPenalty.getInterestTimerateEnum())
                 .graceDelay(delayPenalty.getGraceDelay())
                 .applicabilityDelayAfterGrace(delayPenalty.getApplicabilityDelayAfterGrace())
                 .creationDatetime(delayPenalty.getCreationDatetime())
-                .build();
+                .interestTimerate(delayPenalty.getInterestTimerateEnum());
     }
 }

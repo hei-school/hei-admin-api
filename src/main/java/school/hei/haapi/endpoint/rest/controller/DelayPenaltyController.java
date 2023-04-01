@@ -4,11 +4,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.DelayPenaltyMapper;
-import school.hei.haapi.model.DelayPenalty;
+import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.service.DelayPenaltyService;
 
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @AllArgsConstructor
@@ -19,6 +17,6 @@ public class DelayPenaltyController {
 
     @GetMapping("/delay_penalty")
     public DelayPenalty getDelayPenalty() {
-        return mapper.ToRest(service.getOneOrderByCreationDatetimeDesc());
+        return mapper.toRest(service.getOneOrderByCreationDatetimeDesc());
     }
 }

@@ -6,9 +6,6 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 
-import java.time.Instant;
-import java.util.List;
-
 @Service
 @AllArgsConstructor
 @Slf4j
@@ -16,6 +13,6 @@ public class DelayPenaltyService {
     private DelayPenaltyRepository repository;
 
     public DelayPenalty getOneOrderByCreationDatetimeDesc(){
-        return repository.findOneOrderByCreationDatetimeDesc();
+        return repository.findFirstByOrderByCreationDatetimeDesc();
     }
 }
