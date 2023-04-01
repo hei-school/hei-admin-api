@@ -88,8 +88,7 @@ public class DelayPenaltyHistoryService {
     List<DelayPenaltyHistory> repositoryDelayPenaltyHistories = repository.findDelayPenaltyHistoriesByInterestStartAndEnd(interestStart,interestEnd);
 
     if (repositoryDelayPenaltyHistories.size() == 0 && !interestStart.isAfter(repository.findAll().get(0).getEndDate())) {
-
-      repositoryDelayPenaltyHistories = Arrays.asList(getLastItem());
+      repositoryDelayPenaltyHistories = Arrays.asList(getFirstItem());
     }
 
 return removeUnusedDelayPenaltyHistories(repositoryDelayPenaltyHistories);

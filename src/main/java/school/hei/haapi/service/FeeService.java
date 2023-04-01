@@ -79,7 +79,13 @@ public class FeeService {
     feeList = (status != null)?
             feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable) :
             feeRepository.getByStudentId(studentId, pageable);
-    return feeList;
+    feeList.forEach(fee -> {
+      if (fee.getStatus() != PAID) {
+        updateOneFeesInterest(fee);
+        log.info("Fee with id." + fee.getId() + " is going to be updated");
+      }
+    });
+    return feeRepository.saveAll(feeList);
   }
 
   private Fee updateFeeStatus(Fee initialFee) {
@@ -91,21 +97,22 @@ public class FeeService {
     return initialFee;
   }
 
+  private Fee updateOneFeesInterest(Fee fee) {
+    int intesestAmount = interestHistoryService.getInterestAmount(fee.getId());
+    fee.setTotalAmount(fee.getTotalAmount()-fee.getInterestAmount()+intesestAmount);
+    fee.setRemainingAmount(fee.getRemainingAmount()-fee.getInterestAmount()+intesestAmount);
+    fee.setInterestAmount(intesestAmount);
+    updateFeeStatus(fee);
+    return fee;
+  }
+
   public  void updateFeesInterest () {
-    //DelayPenalty delayPenalty = delayPenaltyRepository.findAll().get(0);
     List<Fee> fees = feeRepository.getNotPaidFees();
-    //String value = "";
     fees.forEach(fee -> {
-      int intesestAmount = interestHistoryService.getInterestAmount(fee.getId());
-      fee.setTotalAmount(fee.getTotalAmount()-fee.getInterestAmount()+intesestAmount);
-      fee.setRemainingAmount(fee.getRemainingAmount()-fee.getInterestAmount()+intesestAmount);
-      fee.setInterestAmount(intesestAmount);
-      updateFeeStatus(fee);
+      updateOneFeesInterest(fee);
       log.info("Fee with id." + fee.getId() + " is going to be updated");
-      //value = value + intesestAmount + "\n";
     });
     feeRepository.saveAll(fees);
-    //return value;
   }
 
   @Scheduled(cron = "0 0 * * * *")
