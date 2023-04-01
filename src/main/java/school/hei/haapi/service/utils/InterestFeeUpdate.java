@@ -7,7 +7,8 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.repository.FeeRepository;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
+import java.util.List;
 
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 
@@ -17,33 +18,36 @@ public class InterestFeeUpdate {
     private final FeeRepository feeRepository;
 
     public void updateInterestFees(DelayPenalty delayPenalty) {
-        feeRepository.findAll().forEach(fee -> this.updateFeeInterest(delayPenalty, fee));
+        List<Fee> fees = new ArrayList<>();
+        feeRepository.findAll().forEach(fee -> {
+            if (this.updateFeeInterest(delayPenalty, fee) != null) {
+                fees.add(fee);
+            }
+        });
+        if (fees.size() > 0) {
+            feeRepository.saveAll(fees);
+        }
     }
 
-    public void updateFeeInterest(DelayPenalty delayPenalty, Fee fee) {
+    public Fee updateFeeInterest(DelayPenalty delayPenalty, Fee fee) {
         if (fee.getStatus().equals(LATE)) {
-            if (
-                    Instant.now().isAfter(fee.getDueDatetime().plus(delayPenalty.getGraceDelay(), ChronoUnit.DAYS)) &&
-                            Instant.now().isBefore(fee.getDueDatetime()
-                                    .plus(delayPenalty.getGraceDelay(), ChronoUnit.DAYS)
-                                    .plus(delayPenalty.getApplicabilityDelayAfterGrace(), ChronoUnit.DAYS)
-                            )
-            ) {
+            long NOW = Instant.now().getEpochSecond() / 86400;
+            long firstDayOfInterestApplication = (fee.getDueDatetime().getEpochSecond() / 86400) + delayPenalty.getGraceDelay();
+            long lastDayOfInterestApplication = firstDayOfInterestApplication + delayPenalty.getApplicabilityDelayAfterGrace();
+            if (NOW > firstDayOfInterestApplication && NOW <= lastDayOfInterestApplication) {
                 double baseAmount = fee.getTotalAmount();
-                int numberOfDays = (int) ChronoUnit.DAYS.between(Instant.now(),
-                        fee.getDueDatetime()
-                                .plus(delayPenalty.getGraceDelay(), ChronoUnit.DAYS)
-                                .plus(delayPenalty.getApplicabilityDelayAfterGrace(), ChronoUnit.DAYS));
+                long numberOfDays = NOW - firstDayOfInterestApplication;
                 fee.setInterest(this.calculInterest(
                         baseAmount,
                         delayPenalty.getInterestPercent(),
                         numberOfDays));
-                feeRepository.save(fee);
+                return fee;
             }
         }
+        return null;
     }
 
-    public double calculInterest(double baseAmount, int interestPercent, int numberOfDays) {
+    private double calculInterest(double baseAmount, int interestPercent, long numberOfDays) {
         double interest = 0;
         for (int i = 0; i < numberOfDays; i++) {
             interest += baseAmount * interestPercent / 100;
