@@ -6,7 +6,6 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.DelayPenaltyMapper;
-import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.service.DelayPenaltyService;
 
@@ -32,5 +31,4 @@ public class DelayPenaltyController {
         return delayPenaltyMapper.toRestDelayPenalty(
                 delayPenaltyService.save(toWrite));
     }
-
 }
