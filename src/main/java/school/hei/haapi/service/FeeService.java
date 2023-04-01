@@ -20,6 +20,7 @@ import school.hei.haapi.repository.FeeRepository;
 import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -79,22 +80,30 @@ public class FeeService {
 
     /**
      * Apply delay penalty each day at 8AM for each late fees
-    * */
+     */
     @Scheduled(cron = "0 0 8 * * *")
     public void scheduleApplyDelayPenalty() {
+        Instant now = Instant.now();
         DelayPenalty delayPenalty = delayPenaltyService.getDelayPenalty();
         List<Fee> feesByStatus = feeRepository.getFeesByStatus(LATE);
+        List<Fee> feesWithDelayPenaltyApplied = new ArrayList<>();
+        Instant tomorrowNextScheduling = now.plus(1, ChronoUnit.DAYS);
 
-        for (var fee :
-                feesByStatus) {
-            applyOneDayDelayPenalty(fee, delayPenalty);
+        for (var fee : feesByStatus) {
+            if (tomorrowNextScheduling.isBefore(now)||tomorrowNextScheduling.equals(now)) {
+                fee.setNextDelayPenaltyScheduling(tomorrowNextScheduling);
+                Fee feeWithDelayPenaltyApplied = applyOneDayDelayPenalty(fee, delayPenalty);
+                feesWithDelayPenaltyApplied.add(feeWithDelayPenaltyApplied);
+            }
         }
+
+        feeRepository.saveAll(feesWithDelayPenaltyApplied);
     }
 
     /**
-    * Apply daily interest rate
-    * */
-    private void applyOneDayDelayPenalty(Fee fee, DelayPenalty delayPenalty) {
+     * Apply daily interest rate on a fee and return it
+     */
+    private Fee applyOneDayDelayPenalty(Fee fee, DelayPenalty delayPenalty) {
         Instant currentInstant = Instant.now();
         boolean paymentLimitDateExceed = currentInstant.isAfter(fee.getDueDatetime());
         DelayPenalty delayPenaltyGlobalConf = delayPenaltyService.getDelayPenalty();
@@ -109,12 +118,14 @@ public class FeeService {
         boolean didNotExceedApplicabilityDelay = !currentInstant.isAfter(applicabilityDelayAfterGraceDate);
 
 
-        if (fee.getRemainingAmount() > 0 && paymentLimitDateExceed &&
+        if (paymentLimitDateExceed &&
                 currentInstant.isAfter(graceDelayDueDate) && didNotExceedApplicabilityDelay) {
             int toPay = (int) (fee.getTotalAmount() + fee.getTotalAmount() * delayPenalty.getInterestPercent() * ONE_HUNDRED_PERCENT);
             fee.setRemainingAmount(toPay);
             fee.setTotalAmount(toPay);
         }
+
+        return fee;
     }
 
     private Fee updateFeeStatus(Fee initialFee) {
