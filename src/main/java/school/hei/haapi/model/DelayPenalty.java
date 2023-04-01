@@ -34,15 +34,56 @@ public class DelayPenalty {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
-    private int interestPercent;
+    private static int interestPercent;
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
     @Column(name = "interest_timerate")
-    private InterestTimerateEnum interestTimeRate;
-    private int graceDelay;
-    private int applicabilityDelayAfterGrace;
+    private static InterestTimerateEnum interestTimeRate;
+    private static int graceDelay;
+    private static int applicabilityDelayAfterGrace;
     @CreationTimestamp
-    private Instant creationDatetime;
+    private static Instant creationDatetime;
+
+    public static void setInterestPercent(int interestPercent) {
+        DelayPenalty.interestPercent = interestPercent;
+    }
+
+    public static int getInterestPercent() {
+        return DelayPenalty.interestPercent;
+    }
+
+    public static void setInterestTimeRate(InterestTimerateEnum interestTimeRate) {
+        DelayPenalty.interestTimeRate = interestTimeRate;
+    }
+
+    public static InterestTimerateEnum getInterestTimeRate() {
+        return DelayPenalty.interestTimeRate;
+    }
+
+    public static void setGraceDelay(int graceDelay) {
+        DelayPenalty.graceDelay = graceDelay;
+    }
+
+    public static int getGraceDelay() {
+        return DelayPenalty.graceDelay;
+    }
+
+    public static void setApplicabilityDelayAfterGrace(int applicabilityDelayAfterGrace) {
+        DelayPenalty.applicabilityDelayAfterGrace = applicabilityDelayAfterGrace;
+    }
+
+    public static int getApplicabilityDelayAfterGrace() {
+        return DelayPenalty.applicabilityDelayAfterGrace;
+    }
+
+    public static void setCreationDatetime(Instant creationDatetime) {
+        DelayPenalty.creationDatetime = creationDatetime;
+    }
+
+    public static Instant getCreationDatetime() {
+        return DelayPenalty.creationDatetime;
+    }
+
 }
 
 

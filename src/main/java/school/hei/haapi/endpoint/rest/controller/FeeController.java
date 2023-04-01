@@ -2,17 +2,16 @@ package school.hei.haapi.endpoint.rest.controller;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import school.hei.haapi.endpoint.rest.mapper.DelayPenaltyMapper;
 import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.service.DelayPenaltyService;
 import school.hei.haapi.service.FeeService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -21,8 +20,18 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @AllArgsConstructor
 public class FeeController {
 
+  private final DelayPenaltyService delayPenaltyService;
+
+  private final DelayPenaltyMapper delayPenaltyMapper;
   private final FeeService feeService;
   private final FeeMapper feeMapper;
+
+  @PutMapping("/delay_penalty_change")
+  public DelayPenalty updateDelayPenalty(@RequestBody DelayPenalty delayPenalty ) {
+    return delayPenaltyMapper.toRest(delayPenaltyService.updateDelayPenalty(delayPenalty));
+
+  }
+
 
   @GetMapping("/students/{studentId}/fees/{feeId}")
   public Fee getFeeByStudentId(

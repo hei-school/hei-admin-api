@@ -13,7 +13,9 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -23,17 +25,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -62,6 +54,18 @@ class FeeIT {
   void setUp() {
     setUpCognito(cognitoComponentMock);
   }
+
+  static DelayPenalty delayPenalty() {
+    DelayPenalty toCreate = new DelayPenalty();
+
+    toCreate.setId(DELAY_PENALTY_ID);
+    toCreate.interestTimerate(DelayPenalty.InterestTimerateEnum.valueOf("DAILY"));
+    toCreate.graceDelay(Integer.valueOf("0"));
+    toCreate.interestPercent(Integer.valueOf("0"));
+
+    return  toCreate;
+  }
+
 
   static Fee fee1() {
     Fee fee = new Fee();
@@ -127,6 +131,25 @@ class FeeIT {
     assertTrue(actual.contains(fee3()));
   }
 
+
+  @Test
+  void testUpdateDelayPenalty() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    DelayPenalty actualDelayPenalty = delayPenalty();
+
+    //DelayPenalty expected
+    DelayPenalty expected = api.createDelayPenaltyChange(new CreateDelayPenaltyChange()
+            .graceDelay(0)
+            .applicabilityDelayAfterGrace(0)
+            .interestPercent(0)
+            .interestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.valueOf("DAILY"))
+    );
+
+    assertEquals(expected, actualDelayPenalty);
+
+  }
   @Test
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
