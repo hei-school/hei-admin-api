@@ -3,40 +3,39 @@ package school.hei.haapi.endpoint.rest.mapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
+import school.hei.haapi.endpoint.rest.validator.CreateDelayPenaltyValidator;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.DelayPenaltyService;
 
 import java.time.Instant;
-import java.util.Objects;
 
 @Component
 @AllArgsConstructor
 public class DelayPenaltyMapper {
   DelayPenaltyService delayPenaltyService;
+  CreateDelayPenaltyValidator createDelayPenaltyValidator;
 
   public school.hei.haapi.endpoint.rest.model.DelayPenalty toRest(DelayPenalty delayPenalty) {
     var restDelayPenalty = new school.hei.haapi.endpoint.rest.model.DelayPenalty();
     restDelayPenalty.setId(delayPenalty.getId());
     restDelayPenalty.setCreationDatetime(delayPenalty.getCreationDatetime());
     restDelayPenalty.setInterestTimerate(delayPenalty.getInterestTimeRate());
-    restDelayPenalty.setApplicabilityDelayAfterGrace(
-        delayPenalty.getApplicabilityDelayAfterGrace());
+    restDelayPenalty.setApplicabilityDelayAfterGrace(delayPenalty.getApplicabilityDelayAfterGrace());
     restDelayPenalty.setGraceDelay(delayPenalty.getGraceDelay());
     restDelayPenalty.setInterestPercent(delayPenalty.getInterestPercent());
     return restDelayPenalty;
   }
 
   public DelayPenalty toDomain(CreateDelayPenaltyChange createDelayPenaltyChange) {
-    String delayPenaltyId = delayPenaltyService.getLastUpdated().getId();
-    Instant delayPenaltyCreateDateTime = delayPenaltyService.getLastUpdated().getCreationDatetime();
+    createDelayPenaltyValidator.accept(createDelayPenaltyChange);
+    DelayPenalty lastDelayPenalty = delayPenaltyService.getLastUpdated();
     return DelayPenalty.builder()
-        .id(delayPenaltyId)
+        .id(lastDelayPenalty.getId())
         .interestPercent(createDelayPenaltyChange.getInterestPercent())
-        .creationDatetime(delayPenaltyCreateDateTime)
+        .creationDatetime(lastDelayPenalty.getCreationDatetime())
         .lastUpdateDate(Instant.now())
-        .interestTimeRate(toDomainDelayInterest(
-            Objects.requireNonNull(createDelayPenaltyChange.getInterestTimerate())))
+        .interestTimeRate(toDomainDelayInterest(createDelayPenaltyChange.getInterestTimerate()))
         .graceDelay(createDelayPenaltyChange.getGraceDelay())
         .applicabilityDelayAfterGrace(createDelayPenaltyChange.getApplicabilityDelayAfterGrace())
         .build();

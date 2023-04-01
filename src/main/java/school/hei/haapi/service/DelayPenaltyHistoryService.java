@@ -36,7 +36,6 @@ public class DelayPenaltyHistoryService {
   @Transactional
   public void updateWhenUpdatedDelayPenalty(DelayPenalty lastDelayPenalty, DelayPenalty newDelayPenalty) {
     LocalDate DebutOfApplicationOfConfGen = LocalDate.of(2020,1,1);
-    DelayPenaltyHistory lastDelayPenaltyHistoryToModify = getLastItem();
     DelayPenaltyHistory newDelayPenaltyHistory = DelayPenaltyHistory.builder()
             .delayPenalty(newDelayPenalty)
             .interestPercent(newDelayPenalty.getInterestPercent())
@@ -44,14 +43,15 @@ public class DelayPenaltyHistoryService {
             .startDate(DebutOfApplicationOfConfGen)
             .endDate(null)
             .creationDate(Instant.now()).build();
+    DelayPenaltyHistory lastDelayPenaltyHistoryToModify = getLastItem();
     if (lastDelayPenaltyHistoryToModify!=null){
       newDelayPenaltyHistory.setStartDate(DataFormatterUtils.takeLocalDate());
       lastDelayPenaltyHistoryToModify.setInterestPercent(lastDelayPenalty.getInterestPercent());
       lastDelayPenaltyHistoryToModify.setTimeFrequency(dayFrequency(lastDelayPenalty.getInterestTimeRate()));
+      lastDelayPenaltyHistoryToModify.setEndDate(DataFormatterUtils.takeLocalDate());
       if (!lastDelayPenaltyHistoryToModify.getStartDate().isEqual(DebutOfApplicationOfConfGen)){
         lastDelayPenaltyHistoryToModify.setStartDate(LocalDate.ofInstant(lastDelayPenalty.getLastUpdateDate(),ZoneId.of("UTC")));
       }
-      lastDelayPenaltyHistoryToModify.setEndDate(DataFormatterUtils.takeLocalDate());
       repository.saveAll(List.of(lastDelayPenaltyHistoryToModify,newDelayPenaltyHistory));
     }else {
       repository.save(newDelayPenaltyHistory);
