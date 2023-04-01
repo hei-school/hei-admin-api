@@ -1,7 +1,6 @@
 package school.hei.haapi.service.utils;
 
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
@@ -15,7 +14,6 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 
 @Component
 @AllArgsConstructor
-@Slf4j
 public class InterestFeeUpdate {
     private final FeeRepository feeRepository;
 
