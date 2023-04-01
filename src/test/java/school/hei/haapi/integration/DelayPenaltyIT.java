@@ -1,6 +1,7 @@
 package school.hei.haapi.integration;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -43,7 +44,7 @@ class DelayPenaltyIT {
   static DelayPenalty delayPenalty() {
     return new DelayPenalty()
             .id("delay_penalty_id")
-            .interestPercent(2)
+            .interestPercent(1)
             .interestTimerate(DelayPenalty.InterestTimerateEnum.DAILY)
             .graceDelay(3)
             .applicabilityDelayAfterGrace(10)
@@ -64,6 +65,7 @@ class DelayPenaltyIT {
   }
 
   @Test
+  //@Order(2)
   void student_read_delay_penalty_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
@@ -74,6 +76,7 @@ class DelayPenaltyIT {
   }
 
   @Test
+  //@Order(1)
   void manager_write_delay_penalty_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
