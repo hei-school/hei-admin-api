@@ -44,7 +44,7 @@ class DelayPenaltyIT {
   static DelayPenalty delayPenalty() {
     return new DelayPenalty()
             .id("delay_penalty_id")
-            .interestPercent(1)
+            .interestPercent(2)
             .interestTimerate(DelayPenalty.InterestTimerateEnum.DAILY)
             .graceDelay(3)
             .applicabilityDelayAfterGrace(10)
@@ -65,7 +65,7 @@ class DelayPenaltyIT {
   }
 
   @Test
-  //@Order(2)
+  @Order(4)
   void student_read_delay_penalty_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
@@ -76,19 +76,19 @@ class DelayPenaltyIT {
   }
 
   @Test
-  //@Order(1)
+  @Order(2)
   void manager_write_delay_penalty_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    DelayPenalty actual = api.createDelayPenaltyChange(createDelayPenaltyChange());
+    DelayPenalty excepted = api.createDelayPenaltyChange(createDelayPenaltyChange());
+    excepted.setCreationDatetime(null);
+    DelayPenalty actual = delayPenalty();
+    actual.setId(null);
+    actual.setInterestPercent(1);
     actual.setCreationDatetime(null);
-    DelayPenalty expected = delayPenalty();
-    expected.setId(null);
-    expected.setInterestPercent(1);
-    expected.setCreationDatetime(null);
 
-    assertEquals(expected, actual);
+    assertEquals(actual, excepted);
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
