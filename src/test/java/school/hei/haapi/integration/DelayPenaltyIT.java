@@ -116,7 +116,7 @@ class DelayPenaltyIT {
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createDelayPenaltyChange(null));
+        () -> api.createDelayPenaltyChange(delayPenaltyToCreate1()));
   }
 
   @Test
@@ -126,7 +126,7 @@ class DelayPenaltyIT {
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createDelayPenaltyChange(null));
+        () -> api.createDelayPenaltyChange(delayPenaltyToCreate1()));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
