@@ -17,8 +17,8 @@ import java.util.List;
 @Slf4j
 public class DelayPenaltyService {
     private final DelayPenaltyRepository repository;
-    public List<DelayPenalty> getAll() {
-        return repository.findAll();
+    public DelayPenalty getAll() {
+        return repository.findAll().get(0);
     }
     @Transactional
     public DelayPenalty save(DelayPenalty delayPenalties) {
