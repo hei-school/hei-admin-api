@@ -19,6 +19,7 @@ import school.hei.haapi.service.InterestHistoryService;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
 
@@ -64,14 +65,14 @@ public class IntrestHistoryController {
 
     return delayPenaltyHistoryService.findDelayPenaltyHistoriesByInterestStartAndEnd(startDate,endDate);
   }
-/*
-  @GetMapping(value = "/interest/{fee_id}/payment")
-  public List<Payment> updateFees(@RequestParam("end") int end, @PathVariable String fee_id) {
-    LocalDate endDate = LocalDate.ofInstant(Instant.now(), ZoneId.of("UTC")).minusDays(end);
 
-    return paymentRepository.getPaymentAmountByFeeAndDate(fee_id, endDate);
+  @GetMapping(value = "/interest/{fee_id}/{user_id}/payment")
+  public List<Payment> updateFees(@PathVariable String fee_id,
+                                              @PathVariable String user_id,
+                                              @RequestParam("end") int end) {
+    LocalDateTime endDate = LocalDateTime.ofInstant(Instant.now(), ZoneId.of("UTC")).minusDays(end);
+
+    return paymentRepository.getPaymentAmountByFeeAndDate(user_id,fee_id,endDate);
   }
-*/
-
 
 }

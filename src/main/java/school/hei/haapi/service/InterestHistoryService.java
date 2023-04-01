@@ -7,10 +7,12 @@ import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.DelayPenaltyHistory;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.InterestHistory;
+import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.InterestHistoryRepository;
+import school.hei.haapi.repository.PaymentRepository;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
 import java.time.LocalDate;
@@ -34,6 +36,7 @@ public class InterestHistoryService {
   private final FeeRepository feeRepository;
   private final DelayPenaltyRepository delayPenaltyRepository;
   private final DelayPenaltyHistoryService delayPenaltyHistoryService;
+  private final PaymentRepository paymentRepository;
 
   public InterestHistory getById(String interestHistoryId) {
     return repository.getById(interestHistoryId);
@@ -77,6 +80,13 @@ public class InterestHistoryService {
 
   public int getInterestAmount(String feeId){
     Fee fee = feeRepository.getById(feeId);
+    List<Payment> payments = paymentRepository.getAllPaymentByStudentIdAndFeeId(fee.getStudent().getId(),fee.getId());
+    int paymentAmount = 0;
+    for (Payment payment:payments) {
+      if (!payment.getCreationDatetime().isAfter(fee.getDueDatetime())) {
+        paymentAmount = paymentAmount + payment.getAmount();
+      }
+    }
     DelayPenalty configGeneral = delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).size()>0?
             delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).get(0):
             null;
@@ -87,9 +97,9 @@ public class InterestHistoryService {
     LocalDate lastDateOperation = todayDate.isBefore(interestEnd)?todayDate:interestEnd;
     List<DelayPenaltyHistory> delayPenaltyHistoryList = delayPenaltyHistoryService.findDelayPenaltyHistoriesByInterestStartAndEnd(interestStart,interestEnd);
     LocalDate actualDate = interestStart;
-    int firstTotalAmount = fee.getTotalAmount() - fee.getInterestAmount();
+    int firstTotalAmountMinusPayment = fee.getTotalAmount() - fee.getInterestAmount() - paymentAmount;
     int amount = 0;
-    int totalamount = fee.getTotalAmount() - fee.getInterestAmount();
+    int totalamount = fee.getTotalAmount() - fee.getInterestAmount() - paymentAmount;
     for (DelayPenaltyHistory delayPenaltyHistory:delayPenaltyHistoryList) {
       if (actualDate.isAfter(lastDateOperation)) {
         //calcul = calcul + " 1 /";
@@ -109,7 +119,7 @@ public class InterestHistoryService {
         }
       }
     }
-    return totalamount - firstTotalAmount;
+    return totalamount - firstTotalAmountMinusPayment;
   }
 
   private int convertInterestTimeRateToDayNumber(
