@@ -7,6 +7,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
@@ -49,4 +51,5 @@ public class PaymentService {
         payment -> computeRemainingAmount(payment.getFee().getId(), payment.getAmount()));
     return paymentRepository.saveAll(toCreate);
   }
+
 }
