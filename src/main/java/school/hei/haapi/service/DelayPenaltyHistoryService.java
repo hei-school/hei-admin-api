@@ -1,5 +1,12 @@
 package school.hei.haapi.service;
 
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import school.hei.haapi.model.DelayPenalty;
+import school.hei.haapi.model.DelayPenaltyHistory;
+import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.repository.DelayPenaltyHistoryRepository;
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -7,13 +14,6 @@ import java.time.ZonedDateTime;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
-import school.hei.haapi.model.DelayPenalty;
-import school.hei.haapi.model.DelayPenaltyHistory;
-import school.hei.haapi.model.exception.BadRequestException;
-import school.hei.haapi.repository.DelayPenaltyHistoryRepository;
-import school.hei.haapi.service.utils.DataFormatterUtils;
 
 @Service
 @AllArgsConstructor
