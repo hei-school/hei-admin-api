@@ -100,7 +100,7 @@ return removeUnusedDelayPenaltyHistories(repositoryDelayPenaltyHistories);
         }
       } else {
           DelayPenaltyHistory end = delayPenaltyHistoryList.get(i);
-          end.setEndDate(LocalDate.now());
+          end.setEndDate(LocalDate.now(ZoneId.of("UTC")));
           delayPenaltyHistoryList.set(i, end);
       }
     }
