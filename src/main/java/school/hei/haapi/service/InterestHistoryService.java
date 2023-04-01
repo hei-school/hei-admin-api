@@ -45,7 +45,7 @@ public class InterestHistoryService {
     return repository.saveAll(interestHistories);
   }
 
-  public int getInterestAmount(String feeId){
+  public int getInterestAmount1(String feeId){
     Fee fee = feeService.getById(feeId);
     List<InterestHistory> interestHistories = getAllByFeeId(feeId);
     LocalDate todayDate = DataFormatterUtils.takeLocalDate();
@@ -73,35 +73,38 @@ public class InterestHistoryService {
 
 
 
-  public int getInterestAmount2(String feeId){
+  public int getInterestAmount(String feeId){
     Fee fee = feeService.getById(feeId);
-    List<InterestHistory> interestHistories = getAllByFeeId(feeId);
     DelayPenalty configGeneral = delayPenaltyRepository.findAll().get(0);
-    LocalDate InterestStart = LocalDate.ofInstant(fee.getDueDatetime(), ZoneId.of("UTC")).plusDays(configGeneral.getGraceDelay());
-    LocalDate InterestEnd = InterestStart.plusDays(configGeneral.getApplicabilityDelayAfterGrace());
+    LocalDate interestStart = LocalDate.ofInstant(fee.getDueDatetime(), ZoneId.of("UTC")).plusDays(configGeneral.getGraceDelay());
+    LocalDate interestEnd = interestStart.plusDays(configGeneral.getApplicabilityDelayAfterGrace());
     LocalDate todayDate = DataFormatterUtils.takeLocalDate();
-    List<DelayPenaltyHistory> delayPenaltyHistoryList = delayPenaltyHistoryService.findDelayPenaltyHistoriesByInterestStartAndEnd(InterestStart,InterestEnd);
-    /*todo: actualDate = recent(InterestStart, fee.LastAmountUpdate) */
-    LocalDate actualDate = InterestStart;
+    LocalDate lastDateOperation = todayDate.isBefore(interestEnd)?todayDate:interestEnd;
+    List<DelayPenaltyHistory> delayPenaltyHistoryList = delayPenaltyHistoryService.findDelayPenaltyHistoriesByInterestStartAndEnd(interestStart,interestEnd);
+    LocalDate actualDate = interestStart;
+    int firstTotalAmount = fee.getTotalAmount() - fee.getInterestAmount();
     int amount = 0;
-    int totalamount = fee.getTotalAmount();
+    int totalamount = fee.getTotalAmount() - fee.getInterestAmount();
     for (DelayPenaltyHistory delayPenaltyHistory:delayPenaltyHistoryList) {
-      if (actualDate.isAfter(todayDate)) {
+      if (actualDate.isAfter(lastDateOperation)) {
+        //calcul = calcul + " 1 /";
         break;
-      } else if (actualDate.isBefore(delayPenaltyHistory.getEndDate())) {
-        for (LocalDate i = actualDate; !i.isAfter(delayPenaltyHistory.getEndDate()); i.plusDays(convertInterestTimeRateToDayNumber(configGeneral.getInterestTimeRate())/*todo to verify */)) {
-          if (i.isAfter(todayDate)) {
+      } else if (actualDate.isBefore(delayPenaltyHistory.getEndDate()!=null?delayPenaltyHistory.getEndDate():todayDate)) {
+        for (LocalDate i = actualDate; i.isBefore(delayPenaltyHistory.getEndDate()!=null?delayPenaltyHistory.getEndDate():todayDate); i.plusDays(delayPenaltyHistory.getTimeFrequency())) {
+          if (!i.isBefore(lastDateOperation)) {
+            //calcul = calcul + " 2 /";
             break;
           }else {
             amount = totalamount*delayPenaltyHistory.getInterestPercent()/100;
+            //calcul =calcul + "|"+ i + "|" + totalamount + " * " + delayPenaltyHistory.getInterestPercent() + " / 100 = " + amount + "\n";
             totalamount += amount;
-            actualDate = i=i.plusDays(convertInterestTimeRateToDayNumber(configGeneral.getInterestTimeRate())/*todo to verify */);
-
+            actualDate =i = i.plusDays(delayPenaltyHistory.getTimeFrequency());
+            //calcul =calcul + "actual dat = " + actualDate + "is aftrer: " + actualDate.isAfter(lastDateOperation) +  "is bifor : " + !i.isBefore(lastDateOperation)+   "\n" ;
           }
         }
       }
     }
-    return (totalamount - fee.getTotalAmount());
+    return totalamount - firstTotalAmount;
   }
 
   private int convertInterestTimeRateToDayNumber(

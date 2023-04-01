@@ -73,10 +73,11 @@ public class Fee implements Serializable {
   @OneToMany(mappedBy = "fee")
   private List<Payment> payments;
 
+  private int interestAmount;
+
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
   }
-  private LocalDate lastAmountUpdate;
   @Override
   public boolean equals(Object o) {
     if (this == o) {

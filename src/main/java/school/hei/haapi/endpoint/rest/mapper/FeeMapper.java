@@ -59,7 +59,6 @@ public class FeeMapper {
         .comment(createFee.getComment())
         .creationDatetime(createFee.getCreationDatetime())
         .dueDatetime(createFee.getDueDatetime())
-        .lastAmountUpdate(localDate)
         .build();
   }
 

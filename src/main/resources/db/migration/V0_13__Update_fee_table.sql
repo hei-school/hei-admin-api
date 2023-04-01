@@ -1,1 +1,1 @@
-alter table "fee" add column last_amount_update date default now();
+alter table "fee" add column interest_amount int default 0;
