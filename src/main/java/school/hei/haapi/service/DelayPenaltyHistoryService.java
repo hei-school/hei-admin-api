@@ -107,6 +107,4 @@ return removeUnusedDelayPenaltyHistories(repositoryDelayPenaltyHistories);
       return delayPenaltyHistoryList;
     }
 
-
-
 }
