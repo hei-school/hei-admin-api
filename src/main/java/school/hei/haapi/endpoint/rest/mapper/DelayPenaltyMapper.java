@@ -1,13 +1,14 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.time.Instant;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.DelayPenaltyService;
+
+import java.time.Instant;
+import java.util.Objects;
 
 @Component
 @AllArgsConstructor
@@ -27,8 +28,8 @@ public class DelayPenaltyMapper {
   }
 
   public DelayPenalty toDomain(CreateDelayPenaltyChange createDelayPenaltyChange) {
-    String delayPenaltyId = delayPenaltyService.getFirstItem().getId();
-    Instant delayPenaltyCreateDateTime = delayPenaltyService.getFirstItem().getCreationDatetime();
+    String delayPenaltyId = delayPenaltyService.getLastUpdated().getId();
+    Instant delayPenaltyCreateDateTime = delayPenaltyService.getLastUpdated().getCreationDatetime();
     return DelayPenalty.builder()
         .id(delayPenaltyId)
         .interestPercent(createDelayPenaltyChange.getInterestPercent())
