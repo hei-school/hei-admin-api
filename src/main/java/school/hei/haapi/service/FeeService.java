@@ -14,14 +14,19 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.FeesHistory;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.FeeValidator;
+import school.hei.haapi.repository.FeeHistoryRepository;
 import school.hei.haapi.repository.FeeRepository;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
 
 @Service
 @AllArgsConstructor
@@ -31,7 +36,10 @@ public class FeeService {
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
+  private final UserService userService;
+  private final DelayPenaltyService delayPenaltyService;
 
+  private final FeeHistoryRepository feeHistoryRepository;
   private final EventProducer eventProducer;
 
   public Fee getById(String id) {
@@ -67,6 +75,7 @@ public class FeeService {
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
     if (status != null) {
+      addInterest(studentId);
       return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
     }
     return feeRepository.getByStudentId(studentId, pageable);
@@ -81,6 +90,38 @@ public class FeeService {
     return initialFee;
   }
 
+  private void setPercentage(String id , int percentage){
+    FeesHistory feesHistory = feeHistoryRepository.getById(id);
+    feesHistory.setPercentage(percentage);
+  }
+  @Transactional
+  public Fee addInterest(String studentId){
+    User user = userService.getById(studentId);
+    DelayPenalty delayPenalty = delayPenaltyService.getAll();
+    Fee fee = feeRepository.getByStudentId(user.getId());
+    FeesHistory feesHistory = feeHistoryRepository.getByStudentId(studentId);
+    int i = 0;
+    double temp = fee.getTotalAmount();
+    int delay =((delayPenalty.getApplicabilityDelayAfterGrace()) - 1);
+    if(delay > 0 && delayPenalty.getGraceDelay() <= 0 && fee.getStatus() != (PAID)){
+      while(i < delay){
+        setPercentage(feesHistory.getId(),delayPenalty.getInterestPercent());
+        if(!feesHistory.getPaid()){
+          temp += ((fee.getTotalAmount() * feesHistory.getPercentage()) / 100) * i ;
+          delay --;
+        }
+        i++;
+      }
+    }
+    else {
+      feesHistory.setFee_total(temp);
+      feesHistory.setPaid(true);
+      fee.setTotalAmount(feesHistory.getFee_total().intValue());
+      fee.setRemainingAmount(0);
+    }
+    feeHistoryRepository.save(feesHistory);
+    return updateFeeStatus(fee);
+  }
   @Scheduled(cron = "0 0 * * * *")
   public void updateFeesStatusToLate() {
     List<Fee> unpaidFees = feeRepository.getUnpaidFees();

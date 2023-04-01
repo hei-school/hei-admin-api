@@ -2,6 +2,7 @@ package school.hei.haapi.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -24,6 +25,7 @@ import javax.validation.constraints.NotNull;
 @Table(name = "\"fee_history\"")
 @Getter
 @Setter
+@EqualsAndHashCode
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 @ToString
 @Builder(toBuilder = true)
@@ -36,11 +38,11 @@ public class FeesHistory {
 
   @NotNull
   @Column(nullable = false)
-  private Double fee_total;
+  private Double fee_total = 0.0;
 
   @NotNull
   @Column(nullable = false)
-  private Boolean paid = getPaid();
+  private Boolean paid;
 
   @NotNull
   @Column(nullable = false)
