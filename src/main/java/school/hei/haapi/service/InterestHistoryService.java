@@ -2,12 +2,17 @@ package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.model.DelayPenalty;
+import school.hei.haapi.model.DelayPenaltyHistory;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.InterestHistory;
+import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.InterestHistoryRepository;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -25,6 +30,8 @@ public class InterestHistoryService {
 
   private final InterestHistoryRepository repository;
   private final FeeService feeService;
+  private final DelayPenaltyRepository delayPenaltyRepository;
+  private final DelayPenaltyHistoryService delayPenaltyHistoryService;
 
   public InterestHistory getById(String interestHistoryId) {
     return repository.getById(interestHistoryId);
@@ -62,5 +69,49 @@ public class InterestHistoryService {
       }
     }
     return (totalamount - fee.getTotalAmount());
+  }
+
+
+
+  public int getInterestAmount2(String feeId){
+    Fee fee = feeService.getById(feeId);
+    List<InterestHistory> interestHistories = getAllByFeeId(feeId);
+    DelayPenalty configGeneral = delayPenaltyRepository.findAll().get(0);
+    LocalDate InterestStart = LocalDate.ofInstant(fee.getDueDatetime(), ZoneId.of("UTC")).plusDays(configGeneral.getGraceDelay());
+    LocalDate InterestEnd = InterestStart.plusDays(configGeneral.getApplicabilityDelayAfterGrace());
+    LocalDate todayDate = DataFormatterUtils.takeLocalDate();
+    List<DelayPenaltyHistory> delayPenaltyHistoryList = delayPenaltyHistoryService.findDelayPenaltyHistoriesByInterestStartAndEnd(InterestStart,InterestEnd);
+    /*todo: actualDate = recent(InterestStart, fee.LastAmountUpdate) */
+    LocalDate actualDate = InterestStart;
+    int amount = 0;
+    int totalamount = fee.getTotalAmount();
+    for (DelayPenaltyHistory delayPenaltyHistory:delayPenaltyHistoryList) {
+      if (actualDate.isAfter(todayDate)) {
+        break;
+      } else if (actualDate.isBefore(delayPenaltyHistory.getEndDate())) {
+        for (LocalDate i = actualDate; !i.isAfter(delayPenaltyHistory.getEndDate()); i.plusDays(convertInterestTimeRateToDayNumber(configGeneral.getInterestTimeRate())/*todo to verify */)) {
+          if (i.isAfter(todayDate)) {
+            break;
+          }else {
+            amount = totalamount*delayPenaltyHistory.getInterestPercent()/100;
+            totalamount += amount;
+            actualDate = i=i.plusDays(convertInterestTimeRateToDayNumber(configGeneral.getInterestTimeRate())/*todo to verify */);
+
+          }
+        }
+      }
+    }
+    return (totalamount - fee.getTotalAmount());
+  }
+
+  private int convertInterestTimeRateToDayNumber(
+          school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum interestTimeRate) {
+    switch (interestTimeRate) {
+      case DAILY:
+        return 1;
+      default:
+        throw new BadRequestException(
+                "Unexpected delay Penalty Interest Time rate: " + interestTimeRate.getValue());
+    }
   }
 }
