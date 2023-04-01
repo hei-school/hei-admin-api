@@ -2,6 +2,7 @@ package school.hei.haapi.integration.conf;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.time.Instant;
 import java.util.UUID;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -20,6 +21,7 @@ public class TestUtils {
 
   public static final String STUDENT1_ID = "student1_id";
   public static final String STUDENT2_ID = "student2_id";
+  public static final String STUDENT3_ID = "student3_id";
   public static final String TEACHER1_ID = "teacher1_id";
   public static final String TEACHER2_ID = "teacher2_id";
   public static final String MANAGER_ID = "manager1_id";
@@ -29,6 +31,7 @@ public class TestUtils {
   public static final String FEE3_ID = "fee3_id";
   public static final String FEE4_ID = "fee4_id";
   public static final String FEE6_ID = "fee6_id";
+  public static final String FEE7_ID = "fee7_id";
   public static final String PAYMENT1_ID = "payment1_id";
   public static final String PAYMENT2_ID = "payment2_id";
   public static final String PAYMENT4_ID = "payment4_id";
