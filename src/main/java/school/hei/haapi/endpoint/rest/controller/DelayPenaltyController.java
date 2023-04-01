@@ -21,7 +21,7 @@ public class DelayPenaltyController {
 
   @GetMapping(value = "/delay_penalty")
   public DelayPenalty getDelayPenalties() {
-    return delayPenaltyMapper.toRest(delayPenaltyService.getFirstItem());
+    return delayPenaltyMapper.toRest(delayPenaltyService.getLastUpdated());
   }
 
   @PutMapping(value = "/delay_penalty_change")
