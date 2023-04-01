@@ -101,7 +101,17 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/groups/*").authenticated()
         .antMatchers(PUT, "/groups/**").hasAnyRole(MANAGER.getRole())
         .antMatchers("/**").denyAll()
-
+        .requestMatchers(new SelfMatcher(GET, "/students*/fees/*")).hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*fees/*").hasAnyRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET,"/students/*fees")).hasAnyRole(STUDENT.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments")).hasAnyRole(STUDENT.getRole())
+            .requestMatchers((new SelfMatcher(GET, "/students/*fees/*/payments")))
+            .hasAnyRole(STUDENT.getRole())
+            .antMatchers(GET,"/students/*/fees/*/payments").hasAnyRole(MANAGER.getRole())
+            .antMatchers(GET, "/students/*/fees/*/payments").hasAnyRole(MANAGER.getRole())
+            .antMatchers(GET, "/students/*/fees").hasAnyRole(MANAGER.getRole())
+            .antMatchers(GET, "/delay_penalty").authenticated()
+            .antMatchers("/**").denyAll()
         // disable superfluous protections
         // Eg if all clients are non-browser then no csrf
         // https://docs.spring.io/spring-security/site/docs/3.2.0.CI-SNAPSHOT/reference/html/csrf.html,
