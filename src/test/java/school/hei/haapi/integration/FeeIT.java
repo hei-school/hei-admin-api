@@ -86,7 +86,8 @@ class FeeIT {
     fee.setStatus(Fee.StatusEnum.LATE);
     fee.setType(Fee.TypeEnum.TUITION);
     fee.setTotalAmount(5000);
-    fee.setRemainingAmount(5000);
+    //currentDelayPenalty is 2% for 2 days concerning fee3
+    fee.setRemainingAmount(5202);
     fee.setComment("Comment");
     fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
     fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));

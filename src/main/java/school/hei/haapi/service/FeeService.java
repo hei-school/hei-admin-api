@@ -14,25 +14,28 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.service.utils.ComposedInterestUtils.applyComposedInterestToAmount;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 public class FeeService {
-
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
 
   private final EventProducer eventProducer;
+  private final DelayPenaltyService delayPenaltyService;
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
@@ -66,10 +69,41 @@ public class FeeService {
         page.getValue() - 1,
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
+    List<Fee> fees;
     if (status != null) {
       return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
     }
     return feeRepository.getByStudentId(studentId, pageable);
+  }
+
+  public Fee applyCurrentPenalty(Fee fee) {
+    DelayPenalty penalty = delayPenaltyService.getOneOrderByCreationDatetimeDesc();
+    if (penalty != null) {
+      updateFeeStatus(fee);
+      boolean isLate = fee.getStatus() == LATE;
+      Instant penaltyApplicationBegin = fee.getDueDatetime().plus(penalty.getGraceDelay(), DAYS);
+      Instant penaltyApplicationEnd =
+          penaltyApplicationBegin.plus(penalty.getApplicabilityDelayAfterGrace(), DAYS);
+      Instant now = Instant.now();
+      if (isLate && now.isAfter(penaltyApplicationBegin)) {
+        long lateDays;
+        if (now.isAfter(penaltyApplicationEnd)) {
+          lateDays = DAYS.between(penaltyApplicationBegin, penaltyApplicationEnd);
+        } else {
+          lateDays = DAYS.between(penaltyApplicationBegin, now) + 1; //note(add 1 because the
+          // endValue is exclusive)
+        }
+        final int previousRemainingAmount = fee.getRemainingAmount();
+        int remainingAmountWithInterest =
+            applyComposedInterestToAmount(
+                penalty.getInterestPercent(),
+                lateDays,
+                penalty.getInterestTimerate(),
+                previousRemainingAmount);
+        fee.setRemainingAmount(remainingAmountWithInterest);
+      }
+    }
+    return fee;
   }
 
   private Fee updateFeeStatus(Fee initialFee) {
