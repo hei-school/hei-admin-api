@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import java.time.Instant;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -39,6 +40,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @Testcontainers
 @ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
+@Slf4j
 class FeeIT {
   @MockBean
   private SentryConf sentryConf;
@@ -86,7 +88,7 @@ class FeeIT {
     fee.setStatus(Fee.StatusEnum.LATE);
     fee.setType(Fee.TypeEnum.TUITION);
     fee.setTotalAmount(5000);
-    fee.setRemainingAmount(5000);
+    fee.setRemainingAmount(6094);
     fee.setComment("Comment");
     fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
     fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
@@ -116,6 +118,7 @@ class FeeIT {
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
     assertEquals(fee1(), actualFee);
+    log.info("fee3> {}", actual);
     assertTrue(actual.contains(fee1()));
     assertTrue(actual.contains(fee2()));
     assertTrue(actual.contains(fee3()));
