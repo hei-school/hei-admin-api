@@ -14,6 +14,7 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
@@ -32,8 +33,27 @@ public class FeeService {
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
 
+  private final DelayPenalty delayPenalty;
   private final EventProducer eventProducer;
 
+  public int interestCompose(int totalAmount){
+    return totalAmount * (1 + delayPenalty.getInterestPercent()/100)^(1);
+  }
+
+  public Fee feeModification(Fee fee){
+
+    return new Fee()
+            .toBuilder()
+            .id(fee.getId())
+            .comment(fee.getComment())
+            .totalAmount(interestCompose(fee.getTotalAmount()))
+            .creationDatetime(fee.getCreationDatetime())
+            .dueDatetime(fee.getDueDatetime())
+            .remainingAmount(fee.getRemainingAmount())
+            .status(fee.getStatus())
+            .updatedAt(fee.getUpdatedAt())
+            .build();
+  }
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
   }
