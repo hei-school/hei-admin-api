@@ -1,5 +1,9 @@
 package school.hei.haapi.service;
 
+import static java.time.temporal.ChronoUnit.DAYS;
+import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 import java.time.Instant;
 import java.util.List;
 import javax.transaction.Transactional;
@@ -14,14 +18,12 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
+import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.FeeRepository;
-
-import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 
 @Service
 @AllArgsConstructor
@@ -33,6 +35,7 @@ public class FeeService {
   private final FeeValidator feeValidator;
 
   private final EventProducer eventProducer;
+  private final DelayPenaltyRepository delayPenaltyRepository;
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
@@ -62,6 +65,8 @@ public class FeeService {
   public List<Fee> getFeesByStudentId(
       String studentId, PageFromOne page, BoundedPageSize pageSize,
       school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
+    List<Fee> specifiedLateFees = feeRepository.getFeesByStatusAndStudentId(LATE, studentId);
+    applyInterestPercent(specifiedLateFees);
     Pageable pageable = PageRequest.of(
         page.getValue() - 1,
         pageSize.getValue(),
@@ -118,4 +123,54 @@ public class FeeService {
     );
   }
 
+  @Scheduled(cron = "0 0 * * * *")
+  public void automateApplyInterest() {
+    List<Fee> lateFees = feeRepository.getFeesByStatus(LATE);
+    applyInterestPercent(lateFees);
+  }
+
+  public void applyInterestPercent(List<Fee> lateFees) {
+    DelayPenalty condition = delayPenaltyRepository.findAll().get(0);
+    int interestPercent = condition.getInterestPercent();
+    int graceDelay = condition.getGraceDelay();
+    int applicabilityAfterGrace = condition.getApplicabilityDelayAfterGrace();
+
+    lateFees.forEach(
+        fee -> {
+          Instant dueGrace = fee.getDueDatetime().plus(graceDelay, DAYS);
+          Instant dateAfterGrace = dueGrace.plus(applicabilityAfterGrace, DAYS);
+          Instant attemptApplyInterest = Instant.now();
+
+          int timeDelta = numberOfDayForInterest(dateAfterGrace, fee.getLastApplyInterest(),
+              dueGrace, attemptApplyInterest, fee.getId());
+          if (timeDelta > 0) {
+            int newAmount = fee.getRemainingAmount();
+            for (int time = 1; time <= timeDelta; time++) {
+              newAmount += (newAmount * interestPercent / 100);
+            }
+            fee.setRemainingAmount(newAmount);
+            fee.setLastApplyInterest(attemptApplyInterest);
+            feeRepository.save(fee);
+          }
+        }
+    );
+  }
+
+  public int numberOfDayForInterest(Instant lastLuckyDay,
+                                    Instant lastApplyInterest,
+                                    Instant dueGrace,
+                                    Instant attemptDate,
+                                    String feeId) {
+
+    if (lastLuckyDay.isAfter(attemptDate)) {
+      log.info("Efa tapitra ny fotoana tokony handoavana ny saram-pianarana laharana: " + feeId);
+    }
+    if (lastApplyInterest != null) {
+      return (int) DAYS.between(lastApplyInterest,
+          (lastLuckyDay.isBefore(attemptDate) ? lastLuckyDay : attemptDate));
+    } else {
+      return (int) DAYS.between(dueGrace,
+          (lastLuckyDay.isBefore(attemptDate) ? lastLuckyDay : attemptDate));
+    }
+  }
 }

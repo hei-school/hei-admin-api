@@ -15,6 +15,9 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
   List<Fee> getFeesByStatus(StatusEnum status,
                             Pageable pageable);
 
+  List<Fee> getFeesByStatusAndStudentId(StatusEnum status,
+                                        String studentId);
+
   List<Fee> getFeesByStatus(StatusEnum status);
 
   List<Fee> getFeesByStudentIdAndStatus(String studentId,
