@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.validator.DelayPenaltyValidator;
@@ -26,5 +27,9 @@ public class DelayPenaltyService {
             DelayPenalty newDelayPenalty = repository.save(currentValue);
             interestFeeUpdate.updateInterestFees(newDelayPenalty);
             return newDelayPenalty;
+    }
+    @Scheduled(cron = "16 0 * * *")
+    public void updateFeeInterest(){
+        interestFeeUpdate.updateInterestFees(this.getDelayPenalty());
     }
 }
