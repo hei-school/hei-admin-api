@@ -110,45 +110,13 @@ class DelayPenaltyIT {
   }
 
   @Test
-  void student_read_ko() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
-
-    assertThrowsApiException(
-            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
-    assertThrowsApiException(
-            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.getStudentFees(STUDENT2_ID, null, null, null));
-    assertThrowsApiException(
-            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.getFees(null, null, null));
-  }
-
-  @Test
-  void teacher_read_ko() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    PayingApi api = new PayingApi(teacher1Client);
-
-    assertThrowsApiException(
-            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.getStudentFeeById(STUDENT1_ID,FEE1_ID));
-    assertThrowsApiException(
-            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.getStudentFees(STUDENT1_ID, null, null, null));
-    assertThrowsApiException(
-            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.getFees(null, null, null));
-  }
-
-  @Test
   void student_write_ko() throws ApiException{
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
     assertThrowsApiException(
             "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.createStudentFees(STUDENT1_ID, List.of()));
+            () -> api.createDelayPenaltyChange(createDelayPenaltyChange()));
   }
 
   @Test
@@ -158,7 +126,7 @@ class DelayPenaltyIT {
 
     assertThrowsApiException(
             "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.createStudentFees(STUDENT1_ID, List.of()));
+            () -> api.createDelayPenaltyChange(createDelayPenaltyChange()));
   }
 
   @Test
