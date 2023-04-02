@@ -7,6 +7,7 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import lombok.Builder;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -21,6 +22,7 @@ import school.hei.haapi.repository.types.PostgresEnumType;
 @Table(name = "\"delay_penalty\"")
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 @Entity
+@Builder
 @Getter
 @Setter
 public class DelayPenalty {
