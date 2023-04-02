@@ -1,5 +1,7 @@
 package school.hei.haapi.integration;
 
+import org.junit.Before;
+import org.junit.jupiter.api.BeforeEach;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -12,6 +14,7 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -25,6 +28,10 @@ class DelayPenaltyIT {
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, DelayPenaltyIT.ContextInitializer.SERVER_PORT);
+  }
+  @BeforeEach
+  void setUp() {
+    setUpCognito(cognitoComponentMock);
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
