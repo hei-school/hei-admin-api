@@ -3,9 +3,9 @@ package school.hei.haapi.endpoint.rest.mapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
-import school.hei.haapi.endpoint.rest.validator.CreateUpdateDelayPenaltyValidator;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum;
+import school.hei.haapi.model.validator.CreateUpdateDelayPenaltyValidator;
 
 @Component
 @AllArgsConstructor

@@ -10,7 +10,6 @@ import school.hei.haapi.repository.DelayPenaltyRepository;
 @AllArgsConstructor
 public class DelayPenaltyService {
     private final DelayPenaltyRepository repository;
-    private final FeeService feeService;
 
     public DelayPenalty get() {
         DelayPenalty current = repository.findAll().get(0);
@@ -21,6 +20,7 @@ public class DelayPenaltyService {
     }
     public DelayPenalty save(DelayPenalty toSave) {
         toSave.setId(getCurrentPenalty().getId());
+        toSave.setCreationDatetime(getCurrentPenalty().getCreationDatetime());
         repository.save(toSave);
         return toSave;
     }
