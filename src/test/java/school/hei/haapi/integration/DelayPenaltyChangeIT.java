@@ -181,6 +181,7 @@ public class DelayPenaltyChangeIT {
     PayingApi api = new PayingApi(manager1Client);
 
     List<Fee> noUpdateFees = api.getFees("", 1, 20);
+    List<Fee> AllPaidFeesWithoutInterest = api.getFees("PAID", 1, 20);
 
     DelayPenalty ActualDelayPenalty = api.getDelayPenalty();
     CreateDelayPenaltyChange actualCreateDelayPenalty = new CreateDelayPenaltyChange();
@@ -191,15 +192,17 @@ public class DelayPenaltyChangeIT {
     api.createDelayPenaltyChange(actualCreateDelayPenalty);
 
     List<Fee> actualFeesWithInterest = api.getFees("", 1, 20);
+    List<Fee> originalAllPaidFeesWithInterest = api.getFees("PAID", 1, 20);
 
     CreateDelayPenaltyChange newCreateDelayPenalty = new CreateDelayPenaltyChange();
     newCreateDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
     newCreateDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
-    newCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay()+3);
+    newCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay()+4);
     newCreateDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
     api.createDelayPenaltyChange(newCreateDelayPenalty);
 
     List<Fee> updatedFeesWithInterest = api.getFees("", 1, 20);
+    List<Fee> updatedAllPaidFees = api.getFees("PAID", 1, 20);
 
     //update a Delay Penalty automatically update all fees
     assertNotEquals(noUpdateFees,actualFeesWithInterest);
@@ -207,12 +210,28 @@ public class DelayPenaltyChangeIT {
     Fee Fee7WithoutInterest = noUpdateFees.stream().filter(fee -> fee.getId().equals(fee7().getId())).collect(Collectors.toList()).get(0);
     Fee originalFee7WithInterest = actualFeesWithInterest.stream().filter(fee -> fee.getId().equals(fee7().getId())).collect(Collectors.toList()).get(0);
     Fee updatedFee7 = updatedFeesWithInterest.stream().filter(fee -> fee.getId().equals(fee7().getId())).collect(Collectors.toList()).get(0);
-    //update grace day change automatically all fee with interest
+    //update grace day change automatically all fees with interest
     assertNotEquals(updatedFee7,originalFee7WithInterest);
-    //have right total amount value + interest
+    //have right total amount value + interest after change
     assertNotEquals(updatedFee7.getTotalAmount(),((Fee7WithoutInterest.getTotalAmount()*ActualDelayPenalty.getInterestPercent())*ActualDelayPenalty.getInterestPercent()*ActualDelayPenalty.getInterestPercent())*ActualDelayPenalty.getInterestPercent());
 
+    //update grace day do not change all PAID fees with interest
+    assertEquals(AllPaidFeesWithoutInterest,originalAllPaidFeesWithInterest);
+    assertEquals(AllPaidFeesWithoutInterest,updatedAllPaidFees);
 
+    Fee Fee9WithoutInterest = noUpdateFees.stream().filter(fee -> fee.getId().equals(fee9().getId())).collect(Collectors.toList()).get(0);
+    Fee originalFee9WithInterest = actualFeesWithInterest.stream().filter(fee -> fee.getId().equals(fee9().getId())).collect(Collectors.toList()).get(0);
+    Fee updatedFee9 = updatedFeesWithInterest.stream().filter(fee -> fee.getId().equals(fee9().getId())).collect(Collectors.toList()).get(0);
+    //take off interest in fee when after update application of interest is before due day + grace day
+    assertEquals(Fee9WithoutInterest.getTotalAmount(),updatedFee9.getTotalAmount());
+    assertNotEquals(originalFee9WithInterest.getTotalAmount(),updatedFee9.getTotalAmount());
+
+    Fee Fee3WithoutInterest = noUpdateFees.stream().filter(fee -> fee.getId().equals(fee3().getId())).collect(Collectors.toList()).get(0);
+    Fee originalFee3WithInterest = actualFeesWithInterest.stream().filter(fee -> fee.getId().equals(fee3().getId())).collect(Collectors.toList()).get(0);
+    Fee updatedFee3 = updatedFeesWithInterest.stream().filter(fee -> fee.getId().equals(fee3().getId())).collect(Collectors.toList()).get(0);
+    //fee before application of delay penalty change no have interest
+    assertEquals(Fee3WithoutInterest.getTotalAmount(),updatedFee3.getTotalAmount());
+    assertEquals(originalFee3WithInterest.getTotalAmount(),updatedFee3.getTotalAmount());
   }
 
 
