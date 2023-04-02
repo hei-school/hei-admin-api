@@ -72,11 +72,11 @@ public class Fee implements Serializable {
   @OneToMany(mappedBy = "fee")
   private List<Payment> payments;
 
-  public Integer gettotalAmount() {
+  public Integer getTotalAmount() {
     return totalAmount;
   }
 
-  public void settotalAmount(Integer totalAmount) {
+  public void setTotalAmount(Integer totalAmount) {
     this.totalAmount = totalAmount;
   }
 
