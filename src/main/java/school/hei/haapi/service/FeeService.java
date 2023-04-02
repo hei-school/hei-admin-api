@@ -37,8 +37,6 @@ public class FeeService {
   private final EventProducer eventProducer;
   private final DelayPenaltyRepository delayPenaltyRepository;
 
-  private final DelayPenaltyRepository delayPenaltyRepository;
-
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
   }
