@@ -131,11 +131,11 @@ class FeeIT {
                 .applicabilityDelayAfterGrace(5);
     }
 
-    static CreatePayment creatablePayment1() {
+    static CreatePayment createPayment(int amount) {
         return new CreatePayment()
                 .type(CreatePayment.TypeEnum.CASH)
                 .comment("comment")
-                .amount(500);
+                .amount(amount);
     }
 
     @BeforeEach
@@ -269,28 +269,26 @@ class FeeIT {
     void update_late_fees() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         PayingApi api = new PayingApi(manager1Client);
-
+        CreatePayment creatablePayment1 = createPayment(500);
         List<Fee> actualFees = api.createStudentFees(STUDENT1_ID, List.of(creatableFee2()));
-        api.createStudentPayments(STUDENT1_ID, actualFees.get(0).getId(),List.of(creatablePayment1()));
+        api.createStudentPayments(STUDENT1_ID, actualFees.get(0).getId(),List.of(creatablePayment1));
         api.createDelayPenaltyChange(creatableDelayPenalty1());
+        api.createStudentPayments(STUDENT1_ID, actualFees.get(0).getId(),List.of(creatablePayment1));
 
         Fee actual = api.getStudentFeeById(STUDENT1_ID, actualFees.get(0).getId());
-        System.out.println(actual);
+        int expectedRemainingAmount = 20;
+        Fee.StatusEnum expectedFeeStatus = Fee.StatusEnum.LATE;
+        assertEquals(expectedRemainingAmount,actual.getRemainingAmount());
+        assertEquals(expectedFeeStatus,actual.getStatus());
 
-        api.createDelayPenaltyChange(creatableDelayPenalty2());
 
+        CreatePayment creatablePayment2 = createPayment(20);
+        api.createStudentPayments(STUDENT1_ID, actualFees.get(0).getId(),List.of(creatablePayment2));
         actual = api.getStudentFeeById(STUDENT1_ID, actualFees.get(0).getId());
-        System.out.println(actual);
-
-        api.createStudentPayments(STUDENT1_ID, actualFees.get(0).getId(),List.of(creatablePayment1()));
-
-        actual = api.getStudentFeeById(STUDENT1_ID, actualFees.get(0).getId());
-        System.out.println(actual);
-
-        api.createDelayPenaltyChange(creatableDelayPenalty1());
-
-        actual = api.getStudentFeeById(STUDENT1_ID, actualFees.get(0).getId());
-        System.out.println(actual);
+        expectedRemainingAmount = 0;
+        expectedFeeStatus = Fee.StatusEnum.PAID;
+        assertEquals(expectedRemainingAmount,actual.getRemainingAmount());
+        assertEquals(expectedFeeStatus,actual.getStatus());
     }
 
     static class ContextInitializer extends AbstractContextInitializer {

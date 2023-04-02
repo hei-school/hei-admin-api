@@ -22,10 +22,11 @@ public class PaymentValidator implements Consumer<Payment> {
         .stream()
         .mapToInt(Payment::getAmount)
         .sum();
-    if (associatedFee.getRemainingAmount() < totalAmount) {
+    int totalRemainingAmount = (int) (associatedFee.getRemainingAmount() + associatedFee.getInterest());
+    if (totalRemainingAmount < totalAmount) {
       throw new BadRequestException(
           "Payment amount (" + totalAmount
-              + ") exceeds fee remaining amount (" + associatedFee.getRemainingAmount() + ")");
+              + ") exceeds fee remaining amount (" + totalRemainingAmount + ")");
     }
     payments.forEach(this);
   }

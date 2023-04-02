@@ -78,7 +78,7 @@ public class FeeService {
     }
 
     private Fee updateFeeStatus(Fee initialFee) {
-        if (initialFee.getStatus() == UNPAID && initialFee.getRemainingAmount() == 0) {
+        if (initialFee.getStatus() == UNPAID && initialFee.getRemainingAmount() == 0 && initialFee.getInterest() == 0) {
             initialFee.setStatus(PAID);
         } else if (initialFee.getStatus() == UNPAID && Instant.now().isAfter(initialFee.getDueDatetime())) {
             initialFee.setStatus(LATE);
