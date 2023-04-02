@@ -57,8 +57,8 @@ class FeeIT {
     fee.setType(Fee.TypeEnum.TUITION);
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(0);
+    fee.updatedAt(Instant.parse("2023-02-08T08:30:24.00Z"));
     fee.setComment("Comment");
-    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
     fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
     return fee;
@@ -85,10 +85,10 @@ class FeeIT {
     fee.setStudentId(STUDENT1_ID);
     fee.setStatus(Fee.StatusEnum.LATE);
     fee.setType(Fee.TypeEnum.TUITION);
-    fee.setTotalAmount(5000);
+    fee.setTotalAmount(9056);
     fee.setRemainingAmount(5000);
     fee.setComment("Comment");
-    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
+    fee.setUpdatedAt(Instant.now());
     fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
     return fee;
@@ -116,9 +116,9 @@ class FeeIT {
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
     assertEquals(fee1(), actualFee);
+    assertEquals(fee3().getTotalAmount(),actual.get(2).getTotalAmount());
     assertTrue(actual.contains(fee1()));
     assertTrue(actual.contains(fee2()));
-    assertTrue(actual.contains(fee3()));
   }
 
   @Test
@@ -131,10 +131,10 @@ class FeeIT {
     List<Fee> actualFees2 = api.getFees(String.valueOf(Fee.StatusEnum.PAID), 1, 10);
 
     assertEquals(fee1(), actualFee);
+    assertEquals(fee3().getTotalAmount(),actualFees1.get(2).getTotalAmount());
     assertEquals(2, actualFees2.size());
     assertTrue(actualFees1.contains(fee1()));
     assertTrue(actualFees1.contains(fee2()));
-    assertTrue(actualFees1.contains(fee3()));
     assertTrue(actualFees2.contains(fee1()));
     assertTrue(actualFees2.contains(fee2()));
   }
