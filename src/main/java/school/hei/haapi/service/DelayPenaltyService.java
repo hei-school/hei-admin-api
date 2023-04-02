@@ -1,9 +1,12 @@
 package school.hei.haapi.service;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.mapper.DelayPenaltyMapper;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.InterestTimeRate;
+import school.hei.haapi.model.DelayPenaltyChange;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 
 
@@ -11,10 +14,12 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 
 @Service
+@AllArgsConstructor
 public class DelayPenaltyService {
 
     @Autowired
     private DelayPenaltyRepository delayPenaltyRepository;
+    private final DelayPenaltyMapper delayPenaltyMapper;
 
     public BigDecimal calculatePenalty(String delayPenaltyId, BigDecimal amount, int daysDelayed) {
 
@@ -41,6 +46,10 @@ public class DelayPenaltyService {
     public DelayPenalty getDelayPenalty(String delayPenaltyId) {
         return delayPenaltyRepository.findById(delayPenaltyId)
                 .orElseThrow(() -> new RuntimeException("Delay penalty not found"));
+    }
+
+    public DelayPenalty changeDelayPenaltyConfiguration(DelayPenaltyChange delayPenaltyChange) {
+        return delayPenaltyMapper.toDelayPenaltyEntity(delayPenaltyRepository.save(delayPenaltyChange));
     }
 }
 
