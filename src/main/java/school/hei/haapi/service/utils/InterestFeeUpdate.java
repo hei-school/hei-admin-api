@@ -39,13 +39,17 @@ public class InterestFeeUpdate {
                     fee.getRemainingAmount(),
                     delayPenalty.getInterestPercent(),
                     numberOfDayToApplyInterest));
-        } else if (NOW > lastDayOfInterestApplication) {
-            fee.setInterest(this.calculateInterest(
-                    fee.getRemainingAmount(),
-                    delayPenalty.getInterestPercent(),
-                    delayPenalty.getApplicabilityDelayAfterGrace()));
+            return fee;
         }
-        return fee;
+        return null;
+//        IDEA: if it is also necessary to update the fees that have already extended the deadline
+//        else if (NOW > lastDayOfInterestApplication) {
+//            fee.setInterest(this.calculateInterest(
+//                    fee.getRemainingAmount(),
+//                    delayPenalty.getInterestPercent(),
+//                    delayPenalty.getApplicabilityDelayAfterGrace()));
+//            return fee;
+//        }
     }
 
     private int calculateInterest(double baseAmount, int interestPercent, long numberOfDays) {
