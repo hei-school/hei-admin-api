@@ -13,6 +13,7 @@ import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.service.FeeService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -23,6 +24,7 @@ public class FeeController {
 
   private final FeeService feeService;
   private final FeeMapper feeMapper;
+  private final FeeValidator validator;
 
   @GetMapping("/students/{studentId}/fees/{feeId}")
   public Fee getFeeByStudentId(
@@ -34,8 +36,9 @@ public class FeeController {
   @PostMapping("/students/{studentId}/fees")
   public List<Fee> createFees(
       @PathVariable String studentId, @RequestBody List<CreateFee> toCreate) {
-    return feeService.saveAll(
-            feeMapper.toDomainFee(studentId, toCreate)).stream()
+    List<school.hei.haapi.model.Fee> toSave = feeMapper.toDomainFee(studentId, toCreate);
+    validator.accept(toSave);
+    return feeService.saveAll(toSave).stream()
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
   }

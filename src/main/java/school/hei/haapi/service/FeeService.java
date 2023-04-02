@@ -1,7 +1,9 @@
 package school.hei.haapi.service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,8 +18,9 @@ import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.validator.FeeValidator;
+import school.hei.haapi.model.Payment;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.PaymentRepository;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
@@ -30,9 +33,9 @@ public class FeeService {
 
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
-  private final FeeValidator feeValidator;
-
+  private final DelayPenaltyService delayPenaltyService;
   private final EventProducer eventProducer;
+  private final PaymentRepository paymentRepository;
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
@@ -44,7 +47,6 @@ public class FeeService {
 
   @Transactional
   public List<Fee> saveAll(List<Fee> fees) {
-    feeValidator.accept(fees);
     return feeRepository.saveAll(fees);
   }
 
@@ -54,9 +56,10 @@ public class FeeService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
     if (status != null) {
-      return feeRepository.getFeesByStatus(status, pageable);
+      //We use this method here just for testing, but it should be inside a scheduller
+      return applyDelayPenaltyConf(feeRepository.getFeesByStatus(status, pageable));
     }
-    return feeRepository.getFeesByStatus(DEFAULT_STATUS, pageable);
+    return applyDelayPenaltyConf(feeRepository.getFeesByStatus(DEFAULT_STATUS, pageable));
   }
 
   public List<Fee> getFeesByStudentId(
@@ -67,9 +70,10 @@ public class FeeService {
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
     if (status != null) {
-      return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
+      return applyDelayPenaltyConf(
+          feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable));
     }
-    return feeRepository.getByStudentId(studentId, pageable);
+    return applyDelayPenaltyConf(feeRepository.getByStudentId(studentId, pageable));
   }
 
   private Fee updateFeeStatus(Fee initialFee) {
@@ -88,7 +92,8 @@ public class FeeService {
       updateFeeStatus(fee);
       log.info("Fee with id." + fee.getId() + " is going to be updated from UNPAID to LATE");
     });
-    feeRepository.saveAll(unpaidFees);
+    //Here is the right place of this method
+    feeRepository.saveAll(applyDelayPenaltyConf(unpaidFees));
   }
 
   private TypedLateFeeVerified toTypedEvent(Fee fee) {
@@ -118,4 +123,31 @@ public class FeeService {
     );
   }
 
+  private List<Fee> applyDelayPenaltyConf(List<Fee> fees) {
+    for (Fee fee : fees) {
+      if (!fee.isUpToDate()) {
+        //Apply grace delay to the default due datetime
+        fee.setDueDatetime(fee.getDueDatetime().plus(
+            delayPenaltyService.getDelayPenaltyConf().getGraceDelay(),
+            ChronoUnit.DAYS));
+        fee.setUpToDate(true);
+      }
+      Instant applicabilityDatetime = fee.getDueDatetime().plus(
+          delayPenaltyService.getDelayPenaltyConf().getApplicabilityDelayAfterGrace(),
+          ChronoUnit.DAYS);
+      int remainingAmount = fee.getTotalAmount() - paymentsTotalAmount(fee);
+      int interestValue = remainingAmount * delayPenaltyService
+          .getDelayPenaltyConf().getInterestPercent() / 100;
+      if (fee.getStatus().equals(LATE) && Instant.now().isBefore(applicabilityDatetime)) {
+        fee.setRemainingAmount(remainingAmount + interestValue);
+      }
+    }
+    return fees;
+  }
+
+  private int paymentsTotalAmount(Fee fee) {
+    List<Integer> payments = paymentRepository.getPaymentsByFeeId(fee.getId())
+        .stream().map(Payment::getAmount).collect(Collectors.toUnmodifiableList());
+    return payments.stream().reduce(0, Integer::sum);
+  }
 }
