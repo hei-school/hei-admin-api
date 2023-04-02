@@ -11,6 +11,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -49,7 +50,13 @@ public class DelayPenaltyIT {
         return delayPenalty;
     }
 
-
+    public static CreateDelayPenaltyChange delayPenaltyChange1() {
+        CreateDelayPenaltyChange delayPenaltyChange = new CreateDelayPenaltyChange();
+        delayPenaltyChange.setGraceDelay(1);
+        delayPenaltyChange.setApplicabilityDelayAfterGrace(1);
+        delayPenaltyChange.setInterestPercent(1);
+        return delayPenaltyChange;
+    }
 
     @BeforeEach
     public void setUp() {
@@ -65,6 +72,18 @@ public class DelayPenaltyIT {
 
         assertEquals(delayPenalty1(), actualDelay);
 
+    }
+
+    @Test
+    void student_write_ko() throws ApiException {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        PayingApi api = new PayingApi(student1Client);
+
+        DelayPenalty actualDelay = api.getDelayPenalty();
+
+        CreateDelayPenaltyChange changes = delayPenaltyChange1();
+        assertThrowsForbiddenException(() -> api.createDelayPenaltyChange(changes));
+        assertEquals(delayPenalty1(), actualDelay);
     }
 
 
