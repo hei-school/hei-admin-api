@@ -85,6 +85,7 @@ public class FeeService {
      */
     @Scheduled(cron = "0 0 8 * * *")
     public void scheduleApplyDelayPenalty() {
+        log.info("running scheduler");
         Instant now = Instant.now();
         GregorianCalendar today = instantToGregorianCalendar(now);
 
