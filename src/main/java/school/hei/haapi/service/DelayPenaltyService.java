@@ -11,6 +11,7 @@ import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.PaymentRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -22,8 +23,14 @@ public class DelayPenaltyService {
     }
     @Transactional
     public DelayPenalty save(DelayPenalty delayPenalties) {
-        repository.save(delayPenalties);
+        DelayPenalty delayPenalty = getAll();
+        delayPenalty.setGraceDelay(delayPenalties.getGraceDelay());
+        delayPenalty.setId(delayPenalties.getId());
+        delayPenalty.setApplicabilityDelayAfterGrace(delayPenalties.getApplicabilityDelayAfterGrace());
+        delayPenalty.setInterestPercent(delayPenalties.getInterestPercent());
+        delayPenalty.setInterestTimerate(delayPenalties.getInterestTimerate());
+        delayPenalty.setCreationDatetime(delayPenalties.getCreationDatetime());
+        repository.save(delayPenalty);
         return repository.getById(delayPenalties.getId());
     }
-
 }

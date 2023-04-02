@@ -24,7 +24,7 @@ public class DelayPenaltyController {
     public school.hei.haapi.endpoint.rest.model.DelayPenalty getDelayPenalty(){
         return delayPenaltyMapper.toRestDelayPenalty(delayPenaltyService.getAll());
     }
-    @PutMapping("/delay_penalty")
+    @PutMapping("/delay_penalty_change")
     public school.hei.haapi.endpoint.rest.model.DelayPenalty save(
             @RequestBody DelayPenalty toWrite
     ){

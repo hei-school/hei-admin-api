@@ -10,6 +10,7 @@ import school.hei.haapi.endpoint.rest.validator.CreateFeeValidator;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.UserService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -21,6 +22,7 @@ public class FeeMapper {
 
   private final UserService userService;
   private final CreateFeeValidator createFeeValidator;
+  private final FeeService feeService;
 
   public Fee toRestFee(school.hei.haapi.model.Fee fee) {
     return new Fee()
@@ -28,7 +30,21 @@ public class FeeMapper {
         .studentId(fee.getStudent().getId())
         .status(fee.getStatus())
         .type(fee.getType())
-        .totalAmount(fee.getTotalAmount())
+        .totalAmount((int)feeService.addInterest(
+                school.hei.haapi.model.Fee
+                        .builder()
+                        .id(fee.getId())
+                        .student(fee.getStudent())
+                        .status(fee.getStatus())
+                        .type(fee.getType())
+                        .totalAmount(fee.getTotalAmount())
+                        .remainingAmount(fee.getRemainingAmount())
+                        .comment(fee.getComment())
+                        .creationDatetime(fee.getCreationDatetime())
+                        .updatedAt(fee.getUpdatedAt())
+                        .dueDatetime(fee.getDueDatetime())
+                        .build()
+        ))
         .remainingAmount(fee.getRemainingAmount())
         .comment(fee.getComment())
         .creationDatetime(fee.getCreationDatetime())
@@ -38,6 +54,7 @@ public class FeeMapper {
 
   private school.hei.haapi.model.Fee toDomainFee(User student, CreateFee createFee) {
     createFeeValidator.accept(createFee);
+
     if (!student.getRole().equals(User.Role.STUDENT)) {
       throw new BadRequestException("Only students can have fees");
     }

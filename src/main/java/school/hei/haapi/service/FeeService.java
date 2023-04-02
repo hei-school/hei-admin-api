@@ -75,7 +75,6 @@ public class FeeService {
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
     if (status != null) {
-      addInterest(studentId);
       return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
     }
     return feeRepository.getByStudentId(studentId, pageable);
@@ -89,25 +88,23 @@ public class FeeService {
     }
     return initialFee;
   }
-
-  private void setPercentage(String id , int percentage){
-    FeesHistory feesHistory = feeHistoryRepository.getById(id);
-    feesHistory.setPercentage(percentage);
-  }
   @Transactional
-  public Fee addInterest(String studentId){
-    User user = userService.getById(studentId);
+  public double addInterest(Fee fee){
+    User user = userService.getById(fee.getStudent().getId());
     DelayPenalty delayPenalty = delayPenaltyService.getAll();
-    Fee fee = feeRepository.getByStudentId(user.getId());
-    FeesHistory feesHistory = feeHistoryRepository.getByStudentId(studentId);
+    FeesHistory feesHistory = feeHistoryRepository.getByStudentId(fee.getStudent().getId());
     int i = 0;
+    int amount = 0;
     double temp = fee.getTotalAmount();
     int delay =((delayPenalty.getApplicabilityDelayAfterGrace()) - 1);
-    if(delay > 0 && delayPenalty.getGraceDelay() <= 0 && fee.getStatus() != (PAID)){
+    if(delay > 0 || fee.getStatus() == DEFAULT_STATUS){
       while(i < delay){
-        setPercentage(feesHistory.getId(),delayPenalty.getInterestPercent());
+        feesHistory.setStudent(user);
+        feesHistory.setFee_total(temp);
+        feesHistory.setPercentage(delayPenalty.getInterestPercent());
         if(!feesHistory.getPaid()){
-          temp += ((fee.getTotalAmount() * feesHistory.getPercentage()) / 100) * i ;
+          amount += ((fee.getTotalAmount() * delayPenalty.getInterestPercent()) / 100) * i ;
+          temp += amount;
           delay --;
         }
         i++;
@@ -115,12 +112,14 @@ public class FeeService {
     }
     else {
       feesHistory.setFee_total(temp);
+      feesHistory.setPercentage(delayPenalty.getInterestPercent());
       feesHistory.setPaid(true);
       fee.setTotalAmount(feesHistory.getFee_total().intValue());
       fee.setRemainingAmount(0);
     }
+    feesHistory.setStudent(fee.getStudent());
     feeHistoryRepository.save(feesHistory);
-    return updateFeeStatus(fee);
+    return temp;
   }
   @Scheduled(cron = "0 0 * * * *")
   public void updateFeesStatusToLate() {
