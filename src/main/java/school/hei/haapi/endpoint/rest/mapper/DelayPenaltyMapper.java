@@ -3,23 +3,12 @@ package school.hei.haapi.endpoint.rest.mapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
-import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.validator.CreateFeeValidator;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
-import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.DelayPenaltyChangeValidator;
 import school.hei.haapi.service.DelayPenaltyService;
-import school.hei.haapi.service.UserService;
 
 import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
-
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
 
 @Component
 @AllArgsConstructor

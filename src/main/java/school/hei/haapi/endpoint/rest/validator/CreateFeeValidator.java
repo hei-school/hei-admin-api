@@ -11,6 +11,8 @@ public class CreateFeeValidator implements Consumer<CreateFee> {
   @Override public void accept(CreateFee createFee) {
     if (createFee.getTotalAmount() == null) {
       throw new BadRequestException("Total amount is mandatory");
+    } else if(createFee.getTotalAmount() == 0){
+      throw new BadRequestException("Total amount must higher than 0");
     }
   }
 }
