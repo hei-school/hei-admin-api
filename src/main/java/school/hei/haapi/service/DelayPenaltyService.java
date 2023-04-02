@@ -1,8 +1,8 @@
 package school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 
@@ -13,6 +13,10 @@ import java.util.Optional;
 public class DelayPenaltyService {
 
     private DelayPenaltyRepository delayPenaltyRepository;
+
+    public DelayPenalty getDelayPenalty(int i) {
+        return delayPenaltyRepository.findAll(Sort.unsorted()).get(0);
+    }
 
     public DelayPenalty updateDelayPenalty(school.hei.haapi.endpoint.rest.model.DelayPenalty delayPenalty) {
         Optional<school.hei.haapi.model.DelayPenalty> delayPenaltyOptional = delayPenaltyRepository.findById("1");
@@ -37,4 +41,5 @@ public class DelayPenaltyService {
     }
 
 
-}
+
+

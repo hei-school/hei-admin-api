@@ -17,6 +17,8 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 @Component
 @AllArgsConstructor
 public class DelayPenaltyMapper {
+
+
     public DelayPenalty toRest(school.hei.haapi.model.DelayPenalty delayPenalty){
         return new DelayPenalty()
                 .graceDelay(school.hei.haapi.model.DelayPenalty.getGraceDelay())

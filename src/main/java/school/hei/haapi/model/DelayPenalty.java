@@ -48,7 +48,7 @@ public class DelayPenalty {
         DelayPenalty.interestPercent = interestPercent;
     }
 
-    public static int getInterestPercent() {
+    public static java.lang.Integer getInterestPercent() {
         return DelayPenalty.interestPercent;
     }
 
@@ -64,7 +64,7 @@ public class DelayPenalty {
         DelayPenalty.graceDelay = graceDelay;
     }
 
-    public static int getGraceDelay() {
+    public static java.lang.Integer getGraceDelay() {
         return DelayPenalty.graceDelay;
     }
 
@@ -72,7 +72,7 @@ public class DelayPenalty {
         DelayPenalty.applicabilityDelayAfterGrace = applicabilityDelayAfterGrace;
     }
 
-    public static int getApplicabilityDelayAfterGrace() {
+    public static java.lang.Integer getApplicabilityDelayAfterGrace() {
         return DelayPenalty.applicabilityDelayAfterGrace;
     }
 
