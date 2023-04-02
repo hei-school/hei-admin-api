@@ -19,7 +19,7 @@ public class InterestFeeUpdate {
 
     public void updateInterestFees(DelayPenalty delayPenalty) {
         List<Fee> fees = new ArrayList<>();
-        feeRepository.findAll().forEach(fee -> {
+        feeRepository.getFeesByStatus(LATE).forEach(fee -> {
             if (this.updateFeeInterest(delayPenalty, fee) != null) {
                 fees.add(fee);
             }
@@ -30,29 +30,34 @@ public class InterestFeeUpdate {
     }
 
     public Fee updateFeeInterest(DelayPenalty delayPenalty, Fee fee) {
-        if (fee.getStatus().equals(LATE)) {
-            long NOW = Instant.now().getEpochSecond() / 86400;
-            long firstDayOfInterestApplication = (fee.getDueDatetime().getEpochSecond() / 86400) + delayPenalty.getGraceDelay();
-            long lastDayOfInterestApplication = firstDayOfInterestApplication + delayPenalty.getApplicabilityDelayAfterGrace();
-            if (NOW > firstDayOfInterestApplication && NOW <= lastDayOfInterestApplication) {
-                double baseAmount = fee.getTotalAmount();
-                long numberOfDays = NOW - firstDayOfInterestApplication;
-                fee.setInterest(this.calculInterest(
-                        baseAmount,
-                        delayPenalty.getInterestPercent(),
-                        numberOfDays));
-                return fee;
-            }
+        long NOW = Instant.now().getEpochSecond() / 86400;
+        long firstDayOfInterestApplication = (fee.getDueDatetime().getEpochSecond() / 86400) + delayPenalty.getGraceDelay();
+        long lastDayOfInterestApplication = firstDayOfInterestApplication + delayPenalty.getApplicabilityDelayAfterGrace();
+        if (NOW > firstDayOfInterestApplication && NOW <= lastDayOfInterestApplication) {
+            long numberOfDayToApplyInterest = NOW - firstDayOfInterestApplication;
+            fee.setInterest(this.calculateInterest(
+                    fee.getRemainingAmount(),
+                    delayPenalty.getInterestPercent(),
+                    numberOfDayToApplyInterest));
+            return fee;
         }
         return null;
+//        IDEA: if it is also necessary to update the fees that have already extended the deadline
+//        else if (NOW > lastDayOfInterestApplication) {
+//            fee.setInterest(this.calculateInterest(
+//                    fee.getRemainingAmount(),
+//                    delayPenalty.getInterestPercent(),
+//                    delayPenalty.getApplicabilityDelayAfterGrace()));
+//            return fee;
+//        }
     }
 
-    private double calculInterest(double baseAmount, int interestPercent, long numberOfDays) {
+    private int calculateInterest(double baseAmount, int interestPercent, long numberOfDays) {
         double interest = 0;
         for (int i = 0; i < numberOfDays; i++) {
             interest += baseAmount * interestPercent / 100;
             baseAmount += interest;
         }
-        return interest;
+        return (int) interest;
     }
 }
