@@ -25,7 +25,7 @@ import java.time.temporal.ChronoUnit;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Table(name = "\"create_delay_penalty_change\"")
+@Table(name = "\"delay_penalty\"")
 @Getter
 @Setter
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
