@@ -13,7 +13,9 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -33,6 +35,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -96,10 +99,45 @@ class FeeIT {
 
   static CreateFee creatableFee1() {
     return new CreateFee()
-        .type(CreateFee.TypeEnum.TUITION)
-        .totalAmount(5000)
-        .comment("Comment")
-        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+            .type(CreateFee.TypeEnum.TUITION)
+            .totalAmount(5000)
+            .comment("Comment")
+            .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+  }
+
+  private static DelayPenalty penalty1() {
+    DelayPenalty delayPenalty = new DelayPenalty();
+    delayPenalty.setGraceDelay(5);
+    delayPenalty.setId("penality1_id");
+    delayPenalty.setApplicabilityDelayAfterGrace(5);
+    delayPenalty.setInterestTimerate(DelayPenalty.InterestTimerateEnum.DAILY);
+    delayPenalty.setInterestPercent(2);
+    delayPenalty.setCreationDatetime(Instant.parse("2023-01-15T08:25:25.00Z"));
+    return delayPenalty;
+  }
+
+  private static DelayPenalty penaltyUpdated() {
+
+    DelayPenalty penalty1 = new DelayPenalty();
+
+    penalty1.setGraceDelay(7);
+    penalty1.setInterestPercent(5);
+    penalty1.setApplicabilityDelayAfterGrace(10);
+    penalty1.setCreationDatetime(penalty1().getCreationDatetime());
+    penalty1.setInterestTimerate(penalty1().getInterestTimerate());
+    penalty1.setId(penalty1().getId());
+    return penalty1;
+  }
+
+  private static CreateDelayPenaltyChange penalty_to_update() {
+    CreateDelayPenaltyChange penaltyToUpdate = new CreateDelayPenaltyChange();
+    penaltyToUpdate.setGraceDelay(7);
+    penaltyToUpdate.setInterestPercent(5);
+    penaltyToUpdate.setApplicabilityDelayAfterGrace(10);
+    penaltyToUpdate.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
+
+    return penaltyToUpdate;
+
   }
 
   @BeforeEach
@@ -145,14 +183,14 @@ class FeeIT {
     PayingApi api = new PayingApi(student1Client);
 
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFees(STUDENT2_ID, null, null, null));
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.getStudentFees(STUDENT2_ID, null, null, null));
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getFees(null, null, null));
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.getFees(null, null, null));
   }
 
   @Test
@@ -161,14 +199,14 @@ class FeeIT {
     PayingApi api = new PayingApi(teacher1Client);
 
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getStudentFees(STUDENT2_ID, null, null, null));
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.getStudentFees(STUDENT2_ID, null, null, null));
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getFees(null, null, null));
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.getFees(null, null, null));
   }
 
   @Test
@@ -188,8 +226,8 @@ class FeeIT {
     PayingApi api = new PayingApi(student1Client);
 
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createStudentFees(STUDENT1_ID, List.of()));
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.createStudentFees(STUDENT1_ID, List.of()));
   }
 
   @Test
@@ -198,8 +236,8 @@ class FeeIT {
     PayingApi api = new PayingApi(teacher1Client);
 
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createStudentFees(STUDENT1_ID, List.of()));
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.createStudentFees(STUDENT1_ID, List.of()));
   }
 
   @Test
@@ -212,11 +250,11 @@ class FeeIT {
     List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
     ApiException exception1 = assertThrows(ApiException.class,
-        () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate1)));
+            () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate1)));
     ApiException exception2 = assertThrows(ApiException.class,
-        () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate2)));
+            () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate2)));
     ApiException exception3 = assertThrows(ApiException.class,
-        () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate3)));
+            () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate3)));
 
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
     assertEquals(expected.size(), actual.size());
@@ -227,6 +265,36 @@ class FeeIT {
     assertTrue(exceptionMessage1.contains("Total amount is mandatory"));
     assertTrue(exceptionMessage2.contains("Total amount must be positive"));
     assertTrue(exceptionMessage3.contains("Due datetime is mandatory"));
+  }
+
+  @Test
+  void manager_read_delay_ok() throws ApiException {
+    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(managerClient);
+
+    DelayPenalty delayPenalty = api.getDelayPenalty();
+
+    assertEquals(penalty1(), delayPenalty);
+  }
+
+  @Test
+  void manager_update_delay_ok() throws ApiException {
+    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(managerClient);
+
+    DelayPenalty delayPenalty = api.createDelayPenaltyChange(penalty_to_update());
+    assertEquals(delayPenalty, penaltyUpdated());
+  }
+
+  @Test
+  void non_manager_update_delay_ko() {
+    PayingApi studentApi = new PayingApi(anApiClient(STUDENT1_TOKEN));
+    PayingApi teacherApi = new PayingApi(anApiClient(TEACHER1_TOKEN));
+
+    assertThrowsForbiddenException(
+            () -> studentApi.createDelayPenaltyChange(penalty_to_update()));
+    assertThrowsForbiddenException(
+            () -> teacherApi.createDelayPenaltyChange(penalty_to_update()));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

@@ -17,6 +17,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
+import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.FeeRepository;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -33,6 +34,8 @@ public class FeeService {
   private final FeeValidator feeValidator;
 
   private final EventProducer eventProducer;
+
+  private final DelayPenaltyRepository delayPenaltyRepository;
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
