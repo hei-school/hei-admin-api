@@ -33,6 +33,8 @@ public class TestUtils {
   public static final String PAYMENT2_ID = "payment2_id";
   public static final String PAYMENT4_ID = "payment4_id";
 
+  public static final String DELAY_PENALTY1_ID = "delay_penalty1_id";
+
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";

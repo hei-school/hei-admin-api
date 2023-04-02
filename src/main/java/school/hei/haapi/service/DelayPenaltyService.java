@@ -15,7 +15,7 @@ public class DelayPenaltyService {
     public DelayPenalty getDelayPenalty() {
         DelayPenalty delayPenalty = repository.findAll().get(0);
         if (delayPenalty == null) {
-            throw new NotFoundException("No data to display");
+            throw new NotFoundException("NO DATA YET");
         }
         return delayPenalty;
     }
@@ -26,4 +26,5 @@ public class DelayPenaltyService {
         repository.save(crupdate);
         return crupdate;
     }
+
 }
