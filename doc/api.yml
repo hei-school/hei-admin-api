@@ -621,17 +621,17 @@ paths:
       tags:
         - Paying
       summary: Change current delay penalty configuration
-      operationId: createDelayPenaltyChange
+      operationId: updateDelayPenaltyChange
       requestBody:
-        description: Delay penalties to create
+        description: Delay penalty to update
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateDelayPenaltyChange'
+              $ref: '#/components/schemas/DelayPenalty'
       responses:
         '200':
-          description: List of created delay penalties
+          description: Updated delay penalty
           content:
             application/json:
               schema:
@@ -1110,9 +1110,14 @@ components:
         updated_at:
           type: string
           format: date-time
-    CreateDelayPenaltyChange:
+    DelayPenalty:
       type: object
       properties:
+        id:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
         interest_percent:
           type: integer
         interest_timerate:
@@ -1123,16 +1128,6 @@ components:
           type: integer
         applicability_delay_after_grace:
           type: integer
-    DelayPenalty:
-      allOf:
-        - $ref: '#/components/schemas/CreateDelayPenaltyChange'
-      type: object
-      properties:
-        id:
-          type: string
-        creation_datetime:
-          type: string
-          format: date-time
     CreatePayment:
       type: object
       properties:
