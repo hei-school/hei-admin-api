@@ -25,6 +25,7 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
@@ -66,9 +67,48 @@ class DelayPenaltyIT {
         .interestPercent(10);
   }
 
+  static CreateDelayPenaltyChange createDelayPenaltyChange1() {
+    return new CreateDelayPenaltyChange()
+        .graceDelay(default_delayPenalty().getGraceDelay())
+        .interestPercent(default_delayPenalty().getInterestPercent())
+        .applicabilityDelayAfterGrace(default_delayPenalty().getApplicabilityDelayAfterGrace())
+        .interestTimerate(InterestTimerateEnum.DAILY);
+  }
+
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
+  }
+
+  @Test
+  void get_delay_penalty_configuration_ok() {
+    PayingApi managerApi = new PayingApi(anApiClient(MANAGER1_TOKEN));
+    PayingApi studentApi = new PayingApi(anApiClient(STUDENT1_TOKEN));
+    PayingApi teacherApi = new PayingApi(anApiClient(TEACHER1_TOKEN));
+
+    assertThrowsApiException(
+        "{\"type\":\"404 NOT_FOUND\",\"message\":\"Delay penalty not found\"}",
+        managerApi::getDelayPenalty);
+    assertThrowsApiException(
+        "{\"type\":\"404 NOT_FOUND\",\"message\":\"Delay penalty not found\"}",
+        studentApi::getDelayPenalty);
+    assertThrowsForbiddenException(
+        () -> teacherApi.createDelayPenaltyChange(createDelayPenaltyChange1()));
+  }
+
+  @Test
+  void manager_get_delay_penalty_ok() throws ApiException {
+    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(managerClient);
+
+    DelayPenalty expected = expected_createDelayPenaltyChange();
+    DelayPenalty actual = api.createDelayPenaltyChange(createDelayPenaltyChange1());
+
+    assertEquals(expected.getGraceDelay(), actual.getGraceDelay());
+    assertEquals(expected.getInterestPercent(), actual.getInterestPercent());
+    assertEquals(expected.getApplicabilityDelayAfterGrace(),
+        actual.getApplicabilityDelayAfterGrace());
+    assertEquals(expected.getInterestTimerate(), actual.getInterestTimerate());
   }
 
   @Test

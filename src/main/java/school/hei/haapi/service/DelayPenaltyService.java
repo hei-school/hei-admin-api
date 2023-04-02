@@ -2,15 +2,20 @@ package school.hei.haapi.service;
 
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenalty;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 
 @Service
 @AllArgsConstructor
 public class DelayPenaltyService {
   private final DelayPenaltyRepository repository;
+
+  public DelayPenalty getDelayPenalty() {
+    Optional<DelayPenalty> optional = repository.findFirstByOrderByCreationDatetime();
+    return optional.orElseThrow(() -> new NotFoundException("Delay penalty not found"));
+  }
 
   /**
    * update the current configuration.
@@ -25,12 +30,12 @@ public class DelayPenaltyService {
   /**
    * fetches the current delay_penalty if there is, creates new one otherwise
    */
-  public DelayPenalty getCurrentDelayPenalty() {
+  private DelayPenalty getCurrentDelayPenalty() {
     Optional<DelayPenalty> optional = repository.findFirstByOrderByCreationDatetime();
     return optional.orElseGet(() -> {
       DelayPenalty default_delayPenalty = DelayPenalty.builder()
-          .graceDelay(0)
-          .applicabilityDelayAfterGrace(2)
+          .graceDelay(2)
+          .applicabilityDelayAfterGrace(5)
           .interestPercent(2)
           .build();
 
