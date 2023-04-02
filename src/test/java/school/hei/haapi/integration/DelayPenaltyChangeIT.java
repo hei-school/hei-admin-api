@@ -174,7 +174,7 @@ public class DelayPenaltyChangeIT {
   }
 
   @Test
-   void changeDelayPenaltyChangeNotPaidFees() throws ApiException {
+   void changeGraceDelayAutomaticChangeFees() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
@@ -195,13 +195,13 @@ public class DelayPenaltyChangeIT {
     actualCreateDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
     actualCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay()+5);
     actualCreateDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
-    api.createDelayPenaltyChange(actualCreateDelayPenalty);
+    api.createDelayPenaltyChange(newCreateDelayPenalty);
 
-    List<Fee> lateFeeBeforeUpdateFees = api.getFees("", 1, 20);
+    List<Fee> updatedFeesWithInterest = api.getFees("", 1, 20);
 
 
     assertEquals(noUpdateFees,actualFeesWithInterest);
-    assertEquals(actualFeesWithInterest,lateFeeBeforeUpdateFees);
+    assertEquals(actualFeesWithInterest,updatedFeesWithInterest);
   }
 
 
