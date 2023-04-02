@@ -91,7 +91,6 @@ public class FeeService {
         DelayPenalty delayPenalty = delayPenaltyService.getDelayPenalty();
         List<Fee> feesByStatus = feeRepository.getFeesByStatus(LATE);
         List<Fee> feesWithDelayPenaltyApplied = new ArrayList<>();
-        Instant tomorrowNextScheduling = now.plus(1, ChronoUnit.DAYS);
 
 
         for (var fee : feesByStatus) {
@@ -100,7 +99,6 @@ public class FeeService {
             boolean delayPenaltyWasAlreadyAppliedToday = currentFeeDelayPenaltyLastAppliedDate.equals(today);
 
             if (!delayPenaltyWasAlreadyAppliedToday) {
-                fee.setNextDelayPenaltyScheduling(tomorrowNextScheduling);
                 // apply the delay penalty
                 Fee feeWithDelayPenaltyApplied = applyOneDayDelayPenalty(fee, delayPenalty);
 
