@@ -11,6 +11,8 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -62,6 +64,14 @@ public class DelayPenaltyIT {
     return penalty;
   }
 
+  static CreateDelayPenaltyChange creatableDelayPenalty() {
+    return new CreateDelayPenaltyChange()
+            .interestPercent(10)
+            .interestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY)
+            .graceDelay(7)
+            .applicabilityDelayAfterGrace(30);
+  }
+
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
@@ -105,6 +115,47 @@ public class DelayPenaltyIT {
     DelayPenalty actual = api.getDelayPenalty();
 
     assertEquals(penalty1() , actual);
+  }
+
+  @Test
+  void manager_write_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    CreateDelayPenaltyChange delayPenaltyChange = creatableDelayPenalty().graceDelay(7);
+    DelayPenalty expected = api.createDelayPenaltyChange(delayPenaltyChange);
+
+    DelayPenalty actual = api.getDelayPenalty();
+    assertEquals(expected.getId(), actual.getId());
+    assertEquals(expected.getGraceDelay(), actual.getGraceDelay());
+    assertEquals(expected.getApplicabilityDelayAfterGrace(), actual.getApplicabilityDelayAfterGrace());
+    assertEquals(expected.getInterestPercent(), actual.getInterestPercent());
+    assertEquals(expected.getInterestTimerate(), actual.getInterestTimerate());
+    assertEquals(expected.getCreationDatetime(), actual.getCreationDatetime());
+  }
+
+  @Test
+  void student_write_ko() {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    PayingApi api = new PayingApi(student1Client);
+
+    CreateDelayPenaltyChange creatableDelay = creatableDelayPenalty().graceDelay(7);
+
+    assertThrowsApiException(
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.createDelayPenaltyChange(creatableDelay));
+  }
+
+  @Test
+  void teacher_write_ko() {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    PayingApi api = new PayingApi(teacher1Client);
+
+    CreateDelayPenaltyChange creatableDelay = creatableDelayPenalty().graceDelay(7);
+
+    assertThrowsApiException(
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.createDelayPenaltyChange(creatableDelay));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
