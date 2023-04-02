@@ -8,6 +8,7 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import school.hei.haapi.model.DelayPenalty;
+import school.hei.haapi.model.DelayPenaltyChange;
 import school.hei.haapi.model.InterestTimeRate;
 import school.hei.haapi.endpoint.rest.controller.DelayPenaltyController;
 import school.hei.haapi.service.DelayPenaltyService;
@@ -47,6 +48,28 @@ public class DelayPenaltyControllerTest {
         ResponseEntity<DelayPenalty> response = delayPenaltyController.getDelayPenalty("1");
         assertEquals(HttpStatus.OK, response.getStatusCode());
         assertEquals(delayPenalty, response.getBody());
+    }
+
+    @Test
+    public void test_change_delay_penalty_configuration_ok() {
+        DelayPenaltyChange delayPenaltyChange = DelayPenaltyChange.builder()
+                .interestPercent(new BigDecimal("5"))
+                .interestTimeRate(InterestTimeRate.MONTHLY)
+                .graceDelay(10)
+                .applicabilityDelayAfterGrace(30)
+                .build();
+
+        DelayPenalty excpected = delayPenaltyController.changeDelayPenaltyConfiguration(delayPenaltyChange);
+
+        assertEquals(excpected.getBody(), DelayPenalty.builder()
+                                            .id("1")
+                                            .interestPercent(new BigDecimal("5"))
+                                            .interestTimeRate(InterestTimeRate.MONTHLY)
+                                            .graceDelay(10)
+                                            .applicabilityDelayAfterGrace(30)
+                                            .creationDatetime(LocalDateTime.now())
+                                            .build()
+        );
     }
 }
 
