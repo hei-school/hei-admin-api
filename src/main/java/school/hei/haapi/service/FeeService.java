@@ -11,13 +11,10 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
-import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.FeeRepository;
-import school.hei.haapi.repository.InterestHistoryRepository;
 
 import javax.transaction.Transactional;
 import java.time.Instant;
@@ -31,14 +28,12 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 @AllArgsConstructor
 @Slf4j
 public class FeeService {
-  private final InterestHistoryRepository interestHistoryRepository;
 
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
 
   private final EventProducer eventProducer;
-  private final DelayPenaltyRepository delayPenaltyRepository;
   private final InterestHistoryService interestHistoryService;
 
   public Fee getById(String id) {

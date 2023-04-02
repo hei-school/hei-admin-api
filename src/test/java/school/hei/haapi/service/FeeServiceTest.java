@@ -4,28 +4,18 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.Payment;
-import school.hei.haapi.model.User;
+import school.hei.haapi.model.*;
 import school.hei.haapi.model.validator.FeeValidator;
-import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.FeeRepository;
-import school.hei.haapi.repository.InterestHistoryRepository;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.*;
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
 
@@ -34,11 +24,7 @@ class FeeServiceTest {
   FeeRepository feeRepository;
   FeeValidator feeValidator;
   EventProducer eventProducer;
-  DelayPenaltyService delayPenaltyService;
   InterestHistoryService interestHistoryService;
-  DelayPenaltyRepository delayPenaltyRepository;
-  InterestHistoryRepository interestHistoryRepository;
-  PaymentService paymentService;
 
   static User student1() {
     return User.builder()
@@ -118,14 +104,12 @@ class FeeServiceTest {
 
   @BeforeEach
   void setUp() {
-    interestHistoryRepository = mock(InterestHistoryRepository.class);
     feeRepository = mock(FeeRepository.class);
     feeValidator = mock(FeeValidator.class);
     eventProducer = mock(EventProducer.class);
-    delayPenaltyRepository = mock(DelayPenaltyRepository.class);
     interestHistoryService = mock(InterestHistoryService.class);
 
-    subject = new FeeService(interestHistoryRepository, feeRepository, feeValidator, eventProducer, delayPenaltyRepository, interestHistoryService);
+    subject = new FeeService(feeRepository, feeValidator, eventProducer, interestHistoryService);
   }
 
   @Test
