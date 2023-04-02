@@ -44,13 +44,13 @@ public class FeeMapper {
     return school.hei.haapi.model.Fee.builder()
         .student(student)
         .type(toDomainFeeType(Objects.requireNonNull(createFee.getType())))
-        .totalAmount(createFee.getTotalAmount())
+        .totalAmount(createFee.getTotalAmount())//TODO: total_amount * interest_percent;
         .updatedAt(createFee.getCreationDatetime())
         .status(UNPAID)
-        .remainingAmount(createFee.getTotalAmount())
+        .remainingAmount(createFee.getTotalAmount()) //TODO: totalAmount - total_payments_amount
         .comment(createFee.getComment())
         .creationDatetime(createFee.getCreationDatetime())
-        .dueDatetime(createFee.getDueDatetime())
+        .dueDatetime(createFee.getDueDatetime())//TODO: 15 + grace_delay
         .build();
   }
 
