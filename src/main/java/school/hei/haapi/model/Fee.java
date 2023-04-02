@@ -58,7 +58,6 @@ public class Fee implements Serializable {
   private int totalAmount;
 
   private Instant updatedAt;
-  private Instant nextDelayPenaltyScheduling;
 
   private Instant lastDelayPenaltySchedulingApplied;
   private int remainingAmount;
