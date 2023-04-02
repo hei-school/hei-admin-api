@@ -173,6 +173,9 @@ class FeeIT {
 
   @Test
   void manager_write_ok() throws ApiException {
+
+
+
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 

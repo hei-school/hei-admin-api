@@ -46,12 +46,13 @@ public class FeeService {
   }
 
   public Fee getByStudentIdAndFeeId(String studentId, String feeId) {
-    return updateFeeStatus(feeRepository.getByStudentIdAndId(studentId, feeId));
+    return  feeRepository.saveAll(List.of(updateOneFeesInterest(feeRepository.getByStudentIdAndId(studentId, feeId)))).get(0);
   }
 
   @Transactional
   public List<Fee> saveAll(List<Fee> fees) {
     feeValidator.accept(fees);
+    fees.forEach(fee -> updateFeeStatus(fee));
     return feeRepository.saveAll(fees);
   }
 

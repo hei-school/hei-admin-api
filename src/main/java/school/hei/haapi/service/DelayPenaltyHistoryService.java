@@ -92,11 +92,6 @@ public class DelayPenaltyHistoryService {
   }
   public List<DelayPenaltyHistory> findDelayPenaltyHistoriesByInterestStartAndEnd(LocalDate interestStart, LocalDate interestEnd){
     List<DelayPenaltyHistory> repositoryDelayPenaltyHistories = repository.findDelayPenaltyHistoriesByInterestStartAndEnd(interestStart,interestEnd);
-
-    if (repositoryDelayPenaltyHistories.size() == 0 && !interestStart.isAfter(repository.findAll().get(0).getEndDate())) {
-      repositoryDelayPenaltyHistories = Arrays.asList(getFirstItem());
-    }
-
 return removeUnusedDelayPenaltyHistories(repositoryDelayPenaltyHistories);
   }
 
