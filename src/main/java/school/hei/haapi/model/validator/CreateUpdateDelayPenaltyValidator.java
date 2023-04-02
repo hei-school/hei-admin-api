@@ -1,10 +1,12 @@
 package school.hei.haapi.model.validator;
 
 import java.util.function.Consumer;
+import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange.InterestTimerateEnum;
 
+@Component
 public class CreateUpdateDelayPenaltyValidator implements Consumer<CreateDelayPenaltyChange> {
   @Override
   public void accept(CreateDelayPenaltyChange create) {

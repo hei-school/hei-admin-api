@@ -1,0 +1,1 @@
+alter table "fee" add column last_apply_interest timestamp;

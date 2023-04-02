@@ -14,6 +14,7 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -62,15 +63,16 @@ public class Fee implements Serializable {
   private int remainingAmount;
 
   private String comment;
-
   @CreationTimestamp
   @Getter(AccessLevel.NONE)
   private Instant creationDatetime;
-
   private Instant dueDatetime;
 
   @OneToMany(mappedBy = "fee")
   private List<Payment> payments;
+
+  @JsonIgnore
+  private Instant lastApplyInterest;
 
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
