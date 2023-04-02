@@ -33,7 +33,7 @@ public class DelayPenalty {
   private Integer interestPercent;
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
-  private school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum interestTimeRate;
+  private school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum interestTimerate;
   private Integer graceDelay;
   private Integer applicabilityDelayAfterGrace;
 }
