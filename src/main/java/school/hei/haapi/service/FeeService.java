@@ -47,7 +47,11 @@ public class FeeService {
   @Transactional
   public List<Fee> saveAll(List<Fee> fees) {
     feeValidator.accept(fees);
-    fees.forEach(fee -> updateFeeStatus(fee));
+    fees.forEach(fee -> {
+      if (fee.getStatus() != PAID) {
+        updateFeeStatus(fee);
+      }
+    });
     return feeRepository.saveAll(fees);
   }
 
