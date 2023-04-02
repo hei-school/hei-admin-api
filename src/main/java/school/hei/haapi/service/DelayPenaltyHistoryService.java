@@ -14,7 +14,6 @@ import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.util.Arrays;
 import java.util.List;
 
 @Service
@@ -25,11 +24,6 @@ public class DelayPenaltyHistoryService {
 
   public DelayPenaltyHistory getById(String delayHistory) {
     return repository.getById(delayHistory);
-  }
-
-  public DelayPenaltyHistory save(DelayPenaltyHistory delayPenaltyHistory) {
-    delayPenaltyHistoryValidator.accept(delayPenaltyHistory);
-    return repository.save(delayPenaltyHistory);
   }
 
   public List<DelayPenaltyHistory> saveAll(List<DelayPenaltyHistory> delayPenaltyHistories) {
@@ -69,15 +63,6 @@ public class DelayPenaltyHistoryService {
     return repository.findAll(Sort.by(Sort.Direction.DESC, "creationDate")).size()>0?
             repository.findAll(Sort.by(Sort.Direction.DESC, "creationDate")).get(0)
             : null;
-  }
-
-  private DelayPenaltyHistory getFirstItem() {
-    return repository.findAll().get(0);
-  }
-
-  private DelayPenaltyHistory getBeforeLastItem() {
-    int indexOfLastItem = repository.findAll().size() - 2;
-    return repository.findAll().get(indexOfLastItem);
   }
 
   public int dayFrequency(
