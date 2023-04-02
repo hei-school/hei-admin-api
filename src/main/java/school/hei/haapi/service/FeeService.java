@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -37,7 +38,14 @@ public class FeeService {
   private final EventProducer eventProducer;
 
   public int interestCompose(int totalAmount){
-    return totalAmount * (1 + delayPenalty.getInterestPercent()/100)^(1);
+    LocalDateTime today = LocalDateTime.now();
+    LocalDateTime limitDate ;
+    if(totalAmount >  0 && limitDate.isAfter(today)){
+      totalAmount = totalAmount;
+    }if(totalAmount > 0 && limitDate.isBefore(today)){
+      totalAmount = totalAmount * (1 + delayPenalty.getInterestPercent()/100)^(1);
+    }
+    return totalAmount;
   }
 
   public Fee feeModification(Fee fee){
