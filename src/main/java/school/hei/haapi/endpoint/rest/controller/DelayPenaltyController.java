@@ -25,7 +25,7 @@ public class DelayPenaltyController {
     public school.hei.haapi.endpoint.rest.model.DelayPenalty updatePenaltyDelay(
             @RequestBody CreateDelayPenaltyChange delayPenalty
     ) {
-        DelayPenalty cruptade= mapper.toDomainDelayPenality(delayPenalty);
-        return mapper.toRest(service.saveDelayPenalty(cruptade));
+        DelayPenalty crupdate= mapper.toDomainDelayPenality(delayPenalty);
+        return mapper.toRest(service.saveDelayPenalty(crupdate));
     }
 }
