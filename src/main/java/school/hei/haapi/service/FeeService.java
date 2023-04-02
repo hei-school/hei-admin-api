@@ -93,6 +93,7 @@ public class FeeService {
         List<Fee> feesWithDelayPenaltyApplied = new ArrayList<>();
         Instant tomorrowNextScheduling = now.plus(1, ChronoUnit.DAYS);
 
+
         for (var fee : feesByStatus) {
             Instant lastDelayPenaltySchedulingApplied = fee.getLastDelayPenaltySchedulingApplied();
             GregorianCalendar currentFeeDelayPenaltyLastAppliedDate = instantToGregorianCalendar(lastDelayPenaltySchedulingApplied);
@@ -100,13 +101,16 @@ public class FeeService {
 
             if (!delayPenaltyWasAlreadyAppliedToday) {
                 fee.setNextDelayPenaltyScheduling(tomorrowNextScheduling);
+                // apply the delay penalty
                 Fee feeWithDelayPenaltyApplied = applyOneDayDelayPenalty(fee, delayPenalty);
+
                 feesWithDelayPenaltyApplied.add(feeWithDelayPenaltyApplied);
             }
         }
 
         feeRepository.saveAll(feesWithDelayPenaltyApplied);
     }
+
 
     /**
      * Apply daily interest rate on a fee and return it
@@ -121,14 +125,14 @@ public class FeeService {
         Instant graceDelayDueDate = fee.getDueDatetime().plus(graceDelay, ChronoUnit.DAYS);
 
         int applicabilityDelayAfterGrace = delayPenaltyGlobalConf.getApplicabilityDelayAfterGrace();
-        Instant applicabilityDelayAfterGraceDate = fee.getDueDatetime().plus(applicabilityDelayAfterGrace, ChronoUnit.DAYS);
+        Instant applicabilityDelayAfterGraceDate = graceDelayDueDate.plus(applicabilityDelayAfterGrace, ChronoUnit.DAYS);
 
         boolean didNotExceedApplicabilityDelay = currentInstant.isAfter(graceDelayDueDate.plus(1, ChronoUnit.DAYS)) &&
                 currentInstant.isBefore(applicabilityDelayAfterGraceDate);
 
 
-        if (paymentLimitDateExceed &&
-                currentInstant.isAfter(graceDelayDueDate) && didNotExceedApplicabilityDelay) {
+        if (currentInstant.isAfter(graceDelayDueDate) &&
+                paymentLimitDateExceed && didNotExceedApplicabilityDelay) {
             int toPay = (int) (fee.getTotalAmount() + fee.getTotalAmount() * delayPenalty.getInterestPercent() * ONE_HUNDRED_PERCENT);
             fee.setRemainingAmount(toPay);
             fee.setTotalAmount(toPay);
