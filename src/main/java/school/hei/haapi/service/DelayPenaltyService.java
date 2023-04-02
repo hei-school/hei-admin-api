@@ -28,7 +28,7 @@ public class DelayPenaltyService {
             interestFeeUpdate.updateInterestFees(newDelayPenalty);
             return newDelayPenalty;
     }
-    @Scheduled(cron = "16 0 * * *")
+    @Scheduled(cron = "0 00 23 * * *")
     public void updateFeeInterest(){
         interestFeeUpdate.updateInterestFees(this.getDelayPenalty());
     }
