@@ -46,6 +46,34 @@ public class DelayPenaltyIT {
         return delayPenalty;
     }
 
+    public static CreateDelayPenaltyChange penalty1() {
+        CreateDelayPenaltyChange penalty = new CreateDelayPenaltyChange();
+        penalty.setInterestPercent(3);
+        penalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.valueOf(DelayPenalty.InterestTimerateEnum.DAILY.toString()));
+        penalty.setGraceDelay(10);
+        penalty.setApplicabilityDelayAfterGrace(10);
+        return penalty;
+    }
+
+    static CreateDelayPenaltyChange delayPenalty2() {
+        return new CreateDelayPenaltyChange()
+                .interestPercent(10)
+                .interestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY)
+                .graceDelay(7)
+                .applicabilityDelayAfterGrace(30);
+    }
+
+    static DelayPenalty delayPenalty3() {
+        DelayPenalty delayPenalty = new DelayPenalty();
+        delayPenalty.setId("delay_penalty1_id");
+        delayPenalty.setInterestPercent(10);
+        delayPenalty.setInterestTimerate(DelayPenalty.InterestTimerateEnum.DAILY);
+        delayPenalty.setGraceDelay(7);
+        delayPenalty.setApplicabilityDelayAfterGrace(30);
+        delayPenalty.setCreationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
+        return delayPenalty;
+    }
+
     @BeforeEach
     public void setUp() {
         setUpCognito(cognitoComponentMock);
@@ -59,6 +87,33 @@ public class DelayPenaltyIT {
         DelayPenalty actualPenalty = api.getDelayPenalty();
         assertEquals(delayPenalty1(), actualPenalty);
     }
+
+    @Test
+    void student_update_ko() {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+
+        PayingApi api = new PayingApi(student1Client);
+        assertThrowsForbiddenException(() -> api.createDelayPenaltyChange(penalty1()));
+    }
+
+    @Test
+    void teacher_write_ko() {
+        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+
+        PayingApi api = new PayingApi(teacher1Client);
+        assertThrowsForbiddenException(() -> api.createDelayPenaltyChange(penalty1()));
+    }
+
+    @Test
+    void manager_write_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        PayingApi api = new PayingApi(manager1Client);
+
+        DelayPenalty actualPenalty = api.createDelayPenaltyChange(delayPenalty2());
+
+        assertEquals(delayPenalty3(), actualPenalty);
+    }
+
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
 

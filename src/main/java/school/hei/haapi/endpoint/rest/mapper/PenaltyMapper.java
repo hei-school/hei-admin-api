@@ -4,14 +4,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
-import school.hei.haapi.service.PenaltyService;
+import school.hei.haapi.service.DelayPenaltyService;
 
 import java.util.Objects;
 
 @Component
 @AllArgsConstructor
 public class PenaltyMapper {
-    private final PenaltyService delayPenaltyService;
+    private final DelayPenaltyService delayPenaltyService;
 
     public DelayPenalty toRestDelayPenalty(school.hei.haapi.model.DelayPenalty penalty) {
         DelayPenalty rest = new DelayPenalty();
