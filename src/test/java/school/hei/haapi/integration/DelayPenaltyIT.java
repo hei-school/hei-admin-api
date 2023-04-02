@@ -118,6 +118,7 @@ public class DelayPenaltyIT {
     DelayPenalty actualDelayPenalty = api.createDelayPenaltyChange(updateDelayPenalty());
     DelayPenalty expected = api.getDelayPenalty();
     assertEquals(expected, actualDelayPenalty);
+    //todo: voir aussi la creation de delayPenaltyHistory
   }
 
   @Test
@@ -163,6 +164,43 @@ public class DelayPenaltyIT {
     assertTrue(exceptionMessage7.contains("Applicability Delay after Grace should be positive"));
   }
 
+  @Test
+  void increaseGraceDelayInDelayPenaltyChangeAmount() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    DelayPenalty actualDelayPenalty = api.createDelayPenaltyChange(updateDelayPenalty());
+  }
+  @Test
+  void decreaseGraceDelayInDelayPenaltyChangeAmount() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    DelayPenalty actualDelayPenalty = api.createDelayPenaltyChange(updateDelayPenalty());
+  }
+  @Test
+  void increaseApplicabilityDelayInDelayPenaltyChangeAmount() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    DelayPenalty actualDelayPenalty = api.createDelayPenaltyChange(updateDelayPenalty());
+  }
+  @Test
+  void decreaseApplicabilityDelayInDelayPenaltyChangeAmount() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    DelayPenalty actualDelayPenalty = api.createDelayPenaltyChange(updateDelayPenalty());
+  }
+  @Test
+  void increaseInterestPercentInDelayPenaltyChangeAmount() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    DelayPenalty actualDelayPenalty = api.createDelayPenaltyChange(updateDelayPenalty());
+  }
+  @Test
+  void decreaseInterestPercentInDelayPenaltyChangeAmount() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    DelayPenalty actualDelayPenalty = api.createDelayPenaltyChange(updateDelayPenalty());
+  }
 
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
