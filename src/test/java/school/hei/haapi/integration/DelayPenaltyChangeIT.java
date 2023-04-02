@@ -31,8 +31,10 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.mockito.Mockito.CALLS_REAL_METHODS;
 import static org.mockito.Mockito.mockStatic;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -191,17 +193,26 @@ public class DelayPenaltyChangeIT {
     List<Fee> actualFeesWithInterest = api.getFees("", 1, 20);
 
     CreateDelayPenaltyChange newCreateDelayPenalty = new CreateDelayPenaltyChange();
-    actualCreateDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
-    actualCreateDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
-    actualCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay()+5);
-    actualCreateDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
+    newCreateDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
+    newCreateDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
+    newCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay()+3);
+    newCreateDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
     api.createDelayPenaltyChange(newCreateDelayPenalty);
 
     List<Fee> updatedFeesWithInterest = api.getFees("", 1, 20);
 
+    //update a Delay Penalty automatically update all fees
+    assertNotEquals(noUpdateFees,actualFeesWithInterest);
 
-    assertEquals(noUpdateFees,actualFeesWithInterest);
-    assertEquals(actualFeesWithInterest,updatedFeesWithInterest);
+    Fee Fee7WithoutInterest = noUpdateFees.stream().filter(fee -> fee.getId().equals(fee7().getId())).collect(Collectors.toList()).get(0);
+    Fee originalFee7WithInterest = actualFeesWithInterest.stream().filter(fee -> fee.getId().equals(fee7().getId())).collect(Collectors.toList()).get(0);
+    Fee updatedFee7 = updatedFeesWithInterest.stream().filter(fee -> fee.getId().equals(fee7().getId())).collect(Collectors.toList()).get(0);
+    //update grace day change automatically all fee with interest
+    assertNotEquals(updatedFee7,originalFee7WithInterest);
+    //have right total amount value + interest
+    assertNotEquals(updatedFee7.getTotalAmount(),((Fee7WithoutInterest.getTotalAmount()*ActualDelayPenalty.getInterestPercent())*ActualDelayPenalty.getInterestPercent()*ActualDelayPenalty.getInterestPercent())*ActualDelayPenalty.getInterestPercent());
+
+
   }
 
 
