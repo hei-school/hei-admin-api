@@ -27,7 +27,6 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 public class DelayPenaltyIT {
     @MockBean
     private SentryConf sentryConf;
-
     @MockBean
     private CognitoComponent cognitoComponentMock;
 
