@@ -24,14 +24,16 @@ import school.hei.haapi.integration.conf.TestUtils;
 import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE7_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -114,6 +116,39 @@ class DelayPenaltyIT {
     Fee actualFee6 = api.getStudentFeeById(STUDENT1_ID,FEE6_ID);
     assertTrue(fee6.getTotalAmount() < actualFee6.getTotalAmount());
     assertEquals((5000+800),actualFee6.getTotalAmount());
+  }
+
+  @Test
+  void student_write_ko() throws ApiException{
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    PayingApi api = new PayingApi(student1Client);
+
+    assertThrowsApiException(
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.createDelayPenaltyChange(createDelayPenaltyChange()));
+  }
+
+  @Test
+  void teacher_write_ko() throws ApiException{
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    PayingApi api = new PayingApi(teacher1Client);
+
+    assertThrowsApiException(
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.createDelayPenaltyChange(createDelayPenaltyChange()));
+  }
+
+  @Test
+  void manager_write_with_some_bad_fields_ko() {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    CreateDelayPenaltyChange toCreate1 = createDelayPenaltyChange().graceDelay(-1);
+
+    ApiException exception1 = assertThrows(ApiException.class,
+            () -> api.createDelayPenaltyChange(toCreate1));
+
+    String exceptionMessage1 = exception1.getMessage();
+    assertTrue(exceptionMessage1.contains("Grace delay must be positive"));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
