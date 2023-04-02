@@ -41,7 +41,6 @@ public class FeeService {
   }
 
   public Fee feeModification(Fee fee){
-
     return new Fee()
             .toBuilder()
             .id(fee.getId())
