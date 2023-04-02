@@ -29,8 +29,8 @@ public class DelayPenaltyService {
     Optional<DelayPenalty> optional = repository.findFirstByOrderByCreationDatetime();
     return optional.orElseGet(() -> {
       DelayPenalty default_delayPenalty = DelayPenalty.builder()
-          .graceDelay(2)
-          .applicabilityDelayAfterGrace(5)
+          .graceDelay(5)
+          .applicabilityDelayAfterGrace(10)
           .interestPercent(2)
           .build();
 

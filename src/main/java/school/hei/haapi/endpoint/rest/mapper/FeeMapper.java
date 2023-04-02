@@ -10,6 +10,7 @@ import school.hei.haapi.endpoint.rest.validator.CreateFeeValidator;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.UserService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -19,10 +20,12 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
 @AllArgsConstructor
 public class FeeMapper {
 
+  private final FeeService feeService;
   private final UserService userService;
   private final CreateFeeValidator createFeeValidator;
 
   public Fee toRestFee(school.hei.haapi.model.Fee fee) {
+    fee = feeService.applyInterestOnLateFee(fee);
     return new Fee()
         .id(fee.getId())
         .studentId(fee.getStudent().getId())

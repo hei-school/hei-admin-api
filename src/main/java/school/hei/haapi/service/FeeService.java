@@ -19,20 +19,21 @@ import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
-import school.hei.haapi.repository.DelayRepository;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.service.utils.InterestUtils;
 
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.model.DelayPenalty.InterestTimerate.DAILY;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 public class FeeService {
-  private final DelayPenaltyService delayPenaltyService;
-
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
+  private final DelayPenaltyService delayPenaltyService;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
 
@@ -71,51 +72,47 @@ public class FeeService {
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
     if (status != null) {
-      List<Fee>fees = feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
-      fees.forEach(fee -> checkFeeStatus(fee));
-      return fees;
+      return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
     }
-    List<Fee>fees = feeRepository.getByStudentId(studentId, pageable);
-    fees.forEach(fee -> checkFeeStatus(fee));
-    return fees;
+    return feeRepository.getByStudentId(studentId, pageable);
   }
 
-private void checkFeeStatus(Fee fee){
-    if(fee.getStatus() == LATE){
-      updateFeesRemainingAmount(fee);
-    }
-}
+  public Fee applyInterestOnLateFee(Fee fee) {
+    DelayPenalty conf = delayPenaltyService.getCurrentDelayPenalty();
+    updateFeeStatus(fee); // ensure fee status are sync
 
-  /***
-   *
-   * @param fee: this "fee" will be updated if its status is still "LATE" after the day of grace.
-   */
-  private void updateFeesRemainingAmount(Fee fee){
-    double remainingAmount = 0;
-    final int feeRemainingAmount = fee.getRemainingAmount();
-    DelayPenalty delayPenalty = delayPenaltyService.getCurrentDelayPenalty();
-    Duration numberInDayOfGraceDelay = Duration.ofDays(delayPenalty.getGraceDelay()+1);
-    Instant firstDayOfApplicabilityDelayAfterGrace = fee.getDueDatetime().plus(numberInDayOfGraceDelay);
-    double interestPercent = delayPenalty.getInterestPercent() / 100;
+    boolean isLate = fee.getStatus() == LATE;
 
-    //Before each we check if we are always in the month or in the interval of the month.
-    if(Instant.now().isBefore(firstDayOfApplicabilityDelayAfterGrace.plus(Duration.ofDays(delayPenalty.getApplicabilityDelayAfterGrace())))){
-       remainingAmount = ( feeRemainingAmount * Math
-                                        .pow(1+interestPercent,
-                                        Instant.now()
-                                                .compareTo(fee.getDueDatetime()
-                                                .plus(Duration.ofDays(delayPenalty.getApplicabilityDelayAfterGrace())))) );
+    if (!isLate) {
+      return fee;
     }
-    //else if the delayOfApplicability or if month is finish we set directly the remainingAmount with
-    //the correct amount in params the number of day of applicability delay.
-    else {
-      remainingAmount = ( feeRemainingAmount * Math
-                                        .pow(1+interestPercent,
-                                        delayPenalty.getApplicabilityDelayAfterGrace()
-              ));
+
+    Instant penaltyApplicationStart = fee.getDueDatetime().plus(conf.getGraceDelay(), DAYS);
+    Instant now = Instant.now();
+    Instant penaltyApplicationEnd =
+        penaltyApplicationStart.plus(conf.getApplicabilityDelayAfterGrace(), DAYS);
+
+
+    long days;
+
+    if (now.isAfter(penaltyApplicationStart)) {
+      if (now.isAfter(penaltyApplicationEnd)) {
+        days = DAYS.between(penaltyApplicationStart, penaltyApplicationEnd);
+      } else {
+        days = DAYS.between(penaltyApplicationStart, now) + 1;
+      }
+      final int previousRemainingAmount = fee.getRemainingAmount();
+      int amountWithInterest = InterestUtils.applyCompoundInterest(
+          previousRemainingAmount,
+          conf.getInterestPercent(),
+          days,
+          DAILY
+      );
+      fee.setRemainingAmount(amountWithInterest);
     }
-    fee.setRemainingAmount((int) remainingAmount);
-}
+
+    return fee;
+  }
 
   private Fee updateFeeStatus(Fee initialFee) {
     if (initialFee.getRemainingAmount() == 0) {
