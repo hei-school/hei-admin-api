@@ -10,7 +10,7 @@ import school.hei.haapi.model.DelayPenalty;
 @Repository
 public interface DelayPenaltyRepository extends JpaRepository<DelayPenalty, String>{
     @java.lang.Override
-    default java.util.List<T> findAll(Sort sort) {
+    default java.util.List<DelayPenalty> findAll(Sort sort) {
         return null;
     }
 }

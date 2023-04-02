@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,10 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.*;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 
@@ -53,6 +51,22 @@ public class FeeService {
         school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE, page, pageSize);
   }
 
+  public static void updateFees(List<Fee> fees) {
+    Instant now = Instant.now();
+    for (Fee fee : fees) {
+      if (fee.getTotalAmount() > 0 && fee.getDueDatetime().isBefore(now)) {
+        int daysLate = (int) ChronoUnit.DAYS.between(fee.getDueDatetime(), now);
+        if (daysLate > DelayPenalty.getGraceDelay()) {
+          int daysAfterGrace = daysLate - DelayPenalty.getGraceDelay();
+          if (daysAfterGrace <= DelayPenalty.getApplicabilityDelayAfterGrace()) {
+           int interestAmount = fee.getTotalAmount() * DelayPenalty.getInterestPercent() * daysAfterGrace / 36500;
+            fee.setTotalAmount(fee.getTotalAmount() + interestAmount);
+          }
+        }
+      }
+    }
+  }
+
   public List<Fee> getFeesByStudentId(
       String studentId, PageFromOne page, BoundedPageSize pageSize,
       school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
@@ -60,8 +74,9 @@ public class FeeService {
         page.getValue() - 1,
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
+    List<Fee> studentFees = resetPaymentRelatedInfo(feeRepository.getByStudentId(studentId));
+    updateFees(studentFees);
     if (status != null) {
-      List<Fee> studentFees = resetPaymentRelatedInfo(feeRepository.getByStudentId(studentId));
       return getFeesByStatus(studentFees, status, page, pageSize);
     }
     return resetPaymentRelatedInfo(feeRepository.getByStudentId(studentId, pageable));

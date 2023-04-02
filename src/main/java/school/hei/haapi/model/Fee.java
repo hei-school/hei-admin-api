@@ -100,4 +100,5 @@ public class Fee implements Serializable {
   public int hashCode() {
     return getClass().hashCode();
   }
+
 }
