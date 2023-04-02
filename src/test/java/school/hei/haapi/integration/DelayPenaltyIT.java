@@ -11,15 +11,15 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-
-import java.time.Instant;
-
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum.DAILY;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 
@@ -35,6 +35,14 @@ class DelayPenaltyIT {
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, DelayPenaltyIT.ContextInitializer.SERVER_PORT);
+  }
+
+  public CreateDelayPenaltyChange toCrupdate(){
+    return new CreateDelayPenaltyChange()
+        .interestPercent(5)
+        .graceDelay(20)
+        .interestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY)
+        .applicabilityDelayAfterGrace(5);
   }
 
   public static DelayPenalty delayPenalty2() {
@@ -61,6 +69,16 @@ class DelayPenaltyIT {
     assertEquals(actualDelayPenalty, delayPenalty2());
   }
 
+  @Test
+  void crupdate_delay_penalty_ok() throws ApiException{
+    ApiClient manager1CLient = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1CLient);
+
+    DelayPenalty actual = api.getDelayPenalty();
+    DelayPenalty actualUpdated = api.createDelayPenaltyChange(toCrupdate());
+
+    assertNotEquals(actual, actualUpdated);
+  }
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
 
