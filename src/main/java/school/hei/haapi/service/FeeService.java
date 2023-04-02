@@ -21,11 +21,13 @@ import javax.transaction.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.GregorianCalendar;
 import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.service.utils.DateTimeUtils.instantToGregorianCalendar;
 
 @Service
 @AllArgsConstructor
@@ -84,13 +86,19 @@ public class FeeService {
     @Scheduled(cron = "0 0 8 * * *")
     public void scheduleApplyDelayPenalty() {
         Instant now = Instant.now();
+        GregorianCalendar today = instantToGregorianCalendar(now);
+
         DelayPenalty delayPenalty = delayPenaltyService.getDelayPenalty();
         List<Fee> feesByStatus = feeRepository.getFeesByStatus(LATE);
         List<Fee> feesWithDelayPenaltyApplied = new ArrayList<>();
         Instant tomorrowNextScheduling = now.plus(1, ChronoUnit.DAYS);
 
         for (var fee : feesByStatus) {
-            if (tomorrowNextScheduling.isBefore(now)||tomorrowNextScheduling.equals(now)) {
+            Instant lastDelayPenaltySchedulingApplied = fee.getLastDelayPenaltySchedulingApplied();
+            GregorianCalendar currentFeeDelayPenaltyLastAppliedDate = instantToGregorianCalendar(lastDelayPenaltySchedulingApplied);
+            boolean delayPenaltyWasAlreadyAppliedToday = currentFeeDelayPenaltyLastAppliedDate.equals(today);
+
+            if (!delayPenaltyWasAlreadyAppliedToday) {
                 fee.setNextDelayPenaltyScheduling(tomorrowNextScheduling);
                 Fee feeWithDelayPenaltyApplied = applyOneDayDelayPenalty(fee, delayPenalty);
                 feesWithDelayPenaltyApplied.add(feeWithDelayPenaltyApplied);
