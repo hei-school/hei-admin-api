@@ -26,11 +26,6 @@ public class DelayPenaltyHistoryService {
     return repository.getById(delayHistory);
   }
 
-  public DelayPenaltyHistory save(DelayPenaltyHistory delayPenaltyHistory) {
-    delayPenaltyHistoryValidator.accept(delayPenaltyHistory);
-    return repository.save(delayPenaltyHistory);
-  }
-
   public List<DelayPenaltyHistory> saveAll(List<DelayPenaltyHistory> delayPenaltyHistories) {
     delayPenaltyHistoryValidator.accept(delayPenaltyHistories);
     return repository.saveAll(delayPenaltyHistories);
@@ -68,15 +63,6 @@ public class DelayPenaltyHistoryService {
     return repository.findAll(Sort.by(Sort.Direction.DESC, "creationDate")).size()>0?
             repository.findAll(Sort.by(Sort.Direction.DESC, "creationDate")).get(0)
             : null;
-  }
-
-  private DelayPenaltyHistory getFirstItem() {
-    return repository.findAll().get(0);
-  }
-
-  private DelayPenaltyHistory getBeforeLastItem() {
-    int indexOfLastItem = repository.findAll().size() - 2;
-    return repository.findAll().get(indexOfLastItem);
   }
 
   public int dayFrequency(

@@ -7,8 +7,6 @@ import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.validator.DelayPenaltyValidator;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 
-import java.util.List;
-
 @Service
 @AllArgsConstructor
 public class DelayPenaltyService {
@@ -23,15 +21,6 @@ public class DelayPenaltyService {
     return repository.getById(delayId);
   }
 
-  public List<DelayPenalty> getAll() {
-    return repository.findAll();
-  }
-
-  public DelayPenalty save(DelayPenalty delayPenalties) {
-    delayPenaltyValidator.accept(delayPenalties);
-    return repository.save(delayPenalties);
-  }
-
   public DelayPenalty updateDelayPenalty(DelayPenalty newDelayPenalty) {
     delayPenaltyValidator.accept(newDelayPenalty);
     DelayPenalty lastDelayPenalty = getLastUpdated();
@@ -39,10 +28,6 @@ public class DelayPenaltyService {
     repository.save(newDelayPenalty);
     feeService.updateFeesInterest();
     return newDelayPenalty;
-  }
-
-  public DelayPenalty getFirstItem() {
-    return repository.findAll().get(0);
   }
 
   public DelayPenalty getLastUpdated() {
