@@ -8,6 +8,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
 import javax.persistence.Column;
@@ -53,4 +54,8 @@ public class DelayPenalty implements Serializable {
 
     @Column(name = "creation_datetime")
     private Instant creationDatetime;
+
+    @Column(name = "last_update_date")
+    private Instant lastUpdateDate;
+
 }

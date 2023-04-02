@@ -53,6 +53,7 @@ public class DelayPenaltyIT {
         return delayPenalty;
     }
 
+
     @BeforeEach
     void setUp() {
         setUpCognito(cognitoComponentMock);
