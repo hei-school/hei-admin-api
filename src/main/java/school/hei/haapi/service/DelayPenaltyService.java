@@ -23,6 +23,7 @@ public class DelayPenaltyService {
   private final DelayPenaltyValidator delayPenaltyValidator;
 
   private final DelayPenaltyHistoryService delayPenaltyHistoryService;
+  private final FeeService feeService;
 
   public void ChangeInterestByInterestPercent(int newPercent,
                                               List<InterestHistory> interestHistories) {
@@ -81,7 +82,9 @@ public class DelayPenaltyService {
     delayPenaltyValidator.accept(newDelayPenalty);
     DelayPenalty lastDelayPenalty = getLastUpdated();
     delayPenaltyHistoryService.updateWhenUpdatedDelayPenalty(lastDelayPenalty,newDelayPenalty);
-    return repository.save(newDelayPenalty);
+    repository.save(newDelayPenalty);
+    feeService.updateFeesInterest();
+    return newDelayPenalty;
   }
 
   public DelayPenalty getFirstItem() {
@@ -92,7 +95,6 @@ public class DelayPenaltyService {
     return repository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).size()>0?
             repository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).get(0):
             null;
-
   }
 
 }
