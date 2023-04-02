@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -24,5 +25,10 @@ public class DelayPenaltyController {
         school.hei.haapi.model.DelayPenalty toSave =
             mapper.toDomain(delayPenaltyChange);
         return mapper.toRest(service.updateDelayPenaltyChange(toSave));
+    }
+
+    @GetMapping("/delay-penalty")
+    public DelayPenalty getDelayPenalty() {
+        return mapper.toRest(service.getDelayPenaltyConf());
     }
 }
