@@ -37,12 +37,12 @@ public class InterestFeeUpdate {
             if (NOW > firstDayOfInterestApplication && NOW <= lastDayOfInterestApplication) {
                 long numberOfDayToApplyInterest = NOW - firstDayOfInterestApplication;
                 fee.setInterest(this.calculateInterest(
-                        fee.getTotalAmount(),
+                        fee.getRemainingAmount(),
                         delayPenalty.getInterestPercent(),
                         numberOfDayToApplyInterest));
             } else if (NOW > lastDayOfInterestApplication) {
                 fee.setInterest(this.calculateInterest(
-                        fee.getTotalAmount(),
+                        fee.getRemainingAmount(),
                         delayPenalty.getInterestPercent(),
                         delayPenalty.getApplicabilityDelayAfterGrace()));
             }
