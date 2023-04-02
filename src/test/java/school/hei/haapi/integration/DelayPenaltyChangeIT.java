@@ -173,126 +173,37 @@ public class DelayPenaltyChangeIT {
     setUpCognito(cognitoComponentMock);
   }
 
-
-  @Test
-  void changeDelayPenaltyNotChangePaidFees() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-    List<Fee> beforeUpdateFees = api.getFees(String.valueOf(Fee.StatusEnum.PAID), 1, 10);
-    api.createDelayPenaltyChange(updateDelayPenalty());
-    List<Fee> afterUpdateFees = api.getFees(String.valueOf(Fee.StatusEnum.PAID), 1, 10);
-    assertEquals(beforeUpdateFees,afterUpdateFees);
-  }
-
   @Test
    void changeDelayPenaltyChangeNotPaidFees() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    List<Fee> lateFeeBeforeUpdateFees = api.getFees(String.valueOf(Fee.StatusEnum.LATE), 1, 10);
-    List<Fee> unpaidFeeBeforeUpdateFees = api.getFees(String.valueOf(Fee.StatusEnum.UNPAID), 1, 10);
-
-
-
-
-
-
-
-
-    api.createDelayPenaltyChange(updateDelayPenalty());
-    PayingApi api2 = new PayingApi(manager1Client);
-    List<Fee> lateFeeAfterUpdateFees = api2.getFees(String.valueOf(Fee.StatusEnum.LATE), 1, 10);
-    List<Fee> unpaidFeeAfterUpdateFees = api2.getFees(String.valueOf(Fee.StatusEnum.UNPAID), 1, 10);
-    //Logger.getAnonymousLogger(lateFeeBeforeUpdateFees.toString());
-    //Logger.getAnonymousLogger(lateFeeAfterUpdateFees.toString());
-    assertEquals(lateFeeBeforeUpdateFees,lateFeeAfterUpdateFees);
-    assertEquals(unpaidFeeBeforeUpdateFees,unpaidFeeAfterUpdateFees);
-  }
-  @SneakyThrows
-  @Test
-  void increaseGraceDelayInDelayPenaltyChangeAmount() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-    Fee beforeUpdateFee = api.getStudentFeeById(fee7().getStudentId(),fee7().getId());
+    List<Fee> noUpdateFees = api.getFees("", 1, 20);
 
     DelayPenalty ActualDelayPenalty = api.getDelayPenalty();
-    CreateDelayPenaltyChange newDelayPenalty = new CreateDelayPenaltyChange();
-    newDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
-    newDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
-    newDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay());
-    newDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
+    CreateDelayPenaltyChange actualCreateDelayPenalty = new CreateDelayPenaltyChange();
+    actualCreateDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
+    actualCreateDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
+    actualCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay());
+    actualCreateDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
+    api.createDelayPenaltyChange(actualCreateDelayPenalty);
 
-    api.createDelayPenaltyChange(newDelayPenalty);
+    List<Fee> actualFeesWithInterest = api.getFees("", 1, 20);
 
-    Fee afterUpdateFee = api.getStudentFeeById(fee7().getStudentId(),fee7().getId());
-    assertEquals(beforeUpdateFee,afterUpdateFee);
+    CreateDelayPenaltyChange newCreateDelayPenalty = new CreateDelayPenaltyChange();
+    actualCreateDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
+    actualCreateDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
+    actualCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay()+5);
+    actualCreateDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
+    api.createDelayPenaltyChange(actualCreateDelayPenalty);
+
+    List<Fee> lateFeeBeforeUpdateFees = api.getFees("", 1, 20);
+
+
+    assertEquals(noUpdateFees,actualFeesWithInterest);
+    assertEquals(actualFeesWithInterest,lateFeeBeforeUpdateFees);
   }
 
-  @Test
-  void decreaseGraceDelayInDelayPenaltyChangeAmount() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-
-    DelayPenalty ActualDelayPenalty = api.getDelayPenalty();
-
-    CreateDelayPenaltyChange newDelayPenalty = new CreateDelayPenaltyChange();
-    newDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
-    newDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
-    newDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay());
-    newDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
-
-    api.createDelayPenaltyChange(updateDelayPenalty());
-  }
-
-  @Test
-  void increaseApplicabilityDelayInDelayPenaltyChangeAmount() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-
-    DelayPenalty ActualDelayPenalty = api.getDelayPenalty();
-
-    CreateDelayPenaltyChange newDelayPenalty = new CreateDelayPenaltyChange();
-    newDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
-    newDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
-    newDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay());
-    newDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
-
-    api.createDelayPenaltyChange(updateDelayPenalty());
-
-
-  }
-
-  @Test
-  void decreaseApplicabilityDelayInDelayPenaltyChangeAmount() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-
-    DelayPenalty ActualDelayPenalty = api.getDelayPenalty();
-
-    CreateDelayPenaltyChange newDelayPenalty = new CreateDelayPenaltyChange();
-    newDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
-    newDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
-    newDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay());
-    newDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
-
-    api.createDelayPenaltyChange(updateDelayPenalty());
-  }
-
-  @Test
-  void increaseInterestPercentInDelayPenaltyChangeAmount() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-
-    DelayPenalty ActualDelayPenalty = api.getDelayPenalty();
-
-    CreateDelayPenaltyChange newDelayPenalty = new CreateDelayPenaltyChange();
-    newDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
-    newDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
-    newDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay());
-    newDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
-
-    api.createDelayPenaltyChange(updateDelayPenalty());;
-  }
 
   static Instant mockTimeToInstant(String time){
     Clock clock = Clock.fixed(Instant.parse(time), ZoneId.of("UTC"));
@@ -321,21 +232,6 @@ public class DelayPenaltyChangeIT {
     }
   }
 
-  @Test
-  void decreaseInterestPercentInDelayPenaltyChangeAmount() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-
-    DelayPenalty ActualDelayPenalty = api.getDelayPenalty();
-
-    CreateDelayPenaltyChange newDelayPenalty = new CreateDelayPenaltyChange();
-    newDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
-    newDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
-    newDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay());
-    newDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
-
-    api.createDelayPenaltyChange(updateDelayPenalty());
-  }
 
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
