@@ -115,7 +115,8 @@ public class FeeService {
         int applicabilityDelayAfterGrace = delayPenaltyGlobalConf.getApplicabilityDelayAfterGrace();
         Instant applicabilityDelayAfterGraceDate = fee.getDueDatetime().plus(applicabilityDelayAfterGrace, ChronoUnit.DAYS);
 
-        boolean didNotExceedApplicabilityDelay = !currentInstant.isAfter(applicabilityDelayAfterGraceDate);
+        boolean didNotExceedApplicabilityDelay = currentInstant.isAfter(graceDelayDueDate.plus(1, ChronoUnit.DAYS)) &&
+                currentInstant.isBefore(applicabilityDelayAfterGraceDate);
 
 
         if (paymentLimitDateExceed &&
