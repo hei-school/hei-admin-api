@@ -1,6 +1,5 @@
 package school.hei.haapi.integration;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
@@ -240,9 +239,76 @@ public class DelayPenaltyChangeIT {
     return Instant.now(clock);
   }
 
+    @Test
+    void changeInterestRateAutomaticChangeFees() throws ApiException {
+        String fee8DueTime = "2023-03-14T08:25:24Z";
+        String fee7DueTime = "2023-03-08T08:25:24Z";
+        String time1 = "2023-03-15T08:30:24Z";
+        String time2 = "2023-03-20T08:30:24Z";
+        Instant fee8_dueTime = mockTimeToInstant(fee8DueTime);
+        Instant fee7_dueTime = mockTimeToInstant(fee7DueTime);
+        Instant time_1 = mockTimeToInstant(time1);
+        Instant time_2 = mockTimeToInstant(time2);
+
+        try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class, CALLS_REAL_METHODS)) {
+            ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+
+            //mockedStatic.when(Instant::now).thenReturn(time_1);
+            PayingApi api = new PayingApi(manager1Client);
+            List<Fee> noUpdateFees = api.getFees("", 1, 20);
+            List<Fee> AllPaidFeesWithoutInterest = api.getFees("PAID", 1, 20);
+
+            DelayPenalty ActualDelayPenalty = api.getDelayPenalty();
+            CreateDelayPenaltyChange actualCreateDelayPenalty = new CreateDelayPenaltyChange();
+            actualCreateDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
+            actualCreateDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
+            actualCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay());
+            actualCreateDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
+            api.createDelayPenaltyChange(actualCreateDelayPenalty);
+
+            List<Fee> actualFeesWithInterest = api.getFees("", 1, 20);
+            List<Fee> originalAllPaidFeesWithInterest = api.getFees("PAID", 1, 20);
+
+            assertEquals(noUpdateFees,actualFeesWithInterest);
+
+            mockedStatic.when(Instant::now).thenReturn(time_2);
+            PayingApi api2 = new PayingApi(manager1Client);
+
+        }
+
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        PayingApi api = new PayingApi(manager1Client);
+
+        List<Fee> noUpdateFees = api.getFees("", 1, 20);
+        List<Fee> AllPaidFeesWithoutInterest = api.getFees("PAID", 1, 20);
+
+        DelayPenalty ActualDelayPenalty = api.getDelayPenalty();
+        CreateDelayPenaltyChange actualCreateDelayPenalty = new CreateDelayPenaltyChange();
+        actualCreateDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
+        actualCreateDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
+        actualCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay());
+        actualCreateDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
+        api.createDelayPenaltyChange(actualCreateDelayPenalty);
+
+        List<Fee> actualFeesWithInterest = api.getFees("", 1, 20);
+        List<Fee> originalAllPaidFeesWithInterest = api.getFees("PAID", 1, 20);
+
+        CreateDelayPenaltyChange newCreateDelayPenalty = new CreateDelayPenaltyChange();
+        newCreateDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent()+10);
+        newCreateDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
+        newCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay());
+        newCreateDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
+        api.createDelayPenaltyChange(newCreateDelayPenalty);
+
+        List<Fee> updatedFeesWithInterest = api.getFees("", 1, 20);
+        List<Fee> updatedAllPaidFees = api.getFees("PAID", 1, 20);
+
+        //update a Delay Penalty automatically update all fees
+        assertNotEquals(noUpdateFees,actualFeesWithInterest);
+    }
 
   @Test
-  public void manager_read_ok_time_mock() {
+  public void instant_now_mock_test() {
     String instantExpected = "2014-12-22T10:15:30Z";
     Clock clock = Clock.fixed(Instant.parse(instantExpected), ZoneId.of("UTC"));
     Instant instant = Instant.now(clock);
@@ -257,7 +323,6 @@ public class DelayPenaltyChangeIT {
       LocalDate actual = DataFormatterUtils.takeLocalDate();
 
       mockedStatic.when(Instant::now).thenReturn(due);
-
       assertEquals(expected,actual);
     }
   }
