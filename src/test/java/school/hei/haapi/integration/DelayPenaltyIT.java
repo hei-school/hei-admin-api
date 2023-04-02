@@ -4,6 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.CALLS_REAL_METHODS;
+import static org.mockito.Mockito.mockStatic;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
@@ -15,11 +17,18 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+
+import java.time.Clock;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.List;
 import java.util.logging.Logger;
+
+import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.MockedStatic;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -40,6 +49,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.DelayPenaltyHistoryService;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.InterestHistoryService;
+import school.hei.haapi.service.utils.DataFormatterUtils;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -65,7 +75,6 @@ public class DelayPenaltyIT {
         .comment("Comment")
         .dueDatetime(Instant.parse("2023-10-08T08:25:24.00Z"));
   }
-
   public static DelayPenalty delayPenalty1() {
     DelayPenalty delayPenalty = new DelayPenalty();
     delayPenalty.setId("delay_penalty1_id");
@@ -79,10 +88,10 @@ public class DelayPenaltyIT {
 
   public static CreateDelayPenaltyChange updateDelayPenalty() {
     return new CreateDelayPenaltyChange()
-        .interestPercent(1)
+        .interestPercent(100)
         .interestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY)
-        .graceDelay(1)
-        .applicabilityDelayAfterGrace(10);
+        .graceDelay(2)
+        .applicabilityDelayAfterGrace(30);
   }
 
   static Fee fee1() {
@@ -310,19 +319,32 @@ public class DelayPenaltyIT {
     List<Fee> afterUpdateFees = api.getFees(String.valueOf(Fee.StatusEnum.PAID), 1, 10);
     assertEquals(beforeUpdateFees,afterUpdateFees);
   }
+  @SneakyThrows
   @Test
   void changeDelayPenaltyChangeNotPaidFees() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
+
     List<Fee> lateFeeBeforeUpdateFees = api.getFees(String.valueOf(Fee.StatusEnum.LATE), 1, 10);
     List<Fee> unpaidFeeBeforeUpdateFees = api.getFees(String.valueOf(Fee.StatusEnum.UNPAID), 1, 10);
+
+
+
+
+
+
+
+
     api.createDelayPenaltyChange(updateDelayPenalty());
+
     List<Fee> lateFeeAfterUpdateFees = api.getFees(String.valueOf(Fee.StatusEnum.LATE), 1, 10);
     List<Fee> unpaidFeeAfterUpdateFees = api.getFees(String.valueOf(Fee.StatusEnum.UNPAID), 1, 10);
-    Logger.getAnonymousLogger(lateFeeBeforeUpdateFees.toString());
+    //Logger.getAnonymousLogger(lateFeeBeforeUpdateFees.toString());
+    //Logger.getAnonymousLogger(lateFeeAfterUpdateFees.toString());
     assertNotEquals(lateFeeBeforeUpdateFees,lateFeeAfterUpdateFees);
     assertNotEquals(unpaidFeeBeforeUpdateFees,unpaidFeeAfterUpdateFees);
   }
+  @SneakyThrows
   @Test
   void increaseGraceDelayInDelayPenaltyChangeAmount() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -336,7 +358,7 @@ public class DelayPenaltyIT {
     newDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay());
     newDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
 
-    api.createDelayPenaltyChange(updateDelayPenalty());
+    api.createDelayPenaltyChange(newDelayPenalty);
 
     Fee afterUpdateFee = api.getStudentFeeById(fee7().getStudentId(),fee7().getId());
     assertEquals(beforeUpdateFee,afterUpdateFee);
@@ -406,6 +428,33 @@ public class DelayPenaltyIT {
     newDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
 
     api.createDelayPenaltyChange(updateDelayPenalty());;
+  }
+
+  static Instant mockTimeToInstant(String time){
+    Clock clock = Clock.fixed(Instant.parse(time), ZoneId.of("UTC"));
+    return Instant.now(clock);
+  }
+
+
+  @Test
+  public void manager_read_ok_time_mock() {
+    String instantExpected = "2014-12-22T10:15:30Z";
+    Clock clock = Clock.fixed(Instant.parse(instantExpected), ZoneId.of("UTC"));
+    Instant instant = Instant.now(clock);
+    Instant due = mockTimeToInstant("2021-12-09T08:25:24.00Z");
+
+    // try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
+    try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class, CALLS_REAL_METHODS)) {
+      LocalDate ok = DataFormatterUtils.takeLocalDate();
+
+      mockedStatic.when(Instant::now).thenReturn(due);
+      LocalDate expected = LocalDate.ofInstant(Instant.now(),ZoneId.of("UTC")).plusDays(1);
+      LocalDate actual = DataFormatterUtils.takeLocalDate();
+
+      mockedStatic.when(Instant::now).thenReturn(due);
+
+      assertEquals(expected,actual);
+    }
   }
 
   @Test
