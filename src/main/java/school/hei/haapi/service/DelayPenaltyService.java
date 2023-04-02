@@ -23,6 +23,7 @@ public class DelayPenaltyService {
         toSave.setId(getCurrentPenalty().getId());
         toSave.setCreationDatetime(getCurrentPenalty().getCreationDatetime());
         repository.save(toSave);
+        feeService.automateApplyInterest();
         return toSave;
     }
 
