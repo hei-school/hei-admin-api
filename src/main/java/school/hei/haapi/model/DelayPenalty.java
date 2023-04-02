@@ -27,7 +27,7 @@ import school.hei.haapi.repository.types.PostgresEnumType;
 @Getter
 @Setter
 @ToString
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class DelayPenalty {

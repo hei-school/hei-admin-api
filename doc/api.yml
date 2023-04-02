@@ -617,13 +617,13 @@ paths:
           $ref: '#/components/responses/500'
 
   /delay_penalty_change:
-    post:
+    put:
       tags:
         - Paying
       summary: Change current delay penalty configuration
-      operationId: createDelayPenaltyChange
+      operationId: changeDelayPenaltyChange
       requestBody:
-        description: Delay penalties to create
+        description: Delay penalties to change
         required: true
         content:
           application/json:
