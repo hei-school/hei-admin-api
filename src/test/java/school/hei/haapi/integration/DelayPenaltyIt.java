@@ -81,7 +81,7 @@ public class DelayPenaltyIt {
     }
 
     @Test
-    void manager_delay_penalty_change_ok() throws ApiException {
+    void manager_write_delay_penalty_change_ok() throws ApiException {
         ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
         PayingApi api = new PayingApi(managerClient);
 
