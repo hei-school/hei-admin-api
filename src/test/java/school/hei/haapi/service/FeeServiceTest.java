@@ -13,6 +13,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.FeeValidator;
+import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.FeeRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -32,10 +33,12 @@ class FeeServiceTest {
   FeeValidator feeValidator;
   EventProducer eventProducer;
 
+  DelayPenaltyRepository delayPenaltyRepository;
+
   static User student1() {
     return User.builder()
-        .id(TestUtils.STUDENT1_ID)
-        .build();
+            .id(TestUtils.STUDENT1_ID)
+            .build();
   }
 
   static int remainingAmount() {
@@ -43,23 +46,23 @@ class FeeServiceTest {
   }
 
   static Fee createSomeFee(
-      String feeId,
-      int paymentAmount,
-      school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status,
-      Instant dueDatetime,
-      Instant creationDatetime) {
+          String feeId,
+          int paymentAmount,
+          school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status,
+          Instant dueDatetime,
+          Instant creationDatetime) {
     return Fee.builder()
-        .id(feeId)
-        .remainingAmount(remainingAmount())
-        .totalAmount(remainingAmount())
-        .type(HARDWARE)
-        .comment(null)
-        .dueDatetime(dueDatetime)
-        .creationDatetime(creationDatetime)
-        .status(status)
-        .student(student1())
-        .payments(List.of(payment1(paymentAmount, creationDatetime)))
-        .build();
+            .id(feeId)
+            .remainingAmount(remainingAmount())
+            .totalAmount(remainingAmount())
+            .type(HARDWARE)
+            .comment(null)
+            .dueDatetime(dueDatetime)
+            .creationDatetime(creationDatetime)
+            .status(status)
+            .student(student1())
+            .payments(List.of(payment1(paymentAmount, creationDatetime)))
+            .build();
   }
 
   static Fee fee(int paymentAmount) {
@@ -69,11 +72,11 @@ class FeeServiceTest {
   }
 
   static Fee createMockedFee(
-      boolean isMocked,
-      String feeId,
-      int paymentAmount,
-      int remainingAmount,
-      school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
+          boolean isMocked,
+          String feeId,
+          int paymentAmount,
+          int remainingAmount,
+          school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
     Instant dueDatetime = Instant.parse("2022-01-02T00:00:00.00Z");
     Instant creationDatetime = Instant.parse("2022-01-01T00:00:00.00Z");
     Fee fee = createSomeFee(feeId, paymentAmount, status, dueDatetime, creationDatetime);
@@ -100,12 +103,12 @@ class FeeServiceTest {
 
   static Payment payment1(int amount, Instant creationDatetime) {
     return Payment.builder()
-        .id(TestUtils.PAYMENT1_ID)
-        .type(CASH)
-        .amount(amount)
-        .comment(null)
-        .creationDatetime(creationDatetime)
-        .build();
+            .id(TestUtils.PAYMENT1_ID)
+            .type(CASH)
+            .amount(amount)
+            .comment(null)
+            .creationDatetime(creationDatetime)
+            .build();
   }
 
   @BeforeEach
@@ -113,16 +116,17 @@ class FeeServiceTest {
     feeRepository = mock(FeeRepository.class);
     feeValidator = mock(FeeValidator.class);
     eventProducer = mock(EventProducer.class);
-    subject = new FeeService(feeRepository, feeValidator, eventProducer);
+    delayPenaltyRepository = mock(DelayPenaltyRepository.class);
+    subject = new FeeService(feeRepository, feeValidator, eventProducer, delayPenaltyRepository);
   }
 
   @Test
   void fee_status_is_paid() {
     Fee initial = fee(remainingAmount());
     when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial.toBuilder()
-        .remainingAmount(0)
-        .status(PAID)
-        .build());
+            .remainingAmount(0)
+            .status(PAID)
+            .build());
 
     Fee actual = subject.getById(TestUtils.FEE1_ID);
 
@@ -138,9 +142,9 @@ class FeeServiceTest {
     int paymentAmount = remainingAmount() - rest;
     Fee initial = fee(paymentAmount);
     when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial.toBuilder()
-        .remainingAmount(remainingAmount() - paymentAmount)
-        .status(UNPAID)
-        .build());
+            .remainingAmount(remainingAmount() - paymentAmount)
+            .status(UNPAID)
+            .build());
 
     Fee actual = subject.getById(TestUtils.FEE1_ID);
 
@@ -157,9 +161,9 @@ class FeeServiceTest {
     Instant yesterday = Instant.now().minus(1L, ChronoUnit.DAYS);
     initial.setDueDatetime(yesterday);
     when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial.toBuilder()
-        .remainingAmount(remainingAmount() - paymentAmount)
-        .status(LATE)
-        .build());
+            .remainingAmount(remainingAmount() - paymentAmount)
+            .status(LATE)
+            .build());
 
     Fee actual = subject.getById(TestUtils.FEE1_ID);
 
@@ -175,18 +179,18 @@ class FeeServiceTest {
     BoundedPageSize pageSize = new BoundedPageSize(10);
     boolean isMocked = true;
     when(feeRepository.findAll())
-        .thenReturn(List.of(
-            fee1(isMocked),
-            fee2(isMocked),
-            fee3(isMocked)
-        ));
+            .thenReturn(List.of(
+                    fee1(isMocked),
+                    fee2(isMocked),
+                    fee3(isMocked)
+            ));
 
     List<Fee> actualPaidPage1 = subject.getFees(page1, pageSize,
-        PAID);
+            PAID);
     List<Fee> actualLatePage1 = subject.getFees(page1, pageSize,
-        LATE);
+            LATE);
     List<Fee> actualLatePage2 = subject.getFees(page2, pageSize,
-        LATE);
+            LATE);
 
     assertEquals(0, actualPaidPage1.size());
     assertEquals(0, actualLatePage1.size());
