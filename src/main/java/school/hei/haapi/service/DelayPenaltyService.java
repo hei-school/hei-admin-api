@@ -30,7 +30,7 @@ public class DelayPenaltyService {
   /**
    * fetches the current delay_penalty if there is, creates new one otherwise
    */
-  private DelayPenalty getCurrentDelayPenalty() {
+  public DelayPenalty getCurrentDelayPenalty() {
     Optional<DelayPenalty> optional = repository.findFirstByOrderByCreationDatetime();
     return optional.orElseGet(() -> {
       DelayPenalty default_delayPenalty = DelayPenalty.builder()
