@@ -25,8 +25,7 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.*;
 
 @Service
 @AllArgsConstructor
@@ -89,7 +88,8 @@ public class FeeService {
     }
 
     public void applyDelayPenaltyToFees(DelayPenalty delayPenalty) {
-        List<Fee> feeList = feeRepository.findAll();
+        List<Fee> feeList = feeRepository.getFeesByStatus(DEFAULT_STATUS);
+        feeList.addAll(feeRepository.getFeesByStatus(UNPAID));
         feeList.forEach((Fee fee) -> {
             if (fee.getRemainingAmount() > 0
                     && fee.getDueDatetime().isAfter(Instant.now())) {
