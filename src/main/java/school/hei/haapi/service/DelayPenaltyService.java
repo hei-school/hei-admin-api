@@ -15,4 +15,7 @@ public class DelayPenaltyService {
         List<DelayPenalty> delayPenalties = delayPenaltyRepository.findAll();
         return delayPenalties.get(delayPenalties.size() -1 );
     }
+    public DelayPenalty crupdateDelayPenalty(DelayPenalty toCrupdate){
+        return delayPenaltyRepository.save(toCrupdate);
+    }
 }

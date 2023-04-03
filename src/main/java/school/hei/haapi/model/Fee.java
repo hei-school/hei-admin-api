@@ -71,6 +71,7 @@ public class Fee implements Serializable {
 
   @OneToMany(mappedBy = "fee")
   private List<Payment> payments;
+<<<<<<< HEAD
 
   public Integer getTotalAmount() {
     return totalAmount;
@@ -80,6 +81,8 @@ public class Fee implements Serializable {
     this.totalAmount = totalAmount;
   }
 
+=======
+>>>>>>> b09ac50cd23193878f556194a773ca93e3726b58
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
   }

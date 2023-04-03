@@ -10,7 +10,7 @@ $$;
 create table if not exists "delay_penalty"
 (
     id                varchar
-    constraint user_pk primary key default uuid_generate_v4(),
+    constraint delay_penalty_pk primary key default uuid_generate_v4(),
     creation_datetime        Timestamp,
     interest_percent         int,
     interest_timerate       interest_timerate_type,
