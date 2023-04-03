@@ -6,4 +6,6 @@ import school.hei.haapi.model.DelayPenalty;
 
 @Repository
 public interface DelayPenaltyRepository extends JpaRepository<DelayPenalty, String> {
+  DelayPenalty getByStudentIdAndStatus(String studentId, DelayPenalty.StatusEnum status);
+  DelayPenalty getByStatus(DelayPenalty.StatusEnum status);
 }

@@ -63,7 +63,9 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                     bearerFilter(new NegatedRequestMatcher(
                             new OrRequestMatcher(
                                     new AntPathRequestMatcher("/ping"),
-                                    new AntPathRequestMatcher("/**", OPTIONS.toString())
+                                    new AntPathRequestMatcher("/**", OPTIONS.toString()),
+                                    new AntPathRequestMatcher("/students/*/fees",GET.toString()),
+                                new AntPathRequestMatcher("/delay_penalty",GET.toString())
                             )
                     )),
                     AnonymousAuthenticationFilter.class)
@@ -74,17 +76,18 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
             .authorizeRequests()
             .antMatchers("/ping").permitAll()
             .antMatchers(GET, "/delay_penalty").permitAll()
+        .antMatchers(GET, "/students/*/fees").permitAll()
             .antMatchers(PUT, "/delay_penalty_change").hasAnyRole(MANAGER.getRole())
             .antMatchers(OPTIONS, "/**").permitAll()
             .antMatchers("/whoami").authenticated()
             .antMatchers(GET, "/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
             .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*")).hasAnyRole(STUDENT.getRole())
             .antMatchers(GET, "/students/*/fees/*").hasAnyRole(MANAGER.getRole())
-            .requestMatchers(new SelfMatcher(GET, "/students/*/fees")).hasAnyRole(STUDENT.getRole())
+            //.requestMatchers(new SelfMatcher(GET, "/students/*/fees")).hasAnyRole(STUDENT.getRole())
             .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments")).hasAnyRole(STUDENT.getRole())
             .antMatchers(GET, "/students/*/fees/*/payments").hasAnyRole(MANAGER.getRole())
             .antMatchers(POST, "/students/*/fees/*/payments").hasAnyRole(MANAGER.getRole())
-            .antMatchers(GET, "/students/*/fees").hasAnyRole(MANAGER.getRole())
+            //.antMatchers(GET, "/students/*/fees").hasAnyRole(MANAGER.getRole())
             .antMatchers(POST, "/students/*/fees").hasAnyRole(MANAGER.getRole())
             .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments")).hasAnyRole(
                     STUDENT.getRole())

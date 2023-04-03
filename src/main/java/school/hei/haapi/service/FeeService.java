@@ -66,8 +66,9 @@ public class FeeService {
       String studentId, PageFromOne page, BoundedPageSize pageSize,
       school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
     List<Fee> specifiedLateFees = feeRepository.getFeesByStatusAndStudentId(LATE, studentId);
-    DelayPenalty condition = delayPenaltyRepository.findAll().get(0);
-    applyInterestPercent(specifiedLateFees, Instant.now(), condition);
+    DelayPenalty specificCondition = delayPenaltyRepository.getByStudentIdAndStatus(studentId, DelayPenalty.StatusEnum.SPECIFIC);
+    DelayPenalty globalCondition = delayPenaltyRepository.getByStatus(DelayPenalty.StatusEnum.GLOBAL);
+    applyInterestPercent(specifiedLateFees, Instant.now(), (specificCondition != null ? specificCondition : globalCondition));
     Pageable pageable = PageRequest.of(
         page.getValue() - 1,
         pageSize.getValue(),

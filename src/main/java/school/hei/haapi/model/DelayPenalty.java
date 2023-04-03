@@ -14,7 +14,6 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum;
-import school.hei.haapi.endpoint.rest.model.DelayPenalty.StatusEnum;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -48,7 +47,7 @@ public class DelayPenalty implements Serializable {
 
     @Type(type = "pgsql_enum")
     @Enumerated(EnumType.STRING)
-    private String status;
+    private StatusEnum status;
 
     private int interestPercent;
 
@@ -66,5 +65,8 @@ public class DelayPenalty implements Serializable {
 
     public Instant getCreationDatetime() {
         return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
+    }
+    public enum StatusEnum {
+        GLOBAL, SPECIFIC
     }
 }
