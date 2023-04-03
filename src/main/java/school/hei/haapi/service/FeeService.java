@@ -54,13 +54,13 @@ public class FeeService {
   public static void updateFees(List<Fee> fees) {
     Instant now = Instant.now();
     for (Fee fee : fees) {
-      if (fee.getTotalAmount() > 0 && fee.getDueDatetime().isBefore(now)) {
+      if (fee.getRemainingAmount() > 0 && fee.getDueDatetime().isBefore(now)) {
         int daysLate = (int) ChronoUnit.DAYS.between(fee.getDueDatetime(), now);
         if (daysLate > DelayPenalty.getGraceDelay()) {
           int daysAfterGrace = daysLate - DelayPenalty.getGraceDelay();
           if (daysAfterGrace <= DelayPenalty.getApplicabilityDelayAfterGrace()) {
-           int interestAmount = fee.getTotalAmount() * DelayPenalty.getInterestPercent() * daysAfterGrace / 36500;
-            fee.setTotalAmount(fee.getTotalAmount() + interestAmount);
+           int interestAmount = fee.getRemainingAmount() * DelayPenalty.getInterestPercent() * daysAfterGrace / 36500;
+            fee.setTotalAmount(fee.getRemainingAmount() + interestAmount);
           }
         }
       }

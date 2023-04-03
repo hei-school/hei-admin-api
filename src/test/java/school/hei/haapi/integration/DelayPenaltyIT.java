@@ -9,10 +9,13 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.exception.ApiException;
+
+import java.time.Instant;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -42,14 +45,14 @@ public class DelayPenaltyIT {
         return delayPenalty;
     }
     @Test
-    void manager_update_delay_ok() throws ApiException {
+    void manager_update_delay_ok() throws ApiException, school.hei.haapi.endpoint.rest.client.ApiException {
         ApiClient managerClient1 = anApiClient(MANAGER1_TOKEN);
         PayingApi api = new PayingApi(managerClient1);
+        CreateDelayPenaltyChange createDelayPenaltyChange = new CreateDelayPenaltyChange();
 
-        DelayPenalty delayUpdated = api.changeDelayPenaltyChange(createDelayPenalty1());
+        DelayPenalty delayUpdated = api.createDelayPenaltyChange(createDelayPenaltyChange);
         assertEquals(delayUpdated(), delayUpdated);
     }
-
 
 }
 
