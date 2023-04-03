@@ -8,17 +8,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.TypeDef;
-import org.springframework.boot.context.properties.bind.DefaultValue;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.OneToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity
@@ -52,7 +44,7 @@ public class FeesHistory {
   @Column(nullable = false , name = "grace_delay_student")
   private int graceStudentDelay = 0;
 
-  @OneToOne
+  @ManyToOne
   @JoinColumn(name = "user_id")
   private User student;
 }

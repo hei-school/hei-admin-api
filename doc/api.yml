@@ -1159,6 +1159,22 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    FeesHistory:
+      type: object
+      properties:
+        id:
+          type: string
+        fee_total:
+          type: number
+        paid:
+          type: boolean
+        percentage:
+          type: integer
+        graceStudentDelay:
+          type: integer
+        student:
+          $ref: '#/components/schemas/User'
+
     Page:
       type: integer
       description: Start at `1`
