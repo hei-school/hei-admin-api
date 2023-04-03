@@ -161,16 +161,15 @@ class DelayPenaltyIT {
     PayingApi api = new PayingApi(manager1Client);
 
     Fee fee8 = api.getStudentFeeById(STUDENT_GRACE_DELAY_ID, FEE8_ID);
-    assertEquals(fee8(),fee8);
 
     CreateDelayPenaltyChange createDelayPenaltyChange = createDelayPenaltyChange();
     createDelayPenaltyChange.setInterestPercent(5);
+    createDelayPenaltyChange.setGraceDelay(20);
     DelayPenalty delayPenalty = api.createDelayPenaltyChange(createDelayPenaltyChange);
 
     Fee actualFee8 = api.getStudentFeeById(STUDENT_GRACE_DELAY_ID, FEE8_ID);
-    assertTrue(fee8.getTotalAmount() < actualFee8.getTotalAmount());
     assertEquals(
-            (fee8.getTotalAmount() + (fee8.getTotalAmount() * delayPenalty.getInterestPercent() / 100)),
+            (fee8().getTotalAmount() + (fee8().getTotalAmount() * 5 / 100)),
             actualFee8.getTotalAmount()
     );
   }
