@@ -1,5 +1,3 @@
-create extension if not exists "uuid-ossp";
-
 create table if not exists "delay_penalty"
 (
     id                varchar
