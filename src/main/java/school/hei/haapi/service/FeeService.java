@@ -128,8 +128,8 @@ public class FeeService {
   @Scheduled(cron = "0 0 * * * *")
   public void automateApplyInterest() {
     List<Fee> lateFees = feeRepository.getFeesByStatus(LATE);
-    DelayPenalty condition = delayPenaltyRepository.findAll().get(0);
-    applyInterestPercent(lateFees, Instant.now(), condition);
+    DelayPenalty globalCondition = delayPenaltyRepository.getByStatus(DelayPenalty.StatusEnum.GLOBAL);
+    applyInterestPercent(lateFees, Instant.now(), globalCondition);
   }
 
   public void applyInterestPercent(List<Fee> lateFees, Instant attemptApplyInterest, DelayPenalty condition) {

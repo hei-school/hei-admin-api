@@ -26,6 +26,10 @@ public class DelayPenaltyController {
             @RequestBody CreateDelayPenaltyChange delayPenalty
             ) {
         DelayPenalty toSave = mapper.toDomainDelayPenalty(delayPenalty);
+        if(delayPenalty.getStudentId() != null) {
+            //validator
+            return mapper.toRest(service.save(toSave, toSave.getStudent().getId()));
+        }
         return mapper.toRest(service.save(toSave));
     }
 }

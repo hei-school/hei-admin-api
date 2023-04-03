@@ -15,13 +15,24 @@ public class DelayPenaltyService {
     private final FeeService feeService;
 
     public DelayPenalty get() {
-        DelayPenalty current = repository.findAll().get(0);
-        DelayPenalty c = repository.getByStudentIdAndStatus("student1_id",DelayPenalty.StatusEnum.SPECIFIC);
-        log.info(c.toString());
+        DelayPenalty current = repository.getByStatus(DelayPenalty.StatusEnum.GLOBAL);
         if (current == null) {
             throw new NotFoundException("No data to display");
         }
         return current;
+    }
+
+    public DelayPenalty save(DelayPenalty toSave, String studentId) {
+        DelayPenalty specificCondition = repository.getByStudentIdAndStatus(studentId,DelayPenalty.StatusEnum.SPECIFIC);
+        DelayPenalty globalCondition = repository.getByStatus(DelayPenalty.StatusEnum.GLOBAL);
+        if(specificCondition != null) {
+            specificCondition.setGraceDelay(toSave.getGraceDelay());
+            repository.save(specificCondition);
+            return specificCondition;
+        }
+        globalCondition.setGraceDelay(toSave.getGraceDelay());
+        repository.save(globalCondition);
+        return globalCondition;
     }
 
     public DelayPenalty save(DelayPenalty toSave) {
@@ -33,8 +44,8 @@ public class DelayPenaltyService {
     }
 
     public DelayPenalty getCurrentPenalty() {
-        DelayPenalty delayPenalty = repository.findAll().get(0);
-        if(delayPenalty == null) {
+        DelayPenalty globalCondition = repository.getByStatus(DelayPenalty.StatusEnum.GLOBAL);
+        if(globalCondition == null) {
             DelayPenalty current = DelayPenalty.builder()
                     .interestPercent(2)
                     .applicabilityDelayAfterGrace(10)
@@ -42,6 +53,6 @@ public class DelayPenaltyService {
                     .build();
             return repository.save(current);
         }
-        return delayPenalty;
+        return globalCondition;
     }
 }
