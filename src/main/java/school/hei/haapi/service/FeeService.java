@@ -1,8 +1,5 @@
 package school.hei.haapi.service;
 
-import java.time.Instant;
-import java.util.List;
-import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -18,6 +15,10 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
+
+import javax.transaction.Transactional;
+import java.time.Instant;
+import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
@@ -73,7 +74,7 @@ public class FeeService {
   }
 
   private Fee updateFeeStatus(Fee initialFee) {
-    if (initialFee.getRemainingAmount() == 0) {
+    if ((initialFee.getRemainingAmount() + initialFee.getInterest()) == 0) {
       initialFee.setStatus(PAID);
     } else if (Instant.now().isAfter(initialFee.getDueDatetime())) {
       initialFee.setStatus(LATE);

@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -13,6 +12,8 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.validator.PaymentValidator;
 import school.hei.haapi.repository.PaymentRepository;
+
+import java.util.List;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
@@ -37,7 +38,7 @@ public class PaymentService {
   public void computeRemainingAmount(String feeId, int amount) {
     Fee associatedFee = feeService.getById(feeId);
     associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() - amount);
-    if (associatedFee.getRemainingAmount() == 0) {
+    if ((associatedFee.getRemainingAmount() + associatedFee.getInterest()) == 0) {
       associatedFee.setStatus(PAID);
     }
   }
