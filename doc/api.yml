@@ -1101,6 +1101,12 @@ components:
           type: string
         remaining_amount:
           type: integer
+        interest_amount:
+          type: integer
+        remaining_amount_with_interest:
+          type: integer
+        total_amount_with_interest:
+          type: integer
         status:
           type: string
           enum:

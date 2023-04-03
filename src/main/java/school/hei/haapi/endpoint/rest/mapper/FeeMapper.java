@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -11,9 +13,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.UserService;
-
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
 
 @Component
 @AllArgsConstructor
@@ -30,6 +29,9 @@ public class FeeMapper {
         .type(fee.getType())
         .totalAmount(fee.getTotalAmount())
         .remainingAmount(fee.getRemainingAmount())
+        .interestAmount(fee.getInterestAmount())
+        .remainingAmountWithInterest(fee.getRemainingAmountWithInterest())
+        .totalAmountWithInterest(fee.getTotalAmountWithInterest())
         .comment(fee.getComment())
         .creationDatetime(fee.getCreationDatetime())
         .updatedAt(fee.getUpdatedAt())
@@ -48,6 +50,9 @@ public class FeeMapper {
         .updatedAt(createFee.getCreationDatetime())
         .status(UNPAID)
         .remainingAmount(createFee.getTotalAmount())
+        .interestAmount(0)
+        .remainingAmountWithInterest(createFee.getTotalAmount())
+        .totalAmountWithInterest(createFee.getTotalAmount())
         .comment(createFee.getComment())
         .creationDatetime(createFee.getCreationDatetime())
         .dueDatetime(createFee.getDueDatetime())
