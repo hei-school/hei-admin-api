@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,38 +27,38 @@ public class FeeController {
 
   @GetMapping("/students/{studentId}/fees/{feeId}")
   public Fee getFeeByStudentId(
-      @PathVariable String studentId,
-      @PathVariable String feeId) {
+          @PathVariable String studentId,
+          @PathVariable String feeId) {
     return feeMapper.toRestFee(feeService.getByStudentIdAndFeeId(studentId, feeId));
   }
 
   @PostMapping("/students/{studentId}/fees")
   public List<Fee> createFees(
-      @PathVariable String studentId, @RequestBody List<CreateFee> toCreate) {
+          @PathVariable String studentId, @RequestBody List<CreateFee> toCreate) {
     return feeService.saveAll(
-            feeMapper.toDomainFee(studentId, toCreate)).stream()
-        .map(feeMapper::toRestFee)
-        .collect(toUnmodifiableList());
+                    feeMapper.toDomainFee(studentId, toCreate)).stream()
+            .map(feeMapper::toRestFee)
+            .collect(toUnmodifiableList());
   }
 
   @GetMapping("/students/{studentId}/fees")
   public List<Fee> getFeesByStudentId(
-      @PathVariable String studentId,
-      @RequestParam PageFromOne page,
-      @RequestParam("page_size") BoundedPageSize pageSize,
-      @RequestParam(required = false) Fee.StatusEnum status) {
-    return feeService.getFeesByStudentId(studentId, page, pageSize, status).stream()
-        .map(feeMapper::toRestFee)
-        .collect(toUnmodifiableList());
+          @PathVariable String studentId,
+          @RequestParam PageFromOne page,
+          @RequestParam("page_size") BoundedPageSize pageSize,
+          @RequestParam(required = false) Fee.StatusEnum status) {
+    return feeService.getFeesByStudentId(studentId, page, pageSize, status, Instant.parse("2023-03-17T09:30:24.00Z")).stream()
+            .map(feeMapper::toRestFee)
+            .collect(toUnmodifiableList());
   }
 
   @GetMapping("/fees")
   public List<Fee> getFees(
-      @RequestParam PageFromOne page,
-      @RequestParam("page_size") BoundedPageSize pageSize,
-      @RequestParam(required = false) Fee.StatusEnum status) {
+          @RequestParam PageFromOne page,
+          @RequestParam("page_size") BoundedPageSize pageSize,
+          @RequestParam(required = false) Fee.StatusEnum status) {
     return feeService.getFees(page, pageSize, status).stream()
-        .map(feeMapper::toRestFee)
-        .collect(toUnmodifiableList());
+            .map(feeMapper::toRestFee)
+            .collect(toUnmodifiableList());
   }
 }
