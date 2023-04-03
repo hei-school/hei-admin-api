@@ -52,7 +52,7 @@ public class UserService {
   public User ChangeUserGraceDelay(String usersId, Integer delayGrace) {
     User user = userRepository.getById(usersId);
     user.setDelayGrace(delayGrace);
-    return saveAll(List.of(user)).get(0);
+    return userRepository.saveAll(List.of(user)).get(0);
   }
 
   private TypedUserUpserted toTypedEvent(User user) {
