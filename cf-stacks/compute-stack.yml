@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: Stack for HEI Admin API
+Description: Compute stack for HEI Admin API
 
 Parameters:
   Env:
@@ -61,6 +61,8 @@ Resources:
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/url}}'
             - Name: SPRING_DATASOURCE_PASSWORD
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/password}}'
+            - Name: AWS_SES_SOURCE
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/ses/source}}'
           LogConfiguration:
             LogDriver: awslogs
             Options:
@@ -70,7 +72,7 @@ Resources:
   ExecutionRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['', [!Ref Env, -hei-admin-api, -ExecutionRole]]
+      RoleName: !Join ['', [!Ref Env, -compute-hei-admin-api, -ExecutionRole]]
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
@@ -82,14 +84,18 @@ Resources:
   TaskRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Join ['', [!Ref Env, -hei-admin-api, -TaskRole]]
+      RoleName: !Join ['', [!Ref Env, -compute-hei-admin-api, -TaskRole]]
       AssumeRolePolicyDocument:
         Statement:
           - Effect: Allow
             Principal:
               Service: ecs-tasks.amazonaws.com
             Action: 'sts:AssumeRole'
-
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AmazonCognitoPowerUser'
+        - 'arn:aws:iam::aws:policy/AmazonEventBridgeFullAccess'
+        - 'arn:aws:iam::aws:policy/AmazonSQSFullAccess'
+        - 'arn:aws:iam::aws:policy/AmazonSESFullAccess'
   Service:
     Type: AWS::ECS::Service
     Properties:
@@ -111,15 +117,15 @@ Resources:
           TargetGroupArn: !Ref TargetGroup
   TargetGroup:
     Type: AWS::ElasticLoadBalancingV2::TargetGroup
-    Properties: 
+    Properties:
       Name: !Join ['', [!Ref Env, -ha-api, -TG]]
       Protocol: HTTP
       Port: !Ref ContainerPort
       # TargetType must be ip with Fargate: targets are (de-)registered on container creation/destruction
       TargetType: ip
-      #Targets: 
+      #Targets:
       #  - AvailabilityZone: all
-      #    Id: 
+      #    Id:
       #    Port: ! Ref ContainerPort
       VpcId: '{{resolve:ssm:/hei-admin-api/vpc:1}}'
       HealthCheckEnabled: true

@@ -28,8 +28,12 @@ public class TestUtils {
   public static final String FEE2_ID = "fee2_id";
   public static final String FEE3_ID = "fee3_id";
   public static final String FEE4_ID = "fee4_id";
+<<<<<<< HEAD
 
   public static final String DELAY_PENALTY_ID = "delay_penalty1_id";
+=======
+  public static final String FEE6_ID = "fee6_id";
+>>>>>>> 4cd8ff1a5f4c945833fea571f870bb5f416efb0e
   public static final String PAYMENT1_ID = "payment1_id";
   public static final String PAYMENT2_ID = "payment2_id";
   public static final String PAYMENT4_ID = "payment4_id";

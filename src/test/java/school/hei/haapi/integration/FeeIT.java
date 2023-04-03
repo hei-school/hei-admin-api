@@ -25,7 +25,21 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+<<<<<<< HEAD
 import static school.hei.haapi.integration.conf.TestUtils.*;
+=======
+import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+>>>>>>> 4cd8ff1a5f4c945833fea571f870bb5f416efb0e
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -37,19 +51,11 @@ class FeeIT {
   @MockBean
   private CognitoComponent cognitoComponentMock;
 
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
-  }
-
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, FeeIT.ContextInitializer.SERVER_PORT);
   }
 
+<<<<<<< HEAD
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
@@ -67,6 +73,8 @@ class FeeIT {
   }
 
 
+=======
+>>>>>>> 4cd8ff1a5f4c945833fea571f870bb5f416efb0e
   static Fee fee1() {
     Fee fee = new Fee();
     fee.setId(FEE1_ID);
@@ -76,6 +84,7 @@ class FeeIT {
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(0);
     fee.setComment("Comment");
+    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
     fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
     return fee;
@@ -90,6 +99,7 @@ class FeeIT {
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(0);
     fee.setComment("Comment");
+    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
     fee.creationDatetime(Instant.parse("2021-11-10T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
     return fee;
@@ -104,6 +114,7 @@ class FeeIT {
     fee.setTotalAmount(5000);
     fee.setRemainingAmount(5000);
     fee.setComment("Comment");
+    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
     fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
     fee.setDueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
     return fee;
@@ -115,6 +126,11 @@ class FeeIT {
         .totalAmount(5000)
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+  }
+
+  @BeforeEach
+  void setUp() {
+    setUpCognito(cognitoComponentMock);
   }
 
   @Test
@@ -160,7 +176,7 @@ class FeeIT {
     List<Fee> actualFees2 = api.getFees(String.valueOf(Fee.StatusEnum.PAID), 1, 10);
 
     assertEquals(fee1(), actualFee);
-    assertEquals(4, actualFees2.size());
+    assertEquals(2, actualFees2.size());
     assertTrue(actualFees1.contains(fee1()));
     assertTrue(actualFees1.contains(fee2()));
     assertTrue(actualFees1.contains(fee3()));
@@ -256,5 +272,14 @@ class FeeIT {
     assertTrue(exceptionMessage1.contains("Total amount is mandatory"));
     assertTrue(exceptionMessage2.contains("Total amount must be positive"));
     assertTrue(exceptionMessage3.contains("Due datetime is mandatory"));
+  }
+
+  static class ContextInitializer extends AbstractContextInitializer {
+    public static final int SERVER_PORT = anAvailableRandomPort();
+
+    @Override
+    public int getServerPort() {
+      return SERVER_PORT;
+    }
   }
 }
