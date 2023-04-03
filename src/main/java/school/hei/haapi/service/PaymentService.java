@@ -58,7 +58,6 @@ public class PaymentService {
   }
 
   public int computeTotalAmount(school.hei.haapi.model.Fee currentFee){
-    //todo : modifie ce getInterestAmount1 en getInterestAmount
     return currentFee.getTotalAmount()+interestHistoryService.getInterestAmount(currentFee.getId());
   }
   public int computeRemainingAmountV2(school.hei.haapi.model.Fee currentFee){

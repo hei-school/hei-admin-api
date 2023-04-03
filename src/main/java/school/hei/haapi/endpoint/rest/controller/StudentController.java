@@ -51,4 +51,9 @@ public class StudentController {
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
   }
+
+  @PutMapping(value = "/student/{id}/delay_grace_change")
+  public Student ChangeUserGraceDelay(String usersId, Integer delayGrace) {
+    return userMapper.toRestStudent(userService.ChangeUserGraceDelay(usersId, delayGrace));
+  }
 }

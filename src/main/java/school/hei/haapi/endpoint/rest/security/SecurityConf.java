@@ -100,6 +100,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/groups").authenticated()
         .antMatchers(GET, "/groups/*").authenticated()
         .antMatchers(PUT, "/groups/**").hasAnyRole(MANAGER.getRole())
+        .antMatchers(PUT, "/student/*/delay_grace_change").hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/interest/**").authenticated()
         .antMatchers(PUT, "/interest/**").authenticated()
         .antMatchers(GET, "/delay_penalty").hasAnyRole(MANAGER.getRole())
