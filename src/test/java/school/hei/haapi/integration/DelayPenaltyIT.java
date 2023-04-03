@@ -6,15 +6,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
+import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.DelayPenalty;
+import school.hei.haapi.endpoint.rest.client.ApiException;
 
 import java.time.Instant;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -62,7 +62,7 @@ class DelayPenaltyIT {
 
     }
     @Test
-    void manager_write_delay_ok() throws ApiException {
+    void manager_write_delay_ok() throws  school.hei.haapi.endpoint.rest.client.ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         PayingApi api = new PayingApi(manager1Client);
         DelayPenalty actual = api.createDelayPenaltyChange(createDelayPenaltyChange());
@@ -71,7 +71,7 @@ class DelayPenaltyIT {
         assertEquals(expected, actual);
     }
     @Test
-    void manager_write_delay_with_some_bad_fields_ko() throws ApiException {
+    void manager_write_delay_with_some_bad_fields_ko() throws school.hei.haapi.endpoint.rest.client.ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         PayingApi api = new PayingApi(manager1Client);
         CreateDelayPenaltyChange toCreate1 = createDelayPenaltyChange1().graceDelay(null);

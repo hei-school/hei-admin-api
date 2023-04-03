@@ -42,11 +42,11 @@ public class FeesHistory {
 
   @NotNull
   @Column(nullable = false)
-  private Boolean paid;
+  private Boolean paid = false;
 
   @NotNull
   @Column(nullable = false)
-  private int percentage;
+  private int percentage = 0;
 
   @OneToOne
   @JoinColumn(name = "user_id")

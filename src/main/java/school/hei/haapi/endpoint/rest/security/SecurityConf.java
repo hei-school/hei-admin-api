@@ -43,72 +43,10 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
   protected void configure(HttpSecurity http) throws Exception {
     // @formatter:off
     http
-        .exceptionHandling()
-        .authenticationEntryPoint(
-            // note(spring-exception)
-            // https://stackoverflow.com/questions/59417122/how-to-handle-usernamenotfoundexception-spring-security
-            // issues like when a user tries to access a resource
-            // without appropriate authentication elements
-            (req, res, e) -> exceptionResolver
-                .resolveException(req, res, null, forbiddenWithRemoteInfo(req)))
-        .accessDeniedHandler(
-            // note(spring-exception): issues like when a user not having required roles
-            (req, res, e) -> exceptionResolver
-                .resolveException(req, res, null, forbiddenWithRemoteInfo(req)))
-
-        // authenticate
-        .and()
-        .authenticationProvider(authProvider)
-        .addFilterBefore(
-            bearerFilter(new NegatedRequestMatcher(
-                new OrRequestMatcher(
-                    new AntPathRequestMatcher("/ping"),
-                    new AntPathRequestMatcher("/**", OPTIONS.toString())
-                )
-            )),
-            AnonymousAuthenticationFilter.class)
-        .anonymous()
-
-        // authorize
-        .and()
-        .authorizeRequests()
-        .antMatchers("/ping").permitAll()
-        .antMatchers(OPTIONS, "/**").permitAll()
-        .antMatchers("/whoami").authenticated()
-        .antMatchers(GET, "/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*")).hasAnyRole(STUDENT.getRole())
-        .antMatchers(GET, "/students/*/fees/*").hasAnyRole(MANAGER.getRole())
-        .requestMatchers(new SelfMatcher(GET, "/students/*/fees")).hasAnyRole(STUDENT.getRole())
-        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments")).hasAnyRole(STUDENT.getRole())
-        .antMatchers(GET, "/students/*/fees/*/payments").hasAnyRole(MANAGER.getRole())
-        .antMatchers(POST, "/students/*/fees/*/payments").hasAnyRole(MANAGER.getRole())
-        .antMatchers(GET, "/students/*/fees").hasAnyRole(MANAGER.getRole())
-        .antMatchers(POST, "/students/*/fees").hasAnyRole(MANAGER.getRole())
-            .antMatchers(GET,"/delay_penalty/**").hasAnyRole(TEACHER.getRole(),STUDENT.getRole(),MANAGER.getRole())
-            .antMatchers(PUT,"/delay_penalty_change/**").hasRole(MANAGER.getRole())
-        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments")).hasAnyRole(
-            STUDENT.getRole())
-        .antMatchers(GET, "/students/*/fees/*/payments").hasAnyRole(MANAGER.getRole())
-        .antMatchers(POST, "/students/*/fees/*/payments").hasAnyRole(MANAGER.getRole())
-        .requestMatchers(new SelfMatcher(GET, "/students/*")).hasAnyRole(STUDENT.getRole())
-        .antMatchers(GET, "/fees").hasAnyRole(MANAGER.getRole())
-        .antMatchers(GET, "/students/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-        .antMatchers(PUT, "/students/**").hasAnyRole(MANAGER.getRole())
-        .antMatchers(GET, "/teachers").hasAnyRole(MANAGER.getRole())
-        .requestMatchers(new SelfMatcher(GET, "/teachers/*")).hasAnyRole(TEACHER.getRole())
-        .antMatchers(GET, "/teachers/**").hasAnyRole(MANAGER.getRole())
-        .antMatchers(PUT, "/teachers/**").hasAnyRole(MANAGER.getRole())
-        .antMatchers("/managers/**").hasAnyRole(MANAGER.getRole())
-        .antMatchers(GET, "/groups").authenticated()
-        .antMatchers(GET, "/groups/*").authenticated()
-        .antMatchers(PUT, "/groups/**").hasAnyRole(MANAGER.getRole())
-        .antMatchers("/**").denyAll()
-
         // disable superfluous protections
         // Eg if all clients are non-browser then no csrf
         // https://docs.spring.io/spring-security/site/docs/3.2.0.CI-SNAPSHOT/reference/html/csrf.html,
         // Sec 13.3
-        .and()
         .csrf().disable() // NOSONAR
         .formLogin().disable()
         .logout().disable();

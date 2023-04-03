@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -93,7 +94,15 @@ public class FeeService {
   public double addInterest(Fee fee){
     User user = userService.getById(fee.getStudent().getId());
     DelayPenalty delayPenalty = delayPenaltyService.getAll();
-    FeesHistory feesHistory = feeHistoryRepository.getByStudentId(fee.getStudent().getId());
+    Optional<FeesHistory> feesHistory = Optional.ofNullable(feeHistoryRepository.getByStudentId(fee.getStudent().getId()));
+    boolean there = feesHistory.isPresent();
+    FeesHistory feesHistories;
+    if(there) {
+      feesHistories = feeHistoryRepository.getByStudentId(fee.getStudent().getId());
+    }
+    else{
+      feesHistories = new FeesHistory();
+    }
     int i = 0;
     int amount = 0;
     double temp = fee.getTotalAmount();
@@ -104,9 +113,9 @@ public class FeeService {
     int delay =((delayPenalty.getApplicabilityDelayAfterGrace()) - 1);
     if(Instant.now().isAfter(graceDelay)){
       while(i < delay){
-        feesHistory.setStudent(user);
-        feesHistory.setFee_total(temp);
-        feesHistory.setPercentage(delayPenalty.getInterestPercent());
+        feesHistories.setStudent(user);
+        feesHistories.setFee_total(temp);
+        feesHistories.setPercentage(delayPenalty.getInterestPercent());
           amount += ((fee.getTotalAmount() * delayPenalty.getInterestPercent()) / 100) * i ;
           temp += amount;
           delay --;
@@ -114,14 +123,14 @@ public class FeeService {
       }
     }
     else {
-      feesHistory.setFee_total(temp);
-      feesHistory.setPercentage(delayPenalty.getInterestPercent());
-      feesHistory.setPaid(true);
-      fee.setTotalAmount(feesHistory.getFee_total().intValue());
+      feesHistories.setFee_total(temp);
+      feesHistories.setPercentage(delayPenalty.getInterestPercent());
+      feesHistories.setPaid(true);
+      fee.setTotalAmount(feesHistories.getFee_total().intValue());
       fee.setRemainingAmount(0);
     }
-    feesHistory.setStudent(fee.getStudent());
-    feeHistoryRepository.save(feesHistory);
+    feesHistories.setStudent(fee.getStudent());
+    feeHistoryRepository.save(feesHistories);
     return temp;
   }
   @Scheduled(cron = "0 0 * * * *")
