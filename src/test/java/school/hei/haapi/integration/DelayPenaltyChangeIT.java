@@ -195,7 +195,7 @@ public class DelayPenaltyChangeIT {
     CreateDelayPenaltyChange newCreateDelayPenalty = new CreateDelayPenaltyChange();
     newCreateDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
     newCreateDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
-    newCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay()+4);
+    newCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay()+5);
     newCreateDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
     api.createDelayPenaltyChange(newCreateDelayPenalty);
 
