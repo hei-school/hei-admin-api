@@ -1,11 +1,7 @@
 package school.hei.haapi.service;
 
 import java.time.Instant;
-<<<<<<< HEAD
 import java.time.temporal.ChronoUnit;
-import java.util.Comparator;
-=======
->>>>>>> 4cd8ff1a5f4c945833fea571f870bb5f416efb0e
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -15,19 +11,15 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
-<<<<<<< HEAD
-import school.hei.haapi.model.*;
-=======
+
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
-import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.PageFromOne;
->>>>>>> 4cd8ff1a5f4c945833fea571f870bb5f416efb0e
+import school.hei.haapi.model.*;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
@@ -91,16 +83,56 @@ public class FeeService {
         page.getValue() - 1,
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
-    List<Fee> studentFees = resetPaymentRelatedInfo(feeRepository.getByStudentId(studentId));
+    List<Fee> studentFees = resetPaymentRelatedInfo(feeRepository.getByStudentId(studentId, pageable));
     updateFees(studentFees);
     if (status != null) {
-<<<<<<< HEAD
-      return getFeesByStatus(studentFees, status, page, pageSize);
-=======
       return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
->>>>>>> 4cd8ff1a5f4c945833fea571f870bb5f416efb0e
     }
     return feeRepository.getByStudentId(studentId, pageable);
+  }
+
+  private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum getFeeStatus(Fee fee) {
+    if (computeRemainingAmount(fee) == 0) {
+      return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+    } else {
+      if (Instant.now().isAfter(fee.getDueDatetime())) {
+        return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
+      }
+      return school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
+    }
+  }
+
+  private int computeRemainingAmount(Fee fee) {
+    List<Payment> payments = fee.getPayments();
+    if (payments != null) {
+      int amount = payments
+              .stream()
+              .mapToInt(Payment::getAmount)
+              .sum();
+      return fee.getTotalAmount() - amount;
+    }
+    return fee.getTotalAmount();
+  }
+
+  private Fee resetPaymentRelatedInfo(Fee initialFee) {
+    return Fee.builder()
+            .id(initialFee.getId())
+            .student(initialFee.getStudent())
+            .type(initialFee.getType())
+            .remainingAmount(computeRemainingAmount(initialFee))
+            .status(getFeeStatus(initialFee))
+            .comment(initialFee.getComment())
+            .creationDatetime(initialFee.getCreationDatetime())
+            .dueDatetime(initialFee.getDueDatetime())
+            .payments(initialFee.getPayments())
+            .totalAmount(initialFee.getTotalAmount())
+            .build();
+  }
+
+  private List<Fee> resetPaymentRelatedInfo(List<Fee> fees) {
+    return fees.stream()
+            .map(this::resetPaymentRelatedInfo)
+            .collect(toUnmodifiableList());
   }
 
   private Fee updateFeeStatus(Fee initialFee) {
