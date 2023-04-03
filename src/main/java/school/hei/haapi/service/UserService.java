@@ -48,6 +48,13 @@ public class UserService {
     return savedUsers;
   }
 
+  @Transactional
+  public User ChangeUserGraceDelay(String usersId, Integer delayGrace) {
+    User user = userRepository.getById(usersId);
+    user.setDelayGrace(delayGrace);
+    return userRepository.saveAll(List.of(user)).get(0);
+  }
+
   private TypedUserUpserted toTypedEvent(User user) {
     return new TypedUserUpserted(
         new UserUpserted()
@@ -69,4 +76,6 @@ public class UserService {
     return userManagerDao.findByCriteria(
            role, ref, firstName, lastName, pageable);
   }
+
+
 }

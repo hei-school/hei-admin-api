@@ -29,11 +29,10 @@ public class InterestHistoryService {
   private final UserRepository userRepository;
 
   public int getInterestAmount(String feeId){
+    if (delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).size()==0){return 0;};
     Fee fee = feeRepository.getById(feeId);
     User user = userRepository.getById(fee.getStudent().getId());
     List<Payment> payments = paymentRepository.getAllPaymentByStudentIdAndFeeId(fee.getStudent().getId(),fee.getId());
-    if (delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).size()==0){return 0;};
-
     DelayPenalty configGeneral = delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).size()>0?
             delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).get(0):
             null;
@@ -44,7 +43,6 @@ public class InterestHistoryService {
       }
     }
     int delayGrace = user.getDelayGrace()!=null?user.getDelayGrace():configGeneral.getGraceDelay();
-    //TODO calcul pour configGeneral == null and else
     LocalDate interestStart = LocalDate.ofInstant(fee.getDueDatetime(), ZoneId.of("UTC")).plusDays(delayGrace);
     LocalDate interestEnd = interestStart.plusDays(configGeneral.getApplicabilityDelayAfterGrace());
     LocalDate todayDate = DataFormatterUtils.takeLocalDate();
