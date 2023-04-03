@@ -12,7 +12,10 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiExcepti
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -33,6 +36,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 @Testcontainers
 @ContextConfiguration(initializers = DelayPenaltyIT.ContextInitializer.class)
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class DelayPenaltyIT {
   @MockBean
   private SentryConf sentryConf;
@@ -98,6 +102,7 @@ class DelayPenaltyIT {
     setUpCognito(cognitoComponentMock);
   }
 
+  @Order(1)
   @Test
   void student_read_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
@@ -108,6 +113,7 @@ class DelayPenaltyIT {
     assertEquals(delayPenalty(), actualDelayPenalty);
   }
 
+  @Order(1)
   @Test
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
@@ -117,6 +123,7 @@ class DelayPenaltyIT {
     assertEquals(delayPenalty(), actualDelayPenalty);
   }
 
+  @Order(1)
   @Test
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -126,6 +133,7 @@ class DelayPenaltyIT {
     assertEquals(delayPenalty(), actualDelayPenalty);
   }
 
+  @Order(2)
   @Test
   void manager_write_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -139,6 +147,7 @@ class DelayPenaltyIT {
         , actual);
   }
 
+  @Order(2)
   @Test
   void student_write_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
@@ -149,6 +158,7 @@ class DelayPenaltyIT {
         () -> api.changeDelayPenaltyChange(createDelayPenalty1()));
   }
 
+  @Order(2)
   @Test
   void teacher_write_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
@@ -159,6 +169,7 @@ class DelayPenaltyIT {
         () -> api.changeDelayPenaltyChange(createDelayPenalty1()));
   }
 
+  @Order(3)
   @Test
   void fee_amount_should_have_changed() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
