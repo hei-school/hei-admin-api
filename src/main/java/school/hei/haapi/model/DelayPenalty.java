@@ -1,4 +1,4 @@
-package school.hei.haapi.model;
+package java.school.hei.haapi.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;

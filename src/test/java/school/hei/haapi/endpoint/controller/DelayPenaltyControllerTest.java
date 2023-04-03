@@ -1,4 +1,4 @@
-package school.hei.haapi.endpoint.controller;
+package java.school.hei.haapi.endpoint.controller;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -59,16 +59,16 @@ public class DelayPenaltyControllerTest {
                 .applicabilityDelayAfterGrace(30)
                 .build();
 
-        DelayPenalty excpected = delayPenaltyController.changeDelayPenaltyConfiguration(delayPenaltyChange);
+        DelayPenalty expected = delayPenaltyController.changeDelayPenaltyConfiguration(delayPenaltyChange);
 
-        assertEquals(excpected.getBody(), DelayPenalty.builder()
-                                            .id("1")
-                                            .interestPercent(new BigDecimal("5"))
-                                            .interestTimeRate(InterestTimeRate.MONTHLY)
-                                            .graceDelay(10)
-                                            .applicabilityDelayAfterGrace(30)
-                                            .creationDatetime(LocalDateTime.now())
-                                            .build()
+        assertEquals(expected, DelayPenalty.builder()
+                                    .id("1")
+                                    .interestPercent(new BigDecimal("5"))
+                                    .interestTimeRate(InterestTimeRate.MONTHLY)
+                                    .graceDelay(10)
+                                    .applicabilityDelayAfterGrace(30)
+                                    .creationDatetime(expected)
+                                    .build()
         );
     }
 }

@@ -1,4 +1,4 @@
-package school.hei.haapi.model;
+package java.school.hei.haapi.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,7 +15,7 @@ import lombok.*;
 @Table(name = "delay_penalty")
 public class DelayPenaltyChange {
     private BigDecimal interestPercent;
-    private InterestTimeRate interestTimeRate;
+    private school.hei.haapi.model.InterestTimeRate interestTimeRate;
     private int graceDelay;
     private int applicabilityDelayAfterGrace;
 }

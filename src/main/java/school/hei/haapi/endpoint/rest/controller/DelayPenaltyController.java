@@ -1,4 +1,4 @@
-package school.hei.haapi.endpoint.rest.controller;
+package java.school.hei.haapi.endpoint.rest.controller;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -7,9 +7,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import school.hei.haapi.model.DelayPenalty;
-import school.hei.haapi.model.DelayPenaltyChange;
-import school.hei.haapi.service.DelayPenaltyService;
+import java.school.hei.haapi.model.DelayPenalty;
+import java.school.hei.haapi.model.DelayPenaltyChange;
+import java.school.hei.haapi.service.DelayPenaltyService;
 
 @RestController
 public class DelayPenaltyController {

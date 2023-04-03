@@ -1,4 +1,4 @@
-package school.hei.haapi.service;
+package java.school.hei.haapi.service;
 
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +12,10 @@ import school.hei.haapi.repository.DelayPenaltyRepository;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.school.hei.haapi.endpoint.rest.mapper.DelayPenaltyMapper;
+import java.school.hei.haapi.model.DelayPenalty;
+import java.school.hei.haapi.model.DelayPenaltyChange;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -49,7 +53,14 @@ public class DelayPenaltyService {
     }
 
     public DelayPenalty changeDelayPenaltyConfiguration(DelayPenaltyChange delayPenaltyChange) {
-        return delayPenaltyMapper.toDelayPenaltyEntity(delayPenaltyRepository.save(delayPenaltyChange));
+        List<DelayPenalty> delayPenalties = delayPenaltyRepository.findAll();
+        for (DelayPenalty delayPenalty : delayPenalties) {
+            delayPenalty.setInterestPercent(delayPenaltyChange.getInterestPercent());
+            delayPenalty.setInterestTimeRate(delayPenaltyChange.getInterestTimeRate());
+            delayPenalty.setGraceDelay(delayPenaltyChange.getGraceDelay());
+            delayPenalty.setApplicabilityDelayAfterGrace(delayPenaltyChange.getApplicabilityDelayAfterGrace());
+        }
+
+        return delayPenalties.get(0);
     }
 }
-
