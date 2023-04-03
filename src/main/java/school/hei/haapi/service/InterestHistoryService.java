@@ -43,7 +43,7 @@ public class InterestHistoryService {
         paymentAmount = paymentAmount + payment.getAmount();
       }
     }
-    int delayGrace = false?0:configGeneral.getGraceDelay();
+    int delayGrace = user.getDelayGrace()!=null?user.getDelayGrace():configGeneral.getGraceDelay();
     //TODO calcul pour configGeneral == null and else
     LocalDate interestStart = LocalDate.ofInstant(fee.getDueDatetime(), ZoneId.of("UTC")).plusDays(delayGrace);
     LocalDate interestEnd = interestStart.plusDays(configGeneral.getApplicabilityDelayAfterGrace());
