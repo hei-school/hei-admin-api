@@ -31,6 +31,7 @@ class FeeServiceTest {
   FeeRepository feeRepository;
   FeeValidator feeValidator;
   EventProducer eventProducer;
+  DelayPenaltyService delayPenaltyService;
 
   static User student1() {
     return User.builder()
@@ -113,7 +114,8 @@ class FeeServiceTest {
     feeRepository = mock(FeeRepository.class);
     feeValidator = mock(FeeValidator.class);
     eventProducer = mock(EventProducer.class);
-    subject = new FeeService(feeRepository, feeValidator, eventProducer);
+    delayPenaltyService = mock(DelayPenaltyService.class);
+    subject = new FeeService(feeRepository, feeValidator, eventProducer,delayPenaltyService);
   }
 
   @Test

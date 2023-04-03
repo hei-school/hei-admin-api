@@ -11,6 +11,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -47,6 +48,16 @@ public class DelayPenaltyIT {
         penalty.setApplicabilityDelayAfterGrace(0);
         penalty.setCreationDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
         return penalty;
+    }
+
+    public CreateDelayPenaltyChange toUpdate(){
+        CreateDelayPenaltyChange createDelayPenaltyChange = new CreateDelayPenaltyChange();
+        createDelayPenaltyChange.setInterestPercent(0);
+        createDelayPenaltyChange.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
+        createDelayPenaltyChange.setGraceDelay(1);
+        createDelayPenaltyChange.setApplicabilityDelayAfterGrace(1);
+
+        return createDelayPenaltyChange;
     }
 
     @BeforeEach
@@ -93,6 +104,35 @@ public class DelayPenaltyIT {
 
         assertEquals(penalty1(), actual);
     }
+
+    @Test
+    void student_update_ko() {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        PayingApi api = new PayingApi(student1Client);
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.createDelayPenaltyChange(toUpdate()));
+    }
+
+    @Test
+    void teacher_update_ko() {
+        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+        PayingApi api = new PayingApi(teacher1Client);
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.createDelayPenaltyChange(toUpdate()));
+    }
+
+    @Test
+    void manager_update_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        PayingApi api = new PayingApi(manager1Client);
+
+        DelayPenalty actual = api.createDelayPenaltyChange(toUpdate());
+
+        assertEquals(toUpdate() , actual);
+    }
+
 
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
