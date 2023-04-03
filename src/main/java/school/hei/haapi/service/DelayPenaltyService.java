@@ -3,8 +3,11 @@ package school.hei.haapi.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenalty;
+import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.DelayPenaltyRepository;
+
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -24,6 +27,8 @@ public class DelayPenaltyService {
         crupdate.setId(getDelayPenalty().getId());
         crupdate.setCreationDatetime(getDelayPenalty().getCreationDatetime());
         repository.save(crupdate);
+        List<Fee> lateFees = feeService.getFeesByStatus(school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE);
+        feeService.applyLatePenalties(lateFees);
         return crupdate;
     }
 

@@ -63,6 +63,8 @@ public class Fee implements Serializable {
 
   private String comment;
 
+  private Instant lastInterestPenality;
+
   @CreationTimestamp
   @Getter(AccessLevel.NONE)
   private Instant creationDatetime;
