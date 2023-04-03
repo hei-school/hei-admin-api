@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -14,6 +15,7 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
@@ -33,6 +35,7 @@ public class FeeService {
   private final FeeValidator feeValidator;
 
   private final EventProducer eventProducer;
+  private final DelayPenaltyService delayPenaltyService;
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
@@ -101,6 +104,29 @@ public class FeeService {
             .dueDatetime(fee.getDueDatetime())
             .build()
     );
+  }
+
+  public Fee applyInterestToFee(Fee fee) {
+    DelayPenalty delayPenalty = delayPenaltyService.getDelayPenalty();
+    Instant now = Instant.now();
+    Instant dueDatetime = fee.getDueDatetime();
+    Integer remainingAmount = fee.getRemainingAmount();
+    Integer interestPercent = delayPenalty.getInterestPercent();
+    Integer graceDelay = delayPenalty.getGraceDelay();
+    Integer applicabilityAfterGrace  = delayPenalty.getApplicabilityDelayAfterGrace();
+    if (fee.getStatus() == LATE){
+      if (now.isAfter(dueDatetime.plus(graceDelay, ChronoUnit.DAYS))
+              && now.isBefore(dueDatetime.plus(graceDelay + applicabilityAfterGrace + 1, ChronoUnit.DAYS))){
+        Integer daysCount = (int) ChronoUnit.DAYS.between(dueDatetime.plus(graceDelay, ChronoUnit.DAYS), now) + 1;
+        Integer amountWithInterest = delayPenaltyService
+                .applyCompoundInterests(remainingAmount, interestPercent, daysCount);
+        fee.setRemainingAmount(amountWithInterest);
+      }
+      else if (now.isAfter(dueDatetime.plus(graceDelay + applicabilityAfterGrace, ChronoUnit.DAYS))){
+        fee.setRemainingAmount(delayPenaltyService.applyCompoundInterests(remainingAmount, interestPercent, applicabilityAfterGrace));
+      }
+    }
+    return fee;
   }
 
   /*

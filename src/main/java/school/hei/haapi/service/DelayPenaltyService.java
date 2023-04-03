@@ -28,5 +28,7 @@ public class DelayPenaltyService {
                 null;
     }
 
-
+    public Integer applyCompoundInterests(Integer initialAmount, Integer interestPercent, Integer daysCount) {
+        return (int) Math.round(initialAmount * Math.pow(1 + ((double) interestPercent / 100), daysCount));
+    }
 }
