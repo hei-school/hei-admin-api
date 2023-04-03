@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -16,8 +17,10 @@ import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.service.utils.FeeStatusServiceUtils;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
@@ -73,13 +76,21 @@ public class FeeService {
   }
 
   private Fee updateFeeStatus(Fee initialFee) {
-    if (initialFee.getRemainingAmount() == 0) {
-      initialFee.setStatus(PAID);
-    } else if (Instant.now().isAfter(initialFee.getDueDatetime())) {
-      initialFee.setStatus(LATE);
+    List<Payment> payments = initialFee.getPayments();
+    double amountPaid = 0;
+    for (Payment payment : payments) {
+      amountPaid += payment.getAmount();
     }
+    FeeStatusServiceUtils feeStatus = new FeeStatusServiceUtils(initialFee.getStatus().toString(), initialFee.getRemainingAmount());
+    FeeStatusServiceUtils updatedFeeStatus = feeStatus.calculateNewRemainingAmount(amountPaid);
+    String status = updatedFeeStatus.getStatus();
+    int remainingAmount = (int) updatedFeeStatus.getRemainingAmount();
+    initialFee.setRemainingAmount(remainingAmount);
+    initialFee.setStatus(school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.fromValue(status));
     return initialFee;
   }
+
+
 
   @Scheduled(cron = "0 0 * * * *")
   public void updateFeesStatusToLate() {
