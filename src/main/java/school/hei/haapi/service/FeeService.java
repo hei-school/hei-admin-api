@@ -18,8 +18,10 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.UserRepository;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
@@ -36,6 +38,7 @@ public class FeeService {
 
   private final EventProducer eventProducer;
   private final DelayPenaltyService delayPenaltyService;
+  private final UserRepository userRepository;
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
@@ -108,11 +111,18 @@ public class FeeService {
 
   public Fee applyInterestToFee(Fee fee) {
     DelayPenalty delayPenalty = delayPenaltyService.getDelayPenalty();
+    User user = fee.getStudent();
+    Integer graceDelay = 0;
+    if(user.getGraceDelay() != null){
+      graceDelay = user.getGraceDelay();
+    }
+    else {
+      graceDelay = delayPenalty.getGraceDelay();
+    }
     Instant now = Instant.now();
     Instant dueDatetime = fee.getDueDatetime();
     Integer remainingAmount = fee.getRemainingAmount();
     Integer interestPercent = delayPenalty.getInterestPercent();
-    Integer graceDelay = delayPenalty.getGraceDelay();
     Integer applicabilityAfterGrace  = delayPenalty.getApplicabilityDelayAfterGrace();
     if (fee.getStatus() == LATE){
       if (now.isAfter(dueDatetime.plus(graceDelay, ChronoUnit.DAYS))
