@@ -1,14 +1,8 @@
 package school.hei.haapi.model;
 
 import java.time.Instant;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -40,9 +34,33 @@ public class DelayPenalty {
     @Column(name = "interest_timerate")
     private static InterestTimerateEnum interestTimeRate;
     private static int graceDelay;
+
+    public static int graceDelayForOneStd;
+
+    public static int getGraceDelayForOneStd() {
+        return graceDelayForOneStd;
+    }
+
+    public void setGraceDelayForOneStd(int graceDelayForOneStd) {
+        this.graceDelayForOneStd = graceDelayForOneStd;
+    }
+
+    public static void setStudent(User student) {
+        DelayPenalty.student = student;
+    }
+
     private static int applicabilityDelayAfterGrace;
     @CreationTimestamp
     private static Instant creationDatetime;
+
+    @OneToOne
+    @JoinColumn(name = "id")
+    private static User student;
+
+    public static User getStudent() {
+        return student;
+    }
+
 
     public static void setInterestPercent(int interestPercent) {
         DelayPenalty.interestPercent = interestPercent;

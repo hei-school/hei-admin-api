@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import javax.persistence.EntityNotFoundException;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,9 +16,11 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
+import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.model.*;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.UserRepository;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -32,6 +35,8 @@ public class FeeService {
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
+
+  private final UserRepository userRepository;
 
   private final EventProducer eventProducer;
 
@@ -62,6 +67,8 @@ public class FeeService {
 
   public static void updateFees(List<Fee> fees) {
     Instant now = Instant.now();
+
+
     for (Fee fee : fees) {
       if (fee.getRemainingAmount() > 0 && fee.getDueDatetime().isBefore(now)) {
         int daysLate = (int) ChronoUnit.DAYS.between(fee.getDueDatetime(), now);
@@ -69,6 +76,23 @@ public class FeeService {
           int daysAfterGrace = daysLate - DelayPenalty.getGraceDelay();
           if (daysAfterGrace <= DelayPenalty.getApplicabilityDelayAfterGrace()) {
            int interestAmount = fee.getRemainingAmount() * DelayPenalty.getInterestPercent() * daysAfterGrace / 36500;
+            fee.setTotalAmount(fee.getRemainingAmount() + interestAmount);
+          }
+        }
+      }
+    }
+  }
+
+  public static void updateFeesForOneStudent(List<Fee> fees) {
+    Instant now = Instant.now();
+
+    for (Fee fee : fees) {
+      if (fee.getRemainingAmount() > 0 && fee.getDueDatetime().isBefore(now)) {
+        int daysLate = (int) ChronoUnit.DAYS.between(fee.getDueDatetime(), now);
+        if (daysLate > DelayPenalty.getGraceDelayForOneStd()) {
+          int daysAfterGrace = daysLate - DelayPenalty.getGraceDelayForOneStd();
+          if (daysAfterGrace <= DelayPenalty.getApplicabilityDelayAfterGrace()) {
+            int interestAmount = fee.getRemainingAmount() * DelayPenalty.getInterestPercent() * daysAfterGrace / 36500;
             fee.setTotalAmount(fee.getRemainingAmount() + interestAmount);
           }
         }
@@ -84,12 +108,18 @@ public class FeeService {
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
     List<Fee> studentFees = resetPaymentRelatedInfo(feeRepository.getByStudentId(studentId, pageable));
+    User student = userRepository.findById(studentId)
+            .orElseThrow(() -> new EntityNotFoundException("Student not found"));
+    if (DelayPenalty.getStudent() != null || DelayPenalty.getStudent() == student){
+      updateFeesForOneStudent(studentFees);
+    }
     updateFees(studentFees);
     if (status != null) {
       return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
     }
     return feeRepository.getByStudentId(studentId, pageable);
   }
+
 
   private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum getFeeStatus(Fee fee) {
     if (computeRemainingAmount(fee) == 0) {
