@@ -12,6 +12,8 @@ import school.hei.haapi.model.Fee;
 public interface FeeRepository extends JpaRepository<Fee, String> {
   Fee getByStudentIdAndId(String studentId, String feeId);
 
+  List<Fee> getFeesByStatusAndStudentId(StatusEnum status, String StudentId);
+
   List<Fee> getFeesByStatus(StatusEnum status,
                             Pageable pageable);
 
