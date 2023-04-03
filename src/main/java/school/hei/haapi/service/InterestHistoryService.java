@@ -7,9 +7,11 @@ import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.DelayPenaltyHistory;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.User;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.PaymentRepository;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
 import java.time.LocalDate;
@@ -24,21 +26,26 @@ public class InterestHistoryService {
   private final DelayPenaltyRepository delayPenaltyRepository;
   private final DelayPenaltyHistoryService delayPenaltyHistoryService;
   private final PaymentRepository paymentRepository;
+  private final UserRepository userRepository;
 
   public int getInterestAmount(String feeId){
     Fee fee = feeRepository.getById(feeId);
+    User user = userRepository.getById(fee.getStudent().getId());
     List<Payment> payments = paymentRepository.getAllPaymentByStudentIdAndFeeId(fee.getStudent().getId(),fee.getId());
+    if (delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).size()==0){return 0;};
+
+    DelayPenalty configGeneral = delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).size()>0?
+            delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).get(0):
+            null;
     int paymentAmount = 0;
     for (Payment payment:payments) {
       if (!payment.getCreationDatetime().isAfter(fee.getDueDatetime())) {
         paymentAmount = paymentAmount + payment.getAmount();
       }
     }
-    DelayPenalty configGeneral = delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).size()>0?
-            delayPenaltyRepository.findAll(Sort.by(Sort.Direction.DESC, "lastUpdateDate")).get(0):
-            null;
+    int delayGrace = user.getDelayGrace()!=null?user.getDelayGrace():configGeneral.getGraceDelay();
     //TODO calcul pour configGeneral == null and else
-    LocalDate interestStart = LocalDate.ofInstant(fee.getDueDatetime(), ZoneId.of("UTC")).plusDays(configGeneral.getGraceDelay());
+    LocalDate interestStart = LocalDate.ofInstant(fee.getDueDatetime(), ZoneId.of("UTC")).plusDays(delayGrace);
     LocalDate interestEnd = interestStart.plusDays(configGeneral.getApplicabilityDelayAfterGrace());
     LocalDate todayDate = DataFormatterUtils.takeLocalDate();
     LocalDate lastDateOperation = todayDate.isBefore(interestEnd)?todayDate:interestEnd;
@@ -49,19 +56,15 @@ public class InterestHistoryService {
     int totalamount = fee.getTotalAmount() - fee.getInterestAmount() - paymentAmount;
     for (DelayPenaltyHistory delayPenaltyHistory:delayPenaltyHistoryList) {
       if (actualDate.isAfter(lastDateOperation)) {
-        //calcul = calcul + " 1 /";
         break;
       } else if (actualDate.isBefore(delayPenaltyHistory.getEndDate()!=null?delayPenaltyHistory.getEndDate():todayDate)) {
         for (LocalDate i = actualDate; i.isBefore(delayPenaltyHistory.getEndDate()!=null?delayPenaltyHistory.getEndDate():todayDate); i.plusDays(delayPenaltyHistory.getTimeFrequency())) {
           if (!i.isBefore(lastDateOperation)) {
-            //calcul = calcul + " 2 /";
             break;
           }else {
             amount = totalamount*delayPenaltyHistory.getInterestPercent()/100;
-            //calcul =calcul + "|"+ i + "|" + totalamount + " * " + delayPenaltyHistory.getInterestPercent() + " / 100 = " + amount + "\n";
             totalamount += amount;
             actualDate =i = i.plusDays(delayPenaltyHistory.getTimeFrequency());
-            //calcul =calcul + "actual dat = " + actualDate + "is aftrer: " + actualDate.isAfter(lastDateOperation) +  "is bifor : " + !i.isBefore(lastDateOperation)+   "\n" ;
           }
         }
       }

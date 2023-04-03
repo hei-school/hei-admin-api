@@ -54,7 +54,7 @@ public class User implements Serializable {
 
   private Instant entranceDatetime;
 
-  private int delayGrace;
+  private Integer delayGrace;
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
