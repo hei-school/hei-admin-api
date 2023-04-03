@@ -62,8 +62,8 @@ public class DelayPenaltyIT {
         fee.setStudentId(STUDENT1_ID);
         fee.setStatus(Fee.StatusEnum.LATE);
         fee.setType(Fee.TypeEnum.TUITION);
-        fee.setTotalAmount(5202);
-        fee.setRemainingAmount(5202);
+        fee.setTotalAmount(5463);
+        fee.setRemainingAmount(5463);
         fee.setComment("Comment");
         fee.setUpdatedAt(Instant.now());
         fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
