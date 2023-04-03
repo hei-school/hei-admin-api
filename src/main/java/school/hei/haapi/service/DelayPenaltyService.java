@@ -18,15 +18,20 @@ public class DelayPenaltyService {
         return repository.findFirstBy();
     }
     public DelayPenalty putDelayPenalty(DelayPenalty newValues){
-            DelayPenalty currentValue = repository.findFirstBy();
-            currentValue.setInterestPercent(newValues.getInterestPercent());
-            currentValue.setInterestTimerate(newValues.getInterestTimerate());
-            currentValue.setGraceDelay(newValues.getGraceDelay());
-            currentValue.setApplicabilityDelayAfterGrace(newValues.getApplicabilityDelayAfterGrace());
-            validator.accept(currentValue);
-            DelayPenalty newDelayPenalty = repository.save(currentValue);
-            interestFeeUpdate.updateInterestFees(newDelayPenalty);
-            return newDelayPenalty;
+        DelayPenalty actualValue = setValues(newValues);
+        validator.accept(actualValue);
+        DelayPenalty newDelayPenalty = repository.save(actualValue);
+        interestFeeUpdate.updateInterestFees(newDelayPenalty);
+        return newDelayPenalty;
+    }
+
+    private DelayPenalty setValues(DelayPenalty newValues){
+        DelayPenalty currentValue = repository.findFirstBy();
+        currentValue.setInterestPercent(newValues.getInterestPercent());
+        currentValue.setInterestTimerate(newValues.getInterestTimerate());
+        currentValue.setGraceDelay(newValues.getGraceDelay());
+        currentValue.setApplicabilityDelayAfterGrace(newValues.getApplicabilityDelayAfterGrace());
+        return currentValue;
     }
 
     @Scheduled(cron = "0 00 6 * * *")
