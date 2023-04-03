@@ -1,9 +1,7 @@
 package school.hei.haapi.integration;
 
-import lombok.SneakyThrows;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.MockedStatic;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -24,21 +22,21 @@ import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.DelayPenaltyHistoryService;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.InterestHistoryService;
-import school.hei.haapi.service.utils.DataFormatterUtils;
 
-import java.time.Clock;
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.mockito.Mockito.CALLS_REAL_METHODS;
-import static org.mockito.Mockito.mockStatic;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -197,7 +195,7 @@ public class DelayPenaltyChangeIT {
     CreateDelayPenaltyChange newCreateDelayPenalty = new CreateDelayPenaltyChange();
     newCreateDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
     newCreateDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
-    newCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay()+4);
+    newCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay()+5);
     newCreateDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
     api.createDelayPenaltyChange(newCreateDelayPenalty);
 
@@ -235,32 +233,57 @@ public class DelayPenaltyChangeIT {
   }
 
 
-  static Instant mockTimeToInstant(String time){
-    Clock clock = Clock.fixed(Instant.parse(time), ZoneId.of("UTC"));
-    return Instant.now(clock);
-  }
 
+    @Test
+    void changeInterestRateAutomaticChangeFees() throws ApiException {
 
-  @Test
-  public void manager_read_ok_time_mock() {
-    String instantExpected = "2014-12-22T10:15:30Z";
-    Clock clock = Clock.fixed(Instant.parse(instantExpected), ZoneId.of("UTC"));
-    Instant instant = Instant.now(clock);
-    Instant due = mockTimeToInstant("2021-12-09T08:25:24.00Z");
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        PayingApi api = new PayingApi(manager1Client);
 
-    // try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class)) {
-    try (MockedStatic<Instant> mockedStatic = mockStatic(Instant.class, CALLS_REAL_METHODS)) {
-      LocalDate ok = DataFormatterUtils.takeLocalDate();
+        List<Fee> noUpdateFees = api.getFees("", 1, 20);
+        List<Fee> AllPaidFeesWithoutInterest = api.getFees("PAID", 1, 20);
 
-      mockedStatic.when(Instant::now).thenReturn(due);
-      LocalDate expected = LocalDate.ofInstant(Instant.now(),ZoneId.of("UTC")).plusDays(1);
-      LocalDate actual = DataFormatterUtils.takeLocalDate();
+        DelayPenalty ActualDelayPenalty = api.getDelayPenalty();
+        CreateDelayPenaltyChange actualCreateDelayPenalty = new CreateDelayPenaltyChange();
+        actualCreateDelayPenalty.setInterestPercent(ActualDelayPenalty.getInterestPercent());
+        actualCreateDelayPenalty.setInterestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY);
+        actualCreateDelayPenalty.setGraceDelay(ActualDelayPenalty.getGraceDelay());
+        actualCreateDelayPenalty.setApplicabilityDelayAfterGrace(ActualDelayPenalty.getApplicabilityDelayAfterGrace());
+        api.createDelayPenaltyChange(actualCreateDelayPenalty);
 
-      mockedStatic.when(Instant::now).thenReturn(due);
+        List<Fee> actualFeesWithInterest = api.getFees("", 1, 20);
+        List<Fee> originalAllPaidFeesWithInterest = api.getFees("PAID", 1, 20);
 
-      assertEquals(expected,actual);
+        Fee InitialFee7 = noUpdateFees.stream().filter(e->e.getId().equals("fee7_id")).collect(Collectors.toList()).get(0);
+        Fee ActualFee7 = actualFeesWithInterest.stream().filter(e->e.getId().equals("fee7_id")).collect(Collectors.toList()).get(0);
+        //Interest application for fee7 with application of 10 days divide in 02 parts, change of InterestRate
+        //From 13-03-23 to 15-03-23 : InitialAmount = 5000; interestRate = 5; timeRate = DAILY
+        int ApplyDays1 = 3;
+        int InterestRate1 = 5;
+        int expectedRemainingAmount = InterestFormulaDaily(InitialFee7.getRemainingAmount(),ApplyDays1,InterestRate1);
+        //From 13-03-23 to 15-03-23 : interestRate = 4; timeRate = DAILY
+        int ApplyDays2 = 7;
+        int InterestRate2 = 4;
+        expectedRemainingAmount = InterestFormulaDaily(expectedRemainingAmount,ApplyDays2,InterestRate2);
+
+        assertEquals(expectedRemainingAmount,ActualFee7.getRemainingAmount());
     }
-  }
+
+    int InterestFormulaDaily(int initial,int dayNumber,int rate){
+        int Interest = 0;
+        int amount = initial;
+        for (int i = 0; i < dayNumber; i++) {
+            Interest = amount*rate /100;
+            amount = Interest+amount;
+        }
+        /*
+        int amount = initial;
+        for (int i = 0; i < dayNumber; i++) {
+            amount = (int) Math.round(amount*(1+ ((double) rate /100)));
+        }
+         */
+        return amount;
+    }
 
 
   static class ContextInitializer extends AbstractContextInitializer {
