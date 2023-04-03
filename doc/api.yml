@@ -258,6 +258,45 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{student_id}/delay_grace:
+    
+    put:
+      tags:
+        - Users
+      summary: Link or unlink courses to a specific student
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: delay_grace
+          in: query
+          required: true
+          description: "update Student Delay Grace"
+          schema:
+            type: string
+      operationId: updateStudentDelayGrace
+  
+      responses:
+        '200':
+          description: The student updated courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students:
     get:
       tags:
