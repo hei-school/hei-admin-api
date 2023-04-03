@@ -12,11 +12,13 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
+import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
 import java.time.Instant;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -37,21 +39,36 @@ public class DelayPenaltyIT {
 
     static CreateDelayPenaltyChange delayPenalty1() {
         return new CreateDelayPenaltyChange()
-                .interestPercent(10)
+                .interestPercent(3)
                 .interestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY)
-                .graceDelay(7)
-                .applicabilityDelayAfterGrace(30);
+                .graceDelay(5)
+                .applicabilityDelayAfterGrace(15);
     }
 
     static DelayPenalty delayPenalty2() {
         DelayPenalty delayPenalty = new DelayPenalty();
         delayPenalty.setId("delay_penalty1_id");
-        delayPenalty.setInterestPercent(10);
+        delayPenalty.setInterestPercent(3);
         delayPenalty.setInterestTimerate(DelayPenalty.InterestTimerateEnum.DAILY);
-        delayPenalty.setGraceDelay(7);
-        delayPenalty.setApplicabilityDelayAfterGrace(30);
+        delayPenalty.setGraceDelay(5);
+        delayPenalty.setApplicabilityDelayAfterGrace(15);
         delayPenalty.setCreationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
         return delayPenalty;
+    }
+
+    static Fee fee3() {
+        Fee fee = new Fee();
+        fee.setId(FEE3_ID);
+        fee.setStudentId(STUDENT1_ID);
+        fee.setStatus(Fee.StatusEnum.LATE);
+        fee.setType(Fee.TypeEnum.TUITION);
+        fee.setTotalAmount(5202);
+        fee.setRemainingAmount(5202);
+        fee.setComment("Comment");
+        fee.setUpdatedAt(Instant.now());
+        fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
+        fee.setDueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
+        return fee;
     }
 
     @BeforeEach
@@ -90,8 +107,9 @@ public class DelayPenaltyIT {
         PayingApi api = new PayingApi(manager1Client);
 
         DelayPenalty actualPenalty = api.createDelayPenaltyChange(delayPenalty1());
-
+        List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
         assertEquals(delayPenalty2(), actualPenalty);
+        assertEquals(fee3().getTotalAmount(),actual.get(1).getTotalAmount());
     }
 
     static class ContextInitializer extends AbstractContextInitializer {

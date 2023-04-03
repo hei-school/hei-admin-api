@@ -92,8 +92,8 @@ class FeeIT {
     fee.setStudentId(STUDENT1_ID);
     fee.setStatus(Fee.StatusEnum.LATE);
     fee.setType(Fee.TypeEnum.TUITION);
-    fee.setTotalAmount(5100);
-    fee.setRemainingAmount(5100);
+    fee.setTotalAmount(5202);
+    fee.setRemainingAmount(5202);
     fee.setComment("Comment");
     fee.setUpdatedAt(Instant.now());
     fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
@@ -120,9 +120,7 @@ class FeeIT {
     PayingApi api = new PayingApi(student1Client);
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    /*CreateDelayPenaltyChange newDelay = new CreateDelayPenaltyChange().graceDelay(5).interestPercent(3).interestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.valueOf("DAILY"))
-            .applicabilityDelayAfterGrace(15);
-    api.createDelayPenaltyChange(newDelay);*/
+
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
     assertEquals(fee1(), actualFee);
