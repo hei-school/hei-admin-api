@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -96,8 +97,12 @@ public class FeeService {
     int i = 0;
     int amount = 0;
     double temp = fee.getTotalAmount();
+    Instant graceDelay = fee.getDueDatetime().plus(
+            delayPenaltyService.getAll().getGraceDelay(),
+            ChronoUnit.DAYS
+    );
     int delay =((delayPenalty.getApplicabilityDelayAfterGrace()) - 1);
-    if(delay > 0 || fee.getStatus() == DEFAULT_STATUS){
+    if(Instant.now().isAfter(graceDelay)){
       while(i < delay){
         feesHistory.setStudent(user);
         feesHistory.setFee_total(temp);
