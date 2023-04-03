@@ -1,0 +1,1 @@
+alter table "fee_history" add column grace_delay_student int not null default 0;

@@ -48,6 +48,10 @@ public class FeesHistory {
   @Column(nullable = false)
   private int percentage = 0;
 
+  @NotNull
+  @Column(nullable = false , name = "grace_delay_student")
+  private int graceStudentDelay = 0;
+
   @OneToOne
   @JoinColumn(name = "user_id")
   private User student;
