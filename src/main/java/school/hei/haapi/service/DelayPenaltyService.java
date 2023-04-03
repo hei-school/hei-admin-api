@@ -1,20 +1,29 @@
-package school.hei.haapi.service;
+package java.school.hei.haapi.service;
 
+import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.mapper.DelayPenaltyMapper;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.InterestTimeRate;
+import school.hei.haapi.model.DelayPenaltyChange;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.school.hei.haapi.endpoint.rest.mapper.DelayPenaltyMapper;
+import java.school.hei.haapi.model.DelayPenalty;
+import java.school.hei.haapi.model.DelayPenaltyChange;
+import java.util.List;
 
 @Service
+@AllArgsConstructor
 public class DelayPenaltyService {
 
     @Autowired
     private DelayPenaltyRepository delayPenaltyRepository;
+    private final DelayPenaltyMapper delayPenaltyMapper;
 
     public BigDecimal calculatePenalty(String delayPenaltyId, BigDecimal amount, int daysDelayed) {
 
@@ -42,5 +51,16 @@ public class DelayPenaltyService {
         return delayPenaltyRepository.findById(delayPenaltyId)
                 .orElseThrow(() -> new RuntimeException("Delay penalty not found"));
     }
-}
 
+    public DelayPenalty changeDelayPenaltyConfiguration(DelayPenaltyChange delayPenaltyChange) {
+        List<DelayPenalty> delayPenalties = delayPenaltyRepository.findAll();
+        for (DelayPenalty delayPenalty : delayPenalties) {
+            delayPenalty.setInterestPercent(delayPenaltyChange.getInterestPercent());
+            delayPenalty.setInterestTimeRate(delayPenaltyChange.getInterestTimeRate());
+            delayPenalty.setGraceDelay(delayPenaltyChange.getGraceDelay());
+            delayPenalty.setApplicabilityDelayAfterGrace(delayPenaltyChange.getApplicabilityDelayAfterGrace());
+        }
+
+        return delayPenalties.get(0);
+    }
+}
