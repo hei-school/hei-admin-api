@@ -13,14 +13,14 @@ import school.hei.haapi.service.DelayPenaltyService;
 public class DelayPenaltyController {
 
     private final DelayPenaltyService service;
-    private final DelayPenaltyMapper delayPenaltyMapper;
+  private final DelayPenaltyMapper delayPenaltyMapper;
 
-    @GetMapping("/delay_penalty")
-    public DelayPenalty getDelayPenalty(){
-        return delayPenaltyMapper.toRest(service.getDelayPenalty());
-    }
+  @GetMapping("/delay_penalty")
+  public DelayPenalty getDelayPenalty(){
+    return delayPenaltyMapper.toRest(service.getDelayPenalty());
+  }
 
-    @PutMapping("/delay_penalty_change")
+  @PutMapping("/delay_penalty_change")
     public DelayPenalty putDelayPenalty(DelayPenalty changes) {
         var saved = service.updateDelayPenalty(delayPenaltyMapper.toDomain(changes));
         return delayPenaltyMapper.toRest(saved);
