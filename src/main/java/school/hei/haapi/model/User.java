@@ -68,6 +68,8 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Sex sex;
 
+  private int graceDelay;
+
   @NotBlank(message = "Address is mandatory")
   private String address;
 
