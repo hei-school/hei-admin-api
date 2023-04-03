@@ -117,7 +117,7 @@ class DelayPenaltyIT {
   }
 
   @Test
-  @Order(4)
+  @Order(3)
   void manager_write_delay_penalty_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
@@ -146,17 +146,17 @@ class DelayPenaltyIT {
     createDelayPenaltyChange.setInterestPercent(5);
     DelayPenalty delayPenalty = api.createDelayPenaltyChange(createDelayPenaltyChange);
 
-    Fee actualFee8 = api.getStudentFeeById(STUDENT3_ID, FEE7_ID);
-    assertTrue(fee7.getTotalAmount() < actualFee8.getTotalAmount());
+    Fee actualFee7 = api.getStudentFeeById(STUDENT3_ID, FEE7_ID);
+    assertTrue(fee7.getTotalAmount() < actualFee7.getTotalAmount());
     assertEquals(
             (fee7.getTotalAmount() + (fee7.getTotalAmount() * delayPenalty.getInterestPercent() / 100)),
-            actualFee8.getTotalAmount()
+            actualFee7.getTotalAmount()
     );
   }
 
   @Test
-  @Order(3)
-  void student_with_grace_delay_fee_change_after_change_delay_penalty_ok() throws ApiException {
+  @Order(2)
+  void test() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
@@ -165,10 +165,9 @@ class DelayPenaltyIT {
 
     CreateDelayPenaltyChange createDelayPenaltyChange = createDelayPenaltyChange();
     createDelayPenaltyChange.setInterestPercent(5);
-    createDelayPenaltyChange.setGraceDelay(20);
     DelayPenalty delayPenalty = api.createDelayPenaltyChange(createDelayPenaltyChange);
 
-    Fee actualFee8 = api.getStudentFeeById(STUDENT3_ID, FEE7_ID);
+    Fee actualFee8 = api.getStudentFeeById(STUDENT_GRACE_DELAY_ID, FEE8_ID);
     assertTrue(fee8.getTotalAmount() < actualFee8.getTotalAmount());
     assertEquals(
             (fee8.getTotalAmount() + (fee8.getTotalAmount() * delayPenalty.getInterestPercent() / 100)),
@@ -177,7 +176,7 @@ class DelayPenaltyIT {
   }
 
   @Test
-  @Order(5)
+  @Order(4)
   void student_write_ko() throws ApiException{
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
@@ -188,7 +187,7 @@ class DelayPenaltyIT {
   }
 
   @Test
-  @Order(6)
+  @Order(5)
   void teacher_write_ko() throws ApiException{
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     PayingApi api = new PayingApi(teacher1Client);
@@ -199,7 +198,7 @@ class DelayPenaltyIT {
   }
 
   @Test
-  @Order(7)
+  @Order(6)
   void manager_write_with_some_bad_fields_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
