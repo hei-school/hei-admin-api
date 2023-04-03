@@ -78,14 +78,15 @@ public class FeeService {
                 Sort.by(DESC, "dueDatetime"));
         if (status != null) {
             List<Fee> fees = feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
-            applyLateFees(fees, delayPenalty, instantUpdateValue);
+            applyLateFees(delayPenalty, instantUpdateValue);
             return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
         }
         List<Fee> fees = feeRepository.getByStudentId(studentId, pageable);
-        applyLateFees(fees, delayPenalty, instantUpdateValue);
+        applyLateFees(delayPenalty, instantUpdateValue);
         return feeRepository.getByStudentId(studentId, pageable);
     }
-    public void applyLateFees(List<Fee> fees, DelayPenalty delayPenalty, Instant instantUpdateValue) {
+    public void applyLateFees(DelayPenalty delayPenalty, Instant instantUpdateValue) {
+        List<Fee> fees = feeRepository.findAll();
         int interestRate = delayPenalty.getInterestPercent();
         int graceDelayInDays = delayPenalty.getGraceDelay();
         int delayApplicabilityPeriodInDays = delayPenalty.getApplicabilityDelayAfterGrace();
