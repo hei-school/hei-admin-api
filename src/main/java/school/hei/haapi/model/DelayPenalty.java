@@ -1,5 +1,7 @@
 package school.hei.haapi.model;
 
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,6 +14,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty.InterestTimerateEnum;
+import school.hei.haapi.endpoint.rest.model.DelayPenalty.StatusEnum;
 
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -38,6 +41,14 @@ public class DelayPenalty implements Serializable {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private String id;
+
+    @OneToOne
+    @JoinColumn(name = "student_id")
+    private User student;
+
+    @Type(type = "pgsql_enum")
+    @Enumerated(EnumType.STRING)
+    private String status;
 
     private int interestPercent;
 
