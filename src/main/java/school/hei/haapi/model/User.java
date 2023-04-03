@@ -76,6 +76,7 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Role role;
 
+  private Integer studentGraceDelay;
   @Override
   public boolean equals(Object o) {
     if (this == o) {
