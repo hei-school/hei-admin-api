@@ -1,0 +1,2 @@
+insert into "delay_penalty" (id, interest_percent, interest_timerate, creation_datetime, grace_delay, applicability_delay_after_grace)
+values ('delay_penalty1_id', 2, 'DAILY', '2023-04-08T08:25:24.00Z', 3, 10);
