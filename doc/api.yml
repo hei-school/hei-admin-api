@@ -650,7 +650,7 @@ paths:
     get:
       tags:
         - Paying
-      summary: Get current delay penalty
+      summary: Get all delay penalty
       operationId: getDelayPenalty
       responses:
         '200':
@@ -658,7 +658,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/DelayPenalty'
+                type: array
+                items:
+                  $ref: '#/components/schemas/DelayPenalty'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1131,15 +1133,29 @@ components:
             - GLOBAL
             - SPECIFIC
     DelayPenalty:
-      allOf:
-        - $ref: '#/components/schemas/CreateDelayPenaltyChange'
       type: object
       properties:
+        interest_percent:
+          type: integer
+        interest_timerate:
+          type: string
+          enum:
+            - DAILY
+        grace_delay:
+          type: integer
+        applicability_delay_after_grace:
+          type: integer
+        status:
+          type: string
+          enum:
+            - GLOBAL
+            - SPECIFIC
         id:
           type: string
         creation_datetime:
           type: string
           format: date-time
+
     CreatePayment:
       type: object
       properties:
