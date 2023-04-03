@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -16,6 +17,7 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
@@ -38,16 +40,22 @@ public class FeeService {
   private final PaymentRepository paymentRepository;
 
   public Fee getById(String id) {
-    return updateFeeStatus(feeRepository.getById(id));
+    //Only for test
+    return applyGraceDelay(List.of(updateFeeStatus(feeRepository.getById(id)))).get(0);
+    //return updateFeeStatus(feeRepository.getById(id))
   }
 
   public Fee getByStudentIdAndFeeId(String studentId, String feeId) {
-    return updateFeeStatus(feeRepository.getByStudentIdAndId(studentId, feeId));
+    //Only for test
+    return applyGraceDelay(List.of(
+        updateFeeStatus(feeRepository.getByStudentIdAndId(studentId, feeId)))).get(0);
+    //return updateFeeStatus(feeRepository.getByStudentIdAndId(studentId, feeId));
   }
 
   @Transactional
   public List<Fee> saveAll(List<Fee> fees) {
-    return feeRepository.saveAll(fees);
+    List<Fee> toSave = applyGraceDelay(fees);
+    return feeRepository.saveAll(toSave);
   }
 
   public List<Fee> getFees(
@@ -57,9 +65,11 @@ public class FeeService {
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
     if (status != null) {
       //We use this method here just for testing, but it should be inside a scheduller
-      return applyDelayPenaltyConf(feeRepository.getFeesByStatus(status, pageable));
+      return applyGraceDelay(feeRepository.getFeesByStatus(status, pageable));
+      //return feeRepository.getFeesByStatus(status, pageable);
     }
-    return applyDelayPenaltyConf(feeRepository.getFeesByStatus(DEFAULT_STATUS, pageable));
+    return applyGraceDelay(feeRepository.getFeesByStatus(DEFAULT_STATUS, pageable));
+    //return feeRepository.getFeesByStatus(DEFAULT_STATUS, pageable);
   }
 
   public List<Fee> getFeesByStudentId(
@@ -70,10 +80,14 @@ public class FeeService {
         pageSize.getValue(),
         Sort.by(DESC, "dueDatetime"));
     if (status != null) {
-      return applyDelayPenaltyConf(
-          feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable));
+      //Only for testing, remove after
+      return applyGraceDelay(feeRepository.getFeesByStudentIdAndStatus(studentId, status,
+          pageable));
+      //return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
     }
-    return applyDelayPenaltyConf(feeRepository.getByStudentId(studentId, pageable));
+    //Only for testing, remove after
+    return applyGraceDelay(feeRepository.getByStudentId(studentId, pageable));
+    //return feeRepository.getByStudentId(studentId, pageable);
   }
 
   private Fee updateFeeStatus(Fee initialFee) {
@@ -92,8 +106,20 @@ public class FeeService {
       updateFeeStatus(fee);
       log.info("Fee with id." + fee.getId() + " is going to be updated from UNPAID to LATE");
     });
+    feeRepository.saveAll(unpaidFees);
+  }
+
+  @Scheduled(cron = "0 0 * * * *")
+  public void updateFeesDueDatetime() {
+    List<Fee> unpaidFees = feeRepository.findAll();
     //Here is the right place of this method
-    feeRepository.saveAll(applyDelayPenaltyConf(unpaidFees));
+    feeRepository.saveAll(applyGraceDelay(unpaidFees));
+  }
+
+  @Scheduled(cron = "0 0 0 * * *")
+  public void updateFeesInterestPercent() {
+    List<Fee> lateFees = feeRepository.getFeesByStatus(LATE);
+    feeRepository.saveAll(applyInterestPercent(lateFees));
   }
 
   private TypedLateFeeVerified toTypedEvent(Fee fee) {
@@ -123,21 +149,37 @@ public class FeeService {
     );
   }
 
-  private List<Fee> applyDelayPenaltyConf(List<Fee> fees) {
+  private List<Fee> applyGraceDelay(List<Fee> fees) {
     for (Fee fee : fees) {
       if (!fee.isUpToDate()) {
         //Apply grace delay to the default due datetime
-        fee.setDueDatetime(fee.getDueDatetime().plus(
-            delayPenaltyService.getDelayPenaltyConf().getGraceDelay(),
-            ChronoUnit.DAYS));
-        fee.setUpToDate(true);
+        DelayPenalty globalConf = delayPenaltyService.getDelayPenaltyGlobalConf();
+        Optional<DelayPenalty> individualConf =
+            delayPenaltyService.getIndividualDelayPenalty(fee.getStudent().getId());
+        if (individualConf.isPresent()) {
+          fee.setDueDatetime(fee.getDueDatetime().plus(
+              individualConf.get().getGraceDelay(),
+              ChronoUnit.DAYS));
+          fee.setUpToDate(true);
+        } else {
+          fee.setDueDatetime(fee.getDueDatetime().plus(
+              globalConf.getGraceDelay(),
+              ChronoUnit.DAYS));
+          fee.setUpToDate(true);
+        }
       }
+    }
+    return fees;
+  }
+
+  private List<Fee> applyInterestPercent(List<Fee> fees) {
+    for (Fee fee : fees) {
       Instant applicabilityDatetime = fee.getDueDatetime().plus(
-          delayPenaltyService.getDelayPenaltyConf().getApplicabilityDelayAfterGrace(),
+          delayPenaltyService.getDelayPenaltyGlobalConf().getApplicabilityDelayAfterGrace(),
           ChronoUnit.DAYS);
       int remainingAmount = fee.getTotalAmount() - paymentsTotalAmount(fee);
       int interestValue = remainingAmount * delayPenaltyService
-          .getDelayPenaltyConf().getInterestPercent() / 100;
+          .getDelayPenaltyGlobalConf().getInterestPercent() / 100;
       if (fee.getStatus().equals(LATE) && Instant.now().isBefore(applicabilityDatetime)) {
         fee.setRemainingAmount(remainingAmount + interestValue);
       }

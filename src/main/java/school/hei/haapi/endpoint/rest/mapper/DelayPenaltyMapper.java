@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -17,16 +18,17 @@ import school.hei.haapi.repository.FeeRepository;
 public class DelayPenaltyMapper {
     private final DelayPenaltyRepository repository;
     private final FeeRepository feeRepository;
+
     public school.hei.haapi.model.DelayPenalty toDomain(CreateDelayPenaltyChange rest) {
         /*Set isUpToDate of each fee to false when updating delay penalty conf
-        * It will automatically set to true the following day by the scheduler. */
+         * It will automatically set to true the following day by the scheduler. */
         List<Fee> fees = feeRepository.findAll().stream()
             .map(fee -> fee.toBuilder().isUpToDate(false).build())
             .collect(Collectors.toUnmodifiableList());
         feeRepository.saveAll(fees);
 
-        school.hei.haapi.model.DelayPenalty persisted = repository.findAll().get(0);
-        return persisted.toBuilder()
+        Optional<school.hei.haapi.model.DelayPenalty> persisted = repository.findByUserId(null);
+        return persisted.get().toBuilder()
             .interestPercent(rest.getInterestPercent())
             .interestTimerate(toDomain(rest.getInterestTimerate()))
             .graceDelay(rest.getGraceDelay())

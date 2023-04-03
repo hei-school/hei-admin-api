@@ -37,7 +37,7 @@ public class DelayPenaltyIT {
     private CognitoComponent cognitoComponentMock;
 
     private static ApiClient anApiClient(String token) {
-        return TestUtils.anApiClient(token, GroupIT.ContextInitializer.SERVER_PORT);
+        return TestUtils.anApiClient(token, DelayPenaltyIT.ContextInitializer.SERVER_PORT);
     }
 
     @BeforeEach
@@ -59,6 +59,7 @@ public class DelayPenaltyIT {
             .id("delay_penalty1_id")
             .interestPercent(creatableDelayPenalty().getInterestPercent())
             .graceDelay(creatableDelayPenalty().getGraceDelay())
+            .interestTimerate(DelayPenalty.InterestTimerateEnum.DAILY)
             .applicabilityDelayAfterGrace(creatableDelayPenalty()
                 .getApplicabilityDelayAfterGrace())
             .creationDatetime(null);

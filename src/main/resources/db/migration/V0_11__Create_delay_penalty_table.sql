@@ -11,6 +11,8 @@ create table if not exists "delay_penalty"
 (
     id                varchar
         constraint delay_penalty_pk primary key default uuid_generate_v4(),
+    user_id           varchar
+    constraint delay_penalty_user_id_fk references "user"(id),
     interest_percent           integer                  not null,
     interest_timerate          interest_timerate                 not null,
     grace_delay            integer                  not null,

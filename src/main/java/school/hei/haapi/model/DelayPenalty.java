@@ -8,6 +8,8 @@ import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -45,6 +47,10 @@ public class DelayPenalty {
   @CreationTimestamp
   @Getter(AccessLevel.NONE)
   private Instant creationDatetime;
+
+  @OneToOne
+  @JoinColumn(name = "user_id")
+  private User user;
 
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
