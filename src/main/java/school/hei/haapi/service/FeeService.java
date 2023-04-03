@@ -1,5 +1,8 @@
 package school.hei.haapi.service;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 import java.time.Instant;
 import java.util.List;
 import javax.transaction.Transactional;
@@ -18,10 +21,6 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
-
-import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 
 @Service
 @AllArgsConstructor
@@ -117,5 +116,4 @@ public class FeeService {
         }
     );
   }
-
 }

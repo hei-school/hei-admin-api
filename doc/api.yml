@@ -1011,6 +1011,9 @@ components:
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
+      properties:
+        student_grace_delay:
+          type: integer
     Teacher:
       allOf:
         - $ref: '#/components/schemas/User'
@@ -1100,6 +1103,12 @@ components:
         student_id:
           type: string
         remaining_amount:
+          type: integer
+        interest_amount:
+          type: integer
+        remaining_amount_with_interest:
+          type: integer
+        total_amount_with_interest:
           type: integer
         status:
           type: string
