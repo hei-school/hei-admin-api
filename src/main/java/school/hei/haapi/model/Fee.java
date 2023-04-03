@@ -71,7 +71,6 @@ public class Fee implements Serializable {
 
   @OneToMany(mappedBy = "fee")
   private List<Payment> payments;
-
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
   }

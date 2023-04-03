@@ -2,9 +2,12 @@ package school.hei.haapi.service;
 
 import java.time.Duration;
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenalty;
@@ -12,15 +15,18 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.FeeRepository;
 
+import java.util.List;
+
 @Service
 @AllArgsConstructor
 public class DelayPenaltyService {
     private final DelayPenaltyRepository delayPenaltyRepository;
     private final FeeRepository feeRepository;
 
-    public DelayPenalty getCurrentDelayPenalty() {
-        List<DelayPenalty> delayPenalties = delayPenaltyRepository.findAll();
-        return delayPenalties.get(delayPenalties.size() -1 );
+
+    public DelayPenalty getMostRecentDelayPenalty() {
+        List<DelayPenalty> delayPenalties = delayPenaltyRepository.findMostRecent(PageRequest.of(0,1));
+        return delayPenalties.get(0);
     }
     public DelayPenalty crupdateDelayPenalty(DelayPenalty toCrupdate){
         DelayPenalty delayPenalty = delayPenaltyRepository.save(toCrupdate);
@@ -30,7 +36,7 @@ public class DelayPenaltyService {
 
     @Scheduled(cron = "0 0 0 * * *")
     public void check_and_updated_late_fees() {
-        DelayPenalty toCrupdate = getCurrentDelayPenalty();
+        DelayPenalty toCrupdate = getMostRecentDelayPenalty();
         List<Fee> lateFees = feeRepository.getFeesByStatus(
             school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE);
         Duration graceDelay = Duration.ofDays(toCrupdate.getGraceDelay());
@@ -42,12 +48,14 @@ public class DelayPenaltyService {
                 Instant dueDateTimeWithGraceDelay  = fee.getDueDatetime().plus(graceDelay);
 //                After this the interest percent go back to 0
                 Instant lastDayApplicability = dueDateTimeWithGraceDelay.plus(applicability);
+
                 if(Instant.now().isAfter(dueDateTimeWithGraceDelay) &&
-                    Instant.now().isBefore(lastDayApplicability) &&
+                    Instant.now().isAfter(lastDayApplicability) &&
                     fee.getRemainingAmount() > 0){
-                    int interestPercent = toCrupdate.getInterestPercent() / 100;
+                    long passDays = dueDateTimeWithGraceDelay.until(Instant.now(),
+                        ChronoUnit.DAYS) +1;
                     int remainingAmount =
-                        fee.getRemainingAmount() + (interestPercent * fee.getRemainingAmount());
+                        (int) (fee.getRemainingAmount() * Math.pow(1 + ((double) toCrupdate.getInterestPercent() / 100), passDays));
                     fee.setRemainingAmount(remainingAmount);
                     fees.add(fee);
                 }
