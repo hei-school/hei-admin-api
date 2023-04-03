@@ -1,19 +1,5 @@
 package school.hei.haapi.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import java.time.Instant;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -24,6 +10,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
@@ -36,6 +23,14 @@ import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.DelayPenaltyHistoryService;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.InterestHistoryService;
+
+import java.time.Instant;
+import java.util.List;
+import java.util.stream.Collectors;
+
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -336,6 +331,19 @@ public class DelayPenaltyChangeIT {
     //fee before application of delay penalty change no have interest
     assertEquals(Fee3WithoutInterest.getTotalAmount(), updatedFee3.getTotalAmount());
     assertEquals(originalFee3WithInterest.getTotalAmount(), updatedFee3.getTotalAmount());
+  }
+
+  @Test
+  void student_have_personal_delay_grace() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+
+    List<Fee> initialFees = api.getStudentFees("student1_id", 1, 20,"");
+    UsersApi api2 = new UsersApi(manager1Client);
+    api2.updateStudentDelayGrace("student1_id",365);
+    List<Fee> updatedFees = api.getStudentFees("student1_id", 1, 20,"");
+    assertEquals(initialFees,updatedFees);
   }
 
 

@@ -275,7 +275,7 @@ paths:
           required: true
           description: "update Student Delay Grace"
           schema:
-            type: string
+            type: integer
       operationId: updateStudentDelayGrace
   
       responses:
