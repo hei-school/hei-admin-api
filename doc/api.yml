@@ -1113,6 +1113,8 @@ components:
     CreateDelayPenaltyChange:
       type: object
       properties:
+        id:
+          type: string
         interest_percent:
           type: integer
         interest_timerate:

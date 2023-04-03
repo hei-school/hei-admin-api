@@ -3,13 +3,10 @@ package school.hei.haapi.endpoint.rest.mapper;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-<<<<<<< HEAD
 import school.hei.haapi.model.DelayPenalty;
-=======
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.exception.ApiException;
->>>>>>> b09ac50cd23193878f556194a773ca93e3726b58
 
 @Component
 @AllArgsConstructor
@@ -34,11 +31,9 @@ public class DelayPenaltyMapper {
                 .applicabilityDelayAfterGrace(restDelayPenalty.getApplicabilityDelayAfterGrace())
                 .build();
     }
-<<<<<<< HEAD
-=======
-
   public school.hei.haapi.model.DelayPenalty toDomain(CreateDelayPenaltyChange rest){
     return school.hei.haapi.model.DelayPenalty.builder()
+
         .interestPercent(rest.getInterestPercent())
         .interestTimerate(convertType(rest.getInterestTimerate()))
         .applicabilityDelayAfterGrace(rest.getApplicabilityDelayAfterGrace())
@@ -60,5 +55,4 @@ public class DelayPenaltyMapper {
             "Interest Timerate: " + type.getValue() + " not found");
     }
   }
->>>>>>> b09ac50cd23193878f556194a773ca93e3726b58
 }

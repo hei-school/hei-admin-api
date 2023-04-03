@@ -1,5 +1,10 @@
 package school.hei.haapi.integration;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
+import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -13,6 +18,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
+import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -27,6 +33,7 @@ import static school.hei.haapi.integration.conf.TestUtils.*;
 @Testcontainers
 @ContextConfiguration(initializers = DelayPenaltyIT.ContextInitializer.class)
 @AutoConfigureMockMvc
+@Slf4j
 class DelayPenaltyIT {
   @MockBean
   private SentryConf sentryConf;
@@ -40,7 +47,7 @@ class DelayPenaltyIT {
   public CreateDelayPenaltyChange toCrupdate(){
     return new CreateDelayPenaltyChange()
         .interestPercent(5)
-        .graceDelay(20)
+        .graceDelay(10)
         .interestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY)
         .applicabilityDelayAfterGrace(5);
   }
@@ -77,7 +84,28 @@ class DelayPenaltyIT {
     DelayPenalty actual = api.getDelayPenalty();
     DelayPenalty actualUpdated = api.createDelayPenaltyChange(toCrupdate());
 
+    log.info("Actual: {}", actual);
     assertNotEquals(actual, actualUpdated);
+  }
+
+  @Test
+  void crupdate_delay_penalty_should_update_fees() throws ApiException{
+    ApiClient manager1CLient = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1CLient);
+
+    List<Fee> lateFees = api.getFees("LATE", 1,10);
+    for (Fee fee : lateFees) {
+      log.info("now: {}", Instant.now().minus(10L, ChronoUnit.DAYS));
+      log.info("applicability: {}",
+          Instant.now().minus(10L, ChronoUnit.DAYS).plus(Duration.ofDays(10)).plus(Duration.ofDays(5)));
+      fee.setDueDatetime(Instant.now().minus(10L, ChronoUnit.DAYS));
+    }
+    DelayPenalty actual = api.createDelayPenaltyChange(toCrupdate());
+    List<Fee> updatedLateFees = api.getFees("LATE", 1 , 10);
+
+    log.info("lateFees: {}", lateFees);
+    log.info("actual: {}", actual);
+    log.info("updatedLateFees: {}", updatedLateFees);
   }
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
