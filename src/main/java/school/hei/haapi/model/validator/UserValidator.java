@@ -33,5 +33,8 @@ public class UserValidator implements Consumer<User> {
           .collect(Collectors.joining(". "));
       throw new BadRequestException(constraintMessages);
     }
+    if(user.getGraceDelay() < 0){
+      throw new BadRequestException("Grace Delay cannot be negative");
+    }
   }
 }

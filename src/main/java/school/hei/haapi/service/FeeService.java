@@ -85,14 +85,22 @@ public class FeeService {
     feeList.forEach((Fee fee) -> {
       if (fee.getRemainingAmount() > 0 && fee.getDueDatetime().isAfter(Instant.now())) {
         fee.setStatus(school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE);
-        if (Instant.now().isAfter(fee.getDueDatetime().plus(Duration.of(delayPenalty.getGrace_delay(), ChronoUnit.DAYS)))) {
-          if (Instant.now().isBefore(fee.getDueDatetime().plus(Duration.of(delayPenalty.getGrace_delay(), ChronoUnit.DAYS)).plus(Duration.of(delayPenalty.getApplicability_delay_after_grace(), ChronoUnit.DAYS)))) {
+        if (Instant.now().isAfter(fee.getDueDatetime().plus(getGraceDelayDuration(fee, delayPenalty)))) {
+          if (Instant.now().isBefore(fee.getDueDatetime().plus(getGraceDelayDuration(fee, delayPenalty)).plus(Duration.of(delayPenalty.getApplicability_delay_after_grace(), ChronoUnit.DAYS)))) {
             int newRemainingAmount = fee.getRemainingAmount() + (delayPenalty.getInterest_percent() / 100) * fee.getRemainingAmount();
             fee.setRemainingAmount(newRemainingAmount);
           }
         }
       }
     });
+  }
+
+  private Duration getGraceDelayDuration(Fee fee, DelayPenalty delayPenalty) {
+    if (fee.getStudent().getGraceDelay() == delayPenalty.getGrace_delay()) {
+      return Duration.of(delayPenalty.getGrace_delay(), ChronoUnit.DAYS);
+    } else {
+      return Duration.of(fee.getStudent().getGraceDelay(), ChronoUnit.DAYS);
+    }
   }
 
   @Scheduled(cron = "0 0 8 1/1 * ?")
