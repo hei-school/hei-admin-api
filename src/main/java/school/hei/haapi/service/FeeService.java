@@ -36,6 +36,7 @@ public class FeeService {
 
   private final EventProducer eventProducer;
   private final DelayPenaltyService delayPenaltyService;
+  private final UserService userService;
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
@@ -78,10 +79,12 @@ public class FeeService {
 
   public Fee applyCurrentPenalty(Fee fee) {
     DelayPenalty penalty = delayPenaltyService.getOneOrderByCreationDatetimeDesc();
+    int graceDelay = fee.getStudent().getGraceDelay() != null ? fee.getStudent().getGraceDelay()
+        : penalty.getGraceDelay();
     if (penalty != null) {
       updateFeeStatus(fee);
       boolean isLate = fee.getStatus() == LATE;
-      Instant penaltyApplicationBegin = fee.getDueDatetime().plus(penalty.getGraceDelay(), DAYS);
+      Instant penaltyApplicationBegin = fee.getDueDatetime().plus(graceDelay, DAYS);
       Instant penaltyApplicationEnd =
           penaltyApplicationBegin.plus(penalty.getApplicabilityDelayAfterGrace(), DAYS);
       Instant now = Instant.now();
