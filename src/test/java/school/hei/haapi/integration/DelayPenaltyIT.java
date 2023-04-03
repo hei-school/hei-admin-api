@@ -14,6 +14,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
@@ -22,6 +23,8 @@ import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.User;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -55,12 +58,12 @@ class DelayPenaltyIT {
 
   public CreateDelayPenaltyChange toCrupdate(){
     return new CreateDelayPenaltyChange()
+        .id("delay_penalty1_id")
         .interestPercent(5)
         .graceDelay(10)
         .interestTimerate(CreateDelayPenaltyChange.InterestTimerateEnum.DAILY)
         .applicabilityDelayAfterGrace(5);
   }
-
   public static DelayPenalty delayPenalty2() {
     return new DelayPenalty()
         .id("delay_penalty1_id")
@@ -116,6 +119,21 @@ class DelayPenaltyIT {
     log.info("actual: {}", actual);
     log.info("updatedLateFees: {}", updatedLateFees);
   }
+
+  @Test
+  void update_delay_penalty_update_user_proper_grace_delay() throws ApiException{
+    ApiClient manager1CLient = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1CLient);
+    UsersApi usersApi = new UsersApi(manager1CLient);
+
+    Student student = usersApi.getStudentById("student4_id");
+    DelayPenalty actual1 = api.createDelayPenaltyChange(toCrupdate());
+
+
+    log.info("actual: {}", student);
+  }
+
+
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
 

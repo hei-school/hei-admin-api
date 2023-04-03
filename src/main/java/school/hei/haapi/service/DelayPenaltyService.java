@@ -12,16 +12,19 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.User;
 import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.FeeRepository;
 
 import java.util.List;
+import school.hei.haapi.repository.UserRepository;
 
 @Service
 @AllArgsConstructor
 public class DelayPenaltyService {
     private final DelayPenaltyRepository delayPenaltyRepository;
     private final FeeRepository feeRepository;
+    private final UserRepository userRepository;
 
 
     public DelayPenalty getMostRecentDelayPenalty() {
@@ -29,6 +32,15 @@ public class DelayPenaltyService {
         return delayPenalties.get(0);
     }
     public DelayPenalty crupdateDelayPenalty(DelayPenalty toCrupdate){
+        List<User> users = userRepository.findAll();
+        users.forEach(user -> {
+            if(user.getProperGraceDelay() == null || user.getProperGraceDelay() == 0){
+                user.setProperGraceDelay(0);
+            }
+            Integer graceDelay = user.getProperGraceDelay() + toCrupdate.getGraceDelay();
+            user.setProperGraceDelay(graceDelay);
+            userRepository.save(user);
+        });
         DelayPenalty delayPenalty = delayPenaltyRepository.save(toCrupdate);
         this.check_and_updated_late_fees();
         return delayPenalty;

@@ -1001,6 +1001,8 @@ components:
         entrance_datetime:
           type: string
           format: date-time
+        proper_grace_delay:
+          type: int
         status:
           $ref: '#/components/schemas/EnableStatus'
     EnableStatus:

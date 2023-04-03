@@ -75,7 +75,7 @@ public class User implements Serializable {
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   private Role role;
-
+  private Integer properGraceDelay;
   @Override
   public boolean equals(Object o) {
     if (this == o) {

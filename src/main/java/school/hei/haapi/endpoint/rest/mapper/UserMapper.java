@@ -24,6 +24,7 @@ public class UserMapper {
     restStudent.setBirthDate(user.getBirthDate());
     restStudent.setSex(Student.SexEnum.fromValue(user.getSex().toString()));
     restStudent.setAddress(user.getAddress());
+    restStudent.setProperGraceDelay(user.getProperGraceDelay());
 
     return restStudent;
   }
