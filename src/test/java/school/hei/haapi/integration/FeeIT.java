@@ -117,17 +117,19 @@ class FeeIT {
   @Test
   void student_read_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    ApiClient student2Client = anApiClient(STUDENT2_TOKEN);
     PayingApi api = new PayingApi(student1Client);
-
+    PayingApi api2 = new PayingApi(student2Client);
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
 
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> actual2 = api.getStudentFees(STUDENT2_ID, 1, 5, null);
 
     assertEquals(fee1(), actualFee);
     assertTrue(actual.contains(fee1()));
     assertTrue(actual.contains(fee2()));
     assertEquals(fee3().getTotalAmount(),actual.get(1).getTotalAmount());
-    assertEquals(fee4().getTotalAmount(),actual.get(0).getTotalAmount());
+    assertEquals(fee4().getTotalAmount(),actual2.get(0).getTotalAmount());
   }
 
   @Test

@@ -21,6 +21,7 @@ import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
+import school.hei.haapi.repository.DelayPenaltyRepository;
 import school.hei.haapi.repository.FeeRepository;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -37,6 +38,7 @@ public class FeeService {
     private final FeeValidator feeValidator;
     private final DelayPenaltyService delayPenaltyService;
     private final EventProducer eventProducer;
+    private final DelayPenaltyRepository penaltyRepository;
 
     public static double calculateCompoundInterest(int initialAmount, int interestRate, long durationInYears) {
         double interestRateInDecimal = interestRate / 100.0;
@@ -78,16 +80,21 @@ public class FeeService {
                 Sort.by(DESC, "dueDatetime"));
         if (status != null) {
             List<Fee> fees = feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
-            applyLateFees(fees,delayPenalty, instantUpdateValue);
+            applyLateFees(fees,delayPenalty, instantUpdateValue, studentId);
             return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
         }
         List<Fee> fees = feeRepository.getByStudentId(studentId, pageable);
-        applyLateFees(fees, delayPenalty, instantUpdateValue);
+        applyLateFees(fees, delayPenalty, instantUpdateValue, studentId);
         return feeRepository.getByStudentId(studentId, pageable);
     }
-    public void applyLateFees(List<Fee> fees, DelayPenalty delayPenalty, Instant instantUpdateValue) {
+    public void applyLateFees(List<Fee> fees, DelayPenalty delayPenalty, Instant instantUpdateValue, String student_id) {
         int interestRate = delayPenalty.getInterestPercent();
-        int graceDelayInDays = delayPenalty.getGraceDelay();
+        DelayPenalty delayPenalty1 = penaltyRepository.findByStudentId(student_id);
+        int graceDelayInDays;
+        if(delayPenalty1.getStudentId() != null){
+            graceDelayInDays = delayPenalty1.getGraceDelay();
+        }else {graceDelayInDays = delayPenalty.getGraceDelay();}
+
         int delayApplicabilityPeriodInDays = delayPenalty.getApplicabilityDelayAfterGrace();
         for (Fee fee : fees) {
             Instant dueDateTime = fee.getDueDatetime();

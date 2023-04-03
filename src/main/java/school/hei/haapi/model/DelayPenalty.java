@@ -44,6 +44,9 @@ public class DelayPenalty implements Serializable {
     @Column(name = "creation_datetime")
     private Instant creationDateTime;
 
+    @Column(name = "student_id")
+    private String studentId;
+
     public enum InterestTimerateEnum {
         DAILY
     }

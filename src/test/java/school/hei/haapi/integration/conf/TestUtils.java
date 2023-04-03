@@ -35,6 +35,7 @@ public class TestUtils {
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
+  public static final String STUDENT2_TOKEN = "student2_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
 
