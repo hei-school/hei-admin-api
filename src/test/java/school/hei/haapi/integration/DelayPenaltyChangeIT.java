@@ -320,7 +320,7 @@ public class DelayPenaltyChangeIT {
     Fee updatedFee9 =
         updatedFeesWithInterest.stream().filter(fee -> fee.getId().equals(fee9().getId()))
             .collect(Collectors.toList()).get(0);
-    //take off interest in fee when after update application of interest is before due day + grace day
+    //take off interest before due day + grace day after update application
     assertTrue(Fee9WithoutInterest.getTotalAmount() < updatedFee9.getTotalAmount());
     assertEquals(originalFee9WithInterest.getTotalAmount(), updatedFee9.getTotalAmount());
 
