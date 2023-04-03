@@ -106,12 +106,17 @@ public class FeeService {
     int i = 0;
     int amount = 0;
     double temp = fee.getTotalAmount();
-    Instant graceDelay = fee.getDueDatetime().plus(
-            delayPenaltyService.getAll().getGraceDelay(),
-            ChronoUnit.DAYS
-    );
+    Instant graceDelay =
+      feesHistories.getGraceStudentDelay() > 0 ? fee.getDueDatetime().plus(
+              feesHistories.getGraceStudentDelay(),
+              ChronoUnit.DAYS
+      ) : fee.getDueDatetime().plus(
+              delayPenalty.getGraceDelay(),
+              ChronoUnit.DAYS
+      );
+
     int delay =((delayPenalty.getApplicabilityDelayAfterGrace()) - 1);
-    if(Instant.now().isAfter(graceDelay)){
+    if(Instant.now().isAfter(graceDelay) && fee.getStatus() == LATE){
       while(i < delay){
         feesHistories.setStudent(user);
         feesHistories.setFee_total(temp);
