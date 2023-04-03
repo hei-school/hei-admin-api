@@ -37,8 +37,6 @@ public class FeeService {
   private final EventProducer eventProducer;
   private final DelayPenaltyRepository delayPenaltyRepository;
 
-  private final DelayPenaltyRepository delayPenaltyRepository;
-
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
   }
@@ -68,7 +66,8 @@ public class FeeService {
       String studentId, PageFromOne page, BoundedPageSize pageSize,
       school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
     List<Fee> specifiedLateFees = feeRepository.getFeesByStatusAndStudentId(LATE, studentId);
-    applyInterestPercent(specifiedLateFees);
+    DelayPenalty condition = delayPenaltyRepository.findAll().get(0);
+    applyInterestPercent(specifiedLateFees, Instant.now(), condition);
     Pageable pageable = PageRequest.of(
         page.getValue() - 1,
         pageSize.getValue(),
@@ -128,11 +127,11 @@ public class FeeService {
   @Scheduled(cron = "0 0 * * * *")
   public void automateApplyInterest() {
     List<Fee> lateFees = feeRepository.getFeesByStatus(LATE);
-    applyInterestPercent(lateFees);
+    DelayPenalty condition = delayPenaltyRepository.findAll().get(0);
+    applyInterestPercent(lateFees, Instant.now(), condition);
   }
 
-  public void applyInterestPercent(List<Fee> lateFees) {
-    DelayPenalty condition = delayPenaltyRepository.findAll().get(0);
+  public void applyInterestPercent(List<Fee> lateFees, Instant attemptApplyInterest, DelayPenalty condition) {
     int interestPercent = condition.getInterestPercent();
     int graceDelay = condition.getGraceDelay();
     int applicabilityAfterGrace = condition.getApplicabilityDelayAfterGrace();
@@ -141,7 +140,6 @@ public class FeeService {
         fee -> {
           Instant dueGrace = fee.getDueDatetime().plus(graceDelay, DAYS);
           Instant dateAfterGrace = dueGrace.plus(applicabilityAfterGrace, DAYS);
-          Instant attemptApplyInterest = Instant.now();
 
           int timeDelta = numberOfDayForInterest(dateAfterGrace, fee.getLastApplyInterest(),
               dueGrace, attemptApplyInterest, fee.getId());
