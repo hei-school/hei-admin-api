@@ -68,7 +68,7 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Sex sex;
 
-  private int graceDelay;
+  private Integer graceDelay;
 
   @NotBlank(message = "Address is mandatory")
   private String address;

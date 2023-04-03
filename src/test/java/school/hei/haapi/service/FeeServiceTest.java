@@ -16,7 +16,6 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.FeeValidator;
-import school.hei.haapi.repository.DelayRepository;
 import school.hei.haapi.repository.FeeRepository;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -37,6 +36,7 @@ class FeeServiceTest {
   FeeValidator feeValidator;
   EventProducer eventProducer;
   DelayPenaltyService delayPenaltyService;
+  UserService userService;
 
   static User student1() {
     return User.builder()
@@ -74,7 +74,7 @@ class FeeServiceTest {
     return createSomeFee(TestUtils.FEE1_ID, paymentAmount, UNPAID, tomorrow, today);
   }
 
-  static List<Fee> someLateFee(){
+  static List<Fee> someLateFee() {
     Instant creationTime = Instant.parse("2022-01-01T00:00:00.00Z");
     Instant dueTime = Instant.now().minus(5, ChronoUnit.DAYS);
     return List.of(createSomeFee(TestUtils.FEE1_ID, 200, LATE, dueTime, creationTime));
@@ -126,7 +126,9 @@ class FeeServiceTest {
     feeValidator = mock(FeeValidator.class);
     eventProducer = mock(EventProducer.class);
     delayPenaltyService = mock(DelayPenaltyService.class);
-    subject = new FeeService(delayPenaltyService, feeRepository, feeValidator, eventProducer);
+    userService = mock(UserService.class);
+    subject = new FeeService(delayPenaltyService, feeRepository, feeValidator, userService,
+        eventProducer);
   }
 
   @Test
@@ -163,17 +165,18 @@ class FeeServiceTest {
   }
 
   @Test
-  void fee_modification(){
+  void fee_modification() {
     List<Fee> fee = someLateFee();
     PageFromOne page1 = new PageFromOne(1);
     BoundedPageSize pageSize = new BoundedPageSize(10);
     double remainingAmountExpected = 220816.16064;
     Pageable pageable = PageRequest.of(
-            page1.getValue() - 1,
-            pageSize.getValue(),
-            Sort.by(DESC, "dueDatetime"));
+        page1.getValue() - 1,
+        pageSize.getValue(),
+        Sort.by(DESC, "dueDatetime"));
     when(feeRepository.getByStudentId(TestUtils.FEE1_ID, pageable)).thenReturn(someLateFee());
-    when(feeRepository.getFeesByStudentIdAndStatus(TestUtils.STUDENT1_ID, LATE, pageable)).thenReturn(someLateFee());
+    when(feeRepository.getFeesByStudentIdAndStatus(TestUtils.STUDENT1_ID, LATE,
+        pageable)).thenReturn(someLateFee());
 
     List<Fee> actual = subject.getFeesByStudentId(TestUtils.STUDENT1_ID, page1, pageSize, LATE);
 

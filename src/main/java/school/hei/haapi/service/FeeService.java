@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
 import javax.transaction.Transactional;
@@ -23,6 +22,7 @@ import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.service.utils.InterestUtils;
 
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.Objects.requireNonNullElse;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
@@ -36,6 +36,7 @@ public class FeeService {
   private final DelayPenaltyService delayPenaltyService;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
+  private final UserService userService;
 
   private final EventProducer eventProducer;
 
@@ -87,7 +88,9 @@ public class FeeService {
       return fee;
     }
 
-    Instant penaltyApplicationStart = fee.getDueDatetime().plus(conf.getGraceDelay(), DAYS);
+    int graceDelay =
+        requireNonNullElse(fee.getStudent().getGraceDelay(), conf.getGraceDelay());
+    Instant penaltyApplicationStart = fee.getDueDatetime().plus(graceDelay, DAYS);
     Instant now = Instant.now();
     Instant penaltyApplicationEnd =
         penaltyApplicationStart.plus(conf.getApplicabilityDelayAfterGrace(), DAYS);

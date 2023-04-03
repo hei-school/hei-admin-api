@@ -62,7 +62,7 @@ class DelayPenaltyIT {
   static CreateDelayPenaltyChange createDelayPenaltyChange() {
     return new CreateDelayPenaltyChange()
         .interestTimerate(InterestTimerateEnum.DAILY)
-        .graceDelay(10)
+        .graceDelay(5)
         .applicabilityDelayAfterGrace(10)
         .interestPercent(10);
   }
