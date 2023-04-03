@@ -29,9 +29,11 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.integration.conf.TestUtils.FEE7_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE8_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT_GRACE_DELAY_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
@@ -81,7 +83,21 @@ class DelayPenaltyIT {
             .status(LATE)
             .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
             .updatedAt(Instant.parse("2023-02-08T08:30:24.00Z"))
-            .dueDatetime(Instant.parse("2023-03-22T08:25:25.00Z"));
+            .dueDatetime(Instant.parse("2023-03-23T08:25:25.00Z"));
+  }
+
+  static Fee fee8() {
+    return new Fee()
+            .id(FEE8_ID)
+            .studentId(STUDENT_GRACE_DELAY_ID)
+            .type(Fee.TypeEnum.TUITION)
+            .comment("Comment")
+            .totalAmount(200000)
+            .remainingAmount(200000)
+            .status(LATE)
+            .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+            .updatedAt(Instant.parse("2023-02-08T08:30:24.00Z"))
+            .dueDatetime(Instant.parse("2023-03-23T08:25:25.00Z"));
   }
 
   @BeforeEach
@@ -101,7 +117,7 @@ class DelayPenaltyIT {
   }
 
   @Test
-  @Order(3)
+  @Order(4)
   void manager_write_delay_penalty_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
@@ -139,7 +155,27 @@ class DelayPenaltyIT {
   }
 
   @Test
-  @Order(4)
+  @Order(3)
+  void student_with_grace_delay_fee_change_after_change_delay_penalty_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    Fee fee8 = api.getStudentFeeById(STUDENT_GRACE_DELAY_ID, FEE8_ID);
+
+    CreateDelayPenaltyChange createDelayPenaltyChange = createDelayPenaltyChange();
+    createDelayPenaltyChange.setInterestPercent(5);
+    createDelayPenaltyChange.setGraceDelay(20);
+    DelayPenalty delayPenalty = api.createDelayPenaltyChange(createDelayPenaltyChange);
+
+    Fee actualFee8 = api.getStudentFeeById(STUDENT_GRACE_DELAY_ID, FEE8_ID);
+    assertEquals(
+            (fee8().getTotalAmount() + (fee8().getTotalAmount() * 5 / 100)),
+            actualFee8.getTotalAmount()
+    );
+  }
+
+  @Test
+  @Order(5)
   void student_write_ko() throws ApiException{
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
@@ -150,7 +186,7 @@ class DelayPenaltyIT {
   }
 
   @Test
-  @Order(5)
+  @Order(6)
   void teacher_write_ko() throws ApiException{
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     PayingApi api = new PayingApi(teacher1Client);
@@ -161,7 +197,7 @@ class DelayPenaltyIT {
   }
 
   @Test
-  @Order(6)
+  @Order(7)
   void manager_write_with_some_bad_fields_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);

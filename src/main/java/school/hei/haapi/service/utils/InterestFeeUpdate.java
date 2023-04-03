@@ -31,7 +31,8 @@ public class InterestFeeUpdate {
 
     public Fee updateFeeInterest(DelayPenalty delayPenalty, Fee fee) {
         long NOW = Instant.now().getEpochSecond() / 86400;
-        long firstDayOfInterestApplication = (fee.getDueDatetime().getEpochSecond() / 86400) + delayPenalty.getGraceDelay();
+        long firstDayOfInterestApplication = (fee.getDueDatetime().getEpochSecond() / 86400) + (
+                fee.getStudent().getGraceDelay() > 0 ? fee.getStudent().getGraceDelay() : delayPenalty.getGraceDelay());
         long lastDayOfInterestApplication = firstDayOfInterestApplication + delayPenalty.getApplicabilityDelayAfterGrace();
         if (NOW > firstDayOfInterestApplication && NOW <= lastDayOfInterestApplication) {
             long numberOfDayToApplyInterest = NOW - firstDayOfInterestApplication;
