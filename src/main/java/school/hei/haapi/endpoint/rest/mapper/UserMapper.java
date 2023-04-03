@@ -1,15 +1,19 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.DelayPenaltyService;
 
 @Component
+@AllArgsConstructor
 public class UserMapper {
-
+  private final DelayPenaltyService delayPenaltyService;
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
     restStudent.setId(user.getId());
@@ -24,7 +28,6 @@ public class UserMapper {
     restStudent.setBirthDate(user.getBirthDate());
     restStudent.setSex(Student.SexEnum.fromValue(user.getSex().toString()));
     restStudent.setAddress(user.getAddress());
-
     return restStudent;
   }
 
@@ -89,6 +92,7 @@ public class UserMapper {
         .lastName(student.getLastName())
         .email(student.getEmail())
         .ref(student.getRef())
+        .graceDelay(delayPenaltyService.getCurrentDelay().getGrace_delay())
         .status(User.Status.valueOf(student.getStatus().toString()))
         .phone(student.getPhone())
         .entranceDatetime(student.getEntranceDatetime())
