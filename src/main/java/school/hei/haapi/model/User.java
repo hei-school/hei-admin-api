@@ -76,6 +76,9 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Role role;
 
+  @Column(name = "grace_delay")
+  private Integer graceDelay;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
