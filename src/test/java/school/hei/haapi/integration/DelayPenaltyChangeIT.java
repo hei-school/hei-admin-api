@@ -225,10 +225,7 @@ public class DelayPenaltyChangeIT {
     //update grace day change automatically all fees with interest
     assertNotEquals(updatedFee7, originalFee7WithInterest);
     //have right total amount value + interest after change
-    assertNotEquals(updatedFee7.getTotalAmount(),
-        ((Fee7WithoutInterest.getTotalAmount() * ActualDelayPenalty.getInterestPercent()) *
-            ActualDelayPenalty.getInterestPercent() * ActualDelayPenalty.getInterestPercent()) *
-            ActualDelayPenalty.getInterestPercent());
+    assertEquals(updatedFee7.getTotalAmount(), 7254);
 
     //update grace day do not change all PAID fees with interest
     assertEquals(AllPaidFeesWithoutInterest, originalAllPaidFeesWithInterest);
@@ -308,10 +305,7 @@ public class DelayPenaltyChangeIT {
     //update Applicability delay after day changes automatically all fees with interest
     assertNotEquals(updatedFee7, originalFee7WithInterest);
     //have right total amount value + interest after change
-    assertNotEquals(updatedFee7.getTotalAmount(),
-        ((Fee7WithoutInterest.getTotalAmount() * ActualDelayPenalty.getInterestPercent()) *
-            ActualDelayPenalty.getInterestPercent() * ActualDelayPenalty.getInterestPercent()) *
-            ActualDelayPenalty.getInterestPercent());
+    assertEquals(updatedFee7.getTotalAmount(),6258);
 
     //update Applicability delay after day does not change all PAID fees with interest
     assertEquals(AllPaidFeesWithoutInterest, originalAllPaidFeesWithInterest);
@@ -326,7 +320,7 @@ public class DelayPenaltyChangeIT {
     Fee updatedFee9 =
         updatedFeesWithInterest.stream().filter(fee -> fee.getId().equals(fee9().getId()))
             .collect(Collectors.toList()).get(0);
-    //take off interest in fee when after update application of interest is before due day + grace day
+    //take off interest before due day + grace day after update application
     assertTrue(Fee9WithoutInterest.getTotalAmount() < updatedFee9.getTotalAmount());
     assertEquals(originalFee9WithInterest.getTotalAmount(), updatedFee9.getTotalAmount());
 
