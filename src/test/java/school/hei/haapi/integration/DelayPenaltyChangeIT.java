@@ -397,6 +397,31 @@ public class DelayPenaltyChangeIT {
     return amount;
   }
 
+  @Test
+  void change_grace_delay_for_specific_student() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    List<Fee> noUpdateFees = api.getFees("", 1, 20);
+    List<Fee> AllPaidFeesWithoutInterest = api.getFees("PAID", 1, 20);
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  }
 
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
