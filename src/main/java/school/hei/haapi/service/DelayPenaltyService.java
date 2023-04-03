@@ -3,6 +3,9 @@ package school.hei.haapi.service;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.model.DelayPenalty;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.repository.DelayPenaltyRepository;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.model.DelayPenalty;
 import school.hei.haapi.model.Group;
@@ -18,9 +21,11 @@ import java.util.Optional;
 @Slf4j
 public class DelayPenaltyService {
     private final DelayPenaltyRepository repository;
+      
     public DelayPenalty getAll() {
         return repository.findAll().get(0);
     }
+  
     @Transactional
     public DelayPenalty save(DelayPenalty delayPenalties) {
         DelayPenalty delayPenalty = getAll();

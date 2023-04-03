@@ -2,6 +2,10 @@ package school.hei.haapi.model;
 
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import org.hibernate.annotations.Type;
 import javax.persistence.*;
 import javax.validation.constraints.NotEmpty;

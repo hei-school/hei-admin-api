@@ -102,11 +102,9 @@ public class FeeService {
         feesHistory.setStudent(user);
         feesHistory.setFee_total(temp);
         feesHistory.setPercentage(delayPenalty.getInterestPercent());
-        if(!feesHistory.getPaid()){
           amount += ((fee.getTotalAmount() * delayPenalty.getInterestPercent()) / 100) * i ;
           temp += amount;
           delay --;
-        }
         i++;
       }
     }
