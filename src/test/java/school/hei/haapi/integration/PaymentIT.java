@@ -218,7 +218,7 @@ class PaymentIT {
   void manager_write_changes_expected() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
-    Fee fee = api.getStudentFeeById(STUDENT1_ID, FEE6_ID);
+    Fee fee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
 
     List<Payment> actual =
         api.createStudentPayments(fee.getStudentId(), fee.getId(), List.of(creatablePayment1()));

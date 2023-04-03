@@ -13,5 +13,6 @@ CREATE TABLE IF NOT EXISTS "delay_penalty" (
                                                interest_timerate time_rate_type NOT NULL,
                                                grace_delay INTEGER NOT NULL,
                                                applicability_delay_after_grace INTEGER NOT NULL,
-                                               creation_datetime timestamp with time zone not null
+                                               creation_datetime timestamp with time zone not null,
+                                               student_id VARCHAR
 );

@@ -5,4 +5,5 @@ import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.DelayPenalty;
 @Repository
 public interface DelayPenaltyRepository extends JpaRepository<DelayPenalty, String> {
+    DelayPenalty findByStudentId(String id);
 }
