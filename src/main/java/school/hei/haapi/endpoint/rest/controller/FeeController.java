@@ -47,7 +47,7 @@ public class FeeController {
           @RequestParam PageFromOne page,
           @RequestParam("page_size") BoundedPageSize pageSize,
           @RequestParam(required = false) Fee.StatusEnum status) {
-    return feeService.getFeesByStudentId(studentId, page, pageSize, status, Instant.parse("2023-03-17T09:30:24.00Z")).stream()
+    return feeService.getFeesByStudentId(studentId, page, pageSize, status, Instant.now()).stream()
             .map(feeMapper::toRestFee)
             .collect(toUnmodifiableList());
   }
