@@ -187,11 +187,11 @@ class DelayPenaltyIT {
 
     /*##### Must change asserted results because it changes as days go by ######*/
 //    /* GraceDelay=2 && ApplicabilityDelayAfterGrace=10 */
-//    assertEquals(5520, fee1.getRemainingAmountWithInterest());// interestPercent = 2
-//    assertEquals(6381, fee2.getRemainingAmountWithInterest());//interestPercent = 5
-//    assertEquals(5000, fee3.getRemainingAmountWithInterest());//interestPercent = 0
-//    /* GraceDelay=0 && ApplicabilityDelayAfterGrace=3*/
-//    assertEquals(5306, fee4.getRemainingAmountWithInterest());
+    assertEquals(5520, fee1.getRemainingAmountWithInterest());// interestPercent = 2
+    assertEquals(6381, fee2.getRemainingAmountWithInterest());//interestPercent = 5
+    assertEquals(5000, fee3.getRemainingAmountWithInterest());//interestPercent = 0
+  /* GraceDelay=0 && ApplicabilityDelayAfterGrace=3*/
+  assertEquals(5306, fee4.getRemainingAmountWithInterest());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

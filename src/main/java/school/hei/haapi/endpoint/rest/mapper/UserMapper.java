@@ -1,15 +1,18 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.DelayPenaltyService;
 
 @Component
+@AllArgsConstructor
 public class UserMapper {
-
+ private final DelayPenaltyService delayPenaltyService;
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
     restStudent.setId(user.getId());
@@ -24,6 +27,7 @@ public class UserMapper {
     restStudent.setBirthDate(user.getBirthDate());
     restStudent.setSex(Student.SexEnum.fromValue(user.getSex().toString()));
     restStudent.setAddress(user.getAddress());
+    restStudent.setStudentGraceDelay(user.getStudentGraceDelay());
 
     return restStudent;
   }
@@ -82,6 +86,7 @@ public class UserMapper {
   }
 
   public User toDomain(Student student) {
+    int studentGraceDelay = student.getStudentGraceDelay() == null ? delayPenaltyService.getDelayPenalty().getGraceDelay() : student.getStudentGraceDelay();
     return User.builder()
         .role(User.Role.STUDENT)
         .id(student.getId())
@@ -95,6 +100,7 @@ public class UserMapper {
         .birthDate(student.getBirthDate())
         .sex(User.Sex.valueOf(student.getSex().toString()))
         .address(student.getAddress())
+        .studentGraceDelay(studentGraceDelay)
         .build();
   }
 }
