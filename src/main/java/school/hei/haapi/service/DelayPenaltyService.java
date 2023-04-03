@@ -29,7 +29,6 @@ public class DelayPenaltyService {
             DelayPenalty.setApplicabilityDelayAfterGrace(delayPenalty.getGraceDelay());
             delayPenaltyRepository.save(toUpdate);
         } else {
-            // Création d'un nouvel objet DelayPenalty avec l'ID 1
             DelayPenalty toCreate = new DelayPenalty();
             DelayPenalty.setInterestPercent(delayPenalty.getInterestPercent());
             DelayPenalty.setInterestTimeRate(delayPenalty.getInterestTimerate());
