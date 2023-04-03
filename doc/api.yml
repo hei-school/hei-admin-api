@@ -284,9 +284,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/User'
+                  $ref: '#/components/schemas/Student'
         '400':
           $ref: '#/components/responses/400'
         '403':

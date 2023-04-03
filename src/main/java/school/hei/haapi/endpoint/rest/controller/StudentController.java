@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +13,8 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.UserService;
+
+import java.util.List;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
@@ -52,7 +53,7 @@ public class StudentController {
         .collect(toUnmodifiableList());
   }
 
-  @PutMapping(value = "/student/{id}/delay_grace")
+  @PutMapping(value = "/students/{id}/delay_grace")
   public Student ChangeUserGraceDelay(@PathVariable String id, @RequestParam("delay_grace") Integer delayGrace) {
     return userMapper.toRestStudent(userService.ChangeUserGraceDelay(id, delayGrace));
   }

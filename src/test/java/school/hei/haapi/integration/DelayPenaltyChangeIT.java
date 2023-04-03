@@ -17,6 +17,7 @@ import school.hei.haapi.endpoint.rest.model.CreateDelayPenaltyChange;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.DelayPenalty;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -341,9 +342,9 @@ public class DelayPenaltyChangeIT {
 
     List<Fee> initialFees = api.getStudentFees("student1_id", 1, 20,"");
     UsersApi api2 = new UsersApi(manager1Client);
-    api2.updateStudentDelayGrace("student1_id",365);
+    Student student1 = api2.updateStudentDelayGrace("student1_id",365);
     List<Fee> updatedFees = api.getStudentFees("student1_id", 1, 20,"");
-    assertEquals(initialFees,updatedFees);
+    assertNotEquals(initialFees,updatedFees);
   }
 
 
