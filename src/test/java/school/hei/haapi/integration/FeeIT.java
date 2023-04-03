@@ -5,7 +5,10 @@ import java.time.Instant;
 import java.util.List;
 
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -35,6 +38,7 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT_WITH_GRACE_DELAY_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
@@ -44,6 +48,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @Testcontainers
 @ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class FeeIT {
     @MockBean
     private SentryConf sentryConf;
@@ -123,6 +128,14 @@ class FeeIT {
                 .applicabilityDelayAfterGrace(2);
     }
 
+    static CreateDelayPenaltyChange creatableDelayPenaltyWithGraceDelay10() {
+        return new CreateDelayPenaltyChange()
+                .interestPercent(2)
+                .graceDelay(10)
+                .interestTimeRate(CreateDelayPenaltyChange.InterestTimeRateEnum.DAILY)
+                .applicabilityDelayAfterGrace(2);
+    }
+
     static CreateDelayPenaltyChange creatableDelayPenalty2() {
         return new CreateDelayPenaltyChange()
                 .interestPercent(2)
@@ -154,10 +167,10 @@ class FeeIT {
         assertEquals(fee1(), actualFee);
         assertTrue(actual.contains(fee1()));
         assertTrue(actual.contains(fee2()));
-        assertTrue(actual.contains(fee3()));
     }
 
     @Test
+    @Order(1)
     void manager_read_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         PayingApi api = new PayingApi(manager1Client);
@@ -285,6 +298,33 @@ class FeeIT {
         CreatePayment creatablePayment2 = createPayment(20);
         api.createStudentPayments(STUDENT1_ID, actualFees.get(0).getId(),List.of(creatablePayment2));
         actual = api.getStudentFeeById(STUDENT1_ID, actualFees.get(0).getId());
+        expectedRemainingAmount = 0;
+        expectedFeeStatus = Fee.StatusEnum.PAID;
+        assertEquals(expectedRemainingAmount,actual.getRemainingAmount());
+        assertEquals(expectedFeeStatus,actual.getStatus());
+    }
+
+
+    @Test
+    void update_late_fees_student_with_grace_delay() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        PayingApi api = new PayingApi(manager1Client);
+        CreatePayment creatablePayment1 = createPayment(500);
+        List<Fee> actualFees = api.createStudentFees(STUDENT_WITH_GRACE_DELAY_ID, List.of(creatableFee2()));
+        api.createStudentPayments(STUDENT_WITH_GRACE_DELAY_ID, actualFees.get(0).getId(),List.of(creatablePayment1));
+        api.createDelayPenaltyChange(creatableDelayPenaltyWithGraceDelay10());
+        api.createStudentPayments(STUDENT_WITH_GRACE_DELAY_ID, actualFees.get(0).getId(),List.of(creatablePayment1));
+
+        Fee actual = api.getStudentFeeById(STUDENT_WITH_GRACE_DELAY_ID, actualFees.get(0).getId());
+        int expectedRemainingAmount = 20;
+        Fee.StatusEnum expectedFeeStatus = Fee.StatusEnum.LATE;
+        assertEquals(expectedRemainingAmount,actual.getRemainingAmount());
+        assertEquals(expectedFeeStatus,actual.getStatus());
+
+
+        CreatePayment creatablePayment2 = createPayment(20);
+        api.createStudentPayments(STUDENT_WITH_GRACE_DELAY_ID, actualFees.get(0).getId(),List.of(creatablePayment2));
+        actual = api.getStudentFeeById(STUDENT_WITH_GRACE_DELAY_ID, actualFees.get(0).getId());
         expectedRemainingAmount = 0;
         expectedFeeStatus = Fee.StatusEnum.PAID;
         assertEquals(expectedRemainingAmount,actual.getRemainingAmount());

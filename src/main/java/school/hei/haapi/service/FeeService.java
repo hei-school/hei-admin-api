@@ -86,20 +86,21 @@ public class FeeService {
         return initialFee;
     }
 
-    public List<Fee> updateFeesStatusToLate(List<Fee> unpaidFees) {
+
+    @Scheduled(cron = "0 0 * * * *")
+    public List<Fee> updateFeesStatusToLate() {
+        List<Fee> unpaidFees = feeRepository.getUnpaidFees();
         return unpaidFees.stream().map(fee -> {
             log.info("Fee with id." + fee.getId() + " is going to be updated from UNPAID to LATE");
             return updateFeeStatus(fee);
         }).collect(Collectors.toList());
     }
 
-    @Scheduled(cron = "0 0 * * * *")
+    @Scheduled(cron = "0 0 0 * * *")
     public void updateFees() {
-        List<Fee> fees = feeRepository.getUnpaidFees();
         DelayPenalty delayPenalty = delayPenaltyService.getCurrentDelayPenalty();
-        fees = updateFeesStatusToLate(fees);
-        fees = FeePenaltyUtils.penalizeFees(fees, delayPenalty);
-        feeRepository.saveAll(fees);
+        List<Fee> fees = feeRepository.getUnpaidFees();
+        feeRepository.saveAll(FeePenaltyUtils.penalizeFees(fees, delayPenalty));
     }
 
     private TypedLateFeeVerified toTypedEvent(Fee fee) {

@@ -38,6 +38,11 @@ public class FeePenaltyUtils {
     }
 
     public static List<Fee> penalizeFees(List<Fee> lateFees, DelayPenalty delayPenalty) {
-        return lateFees.stream().map(fee -> penalizeFee(fee, delayPenalty)).collect(Collectors.toList());
+        return lateFees.stream().map(fee -> {
+            if(fee.getStudent().getGraceDelay() != null){
+                delayPenalty.setGraceDelay(fee.getStudent().getGraceDelay());
+            }
+            return penalizeFee(fee, delayPenalty);
+        }).collect(Collectors.toList());
     }
 }
