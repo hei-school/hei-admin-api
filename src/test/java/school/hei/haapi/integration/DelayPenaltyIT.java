@@ -81,7 +81,7 @@ class DelayPenaltyIT {
             .status(LATE)
             .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
             .updatedAt(Instant.parse("2023-02-08T08:30:24.00Z"))
-            .dueDatetime(Instant.parse("2023-03-22T08:25:25.00Z"));
+            .dueDatetime(Instant.parse("2023-03-23T08:25:25.00Z"));
   }
 
   @BeforeEach
