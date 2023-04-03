@@ -25,7 +25,6 @@ public class DelayPenalty implements Serializable {
     @Id
     @GeneratedValue(strategy = IDENTITY)
     private String id;
-
     private int interest_percent;
 
     @Type(type = "pgsql_enum")
