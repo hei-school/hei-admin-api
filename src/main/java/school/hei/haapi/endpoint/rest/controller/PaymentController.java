@@ -42,7 +42,7 @@ public class PaymentController {
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize) {
     return paymentService.getByStudentIdAndFeeId(studentId, feeId, page, pageSize).stream()
-        .map(paymentMapper::toRestPayment)
-        .collect(toUnmodifiableList());
+            .map(paymentMapper::toRestPayment)
+            .collect(toUnmodifiableList());
   }
 }
