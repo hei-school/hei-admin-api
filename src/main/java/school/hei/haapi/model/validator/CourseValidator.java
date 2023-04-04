@@ -26,9 +26,10 @@ public class CourseValidator implements Consumer<Course> {
     if (course.getCode() == null) {
       violationMessages.add("code is mandatory");
     }
-    if (course.getId() == null
-        && repository.existsByCodeContainingIgnoreCase(course.getCode())) {
-      violationMessages.add("code must be unique");
+    if (course.getId() == null) {
+      if (repository.existsByCodeContainingIgnoreCase(course.getCode())) {
+        violationMessages.add("Course." + course.getCode() + " already exist.");
+      }
     }
     if (course.getName() == null) {
       violationMessages.add("Name is mandatory");

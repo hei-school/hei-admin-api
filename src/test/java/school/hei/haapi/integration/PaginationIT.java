@@ -55,6 +55,16 @@ class PaginationIT {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
+  private static Payment payment2() {
+    return new Payment()
+        .id("payment2_id")
+        .feeId(FEE1_ID)
+        .type(Payment.TypeEnum.CASH)
+        .amount(3000)
+        .comment("Comment")
+        .creationDatetime(Instant.parse("2022-11-09T08:25:25.00Z"));
+  }
+
   @BeforeEach
   public void setUp() throws ApiException {
     setUpCognito(cognitoComponentMock);
@@ -71,16 +81,6 @@ class PaginationIT {
     api.createOrUpdateStudents(newStudents);
   }
 
-  private static Payment payment2() {
-    return new Payment()
-        .id("payment2_id")
-        .feeId(FEE1_ID)
-        .type(Payment.TypeEnum.CASH)
-        .amount(3000)
-        .comment("Comment")
-        .creationDatetime(Instant.parse("2022-11-09T08:25:25.00Z"));
-  }
-
   @Test
   void student_pages_are_ordered_by_reference() throws ApiException {
     someCreatableStudentList(7);
@@ -88,11 +88,11 @@ class PaginationIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     UsersApi api = new UsersApi(teacher1Client);
 
-    final List<Student> page1 = api.getStudents(1, pageSize, null, null, null);
-    final List<Student> page2 = api.getStudents(2, pageSize, null, null, null);
-    final List<Student> page3 = api.getStudents(3, pageSize, null, null, null);
-    final List<Student> page4 = api.getStudents(4, pageSize, null, null, null);
-    final List<Student> page100 = api.getStudents(100, pageSize, null, null, null);
+    final List<Student> page1 = api.getStudents(1, pageSize, null, null, null, null);
+    final List<Student> page2 = api.getStudents(2, pageSize, null, null, null, null);
+    final List<Student> page3 = api.getStudents(3, pageSize, null, null, null, null);
+    final List<Student> page4 = api.getStudents(4, pageSize, null, null, null, null);
+    final List<Student> page100 = api.getStudents(100, pageSize, null, null, null, null);
 
     assertEquals(pageSize, page1.size());
     assertEquals(pageSize, page2.size());
@@ -153,11 +153,11 @@ class PaginationIT {
 
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
-            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >=1\"}",
-            () -> api.getStudents(0, 20, null, null, null));
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >=1\"}",
+        () -> api.getStudents(0, 20, null, null, null, null));
     assertThrowsApiException(
-            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",
-            () -> api.getStudents(1, 1000, null, null, null));
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",
+        () -> api.getStudents(1, 1000, null, null, null, null));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

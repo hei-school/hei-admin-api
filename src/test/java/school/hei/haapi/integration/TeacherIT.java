@@ -18,8 +18,10 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -36,11 +38,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
+import static school.hei.haapi.integration.conf.TestUtils.COURSE3_ID;
+import static school.hei.haapi.integration.conf.TestUtils.COURSE5_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
@@ -52,7 +58,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 @Testcontainers
 @ContextConfiguration(initializers = TeacherIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class TeacherIT {
+public class TeacherIT {
 
   @MockBean
   private SentryConf sentryConf;
@@ -134,6 +140,34 @@ class TeacherIT {
     teacher.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     teacher.setAddress("Adr X");
     return teacher;
+  }
+
+  static CrupdateCourse crupdatedCourse1() {
+    CrupdateCourse crupdatedCourse = new CrupdateCourse();
+    crupdatedCourse.setId(COURSE5_ID);
+    crupdatedCourse.setCode("MGT1");
+    crupdatedCourse.setName("Collaborative work");
+    crupdatedCourse.setCredits(5);
+    crupdatedCourse.setTotalHours(12);
+    crupdatedCourse.setMainTeacherId(TEACHER4_ID);
+    return crupdatedCourse;
+  }
+
+  static CrupdateCourse crupdatedCourse2() {
+    CrupdateCourse crupdatedCourse = new CrupdateCourse();
+    crupdatedCourse.setCode("MGT1");
+    crupdatedCourse.setName("Collaborative work like GWSP");
+    crupdatedCourse.setCredits(12);
+    crupdatedCourse.setTotalHours(5);
+    crupdatedCourse.setMainTeacherId(TEACHER4_ID);
+    return crupdatedCourse;
+  }
+
+  static UpdateStudentCourse updateStudentCourse() {
+    UpdateStudentCourse updated = new UpdateStudentCourse();
+    updated.setCourseId(COURSE3_ID);
+    updated.status(LINKED);
+    return updated;
   }
 
   static List<Teacher> someCreatableTeacherList(int nbOfTeacher) {
