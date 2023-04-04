@@ -13,6 +13,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
@@ -20,6 +21,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.Direction;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -27,12 +29,17 @@ import school.hei.haapi.integration.conf.TestUtils;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
+import static school.hei.haapi.endpoint.rest.model.CourseStatus.UNLINKED;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.COURSE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE5_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
@@ -40,6 +47,7 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -144,6 +152,18 @@ public class CourseIT {
     return course;
   }
 
+  static Course course3() {
+    Course course = new Course();
+    course.setId("course3_id");
+    course.setCode("WEB1");
+    course.setCredits(4);
+    course.setTotalHours(16);
+    course.setMainTeacher(teacher2());
+    course.setName("Web Interface");
+    return course;
+  }
+
+
   static Course course4() {
     Course course = new Course();
     course.setId(COURSE4_ID);
@@ -187,6 +207,12 @@ public class CourseIT {
     return crupdatedCourse;
   }
 
+  static UpdateStudentCourse updateStudentCourse() {
+    UpdateStudentCourse updated = new UpdateStudentCourse();
+    updated.setCourseId(COURSE3_ID);
+    updated.status(LINKED);
+    return updated;
+  }
 
   @BeforeEach
   void setUp() {
@@ -297,6 +323,72 @@ public class CourseIT {
     assertEquals(3, actual.size());
     assertTrue(isBefore(actual.get(0).getCode(), actual.get(1).getCode()));
     assertTrue(isBefore(actual.get(1).getCode(), actual.get(2).getCode()));
+  }
+
+  @Test
+  void student_read_own_student_course_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    UsersApi api = new UsersApi(student1Client);
+
+    List<Course> actual1 = api.getStudentCoursesById(STUDENT1_ID, LINKED);
+    List<Course> actual2 = api.getStudentCoursesById(STUDENT1_ID, UNLINKED);
+
+    assertEquals(1, actual1.size());
+    assertTrue(actual1.contains(course1()));
+    assertEquals(2, actual2.size());
+    assertTrue(actual2.contains(course2()));
+  }
+
+  @Test
+  void student_read_student_course_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    UsersApi api = new UsersApi(student1Client);
+
+    assertThrowsForbiddenException(() -> api.getStudentCoursesById(STUDENT2_ID, LINKED));
+    assertThrowsForbiddenException(() -> api.getStudentCoursesById(STUDENT2_ID, UNLINKED));
+  }
+
+  @Test
+  void user_read_by_student_course() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    UsersApi api = new UsersApi(teacher1Client);
+
+    List<Course> actual1 = api.getStudentCoursesById(STUDENT1_ID, null);
+    List<Course> actual2 = api.getStudentCoursesById(STUDENT2_ID, null);
+
+    assertEquals(2, actual1.size());
+    assertTrue(actual1.contains(course1()));
+    assertEquals(1, actual2.size());
+    assertTrue(actual2.contains(course2()));
+
+  }
+
+  @Test
+  void user_read_by_student_course_and_status() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Course> actual1 = api.getStudentCoursesById(STUDENT1_ID, LINKED);
+    List<Course> actual2 = api.getStudentCoursesById(STUDENT1_ID, UNLINKED);
+
+    assertEquals(1, actual1.size());
+    assertTrue(actual1.contains(course1()));
+    assertEquals(2, actual2.size());
+    assertTrue(actual2.contains(course2()));
+
+  }
+
+  @Test
+  void manager_update_student_course() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Course> actual1 = api.updateStudentCourses(STUDENT1_ID, List.of(updateStudentCourse()));
+    List<Course> actual2 = api.getStudentCoursesById(STUDENT1_ID, UNLINKED);
+
+    assertTrue(actual1.contains(course3()));
+    assertEquals(2, actual2.size());
+    assertTrue(actual2.contains(course3()));
   }
 
   @Test
