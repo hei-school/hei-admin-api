@@ -22,6 +22,8 @@ public class TestUtils {
   public static final String STUDENT2_ID = "student2_id";
   public static final String TEACHER1_ID = "teacher1_id";
   public static final String TEACHER2_ID = "teacher2_id";
+  public static final String TEACHER3_ID = "teacher3_id";
+  public static final String TEACHER4_ID = "teacher4_id";
   public static final String MANAGER_ID = "manager1_id";
   public static final String GROUP1_ID = "group1_id";
   public static final String FEE1_ID = "fee1_id";
@@ -32,6 +34,11 @@ public class TestUtils {
   public static final String PAYMENT1_ID = "payment1_id";
   public static final String PAYMENT2_ID = "payment2_id";
   public static final String PAYMENT4_ID = "payment4_id";
+  public static final String COURSE1_ID = "course1_id";
+  public static final String COURSE2_ID = "course2_id";
+  public static final String COURSE3_ID = "course3_id";
+  public static final String COURSE4_ID = "course4_id";
+  public static final String COURSE5_ID = "course5_id";
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
