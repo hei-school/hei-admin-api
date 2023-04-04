@@ -28,16 +28,25 @@ public class StudentController {
     return userMapper.toRestStudent(userService.getById(id));
   }
 
+  //TODO: add a filter by a list of courseId
   @GetMapping("/students")
   public List<Student> getStudents(
       @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
-      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
-    return userService.getByCriteria(User.Role.STUDENT, firstName, lastName, ref, page, pageSize
-        ).stream()
-        .map(userMapper::toRestStudent)
-        .collect(toUnmodifiableList());
+      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
+      @RequestParam(value = "course_id", required = false) String courseId) {
+    if (courseId == null) {
+      return userService.getByCriteria(User.Role.STUDENT, firstName, lastName, ref, page, pageSize
+          ).stream()
+          .map(userMapper::toRestStudent)
+          .collect(toUnmodifiableList());
+    } else {
+      return userService.getByLinkedCourse(User.Role.STUDENT, courseId, page, pageSize)
+          .stream()
+          .map(userMapper::toRestStudent)
+          .collect(toUnmodifiableList());
+    }
   }
 
   @PutMapping("/students")
@@ -51,4 +60,5 @@ public class StudentController {
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
   }
+
 }

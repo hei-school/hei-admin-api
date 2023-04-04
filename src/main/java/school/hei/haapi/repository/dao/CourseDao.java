@@ -21,7 +21,6 @@ import school.hei.haapi.model.User;
 
 import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
 import static school.hei.haapi.endpoint.rest.model.CourseStatus.UNLINKED;
-import static school.hei.haapi.service.utils.DataFormatterUtils.handleNull;
 
 @Repository
 @AllArgsConstructor
@@ -37,45 +36,37 @@ public class CourseDao {
     Root<Course> root = query.from(Course.class);
     Join<Course, User> teacher = root.join("mainTeacher");
 
-    Predicate hasCode =
-        builder.like(builder.lower(root.get("code")), "%" + handleNull(code) + "%");
-
-    Predicate hasName =
-        builder.like(builder.lower(root.get("name")), "%" + handleNull(name) + "%");
-
-
-    Predicate hasCredits = credits != null ?
-        builder.or(
-            builder.equal(root.get("credits"), credits)
-        ) : null;
-
-
-    Predicate hasTeacherFirstName = builder.like(builder.lower(teacher.get("firstName")),
-        "%" +
-            handleNull(teacherFirstName) + "%");
-
-
-    Predicate hasTeacherLastName = builder.like(builder.lower(teacher.get("lastName")),
-        "%" + handleNull(teacherLastName) + "%");
-
-
     List<Predicate> predicates = new ArrayList<>();
 
-    if (hasCode != null) {
-      predicates.add(hasCode);
+    if (code != null) {
+      predicates.add(
+          builder.or(
+              builder.like(builder.lower(root.get("code")), "%" + code + "%"),
+              builder.like(root.get("code"), "%" + code + "%")
+          )
+      );
     }
 
-    if (hasName != null) {
-      predicates.add(hasName);
+    if (name != null) {
+      predicates.add(builder.or(
+          builder.like(builder.lower(root.get("name")), "%" + name + "%"),
+          builder.like(root.get("name"), "%" + name + "%")
+      ));
     }
 
-    if (hasTeacherFirstName != null) {
-      predicates.add(hasTeacherFirstName);
+    if (teacherFirstName != null) {
+      predicates.add(builder.like(builder.lower(teacher.get("firstName")),
+          "%" + teacherFirstName.toLowerCase() + "%"));
+    }
+    if (teacherLastName != null) {
+      predicates.add(builder.like(builder.lower(teacher.get("lastName")),
+          "%" + teacherLastName.toLowerCase() + "%"));
     }
 
-    if (hasTeacherLastName != null) {
-      predicates.add(hasTeacherLastName);
-    }
+    Predicate hasCredits = credits != null
+        ? builder.or(
+        builder.equal(root.get("credits"), credits)
+    ) : null;
 
     /* To prevent in case credits is null
       and will not affect the other filters
@@ -86,25 +77,13 @@ public class CourseDao {
 
     query.where(builder.and(predicates.toArray(new Predicate[0])));
 
-    Order creditsSortOrder = (creditsOrder != null && !creditsOrder.isEmpty()) ?
-        (creditsOrder.equalsIgnoreCase("ASC") ?
-            builder.asc(root.get("credits")) :
-            (creditsOrder.equalsIgnoreCase("DESC") ?
-                builder.desc(root.get("credits")) : null))
-        : null;
-
-    Order codeSortOrder = (codeOrder != null && !codeOrder.isEmpty()) ?
-        codeOrder.equalsIgnoreCase("ASC") ? builder.asc(root.get("code")) :
-            codeOrder.equalsIgnoreCase("DESC") ? builder.desc(root.get("code")) : null
-        : null;
-
+    Order creditsSortOrder = getOrder(root, builder, creditsOrder, "credits");
+    Order codeSortOrder = getOrder(root, builder, codeOrder, "code");
 
     List<Order> orders = new ArrayList<>();
-
     if (creditsSortOrder != null) {
       orders.add(creditsSortOrder);
     }
-
     if (codeSortOrder != null) {
       orders.add(codeSortOrder);
     }
@@ -119,6 +98,20 @@ public class CourseDao {
         .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
         .setMaxResults(pageable.getPageSize())
         .getResultList();
+  }
+
+  private Order getOrder(Root<Course> root, CriteriaBuilder builder, String order,
+                         String property) {
+    if (order == null || order.isEmpty()) {
+      return null;
+    }
+    if (order.equalsIgnoreCase("ASC")) {
+      return builder.asc(root.get(property));
+    } else if (order.equalsIgnoreCase("DESC")) {
+      return builder.desc(root.get(property));
+    } else {
+      return null;
+    }
   }
 
   public List<Course> getByUserIdAndStatus(String userId, CourseStatus status) {
@@ -138,7 +131,7 @@ public class CourseDao {
       Predicate defaultStatus = builder.equal(studentCourse.get("status"), LINKED);
       query.where(builder.and(hasUserId, defaultStatus));
     }
-    if (status.equals(UNLINKED)) {
+    if (status != null && status.equals(UNLINKED)) {
       Predicate condition = builder.not(hasUserId);
       Predicate hasStatus = builder.equal(studentCourse.get("status"), UNLINKED);
       Predicate unlinkedPredicate = builder.or(condition, hasStatus);

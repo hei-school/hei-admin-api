@@ -3,14 +3,13 @@ package school.hei.haapi.service;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.hei.haapi.endpoint.rest.model.CourseDirection;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
-import school.hei.haapi.endpoint.rest.model.Direction;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
@@ -28,7 +27,6 @@ import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
 
 @Service
 @AllArgsConstructor
-@Slf4j
 public class CourseService {
   private final CourseDao courseDao;
   private final CourseRepository courseRepository;
@@ -37,12 +35,9 @@ public class CourseService {
   private final StudentCourseRepository studentCourseRepository;
 
   public List<Course> getCourses(
-      String code, String name,
-      Integer credits, Direction creditsOrder,
-      Direction codeOrder, String teacherFirstName,
-      String teacherLastName, PageFromOne page,
-      BoundedPageSize pageSize
-  ) {
+      String code, String name, Integer credits, CourseDirection creditsOrder,
+      CourseDirection codeOrder, String teacherFirstName, String teacherLastName,
+      PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(
         page.getValue() - 1,
         pageSize.getValue(),

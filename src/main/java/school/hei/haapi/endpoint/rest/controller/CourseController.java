@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseDirection;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
-import school.hei.haapi.endpoint.rest.model.Direction;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -27,17 +27,15 @@ public class CourseController {
 
   @GetMapping("/courses")
   public List<Course> getCourses(
-      @RequestParam(value = "code", required = false, defaultValue = "") String code,
-      @RequestParam(value = "name", required = false, defaultValue = "") String name,
+      @RequestParam(value = "code", required = false) String code,
+      @RequestParam(value = "name", required = false) String name,
       @RequestParam(value = "credits", required = false) Integer credits,
-      @RequestParam(value = "teacher_first_name", required = false, defaultValue = "")
+      @RequestParam(value = "teacher_first_name", required = false)
       String teacherFirstName,
-      @RequestParam(value = "teacher_last_name", required = false, defaultValue = "")
+      @RequestParam(value = "teacher_last_name", required = false)
       String teacherLastName,
-      @RequestParam(value = "credits_order", defaultValue = "")
-      Direction creditsOrder,
-      @RequestParam(value = "code_order", defaultValue = "")
-      Direction codeOrder,
+      @RequestParam(value = "credits_order", required = false) CourseDirection creditsOrder,
+      @RequestParam(value = "code_order", required = false) CourseDirection codeOrder,
       @RequestParam(defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize
   ) {

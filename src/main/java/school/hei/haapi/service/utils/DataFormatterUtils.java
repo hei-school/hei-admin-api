@@ -32,8 +32,4 @@ public class DataFormatterUtils {
     return intConverter.asWords(number).toUpperCase();
   }
 
-  public static String handleNull(String toHandle) {
-    return toHandle == null ? "" : toHandle.toLowerCase();
-  }
-
 }

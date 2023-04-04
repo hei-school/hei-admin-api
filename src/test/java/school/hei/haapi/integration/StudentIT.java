@@ -41,6 +41,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -169,7 +171,7 @@ class StudentIT {
     assertThrowsForbiddenException(() -> api.getStudentById(TestUtils.STUDENT2_ID));
 
     assertThrowsForbiddenException(
-        () -> api.getStudents(1, 20, null, null, null));
+        () -> api.getStudents(1, 20, null, null, null, null));
   }
 
   @Test
@@ -178,11 +180,17 @@ class StudentIT {
     UsersApi api = new UsersApi(teacher1Client);
     Student actualStudent1 = api.getStudentById(STUDENT1_ID);
 
-    List<Student> actualStudents = api.getStudents(1, 20, null, null, null);
+    List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null);
 
     assertEquals(student1(), actualStudent1);
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
+
+    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE1_ID);
+
+    assertEquals(student1(), actualStudents2.get(0));
+    assertEquals(1, actualStudents2.size());
+
   }
 
   @Test
@@ -206,10 +214,15 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, null, null, null);
+    List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null);
+    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE2_ID);
 
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
+
+    assertEquals(student2(), actualStudents2.get(0));
+    assertEquals(1, actualStudents2.size());
+
   }
 
   @Test
@@ -218,7 +231,7 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents = api.getStudents(1, 20, student1().getRef(),
-        student1().getFirstName(), student1().getLastName());
+        student1().getFirstName(), student1().getLastName(), null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student1()));
@@ -229,7 +242,7 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, "std21001", null, null);
+    List<Student> actualStudents = api.getStudents(1, 20, "std21001", null, null, null);
 
     assertEquals("STD21001", student1().getRef());
     assertEquals(1, actualStudents.size());
@@ -241,7 +254,7 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, student1().getRef(), null, null);
+    List<Student> actualStudents = api.getStudents(1, 20, student1().getRef(), null, null, null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student1()));
@@ -252,7 +265,8 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, null, null, student2().getLastName());
+    List<Student> actualStudents =
+        api.getStudents(1, 20, null, null, student2().getLastName(), null);
 
     assertEquals(2, actualStudents.size());
     assertTrue(actualStudents.contains(student2()));
@@ -265,7 +279,7 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents = api.getStudents(1, 20, student2().getRef(),
-        null, student2().getLastName());
+        null, student2().getLastName(), null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student2()));
@@ -277,7 +291,7 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents = api.getStudents(1, 20, student2().getRef(),
-        null, student1().getLastName());
+        null, student1().getLastName(), null);
 
     assertEquals(0, actualStudents.size());
     assertFalse(actualStudents.contains(student1()));
@@ -314,7 +328,7 @@ class StudentIT {
         "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
         () -> api.createOrUpdateStudents(List.of(toCreate)));
 
-    List<Student> actual = api.getStudents(1, 100, null, null, null);
+    List<Student> actual = api.getStudents(1, 100, null, null, null, null);
     assertFalse(actual.stream().anyMatch(s -> Objects.equals(toCreate.getEmail(), s.getEmail())));
   }
 
@@ -330,7 +344,7 @@ class StudentIT {
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Request entries must be <= 10\"}",
         () -> api.createOrUpdateStudents(listToCreate));
 
-    List<Student> actual = api.getStudents(1, 100, null, null, null);
+    List<Student> actual = api.getStudents(1, 100, null, null, null, null);
     assertFalse(actual.stream().anyMatch(
         s -> Objects.equals(studentToCreate.getEmail(), s.getEmail())));
   }
