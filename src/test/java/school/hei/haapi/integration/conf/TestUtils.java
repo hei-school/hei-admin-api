@@ -2,10 +2,14 @@ package school.hei.haapi.integration.conf;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -79,6 +83,71 @@ public class TestUtils {
     assertEquals("{"
         + "\"type\":\"403 FORBIDDEN\","
         + "\"message\":\"Access is denied\"}", responseBody);
+  }
+
+
+  public static Teacher teacher1() {
+    Teacher teacher = new Teacher();
+    teacher.setId(TEACHER1_ID);
+    teacher.setFirstName("One");
+    teacher.setLastName("Teacher");
+    teacher.setEmail("test+teacher1@hei.school");
+    teacher.setRef("TCR21001");
+    teacher.setPhone("0322411125");
+    teacher.setStatus(EnableStatus.ENABLED);
+    teacher.setSex(Teacher.SexEnum.F);
+    teacher.setBirthDate(LocalDate.parse("1990-01-01"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
+    teacher.setAddress("Adr 3");
+    return teacher;
+  }
+
+  public static Teacher teacher2() {
+    Teacher teacher = new Teacher();
+    teacher.setId(TEACHER2_ID);
+    teacher.setFirstName("Two");
+    teacher.setLastName("Teacher");
+    teacher.setEmail("test+teacher2@hei.school");
+    teacher.setRef("TCR21002");
+    teacher.setPhone("0322411126");
+    teacher.setStatus(EnableStatus.ENABLED);
+    teacher.setSex(Teacher.SexEnum.M);
+    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
+    teacher.setAddress("Adr 4");
+    return teacher;
+  }
+
+  public static Teacher teacher3() {
+    Teacher teacher = new Teacher();
+    teacher.setId(TEACHER3_ID);
+    teacher.setFirstName("Three");
+    teacher.setLastName("Teach");
+    teacher.setEmail("test+teacher3@hei.school");
+    teacher.setRef("TCR21003");
+    teacher.setPhone("0322411126");
+    teacher.setStatus(EnableStatus.ENABLED);
+    teacher.setSex(Teacher.SexEnum.M);
+    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
+    teacher.setAddress("Adr 4");
+    return teacher;
+  }
+
+  public static Teacher teacher4() {
+    Teacher teacher = new Teacher();
+    teacher.setId(TEACHER4_ID);
+    teacher.setFirstName("Four");
+    teacher.setLastName("Binary");
+    teacher.setEmail("test+teacher4@hei.school");
+    teacher.setRef("TCR21004");
+    teacher.setPhone("0322411426");
+    teacher.setStatus(EnableStatus.ENABLED);
+    teacher.setSex(Teacher.SexEnum.F);
+    teacher.setBirthDate(LocalDate.parse("1990-01-04"));
+    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
+    teacher.setAddress("Adr 5");
+    return teacher;
   }
 
   public static boolean isValidUUID(String candidate) {

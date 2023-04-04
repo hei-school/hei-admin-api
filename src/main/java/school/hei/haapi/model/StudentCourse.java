@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import java.io.Serializable;
 import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -31,7 +32,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudentCourse {
+public class StudentCourse implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;

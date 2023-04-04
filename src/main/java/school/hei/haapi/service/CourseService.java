@@ -9,8 +9,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.hei.haapi.endpoint.rest.model.CourseDirection;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
-import school.hei.haapi.endpoint.rest.model.Direction;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
@@ -37,12 +37,9 @@ public class CourseService {
   private final StudentCourseRepository studentCourseRepository;
 
   public List<Course> getCourses(
-      String code, String name,
-      Integer credits, Direction creditsOrder,
-      Direction codeOrder, String teacherFirstName,
-      String teacherLastName, PageFromOne page,
-      BoundedPageSize pageSize
-  ) {
+      String code, String name, Integer credits, CourseDirection creditsOrder,
+      CourseDirection codeOrder, String teacherFirstName, String teacherLastName,
+      PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(
         page.getValue() - 1,
         pageSize.getValue(),

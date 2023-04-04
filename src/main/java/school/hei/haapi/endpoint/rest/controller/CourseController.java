@@ -11,9 +11,9 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseDirection;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
-import school.hei.haapi.endpoint.rest.model.Direction;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -35,9 +35,9 @@ public class CourseController {
       @RequestParam(value = "teacher_last_name", required = false, defaultValue = "")
       String teacherLastName,
       @RequestParam(value = "credits_order", defaultValue = "")
-      Direction creditsOrder,
+      CourseDirection creditsOrder,
       @RequestParam(value = "code_order", defaultValue = "")
-      Direction codeOrder,
+      CourseDirection codeOrder,
       @RequestParam(defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize
   ) {

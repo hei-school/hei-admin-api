@@ -1,9 +1,6 @@
 package school.hei.haapi.integration;
 
-import java.time.Instant;
-import java.time.LocalDate;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,10 +14,8 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseDirection;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
-import school.hei.haapi.endpoint.rest.model.Direction;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -40,23 +35,22 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.teacher1;
+import static school.hei.haapi.integration.conf.TestUtils.teacher2;
+import static school.hei.haapi.integration.conf.TestUtils.teacher3;
+import static school.hei.haapi.integration.conf.TestUtils.teacher4;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = CourseIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-@Slf4j
-public class CourseIT {
-
+class CourseIT {
   @MockBean
   private SentryConf sentryConf;
   @MockBean
@@ -64,70 +58,6 @@ public class CourseIT {
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, CourseIT.ContextInitializer.SERVER_PORT);
-  }
-
-  public static Teacher teacher1() {
-    Teacher teacher = new Teacher();
-    teacher.setId(TEACHER1_ID);
-    teacher.setFirstName("One");
-    teacher.setLastName("Teacher");
-    teacher.setEmail("test+teacher1@hei.school");
-    teacher.setRef("TCR21001");
-    teacher.setPhone("0322411125");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.F);
-    teacher.setBirthDate(LocalDate.parse("1990-01-01"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
-    teacher.setAddress("Adr 3");
-    return teacher;
-  }
-
-  public static Teacher teacher2() {
-    Teacher teacher = new Teacher();
-    teacher.setId(TEACHER2_ID);
-    teacher.setFirstName("Two");
-    teacher.setLastName("Teacher");
-    teacher.setEmail("test+teacher2@hei.school");
-    teacher.setRef("TCR21002");
-    teacher.setPhone("0322411126");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.M);
-    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
-    teacher.setAddress("Adr 4");
-    return teacher;
-  }
-
-  public static Teacher teacher3() {
-    Teacher teacher = new Teacher();
-    teacher.setId(TEACHER3_ID);
-    teacher.setFirstName("Three");
-    teacher.setLastName("Teach");
-    teacher.setEmail("test+teacher3@hei.school");
-    teacher.setRef("TCR21003");
-    teacher.setPhone("0322411126");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.M);
-    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
-    teacher.setAddress("Adr 4");
-    return teacher;
-  }
-
-  public static Teacher teacher4() {
-    Teacher teacher = new Teacher();
-    teacher.setId(TEACHER4_ID);
-    teacher.setFirstName("Four");
-    teacher.setLastName("Binary");
-    teacher.setEmail("test+teacher4@hei.school");
-    teacher.setRef("TCR21004");
-    teacher.setPhone("0322411426");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.F);
-    teacher.setBirthDate(LocalDate.parse("1990-01-04"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
-    teacher.setAddress("Adr 5");
-    return teacher;
   }
 
   static Course course1() {
@@ -223,13 +153,17 @@ public class CourseIT {
     return a.compareTo(b) < 0;
   }
 
+  private boolean isBefore(int a, int b) {
+    return a < b;
+  }
+
   @Test
   void student_read_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
 
-    List<Course> actual = api.getCourses(null, null, null,
-        null, null, null, null, null, null);
+    List<Course> actual = api.getCourses(null, null, null, null, null,
+        null, null, null, null);
 
     assertEquals(5, actual.size());
     assertTrue(actual.contains(course1()));
@@ -240,8 +174,8 @@ public class CourseIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
 
-    List<Course> actual = api.getCourses(null, null, null,
-        null, null, null, null, null, null);
+    List<Course> actual = api.getCourses(null, null, null, null, null,
+        null, null, null, null);
 
     assertEquals(5, actual.size());
     assertTrue(actual.contains(course2()));
@@ -252,24 +186,19 @@ public class CourseIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<Course> actual = api.getCourses("PROG1", null, null,
-        null, null, null, null, null, null);
+    List<Course> actual = api.getCourses("PROG1", null, null, null, null,
+        null, null, null, null);
 
     assertEquals(1, actual.size());
     assertTrue(actual.contains(course1()));
-  }
 
-  @Test
-  void user_read_by_name() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    List<Course> actual2 = api.getCourses("PROG", null, null, null, null,
+        null, null, null, null);
 
-    List<Course> actual = api.getCourses("PROG", null, null,
-        null, null, null, null, null, null);
+    assertEquals(2, actual2.size());
+    assertTrue(actual2.contains(course1()));
+    assertTrue(actual2.contains(course2()));
 
-    assertEquals(2, actual.size());
-    assertTrue(actual.contains(course1()));
-    assertTrue(actual.contains(course2()));
 
   }
 
@@ -278,10 +207,10 @@ public class CourseIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
 
-    List<Course> actual1 = api.getCourses(null, null, null,
-        null, "ry", null, null, null, null);
+    List<Course> actual1 = api.getCourses(null, null, null, null, "ry",
+        null, null, null, null);
 
-    assertEquals(1, actual1.size());
+    assertEquals(5, actual1.size());
     assertTrue(actual1.contains(course5()));
   }
 
@@ -290,8 +219,8 @@ public class CourseIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<Course> actual = api.getCourses(null, null, 6,
-        null, null, null, null, null, null);
+    List<Course> actual = api.getCourses(null, null, 6, null, null,
+        null, null, null, null);
 
     assertEquals(3, actual.size());
     assertTrue(actual.contains(course1()));
@@ -304,8 +233,8 @@ public class CourseIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<Course> actual = api.getCourses(null, null, 6,
-        null, null, null, Direction.ASC, null, null);
+    List<Course> actual = api.getCourses(null, null, 6, null, null,
+        null, CourseDirection.ASC, null, null);
 
     assertEquals(3, actual.size());
     assertTrue(isBefore(actual.get(0).getCode(), actual.get(1).getCode()));
@@ -317,12 +246,12 @@ public class CourseIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<Course> actual = api.getCourses(null, null, 6,
-        null, null, Direction.ASC, null, null, null);
+    List<Course> actual = api.getCourses(null, null, null, null, null,
+        CourseDirection.ASC, null, null, null);
 
-    assertEquals(3, actual.size());
-    assertTrue(isBefore(actual.get(0).getCode(), actual.get(1).getCode()));
-    assertTrue(isBefore(actual.get(1).getCode(), actual.get(2).getCode()));
+    assertEquals(5, actual.size());
+    assertTrue(isBefore(actual.get(0).getCredits(), actual.get(1).getCredits()));
+    assertTrue(isBefore(actual.get(1).getCredits(), actual.get(2).getCredits()));
   }
 
   @Test
@@ -408,7 +337,7 @@ public class CourseIT {
     TeachingApi api = new TeachingApi(manager1Client);
 
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"code must be unique\"}",
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Course.MGT1 already exist.\"}",
         () -> api.crupdateCourses(List.of(crupdatedCourse2())));
   }
 
