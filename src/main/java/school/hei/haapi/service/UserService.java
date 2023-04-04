@@ -67,6 +67,16 @@ public class UserService {
         pageSize.getValue(),
         Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
-           role, ref, firstName, lastName, pageable);
+        role, ref, firstName, lastName, pageable);
   }
+
+  public List<User> getByLinkedCourse(User.Role role, String courseId,
+                                      PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable = PageRequest.of(
+        page.getValue() - 1,
+        pageSize.getValue(),
+        Sort.by(ASC, "ref"));
+    return userManagerDao.findByLinkedCourse(role, courseId, pageable);
+  }
+
 }

@@ -1,6 +1,6 @@
 package school.hei.haapi.model;
 
-import java.util.Objects;
+import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -11,6 +11,7 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -31,7 +32,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
-public class StudentCourse {
+@EqualsAndHashCode
+public class StudentCourse implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
@@ -48,23 +50,4 @@ public class StudentCourse {
   @Enumerated(EnumType.STRING)
   private CourseStatus status;
 
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || getClass() != o.getClass()) {
-      return false;
-    }
-    StudentCourse that = (StudentCourse) o;
-    return Objects.equals(id, that.id)
-        && Objects.equals(userId, that.userId)
-        && Objects.equals(courseId, that.courseId)
-        && status == that.status;
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(id, userId, courseId, status);
-  }
 }

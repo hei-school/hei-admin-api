@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -26,7 +27,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Course {
+public class Course implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
@@ -37,7 +38,7 @@ public class Course {
 
   private Integer credits;
 
-  private int totalHours;
+  private Integer totalHours;
 
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "main_teacher")

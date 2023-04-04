@@ -2,10 +2,15 @@ package school.hei.haapi.integration.conf;
 
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.UUID;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -15,6 +20,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.integration.TeacherIT.teacher1;
+import static school.hei.haapi.integration.TeacherIT.teacher2;
+import static school.hei.haapi.integration.TeacherIT.teacher3;
 
 public class TestUtils {
 
@@ -79,6 +87,73 @@ public class TestUtils {
     assertEquals("{"
         + "\"type\":\"403 FORBIDDEN\","
         + "\"message\":\"Access is denied\"}", responseBody);
+  }
+
+
+  public static Teacher teacher4() {
+    return new Teacher()
+        .id(TEACHER4_ID)
+        .firstName("Four")
+        .lastName("Binary")
+        .email("test+teacher4@hei.school")
+        .ref("TCR21004")
+        .phone("0322411426")
+        .status(EnableStatus.ENABLED)
+        .sex(Teacher.SexEnum.F)
+        .birthDate(LocalDate.parse("1990-01-04"))
+        .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
+        .address("Adr 5");
+  }
+
+  public static Course course1() {
+    return new Course()
+        .id(COURSE1_ID)
+        .code("PROG1")
+        .credits(6)
+        .totalHours(20)
+        .mainTeacher(teacher2())
+        .name("Algorithmics");
+  }
+
+  public static Course course2() {
+    return new Course()
+        .id(COURSE2_ID)
+        .code("PROG3")
+        .credits(6)
+        .totalHours(20)
+        .mainTeacher(teacher1())
+        .name("Advanced OOP");
+  }
+
+  public static Course course3() {
+    return new Course()
+        .id(COURSE3_ID)
+        .code("WEB1")
+        .credits(4)
+        .totalHours(16)
+        .mainTeacher(teacher2())
+        .name("Web Interface");
+  }
+
+
+  public static Course course4() {
+    return new Course()
+        .id(COURSE4_ID)
+        .code("WEB2")
+        .credits(6)
+        .totalHours(18)
+        .mainTeacher(teacher3())
+        .name("Web Application");
+  }
+
+  public static Course course5() {
+    return new Course()
+        .id(COURSE5_ID)
+        .code("MGT1")
+        .credits(5)
+        .totalHours(12)
+        .mainTeacher(teacher4())
+        .name("Collaborative work");
   }
 
   public static boolean isValidUUID(String candidate) {

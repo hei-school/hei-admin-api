@@ -261,46 +261,6 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
-  /students/courses/{course_id}:
-    get:
-      tags:
-        - Teaching
-      summary: Get all students linked to a specific course
-      operationId: getStudentsByCourseId
-      parameters:
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-        - name: page_size
-          in: query
-          schema:
-            $ref: '#/components/schemas/PageSize'
-        - name: course_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of students following the course.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Student'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-
   /students:
     get:
       tags:
@@ -331,6 +291,12 @@ paths:
           description: "Filter students by last name, case is ignored"
           schema:
             type: string
+        - name: course_id
+          in: query
+          description: "Filter students by course they are linked to"
+          schema:
+            type: string
+        #TODO: add a filter of a list of course_id
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -448,11 +414,11 @@ paths:
         - name: credits_order
           in: query
           schema:
-            $ref: '#/components/schemas/Direction'
+            $ref: '#/components/schemas/CourseDirection'
         - name: code_order
           in: query
           schema:
-            $ref: '#/components/schemas/Direction'
+            $ref: '#/components/schemas/CourseDirection'
         - name: page
           in: query
           schema:
@@ -1241,7 +1207,7 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
-    Direction:
+    CourseDirection:
       type: string
       enum:
         - ASC
