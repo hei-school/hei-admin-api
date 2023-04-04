@@ -4,14 +4,17 @@ import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.Direction;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.CourseService;
@@ -56,5 +59,24 @@ public class CourseController {
         .collect(Collectors.toUnmodifiableList());
   }
 
+  @GetMapping("students/{student_id}/courses")
+  public List<Course> getStudentCoursesById(
+      @PathVariable("student_id") String studentId,
+      @RequestParam(value = "status", required = false) CourseStatus status) {
+    return service.getCoursesByStatus(studentId, status)
+        .stream()
+        .map(mapper::toRest)
+        .collect(Collectors.toUnmodifiableList());
+  }
+
+  @PutMapping("students/{student_id}/courses")
+  public List<Course> updateStudentCourses(
+      @PathVariable("student_id") String studentId,
+      @RequestBody List<UpdateStudentCourse> studentCourses) {
+    return service.updateStudentCourses(studentId, studentCourses)
+        .stream()
+        .map(mapper::toRest)
+        .collect(Collectors.toUnmodifiableList());
+  }
 
 }

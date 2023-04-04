@@ -1,16 +1,16 @@
 package school.hei.haapi.repository.dao;
 
-import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.jpa.repository.query.QueryUtils;
-import org.springframework.stereotype.Repository;
-import school.hei.haapi.model.User;
+import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import java.util.List;
+import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.repository.query.QueryUtils;
+import org.springframework.stereotype.Repository;
+import school.hei.haapi.model.User;
 
 @Repository
 @AllArgsConstructor
@@ -55,6 +55,4 @@ public class UserManagerDao {
         .setMaxResults(pageable.getPageSize())
         .getResultList();
   }
-
-
 }
