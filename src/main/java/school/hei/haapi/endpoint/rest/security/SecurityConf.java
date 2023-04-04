@@ -102,6 +102,10 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(PUT, "/groups/**").hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/courses").authenticated()
         .antMatchers(PUT, "/courses/**").hasAnyRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/courses"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*/courses").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(PUT, "/students/*/courses").hasAnyRole(MANAGER.getRole())
         .antMatchers("/**").denyAll()
 
         // disable superfluous protections

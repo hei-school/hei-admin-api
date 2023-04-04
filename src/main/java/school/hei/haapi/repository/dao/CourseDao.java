@@ -6,6 +6,7 @@ import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -13,9 +14,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
+import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.StudentCourse;
 import school.hei.haapi.model.User;
 
+import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
+import static school.hei.haapi.endpoint.rest.model.CourseStatus.UNLINKED;
 import static school.hei.haapi.service.utils.DataFormatterUtils.handleNull;
 
 @Repository
@@ -114,6 +119,36 @@ public class CourseDao {
         .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
         .setMaxResults(pageable.getPageSize())
         .getResultList();
+  }
+
+  public List<Course> getByUserIdAndStatus(String userId, CourseStatus status) {
+    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<Course> query = builder.createQuery(Course.class);
+    Root<Course> courseRoot = query.from(Course.class);
+
+    Join<Course, StudentCourse> studentCourse =
+        courseRoot.join("studentCourses", JoinType.LEFT);
+
+    Join<StudentCourse, User> user = studentCourse.join("userId", JoinType.LEFT);
+
+    Predicate hasUserId =
+        builder.equal(user.get("id"), userId);
+
+    if (status == null || status.equals(LINKED)) {
+      Predicate defaultStatus = builder.equal(studentCourse.get("status"), LINKED);
+      query.where(builder.and(hasUserId, defaultStatus));
+    }
+    if (status.equals(UNLINKED)) {
+      Predicate condition = builder.not(hasUserId);
+      Predicate hasStatus = builder.equal(studentCourse.get("status"), UNLINKED);
+      Predicate unlinkedPredicate = builder.or(condition, hasStatus);
+      query
+          .select(courseRoot)
+          .distinct(true)
+          .where(unlinkedPredicate);
+    }
+
+    return entityManager.createQuery(query).getResultList();
   }
 
 }
