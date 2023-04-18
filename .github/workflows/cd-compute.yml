@@ -85,7 +85,7 @@ jobs:
         run: |
           if ${{ github.ref_name == 'dev' }}; then
             echo "branch_env=dev" >> $GITHUB_ENV
-            echo "listenerRuleAvailablePriority=1" >> $GITHUB_ENV
+            echo "listenerRuleAvailablePriority=2" >> $GITHUB_ENV
             echo "subnet=${{ secrets.DEV_SUBNET }}" >> $GITHUB_ENV
           elif ${{ github.ref_name == 'prod' }}; then
             echo "branch_env=prod" >> $GITHUB_ENV
