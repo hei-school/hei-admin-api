@@ -1114,6 +1114,11 @@ components:
       properties:
         main_teacher:
           $ref: '#/components/schemas/Teacher'
+    Order:
+      type: string
+      enum:
+        - ASC
+        - DESC
     CreateFee:
       type: object
       properties:
