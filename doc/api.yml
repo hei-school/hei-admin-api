@@ -488,7 +488,12 @@ paths:
       tags:
         - Teaching
       summary: Get all exams
-      parameters:S
+      parameters:
+        - name: course_id
+          in: query
+          required: false
+          schema:
+            type: string
         - name: page
           in: query
           required: true
