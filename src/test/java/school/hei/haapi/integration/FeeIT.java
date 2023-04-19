@@ -1,6 +1,5 @@
 package school.hei.haapi.integration;
 
-import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -23,9 +22,9 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -33,6 +32,10 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
+import static school.hei.haapi.integration.conf.TestUtils.fee1;
+import static school.hei.haapi.integration.conf.TestUtils.fee2;
+import static school.hei.haapi.integration.conf.TestUtils.fee3;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -49,58 +52,6 @@ class FeeIT {
     return TestUtils.anApiClient(token, FeeIT.ContextInitializer.SERVER_PORT);
   }
 
-  static Fee fee1() {
-    Fee fee = new Fee();
-    fee.setId(FEE1_ID);
-    fee.setStudentId(STUDENT1_ID);
-    fee.setStatus(Fee.StatusEnum.PAID);
-    fee.setType(Fee.TypeEnum.TUITION);
-    fee.setTotalAmount(5000);
-    fee.setRemainingAmount(0);
-    fee.setComment("Comment");
-    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
-    fee.creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    fee.setDueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
-    return fee;
-  }
-
-  static Fee fee2() {
-    Fee fee = new Fee();
-    fee.setId(FEE2_ID);
-    fee.setStudentId(STUDENT1_ID);
-    fee.setStatus(Fee.StatusEnum.PAID);
-    fee.setType(Fee.TypeEnum.HARDWARE);
-    fee.setTotalAmount(5000);
-    fee.setRemainingAmount(0);
-    fee.setComment("Comment");
-    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
-    fee.creationDatetime(Instant.parse("2021-11-10T08:25:24.00Z"));
-    fee.setDueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
-    return fee;
-  }
-
-  static Fee fee3() {
-    Fee fee = new Fee();
-    fee.setId(FEE3_ID);
-    fee.setStudentId(STUDENT1_ID);
-    fee.setStatus(Fee.StatusEnum.LATE);
-    fee.setType(Fee.TypeEnum.TUITION);
-    fee.setTotalAmount(5000);
-    fee.setRemainingAmount(5000);
-    fee.setComment("Comment");
-    fee.setUpdatedAt(Instant.parse("2023-02-08T08:30:24Z"));
-    fee.creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
-    fee.setDueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
-    return fee;
-  }
-
-  static CreateFee creatableFee1() {
-    return new CreateFee()
-        .type(CreateFee.TypeEnum.TUITION)
-        .totalAmount(5000)
-        .comment("Comment")
-        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
-  }
 
   @BeforeEach
   void setUp() {
@@ -128,7 +79,7 @@ class FeeIT {
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
     List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 5, null);
-    List<Fee> actualFees2 = api.getFees(String.valueOf(Fee.StatusEnum.PAID), 1, 10);
+    List<Fee> actualFees2 = api.getFees(String.valueOf(PAID), 1, 10);
 
     assertEquals(fee1(), actualFee);
     assertEquals(2, actualFees2.size());

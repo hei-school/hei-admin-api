@@ -4,25 +4,34 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static school.hei.haapi.integration.TeacherIT.teacher1;
-import static school.hei.haapi.integration.TeacherIT.teacher2;
-import static school.hei.haapi.integration.TeacherIT.teacher3;
+import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
 
 public class TestUtils {
 
@@ -87,6 +96,98 @@ public class TestUtils {
     assertEquals("{"
         + "\"type\":\"403 FORBIDDEN\","
         + "\"message\":\"Access is denied\"}", responseBody);
+  }
+
+  public static Teacher teacher1() {
+    return new Teacher()
+        .id("teacher1_id")
+        .firstName("One")
+        .lastName("Teacher")
+        .email("test+teacher1@hei.school")
+        .ref("TCR21001")
+        .phone("0322411125")
+        .status(EnableStatus.ENABLED)
+        .sex(Teacher.SexEnum.F)
+        .birthDate(LocalDate.parse("1990-01-01"))
+        .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
+        .address("Adr 3");
+  }
+
+  public static Teacher teacher2() {
+    return new Teacher()
+        .id("teacher2_id")
+        .firstName("Two")
+        .lastName("Teacher")
+        .email("test+teacher2@hei.school")
+        .ref("TCR21002")
+        .phone("0322411126")
+        .status(EnableStatus.ENABLED)
+        .sex(Teacher.SexEnum.M)
+        .birthDate(LocalDate.parse("1990-01-02"))
+        .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
+        .address("Adr 4");
+  }
+
+  public static Teacher teacher3() {
+    return new Teacher()
+        .id("teacher3_id")
+        .firstName("Three")
+        .lastName("Teach")
+        .email("test+teacher3@hei.school")
+        .ref("TCR21003")
+        .phone("0322411126")
+        .status(EnableStatus.ENABLED)
+        .sex(Teacher.SexEnum.M)
+        .birthDate(LocalDate.parse("1990-01-02"))
+        .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
+        .address("Adr 4");
+  }
+
+  public static Teacher someCreatableTeacher() {
+    return new Teacher()
+        .firstName("Some")
+        .lastName("User")
+        .email(randomUUID() + "@hei.school")
+        .ref("TCR21-" + randomUUID())
+        .phone("0332511129")
+        .status(EnableStatus.ENABLED)
+        .sex(Teacher.SexEnum.M)
+        .birthDate(LocalDate.parse("2000-01-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .address("Adr X");
+  }
+
+  public static CrupdateCourse crupdatedCourse1() {
+    return new CrupdateCourse()
+        .id(COURSE5_ID)
+        .code("MGT1")
+        .name("Collaborative work")
+        .credits(5)
+        .totalHours(12)
+        .mainTeacherId(TEACHER4_ID);
+  }
+
+  public static CrupdateCourse crupdatedCourse2() {
+    return new CrupdateCourse()
+        .code("MGT1")
+        .name("Collaborative work like GWSP")
+        .credits(12)
+        .totalHours(5)
+        .mainTeacherId(TEACHER4_ID);
+  }
+
+  public static UpdateStudentCourse updateStudentCourse() {
+    return new UpdateStudentCourse()
+        .courseId(COURSE3_ID)
+        .status(LINKED);
+  }
+
+  public static List<Teacher> someCreatableTeacherList(int nbOfTeacher) {
+    List<Teacher> teacherList = new ArrayList<>();
+    for (int i = 0; i < nbOfTeacher; i++) {
+      teacherList.add(someCreatableTeacher());
+    }
+    return teacherList;
   }
 
 
@@ -154,6 +255,64 @@ public class TestUtils {
         .totalHours(12)
         .mainTeacher(teacher4())
         .name("Collaborative work");
+  }
+
+  public static Fee fee1() {
+    return new Fee()
+        .id(FEE1_ID)
+        .studentId(STUDENT1_ID)
+        .status(PAID)
+        .type(TUITION)
+        .totalAmount(5000)
+        .remainingAmount(0)
+        .comment("Comment")
+        .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+  }
+
+  public static Fee fee2() {
+    return new Fee()
+        .id(FEE2_ID)
+        .studentId(STUDENT1_ID)
+        .status(PAID)
+        .type(HARDWARE)
+        .totalAmount(5000)
+        .remainingAmount(0)
+        .comment("Comment")
+        .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
+        .creationDatetime(Instant.parse("2021-11-10T08:25:24.00Z"))
+        .dueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
+  }
+
+  public static Fee fee3() {
+    return new Fee()
+        .id(FEE3_ID)
+        .studentId(STUDENT1_ID)
+        .status(LATE)
+        .type(TUITION)
+        .totalAmount(5000)
+        .remainingAmount(5000)
+        .comment("Comment")
+        .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
+        .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
+        .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
+  }
+
+  public static CreateFee creatableFee1() {
+    return new CreateFee()
+        .type(CreateFee.TypeEnum.TUITION)
+        .totalAmount(5000)
+        .comment("Comment")
+        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+  }
+
+  public static boolean isBefore(String a, String b) {
+    return a.compareTo(b) < 0;
+  }
+
+  public static boolean isBefore(int a, int b) {
+    return a < b;
   }
 
   public static boolean isValidUUID(String candidate) {

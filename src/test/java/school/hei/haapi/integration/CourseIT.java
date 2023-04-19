@@ -24,9 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
 import static school.hei.haapi.endpoint.rest.model.CourseStatus.UNLINKED;
-import static school.hei.haapi.integration.TeacherIT.crupdatedCourse1;
-import static school.hei.haapi.integration.TeacherIT.crupdatedCourse2;
-import static school.hei.haapi.integration.TeacherIT.updateStudentCourse;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -40,7 +37,11 @@ import static school.hei.haapi.integration.conf.TestUtils.course2;
 import static school.hei.haapi.integration.conf.TestUtils.course3;
 import static school.hei.haapi.integration.conf.TestUtils.course4;
 import static school.hei.haapi.integration.conf.TestUtils.course5;
+import static school.hei.haapi.integration.conf.TestUtils.crupdatedCourse1;
+import static school.hei.haapi.integration.conf.TestUtils.crupdatedCourse2;
+import static school.hei.haapi.integration.conf.TestUtils.isBefore;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.updateStudentCourse;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -59,14 +60,6 @@ class CourseIT {
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
-  }
-
-  private boolean isBefore(String a, String b) {
-    return a.compareTo(b) < 0;
-  }
-
-  private boolean isBefore(int a, int b) {
-    return a < b;
   }
 
   @Test
@@ -192,7 +185,6 @@ class CourseIT {
     assertTrue(actual1.contains(course1()));
     assertEquals(1, actual2.size());
     assertTrue(actual2.contains(course2()));
-
   }
 
   @Test
@@ -207,7 +199,6 @@ class CourseIT {
     assertTrue(actual1.contains(course1()));
     assertEquals(2, actual2.size());
     assertTrue(actual2.contains(course2()));
-
   }
 
   @Test
