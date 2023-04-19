@@ -260,6 +260,37 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{student_id}/grades:
+    get:
+      tags:
+        - Teaching
+      summary: Get all grades of a student in every course that had an exam.
+      operationId: getStudentGrades
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of courses with their exams and grades for the specified student.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentCourseExam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
   /students:
     get:
@@ -291,7 +322,6 @@ paths:
           description: "Filter students by last name, case is ignored"
           schema:
             type: string
-        #TODO: add a filter of a list of course_id
         - name: course_id
           in: query
           description: "Filter students by course they are linked to"
@@ -483,37 +513,27 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
-  /exams:
+  /courses/{course_id}/exams:
     get:
       tags:
         - Teaching
-      summary: Get all exams
+      summary: Get all exam infos of a specified course
       parameters:
         - name: course_id
-          in: query
-          required: false
+          in: path
+          required: true
           schema:
             type: string
-        - name: page
-          in: query
-          required: true
-          schema:
-            $ref: '#/components/schemas/Page'
-        - name: page_size
-          in: query
-          required: true
-          schema:
-            $ref: '#/components/schemas/PageSize'
-      operationId: getExams
+      operationId: getExamsByCourseId
       responses:
         '200':
-          description: List of Exam
+          description: List of exam infos without the participants of the specified course
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Exam'
+                  $ref: '#/components/schemas/ExamInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -527,8 +547,13 @@ paths:
     put:
       tags:
         - Teaching
-      summary: Create new exams or update existing exams
-      description: Update exams when `id` are provided, create them otherwise.
+      summary: Update exams if ID is provided, otherwise create new exams of the specified course.
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
       operationId: crupdateExams
       requestBody:
         required: true
@@ -537,16 +562,16 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Exam'
+                $ref: '#/components/schemas/ExamInfo'
       responses:
         '200':
-          description: The created or updated exams
+          description: Exams infos without the students participated
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Exam'
+                  $ref: '#/components/schemas/ExamInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -557,46 +582,14 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
-  /students/{student_id}/grades:
+  /courses/{course_id}/exams/{exam_id}/details:
     get:
       tags:
         - Teaching
-      summary: Get all student's grades.
+      summary: Get exam details with the participants and their grades of the specified exam.
+      operationId: getExamDetail
       parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: getGradesById
-      responses:
-        '200':
-          description: return a list of grades with every associated exam
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StudentGrade'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-
-  /students/{student_id}/exam/{exam_id}/grade:
-    get:
-      tags:
-        - Teaching
-      summary: Get a student's grade.
-      parameters:
-        - name: student_id
+        - name: course_id
           in: path
           required: true
           schema:
@@ -606,14 +599,13 @@ paths:
           required: true
           schema:
             type: string
-      operationId: getGradeById
       responses:
         '200':
-          description: return a grade during a specific exam
+          description: Exam infos with the students participated and their grades
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Grade'
+                $ref: '#/components/schemas/ExamDetail'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -624,14 +616,14 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /courses/{course_id}/exams/{exam_id}/grades:
     put:
       tags:
         - Teaching
-      summary: Create new grade or update existing grade
-      description: Update grade when `id` is provided, create it otherwise.
-      operationId: crupdateGrade
+      summary: Update students grades
+      operationId: crupdateStudentsGrade
       parameters:
-        - name: student_id
+        - name: course_id
           in: path
           required: true
           schema:
@@ -646,14 +638,16 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Grade'
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdateStudentGrade'
       responses:
         '200':
-          description: The created or updated Grade
+          description: Exam infos with the students participated and their grades updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Grade'
+                $ref: '#/components/schemas/ExamDetail'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1198,7 +1192,8 @@ components:
             - MANAGER
         bearer:
           type: string
-    User:
+    UserIdentifier:
+      type: object
       properties:
         id:
           type: string
@@ -1209,25 +1204,30 @@ components:
           type: string
         last_name:
           type: string
-        sex:
-          type: string
-          enum:
-            - M
-            - F
-        birth_date:
-          type: string
-          format: date
-        address:
-          type: string
-        phone:
-          type: string
         email:
           type: string
-        entrance_datetime:
-          type: string
-          format: date-time
-        status:
-          $ref: '#/components/schemas/EnableStatus'
+    User:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+        - type: object
+          properties:
+            sex:
+              type: string
+              enum:
+                - M
+                - F
+            birth_date:
+              type: string
+              format: date
+            address:
+              type: string
+            phone:
+              type: string
+            entrance_datetime:
+              type: string
+              format: date-time
+            status:
+              $ref: '#/components/schemas/EnableStatus'
     EnableStatus:
       type: string
       enum:
@@ -1302,60 +1302,65 @@ components:
       enum:
         - ASC
         - DESC
-
-    Exam:
+    ExamInfo:
       type: object
       properties:
         id:
           type: string
-        details:
+        coefficient:
+          type: integer
+        title:
           type: string
         examination_date:
           type: string
           format: date-time
-        course_id:
-          type: string
-
+    ExamDetail:
+      allOf:
+        - $ref: '#/components/schemas/ExamInfo'
+      properties:
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentGrade'
     Grade:
       type: object
       properties:
-        id:
-          type: string
-        point:
-          type: integer
+        score:
+          type: number
+          format: double
+          example: 12.5
         created_at:
           type: string
           format: date-time
-        student_id:
-          type: string
-        exam_id:
-          type: string
     StudentGrade:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
       type: object
       properties:
-        id:
-          type: string
-        exam_id:
-          type: string
-        examination_date:
-          type: string
-          format: date-time
-        course_id:
-          type: string
-        course_code:
-          type: string
-        point:
-          type: integer
-        created_datetime:
-          type: string
-          format: date-time
+        grade:
+          $ref: '#/components/schemas/Grade'
+    UpdateStudentGrade:
+      type: object
+      properties:
         student_id:
           type: string
-        student_lastname:
-          type: string
-        student_firstname:
-          type: string
-
+        score:
+          type: number
+          format: double
+    StudentExamGrade:
+      allOf:
+        - $ref: '#/components/schemas/ExamInfo'
+      properties:
+        grade:
+          $ref: '#/components/schemas/Grade'
+    StudentCourseExam:
+      allOf:
+        - $ref: '#/components/schemas/Course'
+      properties:
+        exams:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentExamGrade'
     CreateFee:
       type: object
       properties:
