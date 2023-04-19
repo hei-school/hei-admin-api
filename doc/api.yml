@@ -488,7 +488,7 @@ paths:
       tags:
         - Teaching
       summary: Get all exams
-      parameters:
+      parameters:S
         - name: page
           in: query
           required: true
@@ -542,6 +542,113 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Exam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
+  /students/{student_id}/grades:
+    get:
+      tags:
+        - Teaching
+      summary: Get all student's grades.
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getGradesById
+      responses:
+        '200':
+          description: return a list of grades with every associated exam
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentGrade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
+  /students/{student_id}/exam/{exam_id}/grade:
+    get:
+      tags:
+        - Teaching
+      summary: Get a student's grade.
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getGradeById
+      responses:
+        '200':
+          description: return a grade during a specific exam
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Teaching
+      summary: Create new grade or update existing grade
+      description: Update grade when `id` is provided, create it otherwise.
+      operationId: crupdateGrade
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Grade'
+      responses:
+        '200':
+          description: The created or updated Grade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1202,6 +1309,46 @@ components:
           type: string
           format: date-time
         course_id:
+          type: string
+
+    Grade:
+      type: object
+      properties:
+        id:
+          type: string
+        point:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        student_id:
+          type: string
+        exam_id:
+          type: string
+    StudentGrade:
+      type: object
+      properties:
+        id:
+          type: string
+        exam_id:
+          type: string
+        examination_date:
+          type: string
+          format: date-time
+        course_id:
+          type: string
+        course_code:
+          type: string
+        point:
+          type: integer
+        created_datetime:
+          type: string
+          format: date-time
+        student_id:
+          type: string
+        student_lastname:
+          type: string
+        student_firstname:
           type: string
 
     CreateFee:
