@@ -25,8 +25,7 @@ public class CourseMapper {
   }
 
   public school.hei.haapi.model.Course toDomain(CrupdateCourse rest) {
-    return school.hei.haapi.model.Course
-        .builder()
+    return school.hei.haapi.model.Course.builder()
         .id(rest.getId())
         .code(rest.getCode())
         .name(rest.getName())

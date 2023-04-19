@@ -1,8 +1,5 @@
 package school.hei.haapi.integration;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,10 +15,7 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
-import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -29,7 +23,6 @@ import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 
-import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -38,27 +31,27 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
-import static school.hei.haapi.integration.conf.TestUtils.COURSE3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.COURSE5_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacher;
+import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacherList;
+import static school.hei.haapi.integration.conf.TestUtils.teacher1;
+import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = TeacherIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-public class TeacherIT {
+class TeacherIT {
 
   @MockBean
   private SentryConf sentryConf;
@@ -79,104 +72,6 @@ public class TeacherIT {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  public static Teacher teacher1() {
-    Teacher teacher = new Teacher();
-    teacher.setId("teacher1_id");
-    teacher.setFirstName("One");
-    teacher.setLastName("Teacher");
-    teacher.setEmail("test+teacher1@hei.school");
-    teacher.setRef("TCR21001");
-    teacher.setPhone("0322411125");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.F);
-    teacher.setBirthDate(LocalDate.parse("1990-01-01"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
-    teacher.setAddress("Adr 3");
-    return teacher;
-  }
-
-  public static Teacher teacher2() {
-    Teacher teacher = new Teacher();
-    teacher.setId("teacher2_id");
-    teacher.setFirstName("Two");
-    teacher.setLastName("Teacher");
-    teacher.setEmail("test+teacher2@hei.school");
-    teacher.setRef("TCR21002");
-    teacher.setPhone("0322411126");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.M);
-    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
-    teacher.setAddress("Adr 4");
-    return teacher;
-  }
-
-  public static Teacher teacher3() {
-    Teacher teacher = new Teacher();
-    teacher.setId("teacher3_id");
-    teacher.setFirstName("Three");
-    teacher.setLastName("Teach");
-    teacher.setEmail("test+teacher3@hei.school");
-    teacher.setRef("TCR21003");
-    teacher.setPhone("0322411126");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.M);
-    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
-    teacher.setAddress("Adr 4");
-    return teacher;
-  }
-
-  public static Teacher someCreatableTeacher() {
-    Teacher teacher = new Teacher();
-    teacher.setFirstName("Some");
-    teacher.setLastName("User");
-    teacher.setEmail(randomUUID() + "@hei.school");
-    teacher.setRef("TCR21-" + randomUUID());
-    teacher.setPhone("0332511129");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.M);
-    teacher.setBirthDate(LocalDate.parse("2000-01-01"));
-    teacher.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    teacher.setAddress("Adr X");
-    return teacher;
-  }
-
-  static CrupdateCourse crupdatedCourse1() {
-    CrupdateCourse crupdatedCourse = new CrupdateCourse();
-    crupdatedCourse.setId(COURSE5_ID);
-    crupdatedCourse.setCode("MGT1");
-    crupdatedCourse.setName("Collaborative work");
-    crupdatedCourse.setCredits(5);
-    crupdatedCourse.setTotalHours(12);
-    crupdatedCourse.setMainTeacherId(TEACHER4_ID);
-    return crupdatedCourse;
-  }
-
-  static CrupdateCourse crupdatedCourse2() {
-    CrupdateCourse crupdatedCourse = new CrupdateCourse();
-    crupdatedCourse.setCode("MGT1");
-    crupdatedCourse.setName("Collaborative work like GWSP");
-    crupdatedCourse.setCredits(12);
-    crupdatedCourse.setTotalHours(5);
-    crupdatedCourse.setMainTeacherId(TEACHER4_ID);
-    return crupdatedCourse;
-  }
-
-  static UpdateStudentCourse updateStudentCourse() {
-    UpdateStudentCourse updated = new UpdateStudentCourse();
-    updated.setCourseId(COURSE3_ID);
-    updated.status(LINKED);
-    return updated;
-  }
-
-  static List<Teacher> someCreatableTeacherList(int nbOfTeacher) {
-    List<Teacher> teacherList = new ArrayList<>();
-    for (int i = 0; i < nbOfTeacher; i++) {
-      teacherList.add(someCreatableTeacher());
-    }
-    return teacherList;
-  }
 
   @BeforeEach
   public void setUp() {

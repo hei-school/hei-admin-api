@@ -39,20 +39,17 @@ public class CourseController {
       @RequestParam(defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize
   ) {
-    return service.getCourses(code, name, credits, creditsOrder, codeOrder,
-            teacherFirstName, teacherLastName, page, pageSize)
-        .stream()
+    return service.getCourses(code, name, credits, creditsOrder, codeOrder, teacherFirstName,
+            teacherLastName, page, pageSize).stream()
         .map(mapper::toRest)
         .collect(Collectors.toUnmodifiableList());
   }
 
   @PutMapping("/courses")
   public List<Course> crupdateCourses(@RequestBody List<CrupdateCourse> courses) {
-    return service.crupdateCourses(courses
-            .stream()
+    return service.crupdateCourses(courses.stream()
             .map(mapper::toDomain)
-            .collect(Collectors.toUnmodifiableList()))
-        .stream()
+            .collect(Collectors.toUnmodifiableList())).stream()
         .map(mapper::toRest)
         .collect(Collectors.toUnmodifiableList());
   }
@@ -61,8 +58,7 @@ public class CourseController {
   public List<Course> getStudentCoursesById(
       @PathVariable("student_id") String studentId,
       @RequestParam(value = "status", required = false) CourseStatus status) {
-    return service.getCoursesByStatus(studentId, status)
-        .stream()
+    return service.getCoursesByStatus(studentId, status).stream()
         .map(mapper::toRest)
         .collect(Collectors.toUnmodifiableList());
   }
@@ -71,8 +67,7 @@ public class CourseController {
   public List<Course> updateStudentCourses(
       @PathVariable("student_id") String studentId,
       @RequestBody List<UpdateStudentCourse> studentCourses) {
-    return service.updateStudentCourses(studentId, studentCourses)
-        .stream()
+    return service.updateStudentCourses(studentId, studentCourses).stream()
         .map(mapper::toRest)
         .collect(Collectors.toUnmodifiableList());
   }
