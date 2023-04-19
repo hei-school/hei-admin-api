@@ -6,5 +6,5 @@ import school.hei.haapi.model.Course;
 
 @Repository
 public interface CourseRepository extends JpaRepository<Course, String> {
-  boolean existsByCodeContainingIgnoreCase(String code);
+  boolean existsByCode(String code);
 }

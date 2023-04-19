@@ -291,12 +291,12 @@ paths:
           description: "Filter students by last name, case is ignored"
           schema:
             type: string
+        #TODO: add a filter of a list of course_id
         - name: course_id
           in: query
           description: "Filter students by course they are linked to"
           schema:
             type: string
-        #TODO: add a filter of a list of course_id
       responses:
         '200':
           description: List of students, ordered by ref.
