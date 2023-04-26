@@ -153,11 +153,11 @@ class PaginationIT {
 
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >=1\"}",
-        () -> api.getStudents(0, 20, null, null, null, null));
+            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >=1\"}",
+            () -> api.getStudents(0, 20, null, null, null, null));
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",
-        () -> api.getStudents(1, 1000, null, null, null, null));
+            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",
+            () -> api.getStudents(1, 1000, null, null, null, null));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
