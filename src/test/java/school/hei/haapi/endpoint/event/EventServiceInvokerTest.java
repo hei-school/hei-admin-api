@@ -63,6 +63,6 @@ class EventServiceInvokerTest {
   void lateFeeService_invokes_corresponding_service() {
     lateFeeService.accept(lateFee());
 
-    verify(sesService, times(1)).sendEmail(any(), any(), any(), any());
+    verify(sesService, times(1)).sendEmail(any(), any(), any(), any(), any());
   }
 }
