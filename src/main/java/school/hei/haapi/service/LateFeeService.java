@@ -48,9 +48,10 @@ public class LateFeeService implements Consumer<LateFeeVerified> {
     User student = lateFee.getStudent();
     String recipient = student.getEmail();
     String sender = eventConf.getSesSource();
+    String contact = eventConf.getSesContact();
     String subject = emailSubject(student, lateFee);
     String htmlBody = htmlToString("lateFeeEmail", getMailContext(lateFee));
-    sesService.sendEmail(sender, recipient, subject, htmlBody);
+    sesService.sendEmail(sender, contact, recipient, subject, htmlBody);
   }
 
 }

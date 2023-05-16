@@ -11,11 +11,14 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 public class EventConf {
   private final Region region;
   private final String sesSource;
+  private final String sesContact;
 
   public EventConf(@Value("${aws.region}") String region,
-                   @Value("${aws.ses.source}") String sesSource) {
+                   @Value("${aws.ses.source}") String sesSource,
+                   @Value("${aws.ses.contact}") String sesContact) {
     this.region = Region.of(region);
     this.sesSource = sesSource;
+    this.sesContact = sesContact;
   }
 
   @Bean
@@ -34,6 +37,10 @@ public class EventConf {
 
   public String getSesSource() {
     return this.sesSource;
+  }
+
+  public String getSesContact() {
+    return this.sesContact;
   }
 
 }
