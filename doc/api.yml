@@ -1332,10 +1332,10 @@ components:
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'
-      type: object
-      properties:
-        main_teacher:
-          $ref: '#/components/schemas/Teacher'
+        - type: object
+          properties:
+            main_teacher:
+              $ref: '#/components/schemas/Teacher'
     Order:
       type: string
       enum:
