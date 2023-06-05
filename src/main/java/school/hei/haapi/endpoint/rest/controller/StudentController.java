@@ -11,7 +11,10 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
+import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -22,6 +25,7 @@ import static school.hei.haapi.model.User.Role.STUDENT;
 public class StudentController {
   private final UserService userService;
   private final UserMapper userMapper;
+  private final GradeService gradeService;
 
   @GetMapping("/students/{id}")
   public Student getStudentById(@PathVariable String id) {
@@ -56,6 +60,12 @@ public class StudentController {
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
+  }
+
+  @GetMapping("/students/{student_id}/grades")
+  public List<Grade> getAllGradesForStudent(@PathVariable("student_id") String studentId) {
+    User student = userService.getById(studentId);
+    return gradeService.getAllGradesByUser(student);
   }
 
 }

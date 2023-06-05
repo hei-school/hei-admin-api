@@ -60,6 +60,10 @@ public class CourseService {
     return courseDao.getByUserIdAndStatus(userId, status);
   }
 
+  public Course getById(String id){
+    return courseRepository.getCourseById(id);
+  }
+
   @Transactional
   public List<Course> updateStudentCourses(String userId, List<UpdateStudentCourse> toUpdate) {
     User toRetrieve = userRepository.getById(userId);

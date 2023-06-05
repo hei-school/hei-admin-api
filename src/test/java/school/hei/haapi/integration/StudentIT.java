@@ -21,7 +21,11 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.StudentCourseExam;
+import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -146,6 +150,81 @@ class StudentIT {
     student.setAddress("Adr 2");
     return student;
   }
+  public static StudentGrade grade1() {
+    StudentGrade studentGrade = new StudentGrade();
+    studentGrade.setId(student1().getId());
+    studentGrade.setRef(student1().getRef());
+    studentGrade.setFirstName(student1().getFirstName());
+    studentGrade.setLastName(student1().getLastName());
+    studentGrade.setEmail(student1().getEmail());
+    Grade grade = new Grade();
+    grade.setScore((double) 15);
+    grade.setCreatedAt(Instant.parse("2022-01-12T08:26:24.00Z"));
+    studentGrade.setGrade(grade);
+    return studentGrade;
+  }
+
+  public static StudentGrade grade2() {
+    StudentGrade studentGrade = new StudentGrade();
+    studentGrade.setId(student2().getId());
+    studentGrade.setRef(student2().getRef());
+    studentGrade.setFirstName(student2().getFirstName());
+    studentGrade.setLastName(student2().getLastName());
+    studentGrade.setEmail(student2().getEmail());
+    Grade grade = new Grade();
+    grade.setScore((double) 12);
+    grade.setCreatedAt(Instant.parse("2022-01-12T08:26:24.00Z"));
+    studentGrade.setGrade(grade);
+    return studentGrade;
+  }
+
+  /*
+  public static Course course1() {
+    Course course = new Course();
+    course.setId("course1_id");
+    course.setCode("PROG1");
+    course.setName("algorithmics");
+    course.setCredits(6);
+    course.setTotalHours(20);
+    course.mainTeacher(teacher1());
+    return course;
+  }*/
+
+  public static StudentExamGrade studentExamGrade1() {
+    StudentExamGrade studentExamGrade = new StudentExamGrade();
+    studentExamGrade.setId(student1().getId());
+    studentExamGrade.setCoefficient(2);
+    studentExamGrade.setTitle("exam1");
+    studentExamGrade.setExaminationDate(Instant.parse("2022-01-07T08:26:24.00Z"));
+    studentExamGrade.setGrade(grade1().getGrade());
+    return studentExamGrade;
+  }
+
+  public static StudentExamGrade studentExamGrade2() {
+    StudentExamGrade studentExamGrade = new StudentExamGrade();
+    studentExamGrade.setId(student2().getId());
+    studentExamGrade.setCoefficient(2);
+    studentExamGrade.setTitle("exam1");
+    studentExamGrade.setExaminationDate(Instant.parse("2022-01-07T08:26:24.00Z"));
+    studentExamGrade.setGrade(grade1().getGrade());
+    return studentExamGrade;
+  }
+
+  /*
+  public StudentCourseExam studentCourseExam1(){
+    StudentCourseExam studentCourseExam = new StudentCourseExam();
+    List<StudentExamGrade> exams = new ArrayList<>();
+    exams.add(studentExamGrade1());
+    studentCourseExam.setId(course1().getId());
+    studentCourseExam.setCode(course1().getCode());
+    studentCourseExam.setCode(course1().getCode());
+    studentCourseExam.setName(course1().getName());
+    studentCourseExam.setCredits(course1().getCredits());
+    studentCourseExam.setTotalHours(course1().getTotalHours());
+    studentCourseExam.setExams(exams);
+
+    return studentCourseExam;
+  }*/
 
   @BeforeEach
   public void setUp() {
