@@ -9,4 +9,5 @@ import school.hei.haapi.model.User;
 @Repository
 public interface StudentCourseRepository extends JpaRepository<StudentCourse, String> {
   StudentCourse findByUserIdAndCourseId(User userId, Course courseId);
+  StudentCourse findByUserId(User userId);
 }

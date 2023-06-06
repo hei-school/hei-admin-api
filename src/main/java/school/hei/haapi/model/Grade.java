@@ -29,7 +29,7 @@ public class Grade {
   private String id;
   @ManyToOne
   @JoinColumn(name = "user_id")
-  private User user; // Relation avec l'entité User
+  private StudentCourse student;
   private String examId;
   private int score;
   private LocalDateTime creationDateTime;

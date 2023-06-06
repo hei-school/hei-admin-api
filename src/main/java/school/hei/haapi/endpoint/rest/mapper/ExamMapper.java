@@ -15,9 +15,11 @@ import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
+import school.hei.haapi.model.StudentCourse;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.CourseService;
 import school.hei.haapi.service.GradeService;
+import school.hei.haapi.service.UserService;
 
 @Component
 @AllArgsConstructor
@@ -26,6 +28,7 @@ public class ExamMapper {
   private final UserMapper userMapper;
   private final GradeService gradeService;
   private final GradeMapper gradeMapper;
+  private final UserService userService;
 
   public Exam toDomain(StudentCourseExam studentCourseExam) {
     Course course = courseService.getById(studentCourseExam.getId());
@@ -92,17 +95,18 @@ public class ExamMapper {
 
     List<StudentGrade> participants = new ArrayList<>();
     Grade grade = gradeService.getGradeByExamId(exam.getId());
-   /*for (User student : exam.getCourse().getStudents()) {
+   for (StudentCourse student : exam.getCourse().getStudentCourses()) {
      StudentGrade studentGrade = new StudentGrade();
-     studentGrade.setId(student.getId());
-     studentGrade.setRef(student.getRef());
-     studentGrade.setFirstName(student.getFirstName());
-     studentGrade.setLastName(student.getLastName());
-     studentGrade.setEmail(student.getEmail());
+     User user = userService.getById(student.getUserId().getId());
+     studentGrade.setId(user.getId());
+     studentGrade.setRef(user.getRef());
+     studentGrade.setFirstName(user.getFirstName());
+     studentGrade.setLastName(user.getLastName());
+     studentGrade.setEmail(user.getEmail());
      studentGrade.setGrade(gradeMapper.toRestGrade(grade));
 
      participants.add(studentGrade);
-   }*/
+   }
 
     examDetail.setParticipants(participants);
 

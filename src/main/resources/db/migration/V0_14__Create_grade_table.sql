@@ -2,12 +2,12 @@ create table if not exists "grade"
 (
     id  varchar
     constraint grade_pk primary key default uuid_generate_v4(),
-    user_id varchar
-    constraint user_fk references "user",
+    student_course_id varchar,
+    constraint student_course_fk references "student_course",
     exam_id varchar
     constraint exam_fk references "exam",
     constraint unique_student_grade unique
-(user_id, exam_id),
+(student_course_id, exam_id),
     score   int     not null,
     creation_datetime datetime
 

@@ -47,4 +47,7 @@ public class Course implements Serializable {
   @OneToMany(mappedBy = "courseId", fetch = LAZY)
   private List<StudentCourse> studentCourses;
 
+  @OneToMany(mappedBy = "courseId", fetch = LAZY)
+  private List<Exam> exams;
+
 }
