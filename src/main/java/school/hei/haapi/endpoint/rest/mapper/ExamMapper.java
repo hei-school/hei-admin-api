@@ -24,10 +24,11 @@ import school.hei.haapi.service.UserService;
 @Component
 @AllArgsConstructor
 public class ExamMapper {
-  private final CourseService courseService;
+
   private final UserMapper userMapper;
-  private final GradeService gradeService;
   private final GradeMapper gradeMapper;
+  private final GradeService gradeService;
+  private final CourseService courseService;
   private final UserService userService;
 
   public Exam toDomain(StudentCourseExam studentCourseExam) {
@@ -37,7 +38,7 @@ public class ExamMapper {
     StudentExamGrade studentExamGrade = exams.get(0);
 
 
-    return Exam.builder().id(studentCourseExam.getId()).course(course)
+    return Exam.builder().id(studentCourseExam.getId()).courseId(course)
         .coefficient(studentExamGrade.getCoefficient()).title(studentExamGrade.getTitle())
         .examinationDate(
             LocalDateTime.ofInstant(studentExamGrade.getExaminationDate(), ZoneId.systemDefault()))
@@ -50,7 +51,7 @@ public class ExamMapper {
 
     studentCourseExam.setId(exam.getId());
 
-    Course course = exam.getCourse();
+    Course course = exam.getCourseId();
     studentCourseExam.setCode(course.getCode());
     studentCourseExam.setName(course.getName());
     studentCourseExam.setCredits(course.getCredits());
@@ -58,7 +59,7 @@ public class ExamMapper {
 
     User teacher = course.getMainTeacher();
     Teacher mainTeacher = userMapper.toRestTeacher(teacher);
-    //studentCourseExam.setMainTeacher(mainTeacher);
+    studentCourseExam.setMainTeacher(mainTeacher);
 
     List<StudentExamGrade> exams = new ArrayList<>();
     StudentExamGrade studentExamGrade = new StudentExamGrade();
@@ -78,7 +79,7 @@ public class ExamMapper {
     ExamInfo examInfo = new ExamInfo();
     examInfo.setId(exam.getId());
     examInfo.setCoefficient(exam.getCoefficient());
-    examInfo.setTitle(exam.getCourse().getName());
+    examInfo.setTitle(exam.getCourseId().getName());
     examInfo.setExaminationDate(
         exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant());
 
@@ -95,7 +96,7 @@ public class ExamMapper {
 
     List<StudentGrade> participants = new ArrayList<>();
     Grade grade = gradeService.getGradeByExamId(exam.getId());
-   for (StudentCourse student : exam.getCourse().getStudentCourses()) {
+   for (StudentCourse student : exam.getCourseId().getStudentCourses()) {
      StudentGrade studentGrade = new StudentGrade();
      User user = userService.getById(student.getUserId().getId());
      studentGrade.setId(user.getId());

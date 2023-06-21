@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.model.Grade;
-import school.hei.haapi.model.StudentCourse;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.StudentCourseRepository;
 import school.hei.haapi.service.UserService;
@@ -17,6 +16,7 @@ public class GradeMapper {
   private final UserService userService;
   private final StudentCourseRepository studentCourseRepository;
 
+  /*
   public Grade toDomain(StudentGrade studentGrade) {
     school.hei.haapi.endpoint.rest.model.Grade gradeRest = studentGrade.getGrade();
     User user = userService.getById(studentGrade.getId());
@@ -26,11 +26,11 @@ public class GradeMapper {
         .score(gradeRest.getScore().intValue())
         .creationDateTime(LocalDateTime.ofInstant(gradeRest.getCreatedAt(), ZoneId.systemDefault()))
         .build();
-  }
+  }*/
 
   public school.hei.haapi.endpoint.rest.model.StudentGrade toRest(Grade grade) {
     StudentGrade studentGrade = new StudentGrade();
-    User student = userService.getById(grade.getStudent().getId());
+    User student = userService.getById(grade.getUserId().getId());
 
     studentGrade.setId(student.getId());
     studentGrade.setRef(student.getRef());

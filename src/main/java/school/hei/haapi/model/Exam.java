@@ -32,7 +32,7 @@ public class Exam {
   private String title;
   @ManyToOne
   @JoinColumn(name = "course_id")
-  private Course course;
+  private Course courseId;
 
   @Column(name = "examination_date", nullable = false)
   private LocalDateTime examinationDate;

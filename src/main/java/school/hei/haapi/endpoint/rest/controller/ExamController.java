@@ -14,6 +14,7 @@ import school.hei.haapi.service.ExamService;
 
 @RestController
 @AllArgsConstructor
+
 public class ExamController {
   private final ExamService examService;
   private final ExamMapper examMapper;

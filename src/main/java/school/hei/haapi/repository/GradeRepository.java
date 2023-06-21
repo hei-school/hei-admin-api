@@ -12,5 +12,5 @@ public interface GradeRepository extends JpaRepository<Grade, String> {
 
   Grade getGradeByExamId(String id);
 
-  List<Grade> getGradeByUser(User user);
+  List<Grade> getGradeByUserId(User user);
 }

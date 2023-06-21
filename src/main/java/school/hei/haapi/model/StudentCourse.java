@@ -52,7 +52,7 @@ public class StudentCourse implements Serializable {
   @Enumerated(EnumType.STRING)
   private CourseStatus status;
 
-  @OneToMany(mappedBy = "grade_id")
+  @OneToMany(mappedBy = "userId")
   private List<Grade> grades;
 
 

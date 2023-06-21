@@ -14,6 +14,7 @@ import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
@@ -56,6 +57,8 @@ public class TestUtils {
   public static final String COURSE3_ID = "course3_id";
   public static final String COURSE4_ID = "course4_id";
   public static final String COURSE5_ID = "course5_id";
+  public static final String EXAM1_ID = "exam1_id";
+  public static final String EXAM2_ID = "exam2_id";
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
@@ -255,6 +258,22 @@ public class TestUtils {
         .totalHours(12)
         .mainTeacher(teacher4())
         .name("Collaborative work");
+  }
+
+  public static ExamInfo exam1(){
+    return new ExamInfo()
+        .id(EXAM1_ID)
+        .coefficient(2)
+        .title("Session1")
+        .examinationDate(Instant.parse("2022-10-09T08:28:24Z"));
+  }
+
+  public static ExamInfo exam2(){
+    return new ExamInfo()
+        .id(EXAM2_ID)
+        .coefficient(2)
+        .title("Session2")
+        .examinationDate(Instant.parse("2022-11-09T08:25:24.00Z"));
   }
 
   public static Fee fee1() {
