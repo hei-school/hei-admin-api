@@ -1,6 +1,7 @@
 package school.hei.haapi.model;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.Hibernate;
 
 @Entity
 @Table(name = "\"grade\"")
@@ -37,4 +39,19 @@ public class Grade {
   private int score;
   private LocalDateTime creationDateTime;
 
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+      return false;
+    }
+    Grade grade = (Grade) o;
+    return id != null && Objects.equals(id, grade.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
 }

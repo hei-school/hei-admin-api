@@ -1,6 +1,7 @@
 package school.hei.haapi.model;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -15,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.Hibernate;
 
 @Entity
 @Table(name = "\"exam\"")
@@ -37,6 +39,20 @@ public class Exam {
   @Column(name = "examination_date", nullable = false)
   private LocalDateTime examinationDate;
 
-  // TODO : Ajouter equals & hashcode manuellement
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+      return false;
+    }
+    Exam exam = (Exam) o;
+    return id != null && Objects.equals(id, exam.id);
+  }
+
+  @Override
+  public int hashCode() {
+    return getClass().hashCode();
+  }
 }
 
