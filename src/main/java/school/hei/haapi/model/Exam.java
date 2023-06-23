@@ -32,9 +32,11 @@ public class Exam {
   private String title;
   @ManyToOne
   @JoinColumn(name = "course_id")
-  private Course courseId;
+  private Course course;
 
   @Column(name = "examination_date", nullable = false)
   private LocalDateTime examinationDate;
+
+  // TODO : Ajouter equals & hashcode manuellement
 }
 

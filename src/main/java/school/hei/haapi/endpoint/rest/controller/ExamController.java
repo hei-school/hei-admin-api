@@ -19,7 +19,7 @@ public class ExamController {
   private final ExamService examService;
   private final ExamMapper examMapper;
 
-  @GetMapping(value = "/course/{course_id}/exams")
+  @GetMapping(value = "/courses/{course_id}/exams")
   public List<ExamInfo> getCourseExams(@PathVariable("course_id") String courseId) {
     List<Exam> exams = examService.getCourseExams(courseId);
     List<ExamInfo> examInfos = new ArrayList<>();

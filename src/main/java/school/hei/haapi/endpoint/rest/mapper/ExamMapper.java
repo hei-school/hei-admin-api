@@ -38,7 +38,7 @@ public class ExamMapper {
     StudentExamGrade studentExamGrade = exams.get(0);
 
 
-    return Exam.builder().id(studentCourseExam.getId()).courseId(course)
+    return Exam.builder().id(studentCourseExam.getId()).course(course)
         .coefficient(studentExamGrade.getCoefficient()).title(studentExamGrade.getTitle())
         .examinationDate(
             LocalDateTime.ofInstant(studentExamGrade.getExaminationDate(), ZoneId.systemDefault()))
@@ -51,7 +51,7 @@ public class ExamMapper {
 
     studentCourseExam.setId(exam.getId());
 
-    Course course = exam.getCourseId();
+    Course course = exam.getCourse();
     studentCourseExam.setCode(course.getCode());
     studentCourseExam.setName(course.getName());
     studentCourseExam.setCredits(course.getCredits());
@@ -79,7 +79,7 @@ public class ExamMapper {
     ExamInfo examInfo = new ExamInfo();
     examInfo.setId(exam.getId());
     examInfo.setCoefficient(exam.getCoefficient());
-    examInfo.setTitle(exam.getCourseId().getName());
+    examInfo.setTitle(exam.getCourse().getName());
     examInfo.setExaminationDate(
         exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant());
 
@@ -96,7 +96,7 @@ public class ExamMapper {
 
     List<StudentGrade> participants = new ArrayList<>();
     Grade grade = gradeService.getGradeByExamId(exam.getId());
-   for (StudentCourse student : exam.getCourseId().getStudentCourses()) {
+   for (StudentCourse student : exam.getCourse().getStudentCourses()) {
      StudentGrade studentGrade = new StudentGrade();
      User user = userService.getById(student.getUserId().getId());
      studentGrade.setId(user.getId());

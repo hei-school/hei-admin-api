@@ -47,7 +47,9 @@ public class Course implements Serializable {
   @OneToMany(mappedBy = "courseId", fetch = LAZY)
   private List<StudentCourse> studentCourses;
 
-  @OneToMany(mappedBy = "courseId", fetch = LAZY)
+  @OneToMany(mappedBy = "course", fetch = LAZY)
   private List<Exam> exams;
+
+  // TODO : Ajouter equals & hashcode manuellement
 
 }

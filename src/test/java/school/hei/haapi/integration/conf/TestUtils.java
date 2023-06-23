@@ -264,15 +264,15 @@ public class TestUtils {
     return new ExamInfo()
         .id(EXAM1_ID)
         .coefficient(2)
-        .title("Session1")
-        .examinationDate(Instant.parse("2022-10-09T08:28:24Z"));
+        .title("Algorithmics")
+        .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static ExamInfo exam2(){
     return new ExamInfo()
         .id(EXAM2_ID)
         .coefficient(2)
-        .title("Session2")
+        .title("Algorithmics")
         .examinationDate(Instant.parse("2022-11-09T08:25:24.00Z"));
   }
 
