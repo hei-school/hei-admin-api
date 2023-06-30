@@ -28,7 +28,7 @@ public class GradeMapper {
         .build();
   }*/
 
-  public school.hei.haapi.endpoint.rest.model.StudentGrade toRest(Grade grade) {
+  public school.hei.haapi.endpoint.rest.model.StudentGrade toRestStudentGrade(Grade grade) {
     StudentGrade studentGrade = new StudentGrade();
     User student = userService.getById(grade.getUserId().getId());
 

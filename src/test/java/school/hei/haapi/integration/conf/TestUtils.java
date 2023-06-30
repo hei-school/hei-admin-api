@@ -16,6 +16,8 @@ import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
@@ -274,6 +276,37 @@ public class TestUtils {
         .coefficient(2)
         .title("Algorithmics")
         .examinationDate(Instant.parse("2022-11-09T08:25:24.00Z"));
+  }
+
+  public static Grade grade1(){
+    return new Grade()
+        .score(8.0)
+        .createdAt(Instant.parse("2022-10-09T08:25:24Z"));
+  }
+
+  public static Grade grade2(){
+    return new Grade()
+        .score(15.0)
+        .createdAt(Instant.parse("2022-11-09T08:25:24Z"));
+  }
+  public static StudentGrade studentGrade1(){
+    return new StudentGrade()
+        .id(STUDENT1_ID)
+        .firstName("Ryan")
+        .lastName("Andria")
+        .ref("STD21001")
+        .email("test+ryan@hei.school")
+        .grade(grade1());
+  }
+
+  public static StudentGrade studentGrade2(){
+    return new StudentGrade()
+        .id(STUDENT1_ID)
+        .firstName("Ryan")
+        .lastName("Andria")
+        .ref("STD21001")
+        .email("test+ryan@hei.school")
+        .grade(grade2());
   }
 
   public static Fee fee1() {
