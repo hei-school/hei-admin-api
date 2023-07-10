@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -160,6 +161,7 @@ class CourseIT {
 
     assertEquals(1, actual1.size());
     assertTrue(actual1.contains(course1()));
+    assertEquals(new ArrayList<>(), actual2);
     assertEquals(2, actual2.size());
     assertTrue(actual2.contains(course2()));
   }
@@ -184,7 +186,7 @@ class CourseIT {
     assertEquals(2, actual1.size());
     assertTrue(actual1.contains(course1()));
     assertEquals(1, actual2.size());
-    assertTrue(actual2.contains(course2()));
+    assertTrue(actual2.contains(course3()));
   }
 
   @Test
@@ -211,7 +213,7 @@ class CourseIT {
 
     assertTrue(actual1.contains(course3()));
     assertEquals(2, actual2.size());
-    assertTrue(actual2.contains(course3()));
+    assertTrue(actual2.contains(course2()));
   }
 
   @Test

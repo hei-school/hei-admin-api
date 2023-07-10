@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import javax.persistence.Column;
@@ -37,7 +38,7 @@ public class Exam {
   private Course course;
 
   @Column(name = "examination_date", nullable = false)
-  private LocalDateTime examinationDate;
+  private Instant examinationDate;
 
   public boolean equals(Object o) {
     if (this == o) {

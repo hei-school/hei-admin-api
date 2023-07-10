@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Objects;
 import javax.persistence.Entity;
@@ -30,14 +31,15 @@ public class Grade {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private String id;
+
   @ManyToOne
-  @JoinColumn(name = "user_id")
-  private StudentCourse userId;
-  @OneToOne
+  @JoinColumn(name = "student_course_id")
+  private StudentCourse studentCourse;
+  @ManyToOne
   @JoinColumn(name = "exam_id")
-  private Exam examId;
+  private Exam exam;
   private int score;
-  private LocalDateTime creationDateTime;
+  private Instant creationDatetime;
 
   public boolean equals(Object o) {
     if (this == o) {

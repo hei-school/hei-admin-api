@@ -58,6 +58,7 @@ public class UserManagerDao {
         .getResultList();
   }
 
+
   public List<User> findByLinkedCourse(User.Role role, String courseId, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);

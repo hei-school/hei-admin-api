@@ -215,12 +215,12 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null);
-    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE2_ID);
+    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE1_ID);
 
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
 
-    assertEquals(student2(), actualStudents2.get(0));
+    assertEquals(student1(), actualStudents2.get(0));
     assertEquals(1, actualStudents2.size());
 
   }

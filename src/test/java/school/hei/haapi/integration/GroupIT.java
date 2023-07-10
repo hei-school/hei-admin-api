@@ -37,7 +37,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @Testcontainers
 @ContextConfiguration(initializers = GroupIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-public class GroupIT {
+class GroupIT {
 
   @MockBean
   private SentryConf sentryConf;

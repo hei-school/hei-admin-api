@@ -6,8 +6,11 @@ import school.hei.haapi.model.Course;
 import school.hei.haapi.model.StudentCourse;
 import school.hei.haapi.model.User;
 
+import java.util.List;
+
 @Repository
 public interface StudentCourseRepository extends JpaRepository<StudentCourse, String> {
   StudentCourse findByUserIdAndCourseId(User userId, Course courseId);
-  StudentCourse findByUserId(User userId);
+  List<StudentCourse> findByUserId(User userId);
+  List<StudentCourse> findByCourseId(Course courseId);
 }

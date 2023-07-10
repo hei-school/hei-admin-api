@@ -1,6 +1,7 @@
 package school.hei.haapi.integration.conf;
 
 import java.io.IOException;
+import java.lang.Exception;
 import java.net.ServerSocket;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -10,16 +11,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.ExamInfo;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.Grade;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
-import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -61,6 +53,7 @@ public class TestUtils {
   public static final String COURSE5_ID = "course5_id";
   public static final String EXAM1_ID = "exam1_id";
   public static final String EXAM2_ID = "exam2_id";
+  public static final String EXAM3_ID = "exam3_id";
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
@@ -273,9 +266,16 @@ public class TestUtils {
   public static ExamInfo exam2(){
     return new ExamInfo()
         .id(EXAM2_ID)
-        .coefficient(2)
-        .title("Algorithmics")
+        .coefficient(3)
+        .title("Algorithmics final")
         .examinationDate(Instant.parse("2022-11-09T08:25:24.00Z"));
+  }
+  public static ExamInfo exam3(){
+    return new ExamInfo()
+            .id(EXAM3_ID)
+            .coefficient(1)
+            .title("Prog2 final")
+            .examinationDate(Instant.parse("2022-12-09T08:25:24.00Z"));
   }
 
   public static Grade grade1(){
@@ -286,8 +286,37 @@ public class TestUtils {
 
   public static Grade grade2(){
     return new Grade()
-        .score(15.0)
+        .score(5.0)
         .createdAt(Instant.parse("2022-11-09T08:25:24Z"));
+  }
+  public static Grade grade3(){
+    return new Grade()
+            .score(18.0)
+            .createdAt(Instant.parse("2022-11-09T08:25:24Z"));
+  }
+  public static StudentExamGrade studentExamGrade1(){
+    return new StudentExamGrade()
+            .id(exam1().getId())
+            .coefficient(exam1().getCoefficient())
+            .title(exam1().getTitle())
+            .examinationDate(exam1().getExaminationDate())
+            .grade(grade1());
+  }
+  public static StudentExamGrade studentExamGrade2(){
+    return new StudentExamGrade()
+            .id(exam2().getId())
+            .coefficient(exam2().getCoefficient())
+            .title(exam2().getTitle())
+            .examinationDate(exam2().getExaminationDate())
+            .grade(grade2());
+  }
+  public static StudentExamGrade studentExamGrade3(){
+    return new StudentExamGrade()
+            .id(exam3().getId())
+            .coefficient(exam3().getCoefficient())
+            .title(exam3().getTitle())
+            .examinationDate(exam3().getExaminationDate())
+            .grade(grade3());
   }
   public static StudentGrade studentGrade1(){
     return new StudentGrade()
@@ -307,6 +336,28 @@ public class TestUtils {
         .ref("STD21001")
         .email("test+ryan@hei.school")
         .grade(grade2());
+  }
+
+  public static StudentCourseExam studentCourseExam1(){
+    return new StudentCourseExam()
+            .id(course1().getId())
+            .code(course1().getCode())
+            .name(course1().getName())
+            .credits(course1().getCredits())
+            .totalHours(course1().getTotalHours())
+            .mainTeacher(course1().getMainTeacher())
+            .exams(List.of(studentExamGrade1(),studentExamGrade2()));
+  }
+
+  public static StudentCourseExam studentCourseExam2(){
+    return new StudentCourseExam()
+            .id(course2().getId())
+            .code(course2().getCode())
+            .name(course2().getName())
+            .credits(course2().getCredits())
+            .totalHours(course2().getTotalHours())
+            .mainTeacher(course2().getMainTeacher())
+            .exams(List.of(studentExamGrade3()));
   }
 
   public static Fee fee1() {

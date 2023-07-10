@@ -2,15 +2,8 @@ package school.hei.haapi.model;
 
 import java.io.Serializable;
 import java.util.List;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -40,20 +33,19 @@ public class StudentCourse implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id", referencedColumnName = "id")
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = "user_id")
   private User userId;
 
   @ManyToOne
-  @JoinColumn(name = "course_id", referencedColumnName = "id")
+  @JoinColumn(name = "course_id")
   private Course courseId;
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   private CourseStatus status;
 
-  @OneToMany(mappedBy = "userId")
+  @OneToMany(mappedBy = "studentCourse")
   private List<Grade> grades;
-
 
 }

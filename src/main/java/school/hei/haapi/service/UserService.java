@@ -1,6 +1,8 @@
 package school.hei.haapi.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -10,10 +12,13 @@ import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
+import school.hei.haapi.endpoint.rest.mapper.StudentCourseMapper;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UserValidator;
+import school.hei.haapi.repository.StudentCourseRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 
@@ -27,9 +32,7 @@ public class UserService {
   private final UserRepository userRepository;
   private final EventProducer eventProducer;
   private final UserValidator userValidator;
-
   private final UserManagerDao userManagerDao;
-
   public User getById(String userId) {
     return userRepository.getById(userId);
   }
@@ -69,6 +72,7 @@ public class UserService {
     return userManagerDao.findByCriteria(
         role, ref, firstName, lastName, pageable);
   }
+
 
   public List<User> getByLinkedCourse(User.Role role, String courseId,
                                       PageFromOne page, BoundedPageSize pageSize) {

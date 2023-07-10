@@ -28,7 +28,6 @@ public class StudentController {
     return userMapper.toRestStudent(userService.getById(id));
   }
 
-  //TODO: add a filter by a list of courseId
   @GetMapping("/students")
   public List<Student> getStudents(
       @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,

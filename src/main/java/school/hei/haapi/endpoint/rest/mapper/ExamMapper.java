@@ -26,10 +26,7 @@ import school.hei.haapi.service.UserService;
 public class ExamMapper {
 
   private final UserMapper userMapper;
-  private final GradeMapper gradeMapper;
-  private final GradeService gradeService;
   private final CourseService courseService;
-  private final UserService userService;
 
   public Exam toDomain(StudentCourseExam studentCourseExam) {
     Course course = courseService.getById(studentCourseExam.getId());
@@ -40,8 +37,7 @@ public class ExamMapper {
 
     return Exam.builder().id(studentCourseExam.getId()).course(course)
         .coefficient(studentExamGrade.getCoefficient()).title(studentExamGrade.getTitle())
-        .examinationDate(
-            LocalDateTime.ofInstant(studentExamGrade.getExaminationDate(), ZoneId.systemDefault()))
+        .examinationDate(studentExamGrade.getExaminationDate())
         .build();
 
   }
@@ -86,7 +82,7 @@ public class ExamMapper {
     return examInfo;
   }
 
-  public ExamDetail toExamDetail(Exam exam) {
+  /*public ExamDetail toExamDetail(Exam exam, Course course) {
     ExamDetail examDetail = new ExamDetail();
     examDetail.setId(exam.getId());
     examDetail.setCoefficient(exam.getCoefficient());
@@ -112,7 +108,7 @@ public class ExamMapper {
     examDetail.setParticipants(participants);
 
     return examDetail;
-  }
+  }*/
 
 
 }

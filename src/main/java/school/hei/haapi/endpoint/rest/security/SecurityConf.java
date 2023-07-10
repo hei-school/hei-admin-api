@@ -77,7 +77,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(OPTIONS, "/**").permitAll()
         .antMatchers("/whoami").authenticated()
         .antMatchers(GET, "/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-        .antMatchers(GET, "/students/*/grades").permitAll()
+
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*")).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/fees/*").hasAnyRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees")).hasAnyRole(STUDENT.getRole())
@@ -94,6 +94,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/fees").hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/students/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(PUT, "/students/**").hasAnyRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/grades")).hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*/grades").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/teachers").hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/courses/**").authenticated()
         .requestMatchers(new SelfMatcher(GET, "/teachers/*")).hasAnyRole(TEACHER.getRole())
