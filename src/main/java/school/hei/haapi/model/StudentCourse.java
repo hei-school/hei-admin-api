@@ -2,8 +2,16 @@ package school.hei.haapi.model;
 
 import java.io.Serializable;
 import java.util.List;
-import javax.persistence.*;
-
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -35,11 +43,11 @@ public class StudentCourse implements Serializable {
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "user_id")
-  private User userId;
+  private User student;
 
   @ManyToOne
   @JoinColumn(name = "course_id")
-  private Course courseId;
+  private Course course;
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)

@@ -46,7 +46,7 @@ public class Course implements Serializable {
   @JoinColumn(name = "main_teacher")
   private User mainTeacher;
 
-  @OneToMany(mappedBy = "courseId", fetch = LAZY)
+  @OneToMany(mappedBy = "course", fetch = LAZY)
   private List<StudentCourse> studentCourses;
 
   @OneToMany(mappedBy = "course", fetch = LAZY)

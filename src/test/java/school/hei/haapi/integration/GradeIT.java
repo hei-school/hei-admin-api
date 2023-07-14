@@ -23,6 +23,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.StudentCourse;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
@@ -31,7 +32,7 @@ import static school.hei.haapi.integration.conf.TestUtils.*;
 @Testcontainers
 @ContextConfiguration(initializers = GradeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class GradeIT{
+class GradeIT {
   @MockBean
   private SentryConf sentryConf;
 
@@ -60,6 +61,34 @@ class GradeIT{
   }
 
 
+  @Test
+  void student_read_other_participant_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+    assertThrowsForbiddenException(
+        () -> api.getParticipantById(COURSE1_ID, EXAM1_ID, STUDENT2_ID));
+
+  }
+
+  @Test
+  void manager_read_participant_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+
+    StudentGrade actual = api.getParticipantById(COURSE1_ID, EXAM1_ID, STUDENT1_ID);
+
+    assertEquals(studentGrade1(), actual);
+  }
+
+  @Test
+  void teacher_read_participant_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+
+    StudentGrade actual = api.getParticipantById(COURSE1_ID, EXAM1_ID, STUDENT1_ID);
+
+    assertEquals(studentGrade1(), actual);
+  }
 
   @Test
   void student_read_ok() throws ApiException {

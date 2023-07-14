@@ -12,6 +12,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -73,6 +74,30 @@ class ExamIT {
 
     assertEquals(2, actual.size());
     assertTrue(actual.contains(exam1()));
+  }
+
+  @Test
+  void student_read_exam_details_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+    assertThrowsForbiddenException(
+        () -> api.getExamDetail(COURSE1_ID, EXAM1_ID));
+  }
+
+  @Test
+  void teacher_read_exam_details_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+    ExamDetail actual = api.getExamDetail(COURSE1_ID, EXAM1_ID);
+    assertEquals(examDetail1(), actual);
+  }
+
+  @Test
+  void manager_read_exam_details_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+    ExamDetail actual = api.getExamDetail(COURSE1_ID, EXAM1_ID);
+    assertEquals(examDetail1(), actual);
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

@@ -14,19 +14,17 @@ import school.hei.haapi.repository.UserRepository;
 @AllArgsConstructor
 public class GradeService {
   private final GradeRepository gradeRepository;
-  public List<Grade> getAllGradesBy(String id) {
-    return gradeRepository.getGradeById(id);
+  private final UserRepository userRepository;
+  public List<Grade> getAllGradesByExamId(String examId) {
+    return gradeRepository.getGradesByExam_Id(examId);
   }
 
-  public List<Grade> getGradeByStudentCourse(StudentCourse studentCourse) {
-    return gradeRepository.getGradeByStudentCourse(studentCourse);
-  }
-  public List<Grade> getGradeByExam(Exam exam) {
-    return gradeRepository.getGradeByExamId(exam);
+  public List<Grade> getGradesByStudentCourse(StudentCourse studentCourse) {
+    return gradeRepository.getGradesByStudentCourse(studentCourse);
   }
 
-  public Grade getGradeByExamId(String id) {
-    return gradeRepository.getGradeByExamId(id);
+  public Grade getGradeByExamIdAndStudentId(String examId, String studentId) {
+    return gradeRepository.getGradeByExamIdAndStudentCourseStudent(examId, userRepository.getById(studentId));
   }
 }
 

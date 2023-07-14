@@ -255,7 +255,7 @@ public class TestUtils {
         .name("Collaborative work");
   }
 
-  public static ExamInfo exam1(){
+  public static ExamInfo exam1() {
     return new ExamInfo()
         .id(EXAM1_ID)
         .coefficient(2)
@@ -263,62 +263,74 @@ public class TestUtils {
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
-  public static ExamInfo exam2(){
+  public static ExamInfo exam2() {
     return new ExamInfo()
         .id(EXAM2_ID)
         .coefficient(3)
         .title("Algorithmics final")
         .examinationDate(Instant.parse("2022-11-09T08:25:24.00Z"));
   }
-  public static ExamInfo exam3(){
+
+  public static ExamInfo exam3() {
     return new ExamInfo()
-            .id(EXAM3_ID)
-            .coefficient(1)
-            .title("Prog2 final")
-            .examinationDate(Instant.parse("2022-12-09T08:25:24.00Z"));
+        .id(EXAM3_ID)
+        .coefficient(1)
+        .title("Prog2 final")
+        .examinationDate(Instant.parse("2022-12-09T08:25:24.00Z"));
   }
 
-  public static Grade grade1(){
+  public static Grade grade1() {
     return new Grade()
         .score(8.0)
         .createdAt(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
-  public static Grade grade2(){
+  public static Grade grade2() {
     return new Grade()
         .score(5.0)
         .createdAt(Instant.parse("2022-11-09T08:25:24Z"));
   }
-  public static Grade grade3(){
+
+  public static Grade grade3() {
     return new Grade()
-            .score(18.0)
-            .createdAt(Instant.parse("2022-11-09T08:25:24Z"));
+        .score(18.0)
+        .createdAt(Instant.parse("2022-11-09T08:25:24Z"));
   }
-  public static StudentExamGrade studentExamGrade1(){
+
+  public static Grade grade4() {
+    return new Grade()
+        .score(18.0)
+        .createdAt(Instant.parse("2022-10-09T08:25:24Z"));
+  }
+
+  public static StudentExamGrade studentExamGrade1() {
     return new StudentExamGrade()
-            .id(exam1().getId())
-            .coefficient(exam1().getCoefficient())
-            .title(exam1().getTitle())
-            .examinationDate(exam1().getExaminationDate())
-            .grade(grade1());
+        .id(exam1().getId())
+        .coefficient(exam1().getCoefficient())
+        .title(exam1().getTitle())
+        .examinationDate(exam1().getExaminationDate())
+        .grade(grade1());
   }
-  public static StudentExamGrade studentExamGrade2(){
+
+  public static StudentExamGrade studentExamGrade2() {
     return new StudentExamGrade()
-            .id(exam2().getId())
-            .coefficient(exam2().getCoefficient())
-            .title(exam2().getTitle())
-            .examinationDate(exam2().getExaminationDate())
-            .grade(grade2());
+        .id(exam2().getId())
+        .coefficient(exam2().getCoefficient())
+        .title(exam2().getTitle())
+        .examinationDate(exam2().getExaminationDate())
+        .grade(grade2());
   }
-  public static StudentExamGrade studentExamGrade3(){
+
+  public static StudentExamGrade studentExamGrade3() {
     return new StudentExamGrade()
-            .id(exam3().getId())
-            .coefficient(exam3().getCoefficient())
-            .title(exam3().getTitle())
-            .examinationDate(exam3().getExaminationDate())
-            .grade(grade3());
+        .id(exam3().getId())
+        .coefficient(exam3().getCoefficient())
+        .title(exam3().getTitle())
+        .examinationDate(exam3().getExaminationDate())
+        .grade(grade3());
   }
-  public static StudentGrade studentGrade1(){
+
+  public static StudentGrade studentGrade1() {
     return new StudentGrade()
         .id(STUDENT1_ID)
         .firstName("Ryan")
@@ -328,7 +340,7 @@ public class TestUtils {
         .grade(grade1());
   }
 
-  public static StudentGrade studentGrade2(){
+  public static StudentGrade studentGrade2() {
     return new StudentGrade()
         .id(STUDENT1_ID)
         .firstName("Ryan")
@@ -338,26 +350,45 @@ public class TestUtils {
         .grade(grade2());
   }
 
-  public static StudentCourseExam studentCourseExam1(){
-    return new StudentCourseExam()
-            .id(course1().getId())
-            .code(course1().getCode())
-            .name(course1().getName())
-            .credits(course1().getCredits())
-            .totalHours(course1().getTotalHours())
-            .mainTeacher(course1().getMainTeacher())
-            .exams(List.of(studentExamGrade1(),studentExamGrade2()));
+  public static StudentGrade studentGrade3() {
+    return new StudentGrade()
+        .id(STUDENT2_ID)
+        .firstName("Two")
+        .lastName("Student")
+        .ref("STD21002")
+        .email("test+student2@hei.school")
+        .grade(grade4());
   }
 
-  public static StudentCourseExam studentCourseExam2(){
+  public static ExamDetail examDetail1() {
+    return new ExamDetail()
+        .id(exam1().getId())
+        .title(exam1().getTitle())
+        .examinationDate(exam1().getExaminationDate())
+        .coefficient(exam1().getCoefficient())
+        .participants(List.of(studentGrade1(), studentGrade3()));
+  }
+
+  public static StudentCourseExam studentCourseExam1() {
     return new StudentCourseExam()
-            .id(course2().getId())
-            .code(course2().getCode())
-            .name(course2().getName())
-            .credits(course2().getCredits())
-            .totalHours(course2().getTotalHours())
-            .mainTeacher(course2().getMainTeacher())
-            .exams(List.of(studentExamGrade3()));
+        .id(course1().getId())
+        .code(course1().getCode())
+        .name(course1().getName())
+        .credits(course1().getCredits())
+        .totalHours(course1().getTotalHours())
+        .mainTeacher(course1().getMainTeacher())
+        .exams(List.of(studentExamGrade1(), studentExamGrade2()));
+  }
+
+  public static StudentCourseExam studentCourseExam2() {
+    return new StudentCourseExam()
+        .id(course2().getId())
+        .code(course2().getCode())
+        .name(course2().getName())
+        .credits(course2().getCredits())
+        .totalHours(course2().getTotalHours())
+        .mainTeacher(course2().getMainTeacher())
+        .exams(List.of(studentExamGrade3()));
   }
 
   public static Fee fee1() {

@@ -10,11 +10,11 @@ import school.hei.haapi.model.User;
 
 @Repository
 public interface GradeRepository extends JpaRepository<Grade, String> {
-  List<Grade> getGradeById(String id);
+  List<Grade> getGradesByExam_Id(String examId);
 
-  Grade getGradeByExamId(String id);
+  Grade getGradeByExamIdAndStudentCourseStudent(String examId, User student);
 
-  List<Grade> getGradeByStudentCourse(StudentCourse studentCourse);
+  List<Grade> getGradesByStudentCourse(StudentCourse studentCourse);
 
-  List<Grade> getGradeByExamId(Exam exam);
+  List<Grade> getGradesByExamId(Exam exam);
 }

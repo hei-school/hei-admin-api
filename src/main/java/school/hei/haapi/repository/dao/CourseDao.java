@@ -20,7 +20,6 @@ import school.hei.haapi.model.StudentCourse;
 import school.hei.haapi.model.User;
 
 import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.UNLINKED;
 
 @Repository
 @AllArgsConstructor
@@ -68,9 +67,6 @@ public class CourseDao {
         builder.equal(root.get("credits"), credits)
     ) : null;
 
-    /* To prevent in case credits is null
-      and will not affect the other filters
-    */
     if (hasCredits != null) {
       predicates.add(hasCredits);
     }
@@ -122,25 +118,16 @@ public class CourseDao {
     Join<Course, StudentCourse> studentCourse =
         courseRoot.join("studentCourses", JoinType.LEFT);
 
-    Join<StudentCourse, User> user = studentCourse.join("userId", JoinType.LEFT);
+    Join<StudentCourse, User> user = studentCourse.join("student", JoinType.LEFT);
 
     Predicate hasUserId =
         builder.equal(user.get("id"), userId);
-
-    if (status == null || status.equals(LINKED)) {
-      Predicate defaultStatus = builder.equal(studentCourse.get("status"), LINKED);
-      query.where(builder.and(hasUserId, defaultStatus));
+    if (status == null) {
+      status = LINKED;
     }
-    if (status != null && status.equals(UNLINKED)) {
-      Predicate condition = builder.not(hasUserId);
-      Predicate hasStatus = builder.equal(studentCourse.get("status"), UNLINKED);
-      Predicate unlinkedPredicate = builder.or(condition, hasStatus);
-      query
-          .select(courseRoot)
-          .distinct(true)
-          .where(unlinkedPredicate);
-    }
-
+    Predicate hasStatus = builder.equal(studentCourse.get("status"), status);
+    query.where(builder.and(hasUserId, hasStatus))
+        .distinct(true);
     return entityManager.createQuery(query).getResultList();
   }
 

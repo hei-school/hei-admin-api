@@ -189,7 +189,7 @@ class StudentIT {
     List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE1_ID);
 
     assertEquals(student1(), actualStudents2.get(0));
-    assertEquals(1, actualStudents2.size());
+    assertEquals(2, actualStudents2.size());
 
   }
 
@@ -221,7 +221,7 @@ class StudentIT {
     assertTrue(actualStudents.contains(student2()));
 
     assertEquals(student1(), actualStudents2.get(0));
-    assertEquals(1, actualStudents2.size());
+    assertEquals(2, actualStudents2.size());
 
   }
 

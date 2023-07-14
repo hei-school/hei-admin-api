@@ -74,12 +74,12 @@ public class CourseService {
 
   private Course updateCourseStatus(User user, UpdateStudentCourse update) {
     Course course = courseRepository.getById(update.getCourseId());
-    StudentCourse studentCourse = studentCourseRepository.findByUserIdAndCourseId(user, course);
+    StudentCourse studentCourse = studentCourseRepository.findByStudentIdAndCourseId(user.getId(), course.getId());
     if (studentCourse == null) {
       studentCourse = StudentCourse
           .builder()
-          .userId(user)
-          .courseId(course)
+          .student(user)
+          .course(course)
           .build();
     }
     studentCourse.setStatus(update.getStatus());

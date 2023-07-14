@@ -64,7 +64,7 @@ public class UserManagerDao {
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
     Join<User, StudentCourse> studentCourse = root.join("studentCourses");
-    Join<StudentCourse, Course> course = studentCourse.join("courseId");
+    Join<StudentCourse, Course> course = studentCourse.join("course");
 
     Predicate hasCourseId = builder.equal(course.get("id"), courseId);
     Predicate hasLinkedStatus = builder.equal(studentCourse.get("status"), LINKED);

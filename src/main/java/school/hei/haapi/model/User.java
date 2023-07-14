@@ -5,7 +5,15 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.*;
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -71,7 +79,7 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Role role;
 
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "userId")
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "student")
   private List<StudentCourse> studentCourses;
 
   @Override

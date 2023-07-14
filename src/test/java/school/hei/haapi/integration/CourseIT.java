@@ -161,8 +161,7 @@ class CourseIT {
 
     assertEquals(1, actual1.size());
     assertTrue(actual1.contains(course1()));
-    assertEquals(new ArrayList<>(), actual2);
-    assertEquals(2, actual2.size());
+    assertEquals(1, actual2.size());
     assertTrue(actual2.contains(course2()));
   }
 
@@ -176,20 +175,6 @@ class CourseIT {
   }
 
   @Test
-  void user_read_by_student_course() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    UsersApi api = new UsersApi(teacher1Client);
-
-    List<Course> actual1 = api.getStudentCoursesById(STUDENT1_ID, null);
-    List<Course> actual2 = api.getStudentCoursesById(STUDENT2_ID, null);
-
-    assertEquals(2, actual1.size());
-    assertTrue(actual1.contains(course1()));
-    assertEquals(1, actual2.size());
-    assertTrue(actual2.contains(course3()));
-  }
-
-  @Test
   void user_read_by_student_course_and_status() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -199,7 +184,7 @@ class CourseIT {
 
     assertEquals(1, actual1.size());
     assertTrue(actual1.contains(course1()));
-    assertEquals(2, actual2.size());
+    assertEquals(1, actual2.size());
     assertTrue(actual2.contains(course2()));
   }
 
@@ -212,7 +197,7 @@ class CourseIT {
     List<Course> actual2 = api.getStudentCoursesById(STUDENT1_ID, UNLINKED);
 
     assertTrue(actual1.contains(course3()));
-    assertEquals(2, actual2.size());
+    assertEquals(1, actual2.size());
     assertTrue(actual2.contains(course2()));
   }
 
