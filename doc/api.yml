@@ -292,6 +292,136 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
+  /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}:
+    get:
+      tags:
+        - Teaching
+      summary: Get a specific version of a student transcript.
+      operationId: getStudentTranscript
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transcript_id 
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version_id 
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: a specific version of a student transcript as PDF
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+                example: pdf
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims:
+    get:
+      tags:
+        - Teaching
+      summary: Get all claims for a specific version of a student transcript.
+      operationId: getStudentTranscriptClaims
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transcript_id 
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version_id 
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of all claims for a specific version of a student transcript.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentTranscriptClaim'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Teaching
+      summary: Submit list of claims for a specific version of a student transcript.
+      operationId: putStudentTranscriptClaims
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transcript_id 
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version_id 
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateTranscriptClaim'
+      responses:
+        '200':
+          description: List of transcript claim submit.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentTranscriptClaim'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students:
     get:
       tags:
@@ -1400,6 +1530,24 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentExamGrade'
+    CreateTranscriptClaim:
+      type: object
+      properties:
+        content:
+          type: string
+    StudentTranscriptClaim:
+      type: object
+      properties:
+        id:
+          type: string
+        claimer_id:
+          type: string
+        date:
+          type: string
+          format: date-time
+        content: 
+          type: string
+        
     CreateFee:
       type: object
       properties:
