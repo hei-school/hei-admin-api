@@ -1181,6 +1181,104 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{sId}/transcripts/{tId}/versions/{vId}/claims:
+    get:
+      tags:
+        - Teaching
+      summary: Get all claims of a specific version of a transcripts of one student
+      parameters:
+        - name: sId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: vId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getClaims
+      responses:
+        '200':
+          description: List of all student claims of a specific version of a transcript
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Claim'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Teaching
+      summary: Create or update student claims
+      parameters:
+        - name: sId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: vId
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createOrUpdateClaims
+      requestBody:
+        description: Claims to create or update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Claim'
+      responses:
+        '200':
+          description: Created student payments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Claim'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
@@ -1504,6 +1602,33 @@ components:
         type:
           type: string
         message:
+          type: string
+    Transcript:
+        type: object
+        properties:
+          id:
+            type: string
+          s_id:
+            type: string
+    Version:
+        type: object
+        properties:
+          id:
+            type: string
+          t_id:
+            type: string
+          description:
+            type: string
+          pdf_url:
+            type: string
+    Claim:
+      type: object
+      properties:
+        id:
+          type: string
+        v_id:
+          type: string
+        content:
           type: string
     BadRequestException:
       allOf:
