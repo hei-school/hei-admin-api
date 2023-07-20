@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.util.Objects;
 import javax.persistence.Entity;
@@ -25,7 +26,7 @@ import org.hibernate.Hibernate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Grade {
+public class Grade implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private String id;

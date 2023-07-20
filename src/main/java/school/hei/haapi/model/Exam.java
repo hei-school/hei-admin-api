@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.Objects;
@@ -27,7 +28,7 @@ import org.hibernate.Hibernate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class Exam {
+public class Exam implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private String id;
