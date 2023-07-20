@@ -697,6 +697,45 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{sId}/transcripts/{tId}/versions/{vId}/raw:
+    get:
+      tags:
+        - Users
+      summary: Get PDF file of a specific transcript version 
+      description: Returns the PDF file of a specific transcript version for a student.
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transcript_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The specified participant with his grade
+          content:
+            application/pdf:
+              schema:
+                $ref: '#/components/schemas/Version'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
   '/teachers/{id}':
     get:
@@ -1245,6 +1284,42 @@ components:
           type: string
         email:
           type: string
+    Transcript:
+      type: object
+      properties:
+        id:
+          type: string
+        student_id:
+          allOf:
+            - $ref: '#/components/schemas/UserIdentifier'
+        semester:
+          type: string
+        academicYear:
+          type: string
+          example: 2022-2023
+        isDefinitive:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+    Version:
+      type: object
+      properties:
+        id:
+          type: string
+        transcript_id:
+          allOf:
+            - $ref: '#/components/schemas/Transcript'
+        ref:
+          type: integer
+          description: "Auto-incremented integer starting from 1"
+        CreateBy:
+          type: integer
+          description: "Foreign key referencing the user's ID who created the version"
+        creation_datetime:
+          type: string
+          format: date-time
+
     User:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
