@@ -1,21 +1,15 @@
-do
-$$
-begin
-        if not exists(select from pg_type where typname = 'semester') then
-            create type semester as enum ('S1', 'S2', 'S3', 'S4', 'S5', 'S6');
-        end if;
-end
-$$;
 
-create table if not exists "transcript" (
-    id varchar constraint transcript_pk
+create table if not exists "transcript_version" (
+    id varchar constraint transcript_version_pk
         primary key default uuid_generate_v4(),
-    semester semester not null,
+    pdf_link varchar not null,
     academic_year integer check (academic_year > 2020),
-    is_definitive boolean not null,
     creation_datetime timestamp,
-    student_id varchar not null
-        constraint student_fk references "user" (id)
+    transcript_id varchar not null
+        constraint transcript_fk references "transcript" (id),
+    editor_id varchar not null
+        constraint editor_fk references "user" (id)
 );
 
-create index if not exists student_index on "transcript" (student_id);
+create index if not exists transcript_index on "transcript_version" (transcript_id);
+create index if not exists editor_index on "transcript_version" (editor_id);
