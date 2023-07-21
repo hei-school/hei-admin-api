@@ -704,17 +704,17 @@ paths:
       summary: Get PDF file of a specific transcript version 
       description: Returns the PDF file of a specific transcript version for a student.
       parameters:
-        - name: student_id
+        - name: sId
           in: path
           required: true
           schema:
             type: string
-        - name: transcript_id
+        - name: tId
           in: path
           required: true
           schema:
             type: string
-        - name: version_id
+        - name: vId
           in: path
           required: true
           schema:
