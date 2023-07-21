@@ -296,8 +296,8 @@ paths:
     get:
       tags:
         - Teaching
-      summary: Get a specific version of a student transcript.
-      operationId: getStudentTranscript
+      summary: Get details of specific version of a student transcript.
+      operationId: getStudentTranscriptVersion
       parameters:
         - name: student_id
           in: path
@@ -316,13 +316,52 @@ paths:
             type: string
       responses:
         '200':
-          description: a specific version of a student transcript as PDF
+          description: details of specific version of a student transcript
           content:
-            application/pdf:
+            application/json:
               schema:
-                type: string
-                format: binary
-                example: pdf
+                $ref: '#/components/schemas/StudentTranscriptVersion'
+
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/raw:
+    get:
+      tags:
+        - Teaching
+      summary: Get pdf of a specific version of a student transcript.
+      operationId: getStudentTranscriptVersionPdf
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transcript_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: specific version of a student transcript as Pdf
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentTranscriptVersion'
+
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -402,7 +441,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/CreateTranscriptClaim'
+                $ref: '#/components/schemas/StudentTranscriptClaim'
       responses:
         '200':
           description: List of transcript claim submit.
@@ -1530,24 +1569,43 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentExamGrade'
-    CreateTranscriptClaim:
+    StudentTranscriptVersion:
       type: object
       properties:
-        content:
+        id:
           type: string
+        transcript_id:
+          type: string
+        ref:
+          type: integer
+        created_by:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
     StudentTranscriptClaim:
       type: object
       properties:
         id:
           type: string
-        claimer_id:
+        transcript_id:
           type: string
-        date:
+        transcript_version_id:
+          type: string
+        status:
+          type: string
+          enum:
+            - OPEN
+            - CLOSE
+        creation_datetime:
           type: string
           format: date-time
-        content: 
+        closed_datetime:
           type: string
-        
+          format: date-time
+        reason:
+          type: string
+
     CreateFee:
       type: object
       properties:
