@@ -358,9 +358,11 @@ paths:
         '200':
           description: specific version of a student transcript as Pdf
           content:
-            application/json:
+            application/pdf:
               schema:
-                $ref: '#/components/schemas/StudentTranscriptVersion'
+                type: string
+                format: binary
+                example: PDF VERSION
 
         '400':
           $ref: '#/components/responses/400'
