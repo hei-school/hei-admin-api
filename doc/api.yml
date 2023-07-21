@@ -312,7 +312,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/StudentTranscript'
+                  $ref: '#/components/schemas/Transcript'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -349,7 +349,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/StudentTranscript'
+                  $ref: '#/components/schemas/Transcript'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1468,7 +1468,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentExamGrade'
-    StudentTranscript:
+    Transcript:
       type: object
       properties:
         id:
@@ -1485,7 +1485,7 @@ components:
             - S5
             - S6
         academic_year:
-          type: number
+          type: integer
         is_definitive:
           type: boolean
         creation_datetime:
