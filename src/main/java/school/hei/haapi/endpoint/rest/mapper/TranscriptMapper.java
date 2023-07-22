@@ -11,7 +11,7 @@ public class TranscriptMapper {
         return new Transcript()
                 .id(transcript.getId())
                 .studentId(transcript.getStudent().getId())
-                .semester(transcript.getSemester())
+                .semester(Transcript.SemesterEnum.fromValue(transcript.getSemester().toString()))
                 .academicYear(transcript.getAcademicYear())
                 .isDefinitive(transcript.getIsDefinitive())
                 .creationDatetime(transcript.getCreationDatetime());
