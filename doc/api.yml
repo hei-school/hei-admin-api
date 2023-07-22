@@ -260,6 +260,60 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{sId}/transcripts/{tId}/versions/latest/raw:
+    post:
+      tags:
+        - Transcript
+      operationId: createTranscript
+      requestBody:
+          content:
+            multipart/form-data:
+              schema:
+                type: object
+                properties:
+                  raw:
+                    type: string
+      responses:
+        '201':
+          description: Transcript created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transcript'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{sId}/transcripts/{tId}/versions/{vId}/claims/{cId}:
+    put:
+      tags:
+        - TranscriptVersion
+      operationId: updateClaim
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                reason:
+                  type: string
+                status:
+                  type: string
+                closedDatetime:
+                  type: string
+      responses:
+        '200':
+          description: Claim updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Claim'
   /students/{student_id}/grades:
     get:
       tags:
@@ -1295,6 +1349,51 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    Transcript:
+      type: object
+      properties:
+        id:
+          type: string
+        studentId:
+          type: string
+        semester:
+          type: string
+        academicYear:
+          type: string
+        isDefinitive:
+          type: boolean
+        creationDatetime:
+          type: string
+    Version:
+        type: object
+        properties:
+          id:
+            type: string
+          transcriptId:
+            type: string
+          ref:
+            type: integer
+          createdBy:
+            type: string
+          creationDatetime:
+            type: string
+    Claim:
+        type: object
+        properties:
+          id:
+            type: string
+          versionId:
+            type: string
+          transcriptId:
+            type: string
+          reason:
+            type: string
+          status:
+            type: string
+          closedDatetime:
+            type: string
+          creationDatetime:
+            type: string
     CourseTemplate:
       type: object
       properties:
