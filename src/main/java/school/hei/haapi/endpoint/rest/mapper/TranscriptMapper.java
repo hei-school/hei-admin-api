@@ -13,6 +13,7 @@ public class TranscriptMapper {
                 .studentId(transcript.getStudent().getId())
                 .semester(transcript.getSemester())
                 .academicYear(transcript.getAcademicYear())
-                .isDefinitive(transcript.getIsDefinitive());
+                .isDefinitive(transcript.getIsDefinitive())
+                .creationDatetime(transcript.getCreationDatetime());
     }
 }
