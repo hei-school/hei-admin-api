@@ -23,10 +23,15 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TRANSCRIPT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.TRANSCRIPT4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.transcript1;
 import static school.hei.haapi.integration.conf.TestUtils.transcript2;
@@ -63,6 +68,30 @@ public class TranscriptIT {
         assertTrue(actual.contains(transcript1()));
         assertTrue(actual.contains(transcript2()));
         assertTrue(actual.contains(transcript3()));
+    }
+
+    @Test
+    void manager_read_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TeachingApi api = new TeachingApi(manager1Client);
+
+        Transcript actualTranscript = api.getStudentTranscriptById(STUDENT1_ID, TRANSCRIPT1_ID);
+        List<Transcript> actual = api.getStudentTranscripts(STUDENT1_ID);
+
+        assertEquals(transcript1(), actualTranscript);
+        assertTrue(actual.contains(transcript1()));
+        assertTrue(actual.contains(transcript2()));
+        assertTrue(actual.contains(transcript3()));
+    }
+
+    @Test
+    void student_read_ko() {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        TeachingApi api = new TeachingApi(student1Client);
+
+        assertThrowsApiException(
+                "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+                () -> api.getStudentTranscriptById(STUDENT2_ID, TRANSCRIPT4_ID));
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
