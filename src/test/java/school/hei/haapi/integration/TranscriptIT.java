@@ -62,7 +62,7 @@ public class TranscriptIT {
         TeachingApi api = new TeachingApi(student1Client);
 
         Transcript actualTranscript = api.getStudentTranscriptById(STUDENT1_ID, TRANSCRIPT1_ID);
-        List<Transcript> actual = api.getStudentTranscripts(STUDENT1_ID);
+        List<Transcript> actual = api.getStudentTranscripts(STUDENT1_ID, 1, 10);
 
         assertEquals(transcript1(), actualTranscript);
         assertTrue(actual.contains(transcript1()));
@@ -76,7 +76,7 @@ public class TranscriptIT {
         TeachingApi api = new TeachingApi(manager1Client);
 
         Transcript actualTranscript = api.getStudentTranscriptById(STUDENT1_ID, TRANSCRIPT1_ID);
-        List<Transcript> actual = api.getStudentTranscripts(STUDENT1_ID);
+        List<Transcript> actual = api.getStudentTranscripts(STUDENT1_ID, 1, 10);
 
         assertEquals(transcript1(), actualTranscript);
         assertTrue(actual.contains(transcript1()));

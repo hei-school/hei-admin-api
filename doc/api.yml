@@ -304,6 +304,14 @@ paths:
           required: true
           schema:
             type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
       responses:
         '200':
           description: List of transcripts for the specified student.
