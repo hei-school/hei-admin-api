@@ -6,15 +6,19 @@ import com.itextpdf.text.Paragraph;
 import lombok.AllArgsConstructor;
 
 import org.springframework.format.annotation.DateTimeFormat;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import school.hei.haapi.endpoint.rest.mapper.TranscriptVersionMapper;
+import school.hei.haapi.model.Transcript;
 import school.hei.haapi.model.Version;
 import school.hei.haapi.service.TranscriptVersionService;
 import com.itextpdf.text.pdf.PdfWriter;
 import javax.servlet.http.HttpServletResponse;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.time.format.DateTimeFormatter;
@@ -24,32 +28,26 @@ import java.time.format.DateTimeFormatter;
 @RequestMapping("/students/{sId}/transcripts/{tId}/versions/{vId}")
 public class TranscriptVersionController {
     private TranscriptVersionService transcriptVersionService;
+    private TranscriptVersionMapper transcriptMapper;
     @GetMapping("/raw")
-    public void getRawTranscript(@PathVariable("sId") long studentId,
-                                 @PathVariable("tId") String transcriptId,
-                                 @PathVariable("vId") int versionId,
-                                 HttpServletResponse response) throws IOException, DocumentException {
-        Version version = transcriptVersionService.getRawTranscript(studentId, transcriptId, versionId);
+    public ResponseEntity<byte[]> generatePdf(
+            @RequestParam String studentId,
+            @RequestParam Transcript transcriptId,
+            @RequestParam String versionId
+    ) {
+        // Generate the PDF using the mapper
+        ByteArrayOutputStream outputStream = transcriptMapper.getRawTranscriptPdf(studentId, transcriptId, versionId);
 
-        response.setContentType("application/pdf");
-        response.setHeader("Content-Disposition", "attachment; filename=transcript.pdf");
+        // Convert the ByteArrayOutputStream to a byte array
+        byte[] pdfBytes = outputStream.toByteArray();
 
-        OutputStream out = response.getOutputStream();
-        try {
-            Document document = new Document();
-            PdfWriter.getInstance(document, out);
-            document.open();
-            document.add(new Paragraph("ID: " + version.getId()));
-            document.add(new Paragraph("Transcript ID: " + version.getTranscript_id()));
-            document.add(new Paragraph("Ref: " + version.getRef()));
-            document.add(new Paragraph("Created By: " + version.getCreateBy()));
-            document.add(new Paragraph(String.format("Creation Datetime: " + version.getCreation_datetime(), DateTimeFormatter.ISO_DATE_TIME)));
-            document.close();
-        } catch (DocumentException e) {
-            e.printStackTrace();
-        } finally {
-            out.flush();
-            out.close();
-        }
+        // Set the necessary headers in the response
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_PDF);
+        headers.setContentDispositionFormData("attachment", "transcript.pdf");
+
+        // Return the PDF as a ResponseEntity
+        return new ResponseEntity<>(pdfBytes, headers, HttpStatus.OK);
     }
 }
+
