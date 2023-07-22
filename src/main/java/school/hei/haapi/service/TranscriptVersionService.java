@@ -14,13 +14,7 @@ public class TranscriptVersionService {
     public Version getById(String versionId){
         return transcriptVersionRepository.getById(versionId);
     }
-    public  Version getRawTranscript(long studentId, String transcriptId, int versionId){
-        Version version = new Version();
-        version.setId(version.getId());
-        version.setTranscript_id(version.getTranscript_id());
-        version.setRef(version.getRef());
-        version.setCreateBy(version.getCreateBy());
-        version.setCreation_datetime(version.getCreation_datetime());
-        return version;
+    public  Version getRawTranscript(String studentId, String transcriptId, String versionId){
+        return transcriptVersionRepository.getById(versionId);
     }
 }
