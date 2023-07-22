@@ -12,8 +12,8 @@ import java.util.List;
 public class TranscriptService {
     private TranscriptRepository transcriptRepository;
 
-    public Transcript getByStudentIdAndId(String studentId, String id) {
-        return transcriptRepository.getByStudentIdAndId(studentId, id);
+    public Transcript getByStudentIdAndId(String id) {
+        return transcriptRepository.getTranscriptById(id);
     }
 
     public List<Transcript> getAllByStudentId(String studentId) {

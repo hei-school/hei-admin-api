@@ -10,5 +10,5 @@ import java.util.List;
 public interface TranscriptRepository extends JpaRepository<Transcript, String> {
     List<Transcript> findAllByStudentId(String studentId);
 
-    Transcript getByStudentIdAndId(String studentId, String id);
+    Transcript getTranscriptById(String id);
 }
