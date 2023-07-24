@@ -6,5 +6,5 @@ create table "claim"(
     version_id varchar references "version"(id),
     transcript_id varchar references "transcript"(id),
     creation_datetime timestamp with time zone not null default now(),
-    close_datetime timestamp with time zone not null default now()
+    closed_datetime timestamp with time zone
 );

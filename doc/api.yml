@@ -1610,6 +1610,20 @@ components:
             type: string
           s_id:
             type: string
+          creation_datetime:
+            type: string
+            format: date-time
+        allOf:
+          - $ref: '#/components/schemas/CreateTranscript'
+    CreateTranscript:
+      type: object
+      properties:
+        semester:
+          type: string
+        academic_year:
+          type: string
+        is_definitive:
+          type: boolean
     Version:
         type: object
         properties:
@@ -1617,10 +1631,14 @@ components:
             type: string
           t_id:
             type: string
-          description:
+          ref:
+            type: integer
+          creation_datetime:
             type: string
-          pdf_url:
-            type: string
+            format: date-time
+          created_by:
+            allOf:
+              - $ref: '#/components/schemas/User'
     Claim:
       type: object
       properties:
@@ -1628,8 +1646,30 @@ components:
           type: string
         v_id:
           type: string
-        content:
+        t_Id:
           type: string
+        creation_datetime:
+          type: string
+          format: date-time
+        closed_datetime:
+          type: string
+          format: date-time
+      allOf:
+        - $ref: '#/components/schemas/CreateClaim'
+    CreateClaim:
+      type: object
+      properties:
+        status:
+          allOf:
+            - $ref: '#/components/schemas/ClaimStatus'
+        reason:
+          type: string
+    ClaimStatus:
+      type: string
+      default: OPEN
+      enum:
+        - OPEN
+        - CLOSED
     BadRequestException:
       allOf:
         - $ref: '#/components/schemas/Exception'
