@@ -19,4 +19,3 @@ create table if not exists "transcript"
     creation_datetime timestamp with time zone not null default now()
 );
 create index if not exists transcript_user_id_index on "transcript" (user_id);
-
