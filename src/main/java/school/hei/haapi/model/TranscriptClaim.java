@@ -6,8 +6,13 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import school.hei.haapi.repository.types.PostgresEnumType;
 
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
@@ -21,6 +26,7 @@ import java.time.Instant;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 @EqualsAndHashCode
 @ToString
 @Builder(toBuilder = true)
@@ -32,6 +38,8 @@ public class TranscriptClaim {
     private Instant creationDate;
     private Instant closedDate;
     private String reason;
+    @Type(type = "pgsql_enum")
+    @Enumerated(value = EnumType.STRING)
     private ClaimStatus status;
     @ManyToOne
     @JoinColumn(name = "transcript_id", nullable = false)
