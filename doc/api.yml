@@ -1279,6 +1279,108 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{sId}/transcripts/{tId}/versions/{vId}/claims/{cId}:
+    put:
+      tags:
+        - Teaching
+      summary: Create or update transcript claims
+      parameters:
+        - name: cId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: sId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: vId
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createOrUpdateClaims
+      requestBody:
+        description: Claims to create or update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Claim'
+      responses:
+        '200':
+          description: Created or updated claim
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Claim'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{sId}/transcripts/{tId}/versions/latest/raw:
+    post:
+      tags:
+        - Teaching
+      summary: Create the latest version
+      parameters:
+        - name: cId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: sId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: latest
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createLatestVersion
+      requestBody:
+        description: Version to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Version'
+      responses:
+        '200':
+          description: Created Version
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
