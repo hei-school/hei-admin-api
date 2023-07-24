@@ -1,6 +1,7 @@
 create table "version"(
     id varchar primary key,
-    description varchar,
-    pdf_url varchar,
-    transcript_id references "transcript"(id)
+    ref int not null,
+    created_by varchar references  "user"(id),
+    transcript_id varchar references "transcript"(id),
+    creation_datetime timestamp with time zone not null default now()
 );
