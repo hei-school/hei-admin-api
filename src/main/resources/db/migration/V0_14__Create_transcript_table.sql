@@ -11,7 +11,7 @@ create table if not exists "transcript" (
     id varchar constraint transcript_pk
         primary key default uuid_generate_v4(),
     semester semester not null,
-    academic_year integer check (academic_year > 2020),
+    academic_year integer,
     is_definitive boolean not null,
     creation_datetime timestamp,
     student_id varchar not null
