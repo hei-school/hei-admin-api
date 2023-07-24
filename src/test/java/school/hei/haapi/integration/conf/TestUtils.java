@@ -16,6 +16,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.Transcript;
 import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -56,6 +57,13 @@ public class TestUtils {
   public static final String COURSE3_ID = "course3_id";
   public static final String COURSE4_ID = "course4_id";
   public static final String COURSE5_ID = "course5_id";
+
+  public static final String TRANSCRIPT1_ID = "transcript1_id";
+  public static final String TRANSCRIPT2_ID = "transcript2_id";
+  public static final String TRANSCRIPT3_ID = "transcript3_id";
+  public static final String TRANSCRIPT4_ID = "transcript4_id";
+  public static final String TRANSCRIPT5_ID = "transcript5_id";
+  public static final String TRANSCRIPT6_ID = "transcript6_id";
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
@@ -305,6 +313,36 @@ public class TestUtils {
         .totalAmount(5000)
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+  }
+
+  public static Transcript transcript1() {
+    return new Transcript()
+            .id(TRANSCRIPT1_ID)
+            .studentId(STUDENT1_ID)
+            .semester(Transcript.SemesterEnum.S1)
+            .academicYear(2021)
+            .isDefinitive(true)
+            .creationDatetime(Instant.parse("2021-05-08T08:25:24.00Z"));
+  }
+
+  public static Transcript transcript2() {
+    return new Transcript()
+            .id(TRANSCRIPT2_ID)
+            .studentId(STUDENT1_ID)
+            .semester(Transcript.SemesterEnum.S2)
+            .academicYear(2021)
+            .isDefinitive(true)
+            .creationDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
+  }
+
+  public static Transcript transcript3() {
+    return new Transcript()
+            .id(TRANSCRIPT3_ID)
+            .studentId(STUDENT1_ID)
+            .semester(Transcript.SemesterEnum.S3)
+            .academicYear(2022)
+            .isDefinitive(true)
+            .creationDatetime(Instant.parse("2022-05-09T08:25:24.00Z"));
   }
 
   public static boolean isBefore(String a, String b) {
