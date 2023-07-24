@@ -332,7 +332,47 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/raw:
+  /students/{student_id}/transcripts/{transcript_id}/versions/latest/raw:
+    post:
+      tags:
+        - Teaching
+      summary: Submit transcript pdf file to latest transcript version
+      operationId: putStudentTranscriptVersionPdf
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transcript_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Latest Transcript version updated.
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/StudentTranscriptVersion'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     get:
       tags:
         - Teaching
@@ -374,12 +414,12 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims:
+  /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims/{claim_id}:
     get:
       tags:
         - Teaching
-      summary: Get all claims for a specific version of a student transcript.
-      operationId: getStudentTranscriptClaims
+      summary: Get a claim of transcript version.
+      operationId: getStudentClaimOfTranscriptVersion
       parameters:
         - name: student_id
           in: path
@@ -392,6 +432,101 @@ paths:
           schema:
             type: string
         - name: version_id 
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: claim_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Claim of transcript version.
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/StudentTranscriptClaim'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Teaching
+      summary: create or modify claim of Transcript Version
+      operationId: putStudentClaimsOfTranscriptVersion
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transcript_id 
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version_id 
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: claim_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+                $ref: '#/components/schemas/StudentTranscriptClaim'
+      responses:
+        '200':
+          description: List of transcript claim submit.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentTranscriptClaim'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims:
+    get:
+      tags:
+        - Teaching
+      summary: Get all claims for a specific version of a student transcript.
+      operationId: getStudentTranscriptClaims
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transcript_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version_id
           in: path
           required: true
           schema:
@@ -426,12 +561,12 @@ paths:
           required: true
           schema:
             type: string
-        - name: transcript_id 
+        - name: transcript_id
           in: path
           required: true
           schema:
             type: string
-        - name: version_id 
+        - name: version_id
           in: path
           required: true
           schema:
