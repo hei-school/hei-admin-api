@@ -322,7 +322,7 @@ public class TestUtils {
             .semester(Transcript.SemesterEnum.S1)
             .academicYear(2021)
             .isDefinitive(true)
-            .creationDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+            .creationDatetime(Instant.parse("2021-05-08T08:25:24.00Z"));
   }
 
   public static Transcript transcript2() {
@@ -342,7 +342,7 @@ public class TestUtils {
             .semester(Transcript.SemesterEnum.S3)
             .academicYear(2022)
             .isDefinitive(true)
-            .creationDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
+            .creationDatetime(Instant.parse("2022-05-09T08:25:24.00Z"));
   }
 
   public static boolean isBefore(String a, String b) {
