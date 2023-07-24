@@ -74,9 +74,10 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .and()
         .authorizeRequests()
         .antMatchers("/ping").permitAll()
-            .antMatchers(GET,"/list-buckets-name").permitAll()
         .antMatchers(OPTIONS, "/**").permitAll()
         .antMatchers("/whoami").authenticated()
+            //TODO: change to get item in S3
+            .antMatchers(GET,"/list-buckets-name").authenticated()
         .antMatchers(GET, "/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*")).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/fees/*").hasAnyRole(MANAGER.getRole())
