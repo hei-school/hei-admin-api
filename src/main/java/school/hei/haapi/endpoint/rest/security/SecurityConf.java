@@ -107,7 +107,10 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, STUDENT_COURSE).hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(PUT, STUDENT_COURSE).hasAnyRole(MANAGER.getRole())
         .antMatchers("/**").denyAll()
-
+            .requestMatchers(new SelfMatcher(GET,"/students/*/transcripts/*/versions")).hasAnyRole(STUDENT.getRole())
+            .antMatchers(GET, "/students/*/transcripts/*/versions").hasAnyRole(MANAGER.getRole())
+            .requestMatchers(new SelfMatcher(GET,"/students/{sId}/transcripts/{tId}/versions/{vId}")).hasAnyRole(STUDENT.getRole())
+            .antMatchers(GET,"/students/{sId}/transcripts/{tId}/versions/{vId}").hasAnyRole(MANAGER.getRole())
         // disable superfluous protections
         // Eg if all clients are non-browser then no csrf
         // https://docs.spring.io/spring-security/site/docs/3.2.0.CI-SNAPSHOT/reference/html/csrf.html,
