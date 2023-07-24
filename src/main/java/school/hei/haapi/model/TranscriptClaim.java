@@ -2,11 +2,10 @@ package school.hei.haapi.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
@@ -15,46 +14,38 @@ import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
-import java.io.Serializable;
 import java.time.Instant;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
 @Entity
-@Table(name = "\"transcript\"")
-@Getter
-@Setter
-@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
-@ToString
-@Builder(toBuilder = true)
+@Table(name = "\"transcript_claim\"")
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class Transcript implements Serializable {
+@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
+@EqualsAndHashCode
+@ToString
+@Builder(toBuilder = true)
+public class TranscriptClaim {
+
     @Id
-    @GeneratedValue(strategy = IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
-
-    @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User student;
-
+    private Instant creationDate;
+    private Instant closedDate;
+    private String reason;
     @Type(type = "pgsql_enum")
-    @Enumerated(EnumType.STRING)
-    private Semester semester;
+    @Enumerated(value = EnumType.STRING)
+    private ClaimStatus status;
+    @ManyToOne
+    @JoinColumn(name = "transcript_id", nullable = false)
+    private TranscriptVersion transcriptVersion;
 
-    private Integer academicYear;
-
-    private Boolean isDefinitive;
-
-    @CreationTimestamp
-    private Instant creationDatetime;
-
-    public enum Semester {
-        S1, S2, S3, S4, S5, S6
+    public enum ClaimStatus{
+        OPEN, CLOSE
     }
 }
-
