@@ -332,47 +332,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{student_id}/transcripts/{transcript_id}/versions/latest/raw:
-    post:
-      tags:
-        - Teaching
-      summary: Submit transcript pdf file to latest transcript version
-      operationId: putStudentTranscriptVersionPdf
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: transcript_id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/pdf:
-            schema:
-              type: string
-              format: binary
-      responses:
-        '200':
-          description: Latest Transcript version updated.
-          content:
-            application/json:
-              schema:
-                  $ref: '#/components/schemas/StudentTranscriptVersion'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
+  /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/raw:
     get:
       tags:
         - Teaching
@@ -404,6 +364,47 @@ paths:
                 format: binary
                 example: PDF VERSION
 
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/transcripts/{transcript_id}/versions/latest/raw:
+    post:
+      tags:
+        - Teaching
+      summary: Submit transcript pdf file to latest transcript version
+      operationId: putStudentTranscriptVersionPdf
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transcript_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Latest Transcript version updated.
+          content:
+            application/json:
+              schema:
+                  $ref: '#/components/schemas/StudentTranscriptVersion'
         '400':
           $ref: '#/components/responses/400'
         '403':
