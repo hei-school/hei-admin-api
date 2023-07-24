@@ -20,7 +20,7 @@ public class TranscriptService {
     private TranscriptRepository transcriptRepository;
 
     public Transcript getByStudentIdAndId(String id) {
-        return transcriptRepository.getTranscriptById(id);
+        return transcriptRepository.getById(id);
     }
 
     public List<Transcript> getAllByStudentId(String studentId, PageFromOne page, BoundedPageSize pageSize) {
