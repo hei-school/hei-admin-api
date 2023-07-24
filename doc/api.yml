@@ -415,6 +415,55 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims:
+    get:
+      tags:
+        - Teaching
+      summary: Get all claims for a specific version of a student transcript.
+      operationId: getStudentTranscriptClaims
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transcript_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: version_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of all claims for a specific version of a student transcript.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentTranscriptClaim'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims/{claim_id}:
     get:
       tags:
@@ -510,95 +559,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims:
-    get:
-      tags:
-        - Teaching
-      summary: Get all claims for a specific version of a student transcript.
-      operationId: getStudentTranscriptClaims
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: transcript_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: version_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of all claims for a specific version of a student transcript.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StudentTranscriptClaim'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    put:
-      tags:
-        - Teaching
-      summary: Submit list of claims for a specific version of a student transcript.
-      operationId: putStudentTranscriptClaims
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: transcript_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: version_id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/StudentTranscriptClaim'
-      responses:
-        '200':
-          description: List of transcript claim submit.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StudentTranscriptClaim'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
+
   /students:
     get:
       tags:
