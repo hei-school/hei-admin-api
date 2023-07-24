@@ -2,8 +2,8 @@
 create table if not exists "transcript_version" (
     id varchar constraint transcript_version_pk
         primary key default uuid_generate_v4(),
-    pdf_link varchar not null,
-    academic_year integer check (academic_year > 2020),
+    pdf_link varchar,
+    academic_year integer,
     creation_datetime timestamp,
     transcript_id varchar not null
         constraint transcript_fk references "transcript" (id),
