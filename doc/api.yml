@@ -407,14 +407,49 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  /students/{student_id}/transcripts/{transcript_id}/versions:
+    get:
+      tags:
+        - Transcript
+      summary: Get details of specific transcript of a student version.
+      operationId: getStudentTranscriptIdVersion
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transcript_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: details of specific transcript of a student version
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Version'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
   /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get details of specific version of a student transcript.
-      operationId: getStudentTranscriptVersion
+      operationId: getStudentTranscriptVersionId
       parameters:
         - name: student_id
           in: path
@@ -437,7 +472,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentTranscriptVersion'
+                $ref: '#/components/schemas/Version'
 
         '400':
           $ref: '#/components/responses/400'
@@ -521,7 +556,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentTranscriptVersion'
+                $ref: '#/components/schemas/Version'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1784,7 +1819,7 @@ components:
           items:
             $ref: '#/components/schemas/StudentExamGrade'
 
-    StudentTranscriptVersion:
+    Version:
       type: object
       properties:
         id:
