@@ -1979,26 +1979,3 @@ components:
       example:
         type: InternalServerException
         message: Unexpected error
-    Transcript:
-      type: object
-      properties:
-        id:
-          type: string
-        student_id:
-          type: string
-        semester:
-          type: string
-          enum:
-            - S1
-            - S2
-            - S3
-            - S4
-            - S5
-            - S6
-        academic_year:
-          type: integer
-        is_definitive:
-          type: boolean
-        creation_datetime:
-          type: string
-          format: date-time
