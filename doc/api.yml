@@ -157,6 +157,90 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/students/{sId}/transcripts/{tId}/versions':
+    get:
+      tags:
+        - Teaching
+      summary: Get transcript's versions
+      parameters:
+        - name: sId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getAllTranscriptsVersions
+      responses:
+        '200':
+          description: Student's Transcript's versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/TranscriptVersions'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{sId}/transcripts/{tId}/versions/{vId}':
+    get:
+      tags:
+        - Teaching
+      summary: Get last transcript's version or a specific version
+      parameters:
+        - name: sId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: tId
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: vId
+          in: path
+          required: true
+          schema:
+            type: string
+            example: latest
+      operationId: getTranscriptLastVersion
+      responses:
+        '200':
+          description: Student's Transcript's last version or a specific one
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TranscriptVersion'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/students/{id}':
     get:
       tags:
@@ -1678,6 +1762,27 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    TranscriptVersions:
+      type: object
+      properties:
+        id:
+          type: string
+        ref:
+          type: integer
+        creation_datetime:
+          type: string
+          format: date-time
+        transcript_id:
+          type: string
+        user_id:
+          type: string
+    TranscriptVersion:
+      allOf:
+        - $ref: '#/components/schemas/TranscriptVersions'
+      type: object
+      properties:
+        pdf_link:
+          type: string
     CourseTemplate:
       type: object
       properties:
@@ -1705,6 +1810,15 @@ components:
       enum:
         - LINKED
         - UNLINKED
+    Semester:
+      type: string
+      enum:
+        - S1
+        - S2
+        - S3
+        - S4
+        - S5
+        - S6
     UpdateStudentCourse:
       type: object
       properties:
@@ -1979,26 +2093,3 @@ components:
       example:
         type: InternalServerException
         message: Unexpected error
-    Transcript:
-      type: object
-      properties:
-        id:
-          type: string
-        student_id:
-          type: string
-        semester:
-          type: string
-          enum:
-            - S1
-            - S2
-            - S3
-            - S4
-            - S5
-            - S6
-        academic_year:
-          type: integer
-        is_definitive:
-          type: boolean
-        creation_datetime:
-          type: string
-          format: date-time
