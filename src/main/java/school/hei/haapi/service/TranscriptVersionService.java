@@ -23,13 +23,15 @@ public class TranscriptVersionService {
                 page.getValue() - 1,
                 pageSize.getValue(),
                 Sort.by(DESC, "creationDatetime"));
-        return repository.getAllByUserIdAndTranscriptId(sId, tId,pageable);
+        return repository.getAllByEditorIdAndTranscriptId(sId, tId,pageable);
     }
 
     public TranscriptVersion getTranscriptVersion(String sId, String tId, String vId){
         if(vId == "latest"){
             return repository.getAllSortedByRef(sId,tId).get(0);
         }
-        return repository.getTranscriptVersionByUserIdAndTranscriptIdAndId(sId,tId,vId);
+        return repository.getTranscriptVersionByEditorIdAndTranscriptIdAndId(sId,tId,vId);
     }
+
+    public void getTranscriptVersionPdf(String sId,String tId,String vId){};
 }
