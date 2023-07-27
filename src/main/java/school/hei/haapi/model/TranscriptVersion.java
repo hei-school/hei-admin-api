@@ -4,7 +4,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.Entity;
@@ -18,10 +20,11 @@ import java.time.Instant;
 
 @Entity
 @Table(name = "\"transcript_version\"")
-@Data
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@Getter
+@Setter
 @ToString
 @Builder(toBuilder = true)
 public class TranscriptVersion {

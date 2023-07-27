@@ -6,6 +6,7 @@ create table if not exists "transcript_version" (
     pdf_link varchar,
     academic_year integer,
     creation_datetime timestamp,
+    "ref" int,
     transcript_id varchar not null
         constraint transcript_fk references "transcript" (id),
     editor_id varchar not null

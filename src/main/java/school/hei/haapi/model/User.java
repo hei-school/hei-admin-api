@@ -84,7 +84,7 @@ public class User implements Serializable {
   @OneToMany(mappedBy = "student")
   private List<Transcript> transcripts;
 
-  @OneToMany(mappedBy = "user")
+  @OneToMany(mappedBy = "editor")
   private List<TranscriptVersion> transcriptVersions;
 
   @Override

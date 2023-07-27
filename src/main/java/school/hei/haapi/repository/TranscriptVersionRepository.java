@@ -12,11 +12,11 @@ import java.util.List;
 
 @Repository
 public interface TranscriptVersionRepository extends JpaRepository<TranscriptVersion,String> {
-    List<TranscriptVersion> getAllByUserIdAndTranscriptId(String userId,String transcriptId,Pageable pageable);
-    TranscriptVersion getTranscriptVersionByUserIdAndTranscriptIdAndId(String userId, String transcriptId,String versionId);
+    List<TranscriptVersion> getAllByEditorIdAndTranscriptId(String userId,String transcriptId,Pageable pageable);
+    TranscriptVersion getTranscriptVersionByEditorIdAndTranscriptIdAndId(String userId, String transcriptId,String versionId);
 
     @Query(value = "select t from TranscriptVersion t"
-            + " where t.user.id = :user_id and t.transcript.id = :transcript_id"
+            + " where t.editor.id = :user_id and t.transcript.id = :transcript_id"
             + " order by t.ref DESC")
     List<TranscriptVersion> getAllSortedByRef(
             @Param("user_id") String userId,

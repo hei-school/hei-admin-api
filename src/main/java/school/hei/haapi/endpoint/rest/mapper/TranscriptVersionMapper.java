@@ -11,17 +11,17 @@ public class TranscriptVersionMapper {
         return new TranscriptVersion()
                 .id(version.getId())
                 .ref(version.getRef())
-                .creationDatetime(version.getCreationDatetime())
+                .creationDatetime(version.getCreateDatetime())
                 .transcriptId(version.getTranscript().getId())
-                .userId(version.getUser().getId());
+                .userId(version.getEditor().getId());
     }
     public TranscriptVersion toRestPdf(school.hei.haapi.model.TranscriptVersion version) {
         return new TranscriptVersion()
                 .id(version.getId())
                 .ref(version.getRef())
-                .pdfLink(version.getPdf_link())
-                .creationDatetime(version.getCreationDatetime())
+                .pdfLink(version.getPdfLink())
+                .creationDatetime(version.getCreateDatetime())
                 .transcriptId(version.getTranscript().getId())
-                .userId(version.getUser().getId());
+                .userId(version.getEditor().getId());
     }
 }
