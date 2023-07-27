@@ -1,59 +1,41 @@
 package school.hei.haapi.model;
 
-import lombok.*;
-import org.hibernate.Hibernate;
-import org.hibernate.annotations.CreationTimestamp;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import lombok.ToString;
 
-import javax.persistence.*;
-import java.io.Serializable;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.Table;
 import java.time.Instant;
-import java.util.Objects;
-
-import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "\"transcript_version\"")
-@Getter
-@Setter
-@ToString
-@Builder
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
-public class TranscriptVersion implements Serializable {
+@EqualsAndHashCode
+@ToString
+@Builder(toBuilder = true)
+public class TranscriptVersion {
+
     @Id
-    @GeneratedValue(strategy = IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
-
-    private Integer ref;
-
-    @CreationTimestamp
-    private Instant creationDatetime;
-
-    private String pdf_link;
-
+    private int ref;
+    private Instant createDatetime;
+    private String pdfLink;
     @ManyToOne
-    @JoinColumn(name = "transcript_id", referencedColumnName = "id")
+    @JoinColumn(name = "transcript_id",nullable = false)
     private Transcript transcript;
-
     @ManyToOne
-    @JoinColumn(name = "user_id", referencedColumnName = "id")
-    private User user;
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
-            return false;
-        }
-        TranscriptVersion transcriptVersion = (TranscriptVersion) o;
-        return id != null && Objects.equals(id, transcriptVersion.id);
-    }
-
-    @Override
-    public int hashCode() {
-        return getClass().hashCode();
-    }
-
+    @JoinColumn(name = "editor_id",nullable = false)
+    private User editor;
 }
