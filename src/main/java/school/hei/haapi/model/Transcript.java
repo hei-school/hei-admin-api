@@ -41,7 +41,7 @@ public class Transcript implements Serializable {
     @CreationTimestamp
     private Instant creationDatetime;
 
-    @OneToMany(mappedBy = "transcriptId")
+    @OneToMany(mappedBy = "transcript")
     private List<TranscriptVersion> transcriptVersions;
 
     @Override

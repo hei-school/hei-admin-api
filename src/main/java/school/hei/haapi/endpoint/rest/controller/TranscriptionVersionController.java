@@ -35,6 +35,6 @@ public class TranscriptionVersionController {
             @RequestParam(value = "sId") String studentId,
             @RequestParam(value = "tId") String transcriptId,
             @RequestParam(value = "vId",defaultValue = "latest") String vId){
-       return mapper.toRestURl(service.getTranscriptVersion(studentId,transcriptId,vId));
+       return mapper.toRestPdf(service.getTranscriptVersion(studentId,transcriptId,vId));
     }
 }

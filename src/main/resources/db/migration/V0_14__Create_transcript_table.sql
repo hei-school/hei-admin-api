@@ -16,5 +16,5 @@ create table if not exists "transcript"
         constraint transcript_student_id_fk references "user"(id),
     academic_year     integer                  not null,
     is_definitive     boolean                  not null,
-    creation_datetime timestamp with time zone not null default now(),
+    creation_datetime timestamp with time zone not null default now()
 );
