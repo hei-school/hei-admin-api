@@ -1,5 +1,5 @@
 insert into "transcript_version"
-(id,"ref",creation_datetime,pdf_link,transcript_id,editor_id)
+(id,ref,creation_datetime,pdf_link,transcript_id,editor_id)
 values ('transcript_version1_id',1,'2023-10-01T08:25:24.00Z','test1','transcript1_id','manager1_id'),
        ('transcript_version2_id',2,'2023-10-02T08:25:24.00Z','test2','transcript1_id','manager1_id'),
        ('transcript_version3_id',3,'2023-10-03T08:25:24.00Z','test3','transcript1_id','manager1_id'),

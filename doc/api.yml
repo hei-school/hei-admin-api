@@ -404,19 +404,19 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/students/{student_Id}/transcripts/{transcript_Id}/versions':
+  '/students/{student_id}/transcripts/{transcript_id}/versions':
     get:
       tags:
         - Teaching
       summary: Get all versions of a Transcript
-      operationId: getAllTranscriptsVersions
+      operationId: getTranscriptsVersions
       parameters:
-        - name: student_Id
+        - name: student_id
           in: path
           required: true
           schema:
             type: string
-        - name: transcript_Id
+        - name: transcript_id
           in: path
           required: true
           schema:
@@ -453,7 +453,7 @@ paths:
       tags:
         - Teaching
       summary: Get details of specific version of a student transcript.
-      operationId: getStudentTranscriptVersion
+      operationId: getStudentTranscriptByVersion
       parameters:
         - name: student_id
           in: path

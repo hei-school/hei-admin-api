@@ -11,7 +11,7 @@ public class TranscriptVersionMapper {
         return new StudentTranscriptVersion()
                 .id(version.getId())
                 .ref(version.getRef())
-                .creationDatetime(version.getCreateDatetime())
+                .creationDatetime(version.getCreationDatetime())
                 .transcriptId(version.getTranscript().getId())
                 .createdBy(version.getEditor().getId());
     }

@@ -11,12 +11,19 @@ import java.util.UUID;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
+import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.Transcript;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
-
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -358,7 +365,7 @@ public class TestUtils {
     return new StudentTranscriptVersion()
             .id(STUDENT_TRANSCRIPT_VERSION2_ID)
             .ref(2)
-            .creationDatetime(Instant.parse("2023-10-01T08:25:24.00Z"))
+            .creationDatetime(Instant.parse("2023-10-02T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT1_ID)
             .createdBy(MANAGER_ID);
   }
@@ -366,7 +373,7 @@ public class TestUtils {
     return new StudentTranscriptVersion()
             .id(STUDENT_TRANSCRIPT_VERSION3_ID)
             .ref(3)
-            .creationDatetime(Instant.parse("2023-10-01T08:25:24.00Z"))
+            .creationDatetime(Instant.parse("2023-10-03T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT1_ID)
             .createdBy(MANAGER_ID);
   }
@@ -374,7 +381,7 @@ public class TestUtils {
     return new StudentTranscriptVersion()
             .id(STUDENT_TRANSCRIPT_VERSION4_ID)
             .ref(4)
-            .creationDatetime(Instant.parse("2023-10-01T08:25:24.00Z"))
+            .creationDatetime(Instant.parse("2023-10-04T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT1_ID)
             .createdBy(MANAGER_ID);
   }
@@ -390,7 +397,7 @@ public class TestUtils {
     return new StudentTranscriptVersion()
             .id(STUDENT_TRANSCRIPT_VERSION6_ID)
             .ref(2)
-            .creationDatetime(Instant.parse("2023-11-01T08:25:24.00Z"))
+            .creationDatetime(Instant.parse("2023-11-02T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT2_ID)
             .createdBy(MANAGER_ID);
   }
@@ -398,7 +405,7 @@ public class TestUtils {
     return new StudentTranscriptVersion()
             .id(STUDENT_TRANSCRIPT_VERSION7_ID)
             .ref(3)
-            .creationDatetime(Instant.parse("2023-11-01T08:25:24.00Z"))
+            .creationDatetime(Instant.parse("2023-11-03T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT2_ID)
             .createdBy(MANAGER_ID);
   }
