@@ -5,7 +5,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.TranscriptVersionMapper;
-import school.hei.haapi.endpoint.rest.model.TranscriptVersion;
+import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.TranscriptVersionService;
@@ -20,7 +20,7 @@ public class TranscriptionVersionController {
     private final TranscriptVersionMapper mapper;
 
    @GetMapping("/students/{sId}/transcripts/{tId}/versions")
-    public List<TranscriptVersion> getVersions(
+    public List<StudentTranscriptVersion> getVersions(
             @RequestParam(value = "sId") String studentId,
             @RequestParam(value = "tId") String transcriptId,
             @RequestParam(defaultValue = "1") PageFromOne page,
@@ -31,7 +31,7 @@ public class TranscriptionVersionController {
     }
 
     @GetMapping("/students/{sId}/transcripts/{tId}/versions/{vId}")
-    public TranscriptVersion getTranscriptVersion(
+    public StudentTranscriptVersion getTranscriptVersion(
             @RequestParam(value = "sId") String studentId,
             @RequestParam(value = "tId") String transcriptId,
             @RequestParam(value = "vId",defaultValue = "latest") String vId){
