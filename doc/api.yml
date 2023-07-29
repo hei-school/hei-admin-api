@@ -157,90 +157,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/students/{sId}/transcripts/{tId}/versions':
-    get:
-      tags:
-        - Teaching
-      summary: Get transcript's versions
-      parameters:
-        - name: sId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: tId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-        - name: page_size
-          in: query
-          schema:
-            $ref: '#/components/schemas/PageSize'
-      operationId: getAllTranscriptsVersions
-      responses:
-        '200':
-          description: Student's Transcript's versions
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/TranscriptVersions'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  '/students/{sId}/transcripts/{tId}/versions/{vId}':
-    get:
-      tags:
-        - Teaching
-      summary: Get last transcript's version or a specific version
-      parameters:
-        - name: sId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: tId
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: vId
-          in: path
-          required: true
-          schema:
-            type: string
-            example: latest
-      operationId: getTranscriptLastVersion
-      responses:
-        '200':
-          description: Student's Transcript's last version or a specific one
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/TranscriptVersion'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
   '/students/{id}':
     get:
       tags:
@@ -380,7 +296,7 @@ paths:
   /students/{student_id}/transcripts:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get all transcript of a student
       operationId: getStudentTranscripts
       parameters:
@@ -418,7 +334,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Teaching
+        - Transcript
       summary: Create new transcript or update existing transcript
       operationId: crudStudentTranscripts
       requestBody:
@@ -460,7 +376,7 @@ paths:
   /students/{student_id}/transcripts/{transcript_id}:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get a student transcript by identifier
       operationId: getStudentTranscriptById
       parameters:
@@ -496,7 +412,7 @@ paths:
   /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get details of specific version of a student transcript.
       operationId: getStudentTranscriptVersion
       parameters:
@@ -536,7 +452,7 @@ paths:
   /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/raw:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get pdf of a specific version of a student transcript.
       operationId: getStudentTranscriptVersionPdf
       parameters:
@@ -578,7 +494,7 @@ paths:
   /students/{student_id}/transcripts/{transcript_id}/versions/latest/raw:
     post:
       tags:
-        - Teaching
+        - Transcript
       summary: Submit transcript pdf file to latest transcript version
       operationId: putStudentTranscriptVersionPdf
       parameters:
@@ -619,7 +535,7 @@ paths:
   /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get all claims for a specific version of a student transcript.
       operationId: getStudentTranscriptClaims
       parameters:
@@ -668,7 +584,7 @@ paths:
   /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims/{claim_id}:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get a claim of transcript version.
       operationId: getStudentClaimOfTranscriptVersion
       parameters:
@@ -711,7 +627,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Teaching
+        - Transcript
       summary: create or modify claim of Transcript Version
       operationId: putStudentClaimsOfTranscriptVersion
       parameters:
@@ -1762,27 +1678,6 @@ components:
         creation_datetime:
           type: string
           format: date-time
-    TranscriptVersions:
-      type: object
-      properties:
-        id:
-          type: string
-        ref:
-          type: integer
-        creation_datetime:
-          type: string
-          format: date-time
-        transcript_id:
-          type: string
-        user_id:
-          type: string
-    TranscriptVersion:
-      allOf:
-        - $ref: '#/components/schemas/TranscriptVersions'
-      type: object
-      properties:
-        pdf_link:
-          type: string
     CourseTemplate:
       type: object
       properties:
@@ -1810,15 +1705,6 @@ components:
       enum:
         - LINKED
         - UNLINKED
-    Semester:
-      type: string
-      enum:
-        - S1
-        - S2
-        - S3
-        - S4
-        - S5
-        - S6
     UpdateStudentCourse:
       type: object
       properties:
@@ -1907,7 +1793,9 @@ components:
           type: string
         ref:
           type: integer
-        created_by:
+        created_by_user_id:
+          type: string
+        created_by_user_role:
           type: string
         creation_datetime:
           type: string
