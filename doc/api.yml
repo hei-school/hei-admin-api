@@ -294,7 +294,7 @@ paths:
   /students/{student_id}/transcripts:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get all transcript of a student
       operationId: getStudentTranscripts
       parameters:
@@ -332,7 +332,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Teaching
+        - Transcript
       summary: Create new transcript or update existing transcript
       operationId: crudStudentTranscripts
       requestBody:
@@ -373,7 +373,7 @@ paths:
   /students/{student_id}/transcripts/{transcript_id}:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get a student transcript by identifier
       operationId: getStudentTranscriptById
       parameters:
@@ -407,7 +407,7 @@ paths:
   '/students/{student_id}/transcripts/{transcript_id}/versions':
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get all versions of a Transcript
       operationId: getTranscriptsVersions
       parameters:
@@ -451,7 +451,7 @@ paths:
   /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get details of specific version of a student transcript.
       operationId: getStudentTranscriptByVersion
       parameters:
@@ -490,7 +490,7 @@ paths:
   /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/raw:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get pdf of a specific version of a student transcript.
       operationId: getStudentTranscriptVersionPdf
       parameters:
@@ -532,7 +532,7 @@ paths:
   /students/{student_id}/transcripts/{transcript_id}/versions/latest/raw:
     post:
       tags:
-        - Teaching
+        - Transcript
       summary: Submit transcript pdf file to latest transcript version
       operationId: putStudentTranscriptVersionPdf
       parameters:
@@ -573,7 +573,7 @@ paths:
   /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get all claims for a specific version of a student transcript.
       operationId: getStudentTranscriptClaims
       parameters:
@@ -622,7 +622,7 @@ paths:
   /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims/{claim_id}:
     get:
       tags:
-        - Teaching
+        - Transcript
       summary: Get a claim of transcript version.
       operationId: getStudentClaimOfTranscriptVersion
       parameters:
@@ -665,7 +665,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Teaching
+        - Transcript
       summary: create or modify claim of Transcript Version
       operationId: putStudentClaimsOfTranscriptVersion
       parameters:
@@ -1743,15 +1743,6 @@ components:
       enum:
         - LINKED
         - UNLINKED
-    Semester:
-      type: string
-      enum:
-        - S1
-        - S2
-        - S3
-        - S4
-        - S5
-        - S6
     UpdateStudentCourse:
       type: object
       properties:
@@ -1840,7 +1831,9 @@ components:
           type: string
         ref:
           type: integer
-        created_by:
+        created_by_user_id:
+          type: string
+        created_by_user_role:
           type: string
         creation_datetime:
           type: string

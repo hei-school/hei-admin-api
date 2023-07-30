@@ -10,6 +10,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.api.TranscriptApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Fee;
@@ -59,7 +60,7 @@ public class TranscriptIT {
     @Test
     void student_read_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-        TeachingApi api = new TeachingApi(student1Client);
+        TranscriptApi api = new TranscriptApi(student1Client);
 
         Transcript actualTranscript = api.getStudentTranscriptById(STUDENT1_ID, TRANSCRIPT1_ID);
         List<Transcript> actual = api.getStudentTranscripts(STUDENT1_ID, 1, 10);
@@ -73,7 +74,7 @@ public class TranscriptIT {
     @Test
     void manager_read_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-        TeachingApi api = new TeachingApi(manager1Client);
+        TranscriptApi api = new TranscriptApi(manager1Client);
 
         Transcript actualTranscript = api.getStudentTranscriptById(STUDENT1_ID, TRANSCRIPT1_ID);
         List<Transcript> actual = api.getStudentTranscripts(STUDENT1_ID, 1, 10);
@@ -87,7 +88,7 @@ public class TranscriptIT {
     @Test
     void student_read_ko() {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-        TeachingApi api = new TeachingApi(student1Client);
+        TranscriptApi api = new TranscriptApi(student1Client);
 
         assertThrowsApiException(
                 "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
