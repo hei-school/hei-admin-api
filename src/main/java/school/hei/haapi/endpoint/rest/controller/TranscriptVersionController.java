@@ -10,6 +10,13 @@ import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.TranscriptVersionService;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestPart;
+import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.endpoint.rest.security.AuthProvider;
+import school.hei.haapi.model.TranscriptVersion;
+import school.hei.haapi.service.aws.S3Service;
+
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -18,6 +25,7 @@ import java.util.stream.Collectors;
 public class TranscriptVersionController {
     private final TranscriptVersionService service;
     private final TranscriptVersionMapper mapper;
+    private final S3Service s3Service;
 
    @GetMapping("/students/{student_id}/transcripts/{transcript_id}/versions")
     public List<StudentTranscriptVersion> getVersions(
@@ -44,4 +52,11 @@ public class TranscriptVersionController {
             @PathVariable(value = "transcript_id") String transcriptId,
             @PathVariable(value = "version_id") String vId){}
 
+    @PostMapping("/students/{studentId}/transcripts/{transcriptId}/versions/latest/raw")
+    public TranscriptVersion addNewTranscriptVersion(@PathVariable String studentId,
+                                                     @PathVariable String transcriptId,
+                                                     @RequestPart("pdf_file")MultipartFile pdfFile){
+        String editorId = AuthProvider.getPrincipal().getUserId();
+        return service.addNewTranscriptVersion(studentId,transcriptId, editorId, pdfFile);
+    }
 }

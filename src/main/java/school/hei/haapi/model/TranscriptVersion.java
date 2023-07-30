@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -7,6 +8,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -31,7 +33,8 @@ public class TranscriptVersion {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
     private int ref;
-    private Instant creationDatetime;
+    @CreationTimestamp
+    private Instant createDatetime;
     private String pdfLink;
     @ManyToOne
     @JoinColumn(name = "transcript_id",nullable = false)

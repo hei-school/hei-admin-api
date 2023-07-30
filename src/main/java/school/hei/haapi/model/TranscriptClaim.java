@@ -1,11 +1,14 @@
 package school.hei.haapi.model;
 
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
@@ -35,6 +38,8 @@ public class TranscriptClaim {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
+    @CreationTimestamp
+    //@Getter(AccessLevel.NONE)
     private Instant creationDate;
     private Instant closedDate;
     private String reason;

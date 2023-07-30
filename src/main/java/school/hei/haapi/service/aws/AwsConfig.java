@@ -1,4 +1,4 @@
-package school.hei.haapi.service;
+package school.hei.haapi.service.aws;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
@@ -20,7 +20,7 @@ public class AwsConfig {
     @Value("${AWS_S3_REGION}")
     private String awsS3Region;
 
-    private String S3Region = "eu-west-3";
+
 
     @Bean
     public S3Client amazonS3Client() {
