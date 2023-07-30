@@ -10,5 +10,5 @@ import java.util.List;
 @Repository
 public interface TranscriptVersionRepository extends JpaRepository<TranscriptVersion,String> {
     List<TranscriptVersion> findAllByTranscriptId(String transcriptId,Pageable pageable);
-    List<TranscriptVersion> findAllByTranscriptIdOrderByCreationDatetimeDesc(String transcriptId);
+    TranscriptVersion findFirstByTranscriptIdOrderByCreationDatetimeDesc(String transcriptId);
 }

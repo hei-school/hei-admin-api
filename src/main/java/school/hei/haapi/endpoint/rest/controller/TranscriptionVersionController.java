@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.controller;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.TranscriptVersionMapper;
@@ -19,10 +20,10 @@ public class TranscriptionVersionController {
     private final TranscriptVersionService service;
     private final TranscriptVersionMapper mapper;
 
-   @GetMapping("/students/{sId}/transcripts/{tId}/versions")
+   @GetMapping("/students/{student_id}/transcripts/{transcript_id}/versions")
     public List<StudentTranscriptVersion> getVersions(
-            @RequestParam(value = "sId") String studentId,
-            @RequestParam(value = "tId") String transcriptId,
+            @PathVariable(value = "student_id") String studentId,
+            @PathVariable(value = "transcript_id") String transcriptId,
             @RequestParam(defaultValue = "1") PageFromOne page,
             @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize){
        return service.getTranscriptsVersions(transcriptId,page,pageSize).stream()
@@ -30,11 +31,11 @@ public class TranscriptionVersionController {
                .collect(Collectors.toUnmodifiableList());
     }
 
-    @GetMapping("/students/{sId}/transcripts/{tId}/versions/{vId}")
+    @GetMapping("/students/{student_id}/transcripts/{transcript_id}/versions/{version_id}")
     public StudentTranscriptVersion getTranscriptVersion(
-            @RequestParam(value = "sId") String studentId,
-            @RequestParam(value = "tId") String transcriptId,
-            @RequestParam(value = "vId",defaultValue = "latest") String vId){
-       return mapper.toRestPdf(service.getTranscriptVersion(transcriptId,vId));
+            @PathVariable(value = "student_id") String studentId,
+            @PathVariable(value = "transcript_id") String transcriptId,
+            @PathVariable(value = "version_id") String vId){
+       return mapper.toRest(service.getTranscriptVersion(transcriptId,vId));
     }
 }

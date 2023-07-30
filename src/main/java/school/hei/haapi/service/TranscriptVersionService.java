@@ -24,12 +24,12 @@ public class TranscriptVersionService {
         return repository.findAllByTranscriptId(transcriptId,pageable);
     }
 
-    public TranscriptVersion getTranscriptVersion(String transcriptId, String vId){
-        if(Objects.equals(vId, "latest")){
-            return repository.findAllByTranscriptIdOrderByCreationDatetimeDesc(transcriptId).get(0);
+    public TranscriptVersion getTranscriptVersion(String transcriptId, String versionId){
+        if(Objects.equals(versionId, "latest")){
+            return repository.findFirstByTranscriptIdOrderByCreationDatetimeDesc(transcriptId);
         }
-        return repository.getById(vId);
+        return repository.getById(versionId);
     }
 
-    public void getTranscriptVersionPdf(String sId,String tId,String vId){};
+    public void getTranscriptVersionPdf(String tId,String vId){};
 }

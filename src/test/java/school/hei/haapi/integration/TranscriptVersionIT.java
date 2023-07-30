@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.api.TranscriptApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
@@ -54,9 +55,9 @@ public class TranscriptVersionIT {
     }
 
     @Test
-    void student_read_ko() {
+    void student_read_others_ko() {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-        TeachingApi api = new TeachingApi(student1Client);
+        TranscriptApi api = new TranscriptApi((student1Client));
 
         assertThrowsApiException(
                 "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
@@ -65,9 +66,9 @@ public class TranscriptVersionIT {
     }
 
     @Test
-    void student_read_ok() throws ApiException {
+    void student_read_self_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-        TeachingApi api = new TeachingApi(student1Client);
+        TranscriptApi api = new TranscriptApi(student1Client);
 
         List<StudentTranscriptVersion> actual = api.getTranscriptsVersions("student1_id","transcript1_id",1,15);
         StudentTranscriptVersion studentTranscriptVersion = api.getStudentTranscriptByVersion(STUDENT1_ID,TRANSCRIPT1_ID,STUDENT_TRANSCRIPT_VERSION1_ID);
@@ -82,7 +83,7 @@ public class TranscriptVersionIT {
     @Test
     void manager_read_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-        TeachingApi api = new TeachingApi(manager1Client);
+        TranscriptApi api = new TranscriptApi(manager1Client);
 
         List<StudentTranscriptVersion> actual = api.getTranscriptsVersions("student1_id","transcript1_id",1,15);
         StudentTranscriptVersion studentTranscriptVersion = api.getStudentTranscriptByVersion(STUDENT1_ID,TRANSCRIPT1_ID,STUDENT_TRANSCRIPT_VERSION1_ID);
@@ -97,7 +98,7 @@ public class TranscriptVersionIT {
     @Test
     void teacher_read_ok() throws ApiException {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-        TeachingApi api = new TeachingApi(teacher1Client);
+        TranscriptApi api = new TranscriptApi(teacher1Client);
 
         List<StudentTranscriptVersion> actual = api.getTranscriptsVersions("student1_id","transcript1_id",1,15);
         StudentTranscriptVersion studentTranscriptVersion = api.getStudentTranscriptByVersion(STUDENT1_ID,TRANSCRIPT1_ID,STUDENT_TRANSCRIPT_VERSION1_ID);
@@ -112,7 +113,7 @@ public class TranscriptVersionIT {
     @Test
     void student_read_latest_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-        TeachingApi api = new TeachingApi(student1Client);
+        TranscriptApi api = new TranscriptApi(student1Client);
 
         StudentTranscriptVersion studentTranscriptVersion = api.getStudentTranscriptByVersion(STUDENT1_ID,TRANSCRIPT1_ID,"latest");
         assertEquals(studentTranscriptVersion4(),studentTranscriptVersion);
