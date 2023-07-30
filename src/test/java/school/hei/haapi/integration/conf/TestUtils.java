@@ -65,6 +65,7 @@ public class TestUtils {
   public static final String TRANSCRIPT4_ID = "transcript4_id";
   public static final String TRANSCRIPT5_ID = "transcript5_id";
   public static final String TRANSCRIPT6_ID = "transcript6_id";
+  public static final String MANAGER_ROLE = "MANAGER";
   public static final String STUDENT_TRANSCRIPT_VERSION1_ID = "transcript_version1_id";
   public static final String STUDENT_TRANSCRIPT_VERSION2_ID = "transcript_version2_id";
   public static final String STUDENT_TRANSCRIPT_VERSION3_ID = "transcript_version3_id";
@@ -359,7 +360,8 @@ public class TestUtils {
             .ref(1)
             .creationDatetime(Instant.parse("2023-10-01T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT1_ID)
-            .createdBy(MANAGER_ID);
+            .createdByUserId(MANAGER_ID)
+            .createdByUserRole(MANAGER_ROLE);
   }
   public static StudentTranscriptVersion studentTranscriptVersion2(){
     return new StudentTranscriptVersion()
@@ -367,7 +369,8 @@ public class TestUtils {
             .ref(2)
             .creationDatetime(Instant.parse("2023-10-02T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT1_ID)
-            .createdBy(MANAGER_ID);
+            .createdByUserId(MANAGER_ID)
+            .createdByUserRole(MANAGER_ROLE);
   }
   public static StudentTranscriptVersion studentTranscriptVersion3(){
     return new StudentTranscriptVersion()
@@ -375,7 +378,8 @@ public class TestUtils {
             .ref(3)
             .creationDatetime(Instant.parse("2023-10-03T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT1_ID)
-            .createdBy(MANAGER_ID);
+            .createdByUserId(MANAGER_ID)
+            .createdByUserRole(MANAGER_ROLE);
   }
   public static StudentTranscriptVersion studentTranscriptVersion4(){
     return new StudentTranscriptVersion()
@@ -383,7 +387,8 @@ public class TestUtils {
             .ref(4)
             .creationDatetime(Instant.parse("2023-10-04T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT1_ID)
-            .createdBy(MANAGER_ID);
+            .createdByUserId(MANAGER_ID)
+            .createdByUserRole(MANAGER_ROLE);
   }
   public static StudentTranscriptVersion studentTranscriptVersion5(){
     return new StudentTranscriptVersion()
@@ -391,7 +396,8 @@ public class TestUtils {
             .ref(1)
             .creationDatetime(Instant.parse("2023-11-01T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT2_ID)
-            .createdBy(MANAGER_ID);
+            .createdByUserId(MANAGER_ID)
+            .createdByUserRole(MANAGER_ROLE);
   }
   public static StudentTranscriptVersion studentTranscriptVersion6(){
     return new StudentTranscriptVersion()
@@ -399,7 +405,8 @@ public class TestUtils {
             .ref(2)
             .creationDatetime(Instant.parse("2023-11-02T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT2_ID)
-            .createdBy(MANAGER_ID);
+            .createdByUserId(MANAGER_ID)
+            .createdByUserRole(MANAGER_ROLE);
   }
   public static StudentTranscriptVersion studentTranscriptVersion7(){
     return new StudentTranscriptVersion()
@@ -407,7 +414,8 @@ public class TestUtils {
             .ref(3)
             .creationDatetime(Instant.parse("2023-11-03T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT2_ID)
-            .createdBy(MANAGER_ID);
+            .createdByUserId(MANAGER_ID)
+            .createdByUserRole(MANAGER_ROLE);
   }
 
   public static boolean isBefore(String a, String b) {
