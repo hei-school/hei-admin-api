@@ -1,5 +1,24 @@
 package school.hei.haapi.integration.conf;
 
+import org.junit.jupiter.api.function.Executable;
+import org.springframework.mock.web.MockMultipartFile;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
+import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.Transcript;
+import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
+import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.service.aws.S3Service;
+import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
+
 import java.io.IOException;
 import java.lang.Exception;
 import java.net.ServerSocket;
@@ -8,6 +27,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+<<<<<<< HEAD
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -24,6 +44,9 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
+=======
+
+>>>>>>> e8f229a (test: fixUp of TranscriptVersionRawIT)
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -78,6 +101,13 @@ public class TestUtils {
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
+
+
+  public static final String TRANSCRIPT_VERSION1_ID= "transcript_version1_id";
+  public static final Instant TRANSCRIPT_VERSION1_CREATION_DATETIME= Instant.parse("2023-10-01T08:25:24.00Z");
+  public static final String TRANSCRIPT_VERSION1_PDF_LINK = "STD21001-2021-S1-V1";
+  public static final MockMultipartFile MULTIPART_FILE_UPLOADED = new MockMultipartFile("pdf_file", TRANSCRIPT_VERSION1_PDF_LINK,"application/pdf","test".getBytes());
+
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -442,4 +472,9 @@ public class TestUtils {
       throw new RuntimeException(e);
     }
   }
+
+  public static void setUpS3Service(S3Service s3Service){
+    when(s3Service.uploadObjectToS3Bucket(TRANSCRIPT_VERSION1_PDF_LINK, MULTIPART_FILE_UPLOADED)).thenReturn(TRANSCRIPT_VERSION1_PDF_LINK);
+  }
+
 }
