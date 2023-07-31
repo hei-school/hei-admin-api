@@ -112,7 +112,13 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*")).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/transcripts").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/students/*/transcripts/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-        .antMatchers("/**").denyAll()
+            .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions")).hasAnyRole(STUDENT.getRole())
+            .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions/*")).hasAnyRole(STUDENT.getRole())
+            .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions/*/raw")).hasAnyRole(STUDENT.getRole())
+            .antMatchers(GET, "/students/*/transcripts/*/versions").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+            .antMatchers(GET, "/students/*/transcripts/*/versions/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+            .antMatchers(GET, "/students/*/transcripts/*/versions/*/raw").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+            .antMatchers("/**").denyAll()
         // disable superfluous protections
         // Eg if all clients are non-browser then no csrf
         // https://docs.spring.io/spring-security/site/docs/3.2.0.CI-SNAPSHOT/reference/html/csrf.html,

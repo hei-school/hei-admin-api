@@ -11,16 +11,7 @@ public class TranscriptVersionMapper {
         return new StudentTranscriptVersion()
                 .id(version.getId())
                 .ref(version.getRef())
-                .creationDatetime(version.getCreateDatetime())
-                .transcriptId(version.getTranscript().getId())
-                .createdByUserId(version.getEditor().getId())
-                .createdByUserRole(String.valueOf(version.getEditor().getRole()));
-    }
-    public StudentTranscriptVersion toRestPdf(school.hei.haapi.model.TranscriptVersion version) {
-        return new StudentTranscriptVersion()
-                .id(version.getId())
-                .ref(version.getRef())
-                .creationDatetime(version.getCreateDatetime())
+                .creationDatetime(version.getCreationDatetime())
                 .transcriptId(version.getTranscript().getId())
                 .createdByUserId(version.getEditor().getId())
                 .createdByUserRole(String.valueOf(version.getEditor().getRole()));

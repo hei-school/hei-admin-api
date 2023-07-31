@@ -9,9 +9,8 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.TranscriptVersion;
 import school.hei.haapi.repository.TranscriptVersionRepository;
-
 import java.util.List;
-
+import java.util.Objects;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
@@ -20,18 +19,17 @@ public class TranscriptVersionService {
 
     private final TranscriptVersionRepository repository;
 
-    public List<TranscriptVersion> getAllVersions(String sId, String tId,PageFromOne page, BoundedPageSize pageSize){
-        Pageable pageable = PageRequest.of(
-                page.getValue() - 1,
-                pageSize.getValue(),
-                Sort.by(DESC, "creationDatetime"));
-        return repository.getAllByEditorIdAndTranscriptId(sId, tId,pageable);
+    public List<TranscriptVersion> getTranscriptsVersions(String transcriptId,PageFromOne page, BoundedPageSize pageSize ){
+        Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
+        return repository.findAllByTranscriptId(transcriptId,pageable);
     }
 
-    public TranscriptVersion getTranscriptVersion(String sId, String tId, String vId){
-        if(vId == "latest"){
-            return repository.getAllSortedByRef(sId,tId).get(0);
+    public TranscriptVersion getTranscriptVersion(String transcriptId, String versionId){
+        if(Objects.equals(versionId, "latest")){
+            return repository.findFirstByTranscriptIdOrderByCreationDatetimeDesc(transcriptId);
         }
-        return repository.getTranscriptVersionByEditorIdAndTranscriptIdAndId(sId,tId,vId);
+        return repository.getById(versionId);
     }
+
+    public void getTranscriptVersionPdf(String tId,String vId){};
 }
