@@ -12,9 +12,11 @@ import school.hei.haapi.model.Transcript;
 import school.hei.haapi.model.TranscriptVersion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.TranscriptVersionRepository;
+import school.hei.haapi.service.aws.S3Service;
+
 import java.util.List;
 import java.util.Objects;
-import school.hei.haapi.service.aws.S3Service;
+
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service

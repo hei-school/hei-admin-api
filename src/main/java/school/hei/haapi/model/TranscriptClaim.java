@@ -39,7 +39,6 @@ public class TranscriptClaim {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
     @CreationTimestamp
-    //@Getter(AccessLevel.NONE)
     private Instant creationDate;
     private Instant closedDate;
     private String reason;
