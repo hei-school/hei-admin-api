@@ -1,9 +1,6 @@
 package school.hei.haapi.endpoint.rest;
 
-import javax.persistence.OptimisticLockException;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.tomcat.util.http.fileupload.impl.FileSizeLimitExceededException;
-import org.apache.tomcat.util.http.fileupload.impl.SizeLimitExceededException;
 import org.hibernate.exception.LockAcquisitionException;
 import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.http.HttpStatus;
@@ -15,12 +12,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import org.springframework.web.multipart.MultipartException;
-import school.hei.haapi.endpoint.rest.validator.FileUploadValidator;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.model.exception.TooManyRequestsException;
+
+import javax.persistence.OptimisticLockException;
 
 
 @RestControllerAdvice
@@ -103,10 +101,10 @@ public class InternalToRestExceptionHandler {
   @ExceptionHandler(value = {MultipartException.class})
   ResponseEntity<school.hei.haapi.endpoint.rest.model.Exception> handleFileSizeLimitExceededRequests(
           MultipartException e) {
-    log.info("File size limit exceeded", e);
+    log.info("File not conform", e);
     return new ResponseEntity<>(
             //toRest(e, HttpStatus.BAD_REQUEST),
-            toRest(new BadRequestException("File upload error (file size must be < "+ FileUploadValidator.MAX_FILE_SIZE+")"), HttpStatus.BAD_REQUEST),
+            toRest(new BadRequestException("File upload error"), HttpStatus.BAD_REQUEST),
             HttpStatus.BAD_REQUEST);
   }
 
