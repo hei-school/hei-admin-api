@@ -37,6 +37,8 @@ public class TestUtils {
 
   public static final String STUDENT1_ID = "student1_id";
   public static final String STUDENT2_ID = "student2_id";
+
+  public static final String NON_EXISTANT_STUDENT_ID = "student99_id";
   public static final String TEACHER1_ID = "teacher1_id";
   public static final String TEACHER2_ID = "teacher2_id";
   public static final String TEACHER3_ID = "teacher3_id";
@@ -56,6 +58,10 @@ public class TestUtils {
   public static final String COURSE3_ID = "course3_id";
   public static final String COURSE4_ID = "course4_id";
   public static final String COURSE5_ID = "course5_id";
+  public static final String TRANSCRIPT1_ID = "transcript1_id";
+  public static final String TRANSCRIPT2_ID = "transcript2_id";
+  public static final String TRANSCRIPT3_ID = "transcript3_id";
+  public static final String TRANSCRIPT4_ID = "transcript4_id";
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
