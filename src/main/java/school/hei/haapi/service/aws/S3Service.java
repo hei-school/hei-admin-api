@@ -29,15 +29,16 @@ public class S3Service {
         return s3Client.listBuckets(listBucketsRequest).buckets().stream().map(Bucket::name).collect(Collectors.toList());
     }
 
-    public void uploadObjectToS3Bucket(String key, MultipartFile file){
+    public String uploadObjectToS3Bucket(String key, MultipartFile file){
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
                 .build();
         try {
             s3Client.putObject(objectRequest, RequestBody.fromBytes(file.getBytes()));
+            return key;
         }catch (Exception e){
-            throw new BadRequestException("incorrect file upload");
+            throw new BadRequestException("s3 file upload error");
         }
     }
 }

@@ -74,13 +74,13 @@ public class TranscriptVersionService {
         }
 
         String key = student.getRef()+"-"+transcript.getAcademicYear()+"-"+transcript.getSemester()+"-v"+newRef+".pdf";
-        s3Service.uploadObjectToS3Bucket(key,pdfFile);
+        String pdfKey = s3Service.uploadObjectToS3Bucket(key,pdfFile);
 
         return repository.save(TranscriptVersion.builder()
                 .transcript(transcript)
                 .ref(newRef)
                 .editor(editor)
-                .pdfLink(key)
+                .pdfLink(pdfKey)
                 .creationDatetime(Instant.now())
                 .build());
     }
