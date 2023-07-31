@@ -7,6 +7,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.TranscriptApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -42,6 +43,8 @@ import static school.hei.haapi.integration.conf.TestUtils.studentTranscriptVersi
 @AutoConfigureMockMvc
 public class TranscriptVersionIT {
 
+    @MockBean
+    private SentryConf sentryConf;
     @MockBean
     private CognitoComponent cognitoComponentMock;
 
