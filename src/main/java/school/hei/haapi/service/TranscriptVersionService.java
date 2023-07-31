@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.endpoint.rest.validator.CreateTranscriptVersionValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Transcript;
@@ -13,7 +14,13 @@ import school.hei.haapi.model.TranscriptVersion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.TranscriptVersionRepository;
 import school.hei.haapi.service.aws.S3Service;
+import software.amazon.awssdk.services.ses.model.CreateTemplateRequest;
 
+<<<<<<< HEAD
+=======
+import java.time.Instant;
+import java.time.LocalDate;
+>>>>>>> 0cd732a (fix: mapper in controller and repo used in service for TranscriptVersion)
 import java.util.List;
 import java.util.Objects;
 
@@ -27,6 +34,7 @@ public class TranscriptVersionService {
     private final S3Service s3Service;
     private final UserService userService;
     private final TranscriptService transcriptService;
+    private final CreateTranscriptVersionValidator createTranscriptVersionValidator;
 
     public List<TranscriptVersion> getTranscriptsVersions(String transcriptId,PageFromOne page, BoundedPageSize pageSize ){
         Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
@@ -46,13 +54,14 @@ public class TranscriptVersionService {
         Pageable pageable = PageRequest.of(
                 page.getValue() - 1,
                 pageSize.getValue(),
+               //TODO: can sort by creationDatetime with Asc and desc
                 Sort.by(DESC, "creationDatetime"));
-        return repository.getAllByEditorIdAndTranscriptId(sId, tId,pageable);
+        return repository.findAllByTranscriptStudentIdAndTranscriptId(sId, tId,pageable);
     }
 
 
-
     public TranscriptVersion addNewTranscriptVersion(String studentId, String transcriptId, String editorId, MultipartFile pdfFile) {
+        createTranscriptVersionValidator.accept(pdfFile);
         User student = userService.getById(studentId);
         User editor = userService.getById(editorId);
         //TODO: getByStudentAndId, add studentId and check if studentId equals the studentId in the transcript?
@@ -64,7 +73,7 @@ public class TranscriptVersionService {
             newRef = getTranscriptVersion(transcriptId,"latest").getRef()+1;
         }
 
-        String key = student.getRef()+"-"+transcript.getSemester()+"-"+transcript.getAcademicYear()+"-v"+newRef;
+        String key = student.getRef()+"-"+transcript.getAcademicYear()+"-"+transcript.getSemester()+"-v"+newRef+".pdf";
         s3Service.uploadObjectToS3Bucket(key,pdfFile);
 
         return repository.save(TranscriptVersion.builder()
@@ -72,6 +81,7 @@ public class TranscriptVersionService {
                 .ref(newRef)
                 .editor(editor)
                 .pdfLink(key)
+                .creationDatetime(Instant.now())
                 .build());
     }
 }

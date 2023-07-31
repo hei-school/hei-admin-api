@@ -13,6 +13,8 @@ import school.hei.haapi.service.TranscriptVersionService;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.endpoint.rest.mapper.TranscriptVersionMapper;
+import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.model.TranscriptVersion;
 import school.hei.haapi.service.aws.S3Service;
@@ -53,10 +55,12 @@ public class TranscriptVersionController {
             @PathVariable(value = "version_id") String vId){}
 
     @PostMapping("/students/{studentId}/transcripts/{transcriptId}/versions/latest/raw")
-    public TranscriptVersion addNewTranscriptVersion(@PathVariable String studentId,
-                                                     @PathVariable String transcriptId,
-                                                     @RequestPart("pdf_file")MultipartFile pdfFile){
+    public StudentTranscriptVersion addNewTranscriptVersion(@PathVariable String studentId,
+                                                            @PathVariable String transcriptId,
+                                                            @RequestPart("pdf_file")MultipartFile pdfFile){
+
         String editorId = AuthProvider.getPrincipal().getUserId();
-        return service.addNewTranscriptVersion(studentId,transcriptId, editorId, pdfFile);
+
+        return mapper.toRest(service.addNewTranscriptVersion(studentId,transcriptId, editorId, pdfFile));
     }
 }
