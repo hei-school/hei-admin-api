@@ -15,4 +15,8 @@ public interface TranscriptVersionRepository extends JpaRepository<TranscriptVer
     List<TranscriptVersion> getAllByEditorIdAndTranscriptId(String sId, String tId, Pageable pageable);
 
     TranscriptVersion getTranscriptVersionByEditorIdAndTranscriptIdAndId(String sId, String tId, String vId);
+
+    List<TranscriptVersion> findAllByTranscriptStudentIdAndTranscriptId(String sId, String tId, Pageable pageable);
+
+    TranscriptVersion findFirstByTranscriptIdOrderByRefDesc(String transcriptId);
 }

@@ -14,13 +14,9 @@ import school.hei.haapi.model.TranscriptVersion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.TranscriptVersionRepository;
 import school.hei.haapi.service.aws.S3Service;
-import software.amazon.awssdk.services.ses.model.CreateTemplateRequest;
 
-<<<<<<< HEAD
-=======
+
 import java.time.Instant;
-import java.time.LocalDate;
->>>>>>> 0cd732a (fix: mapper in controller and repo used in service for TranscriptVersion)
 import java.util.List;
 import java.util.Objects;
 
@@ -43,7 +39,7 @@ public class TranscriptVersionService {
 
     public TranscriptVersion getTranscriptVersion(String transcriptId, String versionId){
         if(Objects.equals(versionId, "latest")){
-            return repository.findFirstByTranscriptIdOrderByCreationDatetimeDesc(transcriptId);
+            return repository.findFirstByTranscriptIdOrderByRefDesc(transcriptId);
         }
         return repository.getById(versionId);
     }
@@ -68,7 +64,7 @@ public class TranscriptVersionService {
         Transcript transcript = transcriptService.getByStudentIdAndId(transcriptId);
 
         int newRef = 1;
-        if (getAllVersions(studentId,transcriptId, new PageFromOne(1),new BoundedPageSize(10)).size()!=0){
+        if (!getAllVersions(studentId, transcriptId, new PageFromOne(1), new BoundedPageSize(10)).isEmpty()){
             //newRef = getTranscriptVersion(studentId,transcriptId,"latest").getRef()+1;
             newRef = getTranscriptVersion(transcriptId,"latest").getRef()+1;
         }

@@ -34,7 +34,7 @@ public class TranscriptVersion {
     private String id;
     private int ref;
     @CreationTimestamp
-    private Instant createDatetime;
+    private Instant creationDatetime;
     private String pdfLink;
     @ManyToOne
     @JoinColumn(name = "transcript_id",nullable = false)
