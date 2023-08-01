@@ -10,7 +10,6 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Transcript;
 import school.hei.haapi.repository.TranscriptRepository;
-import school.hei.haapi.repository.UserRepository;
 
 import java.util.List;
 
@@ -21,7 +20,6 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 public class TranscriptService {
 
   private final TranscriptRepository transcriptRepository;
-  private final UserRepository userRepository;
 
   public Transcript getByIdAndStudentId(String transcriptId, String studentId) {
     return transcriptRepository.getTranscriptByIdAndStudentId(transcriptId, studentId);

@@ -8,6 +8,8 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.UserService;
 
+import java.util.Objects;
+
 @Component
 @AllArgsConstructor
 @Slf4j
@@ -26,10 +28,8 @@ public class TranscriptMapper {
   }
 
   public Transcript toDomain(school.hei.haapi.endpoint.rest.model.Transcript restTranscript, String studentId) {
-    System.out.println("Passed HERE");
-    log.info("PASSED HERE");
     User student = userService.getById(studentId);
-    if (student == null) {
+    if (Objects.equals(student, null)) {
       throw new NotFoundException("Student.id=" + studentId + " is not found");
     }
     return Transcript.builder()

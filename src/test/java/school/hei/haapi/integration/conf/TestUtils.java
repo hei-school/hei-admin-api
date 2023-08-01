@@ -62,6 +62,13 @@ public class TestUtils {
   public static final String TRANSCRIPT2_ID = "transcript2_id";
   public static final String TRANSCRIPT3_ID = "transcript3_id";
   public static final String TRANSCRIPT4_ID = "transcript4_id";
+  public static final String NEW_TRANSCRIPT_ID = "new_transcript_id";
+
+  public static final String TRANSCRIPT1_VERSION1_ID = "transcript1_version1_id";
+  public static final String TRANSCRIPT1_VERSION2_ID = "transcript1_version2_id";
+  public static final String TRANSCRIPT2_VERSION1_ID = "transcript2_version1_id";
+  public static final String TRANSCRIPT2_VERSION2_ID = "transcript2_version2_id";
+  public static final String TRANSCRIPT2_VERSION3_ID = "transcript2_version3_id";
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
