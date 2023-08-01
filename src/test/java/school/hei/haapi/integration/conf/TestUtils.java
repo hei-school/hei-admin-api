@@ -306,7 +306,15 @@ public class TestUtils {
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
-
+  public static Transcript transcript1() {
+    return new Transcript()
+            .id("TRANSCRIPT1_ID")
+            .studentId("STUDENT1_ID")
+            .creationDatetime(Instant.parse("2020-10-08T08:25:24.00Z"))
+            .academicYear(2021)
+            .semester(Transcript.SemesterEnum.S1)
+            .isDefinitive(true);
+  }
   public static boolean isBefore(String a, String b) {
     return a.compareTo(b) < 0;
   }
