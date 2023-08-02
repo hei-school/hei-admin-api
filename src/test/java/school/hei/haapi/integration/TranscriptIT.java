@@ -8,6 +8,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.multipart.MultipartFile;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.shaded.com.fasterxml.jackson.core.JsonParser;
+import org.testcontainers.shaded.com.fasterxml.jackson.databind.ObjectMapper;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TranscriptApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -18,10 +20,17 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
+import java.util.Map;
 
+import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -68,15 +77,24 @@ public class TranscriptIT {
     }
 
     @Test
-    void create_transcript_raw_ok() throws ApiException, IOException {
-        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-        TranscriptApi api = new TranscriptApi(student1Client);
-        File the_transcript_file = File.createTempFile("transcript", "pdf");
-        StudentTranscriptVersion response = api.putStudentTranscriptVersionPdf("student1_id", "transcript1_id", the_transcript_file);
+    void create_transcript_raw() throws IOException, InterruptedException {
+        HttpClient httpClient = HttpClient.newBuilder().build();
+        byte[] transcript_byte = "transcript".getBytes();
+        HttpRequest.BodyPublisher request_body = HttpRequest.BodyPublishers.ofByteArray(transcript_byte);
 
-        assertTrue(the_transcript_file.exists());
-        assertTrue(response.getRef() != null);
-        assertTrue(response.getCreatedByUserRole() != null);
+        HttpResponse<String> response =  httpClient.send(
+                HttpRequest.newBuilder()
+                        .uri(URI.create("http://localhost:" + ContextInitializer.SERVER_PORT))
+                        .POST(request_body)
+                        .setHeader("Content-Type", "application/pdf")
+                .build(), HttpResponse.BodyHandlers.ofString());
+
+        ObjectMapper mapper = new ObjectMapper();
+        StudentTranscriptVersion responseBody = mapper.readValue(response.body(), StudentTranscriptVersion.class);
+
+        assertNotNull(responseBody.getCreatedByUserRole());
+        assertNotNull(responseBody.getRef());
+        assertNotNull(responseBody.getTranscriptId().length());
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
