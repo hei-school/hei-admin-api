@@ -16,9 +16,7 @@ public class StudentTranscriptVersionMapper {
   private final UserService userService;
   private final TranscriptService transcriptService;
   public school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion toRest(StudentTranscriptVersion studentTranscriptVersion) {
-  log.info("ERROR" + studentTranscriptVersion.getTranscript().getId());
-  log.info("INFO" + studentTranscriptVersion.getTranscript());
-  if (studentTranscriptVersion.getTranscript() == null && studentTranscriptVersion.getResponsible() == null){
+  if (studentTranscriptVersion.getTranscript() == null || studentTranscriptVersion.getResponsible() == null){
     throw new NotFoundException("Transcript not found");
   } else {
     var restStudentTranscriptVersion = new school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion();
