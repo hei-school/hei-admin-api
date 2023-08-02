@@ -6,20 +6,26 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.multipart.MultipartFile;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TranscriptApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
 import school.hei.haapi.endpoint.rest.model.Transcript;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -42,13 +48,35 @@ public class TranscriptIT {
     }
 
     @Test
-    void student_read_ok() throws ApiException {
+    void student_read_transcript_ok() throws ApiException {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         TranscriptApi api = new TranscriptApi(student1Client);
 
         List<Transcript> actualByStudent1 = api.getStudentTranscripts("student1_id", null, null);
         assertEquals(2, actualByStudent1.size());
         assertTrue(actualByStudent1.contains(TestUtils.transcript1()));
+    }
+
+    @Test
+    void teacher_read_transcript_ok() throws ApiException {
+        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+        TranscriptApi api = new TranscriptApi(teacher1Client);
+
+        List<Transcript> actualByStudent1 = api.getStudentTranscripts("student1_id", null, null);
+        assertEquals(2, actualByStudent1.size());
+        assertTrue(actualByStudent1.contains(TestUtils.transcript1()));
+    }
+
+    @Test
+    void create_transcript_raw_ok() throws ApiException, IOException {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        TranscriptApi api = new TranscriptApi(student1Client);
+        File the_transcript_file = File.createTempFile("transcript", "pdf");
+        StudentTranscriptVersion response = api.putStudentTranscriptVersionPdf("student1_id", "transcript1_id", the_transcript_file);
+
+        assertTrue(the_transcript_file.exists());
+        assertTrue(response.getRef() != null);
+        assertTrue(response.getCreatedByUserRole() != null);
     }
 
     static class ContextInitializer extends AbstractContextInitializer {
