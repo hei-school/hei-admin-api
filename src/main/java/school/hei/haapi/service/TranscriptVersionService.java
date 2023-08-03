@@ -20,6 +20,7 @@ import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -33,20 +34,23 @@ public class TranscriptVersionService {
     private final TranscriptService transcriptService;
     private final CreateTranscriptVersionValidator createTranscriptVersionValidator;
 
-    public List<TranscriptVersion> getTranscriptsVersions(String transcriptId,PageFromOne page, BoundedPageSize pageSize ){
+    public List<TranscriptVersion> getTranscriptsVersions(String studentId,String transcriptId,PageFromOne page, BoundedPageSize pageSize ){
         Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-        return repository.findAllByTranscriptId(transcriptId,pageable);
+        return repository.findAllByTranscriptStudentIdAndTranscriptId(studentId,transcriptId,pageable);
     }
 
-    public TranscriptVersion getTranscriptVersion(String transcriptId, String versionId){
+    public TranscriptVersion getTranscriptVersion(String studentId, String transcriptId, String versionId){
         if(Objects.equals(versionId, "latest")){
-            return repository.findFirstByTranscriptIdOrderByRefDesc(transcriptId);
+            return repository.findFirstByTranscriptStudentIdAndTranscriptIdOrderByRefDesc(studentId,transcriptId).get();
         }
-        return repository.getById(versionId);
+        Optional<TranscriptVersion> transcriptVersion = repository.findByTranscriptStudentIdAndTranscriptIdAndId(studentId,transcriptId,versionId);
+        if(transcriptVersion.isEmpty()){
+            throw new NotFoundException("Transcript version not found");
+        } else {return transcriptVersion.get();}
     }
 
-    public byte[] getTranscriptVersionPdfByStudentIdAndTranscriptIdAndVersionId(String transcriptId, String versionId){
-        TranscriptVersion transcriptVersion = getTranscriptVersion(transcriptId,versionId);
+    public byte[] getTranscriptVersionPdfByStudentIdAndTranscriptIdAndVersionId(String studentId,String transcriptId, String versionId){
+        TranscriptVersion transcriptVersion = getTranscriptVersion(studentId,transcriptId,versionId);
         String key = transcriptVersion.getPdfLink();
         if (key.isEmpty()){
             throw new NotFoundException("No pdf attached to the transcriptVersion with id: "+transcriptId);
@@ -68,12 +72,12 @@ public class TranscriptVersionService {
         User student = userService.getById(studentId);
         User editor = userService.getById(editorId);
         //TODO: getByStudentAndId, add studentId and check if studentId equals the studentId in the transcript?
-        Transcript transcript = transcriptService.getByStudentIdAndId(transcriptId);
+        Transcript transcript = transcriptService.getByStudentIdAndId(studentId,transcriptId);
 
         int newRef = 1;
         if (!getTranscriptVersionByStudentAndTranscriptId(studentId, transcriptId, new PageFromOne(1), new BoundedPageSize(10)).isEmpty()){
             //newRef = getTranscriptVersion(studentId,transcriptId,"latest").getRef()+1;
-            newRef = getTranscriptVersion(transcriptId,"latest").getRef()+1;
+            newRef = getTranscriptVersion(studentId,transcriptId,"latest").getRef()+1;
         }
 
         String key = student.getRef()+"-"+transcript.getAcademicYear()+"-"+transcript.getSemester()+"-v"+newRef+".pdf";

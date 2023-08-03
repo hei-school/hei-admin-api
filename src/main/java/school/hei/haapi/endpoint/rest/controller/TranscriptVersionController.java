@@ -36,7 +36,7 @@ public class TranscriptVersionController {
             @PathVariable(value = "transcript_id") String transcriptId,
             @RequestParam(value = "page",defaultValue = "1") PageFromOne page,
             @RequestParam(value = "page_size",defaultValue = "15") BoundedPageSize pageSize){
-       return service.getTranscriptsVersions(transcriptId,page,pageSize)
+       return service.getTranscriptsVersions(studentId,transcriptId,page,pageSize)
                 .stream()
                .map(mapper::toRest)
                .collect(Collectors.toList());
@@ -47,7 +47,7 @@ public class TranscriptVersionController {
             @PathVariable(value = "student_id") String studentId,
             @PathVariable(value = "transcript_id") String transcriptId,
             @PathVariable(value = "version_id") String versionId){
-       return mapper.toRest(service.getTranscriptVersion(transcriptId,versionId));
+       return mapper.toRest(service.getTranscriptVersion(studentId,transcriptId,versionId));
     }
 
     @GetMapping("students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/raw")
@@ -56,8 +56,8 @@ public class TranscriptVersionController {
             @PathVariable(value = "student_id") String studentId,
             @PathVariable(value = "transcript_id") String transcriptId,
             @PathVariable(value = "version_id") String versionId) {
-       byte[] file = service.getTranscriptVersionPdfByStudentIdAndTranscriptIdAndVersionId(transcriptId,versionId);
-       String filename = service.getTranscriptVersion(transcriptId,versionId).getPdfLink();
+       byte[] file = service.getTranscriptVersionPdfByStudentIdAndTranscriptIdAndVersionId(studentId,transcriptId,versionId);
+       String filename = service.getTranscriptVersion(studentId,transcriptId,versionId).getPdfLink();
        return FileMapper.customFileResponse(file,filename,"application/pdf");
     }
     @PostMapping("/students/{studentId}/transcripts/{transcriptId}/versions/latest/raw")

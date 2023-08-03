@@ -93,6 +93,10 @@ public class TranscriptIT {
         assertThrowsApiException(
                 "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
                 () -> api.getStudentTranscriptById(STUDENT2_ID, TRANSCRIPT4_ID));
+
+        assertThrowsApiException(
+                "{\"type\":\"404 NOT_FOUND\",\"message\":\"Transcript not found\"}",
+                () -> api.getStudentTranscriptById(STUDENT1_ID, TRANSCRIPT4_ID));
     }
 
     static class ContextInitializer extends AbstractContextInitializer {

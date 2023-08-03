@@ -42,6 +42,7 @@ public class TestUtils {
 
   public static final String STUDENT1_ID = "student1_id";
   public static final String STUDENT2_ID = "student2_id";
+  public static final String STUDENT3_ID = "student3_id";
   public static final String TEACHER1_ID = "teacher1_id";
   public static final String TEACHER2_ID = "teacher2_id";
   public static final String TEACHER3_ID = "teacher3_id";
@@ -76,6 +77,10 @@ public class TestUtils {
   public static final String STUDENT_TRANSCRIPT_VERSION5_ID = "transcript_version5_id";
   public static final String STUDENT_TRANSCRIPT_VERSION6_ID = "transcript_version6_id";
   public static final String STUDENT_TRANSCRIPT_VERSION7_ID = "transcript_version7_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION8_ID = "transcript_version8_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION9_ID = "transcript_version9_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION10_ID = "transcript_version10_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION11_ID = "transcript_version11_id";
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
@@ -363,6 +368,24 @@ public class TestUtils {
             .isDefinitive(true)
             .creationDatetime(Instant.parse("2022-05-09T08:25:24.00Z"));
   }
+  public static Transcript transcript4() {
+    return new Transcript()
+            .id(TRANSCRIPT4_ID)
+            .studentId(STUDENT2_ID)
+            .semester(Transcript.SemesterEnum.S1)
+            .academicYear(2021)
+            .isDefinitive(true)
+            .creationDatetime(Instant.parse("2021-05-09T08:25:25.00Z"));
+  }
+  public static Transcript transcript6() {
+    return new Transcript()
+            .id(TRANSCRIPT6_ID)
+            .studentId(STUDENT3_ID)
+            .semester(Transcript.SemesterEnum.S1)
+            .academicYear(2021)
+            .isDefinitive(true)
+            .creationDatetime(Instant.parse("2021-12-09T08:25:25.00Z"));
+  }
 
   public static StudentTranscriptVersion studentTranscriptVersion1(){
     return new StudentTranscriptVersion()
@@ -424,6 +447,42 @@ public class TestUtils {
             .ref(3)
             .creationDatetime(Instant.parse("2023-11-03T08:25:24.00Z"))
             .transcriptId(TRANSCRIPT2_ID)
+            .createdByUserId(MANAGER_ID)
+            .createdByUserRole(MANAGER_ROLE);
+  }
+  public static StudentTranscriptVersion studentTranscriptVersion8(){
+    return new StudentTranscriptVersion()
+            .id(STUDENT_TRANSCRIPT_VERSION8_ID)
+            .ref(1)
+            .creationDatetime(Instant.parse("2023-12-04T08:25:24.00Z"))
+            .transcriptId(TRANSCRIPT4_ID)
+            .createdByUserId(MANAGER_ID)
+            .createdByUserRole(MANAGER_ROLE);
+  }
+  public static StudentTranscriptVersion studentTranscriptVersion9(){
+    return new StudentTranscriptVersion()
+            .id(STUDENT_TRANSCRIPT_VERSION9_ID)
+            .ref(2)
+            .creationDatetime(Instant.parse("2023-12-05T08:25:24.00Z"))
+            .transcriptId(TRANSCRIPT4_ID)
+            .createdByUserId(MANAGER_ID)
+            .createdByUserRole(MANAGER_ROLE);
+  }
+  public static StudentTranscriptVersion studentTranscriptVersion10(){
+    return new StudentTranscriptVersion()
+            .id(STUDENT_TRANSCRIPT_VERSION10_ID)
+            .ref(3)
+            .creationDatetime(Instant.parse("2023-12-06T08:25:24.00Z"))
+            .transcriptId(TRANSCRIPT4_ID)
+            .createdByUserId(MANAGER_ID)
+            .createdByUserRole(MANAGER_ROLE);
+  }
+  public static StudentTranscriptVersion studentTranscriptVersion11(){
+    return new StudentTranscriptVersion()
+            .id(STUDENT_TRANSCRIPT_VERSION11_ID)
+            .ref(1)
+            .creationDatetime(Instant.parse("2023-12-09T08:25:24.00Z"))
+            .transcriptId(TRANSCRIPT6_ID)
             .createdByUserId(MANAGER_ID)
             .createdByUserRole(MANAGER_ROLE);
   }

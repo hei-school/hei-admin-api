@@ -8,9 +8,11 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Transcript;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.TranscriptRepository;
 
 import java.util.List;
+import java.util.Optional;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -19,8 +21,13 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 public class TranscriptService {
     private TranscriptRepository transcriptRepository;
 
-    public Transcript getByStudentIdAndId(String id) {
-        return transcriptRepository.getById(id);
+    public Transcript getByStudentIdAndId(String studentId,String id) {
+        Optional<Transcript> transcript = transcriptRepository.findByStudentIdAndId(studentId,id);
+        if(transcript.isEmpty()){
+            throw new NotFoundException("Transcript not found");
+        }else {
+            return transcript.get();
+        }
     }
 
     public List<Transcript> getAllByStudentId(String studentId, PageFromOne page, BoundedPageSize pageSize) {

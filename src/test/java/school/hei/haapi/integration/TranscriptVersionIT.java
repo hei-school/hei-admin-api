@@ -21,22 +21,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT_TRANSCRIPT_VERSION1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT_TRANSCRIPT_VERSION5_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TRANSCRIPT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TRANSCRIPT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.studentTranscriptVersion1;
-import static school.hei.haapi.integration.conf.TestUtils.studentTranscriptVersion2;
-import static school.hei.haapi.integration.conf.TestUtils.studentTranscriptVersion3;
-import static school.hei.haapi.integration.conf.TestUtils.studentTranscriptVersion4;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -66,6 +51,10 @@ public class TranscriptVersionIT {
         assertThrowsApiException(
                 "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
                 () -> api.getStudentTranscriptByVersion(STUDENT2_ID,TRANSCRIPT2_ID,STUDENT_TRANSCRIPT_VERSION5_ID));
+
+        assertThrowsApiException(
+                "{\"type\":\"404 NOT_FOUND\",\"message\":\"Transcript version not found\"}",
+                () -> api.getStudentTranscriptByVersion(STUDENT1_ID,TRANSCRIPT4_ID,STUDENT_TRANSCRIPT_VERSION8_ID));
 
     }
 
