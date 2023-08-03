@@ -21,9 +21,8 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 public class StudentTranscriptVersionService {
 
   private final StudentTranscriptVersionRepository studentTranscriptVersionRepository;
-  private final UserRepository userRepository;
 
-  public StudentTranscriptVersion getByIdAndStudentIdAndTranscriptId(String versionId, String studentId, String transcriptId) {
+  public StudentTranscriptVersion getByIdAndStudentIdAndTranscriptId(String versionId, String transcriptId, String studentId) {
     return studentTranscriptVersionRepository.getByIdAndStudentIdAndTranscriptId(versionId, transcriptId, studentId);
   }
 }

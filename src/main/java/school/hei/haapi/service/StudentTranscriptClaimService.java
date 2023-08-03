@@ -15,7 +15,6 @@ import java.util.Objects;
 public class StudentTranscriptClaimService {
 
   private final StudentTranscriptClaimRepository studentTranscriptClaimRepository;
-  private final StudentTranscriptVersionService studentTranscriptVersionService;
 
   public StudentTranscriptClaim getByIdAndStudentIdAndTranscriptIdAndVersionId(
           String claimId, String versionId, String studentId, String transcriptId) {
@@ -34,9 +33,9 @@ public class StudentTranscriptClaimService {
     StudentTranscriptClaim studentTranscriptClaim = studentTranscriptClaimRepository.getByIdAndStudentIdAndTranscriptIdAndVersionId(
             claimId, versionId, transcriptId, studentId);
     if(Objects.equals(studentTranscriptClaim, null)){
-      return studentTranscriptClaimRepository.save(toSave);
-    } else {
       throw new NotFoundException("Resource does not exists");
+    } else {
+      return studentTranscriptClaimRepository.save(toSave);
     }
   }
 }

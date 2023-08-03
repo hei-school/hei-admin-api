@@ -4,9 +4,13 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.model.StudentTranscriptVersion;
+import school.hei.haapi.model.Transcript;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.TranscriptService;
 import school.hei.haapi.service.UserService;
+
+import java.util.Objects;
 
 @Component
 @AllArgsConstructor
@@ -16,27 +20,35 @@ public class StudentTranscriptVersionMapper {
   private final UserService userService;
   private final TranscriptService transcriptService;
   public school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion toRest(StudentTranscriptVersion studentTranscriptVersion) {
-  if (studentTranscriptVersion.getTranscript() == null || studentTranscriptVersion.getResponsible() == null){
-    throw new NotFoundException("Transcript not found");
-  } else {
+    Transcript transcript = studentTranscriptVersion.getTranscript();
+    User responsible = studentTranscriptVersion.getResponsible();
+    if (Objects.isNull(transcript) || Objects.isNull(responsible)){
+      throw new NotFoundException("Transcript or User not found");
+    } else {
     var restStudentTranscriptVersion = new school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion();
     restStudentTranscriptVersion.setId(studentTranscriptVersion.getId());
-    restStudentTranscriptVersion.setTranscriptId(studentTranscriptVersion.getTranscript().getId());
+    restStudentTranscriptVersion.setTranscriptId(transcript.getId());
     restStudentTranscriptVersion.setRef(studentTranscriptVersion.getRef());
-    restStudentTranscriptVersion.setCreatedByUserId(studentTranscriptVersion.getResponsible().getId());
+    restStudentTranscriptVersion.setCreatedByUserId(responsible.getId());
     restStudentTranscriptVersion.setCreatedByUserRole(studentTranscriptVersion.getResponsible().getRole().name());
     restStudentTranscriptVersion.setCreationDatetime(studentTranscriptVersion.getCreationDatetime());
-    return restStudentTranscriptVersion;
+      return restStudentTranscriptVersion;
     }
   }
 
   public StudentTranscriptVersion toDomain(school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion restStudentTranscriptVersion, String studentId) {
+    Transcript transcript = transcriptService.getByIdAndStudentId(restStudentTranscriptVersion.getTranscriptId(), studentId);
+    User responsible = userService.getById(restStudentTranscriptVersion.getCreatedByUserId());
+    if (Objects.isNull(transcript) || Objects.isNull(responsible)){
+      throw new NotFoundException("Transcript or User not found");
+    } else {
     return StudentTranscriptVersion.builder()
         .id(restStudentTranscriptVersion.getId())
-            .transcript(transcriptService.getByIdAndStudentId(restStudentTranscriptVersion.getTranscriptId(), studentId))
+            .transcript(transcript)
             .ref(restStudentTranscriptVersion.getRef())
-            .responsible(userService.getById(restStudentTranscriptVersion.getCreatedByUserId()))
+            .responsible(responsible)
             .creationDatetime(restStudentTranscriptVersion.getCreationDatetime())
             .build();
+    }
   }
 }

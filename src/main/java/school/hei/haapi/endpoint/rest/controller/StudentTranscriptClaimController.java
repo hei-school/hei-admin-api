@@ -34,7 +34,7 @@ public class StudentTranscriptClaimController {
                                                               @PathVariable String claimId) {
     return studentTranscriptClaimMapper.toRest(studentTranscriptClaimService.
             getByIdAndStudentIdAndTranscriptIdAndVersionId(
-                    claimId, versionId, transcriptId, studentId));
+                    claimId, versionId, studentId, transcriptId));
   }
 
   @PutMapping(value = "/students/{studentId}/transcripts/{transcriptId}/versions/{versionId}/claims/{claimId}")
@@ -48,6 +48,4 @@ public class StudentTranscriptClaimController {
     return studentTranscriptClaimMapper.toRest(studentTranscriptClaimService.save(
                     toSave, claimId, versionId, transcriptId, studentId));
   }
-
-
 }

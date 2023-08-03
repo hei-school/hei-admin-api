@@ -48,7 +48,7 @@ class StudentTranscriptVersionIT {
   }
   static StudentTranscriptVersion studentTranscript1Version2() {
     return new StudentTranscriptVersion()
-            .id(TRANSCRIPT1_VERSION1_ID)
+            .id(TRANSCRIPT1_VERSION2_ID)
             .transcriptId(TRANSCRIPT1_ID)
             .ref(2)
             .createdByUserId(MANAGER_ID)
