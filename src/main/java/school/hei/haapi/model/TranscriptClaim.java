@@ -39,8 +39,8 @@ public class TranscriptClaim {
 
     private String id;
     @CreationTimestamp
-    private Instant creationDate;
-    private Instant closedDate;
+    private Instant creationDatetime;
+    private Instant closedDatetime;
     private String reason;
     @Type(type = "pgsql_enum")
     @Enumerated(value = EnumType.STRING)
