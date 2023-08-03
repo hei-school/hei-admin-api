@@ -13,9 +13,9 @@ public class TranscriptClaimMapper {
         return new StudentTranscriptClaim()
                 .id(transcriptClaim.getId())
                 .transcriptId(transcriptClaim.getTranscriptVersion().getId())
-                .creationDatetime(transcriptClaim.getCreationDate())
-                .closedDatetime(transcriptClaim.getClosedDate())
+                .creationDatetime(transcriptClaim.getCreationDatetime())
+                .closedDatetime(transcriptClaim.getClosedDatetime())
                 .reason(transcriptClaim.getReason())
-                .status(StudentTranscriptClaim.StatusEnum.fromValue(transcriptClaim.getStatus().toString()));
+                .status(StudentTranscriptClaim.StatusEnum.fromValue(transcriptClaim.getClaimStatus().toString()));
     }
 }

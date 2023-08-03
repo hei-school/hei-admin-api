@@ -44,7 +44,7 @@ public class TranscriptClaim {
     private String reason;
     @Type(type = "pgsql_enum")
     @Enumerated(value = EnumType.STRING)
-    private ClaimStatus status;
+    private ClaimStatus claimStatus;
     @ManyToOne
     @JoinColumn(name = "transcript_id", nullable = false)
     private TranscriptVersion transcriptVersion;

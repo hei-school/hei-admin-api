@@ -20,14 +20,14 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 public class TranscriptClaimService {
     private final TranscriptClaimRepository transcriptClaimRepository;
     public TranscriptClaim  findByVersionIdAndClaimId(String versionId,String claimId){
-        if(Objects.equals(versionId, "latest")){
-            return transcriptClaimRepository.findFirstByVersionIdOrderByCreationDatetimeDesc(versionId);
-        }
+//        if(Objects.equals(versionId, "latest")){
+//            return transcriptClaimRepository.findFirstByVersionIdOrderByCreationDatetimeDesc(versionId);
+//        }
         return transcriptClaimRepository.getById(claimId);
     }
     public List<TranscriptClaim> getAllByVersionId(String versionId, PageFromOne page, BoundedPageSize pageSize){
         Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-        return transcriptClaimRepository.findAllByVersionId(versionId, (java.awt.print.Pageable) pageable);
+        return transcriptClaimRepository.findAllByTranscriptVersionId(versionId, pageable);
     }
 
 }
