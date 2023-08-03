@@ -46,7 +46,7 @@ public class TranscriptClaim {
     @Enumerated(value = EnumType.STRING)
     private ClaimStatus claimStatus;
     @ManyToOne
-    @JoinColumn(name = "transcript_id", nullable = false)
+    @JoinColumn(name = "transcript_version_id", nullable = false)
     private TranscriptVersion transcriptVersion;
 
     public enum ClaimStatus{
