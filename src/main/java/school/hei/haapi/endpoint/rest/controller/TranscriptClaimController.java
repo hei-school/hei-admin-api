@@ -1,10 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import school.hei.haapi.endpoint.rest.mapper.TranscriptClaimMapper;
 import school.hei.haapi.endpoint.rest.model.StudentTranscriptClaim;
 import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
@@ -35,10 +32,24 @@ public class TranscriptClaimController {
     }
     @GetMapping("/students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims/{claim_id}")
     public StudentTranscriptClaim getClaimsById(
+            @PathVariable("student_id") String studentId,
+            @PathVariable("transcript_id") String transcriptId,
             @PathVariable("version_id")String versionId,
             @PathVariable("claim_id")String claimId
     )
     {
-        return transcriptClaimMapper.toRest(transcriptClaimService.findByVersionIdAndClaimId(versionId,claimId));
+        return transcriptClaimMapper.toRest(transcriptClaimService.findByVersionIdAndClaimId(studentId,transcriptId,versionId,claimId));
+    }
+    @PutMapping("/students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims/{claim_id}")
+    public StudentTranscriptClaim CreateOrUpdateTranscriptVersionClaim(
+            @PathVariable("student_id") String studentId,
+            @PathVariable("transcript_id") String transcriptId,
+            @PathVariable("version_id") String versionId,
+            @PathVariable("claim_id") String claimId,
+            @RequestBody StudentTranscriptClaim studentTranscriptClaim
+    ){
+
+        //TODO: validator pathVariable and body attribute (compare)
+        return transcriptClaimMapper.toRest(transcriptClaimService.save(transcriptClaimMapper.toDomain(studentTranscriptClaim,studentId,transcriptId,versionId,claimId)));
     }
 }

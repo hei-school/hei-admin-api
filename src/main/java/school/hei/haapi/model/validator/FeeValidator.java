@@ -13,6 +13,7 @@ import school.hei.haapi.model.exception.BadRequestException;
 public class FeeValidator implements Consumer<Fee> {
 
   public void accept(List<Fee> fees) {
+
     fees.forEach(this::accept);
   }
 
