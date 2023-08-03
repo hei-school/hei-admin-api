@@ -9,7 +9,7 @@ $$;
 
 create table if not exists "transcript_claim" (
     id varchar constraint transcript_claim_pk
-        primary key default uuid_generate_v4(),
+        primary key ,
     reason text not null,
     claim_status claim_status not null,
     closed_datetime timestamp,

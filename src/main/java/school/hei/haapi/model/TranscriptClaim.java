@@ -36,7 +36,7 @@ import java.time.Instant;
 public class TranscriptClaim {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private String id;
     @CreationTimestamp
     private Instant creationDate;
