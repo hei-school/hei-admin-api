@@ -81,6 +81,17 @@ class StudentTranscriptClaimIT {
             .closedDatetime(Instant.parse("2022-12-12T08:25:26.00Z"))
             .reason("Okay");
   }
+
+  static StudentTranscriptClaim studentTranscript3Version1Claim1() {
+    return new StudentTranscriptClaim()
+            .id(TRANSCRIPT3_VERSION1_CLAIM1_ID)
+            .transcriptId(TRANSCRIPT3_ID)
+            .transcriptVersionId(TRANSCRIPT3_VERSION1_ID)
+            .status(StudentTranscriptClaim.StatusEnum.OPEN)
+            .creationDatetime(Instant.parse("2023-10-12T08:25:26.00Z"))
+            .closedDatetime(Instant.parse("2023-10-12T08:25:26.00Z"))
+            .reason("Some irregularities");
+  }
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
@@ -196,6 +207,28 @@ class StudentTranscriptClaimIT {
 
     assertEquals(StudentTranscriptClaim.StatusEnum.CLOSE, actual.getStatus());
     assertEquals(toUpdate, actual);
+  }
+
+  @Test
+  @Order(8)
+  void student_one_claim_of_a_transcript_version_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TranscriptApi api = new TranscriptApi(student1Client);
+
+    StudentTranscriptClaim actual = api.getStudentClaimOfTranscriptVersion(STUDENT1_ID, TRANSCRIPT1_ID, TRANSCRIPT1_VERSION1_ID, TRANSCRIPT1_VERSION1_CLAIM2_ID);
+
+    assertEquals(studentTranscript1Version1Claim2(), actual);
+  }
+
+  @Test
+  @Order(9)
+  void student_read_another_student_ko() {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TranscriptApi api = new TranscriptApi(student1Client);
+
+    assertThrowsApiException(
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.getStudentClaimOfTranscriptVersion(STUDENT2_ID, TRANSCRIPT3_ID, TRANSCRIPT3_VERSION1_ID, TRANSCRIPT3_VERSION1_CLAIM1_ID));
   }
 
 

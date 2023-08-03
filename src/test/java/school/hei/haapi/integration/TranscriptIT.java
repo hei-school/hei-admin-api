@@ -14,7 +14,6 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TranscriptApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
 import school.hei.haapi.endpoint.rest.model.Transcript;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -64,7 +63,7 @@ class TranscriptIT {
 
   static Transcript transcript3() {
     return new Transcript()
-            .id(TRANSCRIPT2_ID)
+            .id(TRANSCRIPT3_ID)
             .studentId(STUDENT2_ID)
             .semester(Transcript.SemesterEnum.S6)
             .academicYear(2023)
@@ -153,13 +152,23 @@ class TranscriptIT {
   }
 
   @Test
-  void student_write_ko() {
+  void student_read_another_student_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TranscriptApi api = new TranscriptApi(student1Client);
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.crudStudentTranscripts(STUDENT1_ID, List.of()));
+        () -> api.getStudentTranscripts(STUDENT2_ID, 1, 5));
+  }
+
+  @Test
+  void student_write_ko() {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TranscriptApi api = new TranscriptApi(student1Client);
+
+    assertThrowsApiException(
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.crudStudentTranscripts(STUDENT1_ID, List.of()));
   }
 
   @Test
@@ -170,14 +179,14 @@ class TranscriptIT {
     TranscriptApi api = new TranscriptApi(manager1Client);
     Transcript toUpdate = new Transcript()
             .id(NEW_TRANSCRIPT_ID)
-            .studentId(NON_EXISTANT_STUDENT_ID)
+            .studentId(NON_EXISTENT_STUDENT_ID)
             .semester(Transcript.SemesterEnum.S2)
             .academicYear(2022)
             .isDefinitive(true)
             .creationDatetime(Instant.parse("2022-11-10T08:25:25.00Z"));
 
     assertThrows(ApiException.class,
-        () -> api.crudStudentTranscripts(NON_EXISTANT_STUDENT_ID, List.of(toUpdate)));
+        () -> api.crudStudentTranscripts(NON_EXISTENT_STUDENT_ID, List.of(toUpdate)));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

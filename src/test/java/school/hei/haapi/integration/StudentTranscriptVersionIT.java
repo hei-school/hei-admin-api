@@ -18,6 +18,7 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
 import java.time.Instant;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -83,6 +84,16 @@ class StudentTranscriptVersionIT {
             .creationDatetime(Instant.parse("2023-05-12T08:25:26.00Z"));
   }
 
+  static StudentTranscriptVersion studentTranscript3Version1() {
+    return new StudentTranscriptVersion()
+            .id(TRANSCRIPT3_VERSION1_ID)
+            .transcriptId(TRANSCRIPT3_ID)
+            .ref(1)
+            .createdByUserId(MANAGER_ID)
+            .createdByUserRole("MANAGER")
+            .creationDatetime(Instant.parse("2023-10-12T08:25:26.00Z"));
+  }
+
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
@@ -119,6 +130,17 @@ class StudentTranscriptVersionIT {
 
     assertEquals(expected5, studentTranscript2Version3());
   }
+
+  @Test
+  void student_read_another_student_ko() {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TranscriptApi api = new TranscriptApi(student1Client);
+
+    assertThrowsApiException(
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.getStudentTranscriptVersion(STUDENT2_ID, TRANSCRIPT3_ID, TRANSCRIPT3_VERSION1_ID));
+  }
+
 
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
