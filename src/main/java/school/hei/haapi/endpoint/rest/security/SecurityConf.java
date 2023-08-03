@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.security;
 
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
@@ -13,6 +12,8 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
+
+import javax.servlet.http.HttpServletRequest;
 
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
@@ -108,18 +109,18 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE)).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, STUDENT_COURSE).hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(PUT, STUDENT_COURSE).hasAnyRole(MANAGER.getRole())
-            .antMatchers(POST, "/students/*/transcripts/*/versions/*/raw").hasAnyRole(MANAGER.getRole(),TEACHER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts")).hasAnyRole(STUDENT.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*")).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/transcripts").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/students/*/transcripts/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-            .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions")).hasAnyRole(STUDENT.getRole())
-            .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions/*")).hasAnyRole(STUDENT.getRole())
-            .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions/*/raw")).hasAnyRole(STUDENT.getRole())
-            .antMatchers(GET, "/students/*/transcripts/*/versions").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-            .antMatchers(GET, "/students/*/transcripts/*/versions/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-            .antMatchers(GET, "/students/*/transcripts/*/versions/*/raw").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-            .antMatchers("/**").denyAll()
+        .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions")).hasAnyRole(STUDENT.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions/*")).hasAnyRole(STUDENT.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions/*/raw")).hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*/transcripts/*/versions").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/students/*/transcripts/*/versions/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/students/*/transcripts/*/versions/*/raw").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(POST, "/students/*/transcripts/*/versions/*/raw").hasAnyRole(MANAGER.getRole())
+        .antMatchers("/**").denyAll()
         // disable superfluous protections
         // Eg if all clients are non-browser then no csrf
         // https://docs.spring.io/spring-security/site/docs/3.2.0.CI-SNAPSHOT/reference/html/csrf.html,

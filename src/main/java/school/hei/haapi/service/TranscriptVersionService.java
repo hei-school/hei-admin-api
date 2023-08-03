@@ -12,10 +12,11 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Transcript;
 import school.hei.haapi.model.TranscriptVersion;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.TranscriptVersionRepository;
 import school.hei.haapi.service.aws.S3Service;
 
-
+import javax.transaction.Transactional;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
@@ -44,9 +45,15 @@ public class TranscriptVersionService {
         return repository.getById(versionId);
     }
 
-    public void getTranscriptVersionPdf(String tId,String vId){};
-    //TODO: rename to getStudentIdAndTranscriptId
-    public List<TranscriptVersion> getAllVersions(String sId, String tId,PageFromOne page, BoundedPageSize pageSize){
+    public byte[] getTranscriptVersionPdfByStudentIdAndTranscriptIdAndVersionId(String transcriptId, String versionId){
+        TranscriptVersion transcriptVersion = getTranscriptVersion(transcriptId,versionId);
+        String key = transcriptVersion.getPdfLink();
+        if (key.isEmpty()){
+            throw new NotFoundException("No pdf attached to the transcriptVersion with id: "+transcriptId);
+        }
+        return s3Service.getObjectFromS3Bucket(key);
+    };
+    public List<TranscriptVersion> getTranscriptVersionByStudentAndTranscriptId(String sId, String tId,PageFromOne page, BoundedPageSize pageSize){
         Pageable pageable = PageRequest.of(
                 page.getValue() - 1,
                 pageSize.getValue(),
@@ -55,7 +62,7 @@ public class TranscriptVersionService {
         return repository.findAllByTranscriptStudentIdAndTranscriptId(sId, tId,pageable);
     }
 
-
+    @Transactional
     public TranscriptVersion addNewTranscriptVersion(String studentId, String transcriptId, String editorId, MultipartFile pdfFile) {
         createTranscriptVersionValidator.accept(pdfFile);
         User student = userService.getById(studentId);
@@ -64,7 +71,7 @@ public class TranscriptVersionService {
         Transcript transcript = transcriptService.getByStudentIdAndId(transcriptId);
 
         int newRef = 1;
-        if (!getAllVersions(studentId, transcriptId, new PageFromOne(1), new BoundedPageSize(10)).isEmpty()){
+        if (!getTranscriptVersionByStudentAndTranscriptId(studentId, transcriptId, new PageFromOne(1), new BoundedPageSize(10)).isEmpty()){
             //newRef = getTranscriptVersion(studentId,transcriptId,"latest").getRef()+1;
             newRef = getTranscriptVersion(transcriptId,"latest").getRef()+1;
         }
