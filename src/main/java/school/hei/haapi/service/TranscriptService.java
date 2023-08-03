@@ -21,8 +21,8 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 public class TranscriptService {
     private TranscriptRepository transcriptRepository;
 
-    public Transcript getByStudentIdAndId(String studentId,String id) {
-        return transcriptRepository.findByStudentIdAndId(studentId,id).orElseThrow(() -> {throw new NotFoundException("Transcript does not exist");});
+    public Transcript getByStudentIdAndId(String id,String studentId) {
+        return transcriptRepository.getByIdAndStudentId(id,studentId).orElseThrow(()-> new NotFoundException("Transcript with id "+id+" not found for student: "+studentId));
     }
 
     public List<Transcript> getAllByStudentId(String studentId, PageFromOne page, BoundedPageSize pageSize) {

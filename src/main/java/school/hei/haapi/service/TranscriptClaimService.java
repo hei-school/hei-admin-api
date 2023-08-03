@@ -25,9 +25,9 @@ public class TranscriptClaimService {
 //        }
         return transcriptClaimRepository.getById(claimId);
     }
-    public List<TranscriptClaim> getAllByVersionId(String versionId, PageFromOne page, BoundedPageSize pageSize){
+    public List<TranscriptClaim> getAllByVersionId(String studentId, String transcriptId, String versionId, PageFromOne page, BoundedPageSize pageSize){
         Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-        return transcriptClaimRepository.findAllByTranscriptVersionId(versionId, pageable);
+        return transcriptClaimRepository.findAllByTranscriptVersionTranscriptStudentIdAndTranscriptVersionTranscriptIdAndTranscriptVersionId(studentId,transcriptId,versionId, pageable);
     }
 
 }

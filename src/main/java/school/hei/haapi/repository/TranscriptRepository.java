@@ -11,6 +11,7 @@ import java.util.Optional;
 @Repository
 public interface TranscriptRepository extends JpaRepository<Transcript, String> {
     List<Transcript> findAllByStudentId(String studentId, Pageable pageable);
-    Optional<Transcript> findByStudentIdAndId(String studentId, String transcriptId);
+
+    Optional<Transcript> getByIdAndStudentId(String id, String studentId);
 
 }

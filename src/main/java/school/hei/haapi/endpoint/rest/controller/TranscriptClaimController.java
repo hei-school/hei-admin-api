@@ -29,7 +29,7 @@ public class TranscriptClaimController {
             @RequestParam PageFromOne page,
             @RequestParam("page_size") BoundedPageSize pageSize
     ){
-        return transcriptClaimService.getAllByVersionId(versionId,page,pageSize).stream()
+        return transcriptClaimService.getAllByVersionId(studentId,transcriptId,versionId,page,pageSize).stream()
                 .map(transcriptClaimMapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
     }

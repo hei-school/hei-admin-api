@@ -34,6 +34,7 @@ public class TranscriptController {
 
     @GetMapping(value = "/students/{student_id}/transcripts/{transcript_id}")
     public Transcript getTranscriptById(@PathVariable String student_id, @PathVariable String transcript_id) {
-        return transcriptMapper.toRest(transcriptService.getByStudentIdAndId(student_id, transcript_id));
+
+        return transcriptMapper.toRest(transcriptService.getByStudentIdAndId(transcript_id,student_id));
     }
 }

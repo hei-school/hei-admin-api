@@ -12,7 +12,8 @@ public class TranscriptClaimMapper {
     public  StudentTranscriptClaim toRest(TranscriptClaim transcriptClaim){
         return new StudentTranscriptClaim()
                 .id(transcriptClaim.getId())
-                .transcriptId(transcriptClaim.getTranscriptVersion().getId())
+                .transcriptId(transcriptClaim.getTranscriptVersion().getTranscript().getId())
+                .transcriptVersionId(transcriptClaim.getTranscriptVersion().getId())
                 .creationDatetime(transcriptClaim.getCreationDatetime())
                 .closedDatetime(transcriptClaim.getClosedDatetime())
                 .reason(transcriptClaim.getReason())
