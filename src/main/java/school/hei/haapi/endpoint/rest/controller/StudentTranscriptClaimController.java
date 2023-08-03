@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import school.hei.haapi.endpoint.rest.mapper.StudentTranscriptClaimMapper;
 import school.hei.haapi.endpoint.rest.model.StudentTranscriptClaim;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.StudentTranscriptClaimService;
 
 import java.util.List;
@@ -20,9 +22,11 @@ public class StudentTranscriptClaimController {
   @GetMapping(value = "/students/{studentId}/transcripts/{transcriptId}/versions/{versionId}/claims")
   public List<StudentTranscriptClaim> getStudentTranscriptClaims(@PathVariable String studentId,
                                                                  @PathVariable String transcriptId,
-                                                                 @PathVariable String versionId   ) {
+                                                                 @PathVariable String versionId,
+                                                                 @RequestParam PageFromOne page,
+                                                                 @RequestParam("page_size") BoundedPageSize pageSize) {
     return studentTranscriptClaimService.getAllByStudentIdAndTranscriptIdAndVersionId(
-                    versionId, transcriptId, studentId).stream()
+                    versionId, studentId, transcriptId, page, pageSize).stream()
             .map(studentTranscriptClaimMapper::toRest)
             .collect(Collectors.toUnmodifiableList());
   }

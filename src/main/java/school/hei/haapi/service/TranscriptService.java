@@ -29,7 +29,7 @@ public class TranscriptService {
     Pageable pageable = PageRequest.of(
             page.getValue() - 1,
             pageSize.getValue(),
-            Sort.by(DESC, "creationDatetime"));
+            Sort.by(DESC, Transcript.CREATION_DATETIME));
     return transcriptRepository.getAllTranscriptsByStudentId(studentId, pageable);
   }
 

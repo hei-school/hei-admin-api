@@ -34,4 +34,6 @@ public class StudentTranscriptVersion implements Serializable {
   private User responsible;
 
   private Instant creationDatetime;
+
+  public static final String CREATION_DATETIME = "creationDatetime";
 }

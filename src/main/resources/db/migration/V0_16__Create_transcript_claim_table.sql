@@ -2,7 +2,7 @@ do
 $$
     begin
         if not exists(select from pg_type where typname = 'claim_status') then
-            create type "claim_status" as enum ('OPEN', 'CLOSED');
+            create type "claim_status" as enum ('OPEN', 'CLOSE');
         end if;
     end
 $$;

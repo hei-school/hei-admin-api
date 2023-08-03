@@ -41,4 +41,6 @@ public class StudentTranscriptClaim implements Serializable {
   private Instant closedDatetime;
 
   private String reason;
+
+  public static final String CREATION_DATETIME = "creationDatetime";
 }

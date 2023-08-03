@@ -69,6 +69,11 @@ public class TestUtils {
   public static final String TRANSCRIPT2_VERSION1_ID = "transcript2_version1_id";
   public static final String TRANSCRIPT2_VERSION2_ID = "transcript2_version2_id";
   public static final String TRANSCRIPT2_VERSION3_ID = "transcript2_version3_id";
+  public static final String TRANSCRIPT1_VERSION1_CLAIM1_ID = "transcript1_version1_claim1_id";
+  public static final String TRANSCRIPT1_VERSION1_CLAIM2_ID = "transcript1_version1_claim2_id";
+
+  public static final String TRANSCRIPT2_VERSION1_CLAIM1_ID = "transcript2_version1_claim1_id";
+  public static final String TRANSCRIPT2_VERSION1_CLAIM2_ID = "transcript2_version1_claim2_id";
 
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";

@@ -1,5 +1,6 @@
 package school.hei.haapi.repository;
 
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,11 +22,12 @@ public interface StudentTranscriptClaimRepository extends JpaRepository<StudentT
             @Param("transcript_id") String transcriptId,
             @Param("student_id") String studentId);
 
-    @Query(value = "SELECT c FROM StudentTranscriptVersion c WHERE c.id = :version_id"
+    @Query(value = "SELECT c FROM StudentTranscriptClaim c WHERE c.transcriptVersion.id = :version_id"
             + " AND c.transcript.id = :transcript_id"
             + " AND c.transcript.student.id = :student_id")
     List<StudentTranscriptClaim> getAllByStudentIdAndTranscriptIdAndVersionId(
             @Param("version_id") String versionId,
             @Param("transcript_id") String transcriptId,
-            @Param("student_id") String studentId);
+            @Param("student_id") String studentId,
+            Pageable pageable);
 }

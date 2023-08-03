@@ -39,4 +39,6 @@ public class Transcript implements Serializable {
   private Boolean isDefinitive;
 
   private Instant creationDatetime;
+
+  public static final String CREATION_DATETIME = "creationDatetime";
 }
