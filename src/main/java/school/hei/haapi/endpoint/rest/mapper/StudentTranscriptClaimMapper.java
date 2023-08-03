@@ -23,8 +23,11 @@ public class StudentTranscriptClaimMapper {
   public school.hei.haapi.endpoint.rest.model.StudentTranscriptClaim toRest(StudentTranscriptClaim studentTranscriptClaim) {
     Transcript transcript = studentTranscriptClaim.getTranscript();
     StudentTranscriptVersion version = studentTranscriptClaim.getTranscriptVersion();
-    if (Objects.isNull(transcript) || Objects.isNull(version)){
-      throw new NotFoundException("Claim not found");
+
+    if (Objects.isNull(transcript)) {
+      throw new NotFoundException("Transcript not found");
+    } else if (Objects.isNull(version)) {
+      throw new NotFoundException("Version not found");
     } else {
       var restStudentTranscriptClaim = new school.hei.haapi.endpoint.rest.model.StudentTranscriptClaim();
       restStudentTranscriptClaim.setId(studentTranscriptClaim.getId());
@@ -42,11 +45,13 @@ public class StudentTranscriptClaimMapper {
     Transcript transcript = transcriptService.getByIdAndStudentId(restStudentTranscriptClaim.getTranscriptId(), studentId);
     StudentTranscriptVersion version = studentTranscriptVersionService.getByIdAndStudentIdAndTranscriptId(
             restStudentTranscriptClaim.getTranscriptVersionId(),
-            studentId,
-            restStudentTranscriptClaim.getTranscriptId()
+            restStudentTranscriptClaim.getTranscriptId(),
+            studentId
     );
-    if (Objects.isNull(transcript) || Objects.isNull(version)) {
-      throw new NotFoundException("Claim not found");
+    if (Objects.isNull(transcript)) {
+      throw new NotFoundException("Transcript not found");
+    } else if (Objects.isNull(version)) {
+      throw new NotFoundException("Version not found");
     } else {
       return StudentTranscriptClaim.builder()
               .id(restStudentTranscriptClaim.getId())

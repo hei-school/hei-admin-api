@@ -1,15 +1,10 @@
 package school.hei.haapi.model;
 
 import lombok.*;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import school.hei.haapi.repository.types.PostgresEnumType;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
-
-import static javax.persistence.FetchType.LAZY;
 
 @Entity
 @Table(name = "\"student_transcript_version\"")

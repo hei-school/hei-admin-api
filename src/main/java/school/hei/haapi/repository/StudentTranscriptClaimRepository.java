@@ -6,7 +6,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.StudentTranscriptClaim;
-import school.hei.haapi.model.StudentTranscriptVersion;
 
 import java.util.List;
 

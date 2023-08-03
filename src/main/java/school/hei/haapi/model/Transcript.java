@@ -8,10 +8,8 @@ import school.hei.haapi.repository.types.PostgresEnumType;
 import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.List;
 
 import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "\"transcript\"")

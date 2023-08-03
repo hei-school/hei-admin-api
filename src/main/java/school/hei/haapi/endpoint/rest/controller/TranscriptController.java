@@ -36,8 +36,8 @@ public class TranscriptController {
 
   @PutMapping(value = "/students/{studentId}/transcripts")
   public List<Transcript> crudStudentTranscripts(@PathVariable String studentId,
-                                                 @RequestBody List<Transcript> toWrite) {
-    var saved = transcriptService.saveAll(toWrite.stream()
+                                                 @RequestBody List<Transcript> transcripts) {
+    var saved = transcriptService.saveAll(transcripts.stream()
         .map(transcript -> transcriptMapper.toDomain(transcript, studentId))
         .collect(toUnmodifiableList()));
     return saved.stream()
