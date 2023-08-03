@@ -291,8 +291,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
-
   /students/{student_id}/transcripts:
     get:
       tags:
@@ -372,7 +370,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /students/{student_id}/transcripts/{transcript_id}:
     get:
       tags:
@@ -407,14 +404,56 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
-
+  '/students/{student_id}/transcripts/{transcript_id}/versions':
+    get:
+      tags:
+        - Transcript
+      summary: Get all versions of a Transcript
+      operationId: getTranscriptsVersions
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: transcript_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: Student's Transcript's versions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentTranscriptVersion'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/transcripts/{transcript_id}/versions/{version_id}:
     get:
       tags:
         - Transcript
       summary: Get details of specific version of a student transcript.
-      operationId: getStudentTranscriptVersion
+      operationId: getStudentTranscriptByVersion
       parameters:
         - name: student_id
           in: path
@@ -438,7 +477,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/StudentTranscriptVersion'
-
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1822,7 +1860,6 @@ components:
           format: date-time
         reason:
           type: string
-
     Transcript:
       type: object
       properties:
