@@ -41,12 +41,9 @@ public class TranscriptVersionService {
 
     public TranscriptVersion getTranscriptVersion(String studentId, String transcriptId, String versionId){
         if(Objects.equals(versionId, "latest")){
-            return repository.findFirstByTranscriptStudentIdAndTranscriptIdOrderByRefDesc(studentId,transcriptId).get();
+            return repository.findFirstByTranscriptStudentIdAndTranscriptIdOrderByRefDesc(studentId,transcriptId).orElseThrow(() -> {throw new NotFoundException("Transcript's version does not exist");});
         }
-        Optional<TranscriptVersion> transcriptVersion = repository.findByTranscriptStudentIdAndTranscriptIdAndId(studentId,transcriptId,versionId);
-        if(transcriptVersion.isEmpty()){
-            throw new NotFoundException("Transcript version not found");
-        } else {return transcriptVersion.get();}
+        return repository.findByTranscriptStudentIdAndTranscriptIdAndId(studentId,transcriptId,versionId).orElseThrow(() -> {throw new NotFoundException("Access to other's transcript version denied");});
     }
 
     public byte[] getTranscriptVersionPdfByStudentIdAndTranscriptIdAndVersionId(String studentId,String transcriptId, String versionId){

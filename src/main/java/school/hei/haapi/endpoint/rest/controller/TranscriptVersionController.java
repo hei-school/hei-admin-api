@@ -56,9 +56,8 @@ public class TranscriptVersionController {
             @PathVariable(value = "student_id") String studentId,
             @PathVariable(value = "transcript_id") String transcriptId,
             @PathVariable(value = "version_id") String versionId) {
-       byte[] file = service.getTranscriptVersionPdfByStudentIdAndTranscriptIdAndVersionId(studentId,transcriptId,versionId);
-       String filename = service.getTranscriptVersion(studentId,transcriptId,versionId).getPdfLink();
-       return FileMapper.customFileResponse(file,filename,"application/pdf");
+       return FileMapper.customFileResponse(service.getTranscriptVersionPdfByStudentIdAndTranscriptIdAndVersionId(studentId,transcriptId,versionId), service.getTranscriptVersion(studentId,transcriptId,versionId).getPdfLink(),
+               "application/pdf");
     }
     @PostMapping("/students/{studentId}/transcripts/{transcriptId}/versions/latest/raw")
     public StudentTranscriptVersion addNewTranscriptVersionWithPdf(@PathVariable String studentId,

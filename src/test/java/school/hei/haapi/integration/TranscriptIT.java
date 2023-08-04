@@ -95,7 +95,7 @@ public class TranscriptIT {
                 () -> api.getStudentTranscriptById(STUDENT2_ID, TRANSCRIPT4_ID));
 
         assertThrowsApiException(
-                "{\"type\":\"404 NOT_FOUND\",\"message\":\"Transcript not found\"}",
+                "{\"type\":\"404 NOT_FOUND\",\"message\":\"Transcript does not exist\"}",
                 () -> api.getStudentTranscriptById(STUDENT1_ID, TRANSCRIPT4_ID));
     }
 

@@ -22,12 +22,7 @@ public class TranscriptService {
     private TranscriptRepository transcriptRepository;
 
     public Transcript getByStudentIdAndId(String studentId,String id) {
-        Optional<Transcript> transcript = transcriptRepository.findByStudentIdAndId(studentId,id);
-        if(transcript.isEmpty()){
-            throw new NotFoundException("Transcript not found");
-        }else {
-            return transcript.get();
-        }
+        return transcriptRepository.findByStudentIdAndId(studentId,id).orElseThrow(() -> {throw new NotFoundException("Transcript does not exist");});
     }
 
     public List<Transcript> getAllByStudentId(String studentId, PageFromOne page, BoundedPageSize pageSize) {

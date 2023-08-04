@@ -53,7 +53,7 @@ public class TranscriptVersionIT {
                 () -> api.getStudentTranscriptByVersion(STUDENT2_ID,TRANSCRIPT2_ID,STUDENT_TRANSCRIPT_VERSION5_ID));
 
         assertThrowsApiException(
-                "{\"type\":\"404 NOT_FOUND\",\"message\":\"Transcript version not found\"}",
+                "{\"type\":\"404 NOT_FOUND\",\"message\":\"Access to other's transcript version denied\"}",
                 () -> api.getStudentTranscriptByVersion(STUDENT1_ID,TRANSCRIPT4_ID,STUDENT_TRANSCRIPT_VERSION8_ID));
 
     }
