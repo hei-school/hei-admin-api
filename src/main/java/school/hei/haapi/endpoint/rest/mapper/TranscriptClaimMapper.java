@@ -7,7 +7,6 @@ import school.hei.haapi.endpoint.rest.validator.CreateTranscriptClaimValidator;
 import school.hei.haapi.model.TranscriptClaim;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.TranscriptClaimRepository;
-import school.hei.haapi.service.TranscriptClaimService;
 import school.hei.haapi.service.TranscriptVersionService;
 
 import java.time.Instant;
@@ -36,9 +35,17 @@ public class TranscriptClaimMapper {
         Optional<TranscriptClaim> claim = transcriptClaimRepository.findByTranscriptVersionTranscriptStudentIdAndTranscriptVersionTranscriptIdAndTranscriptVersionIdAndId(studentId,transcriptId,versionId,claimId);
         Instant creationDatetime = Instant.now();
         Instant closedDatetime = null;
+        TranscriptClaim.ClaimStatus status = TranscriptClaim.ClaimStatus.OPEN;
         if (claim != null && claim.isPresent()){
-            creationDatetime = claim.get().getCreationDatetime();
-            closedDatetime = claim.get().getClosedDatetime();
+            //creationDatetime = claim.get().getCreationDatetime();
+            //closedDatetime = claim.get().getClosedDatetime();
+
+            creationDatetime = studentTranscriptClaim.getCreationDatetime();
+            closedDatetime = studentTranscriptClaim.getClosedDatetime();
+
+            if (studentTranscriptClaim.getStatus()!=null){
+                status = TranscriptClaim.ClaimStatus.valueOf(studentTranscriptClaim.getStatus().toString());
+            }
 
             if (claim.get().getClaimStatus().equals(TranscriptClaim.ClaimStatus.OPEN)
                     && Objects.equals(studentTranscriptClaim.getStatus(), StudentTranscriptClaim.StatusEnum.CLOSE)){
@@ -49,20 +56,19 @@ public class TranscriptClaimMapper {
 
         transcriptClaimValidator.accept(studentTranscriptClaim );
         if (!Objects.equals(studentTranscriptClaim.getId(), claimId)) {
-            throw new BadRequestException("Id in request body: "+studentTranscriptClaim.getId()+"is different from id in path variable: "+claimId);
+            throw new BadRequestException("Id in request body: "+studentTranscriptClaim.getId()+" is different from id in path variable: "+claimId);
         }
         if (!Objects.equals(studentTranscriptClaim.getTranscriptId(), transcriptId)) {
-            throw new BadRequestException("transcriptId in request body: "+studentTranscriptClaim.getTranscriptId()+"is different from transcript_id in path variable: "+transcriptId);
+            throw new BadRequestException("transcriptId in request body: "+studentTranscriptClaim.getTranscriptId()+" is different from transcript_id in path variable: "+transcriptId);
         }
         if (!Objects.equals(studentTranscriptClaim.getTranscriptVersionId(), versionId)) {
-            throw new BadRequestException("versionId in request body: "+studentTranscriptClaim.getTranscriptVersionId()+"is different from version_id in path variable: "+versionId);
+            throw new BadRequestException("versionId in request body: "+studentTranscriptClaim.getTranscriptVersionId()+" is different from version_id in path variable: "+versionId);
         }
 
         return TranscriptClaim.builder()
                 .id(studentTranscriptClaim.getId())
                 .reason(studentTranscriptClaim.getReason())
-                .claimStatus(studentTranscriptClaim.getStatus()==null?TranscriptClaim.ClaimStatus.OPEN
-                        : TranscriptClaim.ClaimStatus.valueOf(studentTranscriptClaim.getStatus().toString()))
+                .claimStatus(status)
                 .closedDatetime(closedDatetime)
                 .creationDatetime(creationDatetime)
                 .transcriptVersion(transcriptVersionService.getTranscriptVersion(transcriptId,versionId))
