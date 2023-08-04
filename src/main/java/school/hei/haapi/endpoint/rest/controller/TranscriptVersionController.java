@@ -6,18 +6,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.FileMapper;
 import school.hei.haapi.endpoint.rest.mapper.TranscriptVersionMapper;
 import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
+import school.hei.haapi.endpoint.rest.validator.CreateTranscriptVersionValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.TranscriptVersionService;
-import school.hei.haapi.service.aws.S3Service;
+import school.hei.haapi.service.utils.ByteTypeValidator;
 
 import javax.servlet.http.HttpServletResponse;
 import java.util.List;
@@ -28,7 +28,7 @@ import java.util.stream.Collectors;
 public class TranscriptVersionController {
     private final TranscriptVersionService service;
     private final TranscriptVersionMapper mapper;
-    private final S3Service s3Service;
+    private final CreateTranscriptVersionValidator createTranscriptVersionValidator;
 
    @GetMapping("/students/{student_id}/transcripts/{transcript_id}/versions")
     public List<StudentTranscriptVersion> getVersions(
@@ -62,10 +62,10 @@ public class TranscriptVersionController {
     @PostMapping("/students/{studentId}/transcripts/{transcriptId}/versions/latest/raw")
     public StudentTranscriptVersion addNewTranscriptVersionWithPdf(@PathVariable String studentId,
                                                             @PathVariable String transcriptId,
-                                                            @RequestPart("pdf_file")MultipartFile pdfFile){
-
+                                                            @RequestBody(required = false) byte[] pdfFile){
+        createTranscriptVersionValidator.accept(pdfFile);
+        ByteTypeValidator.isValid(pdfFile,"application","pdf");
         String editorId = AuthProvider.getPrincipal().getUserId();
-
         return mapper.toRest(service.addNewTranscriptVersion(studentId,transcriptId, editorId, pdfFile));
     }
 }

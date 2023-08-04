@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.api.TranscriptApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -46,7 +45,7 @@ public class TranscriptApiMultipart extends TranscriptApi {
     }
 
 
-    private HttpRequest.Builder putStudentTranscriptVersionPdfRequestBuilder(String studentId, String transcriptId, MultipartFile pdfFile) throws ApiException {
+    private HttpRequest.Builder putStudentTranscriptVersionPdfRequestBuilder(String studentId, String transcriptId, byte[] pdfFile) throws ApiException {
         // verify the required parameter 'studentId' is set
         if (studentId == null) {
             throw new ApiException(400, "Missing the required parameter 'studentId' when calling putStudentTranscriptVersionPdf");
@@ -76,7 +75,7 @@ public class TranscriptApiMultipart extends TranscriptApi {
         return localVarRequestBuilder;
     }
 
-    public ApiResponse<StudentTranscriptVersion> putStudentTranscriptVersionPdfWithHttpInfo(String studentId, String transcriptId, MultipartFile pdfFile) throws ApiException {
+    public ApiResponse<StudentTranscriptVersion> putStudentTranscriptVersionPdfWithHttpInfo(String studentId, String transcriptId, byte[] pdfFile) throws ApiException {
         HttpRequest.Builder localVarRequestBuilder = putStudentTranscriptVersionPdfRequestBuilder(studentId, transcriptId, pdfFile);
         try {
             HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(
@@ -102,7 +101,7 @@ public class TranscriptApiMultipart extends TranscriptApi {
         }
     }
 
-    public StudentTranscriptVersion putStudentTranscriptVersionPdf(String studentId, String transcriptId, MultipartFile pdfFile) throws ApiException {
+    public StudentTranscriptVersion putStudentTranscriptVersionPdf(String studentId, String transcriptId, byte[] pdfFile) throws ApiException {
         ApiResponse<StudentTranscriptVersion> localVarResponse = putStudentTranscriptVersionPdfWithHttpInfo(studentId, transcriptId, pdfFile);
         return localVarResponse.getData();
     }

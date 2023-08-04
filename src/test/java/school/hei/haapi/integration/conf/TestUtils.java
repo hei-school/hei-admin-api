@@ -1,7 +1,6 @@
 package school.hei.haapi.integration.conf;
 
 import org.junit.jupiter.api.function.Executable;
-import org.springframework.mock.web.MockMultipartFile;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
@@ -91,7 +90,7 @@ public class TestUtils {
   public static final String TRANSCRIPT_VERSION1_ID= "transcript_version1_id";
   public static final Instant TRANSCRIPT_VERSION1_CREATION_DATETIME= Instant.parse("2023-10-01T08:25:24.00Z");
   public static final String TRANSCRIPT_VERSION1_PDF_LINK = "STD21001-2021-S1-V1";
-  public static final MockMultipartFile MULTIPART_FILE_UPLOADED = new MockMultipartFile("pdf_file", TRANSCRIPT_VERSION1_PDF_LINK,"application/pdf","test".getBytes());
+  public static final byte[] MULTIPART_FILE_UPLOADED = "".getBytes();
 
 
   public static ApiClient anApiClient(String token, int serverPort) {

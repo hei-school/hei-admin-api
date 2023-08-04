@@ -5,8 +5,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
-import school.hei.haapi.endpoint.rest.validator.CreateTranscriptVersionValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Transcript;
@@ -32,7 +30,6 @@ public class TranscriptVersionService {
     private final S3Service s3Service;
     private final UserService userService;
     private final TranscriptService transcriptService;
-    private final CreateTranscriptVersionValidator createTranscriptVersionValidator;
 
     public List<TranscriptVersion> getTranscriptsVersions(String studentId,String transcriptId,PageFromOne page, BoundedPageSize pageSize ){
         Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
@@ -64,8 +61,7 @@ public class TranscriptVersionService {
     }
 
     @Transactional
-    public TranscriptVersion addNewTranscriptVersion(String studentId, String transcriptId, String editorId, MultipartFile pdfFile) {
-        createTranscriptVersionValidator.accept(pdfFile);
+    public TranscriptVersion addNewTranscriptVersion(String studentId, String transcriptId, String editorId, byte[] pdfFile) {
         User student = userService.getById(studentId);
         User editor = userService.getById(editorId);
         //TODO: getByStudentAndId, add studentId and check if studentId equals the studentId in the transcript?

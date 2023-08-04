@@ -3,7 +3,6 @@ package school.hei.haapi.service.aws;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import software.amazon.awssdk.core.ResponseBytes;
@@ -32,13 +31,13 @@ public class S3Service {
         return s3Client.listBuckets(listBucketsRequest).buckets().stream().map(Bucket::name).collect(Collectors.toList());
     }
 
-    public String uploadObjectToS3Bucket(String key, MultipartFile file){
+    public String uploadObjectToS3Bucket(String key, byte[] file){
         PutObjectRequest objectRequest = PutObjectRequest.builder()
                 .bucket(bucketName)
                 .key(key)
                 .build();
         try {
-            s3Client.putObject(objectRequest, RequestBody.fromBytes(file.getBytes()));
+            s3Client.putObject(objectRequest, RequestBody.fromBytes(file));
             return key;
         }catch (Exception e){
             throw new BadRequestException("s3 file upload error");
