@@ -69,7 +69,7 @@ public class TranscriptVersionService {
         User student = userService.getById(studentId);
         User editor = userService.getById(editorId);
         //TODO: getByStudentAndId, add studentId and check if studentId equals the studentId in the transcript?
-        Transcript transcript = transcriptService.getByStudentIdAndId(studentId,transcriptId);
+        Transcript transcript = transcriptService.getByIdAndStudent(transcriptId,studentId);
 
         int newRef = 1;
         if (!getTranscriptVersionByStudentAndTranscriptId(studentId, transcriptId, new PageFromOne(1), new BoundedPageSize(10)).isEmpty()){
