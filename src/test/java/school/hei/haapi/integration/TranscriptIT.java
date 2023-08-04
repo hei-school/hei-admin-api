@@ -33,6 +33,7 @@ import java.util.Map;
 import static junit.framework.Assert.assertNotNull;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -61,7 +62,7 @@ public class TranscriptIT {
         ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
         TranscriptApi api = new TranscriptApi(student1Client);
 
-        List<Transcript> actualByStudent1 = api.getStudentTranscripts("student1_id", null, null);
+        List<Transcript> actualByStudent1 = api.getStudentTranscripts(STUDENT1_ID, null, null);
         assertEquals(2, actualByStudent1.size());
         assertTrue(actualByStudent1.contains(TestUtils.transcript1()));
     }
@@ -71,7 +72,7 @@ public class TranscriptIT {
         ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
         TranscriptApi api = new TranscriptApi(teacher1Client);
 
-        List<Transcript> actualByStudent1 = api.getStudentTranscripts("student1_id", null, null);
+        List<Transcript> actualByStudent1 = api.getStudentTranscripts(STUDENT1_ID, null, null);
         assertEquals(2, actualByStudent1.size());
         assertTrue(actualByStudent1.contains(TestUtils.transcript1()));
     }

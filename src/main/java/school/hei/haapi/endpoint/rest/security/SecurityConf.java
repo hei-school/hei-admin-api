@@ -28,6 +28,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String STUDENT_COURSE = "/students/*/courses";
+  private static final String TRANSCRIPT_VERSION = "/students/*/transcripts/*/versions/latest/raw";
 
   private final AuthProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
@@ -106,6 +107,9 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE)).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, STUDENT_COURSE).hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(PUT, STUDENT_COURSE).hasAnyRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts")).hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*/transcripts").hasAnyRole(TEACHER.getRole())
+        .antMatchers(POST, TRANSCRIPT_VERSION).hasAnyRole(MANAGER.getRole())
         .antMatchers("/**").denyAll()
 
         // disable superfluous protections
