@@ -21,16 +21,16 @@ public class ExamValidator implements Consumer<Exam> {
   @Override
   public void accept(Exam exam) {
     Set<String> violationMessages = new HashSet<>();
-    if(exam.getCoefficient()<0){
+    if (exam.getCoefficient() < 0) {
       violationMessages.add("Coefficient can't be less than 0");
     }
-    if(exam.getTitle() == null){
+    if (exam.getTitle() == null) {
       violationMessages.add("Title is mandatory");
     }
-    if(exam.getCourse() == null){
+    if (exam.getCourse() == null) {
       violationMessages.add("Course is mandatory");
     }
-    if(exam.getExaminationDate() == null){
+    if (exam.getExaminationDate() == null) {
       violationMessages.add("Examination date is mandatory");
     }
     if (!violationMessages.isEmpty()) {

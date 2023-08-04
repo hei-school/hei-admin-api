@@ -3,10 +3,8 @@ package school.hei.haapi.service;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.StudentCourse;
-import school.hei.haapi.model.User;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.UserRepository;
 

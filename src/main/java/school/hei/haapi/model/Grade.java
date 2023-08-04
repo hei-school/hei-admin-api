@@ -2,7 +2,6 @@ package school.hei.haapi.model;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -12,11 +11,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.Hibernate;
 
 @Entity
 @Table(name = "\"grade\"")
@@ -26,6 +25,7 @@ import org.hibernate.Hibernate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class Grade implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -37,22 +37,6 @@ public class Grade implements Serializable {
   @ManyToOne
   @JoinColumn(name = "exam_id")
   private Exam exam;
-  private int score;
+  private Integer score;
   private Instant creationDatetime;
-
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
-      return false;
-    }
-    Grade grade = (Grade) o;
-    return id != null && Objects.equals(id, grade.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
-  }
 }

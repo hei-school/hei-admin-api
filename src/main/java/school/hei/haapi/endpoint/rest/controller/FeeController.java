@@ -14,13 +14,14 @@ import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.FeeService;
+import school.hei.haapi.service.UserService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
 @RestController
 @AllArgsConstructor
 public class FeeController {
-
+  private final UserService userService;
   private final FeeService feeService;
   private final FeeMapper feeMapper;
 
@@ -35,7 +36,7 @@ public class FeeController {
   public List<Fee> createFees(
       @PathVariable String studentId, @RequestBody List<CreateFee> toCreate) {
     return feeService.saveAll(
-            feeMapper.toDomainFee(studentId, toCreate)).stream()
+            feeMapper.toDomainFee(userService.getById(studentId), toCreate)).stream()
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
   }

@@ -48,11 +48,9 @@ public class StudentController {
   @PutMapping("/students")
   public List<Student> saveAll(@RequestBody List<Student> toWrite) {
     return userService
-        .saveAll(toWrite
-            .stream()
+        .saveAll(toWrite.stream()
             .map(userMapper::toDomain)
-            .collect(toUnmodifiableList()))
-        .stream()
+            .collect(toUnmodifiableList())).stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
   }

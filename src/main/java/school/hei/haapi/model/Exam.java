@@ -2,8 +2,6 @@ package school.hei.haapi.model;
 
 import java.io.Serializable;
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.util.Objects;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -14,11 +12,11 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.Hibernate;
 
 @Entity
 @Table(name = "\"exam\"")
@@ -28,33 +26,20 @@ import org.hibernate.Hibernate;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class Exam implements Serializable {
   @Id
   @GeneratedValue(strategy = GenerationType.AUTO)
   private String id;
-  private int coefficient;
+  private Integer coefficient;
   private String title;
   @ManyToOne
   @JoinColumn(name = "course_id")
   private Course course;
 
+
+
   @Column(name = "examination_date", nullable = false)
   private Instant examinationDate;
-
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
-      return false;
-    }
-    Exam exam = (Exam) o;
-    return id != null && Objects.equals(id, exam.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
-  }
 }
 

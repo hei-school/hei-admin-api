@@ -29,8 +29,7 @@ public class PaymentController {
       @PathVariable String feeId,
       @RequestBody List<CreatePayment> toCreate) {
     return paymentService
-        .saveAll(paymentMapper.toDomainPayment(feeId, toCreate))
-        .stream()
+        .saveAll(paymentMapper.toDomainPayment(feeId, toCreate)).stream()
         .map(paymentMapper::toRestPayment)
         .collect(toUnmodifiableList());
   }

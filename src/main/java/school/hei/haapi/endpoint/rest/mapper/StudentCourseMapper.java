@@ -10,25 +10,16 @@ import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.StudentCourse;
-import school.hei.haapi.model.User;
-import school.hei.haapi.service.CourseService;
-import school.hei.haapi.service.GradeService;
-import school.hei.haapi.service.UserService;
 
 @AllArgsConstructor
 @Component
 public class StudentCourseMapper {
-  private final UserService userService;
   private final UserMapper userMapper;
   private final GradeMapper gradeMapper;
-  private final GradeService gradeService;
-  private final CourseService courseService;
+  private final ExamMapper examMapper;
 
-  public StudentCourseExam toRestStudentCourseExam(StudentCourse studentCourse) {
-    Course course = courseService.getById(studentCourse.getCourse().getId());
-    List<Grade> grades = gradeService.getGradesByStudentCourse(studentCourse);
-    List<StudentExamGrade> studentExamGrades =
-        grades.stream().map(gradeMapper::toRestStudentExamGrade).collect(Collectors.toList());
+  public StudentCourseExam toRestStudentCourseExam(Course course,
+                                                   List<StudentExamGrade> studentExamGrades) {
     return new StudentCourseExam()
         .id(course.getId())
         .exams(studentExamGrades)
@@ -42,29 +33,40 @@ public class StudentCourseMapper {
   public List<StudentCourseExam> toRestStudentCourseExams(List<StudentCourse> studentCourses) {
     List<StudentCourseExam> studentCourseExams = new ArrayList<>();
     for (StudentCourse studentCourse : studentCourses) {
+      Course course = studentCourse.getCourse();
+      //check whether the course already exists via its ID in this List<StudentCourseExam>
       if (studentCourseExams.stream()
-          .anyMatch(obj -> obj.getId() == studentCourse.getCourse().getId())) {
-        studentCourseExams
-            .stream()
-            .filter(obj -> obj.getId() == studentCourse.getCourse().getId())
-            .findFirst()
-            .ifPresent(
-                obj -> {
-                  List<StudentExamGrade> studentExamGrades = obj.getExams();
-                  studentExamGrades.add(
-                      studentCourse.getGrades().stream().map(gradeMapper::toRestStudentExamGrade)
-                          .collect(Collectors.toList()).get(0));
-                  obj.setExams(studentExamGrades);
+          .anyMatch(studentCourseExam -> studentCourseExam.getId() ==
+              studentCourse.getCourse().getId())) {
+        //if the course exists, add an exam to it
+        studentCourseExams.stream()
+            //filtered on the courses in question, adding the exam only to their courses
+            .filter(
+                studentCourseExam -> studentCourseExam.getId() == studentCourse.getCourse().getId())
+            .forEach(
+                studentCourseExam -> {
+                  //take all grades from one student in one course (studentCourse)
+                  List<Grade> grades = studentCourse.getGrades();
+                  //transform grades to StudentExamGrade
+                  List<StudentExamGrade> newStudentExamGrades = grades.stream()
+                      .map(grade -> gradeMapper.toRestStudentExamGrade(grade))
+                      .collect(Collectors.toList());
+                  //take list of the studentExamGrades (*grade) of this studentCourseExam (*course and exam)
+                  List<StudentExamGrade> studentExamGrades = studentCourseExam.getExams();
+                  studentExamGrades.addAll(newStudentExamGrades);
+                  //add new list of studentExamGrades without duplicate
+                  studentCourseExam.setExams(studentExamGrades.stream().distinct().collect(
+                      Collectors.toList()));
                 }
             );
       } else {
-        studentCourseExams.add(toRestStudentCourseExam(studentCourse));
+        //if the course does not exist, create new StudentCourseExam
+        List<StudentExamGrade> studentExamGrades = course.getExams().stream()
+            .map(exam -> examMapper.toRestExamExamGrade(exam, studentCourse))
+            .collect(Collectors.toList());
+        studentCourseExams.add(toRestStudentCourseExam(course, studentExamGrades));
       }
     }
     return studentCourseExams;
-  }
-
-  public User toReestUsert(StudentCourse studentCourse) {
-    return userService.getById(studentCourse.getStudent().getId());
   }
 }

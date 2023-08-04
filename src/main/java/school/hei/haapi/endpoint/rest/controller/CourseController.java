@@ -18,12 +18,14 @@ import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.CourseService;
+import school.hei.haapi.service.UserService;
 
 @RestController
 @AllArgsConstructor
 public class CourseController {
   private final CourseService service;
   private final CourseMapper mapper;
+  private final UserService userService;
 
   @GetMapping("/courses")
   public List<Course> getCourses(
@@ -48,7 +50,7 @@ public class CourseController {
   @PutMapping("/courses")
   public List<Course> crupdateCourses(@RequestBody List<CrupdateCourse> courses) {
     return service.crupdateCourses(courses.stream()
-            .map(mapper::toDomain)
+            .map(course -> mapper.toDomain(course,userService.getById(course.getMainTeacherId())))
             .collect(Collectors.toUnmodifiableList())).stream()
         .map(mapper::toRest)
         .collect(Collectors.toUnmodifiableList());

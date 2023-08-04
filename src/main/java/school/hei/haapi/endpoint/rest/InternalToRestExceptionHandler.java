@@ -23,7 +23,6 @@ import school.hei.haapi.model.exception.TooManyRequestsException;
 @Slf4j
 public class InternalToRestExceptionHandler {
 
-  @SuppressWarnings("checkstyle:Indentation")
   @ExceptionHandler(value = {BadRequestException.class})
   ResponseEntity<school.hei.haapi.endpoint.rest.model.Exception> handleBadRequest(
       BadRequestException e) {
