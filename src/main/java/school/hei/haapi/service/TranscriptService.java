@@ -12,7 +12,6 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.TranscriptRepository;
 
 import java.util.List;
-import java.util.Optional;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -22,7 +21,7 @@ public class TranscriptService {
     private TranscriptRepository transcriptRepository;
 
     public Transcript getByIdAndStudent(String id,String studentId) {
-        return transcriptRepository.getByIdAndStudentId(id,studentId).orElseThrow(()-> new NotFoundException("Transcript with id "+id+" not found for student: "+studentId));
+        return transcriptRepository.getByIdAndStudentId(id,studentId).orElseThrow(()-> new NotFoundException("Transcript with id "+id+" not found"));
     }
 
     public List<Transcript> getAllByStudentId(String studentId, PageFromOne page, BoundedPageSize pageSize) {

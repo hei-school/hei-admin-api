@@ -71,7 +71,7 @@ public class TranscriptClaimMapper {
                 .claimStatus(status)
                 .closedDatetime(closedDatetime)
                 .creationDatetime(creationDatetime)
-                .transcriptVersion(transcriptVersionService.getTranscriptVersion(transcriptId,versionId))
+                .transcriptVersion(transcriptVersionService.getTranscriptVersion(studentId,transcriptId,versionId))
                 .build();
     }
 }

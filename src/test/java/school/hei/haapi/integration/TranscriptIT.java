@@ -8,12 +8,9 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
-import school.hei.haapi.endpoint.rest.api.PayingApi;
-import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.TranscriptApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Transcript;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -24,7 +21,6 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -95,7 +91,7 @@ public class TranscriptIT {
                 () -> api.getStudentTranscriptById(STUDENT2_ID, TRANSCRIPT4_ID));
 
         assertThrowsApiException(
-                "{\"type\":\"404 NOT_FOUND\",\"message\":\"Transcript does not exist\"}",
+                "{\"type\":\"404 NOT_FOUND\",\"message\":\"Transcript with id transcript4_id not found\"}",
                 () -> api.getStudentTranscriptById(STUDENT1_ID, TRANSCRIPT4_ID));
     }
 
