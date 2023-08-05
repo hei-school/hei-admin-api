@@ -18,6 +18,12 @@ public class CreateTranscriptValidator implements Consumer<Transcript> {
         if (transcript.getStudentId() == null) {
             throw new BadRequestException("Student id is mandatory");
         }
+        if (transcript.getSemester() == null) {
+            throw new BadRequestException("Semester is mandatory");
+        }
+        if (transcript.getAcademicYear() == null) {
+            throw new BadRequestException("Academic year is mandatory");
+        }
     }
 
     public void accept(List<Transcript> transcripts) {
