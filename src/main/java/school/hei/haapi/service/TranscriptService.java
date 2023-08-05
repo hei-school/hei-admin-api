@@ -10,11 +10,12 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Transcript;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.model.validator.TranscriptValidator;
 import school.hei.haapi.repository.TranscriptRepository;
 import school.hei.haapi.repository.UserRepository;
 
+import javax.transaction.Transactional;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
@@ -24,6 +25,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 public class TranscriptService {
     private TranscriptRepository transcriptRepository;
     private UserRepository userRepository;
+    private TranscriptValidator validator;
 
     public Transcript getByIdAndStudent(String id,String studentId) {
         return transcriptRepository.getByIdAndStudentId(id,studentId).orElseThrow(()-> new NotFoundException("Transcript with id "+id+" not found"));
@@ -34,6 +36,7 @@ public class TranscriptService {
         return transcriptRepository.findAllByStudentId(studentId, pageable);
     }
 
+    @Transactional
     public List<Transcript> updateStudentTranscript(String studentId, List<Transcript> transcripts) {
         User user = userRepository.getById(studentId);
         return transcripts.stream()
@@ -42,7 +45,7 @@ public class TranscriptService {
     }
 
     private Transcript updateTranscript(User user, Transcript update) {
-        Transcript studentTranscript = transcriptRepository.findByIdAndStudentId(update.getId(), user.getId());
+        Transcript studentTranscript = transcriptRepository.getByIdAndStudentId(update.getId(), user.getId()).orElse(null);
         if (studentTranscript == null) {
             studentTranscript = Transcript.builder()
                     .id(update.getId())
@@ -53,6 +56,7 @@ public class TranscriptService {
         studentTranscript.setSemester(update.getSemester());
         studentTranscript.setAcademicYear(update.getAcademicYear());
         studentTranscript.setIsDefinitive(update.getIsDefinitive());
+        validator.accept(studentTranscript);
         return transcriptRepository.save(studentTranscript);
     }
 }
