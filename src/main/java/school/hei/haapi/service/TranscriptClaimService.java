@@ -27,7 +27,6 @@ public class TranscriptClaimService {
         return transcriptClaimRepository.getById(transcriptId);
     }
     public TranscriptClaim  findByVersionIdAndClaimId(String studentId, String transcriptId, String versionId,String claimId){
-
         return transcriptClaimRepository.findByTranscriptVersionTranscriptStudentIdAndTranscriptVersionTranscriptIdAndTranscriptVersionIdAndId(studentId,transcriptId,versionId,claimId)
                 .orElseThrow(() -> new NotFoundException("Transcript claim id" + claimId + "not found"));
     }

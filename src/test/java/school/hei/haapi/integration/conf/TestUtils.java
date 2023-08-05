@@ -3,15 +3,7 @@ package school.hei.haapi.integration.conf;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
-import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.model.Transcript;
-import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.service.aws.S3Service;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -19,6 +11,7 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 
 import java.io.IOException;
+import java.lang.Exception;
 import java.net.ServerSocket;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -81,6 +74,13 @@ public class TestUtils {
   public static final String STUDENT_TRANSCRIPT_VERSION10_ID = "transcript_version10_id";
   public static final String STUDENT_TRANSCRIPT_VERSION11_ID = "transcript_version11_id";
 
+  public static final String STUDENT_TRANSCRIPT_VERSION_CLAIM1_ID = "transcript_claim1_id";
+
+  public static final String STUDENT_TRANSCRIPT_VERSION_CLAIM2_ID = "transcript_claim2_id";
+
+  public static final String STUDENT_TRANSCRIPT_VERSION_CLAIM3_ID = "transcript_claim3_id";
+
+
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
@@ -89,6 +89,20 @@ public class TestUtils {
 
   public static final String TRANSCRIPT_VERSION1_ID= "transcript_version1_id";
   public static final Instant TRANSCRIPT_VERSION1_CREATION_DATETIME= Instant.parse("2023-10-01T08:25:24.00Z");
+
+  public static final Instant TRANSCRIPT_CLAIM1_CREATION_DATETIME= Instant.parse("2022-10-02T08:25:24.00Z");
+
+  public static final Instant TRANSCRIPT_CLAIM1_CLOSED_DATETIME= null;
+
+  public static final Instant TRANSCRIPT_CLAIM2_CREATION_DATETIME= Instant.parse("2022-10-02T08:25:24.00Z");
+
+  public static final Instant TRANSCRIPT_CLAIM2_CLOSED_DATETIME= Instant.parse("2023-10-02T08:25:24.00Z");
+
+
+  public static final Instant TRANSCRIPT_CLAIM3_CREATION_DATETIME= Instant.parse("2022-10-03T08:25:24.00Z");
+
+  public static final Instant TRANSCRIPT_CLAIM3_CLOSED_DATETIME= Instant.parse("2023-10-03T08:25:24.00Z");
+
   public static final String TRANSCRIPT_VERSION1_PDF_LINK = "STD21001-2021-S1-V1";
   public static final byte[] MULTIPART_FILE_UPLOADED = "".getBytes();
 
@@ -515,4 +529,38 @@ public class TestUtils {
     when(s3Service.uploadObjectToS3Bucket(TRANSCRIPT_VERSION1_PDF_LINK, MULTIPART_FILE_UPLOADED)).thenReturn(TRANSCRIPT_VERSION1_PDF_LINK);
   }
 
+  public static StudentTranscriptClaim studentTranscriptClaim1(){
+    return new StudentTranscriptClaim()
+            .id(STUDENT_TRANSCRIPT_VERSION_CLAIM1_ID)
+            .transcriptId(TRANSCRIPT1_ID)
+            .status(StudentTranscriptClaim.StatusEnum.OPEN)
+            .transcriptVersionId(STUDENT_TRANSCRIPT_VERSION1_ID)
+            .reason("reason1")
+            .creationDatetime(TRANSCRIPT_CLAIM1_CREATION_DATETIME)
+            .closedDatetime(TRANSCRIPT_CLAIM1_CLOSED_DATETIME);
+  }
+
+  public static StudentTranscriptClaim studentTranscriptClaim2(){
+
+    return new StudentTranscriptClaim()
+            .id(STUDENT_TRANSCRIPT_VERSION_CLAIM2_ID)
+            .transcriptId(TRANSCRIPT1_ID)
+            .status(StudentTranscriptClaim.StatusEnum.CLOSE)
+            .transcriptVersionId(STUDENT_TRANSCRIPT_VERSION1_ID)
+            .reason("reason2")
+            .creationDatetime(TRANSCRIPT_CLAIM2_CREATION_DATETIME)
+            .closedDatetime(TRANSCRIPT_CLAIM2_CLOSED_DATETIME);
+
+  }
+
+  public static StudentTranscriptClaim studentTranscriptClaim3(){
+    return new StudentTranscriptClaim()
+            .id(STUDENT_TRANSCRIPT_VERSION_CLAIM3_ID)
+            .transcriptId(TRANSCRIPT2_ID)
+            .status(StudentTranscriptClaim.StatusEnum.CLOSE)
+            .transcriptVersionId(STUDENT_TRANSCRIPT_VERSION3_ID)
+            .reason("reason3")
+            .creationDatetime(TRANSCRIPT_CLAIM3_CREATION_DATETIME)
+            .closedDatetime(TRANSCRIPT_CLAIM3_CLOSED_DATETIME);
+  }
 }
