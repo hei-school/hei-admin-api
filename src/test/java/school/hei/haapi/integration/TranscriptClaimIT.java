@@ -19,6 +19,7 @@ import school.hei.haapi.endpoint.rest.model.Transcript;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.TranscriptClaim;
 
 import java.util.List;
 
@@ -26,6 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.conf.TestUtils.transcript3;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -133,6 +135,21 @@ public class TranscriptClaimIT {
 
 
 
+
+//    @Test
+//    void teacher_read_ok() throws ApiException {
+//        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+//        TranscriptApi api = new TranscriptApi(teacher1Client);
+//
+//        List<StudentTranscriptClaim> actual = api.getStudentClaimOfTranscriptVersion(STUDENT2_ID, TRANSCRIPT1_ID,  STUDENT_TRANSCRIPT_VERSION1_ID , STUDENT_TRANSCRIPT_VERSION_CLAIM1_ID);
+//        StudentTranscriptVersion studentTranscriptVersion = api.getStudentTranscriptByVersion(STUDENT1_ID,TRANSCRIPT1_ID,STUDENT_TRANSCRIPT_VERSION1_ID);
+//
+//        assertEquals(4,actual.size());
+//        assertEquals(studentTranscriptVersion1(),studentTranscriptVersion);
+//        assertTrue(actual.contains(studentTranscriptVersion1()));
+//        assertTrue(actual.contains(studentTranscriptVersion2()));
+//        assertTrue(actual.contains(studentTranscriptVersion3()));
+//    }
 
     static class ContextInitializer extends AbstractContextInitializer {
         public static final int SERVER_PORT = anAvailableRandomPort();
