@@ -10,7 +10,7 @@ $$;
 create table if not exists "transcript"
 (
     id                varchar
-        constraint transcript_pk primary key            default uuid_generate_v4(),
+        constraint transcript_pk primary key,
     user_id           varchar                  not null
         constraint transcript_user_id_fk references "user" (id),
     semester          semester_enum            not null,

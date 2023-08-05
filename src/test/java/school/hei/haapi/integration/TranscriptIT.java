@@ -29,6 +29,8 @@ import static school.hei.haapi.integration.conf.TestUtils.TRANSCRIPT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TRANSCRIPT4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.createTranscript1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.transcript1;
 import static school.hei.haapi.integration.conf.TestUtils.transcript2;
@@ -102,5 +104,24 @@ public class TranscriptIT {
         public int getServerPort() {
             return SERVER_PORT;
         }
+    }
+
+    @Test
+    void student_write_ko() {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        TranscriptApi api = new TranscriptApi(student1Client);
+
+        assertThrowsForbiddenException(() -> api.crudStudentTranscripts(STUDENT1_ID, List.of()));
+    }
+
+    @Test
+    void manager_write_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TranscriptApi api = new TranscriptApi(manager1Client);
+
+        List<Transcript> actual = api.crudStudentTranscripts(STUDENT1_ID, List.of(createTranscript1()));
+
+        List<Transcript> expectedTranscriptList = api.getStudentTranscripts(STUDENT1_ID, 1, 5);
+        assertTrue(expectedTranscriptList.containsAll(actual));
     }
 }

@@ -386,6 +386,17 @@ public class TestUtils {
             .creationDatetime(Instant.parse("2021-12-09T08:25:25.00Z"));
   }
 
+  public static Transcript createTranscript1() {
+    Transcript transcript = new Transcript();
+    transcript.setId("transcript_create_1");
+    transcript.setStudentId(STUDENT1_ID);
+    transcript.setAcademicYear(2021);
+    transcript.setSemester(Transcript.SemesterEnum.S4);
+    transcript.setIsDefinitive(false);
+    transcript.setCreationDatetime(Instant.parse("2023-08-05T07:29:54.00Z"));
+    return transcript;
+  }
+
   public static StudentTranscriptVersion studentTranscriptVersion1(){
     return new StudentTranscriptVersion()
             .id(STUDENT_TRANSCRIPT_VERSION1_ID)
