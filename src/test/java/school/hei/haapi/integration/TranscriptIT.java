@@ -16,23 +16,13 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
+import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TRANSCRIPT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TRANSCRIPT4_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.transcript1;
-import static school.hei.haapi.integration.conf.TestUtils.transcript2;
-import static school.hei.haapi.integration.conf.TestUtils.transcript3;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -46,6 +36,17 @@ public class TranscriptIT {
 
     private static ApiClient anApiClient(String token) {
         return TestUtils.anApiClient(token, TranscriptIT.ContextInitializer.SERVER_PORT);
+    }
+
+    private static Transcript createTranscript1() {
+        Transcript transcript = new Transcript();
+        transcript.setId("transcript_create_1");
+        transcript.setStudentId(STUDENT1_ID);
+        transcript.setAcademicYear(2021);
+        transcript.setSemester(Transcript.SemesterEnum.S4);
+        transcript.setIsDefinitive(false);
+        transcript.setCreationDatetime(Instant.parse("2023-08-05T07:29:54.00Z"));
+        return transcript;
     }
 
     @BeforeEach
@@ -102,5 +103,27 @@ public class TranscriptIT {
         public int getServerPort() {
             return SERVER_PORT;
         }
+    }
+
+    @Test
+    void student_write_ko() {
+        ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+        TranscriptApi api = new TranscriptApi(student1Client);
+
+        assertThrowsForbiddenException(() -> api.crudStudentTranscripts(STUDENT1_ID, List.of()));
+    }
+
+    @Test
+    void manager_write_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TranscriptApi api = new TranscriptApi(manager1Client);
+
+        List<Transcript> actual = api.crudStudentTranscripts(STUDENT1_ID, List.of(createTranscript1()));
+
+        Transcript expectedTranscript = api.getStudentTranscriptById(STUDENT1_ID, "transcript_create_1");
+        List<Transcript> expectedTranscriptList = api.getStudentTranscripts(STUDENT1_ID, 1, 5);
+
+        assertEquals(createTranscript1(), expectedTranscript);
+        assertTrue(expectedTranscriptList.containsAll(actual));
     }
 }
