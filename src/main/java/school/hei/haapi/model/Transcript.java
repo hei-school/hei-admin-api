@@ -11,14 +11,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
+import javax.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
 
@@ -35,7 +28,6 @@ import static javax.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 public class Transcript implements Serializable {
     @Id
-    @GeneratedValue(strategy = IDENTITY)
     private String id;
 
     @ManyToOne
