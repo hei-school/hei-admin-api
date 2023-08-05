@@ -14,4 +14,6 @@ public interface TranscriptRepository extends JpaRepository<Transcript, String> 
 
     Optional<Transcript> getByIdAndStudentId(String id, String studentId);
 
+    Transcript findByIdAndStudentId(String id, String studentId);
+
 }
