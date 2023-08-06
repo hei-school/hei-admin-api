@@ -17,9 +17,7 @@ import school.hei.haapi.endpoint.rest.validator.CreateTranscriptVersionValidator
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.TranscriptVersionService;
-import school.hei.haapi.service.utils.ByteTypeValidator;
 
-import javax.servlet.http.HttpServletResponse;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -49,14 +47,14 @@ public class TranscriptVersionController {
             @PathVariable(value = "version_id") String versionId){
        return mapper.toRest(service.getTranscriptVersion(studentId,transcriptId,versionId));
     }
-
     @GetMapping("students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/raw")
     public ResponseEntity<ByteArrayResource> getTranscriptVersionAsPdf(
-            HttpServletResponse response,
             @PathVariable(value = "student_id") String studentId,
             @PathVariable(value = "transcript_id") String transcriptId,
             @PathVariable(value = "version_id") String versionId) {
-       return FileMapper.customFileResponse(service.getTranscriptVersionPdfByStudentIdAndTranscriptIdAndVersionId(studentId,transcriptId,versionId), service.getTranscriptVersion(studentId,transcriptId,versionId).getPdfLink(),
+       return FileMapper.customFileResponse(
+               service.getTranscriptVersionPdfByStudentIdAndTranscriptIdAndVersionId(studentId,transcriptId,versionId),
+               service.getTranscriptVersion(studentId,transcriptId,versionId).getPdfLink(),
                "application/pdf");
     }
     @PostMapping("/students/{studentId}/transcripts/{transcriptId}/versions/latest/raw")
@@ -64,7 +62,6 @@ public class TranscriptVersionController {
                                                             @PathVariable String transcriptId,
                                                             @RequestBody(required = false) byte[] pdfFile){
         createTranscriptVersionValidator.accept(pdfFile);
-        ByteTypeValidator.isValid(pdfFile,"application","pdf");
         String editorId = AuthProvider.getPrincipal().getUserId();
         return mapper.toRest(service.addNewTranscriptVersion(studentId,transcriptId, editorId, pdfFile));
     }

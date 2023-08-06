@@ -10,7 +10,7 @@ import software.amazon.awssdk.services.s3.S3Client;
 
 import java.net.URI;
 @Configuration
-public class AwsConfig {
+public class S3Config {
     @Value("${AWS_ACCESS_KEY_ID}")
     private String awsS3AccessKeyId;
     @Value("${AWS_SECRET_ACCESS_KEY}")
