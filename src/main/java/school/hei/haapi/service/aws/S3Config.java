@@ -13,14 +13,10 @@ import java.net.URI;
 public class AwsConfig {
     @Value("${AWS_ACCESS_KEY_ID}")
     private String awsS3AccessKeyId;
-
     @Value("${AWS_SECRET_ACCESS_KEY}")
     private String awsS3SecretKey;
-
     @Value("${AWS_S3_REGION}")
     private String awsS3Region;
-
-
 
     @Bean
     public S3Client amazonS3Client() {
