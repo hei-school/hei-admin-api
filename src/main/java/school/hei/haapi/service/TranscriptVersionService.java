@@ -41,7 +41,7 @@ public class TranscriptVersionService {
                     .orElseThrow(() -> new NotFoundException("Transcript's version does not exist"));
         }
         return repository.findByTranscriptStudentIdAndTranscriptIdAndId(studentId,transcriptId,versionId)
-                .orElseThrow(() -> new NotFoundException("Access to other's transcript version denied"));
+                .orElseThrow(() -> new NotFoundException("TranscriptVersion with id "+versionId+" not found"));
     }
 
     public List<TranscriptVersion> getTranscriptVersionByStudentAndTranscriptId(String sId, String tId,
