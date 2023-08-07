@@ -19,7 +19,6 @@ import school.hei.haapi.endpoint.rest.model.Transcript;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.TranscriptClaim;
 
 import java.util.List;
 
@@ -27,7 +26,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
-import static school.hei.haapi.integration.conf.TestUtils.transcript3;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -106,7 +104,7 @@ public class TranscriptClaimIT {
     }
 
 
-    
+
 
 //    @Test
 //    void manager_write_ok() throws ApiException {
