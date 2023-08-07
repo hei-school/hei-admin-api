@@ -20,8 +20,8 @@ public class StudentTranscriptVersionMapper {
   private final UserService userService;
   private final TranscriptService transcriptService;
   public school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion toRest(StudentTranscriptVersion studentTranscriptVersion) {
-    Transcript transcript = studentTranscriptVersion.getTranscript();
-    User responsible = studentTranscriptVersion.getResponsible();
+    final Transcript transcript = studentTranscriptVersion.getTranscript();
+    final User responsible = studentTranscriptVersion.getResponsible();
     if (Objects.isNull(transcript) || Objects.isNull(responsible)){
       throw new NotFoundException("Transcript or User not found");
     } else {
@@ -37,8 +37,8 @@ public class StudentTranscriptVersionMapper {
   }
 
   public StudentTranscriptVersion toDomain(school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion restStudentTranscriptVersion, String studentId) {
-    Transcript transcript = transcriptService.getByIdAndStudentId(restStudentTranscriptVersion.getTranscriptId(), studentId);
-    User responsible = userService.getById(restStudentTranscriptVersion.getCreatedByUserId());
+    final Transcript transcript = transcriptService.getByIdAndStudentId(restStudentTranscriptVersion.getTranscriptId(), studentId);
+    final User responsible = userService.getById(restStudentTranscriptVersion.getCreatedByUserId());
     if (Objects.isNull(transcript) || Objects.isNull(responsible)){
       throw new NotFoundException("Transcript or User not found");
     } else {

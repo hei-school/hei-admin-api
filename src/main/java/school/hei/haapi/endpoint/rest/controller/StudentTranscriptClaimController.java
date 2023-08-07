@@ -48,8 +48,8 @@ public class StudentTranscriptClaimController {
           @PathVariable String transcriptId,
           @PathVariable String versionId,
           @PathVariable String claimId) throws NotFoundException {
-    school.hei.haapi.model.StudentTranscriptClaim toSave = studentTranscriptClaimMapper.toDomain(studentTranscriptClaim, studentId);
+    school.hei.haapi.model.StudentTranscriptClaim claim = studentTranscriptClaimMapper.toDomain(studentTranscriptClaim, studentId);
     return studentTranscriptClaimMapper.toRest(studentTranscriptClaimService.save(
-                    toSave, claimId, versionId, transcriptId, studentId));
+                    claim, claimId, versionId, transcriptId, studentId));
   }
 }

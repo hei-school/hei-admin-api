@@ -28,7 +28,7 @@ public class TranscriptMapper {
   }
 
   public Transcript toDomain(school.hei.haapi.endpoint.rest.model.Transcript restTranscript, String studentId) {
-    User student = userService.getById(studentId);
+    final User student = userService.getById(studentId);
     if (Objects.equals(student, null)) {
       throw new NotFoundException("Student.id=" + studentId + " is not found");
     }

@@ -1,8 +1,7 @@
 package school.hei.haapi.integration;
 
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.*;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -21,6 +20,7 @@ import java.time.Instant;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 
@@ -29,6 +29,7 @@ import static school.hei.haapi.integration.conf.TestUtils.*;
 @ContextConfiguration(initializers = StudentTranscriptVersionIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 @Slf4j
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StudentTranscriptVersionIT {
   @MockBean
   private SentryConf sentryConf;
@@ -98,7 +99,31 @@ class StudentTranscriptVersionIT {
   void setUp() {
     setUpCognito(cognitoComponentMock);
   }
+
   @Test
+  @Order(1)
+  void student_read_all_transcript_version_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TranscriptApi api = new TranscriptApi(student1Client);
+
+    List<StudentTranscriptVersion> actual = api.getTranscriptsVersions(STUDENT1_ID, TRANSCRIPT1_ID, 1, 5);
+
+    assertTrue(actual.containsAll(List.of(studentTranscript1Version1(), studentTranscript1Version2())));
+  }
+
+  @Test
+  @Order(2)
+  void teacher_read_all_transcript_version_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TranscriptApi api = new TranscriptApi(teacher1Client);
+
+    List<StudentTranscriptVersion> actual = api.getTranscriptsVersions(STUDENT1_ID, TRANSCRIPT1_ID, 1, 5);
+
+    assertTrue(actual.containsAll(List.of(studentTranscript1Version1(), studentTranscript1Version2())));
+  }
+
+  @Test
+  @Order(3)
   void student_read_transcript_version_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TranscriptApi api = new TranscriptApi(student1Client);
@@ -111,6 +136,7 @@ class StudentTranscriptVersionIT {
   }
 
   @Test
+  @Order(4)
   void teacher_read_transcript_version_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TranscriptApi api = new TranscriptApi(teacher1Client);
@@ -122,6 +148,7 @@ class StudentTranscriptVersionIT {
     assertEquals(expected4, studentTranscript2Version2());
   }
   @Test
+  @Order(5)
   void manager_read_transcript_version_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TranscriptApi api = new TranscriptApi(manager1Client);
@@ -132,6 +159,7 @@ class StudentTranscriptVersionIT {
   }
 
   @Test
+  @Order(6)
   void student_read_another_student_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TranscriptApi api = new TranscriptApi(student1Client);

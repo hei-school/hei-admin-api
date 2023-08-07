@@ -21,8 +21,8 @@ public class StudentTranscriptClaimMapper {
   private final TranscriptService transcriptService;
   private final StudentTranscriptVersionService studentTranscriptVersionService;
   public school.hei.haapi.endpoint.rest.model.StudentTranscriptClaim toRest(StudentTranscriptClaim studentTranscriptClaim) {
-    Transcript transcript = studentTranscriptClaim.getTranscript();
-    StudentTranscriptVersion version = studentTranscriptClaim.getTranscriptVersion();
+    final Transcript transcript = studentTranscriptClaim.getTranscript();
+    final StudentTranscriptVersion version = studentTranscriptClaim.getTranscriptVersion();
 
     if (Objects.isNull(transcript)) {
       throw new NotFoundException("Transcript not found");
@@ -42,8 +42,8 @@ public class StudentTranscriptClaimMapper {
   }
 
   public StudentTranscriptClaim toDomain(school.hei.haapi.endpoint.rest.model.StudentTranscriptClaim restStudentTranscriptClaim, String studentId) {
-    Transcript transcript = transcriptService.getByIdAndStudentId(restStudentTranscriptClaim.getTranscriptId(), studentId);
-    StudentTranscriptVersion version = studentTranscriptVersionService.getByIdAndStudentIdAndTranscriptId(
+    final Transcript transcript = transcriptService.getByIdAndStudentId(restStudentTranscriptClaim.getTranscriptId(), studentId);
+    final StudentTranscriptVersion version = studentTranscriptVersionService.getByIdAndStudentIdAndTranscriptId(
             restStudentTranscriptClaim.getTranscriptVersionId(),
             restStudentTranscriptClaim.getTranscriptId(),
             studentId
