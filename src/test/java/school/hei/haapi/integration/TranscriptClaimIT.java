@@ -92,18 +92,19 @@ public class TranscriptClaimIT {
         assertTrue(actual.contains(transcript2()));
         assertTrue(actual.contains(transcript3()));
     }
-
     @Test
     void manager_write_ok() throws ApiException {
         ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
         TranscriptApi api = new TranscriptApi(manager1Client);
 
-       StudentTranscriptClaim actual = api.putStudentClaimsOfTranscriptVersion(STUDENT1_ID,TRANSCRIPT1_ID,STUDENT_TRANSCRIPT_VERSION1_ID,STUDENT_TRANSCRIPT_VERSION_CLAIM1_ID,studentTranscriptClaim1());
+        StudentTranscriptClaim actual = api.putStudentClaimsOfTranscriptVersion(STUDENT1_ID,TRANSCRIPT1_ID,STUDENT_TRANSCRIPT_VERSION1_ID,STUDENT_TRANSCRIPT_VERSION_CLAIM1_ID,studentTranscriptClaim1());
         List<StudentTranscriptClaim> expected = api.getStudentTranscriptClaims(STUDENT1_ID,TRANSCRIPT1_ID,STUDENT_TRANSCRIPT_VERSION1_ID,1,10);
 
         assertTrue(expected.contains(actual));
     }
 
+
+    
 
 //    @Test
 //    void manager_write_ok() throws ApiException {
@@ -115,7 +116,6 @@ public class TranscriptClaimIT {
 //        List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 //        assertTrue(expected.containsAll(actual));
 //    }
-
 
     @Test
     void student_read_ko() {
