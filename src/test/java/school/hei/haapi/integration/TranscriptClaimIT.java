@@ -8,9 +8,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.TranscriptApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.StudentTranscriptClaim;
 import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
 import school.hei.haapi.endpoint.rest.model.Transcript;
@@ -91,6 +93,29 @@ public class TranscriptClaimIT {
         assertTrue(actual.contains(transcript3()));
     }
 
+    @Test
+    void manager_write_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TranscriptApi api = new TranscriptApi(manager1Client);
+
+       StudentTranscriptClaim actual = api.putStudentClaimsOfTranscriptVersion(STUDENT1_ID,TRANSCRIPT1_ID,STUDENT_TRANSCRIPT_VERSION1_ID,STUDENT_TRANSCRIPT_VERSION_CLAIM1_ID,studentTranscriptClaim1());
+        List<StudentTranscriptClaim> expected = api.getStudentTranscriptClaims(STUDENT1_ID,TRANSCRIPT1_ID,STUDENT_TRANSCRIPT_VERSION1_ID,1,10);
+
+        assertTrue(expected.contains(actual));
+    }
+
+
+//    @Test
+//    void manager_write_ok() throws ApiException {
+//        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+//        PayingApi api = new PayingApi(manager1Client);
+//
+//        List<Fee> actual = api.createStudentFees(STUDENT1_ID, List.of(creatableFee1()));
+//
+//        List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+//        assertTrue(expected.containsAll(actual));
+//    }
+
 
     @Test
     void student_read_ko() {
@@ -105,14 +130,6 @@ public class TranscriptClaimIT {
                 "{\"type\":\"404 NOT_FOUND\",\"message\":\"Transcript claim id" + STUDENT_TRANSCRIPT_VERSION_CLAIM3_ID +"not found\"}",
                 () -> api.getStudentClaimOfTranscriptVersion(STUDENT1_ID, TRANSCRIPT6_ID,  STUDENT_TRANSCRIPT_VERSION1_ID   ,  STUDENT_TRANSCRIPT_VERSION_CLAIM3_ID));
     }
-
-
-
-
-
-
-
-
 
 
 
