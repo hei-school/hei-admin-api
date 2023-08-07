@@ -17,7 +17,6 @@ import school.hei.haapi.endpoint.rest.model.Transcript;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.TranscriptClaim;
 
 import java.util.List;
 
@@ -25,7 +24,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.*;
-import static school.hei.haapi.integration.conf.TestUtils.transcript3;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -65,9 +63,33 @@ public class TranscriptClaimIT {
 
     }
 
+        @Test
+    void teacher_read_ok() throws ApiException {
+        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+        TranscriptApi api = new TranscriptApi(teacher1Client);
 
+            StudentTranscriptClaim actualTranscript = api.getStudentClaimOfTranscriptVersion(STUDENT1_ID, TRANSCRIPT1_ID,STUDENT_TRANSCRIPT_VERSION1_ID,STUDENT_TRANSCRIPT_VERSION_CLAIM1_ID);
+            List<StudentTranscriptClaim> actual = api.getStudentTranscriptClaims(STUDENT1_ID, TRANSCRIPT1_ID, STUDENT_TRANSCRIPT_VERSION1_ID,1,10);
 
+            assertEquals(studentTranscriptClaim1(), actualTranscript);
+            assertTrue(actual.contains(studentTranscriptClaim1()));
+            assertTrue(actual.contains(studentTranscriptClaim2()));
 
+    }
+
+    @Test
+    void manager_read_ok() throws ApiException {
+        ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+        TranscriptApi api = new TranscriptApi(manager1Client);
+
+        Transcript actualTranscript = api.getStudentTranscriptById(STUDENT1_ID, TRANSCRIPT1_ID);
+        List<Transcript> actual = api.getStudentTranscripts(STUDENT1_ID, 1, 10);
+
+        assertEquals(transcript1(), actualTranscript);
+        assertTrue(actual.contains(transcript1()));
+        assertTrue(actual.contains(transcript2()));
+        assertTrue(actual.contains(transcript3()));
+    }
 
 
     @Test
@@ -86,20 +108,7 @@ public class TranscriptClaimIT {
 
 
 
-//    @Test
-//    void teacher_read_ok() throws ApiException {
-//        ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-//        TranscriptApi api = new TranscriptApi(teacher1Client);
-//
-//        List<StudentTranscriptClaim> actual = api.getStudentClaimOfTranscriptVersion(STUDENT2_ID, TRANSCRIPT1_ID,  STUDENT_TRANSCRIPT_VERSION1_ID , STUDENT_TRANSCRIPT_VERSION_CLAIM1_ID);
-//        StudentTranscriptVersion studentTranscriptVersion = api.getStudentTranscriptByVersion(STUDENT1_ID,TRANSCRIPT1_ID,STUDENT_TRANSCRIPT_VERSION1_ID);
-//
-//        assertEquals(4,actual.size());
-//        assertEquals(studentTranscriptVersion1(),studentTranscriptVersion);
-//        assertTrue(actual.contains(studentTranscriptVersion1()));
-//        assertTrue(actual.contains(studentTranscriptVersion2()));
-//        assertTrue(actual.contains(studentTranscriptVersion3()));
-//    }
+
 
 
 
