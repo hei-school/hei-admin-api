@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.security;
 
-import javax.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Configuration;
@@ -14,6 +13,8 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
 
+import javax.servlet.http.HttpServletRequest;
+
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.POST;
@@ -26,23 +27,23 @@ import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 @Slf4j
 public class SecurityConf extends WebSecurityConfigurerAdapter {
 
-  private static final String AUTHORIZATION_HEADER = "Authorization";
-  private static final String STUDENT_COURSE = "/students/*/courses";
+    private static final String AUTHORIZATION_HEADER = "Authorization";
+    private static final String STUDENT_COURSE = "/students/*/courses";
 
-  private final AuthProvider authProvider;
-  private final HandlerExceptionResolver exceptionResolver;
+    private final AuthProvider authProvider;
+    private final HandlerExceptionResolver exceptionResolver;
 
-  public SecurityConf(
-      AuthProvider authProvider,
-      // InternalToExternalErrorHandler behind
-      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
-    this.authProvider = authProvider;
-    this.exceptionResolver = exceptionResolver;
-  }
+    public SecurityConf(
+            AuthProvider authProvider,
+            // InternalToExternalErrorHandler behind
+            @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
+        this.authProvider = authProvider;
+        this.exceptionResolver = exceptionResolver;
+    }
 
-  @Override
-  protected void configure(HttpSecurity http) throws Exception {
-    // @formatter:off
+    @Override
+    protected void configure(HttpSecurity http) throws Exception {
+        // @formatter:off
     http
         .exceptionHandling()
         .authenticationEntryPoint(
@@ -76,21 +77,6 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers("/ping").permitAll()
         .antMatchers(OPTIONS, "/**").permitAll()
         .antMatchers("/whoami").authenticated()
-            // student can only read himself, teach and manager can read but only manager can write
-            .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts")).hasAnyRole(STUDENT.getRole())
-            .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*")).hasAnyRole(STUDENT.getRole())
-            .antMatchers(GET, "/students/*/transcripts").hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-            .antMatchers(GET, "/students/*/transcripts/*").hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-            .antMatchers(PUT, "/students/*/transcripts").hasAnyRole(MANAGER.getRole())
-            // student can only read himself, teach and manager can read but only manager can write
-            .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions")).hasAnyRole(STUDENT.getRole())
-            .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions/*")).hasAnyRole(STUDENT.getRole())
-            .antMatchers(GET, "/students/*/transcripts/*/versions").hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-            .antMatchers(GET, "/students/*/transcripts/*/versions/*").hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-            // student can read and write himself, teach and manager can read and write
-            .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions/*/**")).hasAnyRole(STUDENT.getRole())
-            .antMatchers(GET, "/students/*/transcripts/*/versions/*/**").hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-            .antMatchers(PUT, "/students/*/transcripts/*/versions/*/claims/*").hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
         .antMatchers(GET, "/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*")).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/fees/*").hasAnyRole(MANAGER.getRole())
@@ -121,6 +107,21 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE)).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, STUDENT_COURSE).hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(PUT, STUDENT_COURSE).hasAnyRole(MANAGER.getRole())
+        // student can only read himself, teach and manager can read but only manager can write
+        .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts")).hasAnyRole(STUDENT.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*")).hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*/transcripts").hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+        .antMatchers(GET, "/students/*/transcripts/*").hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+        .antMatchers(PUT, "/students/*/transcripts").hasAnyRole(MANAGER.getRole())
+        // student can only read himself, teach and manager can read but only manager can write
+        .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions")).hasAnyRole(STUDENT.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions/*")).hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*/transcripts/*/versions").hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+        .antMatchers(GET, "/students/*/transcripts/*/versions/*").hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+        // student can read and write himself, teach and manager can read and write
+        .requestMatchers(new SelfMatcher(GET, "/students/*/transcripts/*/versions/*/**")).hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*/transcripts/*/versions/*/**").hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+        .antMatchers(PUT, "/students/*/transcripts/*/versions/*/claims/*").hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
         .antMatchers("/**").denyAll()
 
         // disable superfluous protections
