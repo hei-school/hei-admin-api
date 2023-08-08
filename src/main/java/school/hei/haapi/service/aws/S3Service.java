@@ -42,9 +42,19 @@ public class S3Service {
                 .key(key).build();
         try {
             ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(objectRequest);
+
             return objectBytes.asByteArray();
         } catch (AwsServiceException | SdkClientException e) {
-            throw new ApiException(ApiException.ExceptionType.SERVER_EXCEPTION,e);
+            int statusCode = 500;
+            if (e instanceof AwsServiceException) {
+                AwsServiceException awsException = (AwsServiceException) e;
+                statusCode = awsException.statusCode();
+            }
+            if (400<=statusCode && statusCode<500){
+                throw new ApiException(ApiException.ExceptionType.CLIENT_EXCEPTION, e.getMessage());
+            } else{
+                throw new ApiException(ApiException.ExceptionType.SERVER_EXCEPTION,e.getMessage());
+            }
         }
     }
 }
