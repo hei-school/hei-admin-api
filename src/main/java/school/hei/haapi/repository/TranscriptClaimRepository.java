@@ -15,4 +15,5 @@ public interface TranscriptClaimRepository extends JpaRepository< TranscriptClai
     List<TranscriptClaim> findAllByTranscriptVersionTranscriptStudentIdAndTranscriptVersionTranscriptIdAndTranscriptVersionId(String studentId, String transcriptId, String versionId, Pageable pageable);
 
     Optional<TranscriptClaim> findByTranscriptVersionTranscriptStudentIdAndTranscriptVersionTranscriptIdAndTranscriptVersionIdAndId(String studentId, String transcriptId, String versionId, String claimId);
+
 }

@@ -77,8 +77,6 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers("/ping").permitAll()
         .antMatchers(OPTIONS, "/**").permitAll()
         .antMatchers("/whoami").authenticated()
-            //TODO: change to get item in S3
-            .antMatchers(GET,"/list-buckets-name").authenticated()
         .antMatchers(GET, "/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*")).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/fees/*").hasAnyRole(MANAGER.getRole())
@@ -127,6 +125,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/students/*/transcripts/*/versions/*/claims/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(PUT, "/students/*/transcripts/*/versions/*/claims/*").hasAnyRole(MANAGER.getRole())
         .antMatchers("/**").denyAll()
+
         // disable superfluous protections
         // Eg if all clients are non-browser then no csrf
         // https://docs.spring.io/spring-security/site/docs/3.2.0.CI-SNAPSHOT/reference/html/csrf.html,
