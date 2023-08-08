@@ -31,14 +31,18 @@ public class TranscriptClaimMapper {
                 .status(StudentTranscriptClaim.StatusEnum.fromValue(transcriptClaim.getClaimStatus().toString()));
     }
 
-    public TranscriptClaim toDomain(StudentTranscriptClaim studentTranscriptClaim, String studentId, String transcriptId, String versionId, String claimId) {
-        Optional<TranscriptClaim> claim = transcriptClaimRepository.findByTranscriptVersionTranscriptStudentIdAndTranscriptVersionTranscriptIdAndTranscriptVersionIdAndId(studentId,transcriptId,versionId,claimId);
+    public TranscriptClaim toDomain(
+            StudentTranscriptClaim studentTranscriptClaim, String studentId,
+            String transcriptId, String versionId, String claimId) {
+        Optional<TranscriptClaim> claim = transcriptClaimRepository
+                .findByTranscriptVersionTranscriptStudentIdAndTranscriptVersionTranscriptIdAndTranscriptVersionIdAndId(
+                        studentId,transcriptId,versionId,claimId);
         Instant creationDatetime = Instant.now();
         Instant closedDatetime = null;
-        TranscriptClaim.ClaimStatus status = TranscriptClaim.ClaimStatus.OPEN;
+        TranscriptClaim.ClaimStatus status = studentTranscriptClaim.getStatus()==null?
+                TranscriptClaim.ClaimStatus.OPEN
+                : TranscriptClaim.ClaimStatus.valueOf(studentTranscriptClaim.getStatus().toString());
         if (claim != null && claim.isPresent()){
-            //creationDatetime = claim.get().getCreationDatetime();
-            //closedDatetime = claim.get().getClosedDatetime();
 
             creationDatetime = studentTranscriptClaim.getCreationDatetime();
             closedDatetime = studentTranscriptClaim.getClosedDatetime();
@@ -52,18 +56,24 @@ public class TranscriptClaimMapper {
                 closedDatetime = Instant.now();
             }
 
+        } else {
+            if (studentTranscriptClaim.getCreationDatetime()!=null || studentTranscriptClaim.getClosedDatetime()!=null){
+                throw new BadRequestException("At creation, creationDatetime and closedDatetime should be empty");
+            }
         }
 
         transcriptClaimValidator.accept(studentTranscriptClaim );
         if (!Objects.equals(studentTranscriptClaim.getId(), claimId)) {
-            throw new BadRequestException("Id in request body: "+studentTranscriptClaim.getId()+" is different from id in path variable: "+claimId);
+            throw new BadRequestException("Id in request body "+studentTranscriptClaim.getId()+" is different from id in path variable "+claimId);
         }
+        /*
         if (!Objects.equals(studentTranscriptClaim.getTranscriptId(), transcriptId)) {
             throw new BadRequestException("transcriptId in request body: "+studentTranscriptClaim.getTranscriptId()+" is different from transcript_id in path variable: "+transcriptId);
         }
         if (!Objects.equals(studentTranscriptClaim.getTranscriptVersionId(), versionId)) {
             throw new BadRequestException("versionId in request body: "+studentTranscriptClaim.getTranscriptVersionId()+" is different from version_id in path variable: "+versionId);
         }
+         */
 
         return TranscriptClaim.builder()
                 .id(studentTranscriptClaim.getId())
