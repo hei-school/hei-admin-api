@@ -41,7 +41,8 @@ public class TranscriptClaimController {
             @PathVariable("claim_id")String claimId
     )
     {
-        return transcriptClaimMapper.toRest(transcriptClaimService.findByVersionIdAndClaimId(studentId,transcriptId,versionId,claimId));
+        return transcriptClaimMapper.toRest(
+                transcriptClaimService.findByVersionIdAndClaimId(studentId,transcriptId,versionId,claimId));
     }
     @PutMapping("/students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/claims/{claim_id}")
     public StudentTranscriptClaim CreateOrUpdateTranscriptVersionClaim(
@@ -52,6 +53,9 @@ public class TranscriptClaimController {
             @RequestBody StudentTranscriptClaim studentTranscriptClaim
     ){
 
-        return transcriptClaimMapper.toRest(transcriptClaimService.save(transcriptClaimMapper.toDomain(studentTranscriptClaim,studentId,transcriptId,versionId,claimId),studentId,transcriptId,versionId,claimId));
+        return transcriptClaimMapper.toRest(
+                transcriptClaimService.save(
+                        transcriptClaimMapper.toDomain(studentTranscriptClaim,studentId,transcriptId,versionId,claimId),
+                        studentId,transcriptId,versionId,claimId));
     }
 }

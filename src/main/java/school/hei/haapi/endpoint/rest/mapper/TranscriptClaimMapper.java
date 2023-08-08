@@ -66,14 +66,6 @@ public class TranscriptClaimMapper {
         if (!Objects.equals(studentTranscriptClaim.getId(), claimId)) {
             throw new BadRequestException("Id in request body "+studentTranscriptClaim.getId()+" is different from id in path variable "+claimId);
         }
-        /*
-        if (!Objects.equals(studentTranscriptClaim.getTranscriptId(), transcriptId)) {
-            throw new BadRequestException("transcriptId in request body: "+studentTranscriptClaim.getTranscriptId()+" is different from transcript_id in path variable: "+transcriptId);
-        }
-        if (!Objects.equals(studentTranscriptClaim.getTranscriptVersionId(), versionId)) {
-            throw new BadRequestException("versionId in request body: "+studentTranscriptClaim.getTranscriptVersionId()+" is different from version_id in path variable: "+versionId);
-        }
-         */
 
         return TranscriptClaim.builder()
                 .id(studentTranscriptClaim.getId())

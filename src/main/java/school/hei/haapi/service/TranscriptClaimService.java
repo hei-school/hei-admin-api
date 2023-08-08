@@ -39,9 +39,12 @@ public class TranscriptClaimService {
 
 
     public TranscriptClaim save(TranscriptClaim domain,String studentId, String transcriptId, String versionId, String claimId) {
+        //validate each attribute before saving it in database
         transcriptClaimValidator.accept(domain);
+        //check if the claim already exist and all information given are corrects - to modify
         if (transcriptClaimRepository.findByTranscriptVersionTranscriptStudentIdAndTranscriptVersionTranscriptIdAndTranscriptVersionIdAndId(studentId, transcriptId, versionId, claimId).isPresent()) {
             return transcriptClaimRepository.save(domain);
+        //check if this claim doesn't exist and all information given are corrects - to modify
         } else if (transcriptClaimRepository.findById(claimId).isEmpty()
                 && transcriptVersionRepository.findByTranscriptStudentIdAndTranscriptIdAndId(studentId, transcriptId, versionId).isPresent()) {
             return transcriptClaimRepository.save(domain);
