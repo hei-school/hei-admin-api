@@ -43,6 +43,7 @@ public class S3Service {
         try {
             ResponseBytes<GetObjectResponse> objectBytes = s3Client.getObjectAsBytes(objectRequest);
 
+
             return objectBytes.asByteArray();
         } catch (AwsServiceException | SdkClientException e) {
             int statusCode = 500;
@@ -55,6 +56,7 @@ public class S3Service {
             } else{
                 throw new ApiException(ApiException.ExceptionType.SERVER_EXCEPTION,e.getMessage());
             }
+
         }
     }
 }
