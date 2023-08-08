@@ -10,6 +10,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Transcript;
 import school.hei.haapi.model.TranscriptVersion;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.TranscriptVersionRepository;
 import school.hei.haapi.service.aws.S3Service;
@@ -63,9 +64,12 @@ public class TranscriptVersionService {
     };
     @Transactional
     public TranscriptVersion addNewTranscriptVersion(String studentId, String transcriptId, String editorId, byte[] pdfFile) {
+        Transcript transcript = transcriptService.getByIdAndStudent(transcriptId,studentId);
+        if (transcript.getIsDefinitive()){
+            throw new BadRequestException("Transcript with id "+transcriptId+" is already definitive");
+        }
         User student = userService.getById(studentId);
         User editor = userService.getById(editorId);
-        Transcript transcript = transcriptService.getByIdAndStudent(transcriptId,studentId);
         int newRef = 1;
         if (!getTranscriptVersionByStudentAndTranscriptId(studentId, transcriptId, new PageFromOne(1), new BoundedPageSize(10)).isEmpty())
         { newRef = getTranscriptVersion(studentId,transcriptId,"latest").getRef()+1;}
