@@ -8,13 +8,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
-import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.TranscriptApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.StudentTranscriptClaim;
-import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
 import school.hei.haapi.endpoint.rest.model.Transcript;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -25,7 +22,24 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT_TRANSCRIPT_VERSION1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT_TRANSCRIPT_VERSION_CLAIM1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT_TRANSCRIPT_VERSION_CLAIM3_ID;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TRANSCRIPT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.TRANSCRIPT6_ID;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.studentTranscriptClaim1;
+import static school.hei.haapi.integration.conf.TestUtils.studentTranscriptClaim2;
+import static school.hei.haapi.integration.conf.TestUtils.transcript1;
+import static school.hei.haapi.integration.conf.TestUtils.transcript2;
+import static school.hei.haapi.integration.conf.TestUtils.transcript3;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -127,7 +141,7 @@ public class TranscriptClaimIT {
                 () -> api.getStudentClaimOfTranscriptVersion(STUDENT2_ID, TRANSCRIPT1_ID,  STUDENT_TRANSCRIPT_VERSION1_ID   ,  STUDENT_TRANSCRIPT_VERSION_CLAIM1_ID));
 
         assertThrowsApiException(
-                "{\"type\":\"404 NOT_FOUND\",\"message\":\"Transcript claim id" + STUDENT_TRANSCRIPT_VERSION_CLAIM3_ID +"not found\"}",
+                "{\"type\":\"404 NOT_FOUND\",\"message\":\"Transcript claim id " + STUDENT_TRANSCRIPT_VERSION_CLAIM3_ID +" not found\"}",
                 () -> api.getStudentClaimOfTranscriptVersion(STUDENT1_ID, TRANSCRIPT6_ID,  STUDENT_TRANSCRIPT_VERSION1_ID   ,  STUDENT_TRANSCRIPT_VERSION_CLAIM3_ID));
     }
 
