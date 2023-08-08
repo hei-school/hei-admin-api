@@ -364,7 +364,7 @@ public class TestUtils {
             .studentId(STUDENT1_ID)
             .semester(Transcript.SemesterEnum.S3)
             .academicYear(2022)
-            .isDefinitive(true)
+            .isDefinitive(false)
             .creationDatetime(Instant.parse("2022-05-09T08:25:24.00Z"));
   }
   public static Transcript transcript4() {
