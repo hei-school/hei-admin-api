@@ -1,13 +1,16 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.TranscriptClaimMapper;
 import school.hei.haapi.endpoint.rest.model.StudentTranscriptClaim;
-import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.TranscriptClaim;
 import school.hei.haapi.service.TranscriptClaimService;
 
 import java.util.List;
@@ -49,7 +52,6 @@ public class TranscriptClaimController {
             @RequestBody StudentTranscriptClaim studentTranscriptClaim
     ){
 
-        //TODO: validator pathVariable and body attribute (compare)
-        return transcriptClaimMapper.toRest(transcriptClaimService.save(transcriptClaimMapper.toDomain(studentTranscriptClaim,studentId,transcriptId,versionId,claimId)));
+        return transcriptClaimMapper.toRest(transcriptClaimService.save(transcriptClaimMapper.toDomain(studentTranscriptClaim,studentId,transcriptId,versionId,claimId),studentId,transcriptId,versionId,claimId));
     }
 }
