@@ -8,6 +8,6 @@ import school.hei.haapi.model.Exam;
 
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, String> {
-
+  Exam getByIdAndCourseId(String examId, String courseId);
   List<Exam> findExamsByCourse(Course courseId);
 }

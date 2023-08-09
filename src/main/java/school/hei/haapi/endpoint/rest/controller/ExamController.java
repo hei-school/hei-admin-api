@@ -31,7 +31,7 @@ public class ExamController {
   @GetMapping(value = "/courses/{course_id}/exams/{exam_id}/details")
   public ExamDetail getExamDetails(
       @PathVariable("course_id") String courseId, @PathVariable("exam_id") String examId) {
-    return examMapper.toRestExamDetail(examService.getExamById(examId),
+    return examMapper.toRestExamDetail(examService.getExamById(examId, courseId),
         gradeService.getAllGradesByExamId(examId));
   }
 

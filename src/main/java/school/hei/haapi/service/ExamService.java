@@ -19,7 +19,7 @@ public class ExamService {
     return examRepository.findExamsByCourse(course);
   }
 
-  public Exam getExamById(String id) {
-    return examRepository.getById(id);
+  public Exam getExamById(String id, String courseId) {
+    return examRepository.getByIdAndCourseId(id, courseId);
   }
 }

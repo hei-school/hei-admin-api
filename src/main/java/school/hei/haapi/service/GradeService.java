@@ -13,6 +13,7 @@ import school.hei.haapi.repository.UserRepository;
 public class GradeService {
   private final GradeRepository gradeRepository;
   private final UserRepository userRepository;
+
   public List<Grade> getAllGradesByExamId(String examId) {
     return gradeRepository.getGradesByExam_Id(examId);
   }
@@ -21,8 +22,9 @@ public class GradeService {
     return gradeRepository.getGradesByStudentCourse(studentCourse);
   }
 
-  public Grade getGradeByExamIdAndStudentId(String examId, String studentId) {
-    return gradeRepository.getGradeByExamIdAndStudentCourseStudent(examId, userRepository.getById(studentId));
+  public Grade getGradeByExamIdAndStudentId(String examId, String studentId, String courseId) {
+    return gradeRepository.getGradeByExamIdAndStudentCourseStudentIdAndStudentCourseCourseId(examId,
+        studentId, courseId);
   }
 }
 

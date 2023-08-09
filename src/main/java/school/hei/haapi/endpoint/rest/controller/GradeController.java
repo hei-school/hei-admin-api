@@ -38,7 +38,7 @@ public class GradeController {
       @PathVariable("participant_id") String participantId
   ) {
     return gradeMapper.toRestStudentGrade(
-        gradeService.getGradeByExamIdAndStudentId(examId, participantId),
+        gradeService.getGradeByExamIdAndStudentId(examId, participantId, courseId),
         userService.getById(participantId));
   }
 }

@@ -60,7 +60,7 @@ public class CourseService {
     return courseDao.getByUserIdAndStatus(userId, status);
   }
 
-  public Course getById(String id){
+  public Course getById(String id) {
     return courseRepository.getCourseById(id);
   }
 
@@ -74,7 +74,8 @@ public class CourseService {
 
   private Course updateCourseStatus(User user, UpdateStudentCourse update) {
     Course course = courseRepository.getById(update.getCourseId());
-    StudentCourse studentCourse = studentCourseRepository.findByStudentIdAndCourseId(user.getId(), course.getId());
+    StudentCourse studentCourse =
+        studentCourseRepository.findByStudentIdAndCourseId(user.getId(), course.getId());
     if (studentCourse == null) {
       studentCourse = StudentCourse
           .builder()
