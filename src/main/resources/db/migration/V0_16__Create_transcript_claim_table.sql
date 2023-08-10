@@ -12,8 +12,8 @@ create table if not exists "transcript_claim" (
         primary key ,
     reason text not null,
     claim_status claim_status not null,
-    closed_datetime timestamp,
-    creation_datetime timestamp,
+    closed_datetime timestamp with time zone,
+    creation_datetime timestamp with time zone not null default now(),
     transcript_version_id varchar not null
         constraint transcript_version_fk references "transcript_version" (id)
 );
