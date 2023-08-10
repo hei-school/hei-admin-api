@@ -47,10 +47,6 @@ public class TranscriptClaimMapper {
             creationDatetime = studentTranscriptClaim.getCreationDatetime();
             closedDatetime = studentTranscriptClaim.getClosedDatetime();
 
-            if (studentTranscriptClaim.getStatus()!=null){
-                status = TranscriptClaim.ClaimStatus.valueOf(studentTranscriptClaim.getStatus().toString());
-            }
-
             if (claim.get().getClaimStatus().equals(TranscriptClaim.ClaimStatus.OPEN)
                     && Objects.equals(studentTranscriptClaim.getStatus(), StudentTranscriptClaim.StatusEnum.CLOSE)){
                 closedDatetime = Instant.now();
