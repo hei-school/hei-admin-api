@@ -71,7 +71,9 @@ public class TranscriptVersionService {
         User student = userService.getById(studentId);
         User editor = userService.getById(editorId);
         int newRef = 1;
-        if (!getTranscriptVersionByStudentAndTranscriptId(studentId, transcriptId, new PageFromOne(1), new BoundedPageSize(10)).isEmpty())
+        if (!getTranscriptVersionByStudentAndTranscriptId(studentId, transcriptId, new PageFromOne(1), new BoundedPageSize(10))
+                .isEmpty()
+        )
         { newRef = getTranscriptVersion(studentId,transcriptId,"latest").getRef()+1;}
         String key = student.getRef()+"-"+transcript.getAcademicYear()+"-"+transcript.getSemester()+"-v"+newRef+".pdf";
         String pdfKey = s3Service.uploadObjectToS3Bucket(key,pdfFile);
@@ -83,4 +85,5 @@ public class TranscriptVersionService {
                 .creationDatetime(Instant.now())
                 .build());
     }
+
 }

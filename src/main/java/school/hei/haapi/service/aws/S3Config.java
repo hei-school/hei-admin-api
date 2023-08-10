@@ -7,8 +7,6 @@ import software.amazon.awssdk.auth.credentials.AwsBasicCredentials;
 import software.amazon.awssdk.auth.credentials.StaticCredentialsProvider;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.s3.S3Client;
-
-import java.net.URI;
 @Configuration
 public class S3Config {
     @Value("${AWS_ACCESS_KEY_ID}")
@@ -22,8 +20,6 @@ public class S3Config {
     public S3Client amazonS3Client() {
        return S3Client.builder()
                 .region(Region.of(awsS3Region))
-                .endpointOverride(URI.create("https://s3."+awsS3Region+".amazonaws.com"))
-                .forcePathStyle(true)
                 .credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(awsS3AccessKeyId,awsS3SecretKey)))
                 .build();
     }
