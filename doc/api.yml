@@ -1416,6 +1416,115 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/students/{id}/pointing':
+    post:
+      tags:
+        - Check-in
+      summary: To monitoring the pointing of one student
+      operationId: createPointing
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: give the student id
+          schema:
+            type: string
+        - name: place
+          in: query
+          required: true
+          description: give the place where the pointing was registered
+          schema:
+            type: string
+        - name: pointing_type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/PointingType'
+      responses:
+        '200':
+          description: monitoring a student pointing
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Pointing'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/courses/{course_id}/pointing':
+    get:
+      tags:
+        - Check-in
+      summary: Get all student who missing a course or are late
+      operationId: getCoursesPointing
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: course_id
+          required: true
+          in: path
+          description: give the course to monitoring the pointing
+          schema:
+            type: string
+        - name: student_firstname
+          in: query
+          description: filtering the pointing by student firstname
+          schema:
+            type: string
+        - name: student_lastname
+          in: query
+          description: filtering the pointing by student lastname
+          schema:
+            type: string
+        - name: begin_date_filter
+          in: query
+          description: filtering the pointing from a specific date
+          schema:
+            type: string
+            format: date-time
+        - name: finish_date_filter
+          in: query
+          description: filtering the pointing before a specific date
+          schema:
+            type: string
+            format: date-time
+        - name: pointing_course_type
+          in: query
+          description: it has two type of pointing-course-type ABSENT and MISSING
+          schema:
+            $ref: '#/components/schemas/PointingCourseType'
+      responses:
+        '200':
+          description: all students who miss a course or are late
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentMissing'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -1480,6 +1589,17 @@ components:
           type: string
         email:
           type: string
+    Pointing:
+      properties:
+        id:
+          type: string
+        datetime:
+          type: string
+          format: date-time
+        place:
+          type: string
+        student:
+          $ref: '#/components/schemas/User'
     User:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
@@ -1507,6 +1627,30 @@ components:
       enum:
         - ENABLED
         - DISABLED
+    StudentMissing:
+      type: object
+      properties:
+        id:
+          type: string
+        pointing_datetime:
+          type: string
+          format: date-time
+        place:
+          type: string
+        datetime_course_enter:
+          type: string
+          format: date-time
+        datetime_course_exit:
+          type: string
+          format: date-time
+        is_late:
+          type: boolean
+        is_missing:
+          type: boolean
+        course:
+          $ref: '#/components/schemas/Course'
+        student:
+          $ref: '#/components/schemas/Student'
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
@@ -1753,6 +1897,16 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
+    PointingCourseType:
+      type: string
+      enum:
+        - MISSING
+        - LATE
+    PointingType:
+      type: string
+      enum:
+        - ENTER
+        - EXIT
     CourseDirection:
       type: string
       enum:
