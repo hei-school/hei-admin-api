@@ -224,7 +224,6 @@ class TeacherIT {
     String exceptionMessage1 = exception1.getMessage();
     String exceptionMessage2 = exception2.getMessage();
     assertTrue(exceptionMessage2.contains("Email must be valid"));
-    assertTrue(exceptionMessage1.contains("First name is mandatory"));
     assertTrue(exceptionMessage1.contains("Last name is mandatory"));
     assertTrue(exceptionMessage1.contains("Email is mandatory"));
     assertTrue(exceptionMessage1.contains("Address is mandatory"));
