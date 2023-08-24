@@ -42,7 +42,6 @@ public class User implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  @NotBlank(message = "First name is mandatory")
   private String firstName;
 
   @NotBlank(message = "Last name is mandatory")
