@@ -1657,8 +1657,8 @@ components:
       properties:
         id:
           type: string
-        course:
-          $ref: '#/components/schemas/Course'
+        awareded_course:
+          $ref: '#/components/schemas/AwardedCourse'
         begin:
           type: string
           format: date-time
