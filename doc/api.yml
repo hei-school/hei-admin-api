@@ -1186,7 +1186,7 @@ paths:
       tags:
         - Check-in
       summary: To monitoring the pointing of one student
-      operationId: managePointing
+      operationId: createPointing
       parameters:
         - name: id
           in: path
@@ -1264,7 +1264,7 @@ paths:
           in: query
           description: it has two type of pointing-course-type ABSENT and MISSING
           schema:
-            $ref: '#/components/schemas/PoitingCourseType'
+            $ref: '#/components/schemas/PointingCourseType'
       responses:
         '200':
           description: all students who miss a course or are late
@@ -1630,7 +1630,7 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
-    PoitingCourseType:
+    PointingCourseType:
       type: string
       enum:
         - MISSING
