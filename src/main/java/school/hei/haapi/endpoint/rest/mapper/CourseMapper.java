@@ -19,8 +19,7 @@ public class CourseMapper {
         .code(domain.getCode())
         .name(domain.getName())
         .credits(domain.getCredits())
-        .totalHours(domain.getTotalHours())
-        .mainTeacher(mainTeacher);
+        .totalHours(domain.getTotalHours());
   }
 
   public school.hei.haapi.model.Course toDomain(CrupdateCourse rest, User teacher) {

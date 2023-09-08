@@ -26,8 +26,8 @@ public class StudentCourseMapper {
         .name(course.getName())
         .code(course.getCode())
         .credits(course.getCredits())
-        .totalHours(course.getTotalHours())
-        .mainTeacher(userMapper.toRestTeacher(course.getMainTeacher()));
+        .totalHours(course.getTotalHours());
+//        .mainTeacher(userMapper.toRestTeacher(course.getMainTeacher()));
   }
 
   public List<StudentCourseExam> toRestStudentCourseExams(List<StudentCourse> studentCourses) {
