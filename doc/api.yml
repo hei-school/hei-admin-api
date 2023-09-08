@@ -1364,7 +1364,7 @@ components:
         place:
           type: string
         student:
-          $ref: '#/components/schemas/User'
+          $ref: '#/components/schemas/Student'
     User:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
