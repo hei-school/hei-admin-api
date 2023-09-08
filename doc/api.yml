@@ -1194,12 +1194,12 @@ paths:
           description: give the student id
           schema:
             type: string
-        - name: pointing_type
-          description: if student is entering or exiting the establishment
+        - name: place
           in: query
           required: true
+          description: give the place where the pointing was registered
           schema:
-            $ref: '#/components/schemas/PointingType'
+            type: string
       responses:
         '200':
           description: monitoring a student pointing
@@ -1353,8 +1353,6 @@ components:
       properties:
         id:
           type: string
-        pointing_type:
-          $ref: '#/components/schemas/PoitingCourseType'
         datetime:
           type: string
           format: date-time
@@ -1408,7 +1406,7 @@ components:
         course:
           $ref: '#/components/schemas/Course'
         student:
-          $ref: '#/components/schemas/User'
+          $ref: '#/components/schemas/Student'
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
@@ -1635,11 +1633,6 @@ components:
       enum:
         - MISSING
         - LATE
-    PointingType:
-      type: string
-      enum:
-        - ENTER
-        - EXIT
     CourseDirection:
       type: string
       enum:
