@@ -1200,6 +1200,11 @@ paths:
           description: give the place where the pointing was registered
           schema:
             type: string
+        - name: pointing_type
+          in: query
+          required: true
+          schema:
+            $ref: '#/components/schemas/PointingType'
       responses:
         '200':
           description: monitoring a student pointing
@@ -1356,6 +1361,8 @@ components:
         datetime:
           type: string
           format: date-time
+        place:
+          type: string
         student:
           $ref: '#/components/schemas/User'
     User:
@@ -1393,6 +1400,8 @@ components:
         pointing_datetime:
           type: string
           format: date-time
+        place:
+          type: string
         datetime_course_enter:
           type: string
           format: date-time
@@ -1633,6 +1642,11 @@ components:
       enum:
         - MISSING
         - LATE
+    PointingType:
+      type: string
+      enum:
+        - ENTER
+        - EXIT
     CourseDirection:
       type: string
       enum:
