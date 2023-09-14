@@ -1238,6 +1238,8 @@ paths:
           in: query
           required: false
           description: Filter attendance by student `ref, lastname, firstname`
+          schema:
+            type: string
         - name: from
           in: query
           required: false
