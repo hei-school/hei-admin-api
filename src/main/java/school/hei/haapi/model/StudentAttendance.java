@@ -59,7 +59,7 @@ public class StudentAttendance implements Serializable {
   @JoinColumn(name = "student_id")
   private User student;
 
-  public boolean isLateOf(Instant toCompare) {
+  public boolean isLateFrom(Instant toCompare) {
     return this.createdAt.isAfter(toCompare);
   }
 }

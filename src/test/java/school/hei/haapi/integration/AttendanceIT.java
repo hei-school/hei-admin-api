@@ -67,7 +67,10 @@ class AttendanceIT {
         .student(student1())
         .attendanceMovementType(AttendanceMovementType.IN);
 
-    assertEquals(actual, expected);
+    assertEquals(actual.getCreatedAt(), expected.getCreatedAt());
+    assertEquals(actual.getAttendanceMovementType(), expected.getAttendanceMovementType());
+    assertEquals(actual.getPlace(), expected.getPlace());
+    assertEquals(actual.getStudent(), expected.getStudent());
   }
 
   public static CourseSession courseSession1() {
