@@ -25,7 +25,7 @@ import school.hei.haapi.service.AttendanceService;
 public class AttendanceController {
   private final AttendanceMapper attendanceMapper;
   private final AttendanceService attendanceService;
-  //TODO: not reviewed
+
   @PostMapping("/attendance/movement")
   public List<StudentAttendanceMovement> createAttendanceMovement(
       @RequestBody List<CreateAttendanceMovement> movement) {
