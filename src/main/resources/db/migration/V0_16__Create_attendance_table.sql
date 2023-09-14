@@ -19,7 +19,7 @@ $$;
 create table if not exists "attendance" (
     id                                  varchar
         constraint  attendance_pk primary key default uuid_generate_v4(),
-    created_at                          timestamp with time zone,
+    created_at                          timestamp null default null,
     is_late                             boolean,
     attendance_movement_type            attendance_movement_type,
     place                               place,
