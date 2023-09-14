@@ -5,7 +5,7 @@ values
     ('attendance2_id', '2021-08-08T14:15:00.00Z', false, 'student1_id', 'course_session2_id', 'ANDRAHARO', 'IN'),
     ('attendance3_id', '2021-11-08T08:35:00.00Z', true, 'student2_id', 'course_session1_id', 'IVANDRY', 'IN'),
     ('attendance4_id', '2021-08-08T15:15:00.00Z', true, 'student2_id', 'course_session2_id', 'ANDRAHARO', 'IN'),
-    ('attendance5_id', null, false, true, 'student3_id', 'calendar1_id', null, null),
-    ('attendance6_id', null, false, true, 'student3_id', 'calendar2_id', null, null),
+    ('attendance5_id', null, false, 'student3_id', 'course_session1_id', null, null),
+    ('attendance6_id', null, false, 'student3_id', 'course_session2_id', null, null),
     ('attendance7_id', '2021-11-08T012:30:00.00Z', false, 'student1_id', 'course_session1_id', 'ANDRAHARO', 'OUT'),
     ('attendance8_id', '2021-11-08T012:00:00.00Z', true, 'student2_id', 'course_session1_id', 'IVANDRY', 'OUT');

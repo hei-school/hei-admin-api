@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
@@ -66,7 +67,7 @@ class AttendanceIT {
         .student(student1())
         .attendanceMovementType(AttendanceMovementType.IN);
 
-    assertTrue(actual.equals(expected));
+    assertEquals(actual, expected);
   }
 
   public static CourseSession courseSession1() {
@@ -201,6 +202,7 @@ class AttendanceIT {
     return new CreateAttendanceMovement()
         .place(PlaceEnum.ANDRAHARO)
         .attendanceMovementType(AttendanceMovementType.IN)
+        .studentId("student1_id")
         .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"));
   }
 
