@@ -10,10 +10,17 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.awardedCourse1;
+import static school.hei.haapi.integration.conf.TestUtils.awardedCourse2;
 import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.course2;
+import static school.hei.haapi.integration.conf.TestUtils.course3;
+import static school.hei.haapi.integration.conf.TestUtils.group1;
+import static school.hei.haapi.integration.conf.TestUtils.group2;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
+import static school.hei.haapi.integration.conf.TestUtils.teacher2;
+import static school.hei.haapi.integration.conf.TestUtils.teacher4;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,6 +36,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AttendanceMovementType;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
+import school.hei.haapi.endpoint.rest.model.AwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CourseSession;
 import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
 import school.hei.haapi.endpoint.rest.model.PlaceEnum;
@@ -58,7 +66,6 @@ class AttendanceIT {
   void setUp() {
     setUpCognito(cognitoComponent);
   }
-
   @Test
   void teacher_read_attendance_from_and_to_instant_criteria() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
@@ -208,10 +215,26 @@ class AttendanceIT {
         () -> api.createAttendanceMovement(List.of(createAttendanceMovementKo())));
   }
 
+  public static AwardedCourse awardedCourse4() {
+    return new AwardedCourse()
+        .id("awarded_course4_id")
+        .course(course2())
+        .group(group1())
+        .mainTeacher(teacher4());
+  }
+
+  public static AwardedCourse awardedCourse5() {
+    return new AwardedCourse()
+        .id("awarded_course5_id")
+        .course(course3())
+        .group(group2())
+        .mainTeacher(teacher2());
+  }
+
   public static CourseSession courseSession1() {
     return new CourseSession()
         .id("course_session1_id")
-        .course(course1())
+        .awarededCourse(awardedCourse1())
         .begin(Instant.parse("2021-11-08T08:00:00.00Z"))
         .end(Instant.parse("2021-11-08T12:00:00.00Z"));
   }
@@ -219,7 +242,7 @@ class AttendanceIT {
   public static CourseSession courseSession2() {
     return new CourseSession()
         .id("course_session2_id")
-        .course(course2())
+        .awarededCourse(awardedCourse4())
         .begin(Instant.parse("2021-08-08T15:00:00.00Z"))
         .end(Instant.parse("2021-08-08T17:00:00.00Z"));
   }
