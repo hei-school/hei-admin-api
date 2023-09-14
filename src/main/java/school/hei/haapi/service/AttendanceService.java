@@ -1,5 +1,7 @@
 package school.hei.haapi.service;
 
+import static school.hei.haapi.service.utils.AttendanceServiceUtils.filterAttendanceFromTwoSet;
+import static school.hei.haapi.service.utils.AttendanceServiceUtils.getFilterCase;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -7,8 +9,8 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,15 +21,21 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.repository.AttendanceRepository;
 import school.hei.haapi.repository.dao.StudentAttendanceDao;
+import school.hei.haapi.service.utils.AttendanceServiceUtils;
 
 @Service
 @AllArgsConstructor
 public class AttendanceService {
   private final AttendanceRepository attendanceRepository;
   private final StudentAttendanceDao studentAttendanceDao;
+  private final AttendanceServiceUtils utils;
 
   public List<StudentAttendance> createStudentAttendanceMovement(List<StudentAttendance> toCreate) {
-    return attendanceRepository.saveAll(toCreate);
+    List<StudentAttendance> toCreateMapped = new ArrayList<>();
+    toCreate.forEach(studentAttendance -> {
+      utils.saveStudentAttendance(studentAttendance, toCreateMapped);
+    });
+    return toCreateMapped;
   }
 
   public List<StudentAttendance> getStudentAttendances(
@@ -69,22 +77,5 @@ public class AttendanceService {
     });
 
     return result;
-  }
-
-  public List<StudentAttendance> filterAttendanceFromTwoSet(
-      List<StudentAttendance> givenData, Set<StudentAttendance> toCompare
-  ) {
-    return givenData.stream().filter(toCompare::contains).collect(Collectors.toList());
-  }
-
-  public int getFilterCase(List<AttendanceStatus> attendanceStatuses) {
-    int filterCase = 0;
-    if (attendanceStatuses != null && !attendanceStatuses.isEmpty()) {
-      filterCase = 1;
-    }
-    if ((attendanceStatuses == null)) {
-      filterCase = 2;
-    }
-    return filterCase;
   }
 }

@@ -7,5 +7,4 @@ import school.hei.haapi.model.Course;
 public interface CourseRepository extends JpaRepository<Course, String> {
   boolean existsByCode(String code);
   Course getCourseById(String id);
-
 }

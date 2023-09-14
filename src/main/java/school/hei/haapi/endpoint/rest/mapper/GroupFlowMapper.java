@@ -7,6 +7,7 @@ import school.hei.haapi.endpoint.rest.model.GroupFlow;
 @Component
 @AllArgsConstructor
 public class GroupFlowMapper {
+  private final UserMapper userMapper;
 
   public GroupFlow toRest(school.hei.haapi.model.GroupFlow domain) {
     return new GroupFlow()
@@ -15,6 +16,6 @@ public class GroupFlowMapper {
             .groupId(domain.getGroup().getId())
             .studentId(domain.getStudent().getId())
             .moveType(GroupFlow.MoveTypeEnum.fromValue(domain.getGroupFlowType().toString()));
-  }
+}
 
 }

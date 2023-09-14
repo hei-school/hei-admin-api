@@ -5,6 +5,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CourseSession;
 import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
 import school.hei.haapi.endpoint.rest.model.StudentAttendanceMovement;
+import school.hei.haapi.model.Course;
 import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.UserRepository;
@@ -12,7 +13,7 @@ import school.hei.haapi.repository.UserRepository;
 @AllArgsConstructor
 @Component
 public class AttendanceMapper {
-  private final CourseMapper courseMapper;
+  private final AwardedCourseMapper awardedCourseMapper;
   private final UserMapper userMapper;
   private final UserRepository userRepository;
 
@@ -55,7 +56,7 @@ public class AttendanceMapper {
 
   public CourseSession toCourseSession(school.hei.haapi.model.CourseSession toMap) {
     return new CourseSession()
-        .course(courseMapper.toRest(toMap.getCourse()))
+        .awarededCourse(awardedCourseMapper.toRest(toMap.getAwardedCourse()))
         .id(toMap.getId())
         .end(toMap.getEnd())
         .begin(toMap.getBegin());

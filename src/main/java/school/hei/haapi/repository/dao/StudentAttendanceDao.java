@@ -3,6 +3,7 @@ package school.hei.haapi.repository.dao;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -14,6 +15,7 @@ import javax.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
+import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseSession;
 import school.hei.haapi.model.StudentAttendance;
@@ -35,12 +37,14 @@ public class StudentAttendanceDao {
     Root<StudentAttendance> studentAttendanceRoot = query.from(StudentAttendance.class);
     Join<StudentAttendance, CourseSession> courseSessionJoin =
         studentAttendanceRoot.join("courseSession", JoinType.LEFT);
-    Join<CourseSession, Course> courseJoin =
-        courseSessionJoin.join("course", JoinType.LEFT);
+    Join<CourseSession, AwardedCourse> awardedCourseJoin =
+        courseSessionJoin.join("awardedCourse", JoinType.LEFT);
+    Join<AwardedCourse, Course> courseJoin =
+        awardedCourseJoin.join("course", JoinType.LEFT);
     Join<StudentAttendance, User> userJoin =
         studentAttendanceRoot.join("student", JoinType.LEFT);
-    Join<Course, User> teacherJoin =
-        courseJoin.join("mainTeacher", JoinType.LEFT);
+    Join<AwardedCourse, User> teacherJoin =
+        awardedCourseJoin.join("mainTeacher", JoinType.LEFT);
     List<Predicate> predicates = new ArrayList<>();
 
     // sorting attendance by created_at ASC

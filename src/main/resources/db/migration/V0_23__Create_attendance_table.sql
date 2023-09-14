@@ -13,8 +13,9 @@ $$;
 create table if not exists "attendance" (
     id                                  varchar
     constraint  attendance_pk primary key default uuid_generate_v4(),
-    created_at                          timestamp null default null,
-    is_late                             boolean,
+    created_at                          timestamp default null,
+    is_late                             boolean default false,
+    late_of                             integer,
     attendance_movement_type            attendance_movement_type default 'IN',
     place                               place,
     course_session_id                   varchar
