@@ -11,7 +11,38 @@ import java.util.UUID;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.AttendanceMovementType;
+import school.hei.haapi.endpoint.rest.model.AttendanceMovementType;
+import school.hei.haapi.endpoint.rest.model.AwardedCourse;
+import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseSession;
+import school.hei.haapi.endpoint.rest.model.CourseSession;
+import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
+import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
+import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CreateGrade;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourse;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.ExamDetail;
+import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.PlaceEnum;
+import school.hei.haapi.endpoint.rest.model.PlaceEnum;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.StudentAttendance;
+import school.hei.haapi.endpoint.rest.model.StudentAttendance;
+import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -26,6 +57,7 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.Student.SexEnum.F;
 
 public class TestUtils {
 
@@ -440,6 +472,141 @@ public class TestUtils {
     return new AwardedCourseExam().id(AWARDED_COURSE4_ID)
         .mainTeacher(awardedCourse4().getMainTeacher()).course(awardedCourse4().getCourse())
         .group(awardedCourse4().getGroup()).exams(List.of(studentExamGrade5()));
+  }
+
+  public static CourseSession courseSession1() {
+    return new CourseSession()
+        .id("course_session1_id")
+        .course(course1())
+        .begin(Instant.parse("2021-11-08T08:00:00.00Z"))
+        .end(Instant.parse("2021-11-08T12:00:00.00Z"));
+  }
+
+  public static CourseSession courseSession2() {
+    return new CourseSession()
+        .id("course_session2_id")
+        .course(course2())
+        .begin(Instant.parse("2021-08-08T15:00:00.00Z"))
+        .end(Instant.parse("2021-08-08T17:00:00.00Z"));
+  }
+
+  public static Student student1() {
+    return new Student()
+        .id("student1_id")
+        .address("Adr 1")
+        .birthDate(LocalDate.parse("2000-01-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .sex(Student.SexEnum.M)
+        .email("test+ryan@hei.school")
+        .firstName("Ryan")
+        .lastName("Andria")
+        .ref("STD21001")
+        .phone("0322411123")
+        .status(ENABLED);
+  }
+
+  public static Student student2() {
+    return new Student()
+        .id("student2_id")
+        .address("Adr 2")
+        .birthDate(LocalDate.parse("2000-01-02"))
+        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
+        .sex(F)
+        .email("test+student2@hei.school")
+        .firstName("Two")
+        .lastName("Student")
+        .ref("STD21002")
+        .phone("0322411124")
+        .status(ENABLED);
+  }
+
+  public static Student student3() {
+    return new Student()
+        .id("student3_id")
+        .address("Adr 2")
+        .birthDate(LocalDate.parse("2000-01-02"))
+        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
+        .sex(F)
+        .email("test+student3@hei.school")
+        .firstName("Three")
+        .lastName("Student")
+        .ref("STD21003")
+        .phone("0322411124")
+        .status(ENABLED);
+  }
+
+  public static StudentAttendance attendance1Ok() {
+    return new StudentAttendance()
+        .id("attendance1_id")
+        .student(student1())
+        .place(PlaceEnum.ANDRAHARO)
+        .isLate(false)
+        .courseSession(courseSession1())
+        .attendanceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+  }
+
+  public static StudentAttendance attendance2Ok() {
+    return new StudentAttendance()
+        .id("attendance2_id")
+        .student(student1())
+        .place(PlaceEnum.ANDRAHARO)
+        .isLate(false)
+        .courseSession(courseSession2())
+        .attendanceDatetime(Instant.parse("2021-08-08T08:25:24.00Z"));
+  }
+
+  public static StudentAttendance attendance3Late() {
+    return new StudentAttendance()
+        .id("attendance3_id")
+        .place(PlaceEnum.IVANDRY)
+        .isLate(true)
+        .courseSession(courseSession1())
+        .student(student2())
+        .attendanceDatetime(Instant.parse("2021-11-08T09:25:24.00Z"));
+  }
+
+  public static StudentAttendance attendance4Late() {
+    return new StudentAttendance()
+        .id("attendance4_id")
+        .isLate(true)
+        .place(PlaceEnum.ANDRAHARO)
+        .courseSession(courseSession2())
+        .student(student2())
+        .attendanceDatetime(Instant.parse("2021-11-08T10:30:24.00Z"));
+  }
+
+  public static StudentAttendance attendance5Missing() {
+    return new StudentAttendance()
+        .id("attendance5_id")
+        .isLate(false)
+        .student(student3())
+        .courseSession(courseSession1())
+        .attendanceDatetime(null);
+  }
+
+  public static StudentAttendance attendance6Missing() {
+    return new StudentAttendance()
+        .id("pointing6_id")
+        .isLate(false)
+        .student(student3())
+        .courseSession(courseSession2())
+        .attendanceDatetime(null);
+  }
+
+  public static StudentAttendance attendance7Out() {
+    return new StudentAttendance()
+        .id("attendance7_id")
+        .attendanceDatetime(Instant.parse("2021-11-08T012:30:00.00Z"))
+        .isLate(false)
+        .student(student1())
+        .courseSession(courseSession1());
+  }
+
+  public static CreateAttendanceMovement createAttendanceMovement() {
+    return new CreateAttendanceMovement()
+        .place(PlaceEnum.ANDRAHARO)
+        .attendanceMovementType(AttendanceMovementType.IN)
+        .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"));
   }
 
   public static boolean isBefore(String a, String b) {

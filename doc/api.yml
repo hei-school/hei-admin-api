@@ -1416,37 +1416,26 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/students/{id}/pointing':
+  '/attendance/movement':
     post:
       tags:
-        - Check-in
-      summary: To monitoring the pointing of one student
-      operationId: createPointing
-      parameters:
-        - name: id
-          in: path
-          required: true
-          description: give the student id
-          schema:
-            type: string
-        - name: place
-          in: query
-          required: true
-          description: give the place where the pointing was registered
-          schema:
-            type: string
-        - name: pointing_type
-          in: query
-          required: true
-          schema:
-            $ref: '#/components/schemas/PointingType'
+        - Attendance
+      summary: Create attendance movement of one student
+      operationId: createAttendanceMovement
+      requestBody:
+        description: Attendance movement to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAttendanceMovement'
       responses:
         '200':
-          description: monitoring a student pointing
+          description: Created student attendance movement
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Pointing'
+                $ref: '#/components/schemas/StudentAttendanceMovement'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1457,12 +1446,12 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/courses/{course_id}/pointing':
+  '/attendance':
     get:
       tags:
-        - Check-in
-      summary: Get all student who missing a course or are late
-      operationId: getCoursesPointing
+        - Attendance
+      summary: Get all attendances by courses ids or student key word
+      operationId: getStudentsAttendance
       parameters:
         - name: page
           in: query
@@ -1472,48 +1461,51 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
-        - name: course_id
-          required: true
-          in: path
-          description: give the course to monitoring the pointing
+        - name: courses_ids
+          required: false
+          in: query
+          description: Filter attendance by courses ids
+          schema:
+            type: array
+            items:
+              example: 'course1_id'
+        - name: student_key_word
+          in: query
+          required: false
+          description: Filter attendance by student `ref, lastname, firstname`
           schema:
             type: string
-        - name: student_firstname
+        - name: from
           in: query
-          description: filtering the pointing by student firstname
-          schema:
-            type: string
-        - name: student_lastname
-          in: query
-          description: filtering the pointing by student lastname
-          schema:
-            type: string
-        - name: begin_date_filter
-          in: query
-          description: filtering the pointing from a specific date
-          schema:
-            type: string
-            format: date-time
-        - name: finish_date_filter
-          in: query
-          description: filtering the pointing before a specific date
+          required: false
+          description: Filter attendance from a date, return all student presence by default
           schema:
             type: string
             format: date-time
-        - name: pointing_course_type
+        - name: to
+          required: false
           in: query
-          description: it has two type of pointing-course-type ABSENT and MISSING
+          description: Filter attendance before a date, return all student presence by default
           schema:
-            $ref: '#/components/schemas/PointingCourseType'
+            type: string
+            format: date-time
+        - name: attendance_statuses
+          required: false
+          in: query
+          description: Filter attendance by attendance status value
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/AttendanceStatus'
       responses:
         '200':
-          description: all students who miss a course or are late
+          description: List of attendance by courses ids or student key word
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/StudentMissing'
+                  $ref: '#/components/schemas/StudentAttendance'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1589,15 +1581,17 @@ components:
           type: string
         email:
           type: string
-    Pointing:
+    StudentAttendanceMovement:
       properties:
         id:
           type: string
-        datetime:
+        attendance_movement_type:
+          $ref: '#/components/schemas/AttendanceMovementType'
+        created_at:
           type: string
           format: date-time
         place:
-          type: string
+          $ref: '#/components/schemas/PlaceEnum'
         student:
           $ref: '#/components/schemas/Student'
     User:
@@ -1627,30 +1621,35 @@ components:
       enum:
         - ENABLED
         - DISABLED
-    StudentMissing:
+    StudentAttendance:
       type: object
       properties:
         id:
           type: string
-        pointing_datetime:
+        attendance_datetime:
           type: string
           format: date-time
         place:
-          type: string
-        datetime_course_enter:
-          type: string
-          format: date-time
-        datetime_course_exit:
-          type: string
-          format: date-time
+          $ref: '#/components/schemas/PlaceEnum'
         is_late:
           type: boolean
-        is_missing:
-          type: boolean
-        course:
-          $ref: '#/components/schemas/Course'
+        course_session:
+          $ref: '#/components/schemas/CourseSession'
         student:
           $ref: '#/components/schemas/Student'
+    CourseSession:
+      type: object
+      properties:
+        id:
+          type: string
+        course:
+          $ref: '#/components/schemas/Course'
+        begin:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
@@ -1804,6 +1803,23 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentExamGrade'
+    CreateAttendanceMovement:
+      type: object
+      properties:
+        student_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        attendance_movement_type:
+          $ref: '#/components/schemas/AttendanceMovementType'
+        place:
+          $ref: '#/components/schemas/PlaceEnum'
+    PlaceEnum:
+      type: string
+      enum:
+        - IVANDRY
+        - ANDRAHARO
     CreateFee:
       type: object
       properties:
@@ -1897,16 +1913,17 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
-    PointingCourseType:
+    AttendanceStatus:
       type: string
       enum:
         - MISSING
         - LATE
-    PointingType:
+        - PRESENT
+    AttendanceMovementType:
       type: string
       enum:
-        - ENTER
-        - EXIT
+        - IN
+        - OUT
     CourseDirection:
       type: string
       enum:
