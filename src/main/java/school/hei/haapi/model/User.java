@@ -27,6 +27,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
+import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
@@ -78,8 +79,14 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Role role;
 
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "student")
-  private List<StudentCourse> studentCourses;
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
+  private List<AwardedCourse> awardedCourses;
+
+  @OneToMany(mappedBy = "student", fetch = LAZY)
+  private List<GroupFlow> groupFlows;
+
+  @OneToMany(mappedBy = "student", fetch = LAZY)
+  private List<Grade> grades;
 
   @Override
   public boolean equals(Object o) {

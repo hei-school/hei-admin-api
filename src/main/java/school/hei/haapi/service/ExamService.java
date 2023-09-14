@@ -12,14 +12,15 @@ import school.hei.haapi.repository.ExamRepository;
 @AllArgsConstructor
 public class ExamService {
   private final ExamRepository examRepository;
-  private final CourseRepository courseRepository;
-
-  public List<Exam> getCourseExams(String courseId) {
-    Course course = courseRepository.getCourseById(courseId);
-    return examRepository.findExamsByCourse(course);
+  public List<Exam> getExamsFromAwardedCourseIdAndGroupId(String groupId, String awardedCourseId) {
+    return examRepository.findExamsByCourseIdAndAwardedGroupId(groupId, awardedCourseId);
   }
 
-  public Exam getExamById(String id, String courseId) {
-    return examRepository.getByIdAndCourseId(id, courseId);
+  public Exam getExamsByIdAndGroupIdAndAwardedCourseId(String id, String awardedCourseId, String groupId) {
+    return examRepository.findExamsByIdAndGroupIdAndAwardedGroupId(id, awardedCourseId, groupId);
+  }
+
+  public List<Exam> updateOrSaveAll(List<Exam> exams) {
+    return examRepository.saveAll(exams);
   }
 }

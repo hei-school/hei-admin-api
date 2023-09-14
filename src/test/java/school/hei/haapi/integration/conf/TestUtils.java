@@ -155,8 +155,8 @@ public class TestUtils {
         .address("Adr X");
   }
 
-  public static CrupdateCourse crupdatedCourse1() {
-    return new CrupdateCourse()
+  public static CreateOrUpdateCourse crupdatedCourse1() {
+    return new CreateOrUpdateCourse()
         .id(COURSE5_ID)
         .code("MGT1")
         .name("Collaborative work")
@@ -165,8 +165,8 @@ public class TestUtils {
         .mainTeacherId(TEACHER4_ID);
   }
 
-  public static CrupdateCourse crupdatedCourse2() {
-    return new CrupdateCourse()
+  public static CreateOrUpdateCourse crupdatedCourse2() {
+    return new CreateOrUpdateCourse()
         .code("MGT1")
         .name("Collaborative work like GWSP")
         .credits(12)

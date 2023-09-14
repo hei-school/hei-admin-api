@@ -11,5 +11,5 @@ create table if not exists "group_flow" (
     group_flow_type group_flow_type not null,
     group_id varchar not null constraint group_flow_group_id_fk references "group"(id),
     student_id varchar not null constraint group_flow_user_id_fk references "user"(id),
-    folow_datetime timestamp not null
+    flow_datetime timestamp not null
 );

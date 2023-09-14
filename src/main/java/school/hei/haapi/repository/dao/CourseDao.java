@@ -16,7 +16,7 @@ import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.model.Course;
-import school.hei.haapi.model.StudentCourse;
+import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.User;
 
 import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
@@ -33,7 +33,8 @@ public class CourseDao {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
     Root<Course> root = query.from(Course.class);
-    Join<Course, User> teacher = root.join("mainTeacher");
+    Join<AwardedCourse, Course> awardedCourseJoin = root.join("course");
+    Join<AwardedCourse, User> teacher = root.join("mainTeacher");
 
     List<Predicate> predicates = new ArrayList<>();
 
@@ -54,7 +55,7 @@ public class CourseDao {
     }
 
     if (teacherFirstName != null) {
-      predicates.add(builder.like(builder.lower(teacher.get("firstName")),
+      predicates.add(builder.like(builder.lower(awardedCourseJoin.get("mainTeacher").get("firstName")),
           "%" + teacherFirstName.toLowerCase() + "%"));
     }
     if (teacherLastName != null) {
@@ -115,17 +116,17 @@ public class CourseDao {
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
     Root<Course> courseRoot = query.from(Course.class);
 
-    Join<Course, StudentCourse> studentCourse =
-        courseRoot.join("studentCourses", JoinType.LEFT);
+    Join<Course, AwardedCourse> awardedCourse =
+        courseRoot.join("awardedCourses", JoinType.LEFT);
 
-    Join<StudentCourse, User> user = studentCourse.join("student", JoinType.LEFT);
+    Join<AwardedCourse, User> user = awardedCourse.join("student", JoinType.LEFT);
 
     Predicate hasUserId =
         builder.equal(user.get("id"), userId);
     if (status == null) {
       status = LINKED;
     }
-    Predicate hasStatus = builder.equal(studentCourse.get("status"), status);
+    Predicate hasStatus = builder.equal(awardedCourse.get("status"), status);
     query.where(builder.and(hasUserId, hasStatus))
         .distinct(true);
     return entityManager.createQuery(query).getResultList();

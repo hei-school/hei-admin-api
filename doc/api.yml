@@ -288,7 +288,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/StudentCourseExam'
+                  $ref: '#/components/schemas/AwardedCourseExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -490,9 +490,9 @@ paths:
     put:
       tags:
         - Teaching
-      summary: Crupdate courses
+      summary: Create Or Update courses
       description: Update courses when id are provided, create them otherwise.
-      operationId: crupdateCourses
+      operationId: CreateOrUpdateCourses
       requestBody:
         required: true
         content:
@@ -500,10 +500,10 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/CrupdateCourse'
+                $ref: '#/components/schemas/Course'
       responses:
         '200':
-          description: The crupdated courses
+          description: Courses to create or update
           content:
             application/json:
               schema:
@@ -677,7 +677,7 @@ paths:
           required: true
           schema:
             type: string
-      operationId: crupdateExams
+      operationId: CreateOrUpdateExams
       requestBody:
         required: true
         content:
@@ -1313,7 +1313,7 @@ paths:
           required: true
           schema:
             type: string
-      operationId: crupdateAwardedCourses
+      operationId: CreateOrUpdateAwardedCourses
       requestBody:
         required: true
         content:
@@ -1593,8 +1593,11 @@ components:
     CreateGroupFlow:
       type: object
       properties:
-        action:
+        MoveType:
           type: string
+          enum:
+            - JOIN
+            - LEAVE
         groupId:
           type: string
         studentId:
@@ -1614,13 +1617,6 @@ components:
           type: integer
         total_hours:
           type: integer
-    CrupdateCourse:
-      allOf:
-        - $ref: '#/components/schemas/CourseTemplate'
-      type: object
-      properties:
-        main_teacher_id:
-          type: string
     CourseStatus:
       type: string
       enum:
@@ -1675,6 +1671,8 @@ components:
         examination_date:
           type: string
           format: date-time
+        awarded_course_id:
+          type: string
     ExamDetail:
       allOf:
         - $ref: '#/components/schemas/ExamInfo'
@@ -1728,9 +1726,9 @@ components:
       properties:
         grade:
           $ref: '#/components/schemas/Grade'
-    StudentCourseExam:
+    AwardedCourseExam:
       allOf:
-        - $ref: '#/components/schemas/Course'
+        - $ref: '#/components/schemas/AwardedCourse'
       properties:
         exams:
           type: array

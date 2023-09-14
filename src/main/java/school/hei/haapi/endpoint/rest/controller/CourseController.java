@@ -48,15 +48,10 @@ public class CourseController {
     }
 
     @PutMapping("/courses")
-    public List<Course> crupdateCourses(@RequestBody List<CrupdateCourse> courses) {
+    public List<Course> createOrUpdateCourses(@RequestBody List<Course> courses) {
         HashMap<String, school.hei.haapi.model.User> teachers = new HashMap<String, school.hei.haapi.model.User>();
-        return service.crupdateCourses(courses.stream()
-                        .map(course -> {
-                            if (teachers.get(course.getMainTeacherId()) == null) {
-                                return mapper.toDomain(course, userService.getById(course.getMainTeacherId()));
-                            }
-                            return mapper.toDomain(course, teachers.get(course.getMainTeacherId()));
-                        })
+        return service.createOrUpdateCourses(courses.stream()
+                        .map(mapper::toDomain)
                         .collect(Collectors.toUnmodifiableList())
                 ).stream()
                 .map(mapper::toRest)
@@ -64,21 +59,18 @@ public class CourseController {
     }
 
     @GetMapping("students/{student_id}/courses")
-    public List<Course> getStudentCoursesById(
+    public List<Course> getCoursesByStudentId(
             @PathVariable("student_id") String studentId,
             @RequestParam(value = "status", required = false) CourseStatus status) {
-        return service.getCoursesByStatus(studentId, status).stream()
+        return service.getCoursesByUserId(studentId).stream()
                 .map(mapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
     }
 
-    @PutMapping("students/{student_id}/courses")
-    public List<Course> updateStudentCourses(
-            @PathVariable("student_id") String studentId,
-            @RequestBody List<UpdateStudentCourse> studentCourses) {
-        return service.updateStudentCourses(studentId, studentCourses).stream()
-                .map(mapper::toRest)
-                .collect(Collectors.toUnmodifiableList());
+    @GetMapping("/courses/{course_id}")
+    public Course getCoursesById(@PathVariable("course_id") String courseId) {
+        return mapper.toRest(service.getById(courseId));
     }
+
 
 }

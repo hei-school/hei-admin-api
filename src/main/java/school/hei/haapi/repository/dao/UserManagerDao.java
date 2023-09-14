@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Course;
-import school.hei.haapi.model.StudentCourse;
+import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.User;
 
 import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
@@ -71,11 +71,11 @@ public class UserManagerDao {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> query = builder.createQuery(User.class);
         Root<User> root = query.from(User.class);
-        Join<User, StudentCourse> studentCourse = root.join("studentCourses");
-        Join<StudentCourse, Course> course = studentCourse.join("course");
+        Join<User, AwardedCourse> awardedCourse = root.join("awardedCourses");
+        Join<AwardedCourse, Course> course = awardedCourse.join("course");
 
         Predicate hasCourseId = builder.equal(course.get("id"), courseId);
-        Predicate hasLinkedStatus = builder.equal(studentCourse.get("status"), LINKED);
+        Predicate hasLinkedStatus = builder.equal(awardedCourse.get("status"), LINKED);
         Predicate hasUserRole = builder.equal(root.get("role"), role);
         query
                 .distinct(true)

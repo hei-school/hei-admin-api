@@ -1,17 +1,26 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import java.util.List;
+import java.util.PrimitiveIterator;
+import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
+import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
+import school.hei.haapi.endpoint.rest.model.GroupFlow;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.service.GroupFlowService;
 import school.hei.haapi.service.UserService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -22,10 +31,16 @@ import static school.hei.haapi.model.User.Role.STUDENT;
 public class StudentController {
   private final UserService userService;
   private final UserMapper userMapper;
-
+  private final GroupFlowService groupFlowService;
+  private final GroupFlowMapper groupFlowMapper;
   @GetMapping("/students/{id}")
   public Student getStudentById(@PathVariable String id) {
     return userMapper.toRestStudent(userService.getById(id));
+  }
+
+  @GetMapping("/groups/{id}/students")
+  public List<Student> getStudentByGroupId(@PathVariable String groupId) {
+    return userService.getByGroupId(groupId).stream().map(userMapper::toRestStudent).collect(Collectors.toList());
   }
 
   @GetMapping("/students")
@@ -55,5 +70,12 @@ public class StudentController {
         .collect(toUnmodifiableList());
   }
 
+  @PostMapping("/students/{id}/group-flows")
+  public GroupFlow saveStudentGroup(
+          @PathVariable String id,
+          @RequestBody CreateGroupFlow createGroupFlow
+  ) {
+    return groupFlowMapper.toRest(groupFlowService.save(createGroupFlow));
+  }
 
 }

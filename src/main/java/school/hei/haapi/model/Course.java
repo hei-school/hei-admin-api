@@ -6,8 +6,6 @@ import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import lombok.AllArgsConstructor;
@@ -42,15 +40,9 @@ public class Course implements Serializable {
 
   private Integer totalHours;
 
-  @ManyToOne(fetch = LAZY)
-  @JoinColumn(name = "main_teacher")
-  private User mainTeacher;
-
   @OneToMany(mappedBy = "course", fetch = LAZY)
-  private List<StudentCourse> studentCourses;
+  private List<AwardedCourse> awardedCourse;
 
-  @OneToMany(mappedBy = "course", fetch = LAZY)
-  private List<Exam> exams;
 
   @Override
   public boolean equals(Object o) {

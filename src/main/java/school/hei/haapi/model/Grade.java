@@ -32,8 +32,9 @@ public class Grade implements Serializable {
   private String id;
 
   @ManyToOne
-  @JoinColumn(name = "student_course_id")
-  private StudentCourse studentCourse;
+  @JoinColumn(name = "student_id")
+  private User student;
+
   @ManyToOne
   @JoinColumn(name = "exam_id")
   private Exam exam;

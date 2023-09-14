@@ -24,10 +24,11 @@ import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
+import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Table(name = "\"student_course\"")
+@Table(name = "\"awarded_course\"")
 @Getter
 @Setter
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
@@ -36,24 +37,24 @@ import static javax.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class StudentCourse implements Serializable {
+public class AwardedCourse implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "user_id")
-  private User student;
+  @ManyToOne(fetch = LAZY)
+  @JoinColumn(name = "main_teacher")
+  private User mainTeacher;
 
   @ManyToOne
   @JoinColumn(name = "course_id")
   private Course course;
 
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
-  private CourseStatus status;
+  @ManyToOne
+  @JoinColumn(name = "group_id")
+  private Group group;
 
-  @OneToMany(mappedBy = "studentCourse")
-  private List<Grade> grades;
+  @OneToMany(mappedBy = "awardedCourse", fetch = LAZY)
+  private List<Exam> exams;
 
 }

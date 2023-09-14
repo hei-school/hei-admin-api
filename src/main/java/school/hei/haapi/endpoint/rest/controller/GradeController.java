@@ -5,12 +5,18 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
-import school.hei.haapi.endpoint.rest.mapper.StudentCourseMapper;
-import school.hei.haapi.endpoint.rest.model.StudentCourseExam;
+import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.model.AwardedCourse;
+import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.User;
-import school.hei.haapi.repository.StudentCourseRepository;
+import school.hei.haapi.repository.AwardedCourseRepository;
+import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
 
@@ -18,27 +24,38 @@ import school.hei.haapi.service.UserService;
 @AllArgsConstructor
 public class GradeController {
   private final UserService userService;
-  private final StudentCourseRepository studentCourseRepository;
-  private final StudentCourseMapper studentCourseMapper;
+  private final AwardedCourseService awardedCourseService;
+  private final AwardedCourseMapper awardedCourseMapper;
   private final GradeService gradeService;
   private final GradeMapper gradeMapper;
+  private final ExamService examService;
 
   @GetMapping("/students/{student_id}/grades")
-  public List<StudentCourseExam> getAllGradesOfStudent(
+  public List<AwardedCourseExam> getAllGradesOfStudent(
       @PathVariable("student_id") String studentId) {
+    List<AwardedCourse> awardedCourses = awardedCourseService.getByStudentId(studentId);
     User student = userService.getById(studentId);
-    return studentCourseMapper.toRestStudentCourseExams(
-        studentCourseRepository.findByStudentId(student.getId()));
+    return awardedCourseMapper.toRestAwardedCourseExams(awardedCourses, student);
   }
 
-  @GetMapping(value = "/courses/{course_id}/exams/{exam_id}/participants/{participant_id}")
-  public StudentGrade ParticipantOfExam(
-      @PathVariable("course_id") String courseId,
-      @PathVariable("exam_id") String examId,
-      @PathVariable("participant_id") String participantId
+  @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/grades")
+  public ExamDetail getExamGrades(
+          @PathVariable("group_id") String groupId,
+          @PathVariable("awarded_course_id") String awardedCourseId,
+          @PathVariable("exam_id") String examId) {
+    List<Grade> grades = gradeService.getAllGradesByExamId(examId);
+    Exam exam = examService.getExamsByIdAndGroupIdAndAwardedCourseId(examId, awardedCourseId, groupId);
+    return gradeMapper.toRestExamDetail(exam, grades);
+  }
+
+  @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/students/{student_id}/grades")
+  public StudentGrade getGradeOfStudentInOneExam(
+          @PathVariable("group_id") String groupId,
+          @PathVariable("awarded_course_id") String awardedCourseId,
+          @PathVariable("exam_id") String examId,
+          @PathVariable("student_id") String studentId
   ) {
-    return gradeMapper.toRestStudentGrade(
-        gradeService.getGradeByExamIdAndStudentId(examId, participantId, courseId),
-        userService.getById(participantId));
+    Grade grade = gradeService.getGradeByExamIdAndStudentId(examId, studentId, awardedCourseId, groupId);
+    return gradeMapper.toRestStudentGrade(grade);
   }
 }

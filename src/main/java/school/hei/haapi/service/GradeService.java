@@ -4,7 +4,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.Grade;
-import school.hei.haapi.model.StudentCourse;
+import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.UserRepository;
 
@@ -18,13 +18,10 @@ public class GradeService {
     return gradeRepository.getGradesByExam_Id(examId);
   }
 
-  public List<Grade> getGradesByStudentCourse(StudentCourse studentCourse) {
-    return gradeRepository.getGradesByStudentCourse(studentCourse);
-  }
 
-  public Grade getGradeByExamIdAndStudentId(String examId, String studentId, String courseId) {
-    return gradeRepository.getGradeByExamIdAndStudentCourseStudentIdAndStudentCourseCourseId(examId,
-        studentId, courseId);
+  //todo: modify for having scope
+  public Grade getGradeByExamIdAndStudentId(String examId, String studentId, String awardedCourseId, String groupId) {
+    return gradeRepository.getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(examId, studentId, awardedCourseId, groupId);
   }
 }
 

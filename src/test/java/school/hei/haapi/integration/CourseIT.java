@@ -202,7 +202,7 @@ class CourseIT {
   }
 
   @Test
-  void manager_crupdate_ok() throws ApiException {
+  void manager_create_or_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
@@ -213,7 +213,7 @@ class CourseIT {
   }
 
   @Test
-  void manager_crupdate_ko() {
+  void manager_create_or_update_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
