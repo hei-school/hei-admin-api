@@ -1196,7 +1196,7 @@ paths:
               $ref: '#/components/schemas/CreateAttendanceMovement'
       responses:
         '200':
-          description: student attendance movement created
+          description: Created student attendance movement
           content:
             application/json:
               schema:
@@ -1264,7 +1264,7 @@ paths:
               $ref: '#/components/schemas/AttendanceStatus'
       responses:
         '200':
-          description: All students presence for a giving course
+          description: List of attendance by courses ids or student key word
           content:
             application/json:
               schema:
