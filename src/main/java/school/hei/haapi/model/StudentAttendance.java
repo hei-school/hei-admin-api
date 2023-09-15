@@ -62,4 +62,8 @@ public class StudentAttendance implements Serializable {
   public boolean isLateFrom(Instant toCompare) {
     return this.createdAt.isAfter(toCompare);
   }
+
+  public int lateOf(Instant toDefine) {
+    return this.createdAt.compareTo(toDefine)*(-1);
+  }
 }

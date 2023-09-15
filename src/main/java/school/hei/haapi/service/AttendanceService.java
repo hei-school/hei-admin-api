@@ -1,7 +1,10 @@
 package school.hei.haapi.service;
 
+import java.time.Instant;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -24,18 +27,38 @@ public class AttendanceService {
     return attendanceRepository.save(toCreate);
   }
 
-  public List<StudentAttendance> getStudentAttendanceByStudentKeyword(
-      String studentKeyword, PageFromOne page, BoundedPageSize pageSize
-  ) {
-    Pageable pageable = PageRequest.of(
-        page.getValue() - 1,
-        pageSize.getValue()
-    );
+  public Set<StudentAttendance> getStudentAttendances(
+      String studentKeyword, List<String> coursesIds, List<AttendanceStatus> attendanceStatuses,
+      Instant from, Instant to, PageFromOne page, BoundedPageSize pageSize
+      ) {
+    Pageable pageable = PageRequest.of((page.getValue() - 1), pageSize.getValue());
+    Set<StudentAttendance> studentAttendanceList =
+        new HashSet<>(studentAttendanceDao.findByStudentKeyWord(studentKeyword, pageable));
 
-    return studentAttendanceDao.findByStudentKeyWord(studentKeyword, pageable);
+    if(!coursesIds.isEmpty()) {
+      studentAttendanceList.addAll(
+          attendanceRepository.findByCoursesSessionCriteria(coursesIds, from, to, pageable)
+      );
+    }
+    if(!attendanceStatuses.isEmpty()) {
+      studentAttendanceList.addAll(
+        getAttendanceByAttendanceStatuses(attendanceStatuses, pageable)
+      );
+    }
+    return studentAttendanceList;
   }
 
-  public List<StudentAttendance> getStudentAttendanceByCoursesIds(List<String> coursesIds) {
-    return attendanceRepository.findByCoursesId(coursesIds);
+  public Set<StudentAttendance> getAttendanceByAttendanceStatuses(List<AttendanceStatus> attendanceStatuses, Pageable pageable) {
+    Set<StudentAttendance> result = new HashSet<>();
+    Map<AttendanceStatus, Set<StudentAttendance>> eachStatusValues = new HashMap<>();
+    eachStatusValues.put(AttendanceStatus.MISSING, attendanceRepository.findStudentsAbsent(pageable));
+    eachStatusValues.put(AttendanceStatus.LATE, attendanceRepository.findStudentByAttendanceStatus(true, pageable));
+    eachStatusValues.put(AttendanceStatus.PRESENT, attendanceRepository.findStudentByAttendanceStatus(false, pageable));
+
+    attendanceStatuses.forEach(status -> {
+      result.addAll(eachStatusValues.get(status));
+    });
+
+    return result;
   }
 }

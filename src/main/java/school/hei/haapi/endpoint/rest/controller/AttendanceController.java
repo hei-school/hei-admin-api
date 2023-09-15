@@ -2,7 +2,9 @@ package school.hei.haapi.endpoint.rest.controller;
 
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -33,13 +35,17 @@ public class AttendanceController {
 
   @GetMapping("/attendance")
   public List<StudentAttendance> getStudentsAttendance(
-      @RequestParam(name = "attendance_statuses")List<AttendanceStatus> attendanceStatuses,
-      @RequestParam(name = "courses_ids")List<String> coursesIds,
-      @RequestParam(name = "student_key_word")String studentKeyWord,
-      @RequestParam(name = "from")Instant from,
-      @RequestParam(name = "to")Instant to,
-      @RequestParam(name = "page")PageFromOne page, @RequestParam(name = "page_size")BoundedPageSize
+      @RequestParam(name = "attendance_statuses", required = false)List<AttendanceStatus> attendanceStatuses,
+      @RequestParam(name = "courses_ids", required = false)List<String> coursesIds,
+      @RequestParam(name = "student_key_word", required = false, defaultValue = "")String studentKeyWord,
+      @RequestParam(name = "from", required = false)Instant from,
+      @RequestParam(name = "to", required = false)Instant to,
+      @RequestParam(name = "page")PageFromOne page, @RequestParam(name = "page_size")BoundedPageSize pageSize
       ) {
-    return
+    List<school.hei.haapi.model.StudentAttendance> toRest = new ArrayList<>(
+        attendanceService.getStudentAttendances(studentKeyWord, coursesIds, attendanceStatuses, from, to, page, pageSize)
+    );
+    return toRest.stream().map(attendanceMapper::toRestAttendance)
+        .collect(Collectors.toUnmodifiableList());
   }
 }

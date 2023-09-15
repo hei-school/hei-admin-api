@@ -2,18 +2,36 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.CourseSession;
 import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
 import school.hei.haapi.endpoint.rest.model.StudentAttendanceMovement;
 import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.model.exception.BadRequestException;
-import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.UserRepository;
 
 @AllArgsConstructor
 @Component
 public class AttendanceMapper {
+  private final CourseMapper courseMapper;
   private final UserMapper userMapper;
   private final UserRepository userRepository;
+
+  public school.hei.haapi.endpoint.rest.model.StudentAttendance toRestAttendance(StudentAttendance domain) {
+    CourseSession courseSession = new CourseSession()
+        .id(domain.getCourseSession().getId())
+        .course(courseMapper.toRest(domain.getCourseSession().getCourse()))
+        .begin(domain.getCourseSession().getBegin())
+        .end(domain.getCourseSession().getEnd());
+    return new school.hei.haapi.endpoint.rest.model.StudentAttendance()
+        .id(domain.getId())
+        .createdAt(domain.getCreatedAt())
+        .student(userMapper.toRestStudent(domain.getStudent()))
+        .place(domain.getPlace())
+        .courseSession(courseSession)
+        .isLate(domain.isLateFrom(courseSession.getBegin()))
+        .lateOf(domain.lateOf(courseSession.getBegin()));
+  }
+
   public StudentAttendanceMovement toRestMovement (school.hei.haapi.model.StudentAttendance domain) {
     return new StudentAttendanceMovement()
         .id(domain.getId())
