@@ -1391,13 +1391,16 @@ components:
       properties:
         id:
           type: string
-        attendance_datetime:
+        created_at:
           type: string
           format: date-time
+        late_of:
+          type: integer
+          description: if the student is late, it returns the value of how late he or she is
         place:
           $ref: '#/components/schemas/PlaceEnum'
-        is_late:
-          type: boolean
+        attendance_status:
+          $ref: '#/components/schemas/AttendanceStatus'
         course_session:
           $ref: '#/components/schemas/CourseSession'
         student:
