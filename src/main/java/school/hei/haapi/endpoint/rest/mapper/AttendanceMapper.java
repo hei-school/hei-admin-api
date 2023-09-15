@@ -24,7 +24,7 @@ public class AttendanceMapper {
   }
 
   public StudentAttendance toDomain (CreateAttendanceMovement toCreate) {
-    if(userRepository.findById(toCreate.getStudentId()) == null) {
+    if(userRepository.findById(toCreate.getStudentId()).isEmpty()) {
       throw new BadRequestException("the student with #"+toCreate.getStudentId()+" doesn't exist");
     }
     return StudentAttendance.builder()

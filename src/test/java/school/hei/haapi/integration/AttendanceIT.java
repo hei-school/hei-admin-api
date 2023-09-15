@@ -1,12 +1,16 @@
 package school.hei.haapi.integration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.Student.SexEnum.F;
+import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.course2;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -67,10 +71,19 @@ class AttendanceIT {
         .student(student1())
         .attendanceMovementType(AttendanceMovementType.IN);
 
-    assertEquals(actual.getCreatedAt(), expected.getCreatedAt());
-    assertEquals(actual.getAttendanceMovementType(), expected.getAttendanceMovementType());
-    assertEquals(actual.getPlace(), expected.getPlace());
-    assertEquals(actual.getStudent(), expected.getStudent());
+    assertEquals(expected.getCreatedAt(), actual.getCreatedAt());
+    assertEquals(expected.getAttendanceMovementType(), actual.getAttendanceMovementType());
+    assertEquals(expected.getPlace(), actual.getPlace());
+    assertEquals(expected.getStudent(), actual.getStudent());
+  }
+
+  @Test
+  void manager_create_attendance_with_no_student_id() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    AttendanceApi api = new AttendanceApi(manager1Client);
+
+    assertThrowsApiException("{\"type\":\"400 BAD_REQUEST\",\"message\":\"the student with #student_id_ko doesn't exist\"}",
+        () -> api.createAttendanceMovement(createAttendanceMovementKo()));
   }
 
   public static CourseSession courseSession1() {
@@ -206,6 +219,14 @@ class AttendanceIT {
         .place(PlaceEnum.ANDRAHARO)
         .attendanceMovementType(AttendanceMovementType.IN)
         .studentId("student1_id")
+        .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"));
+  }
+
+  public static CreateAttendanceMovement createAttendanceMovementKo() {
+    return new CreateAttendanceMovement()
+        .place(PlaceEnum.ANDRAHARO)
+        .attendanceMovementType(AttendanceMovementType.IN)
+        .studentId("student_id_ko")
         .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"));
   }
 
