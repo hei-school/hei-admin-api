@@ -12,6 +12,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.CourseSession;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.repository.AttendanceRepository;
@@ -50,7 +51,7 @@ public class AttendanceService {
 
   public Set<StudentAttendance> getAttendanceByAttendanceStatuses(List<AttendanceStatus> attendanceStatuses, Pageable pageable) {
     Set<StudentAttendance> result = new HashSet<>();
-    Map<AttendanceStatus, Set<StudentAttendance>> eachStatusValues = new HashMap<>();
+    Map<AttendanceStatus, List<StudentAttendance>> eachStatusValues = new HashMap<>();
     eachStatusValues.put(AttendanceStatus.MISSING, attendanceRepository.findStudentsAbsent(pageable));
     eachStatusValues.put(AttendanceStatus.LATE, attendanceRepository.findStudentByAttendanceStatus(true, pageable));
     eachStatusValues.put(AttendanceStatus.PRESENT, attendanceRepository.findStudentByAttendanceStatus(false, pageable));

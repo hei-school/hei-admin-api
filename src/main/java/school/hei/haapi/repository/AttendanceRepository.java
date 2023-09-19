@@ -18,7 +18,7 @@ public interface AttendanceRepository extends JpaRepository<StudentAttendance, S
       "WHERE cs.id IN :coursesId " +
       "AND cs.begin BETWEEN :from AND :to"
   )
-  Set<StudentAttendance> findByCoursesSessionCriteria(
+  List<StudentAttendance> findByCoursesSessionCriteria(
       @Param("coursesId") List<String> coursesId, @Param("from") Instant from, @Param("to") Instant to, Pageable pageable
   );
 
@@ -26,11 +26,11 @@ public interface AttendanceRepository extends JpaRepository<StudentAttendance, S
       "SELECT a FROM StudentAttendance a " +
       "WHERE a.createdAt IS NULL"
   )
-  Set<StudentAttendance> findStudentsAbsent(Pageable pageable);
+  List<StudentAttendance> findStudentsAbsent(Pageable pageable);
 
   @Query(
       "SELECT a FROM StudentAttendance a " +
       "WHERE a.isLate = :attendanceStatus"
   )
-  Set<StudentAttendance> findStudentByAttendanceStatus(boolean attendanceStatus, Pageable pageable);
+  List<StudentAttendance> findStudentByAttendanceStatus(boolean attendanceStatus, Pageable pageable);
 }

@@ -28,7 +28,7 @@ public class AttendanceMapper {
         .student(userMapper.toRestStudent(domain.getStudent()))
         .place(domain.getPlace())
         .courseSession(courseSession)
-        .isLate(domain.isLateFrom(courseSession.getBegin()))
+        .isLate(domain.isLate())
         .lateOf(domain.lateOf(courseSession.getBegin()));
   }
 
