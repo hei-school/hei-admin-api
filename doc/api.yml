@@ -1193,14 +1193,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateAttendanceMovement'
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateAttendanceMovement'
       responses:
         '200':
           description: Created student attendance movement
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentAttendanceMovement'
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentAttendanceMovement'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1234,6 +1238,14 @@ paths:
             type: array
             items:
               example: 'course1_id'
+        - name: teachers_ids
+          required: false
+          in: query
+          description: Filter attendance by teachers ids
+          schema:
+            type: array
+            items:
+              example: 'teacher1_id'
         - name: student_key_word
           in: query
           required: false
@@ -1243,14 +1255,14 @@ paths:
         - name: from
           in: query
           required: false
-          description: Filter attendance from a date, return all student presence by default
+          description: Filter attendance from a date, return attendances during the week by default
           schema:
             type: string
             format: date-time
         - name: to
           required: false
           in: query
-          description: Filter attendance before a date, return all student presence by default
+          description: Filter attendance before a date, return attendances during the week by default
           schema:
             type: string
             format: date-time
