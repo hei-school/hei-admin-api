@@ -2,7 +2,9 @@ package school.hei.haapi.model;
 
 import static javax.persistence.GenerationType.IDENTITY;
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.Instant;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -11,6 +13,7 @@ import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,6 +24,7 @@ import lombok.ToString;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.endpoint.rest.model.AttendanceMovementType;
+import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
@@ -63,7 +67,12 @@ public class StudentAttendance implements Serializable {
         return this.createdAt.isAfter(toCompare);
     }
 
-    public int lateOf(Instant toDefine) {
-        return this.createdAt.compareTo(toDefine)*(-1);
+    public long lateOf(Instant toDefine) {
+        long lateOf = 0;
+        if (this.createdAt != null && this.createdAt.isAfter(toDefine)) {
+            Duration duration = Duration.between(this.createdAt, toDefine);
+            lateOf = Math.abs(duration.toMinutes());
+        }
+        return lateOf;
     }
 }
