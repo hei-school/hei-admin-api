@@ -18,10 +18,10 @@ $$;
 
 do
 $$
-begin
+    begin
         if not exists(select from pg_type where typname = 'attendance_status') then
-create type "attendance_status" as enum ('MISSING', 'LATE', 'PRESENT');
-end if;
+            create type "attendance_status" as enum ('MISSING', 'LATE', 'PRESENT');
+    end if;
 end
 $$;
 
