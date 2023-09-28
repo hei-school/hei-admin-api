@@ -15,9 +15,6 @@ info:
     You are welcome to try and compromise it. Happy hacking!
 
 servers:
-  # Added by API Auto Mocking Plugin
-  - description: SwaggerHub API Auto Mocking
-    url: https://virtserver.swaggerhub.com/HEIHERILALA_1/hei-admin_api/1.0
   - url: 'https://api-dev.hei.school'
   - url: 'https://api-prod.hei.school'
 
@@ -143,7 +140,7 @@ paths:
                 $ref: '#/components/schemas/Group'
       responses:
         '200':
-          description: The created or updated groups
+          description: The created or updated groups.
           content:
             application/json:
               schema:
@@ -189,85 +186,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{student_id}/courses:
-    get:
-      tags:
-        - Users
-      summary: Get a specific student courses
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: status
-          in: query
-          schema:
-            $ref: '#/components/schemas/CourseStatus'
-          description: By default, LINKED courses are provided.
-      operationId: getStudentCoursesById
-      responses:
-        '200':
-          description: The student courses
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Course'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    put:
-      tags:
-        - Users
-      summary: Link or unlink courses to a specific student
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: updateStudentCourses
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/UpdateStudentCourse'
-      responses:
-        '200':
-          description: The student updated courses
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Course'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
   /students/{student_id}/grades:
     get:
       tags:
         - Teaching
-      summary: Get all grades of a student in every course that had an exam.
+      summary: Get student grades.
       operationId: getStudentGrades
       parameters:
         - name: student_id
@@ -282,7 +205,7 @@ paths:
             type: string
       responses:
         '200':
-          description: List of courses with their exams and grades for the specified student.
+          description: List of a student's grades, showing the exam and the course of these grades.
           content:
             application/json:
               schema:
@@ -299,7 +222,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /students:
     get:
       tags:
@@ -490,10 +412,11 @@ paths:
     put:
       tags:
         - Teaching
-      summary: Create Or Update courses
-      description: Update courses when id are provided, create them otherwise.
+      summary: Create new courses or update existing courses
+      description: Update courses when `id` are provided, create them otherwise.
       operationId: CreateOrUpdateCourses
       requestBody:
+        description: Courses to update
         required: true
         content:
           application/json:
@@ -503,7 +426,7 @@ paths:
                 $ref: '#/components/schemas/Course'
       responses:
         '200':
-          description: Courses to create or update
+          description: Course created or modified
           content:
             application/json:
               schema:
@@ -524,7 +447,7 @@ paths:
     get:
       tags:
         - Teaching
-      summary: Get a spesific awarded_courses from a group
+      summary: Get a specific group awarded_course
       parameters:
         - name: group_id
           in: path
@@ -560,7 +483,7 @@ paths:
     get:
       tags:
         - Teaching
-      summary: Get all awarded_courses of a courses
+      summary: Get all the awarded_courses in a course
       parameters:
         - name: id
           in: path
@@ -591,7 +514,7 @@ paths:
     get:
       tags:
         - Teaching
-      summary: Get all awarded_courses of a specific student.
+      summary: Gets all the awarded_courses followed by a student
       parameters:
         - name: id
           in: path
@@ -630,7 +553,7 @@ paths:
     get:
       tags:
         - Teaching
-      summary: Get all exam infos of a specified group.
+      summary: Get all exam infos of a specified awarded_course.
       parameters:
         - name: group_id
           in: path
@@ -642,7 +565,7 @@ paths:
           required: true
           schema:
             type: string
-      operationId: getExamsByGroupId
+      operationId: getExamsByGroupIdAndAwardedCourse
       responses:
         '200':
           description: List of exam infos without the participants of the specified course
@@ -665,7 +588,8 @@ paths:
     put:
       tags:
         - Teaching
-      summary: Update exams if ID is provided, otherwise create new exams of the specified group.
+      summary: Create new exams or update existing exams
+      description: Update exams when `id` are provided, create them otherwise.
       parameters:
         - name: group_id
           in: path
@@ -680,6 +604,7 @@ paths:
       operationId: CreateOrUpdateExams
       requestBody:
         required: true
+        description: Exams to update
         content:
           application/json:
             schema:
@@ -705,11 +630,50 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}:
+    get:
+      tags:
+        - Teaching
+      summary: Get a awarded_course exam.
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: awarded_course_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getExamById
+      responses:
+        '200':
+          description: A specific exam
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/grades:
     get:
       tags:
         - Teaching
-      summary: Get exam details with the participants and their grades of the specified awarded_course.
+      summary: Get exam details with the participants and their grades in a specified awarded_course.
       operationId: getExamGrades
       parameters:
         - name: group_id
@@ -744,12 +708,12 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/students/{student_id}/grades:
+  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/students/{student_id}/grade:
     get:
       tags:
         - Teaching
-      summary: Return a participant with his grade for the specified exam of an awarded_courses.
-      operationId: getParticipantById
+      summary: Return a participant with his exam grades
+      operationId: getParticipantGrade
       parameters:
         - name: group_id
           in: path
@@ -964,7 +928,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /delay_penalty_change:
     post:
       tags:
@@ -1276,7 +1239,7 @@ paths:
     get:
       tags:
         - Teaching
-      summary: Get all awarded_courses of a specific group.
+      summary: Get all group awarded_courses
       parameters:
         - name: id
           in: path
@@ -1306,7 +1269,8 @@ paths:
     put:
       tags:
         - Teaching
-      summary: Update awarded_courses if ID is provided, otherwise create new awarded_courses of the specified course.
+      summary: Create new awarded_courses or update existing awarded_courses
+      description: Update awarded_courses when `id` are provided, create them otherwise.
       parameters:
         - name: id
           in: path
@@ -1316,6 +1280,7 @@ paths:
       operationId: CreateOrUpdateAwardedCourses
       requestBody:
         required: true
+        description: Awarded_courses to update
         content:
           application/json:
             schema:
@@ -1345,7 +1310,7 @@ paths:
     get:
       tags:
         - Teaching
-      summary: Get all student of a specific group.
+      summary: Get all students who follow a group
       parameters:
         - name: id
           in: path
@@ -1384,7 +1349,7 @@ paths:
     post:
       tags:
         - Teaching
-      summary: Create grades in an exam of a specific group who follow a specific awarded_course.
+      summary: Create exam grades
       parameters:
         - name: group_id
           in: path
@@ -1403,7 +1368,7 @@ paths:
             type: string
       operationId: createStudentExamGrade
       requestBody:
-        description: Exam with its participants with hes grade
+        description: Examination with its participants with their note to create.
         required: true
         content:
           application/json:
@@ -1430,7 +1395,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{id}/group-flows:
+  /students/{id}/group_flows:
     post:
       tags:
         - Teaching
@@ -1441,9 +1406,9 @@ paths:
           required: true
           schema:
             type: string
-      operationId: moveOrDeletStudentInGroup
+      operationId: moveOrDeleteStudentInGroup
       requestBody:
-        description: Create student flow in group
+        description: Movement of a student towards a group to create.
         required: true
         content:
           application/json:
@@ -1617,18 +1582,6 @@ components:
           type: integer
         total_hours:
           type: integer
-    CourseStatus:
-      type: string
-      enum:
-        - LINKED
-        - UNLINKED
-    UpdateStudentCourse:
-      type: object
-      properties:
-        course_id:
-          type: string
-        status:
-          $ref: '#/components/schemas/CourseStatus'
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'
@@ -1654,11 +1607,6 @@ components:
           $ref: '#/components/schemas/Course'
         group:
           $ref: '#/components/schemas/Group'
-    Order:
-      type: string
-      enum:
-        - ASC
-        - DESC
     ExamInfo:
       type: object
       properties:
@@ -1684,6 +1632,8 @@ components:
     Grade:
       type: object
       properties:
+        id:
+          type: string
         score:
           type: number
           format: double
@@ -1711,15 +1661,6 @@ components:
       properties:
         grade:
           $ref: '#/components/schemas/Grade'
-    GroupAwardedCourse:
-      type: object
-      properties:
-        AwardedCourse_id:
-          type: string
-        Group_id:
-          type: string
-        is_following:
-          type: boolean
     StudentExamGrade:
       allOf:
         - $ref: '#/components/schemas/ExamInfo'
@@ -1727,14 +1668,6 @@ components:
         grade:
           $ref: '#/components/schemas/Grade'
     AwardedCourseExam:
-      allOf:
-        - $ref: '#/components/schemas/AwardedCourse'
-      properties:
-        exams:
-          type: array
-          items:
-            $ref: '#/components/schemas/StudentExamGrade'
-    StudentAwardedCourseExam:
       allOf:
         - $ref: '#/components/schemas/AwardedCourse'
       properties:
