@@ -47,8 +47,8 @@ public class GradeController {
     Exam exam = examService.getExamsByIdAndGroupIdAndAwardedCourseId(examId, awardedCourseId, groupId);
     return gradeMapper.toRestExamDetail(exam, grades);
   }
-
-  @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/students/{student_id}/grades")
+//TODO: change that if null
+  @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/students/{student_id}/grade")
   public StudentGrade getGradeOfStudentInOneExam(
           @PathVariable("group_id") String groupId,
           @PathVariable("awarded_course_id") String awardedCourseId,

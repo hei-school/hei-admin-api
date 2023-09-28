@@ -19,9 +19,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
 import static javax.persistence.FetchType.LAZY;
@@ -43,7 +41,7 @@ public class AwardedCourse implements Serializable {
   private String id;
 
   @ManyToOne(fetch = LAZY)
-  @JoinColumn(name = "main_teacher")
+  @JoinColumn(name = "teacher_id")
   private User mainTeacher;
 
   @ManyToOne

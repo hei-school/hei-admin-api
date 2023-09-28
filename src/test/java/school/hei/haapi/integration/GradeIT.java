@@ -12,7 +12,8 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.StudentCourseExam;
+import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -49,69 +50,89 @@ class GradeIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<StudentCourseExam> actual = api.getStudentGrades(STUDENT1_ID);
+    List<AwardedCourseExam> actualAwardedCourseExamGrades = api.getStudentGrades(STUDENT1_ID, null);
 
-    assertEquals(2, actual.size());
-    assertTrue(actual.contains(studentCourseExam1()));
-    assertTrue(actual.contains(studentCourseExam2()));
+    assertEquals(4, actualAwardedCourseExamGrades.size());
+    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam1()));
+    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam2()));
+    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam3()));
+    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam4()));
+
+    ExamDetail actualExamDetail = api.getExamGrades(GROUP1_ID , EXAM1_ID, AWARDED_COURSE1_ID);
+    assertEquals(examDetail1(), actualExamDetail);
+
+    StudentGrade actuslStudentGrade = api.getParticipantGrade(GROUP1_ID , EXAM1_ID, STUDENT1_ID, AWARDED_COURSE1_ID);
+    assertEquals(studentGrade1(), actuslStudentGrade);
   }
-
-
-  @Test
-  void student_read_other_participant_ko() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    TeachingApi api = new TeachingApi(student1Client);
-    assertThrowsForbiddenException(
-        () -> api.getParticipantById(COURSE1_ID, EXAM1_ID, STUDENT2_ID));
-
-  }
-
-  @Test
-  void manager_read_participant_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
-
-    StudentGrade actual = api.getParticipantById(COURSE1_ID, EXAM1_ID, STUDENT1_ID);
-
-    assertEquals(studentGrade1(), actual);
-  }
-
-  @Test
-  void teacher_read_participant_ok() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(teacher1Client);
-
-    StudentGrade actual = api.getParticipantById(COURSE1_ID, EXAM1_ID, STUDENT1_ID);
-
-    assertEquals(studentGrade1(), actual);
-  }
-
-  @Test
-  void student_read_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    TeachingApi api = new TeachingApi(student1Client);
-
-    List<StudentCourseExam> actual = api.getStudentGrades(STUDENT1_ID);
-
-    assertEquals(2, actual.size());
-    assertTrue(actual.contains(studentCourseExam1()));
-    assertTrue(actual.contains(studentCourseExam2()));
-
-  }
-
   @Test
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
 
-    List<StudentCourseExam> actual = api.getStudentGrades(STUDENT1_ID);
+    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, null);
 
-    assertEquals(2, actual.size());
-    assertTrue(actual.contains(studentCourseExam1()));
-    assertTrue(actual.contains(studentCourseExam2()));
+    assertEquals(4, actual.size());
+    assertTrue(actual.contains(awardedCourseExam1()));
+    assertTrue(actual.contains(awardedCourseExam2()));
+    assertTrue(actual.contains(awardedCourseExam3()));
+    assertTrue(actual.contains(awardedCourseExam4()));
 
+
+    ExamDetail actualExamDetail = api.getExamGrades(GROUP1_ID , EXAM1_ID, AWARDED_COURSE1_ID);
+    assertEquals(examDetail1(), actualExamDetail);
+
+    StudentGrade actuslStudentGrade = api.getParticipantGrade(GROUP1_ID , EXAM1_ID, STUDENT1_ID, AWARDED_COURSE1_ID);
+    assertEquals(studentGrade1(), actuslStudentGrade);
   }
 
+  @Test
+  void student_read_his_grade_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+
+    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, null);
+
+    assertEquals(4, actual.size());
+    assertTrue(actual.contains(awardedCourseExam1()));
+    assertTrue(actual.contains(awardedCourseExam2()));
+    assertTrue(actual.contains(awardedCourseExam3()));
+    assertTrue(actual.contains(awardedCourseExam4()));
+
+    StudentGrade actuslStudentGrade = api.getParticipantGrade(GROUP1_ID , EXAM1_ID, STUDENT1_ID, AWARDED_COURSE1_ID);
+    assertEquals(studentGrade1(), actuslStudentGrade);
+  }
+
+  @Test
+  void student_read_other_grade_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+    assertThrowsForbiddenException(
+            () -> api.getStudentGrades(STUDENT2_ID, null));
+    assertThrowsForbiddenException(
+            () -> api.getParticipantGrade(GROUP1_ID , EXAM1_ID, STUDENT3_ID, AWARDED_COURSE1_ID));
+  }
+
+  @Test
+  void student_read_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+    assertThrowsForbiddenException(
+        () -> api.getExamGrades(GROUP1_ID , EXAM1_ID, AWARDED_COURSE1_ID));
+  }
+
+  void manager_create_grades_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+    List<ExamDetail> actual = api.createStudentExamGrade(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID, List.of(createGrade(STUDENT1_ID,EXAM1_ID,AWARDED_COURSE1_ID)));
+    assertEquals(1, actual.size());
+  }
+
+  void teacher_create_his_exam_grades_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+    List<ExamDetail> actual = api.createStudentExamGrade(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID, List.of(createGrade(STUDENT1_ID,EXAM1_ID,AWARDED_COURSE1_ID)));
+    assertEquals(1, actual.size());
+  }
 
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();

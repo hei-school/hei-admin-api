@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseDirection;
-import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Group;
@@ -25,7 +24,6 @@ import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.CourseDao;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
 
 @Service
 @AllArgsConstructor

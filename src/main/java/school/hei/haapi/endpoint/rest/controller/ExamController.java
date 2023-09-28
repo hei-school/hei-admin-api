@@ -14,6 +14,7 @@ import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.model.Exam;
+import school.hei.haapi.service.AwardedCourseService;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeService;
 
@@ -22,7 +23,7 @@ import school.hei.haapi.service.GradeService;
 
 public class ExamController {
   private final ExamService examService;
-  private final GradeService gradeService;
+  private final AwardedCourseService awardedCourseService;
   private final ExamMapper examMapper;
 
   @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams")
@@ -41,7 +42,9 @@ public class ExamController {
           @RequestBody List<ExamInfo> examInfos
   ) {
     List<Exam> exams = examService
-            .updateOrSaveAll(examInfos.stream().map(examMapper::examInfoToDomain).collect(Collectors.toList()));
+            .updateOrSaveAll(examInfos.stream().map(
+                    examInfo -> examMapper.examInfoToDomain(examInfo,awardedCourseService.getById(awardedCourseId,groupId))
+            ).collect(Collectors.toList()));
     return exams.stream().map(examMapper::toRestExamInfo).collect(Collectors.toList());
   }
 

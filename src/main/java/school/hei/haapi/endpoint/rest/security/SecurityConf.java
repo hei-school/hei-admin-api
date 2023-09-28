@@ -76,8 +76,9 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers("/ping").permitAll()
         .antMatchers(OPTIONS, "/**").permitAll()
         .antMatchers("/whoami").authenticated()
-        .antMatchers(GET, "/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
 
+
+        .antMatchers(GET, "/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*")).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/fees/*").hasAnyRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees")).hasAnyRole(STUDENT.getRole())
@@ -91,30 +92,53 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/students/*/fees/*/payments").hasAnyRole(MANAGER.getRole())
         .antMatchers(POST, "/students/*/fees/*/payments").hasAnyRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*")).hasAnyRole(STUDENT.getRole())
-        .antMatchers(GET, "/fees").hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/students/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(PUT, "/students/**").hasAnyRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/grades")).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/grades").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+
+
+            .antMatchers(GET, "/fees").hasAnyRole(MANAGER.getRole())
+
         .antMatchers(GET, "/teachers").hasAnyRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/teachers/*")).hasAnyRole(TEACHER.getRole())
         .antMatchers(GET, "/teachers/**").hasAnyRole(MANAGER.getRole())
         .antMatchers(PUT, "/teachers/**").hasAnyRole(MANAGER.getRole())
+
+
         .antMatchers("/managers/**").hasAnyRole(MANAGER.getRole())
+
+
         .antMatchers(GET, "/groups").authenticated()
         .antMatchers(GET, "/groups/*").authenticated()
+            .antMatchers(GET, "/groups/*/awarded_courses").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+            .antMatchers(GET, "/groups/*/awarded_courses/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+            .antMatchers(GET, "/groups/*/awarded_courses/*/exams").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+            .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+            .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*/grades").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+            .requestMatchers(new SelfMatcher(GET, "/groups/*/awarded_courses/*/exams/*/students/*/grade")).hasAnyRole(STUDENT.getRole())
+            .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*/students/*/grade").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+
+            .antMatchers(GET, "/groups/*/students").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+
+            .antMatchers(GET, "/groups/**").hasAnyRole(MANAGER.getRole())
         .antMatchers(PUT, "/groups/**").hasAnyRole(MANAGER.getRole())
+
+
         .antMatchers(GET, "/courses").authenticated()
+        .antMatchers(PUT, "/courses").authenticated()
         .antMatchers(PUT, "/courses/**").hasAnyRole(MANAGER.getRole())
-        .antMatchers(GET, "/courses").authenticated()
         .antMatchers(GET, "/courses/*/exams").authenticated()
         .antMatchers(GET, "/courses/*/exams/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/courses/*/exams/*/details").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/courses/*/exams/*/participants/*")).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/courses/*/exams/*/participants/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+
+
         .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE)).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, STUDENT_COURSE).hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(PUT, STUDENT_COURSE).hasAnyRole(MANAGER.getRole())
+
         .antMatchers("/**").denyAll()
 
         // disable superfluous protections

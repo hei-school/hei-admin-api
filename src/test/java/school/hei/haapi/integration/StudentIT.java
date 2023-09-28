@@ -178,16 +178,15 @@ class StudentIT {
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     UsersApi api = new UsersApi(teacher1Client);
+
     Student actualStudent1 = api.getStudentById(STUDENT1_ID);
+    assertEquals(student1(), actualStudent1);
 
     List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null);
-
-    assertEquals(student1(), actualStudent1);
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
 
-    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE1_ID);
-
+    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE2_ID);
     assertEquals(student1(), actualStudents2.get(0));
     assertEquals(2, actualStudents2.size());
 
@@ -215,7 +214,7 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null);
-    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE1_ID);
+    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE2_ID);
 
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));

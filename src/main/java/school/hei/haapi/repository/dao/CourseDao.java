@@ -3,10 +3,12 @@ package school.hei.haapi.repository.dao;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
+import javax.persistence.criteria.CollectionJoin;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
+import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -14,12 +16,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.User;
 
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
 
 @Repository
 @AllArgsConstructor
@@ -33,8 +33,9 @@ public class CourseDao {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
     Root<Course> root = query.from(Course.class);
-    Join<AwardedCourse, Course> awardedCourseJoin = root.join("course");
-    Join<AwardedCourse, User> teacher = root.join("mainTeacher");
+//    ListJoin<Course, AwardedCourse> awardedCourses = root.joinList("awardedCourses", JoinType.LEFT);
+    Join<Course, AwardedCourse> awardedCourses = root.join("awardedCourses", JoinType.LEFT);
+    Join<AwardedCourse, User> teacher = awardedCourses.join("mainTeacher", JoinType.LEFT);
 
     List<Predicate> predicates = new ArrayList<>();
 
@@ -54,13 +55,14 @@ public class CourseDao {
       ));
     }
 
-    if (teacherFirstName != null) {
-      predicates.add(builder.like(builder.lower(awardedCourseJoin.get("mainTeacher").get("firstName")),
-          "%" + teacherFirstName.toLowerCase() + "%"));
+    if (teacherLastName != null && !teacherLastName.isBlank()) {
+      predicates.add(builder.like(teacher.get("lastName"), "%" + teacherLastName + "%"));
     }
-    if (teacherLastName != null) {
-      predicates.add(builder.like(builder.lower(teacher.get("lastName")),
-          "%" + teacherLastName.toLowerCase() + "%"));
+
+
+
+    if (teacherFirstName != null && !teacherFirstName.isBlank()) {
+      predicates.add(builder.like(teacher.get("firstName"), "%" + teacherFirstName + "%"));
     }
 
     Predicate hasCredits = credits != null
@@ -72,7 +74,7 @@ public class CourseDao {
       predicates.add(hasCredits);
     }
 
-    query.where(builder.and(predicates.toArray(new Predicate[0])));
+    query.where(builder.and(predicates.toArray(new Predicate[0]))).distinct(true);
 
     Order creditsSortOrder = getOrder(root, builder, creditsOrder, "credits");
     Order codeSortOrder = getOrder(root, builder, codeOrder, "code");
@@ -84,7 +86,6 @@ public class CourseDao {
     if (codeSortOrder != null) {
       orders.add(codeSortOrder);
     }
-
     if (orders.isEmpty()) {
       query.orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
     } else {
@@ -111,25 +112,25 @@ public class CourseDao {
     }
   }
 
-  public List<Course> getByUserIdAndStatus(String userId, CourseStatus status) {
-    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<Course> query = builder.createQuery(Course.class);
-    Root<Course> courseRoot = query.from(Course.class);
-
-    Join<Course, AwardedCourse> awardedCourse =
-        courseRoot.join("awardedCourses", JoinType.LEFT);
-
-    Join<AwardedCourse, User> user = awardedCourse.join("student", JoinType.LEFT);
-
-    Predicate hasUserId =
-        builder.equal(user.get("id"), userId);
-    if (status == null) {
-      status = LINKED;
-    }
-    Predicate hasStatus = builder.equal(awardedCourse.get("status"), status);
-    query.where(builder.and(hasUserId, hasStatus))
-        .distinct(true);
-    return entityManager.createQuery(query).getResultList();
-  }
+//  public List<Course> getByUserIdAndStatus(String userId, CourseStatus status) {
+//    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+//    CriteriaQuery<Course> query = builder.createQuery(Course.class);
+//    Root<Course> courseRoot = query.from(Course.class);
+//
+//    Join<Course, AwardedCourse> awardedCourse =
+//        courseRoot.join("awardedCourses", JoinType.LEFT);
+//
+//    Join<AwardedCourse, User> user = awardedCourse.join("student", JoinType.LEFT);
+//
+//    Predicate hasUserId =
+//        builder.equal(user.get("id"), userId);
+//    if (status == null) {
+//      status = LINKED;
+//    }
+//    Predicate hasStatus = builder.equal(awardedCourse.get("status"), status);
+//    query.where(builder.and(hasUserId, hasStatus))
+//        .distinct(true);
+//    return entityManager.createQuery(query).getResultList();
+//  }
 
 }

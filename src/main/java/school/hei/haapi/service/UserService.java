@@ -19,8 +19,10 @@ import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 
+import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
@@ -34,6 +36,7 @@ public class UserService {
     private final UserValidator userValidator;
     private final UserManagerDao userManagerDao;
     private final GroupRepository groupRepository;
+    private final GroupService groupService;
 
     public User getById(String userId) {
         return userRepository.getById(userId);
@@ -61,7 +64,18 @@ public class UserService {
 
     public List<User> getByCriteria(User.Role role, String firstName, String lastName, String ref, PageFromOne page, BoundedPageSize pageSize) {
         Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-        return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
+            return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
+    }
+    public List<User> getByLinkedCourse(User.Role role, String firstName, String lastName, String ref, String courseId, PageFromOne page, BoundedPageSize pageSize) {
+        Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+        List<User> users = userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
+
+        return courseId.length() > 0 ? users
+                .stream().filter(
+                        user ->  groupService.getByUserId(user.getId()).stream()
+                                    .anyMatch(group -> group.getAwardedCourse().stream()
+                                            .anyMatch(awardedCourse -> awardedCourse.getCourse().getId().equals(courseId)))
+                ).collect(Collectors.toList()) : users;
     }
 
     public List<User> getByGroupId(String groupId) {
@@ -82,12 +96,7 @@ public class UserService {
                 groupFlows.add(groupFlow);
             }
         }
-        return users;
-    }
-
-    public List<User> getByLinkedCourse(User.Role role, String courseId, PageFromOne page, BoundedPageSize pageSize) {
-        Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-        return userManagerDao.findByLinkedCourse(role, courseId, pageable);
+        return users.stream().distinct().collect(Collectors.toList());
     }
 
 }

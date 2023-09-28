@@ -38,24 +38,20 @@ public class StudentController {
     return userMapper.toRestStudent(userService.getById(id));
   }
 
-  @GetMapping("/groups/{id}/students")
+  //TODO: with pagination
+  @GetMapping("/groups/{groupId}/students")
   public List<Student> getStudentByGroupId(@PathVariable String groupId) {
     return userService.getByGroupId(groupId).stream().map(userMapper::toRestStudent).collect(Collectors.toList());
   }
-
+//todo: get with course
   @GetMapping("/students")
   public List<Student> getStudents(
       @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
-      @RequestParam(value = "course_id", required = false) String courseId) {
-    return courseId == null ?
-        userService.getByCriteria(STUDENT, firstName, lastName, ref, page, pageSize).stream()
-            .map(userMapper::toRestStudent)
-            .collect(toUnmodifiableList())
-        :
-        userService.getByLinkedCourse(STUDENT, courseId, page, pageSize).stream()
+      @RequestParam(value = "course_id", required = false, defaultValue = "") String courseId) {
+    return userService.getByLinkedCourse(STUDENT, firstName, lastName, ref, courseId,  page, pageSize).stream()
             .map(userMapper::toRestStudent)
             .collect(toUnmodifiableList());
   }
@@ -70,7 +66,7 @@ public class StudentController {
         .collect(toUnmodifiableList());
   }
 
-  @PostMapping("/students/{id}/group-flows")
+  @PostMapping("/students/{id}/group_flows")
   public GroupFlow saveStudentGroup(
           @PathVariable String id,
           @RequestBody CreateGroupFlow createGroupFlow

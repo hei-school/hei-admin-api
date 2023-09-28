@@ -48,56 +48,89 @@ class ExamIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<ExamInfo> actual = api.getExamsByCourseId(COURSE1_ID);
+    List<ExamInfo> actual = api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID);
 
     assertEquals(2, actual.size());
     assertTrue(actual.contains(exam1()));
-
+    assertTrue(actual.contains(exam2()));
   }
 
   @Test
-  void student_read_ok() throws ApiException {
+  void student_read_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
-
-    List<ExamInfo> actual = api.getExamsByCourseId(COURSE1_ID);
-
-    assertEquals(2, actual.size());
-    assertTrue(actual.contains(exam1()));
+    assertThrowsForbiddenException(
+            () -> api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID));
   }
 
   @Test
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    List<ExamInfo> actual = api.getExamsByCourseId(COURSE1_ID);
+    List<ExamInfo> actual = api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID);
 
     assertEquals(2, actual.size());
     assertTrue(actual.contains(exam1()));
+    assertTrue(actual.contains(exam2()));
   }
 
   @Test
-  void student_read_exam_details_ko() throws ApiException {
+  void student_read_exam_grades_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsForbiddenException(
-        () -> api.getExamDetail(COURSE1_ID, EXAM1_ID));
-  }
-
-  @Test
-  void teacher_read_exam_details_ok() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(teacher1Client);
-    ExamDetail actual = api.getExamDetail(COURSE1_ID, EXAM1_ID);
-    assertEquals(examDetail1(), actual);
+        () -> api.getExamGrades(GROUP1_ID , EXAM1_ID, AWARDED_COURSE1_ID));
   }
 
   @Test
   void manager_read_exam_details_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    ExamDetail actual = api.getExamDetail(COURSE1_ID, EXAM1_ID);
+    ExamDetail actual = api.getExamGrades(GROUP1_ID , EXAM1_ID, AWARDED_COURSE1_ID);
     assertEquals(examDetail1(), actual);
+  }
+
+  void student_create_or_update_exam_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+    assertThrowsApiException(
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.createOrUpdateExams(GROUP1_ID , AWARDED_COURSE1_ID, List.of(exam1())));
+  }
+
+
+  @Test
+  void teacher_create_or_update_his_awarded_course_exam_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+    int numberOfExamToAdd  = 3;
+    List<ExamInfo> actualCreatList = api.createOrUpdateExams(GROUP1_ID , AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
+    assertEquals(numberOfExamToAdd, actualCreatList.size());
+
+    List<ExamInfo> actualUpdateList = api.createOrUpdateExams(GROUP1_ID , AWARDED_COURSE1_ID, List.of(exam1()));
+    assertEquals(1, actualUpdateList.size());
+    assertTrue(actualUpdateList.contains(exam1()));
+  }
+
+  void teacher_create_or_update_others_awarded_course_exam_ko() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+    assertThrowsApiException(
+            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+            () -> api.createOrUpdateExams(GROUP1_ID , AWARDED_COURSE2_ID, List.of(exam2())));
+  }
+
+  @Test
+  void manager_create_or_update_exam_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+    int numberOfExamToAdd  = 3;
+    List<ExamInfo> actualCreatList = api.createOrUpdateExams(GROUP1_ID , AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
+    assertEquals(numberOfExamToAdd, actualCreatList.size());
+
+    List<ExamInfo> actualUpdateList = api.createOrUpdateExams(GROUP1_ID , AWARDED_COURSE1_ID, List.of(exam1()));
+    assertEquals(1, actualUpdateList.size());
+    assertTrue(actualUpdateList.contains(exam1()));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

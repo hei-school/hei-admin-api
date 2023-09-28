@@ -26,17 +26,24 @@ public class GradeMapper {
 
     public Grade toRest(school.hei.haapi.model.Grade grade) {
         return new Grade()
+                .id(grade.getId())
                 .createdAt(grade.getCreationDatetime())
                 .score(Double.valueOf(grade.getScore()));
     }
 
     public StudentGrade toRestStudentGrade(school.hei.haapi.model.Grade grade) {
+        if (grade == null) {
+            return null;
+        }
         return new StudentGrade().id(grade.getStudent().getId()).ref(grade.getStudent().getRef())
                 .firstName(grade.getStudent().getFirstName()).lastName(grade.getStudent().getLastName())
                 .email(grade.getStudent().getEmail()).grade(toRest(grade));
     }
 
     public StudentExamGrade toRestStudentExamGrade(school.hei.haapi.model.Grade grade) {
+        if (grade == null) {
+            return null;
+        }
         return new StudentExamGrade()
                 .id(grade.getExam().getId())
                 .coefficient(grade.getExam().getCoefficient())

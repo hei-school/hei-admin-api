@@ -38,7 +38,7 @@ public class CourseController {
             String teacherLastName,
             @RequestParam(value = "credits_order", required = false) CourseDirection creditsOrder,
             @RequestParam(value = "code_order", required = false) CourseDirection codeOrder,
-            @RequestParam(defaultValue = "1") PageFromOne page,
+            @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
             @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize
     ) {
         return service.getCourses(code, name, credits, creditsOrder, codeOrder, teacherFirstName,
@@ -54,15 +54,6 @@ public class CourseController {
                         .map(mapper::toDomain)
                         .collect(Collectors.toUnmodifiableList())
                 ).stream()
-                .map(mapper::toRest)
-                .collect(Collectors.toUnmodifiableList());
-    }
-
-    @GetMapping("students/{student_id}/courses")
-    public List<Course> getCoursesByStudentId(
-            @PathVariable("student_id") String studentId,
-            @RequestParam(value = "status", required = false) CourseStatus status) {
-        return service.getCoursesByUserId(studentId).stream()
                 .map(mapper::toRest)
                 .collect(Collectors.toUnmodifiableList());
     }

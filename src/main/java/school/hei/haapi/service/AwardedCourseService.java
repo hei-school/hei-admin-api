@@ -7,30 +7,20 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
-import school.hei.haapi.endpoint.rest.model.CourseDirection;
-import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
-import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.AwardedCourse;
-import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Group;
-import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.AwardedCourseValidator;
-import school.hei.haapi.model.validator.CourseValidator;
 import school.hei.haapi.repository.AwardedCourseRepository;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
-import school.hei.haapi.repository.dao.CourseDao;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
 
 @Service
 @AllArgsConstructor
@@ -43,7 +33,7 @@ public class AwardedCourseService {
   private final AwardedCourseValidator awardedCourseValidator;
 
   public List<AwardedCourse> getByCourseId(String courseId) {
-    return courseRepository.getCourseById(courseId).getAwardedCourse();
+    return courseRepository.getCourseById(courseId).getAwardedCourses();
   }
 
   public List<AwardedCourse> getByStudentId(String userId) {

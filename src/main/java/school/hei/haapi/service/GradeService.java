@@ -21,7 +21,7 @@ public class GradeService {
 
   //todo: modify for having scope
   public Grade getGradeByExamIdAndStudentId(String examId, String studentId, String awardedCourseId, String groupId) {
-    return gradeRepository.getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(examId, studentId, awardedCourseId, groupId);
+    return gradeRepository.getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(examId, awardedCourseId, groupId, studentId);
   }
 }
 

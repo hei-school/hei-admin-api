@@ -14,9 +14,9 @@ import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.AwardedCourse;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
-
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
 
 @Repository
 @AllArgsConstructor
@@ -75,11 +75,10 @@ public class UserManagerDao {
         Join<AwardedCourse, Course> course = awardedCourse.join("course");
 
         Predicate hasCourseId = builder.equal(course.get("id"), courseId);
-        Predicate hasLinkedStatus = builder.equal(awardedCourse.get("status"), LINKED);
         Predicate hasUserRole = builder.equal(root.get("role"), role);
         query
                 .distinct(true)
-                .where(builder.and(hasUserRole, hasCourseId, hasLinkedStatus))
+                .where(builder.and(hasUserRole, hasCourseId))
                 .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
         return entityManager.createQuery(query)
