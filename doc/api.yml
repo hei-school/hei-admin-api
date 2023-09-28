@@ -1193,14 +1193,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateAttendanceMovement'
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateAttendanceMovement'
       responses:
         '200':
-          description: student attendance movement created
+          description: Created student attendance movement
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentAttendanceMovement'
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentAttendanceMovement'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1234,6 +1238,14 @@ paths:
             type: array
             items:
               example: 'course1_id'
+        - name: teachers_ids
+          required: false
+          in: query
+          description: Filter attendance by teachers ids
+          schema:
+            type: array
+            items:
+              example: 'teacher1_id'
         - name: student_key_word
           in: query
           required: false
@@ -1243,14 +1255,14 @@ paths:
         - name: from
           in: query
           required: false
-          description: Filter attendance from a date, return all student presence by default
+          description: Filter attendance from a date, return attendances of the current week by default
           schema:
             type: string
             format: date-time
         - name: to
           required: false
           in: query
-          description: Filter attendance before a date, return all student presence by default
+          description: Filter attendance before a date, return attendances of the current week by default
           schema:
             type: string
             format: date-time
@@ -1264,7 +1276,7 @@ paths:
               $ref: '#/components/schemas/AttendanceStatus'
       responses:
         '200':
-          description: All students presence for a giving course
+          description: List of attendance by courses ids or student key word
           content:
             application/json:
               schema:
@@ -1391,9 +1403,12 @@ components:
       properties:
         id:
           type: string
-        attendance_datetime:
+        created_at:
           type: string
           format: date-time
+        late_of:
+          type: integer
+          description: if the student is late, that defines how late he or she is
         place:
           $ref: '#/components/schemas/PlaceEnum'
         is_late:
