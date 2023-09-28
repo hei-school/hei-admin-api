@@ -1255,14 +1255,14 @@ paths:
         - name: from
           in: query
           required: false
-          description: Filter attendance from a date, return attendances during the week by default
+          description: Filter attendance from a date, return attendances of the current week by default
           schema:
             type: string
             format: date-time
         - name: to
           required: false
           in: query
-          description: Filter attendance before a date, return attendances during the week by default
+          description: Filter attendance before a date, return attendances of the current week by default
           schema:
             type: string
             format: date-time
