@@ -19,7 +19,7 @@ public class AttendanceMapper {
   public school.hei.haapi.endpoint.rest.model.StudentAttendance toRestAttendance(StudentAttendance domain) {
     CourseSession courseSession = domain.getCourseSession() != null ?
         toCourseSession(domain.getCourseSession()) :
-        null;
+        new CourseSession();
     return new school.hei.haapi.endpoint.rest.model.StudentAttendance()
         .id(domain.getId())
         .createdAt(domain.getCreatedAt())
