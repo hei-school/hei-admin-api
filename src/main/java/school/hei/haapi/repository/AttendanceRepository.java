@@ -12,20 +12,21 @@ public interface AttendanceRepository extends JpaRepository<StudentAttendance, S
 
   @Query(
       "SELECT a FROM StudentAttendance a " +
-          "WHERE a.createdAt IS NULL"
+          "WHERE a.createdAt IS NULL AND a.attendanceMovementType = 'IN'"
   )
   List<StudentAttendance> findStudentsAbsent(Pageable pageable);
 
   @Query(
       "SELECT a FROM StudentAttendance a " +
-          "WHERE a.isLate = TRUE"
+          "WHERE a.isLate = TRUE AND a.attendanceMovementType = 'IN'"
   )
   List<StudentAttendance> findStudentLate(Pageable pageable);
 
   @Query(
       "SELECT a FROM StudentAttendance a " +
           "WHERE a.isLate = FALSE " +
-          "AND a.createdAt IS NOT NULL"
+          "AND a.createdAt IS NOT NULL " +
+          "AND a.attendanceMovementType = 'IN'"
   )
   List<StudentAttendance> findStudentPresent(Pageable pageable);
 }

@@ -16,24 +16,15 @@ $$
 end
 $$;
 
-do
-$$
-    begin
-        if not exists(select from pg_type where typname = 'attendance_status') then
-            create type "attendance_status" as enum ('MISSING', 'LATE', 'PRESENT');
-    end if;
-end
-$$;
-
 create table if not exists "attendance" (
     id                                  varchar
     constraint  attendance_pk primary key default uuid_generate_v4(),
     created_at                          timestamp null default null,
     is_late                             boolean,
-    attendance_movement_type            attendance_movement_type,
+    attendance_movement_type            attendance_movement_type default 'IN',
     place                               place,
     course_session_id                   varchar
     constraint  attendance_course_session_fk references "course_session"(id),
     student_id                          varchar     not null
     constraint  attendance_student_fk       references  "user"(id)
-);
+    );
