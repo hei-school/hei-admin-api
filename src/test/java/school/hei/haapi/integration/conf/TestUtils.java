@@ -76,7 +76,7 @@ public class TestUtils {
     client.setHost("localhost");
     client.setPort(serverPort);
     client.setRequestInterceptor(httpRequestBuilder ->
-        httpRequestBuilder.header("Authorization", "Bearer " + token));
+            httpRequestBuilder.header("Authorization", "Bearer " + token));
     return client;
   }
 
@@ -89,7 +89,7 @@ public class TestUtils {
 
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {
     when(eventBridgeClient.putEvents((PutEventsRequest) any())).thenReturn(
-        PutEventsResponse.builder().build()
+            PutEventsResponse.builder().build()
     );
   }
 
@@ -102,92 +102,92 @@ public class TestUtils {
     ApiException apiException = assertThrows(ApiException.class, executable);
     String responseBody = apiException.getResponseBody();
     assertEquals("{"
-        + "\"type\":\"403 FORBIDDEN\","
-        + "\"message\":\"Access is denied\"}", responseBody);
+            + "\"type\":\"403 FORBIDDEN\","
+            + "\"message\":\"Access is denied\"}", responseBody);
   }
 
   public static Teacher teacher1() {
     return new Teacher()
-        .id("teacher1_id")
-        .firstName("One")
-        .lastName("Teacher")
-        .email("test+teacher1@hei.school")
-        .ref("TCR21001")
-        .phone("0322411125")
-        .status(EnableStatus.ENABLED)
-        .sex(Teacher.SexEnum.F)
-        .birthDate(LocalDate.parse("1990-01-01"))
-        .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
-        .address("Adr 3");
+            .id("teacher1_id")
+            .firstName("One")
+            .lastName("Teacher")
+            .email("test+teacher1@hei.school")
+            .ref("TCR21001")
+            .phone("0322411125")
+            .status(EnableStatus.ENABLED)
+            .sex(Teacher.SexEnum.F)
+            .birthDate(LocalDate.parse("1990-01-01"))
+            .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
+            .address("Adr 3");
   }
 
   public static Teacher teacher2() {
     return new Teacher()
-        .id("teacher2_id")
-        .firstName("Two")
-        .lastName("Teacher")
-        .email("test+teacher2@hei.school")
-        .ref("TCR21002")
-        .phone("0322411126")
-        .status(EnableStatus.ENABLED)
-        .sex(Teacher.SexEnum.M)
-        .birthDate(LocalDate.parse("1990-01-02"))
-        .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
-        .address("Adr 4");
+            .id("teacher2_id")
+            .firstName("Two")
+            .lastName("Teacher")
+            .email("test+teacher2@hei.school")
+            .ref("TCR21002")
+            .phone("0322411126")
+            .status(EnableStatus.ENABLED)
+            .sex(Teacher.SexEnum.M)
+            .birthDate(LocalDate.parse("1990-01-02"))
+            .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
+            .address("Adr 4");
   }
 
   public static Teacher teacher3() {
     return new Teacher()
-        .id("teacher3_id")
-        .firstName("Three")
-        .lastName("Teach")
-        .email("test+teacher3@hei.school")
-        .ref("TCR21003")
-        .phone("0322411126")
-        .status(EnableStatus.ENABLED)
-        .sex(Teacher.SexEnum.M)
-        .birthDate(LocalDate.parse("1990-01-02"))
-        .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
-        .address("Adr 4");
+            .id("teacher3_id")
+            .firstName("Three")
+            .lastName("Teach")
+            .email("test+teacher3@hei.school")
+            .ref("TCR21003")
+            .phone("0322411126")
+            .status(EnableStatus.ENABLED)
+            .sex(Teacher.SexEnum.M)
+            .birthDate(LocalDate.parse("1990-01-02"))
+            .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
+            .address("Adr 4");
   }
 
   public static Teacher someCreatableTeacher() {
     return new Teacher()
-        .firstName("Some")
-        .lastName("User")
-        .email(randomUUID() + "@hei.school")
-        .ref("TCR21-" + randomUUID())
-        .phone("0332511129")
-        .status(EnableStatus.ENABLED)
-        .sex(Teacher.SexEnum.M)
-        .birthDate(LocalDate.parse("2000-01-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .address("Adr X");
+            .firstName("Some")
+            .lastName("User")
+            .email(randomUUID() + "@hei.school")
+            .ref("TCR21-" + randomUUID())
+            .phone("0332511129")
+            .status(EnableStatus.ENABLED)
+            .sex(Teacher.SexEnum.M)
+            .birthDate(LocalDate.parse("2000-01-01"))
+            .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+            .address("Adr X");
   }
 
   public static CrupdateCourse crupdatedCourse1() {
     return new CrupdateCourse()
-        .id(COURSE5_ID)
-        .code("MGT1")
-        .name("Collaborative work")
-        .credits(5)
-        .totalHours(12)
-        .mainTeacherId(TEACHER4_ID);
+            .id(COURSE5_ID)
+            .code("MGT1")
+            .name("Collaborative work")
+            .credits(5)
+            .totalHours(12)
+            .mainTeacherId(TEACHER4_ID);
   }
 
   public static CrupdateCourse crupdatedCourse2() {
     return new CrupdateCourse()
-        .code("MGT1")
-        .name("Collaborative work like GWSP")
-        .credits(12)
-        .totalHours(5)
-        .mainTeacherId(TEACHER4_ID);
+            .code("MGT1")
+            .name("Collaborative work like GWSP")
+            .credits(12)
+            .totalHours(5)
+            .mainTeacherId(TEACHER4_ID);
   }
 
   public static UpdateStudentCourse updateStudentCourse() {
     return new UpdateStudentCourse()
-        .courseId(COURSE3_ID)
-        .status(LINKED);
+            .courseId(COURSE3_ID)
+            .status(LINKED);
   }
 
   public static List<Teacher> someCreatableTeacherList(int nbOfTeacher) {
@@ -201,253 +201,118 @@ public class TestUtils {
 
   public static Teacher teacher4() {
     return new Teacher()
-        .id(TEACHER4_ID)
-        .firstName("Four")
-        .lastName("Binary")
-        .email("test+teacher4@hei.school")
-        .ref("TCR21004")
-        .phone("0322411426")
-        .status(EnableStatus.ENABLED)
-        .sex(Teacher.SexEnum.F)
-        .birthDate(LocalDate.parse("1990-01-04"))
-        .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
-        .address("Adr 5");
+            .id(TEACHER4_ID)
+            .firstName("Four")
+            .lastName("Binary")
+            .email("test+teacher4@hei.school")
+            .ref("TCR21004")
+            .phone("0322411426")
+            .status(EnableStatus.ENABLED)
+            .sex(Teacher.SexEnum.F)
+            .birthDate(LocalDate.parse("1990-01-04"))
+            .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
+            .address("Adr 5");
   }
 
   public static Course course1() {
     return new Course()
-        .id(COURSE1_ID)
-        .code("PROG1")
-        .credits(6)
-        .totalHours(20)
-        .mainTeacher(teacher2())
-        .name("Algorithmics");
+            .id(COURSE1_ID)
+            .code("PROG1")
+            .credits(6)
+            .totalHours(20)
+            .mainTeacher(teacher2())
+            .name("Algorithmics");
   }
 
   public static Course course2() {
     return new Course()
-        .id(COURSE2_ID)
-        .code("PROG3")
-        .credits(6)
-        .totalHours(20)
-        .mainTeacher(teacher1())
-        .name("Advanced OOP");
+            .id(COURSE2_ID)
+            .code("PROG3")
+            .credits(6)
+            .totalHours(20)
+            .mainTeacher(teacher1())
+            .name("Advanced OOP");
   }
 
   public static Course course3() {
     return new Course()
-        .id(COURSE3_ID)
-        .code("WEB1")
-        .credits(4)
-        .totalHours(16)
-        .mainTeacher(teacher2())
-        .name("Web Interface");
+            .id(COURSE3_ID)
+            .code("WEB1")
+            .credits(4)
+            .totalHours(16)
+            .mainTeacher(teacher2())
+            .name("Web Interface");
   }
 
 
   public static Course course4() {
     return new Course()
-        .id(COURSE4_ID)
-        .code("WEB2")
-        .credits(6)
-        .totalHours(18)
-        .mainTeacher(teacher3())
-        .name("Web Application");
+            .id(COURSE4_ID)
+            .code("WEB2")
+            .credits(6)
+            .totalHours(18)
+            .mainTeacher(teacher3())
+            .name("Web Application");
   }
 
   public static Course course5() {
     return new Course()
-        .id(COURSE5_ID)
-        .code("MGT1")
-        .credits(5)
-        .totalHours(12)
-        .mainTeacher(teacher4())
-        .name("Collaborative work");
+            .id(COURSE5_ID)
+            .code("MGT1")
+            .credits(5)
+            .totalHours(12)
+            .mainTeacher(teacher4())
+            .name("Collaborative work");
   }
 
   public static Fee fee1() {
     return new Fee()
-        .id(FEE1_ID)
-        .studentId(STUDENT1_ID)
-        .status(PAID)
-        .type(TUITION)
-        .totalAmount(5000)
-        .remainingAmount(0)
-        .comment("Comment")
-        .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+            .id(FEE1_ID)
+            .studentId(STUDENT1_ID)
+            .status(PAID)
+            .type(TUITION)
+            .totalAmount(5000)
+            .remainingAmount(0)
+            .comment("Comment")
+            .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
+            .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+            .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
 
   public static Fee fee2() {
     return new Fee()
-        .id(FEE2_ID)
-        .studentId(STUDENT1_ID)
-        .status(PAID)
-        .type(HARDWARE)
-        .totalAmount(5000)
-        .remainingAmount(0)
-        .comment("Comment")
-        .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
-        .creationDatetime(Instant.parse("2021-11-10T08:25:24.00Z"))
-        .dueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
+            .id(FEE2_ID)
+            .studentId(STUDENT1_ID)
+            .status(PAID)
+            .type(HARDWARE)
+            .totalAmount(5000)
+            .remainingAmount(0)
+            .comment("Comment")
+            .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
+            .creationDatetime(Instant.parse("2021-11-10T08:25:24.00Z"))
+            .dueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
   }
 
   public static Fee fee3() {
     return new Fee()
-        .id(FEE3_ID)
-        .studentId(STUDENT1_ID)
-        .status(LATE)
-        .type(TUITION)
-        .totalAmount(5000)
-        .remainingAmount(5000)
-        .comment("Comment")
-        .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
-        .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
-        .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
+            .id(FEE3_ID)
+            .studentId(STUDENT1_ID)
+            .status(LATE)
+            .type(TUITION)
+            .totalAmount(5000)
+            .remainingAmount(5000)
+            .comment("Comment")
+            .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
+            .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
+            .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
   }
 
   public static CreateFee creatableFee1() {
     return new CreateFee()
-        .type(CreateFee.TypeEnum.TUITION)
-        .totalAmount(5000)
-        .comment("Comment")
-        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
-  }
-
-  public static CourseSession courseSession1() {
-    return new CourseSession()
-        .id("course_session1_id")
-        .course(course1())
-        .begin(Instant.parse("2021-11-08T08:00:00.00Z"))
-        .end(Instant.parse("2021-11-08T12:00:00.00Z"));
-  }
-
-  public static CourseSession courseSession2() {
-    return new CourseSession()
-        .id("course_session2_id")
-        .course(course2())
-        .begin(Instant.parse("2021-08-08T15:00:00.00Z"))
-        .end(Instant.parse("2021-08-08T17:00:00.00Z"));
-  }
-
-  public static Student student1() {
-    return new Student()
-        .id("student1_id")
-        .address("Adr 1")
-        .birthDate(LocalDate.parse("2000-01-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .sex(Student.SexEnum.M)
-        .email("test+ryan@hei.school")
-        .firstName("Ryan")
-        .lastName("Andria")
-        .ref("STD21001")
-        .phone("0322411123")
-        .status(ENABLED);
-  }
-
-  public static Student student2() {
-    return new Student()
-        .id("student2_id")
-        .address("Adr 2")
-        .birthDate(LocalDate.parse("2000-01-02"))
-        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
-        .sex(F)
-        .email("test+student2@hei.school")
-        .firstName("Two")
-        .lastName("Student")
-        .ref("STD21002")
-        .phone("0322411124")
-        .status(ENABLED);
-  }
-
-  public static Student student3() {
-    return new Student()
-        .id("student3_id")
-        .address("Adr 2")
-        .birthDate(LocalDate.parse("2000-01-02"))
-        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
-        .sex(F)
-        .email("test+student3@hei.school")
-        .firstName("Three")
-        .lastName("Student")
-        .ref("STD21003")
-        .phone("0322411124")
-        .status(ENABLED);
-  }
-
-  public static StudentAttendance attendance1Ok() {
-    return new StudentAttendance()
-        .id("attendance1_id")
-        .student(student1())
-        .place(PlaceEnum.ANDRAHARO)
-        .isLate(false)
-        .courseSession(courseSession1())
-        .attendanceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-  }
-
-  public static StudentAttendance attendance2Ok() {
-    return new StudentAttendance()
-        .id("attendance2_id")
-        .student(student1())
-        .place(PlaceEnum.ANDRAHARO)
-        .isLate(false)
-        .courseSession(courseSession2())
-        .attendanceDatetime(Instant.parse("2021-08-08T08:25:24.00Z"));
-  }
-
-  public static StudentAttendance attendance3Late() {
-    return new StudentAttendance()
-        .id("attendance3_id")
-        .place(PlaceEnum.IVANDRY)
-        .isLate(true)
-        .courseSession(courseSession1())
-        .student(student2())
-        .attendanceDatetime(Instant.parse("2021-11-08T09:25:24.00Z"));
-  }
-
-  public static StudentAttendance attendance4Late() {
-    return new StudentAttendance()
-        .id("attendance4_id")
-        .isLate(true)
-        .place(PlaceEnum.ANDRAHARO)
-        .courseSession(courseSession2())
-        .student(student2())
-        .attendanceDatetime(Instant.parse("2021-11-08T10:30:24.00Z"));
-  }
-
-  public static StudentAttendance attendance5Missing() {
-    return new StudentAttendance()
-        .id("attendance5_id")
-        .isLate(false)
-        .student(student3())
-        .courseSession(courseSession1())
-        .attendanceDatetime(null);
-  }
-
-  public static StudentAttendance attendance6Missing() {
-    return new StudentAttendance()
-        .id("pointing6_id")
-        .isLate(false)
-        .student(student3())
-        .courseSession(courseSession2())
-        .attendanceDatetime(null);
-  }
-
-  public static StudentAttendance attendance7Out() {
-    return new StudentAttendance()
-        .id("attendance7_id")
-        .attendanceDatetime(Instant.parse("2021-11-08T012:30:00.00Z"))
-        .isLate(false)
-        .student(student1())
-        .courseSession(courseSession1());
-  }
-
-  public static CreateAttendanceMovement createAttendanceMovement() {
-    return new CreateAttendanceMovement()
-        .place(PlaceEnum.ANDRAHARO)
-        .attendanceMovementType(AttendanceMovementType.IN)
-        .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"));
+            .type(CreateFee.TypeEnum.TUITION)
+            .totalAmount(5000)
+            .comment("Comment")
+            .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
 
   public static boolean isBefore(String a, String b) {
