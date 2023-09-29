@@ -84,7 +84,7 @@ class GroupIT {
     ApiClient anonymousClient = anApiClient(BAD_TOKEN);
 
     TeachingApi api = new TeachingApi(anonymousClient);
-    assertThrowsForbiddenException(api::getGroups);
+    assertThrowsForbiddenException(() -> api.getGroups(1, 10));
   }
 
   @Test
@@ -101,7 +101,7 @@ class GroupIT {
 
     TeachingApi api = new TeachingApi(student1Client);
     Group actual1 = api.getGroupById(GROUP1_ID);
-    List<Group> actualGroups = api.getGroups();
+    List<Group> actualGroups = api.getGroups(1, 10);
 
     assertEquals(group1(), actual1);
     assertTrue(actualGroups.contains(group1()));

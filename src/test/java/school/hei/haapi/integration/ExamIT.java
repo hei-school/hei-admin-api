@@ -48,7 +48,7 @@ class ExamIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<ExamInfo> actual = api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID);
+    List<ExamInfo> actual = api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID,1, 10);
 
     assertEquals(2, actual.size());
     assertTrue(actual.contains(exam1()));
@@ -60,14 +60,14 @@ class ExamIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsForbiddenException(
-            () -> api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID));
+            () -> api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID,1, 10));
   }
 
   @Test
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    List<ExamInfo> actual = api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID);
+    List<ExamInfo> actual = api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID,1, 10);
 
     assertEquals(2, actual.size());
     assertTrue(actual.contains(exam1()));
@@ -79,14 +79,14 @@ class ExamIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsForbiddenException(
-        () -> api.getExamGrades(GROUP1_ID , EXAM1_ID, AWARDED_COURSE1_ID));
+        () -> api.getExamGrades(GROUP1_ID , EXAM1_ID, AWARDED_COURSE1_ID,1, 10));
   }
 
   @Test
   void manager_read_exam_details_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    ExamDetail actual = api.getExamGrades(GROUP1_ID , EXAM1_ID, AWARDED_COURSE1_ID);
+    ExamDetail actual = api.getExamGrades(GROUP1_ID , EXAM1_ID, AWARDED_COURSE1_ID,1, 10);
     assertEquals(examDetail1(), actual);
   }
 
