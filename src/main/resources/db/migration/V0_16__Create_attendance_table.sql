@@ -3,17 +3,11 @@ $$
     begin
         if not exists(select from pg_type where typname = 'attendance_movement_type') then
             create type "attendance_movement_type" as enum ('IN', 'OUT');
-    end if;
-end
-$$;
-
-do
-$$
-    begin
+        end if;
         if not exists(select from pg_type where typname = 'place') then
             create type "place" as enum ('ANDRAHARO', 'IVANDRY');
-    end if;
-end
+        end if;
+    end
 $$;
 
 create table if not exists "attendance" (
@@ -28,3 +22,4 @@ create table if not exists "attendance" (
     student_id                          varchar     not null
     constraint  attendance_student_fk       references  "user"(id)
     );
+create index attendance_created_at_index on "attendance" (created_at ASC NULLS LAST);
