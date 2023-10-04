@@ -25,10 +25,10 @@ public class AttendanceValidator implements Consumer<StudentAttendance> {
   @Override
   public void accept(StudentAttendance studentAttendance) {
     Set<String> violationMessages = new HashSet<>();
-    if(studentAttendance.getStudent() == null) {
+    if (studentAttendance.getStudent() == null) {
       violationMessages.add("Student is mandatory");
     }
-    if(!violationMessages.isEmpty()) {
+    if (!violationMessages.isEmpty()) {
       String formatedViolationMessages = violationMessages.stream()
           .map(String::toString)
           .collect(Collectors.joining(". "));

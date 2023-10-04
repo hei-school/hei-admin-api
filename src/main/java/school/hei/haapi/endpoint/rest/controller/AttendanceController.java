@@ -27,7 +27,8 @@ public class AttendanceController {
   private final AttendanceService attendanceService;
 
   @PostMapping("/attendance/movement")
-  public List<StudentAttendanceMovement> createAttendanceMovement (@RequestBody List<CreateAttendanceMovement> movement) {
+  public List<StudentAttendanceMovement> createAttendanceMovement(
+      @RequestBody List<CreateAttendanceMovement> movement) {
     return attendanceService.createStudentAttendanceMovement(
             movement.stream().map(attendanceMapper::toDomain).toList())
         .stream()
@@ -38,13 +39,16 @@ public class AttendanceController {
   @GetMapping("/attendance")
   public List<StudentAttendance> getStudentsAttendance(
 
-      @RequestParam(name = "page")PageFromOne page, @RequestParam(name = "page_size")BoundedPageSize pageSize,
-      @RequestParam(name = "courses_ids", required = false)List<String> coursesIds,
-      @RequestParam(name = "teachers_ids", required = false)List<String> teacherIds,
-      @RequestParam(name = "student_key_word", required = false, defaultValue = "")String studentKeyWord,
-      @RequestParam(name = "from", required = false)Instant from,
-      @RequestParam(name = "to", required = false)Instant to,
-      @RequestParam(name = "attendance_statuses", required = false)List<AttendanceStatus> attendanceStatuses
+      @RequestParam(name = "page") PageFromOne page,
+      @RequestParam(name = "page_size") BoundedPageSize pageSize,
+      @RequestParam(name = "courses_ids", required = false) List<String> coursesIds,
+      @RequestParam(name = "teachers_ids", required = false) List<String> teacherIds,
+      @RequestParam(name = "student_key_word", required = false, defaultValue = "")
+      String studentKeyWord,
+      @RequestParam(name = "from", required = false) Instant from,
+      @RequestParam(name = "to", required = false) Instant to,
+      @RequestParam(name = "attendance_statuses", required = false)
+      List<AttendanceStatus> attendanceStatuses
   ) {
     return attendanceService.getStudentAttendances(
             studentKeyWord, coursesIds, teacherIds,

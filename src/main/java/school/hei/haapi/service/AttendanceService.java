@@ -31,15 +31,16 @@ public class AttendanceService {
   }
 
   public List<StudentAttendance> getStudentAttendances(
-      String studentKeyword, List<String> coursesIds,  List<String> teachersIds,
+      String studentKeyword, List<String> coursesIds, List<String> teachersIds,
       List<AttendanceStatus> attendanceStatuses, Instant from, Instant to,
       PageFromOne page, BoundedPageSize pageSize
   ) {
     Pageable pageable = PageRequest.of((page.getValue() - 1), pageSize.getValue());
     List<StudentAttendance> result = new ArrayList<>();
-    List<StudentAttendance> studentAttendanceList = studentAttendanceDao.findByStudentKeyWordAndCourseSessionCriteria(
-        studentKeyword, pageable, coursesIds, teachersIds, from, to
-    );
+    List<StudentAttendance> studentAttendanceList =
+        studentAttendanceDao.findByStudentKeyWordAndCourseSessionCriteria(
+            studentKeyword, pageable, coursesIds, teachersIds, from, to
+        );
 
     switch (getFilterCase(attendanceStatuses)) {
       case 1:
@@ -53,12 +54,15 @@ public class AttendanceService {
     return result;
   }
 
-  public Set<StudentAttendance> getAttendanceByAttendanceStatuses(List<AttendanceStatus> attendanceStatuses, Pageable pageable) {
+  public Set<StudentAttendance> getAttendanceByAttendanceStatuses(
+      List<AttendanceStatus> attendanceStatuses, Pageable pageable) {
     Set<StudentAttendance> result = new LinkedHashSet<>();
     Map<AttendanceStatus, List<StudentAttendance>> eachStatusValues = new HashMap<>();
-    eachStatusValues.put(AttendanceStatus.MISSING, attendanceRepository.findStudentsAbsent(pageable));
+    eachStatusValues.put(AttendanceStatus.MISSING,
+        attendanceRepository.findStudentsAbsent(pageable));
     eachStatusValues.put(AttendanceStatus.LATE, attendanceRepository.findStudentLate(pageable));
-    eachStatusValues.put(AttendanceStatus.PRESENT, attendanceRepository.findStudentPresent(pageable));
+    eachStatusValues.put(AttendanceStatus.PRESENT,
+        attendanceRepository.findStudentPresent(pageable));
 
     attendanceStatuses.forEach(status -> {
       result.addAll(eachStatusValues.get(status));
@@ -75,10 +79,10 @@ public class AttendanceService {
 
   public int getFilterCase(List<AttendanceStatus> attendanceStatuses) {
     int filterCase = 0;
-    if(attendanceStatuses != null && !attendanceStatuses.isEmpty()) {
+    if (attendanceStatuses != null && !attendanceStatuses.isEmpty()) {
       filterCase = 1;
     }
-    if((attendanceStatuses == null)) {
+    if ((attendanceStatuses == null)) {
       filterCase = 2;
     }
     return filterCase;

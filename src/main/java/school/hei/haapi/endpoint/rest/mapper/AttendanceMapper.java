@@ -16,7 +16,8 @@ public class AttendanceMapper {
   private final UserMapper userMapper;
   private final UserRepository userRepository;
 
-  public school.hei.haapi.endpoint.rest.model.StudentAttendance toRestAttendance(StudentAttendance domain) {
+  public school.hei.haapi.endpoint.rest.model.StudentAttendance toRestAttendance(
+      StudentAttendance domain) {
     CourseSession courseSession = domain.getCourseSession() != null ?
         toCourseSession(domain.getCourseSession()) :
         new CourseSession();
@@ -30,7 +31,7 @@ public class AttendanceMapper {
         .isLate(domain.isLate());
   }
 
-  public StudentAttendanceMovement toRestMovement (school.hei.haapi.model.StudentAttendance domain) {
+  public StudentAttendanceMovement toRestMovement(school.hei.haapi.model.StudentAttendance domain) {
     return new StudentAttendanceMovement()
         .id(domain.getId())
         .attendanceMovementType(domain.getAttendanceMovementType())
@@ -39,9 +40,10 @@ public class AttendanceMapper {
         .student(userMapper.toRestStudent(domain.getStudent()));
   }
 
-  public StudentAttendance toDomain (CreateAttendanceMovement toCreate) {
-    if(userRepository.findById(toCreate.getStudentId()).isEmpty()) {
-      throw new NotFoundException("the student with #"+toCreate.getStudentId()+" doesn't exist");
+  public StudentAttendance toDomain(CreateAttendanceMovement toCreate) {
+    if (userRepository.findById(toCreate.getStudentId()).isEmpty()) {
+      throw new NotFoundException(
+          "the student with #" + toCreate.getStudentId() + " doesn't exist");
     }
     return StudentAttendance.builder()
         .attendanceMovementType(toCreate.getAttendanceMovementType())
@@ -50,6 +52,7 @@ public class AttendanceMapper {
         .student(userRepository.findById(toCreate.getStudentId()).get())
         .build();
   }
+
   public CourseSession toCourseSession(school.hei.haapi.model.CourseSession toMap) {
     return new CourseSession()
         .course(courseMapper.toRest(toMap.getCourse()))

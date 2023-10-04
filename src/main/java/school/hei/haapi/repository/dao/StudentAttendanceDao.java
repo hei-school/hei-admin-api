@@ -46,20 +46,23 @@ public class StudentAttendanceDao {
     // sorting attendance by created_at ASC
     Expression studentAttendanceCreatedAtExpression = studentAttendanceRoot.get("createdAt");
 
-    if(studentKeyword != null && !studentKeyword.isEmpty()) {
+    if (studentKeyword != null && !studentKeyword.isEmpty()) {
       predicates.add(
           builder.and(
               builder.or(
                   builder.or(
-                      builder.like(builder.lower(userJoin.get("ref")), "%" + studentKeyword.toLowerCase() + "%"),
+                      builder.like(builder.lower(userJoin.get("ref")),
+                          "%" + studentKeyword.toLowerCase() + "%"),
                       builder.like(userJoin.get("ref"), "%" + studentKeyword + "%")
                   ),
                   builder.or(
-                      builder.like(builder.lower(userJoin.get("firstName")), "%" + studentKeyword.toLowerCase() + "%"),
+                      builder.like(builder.lower(userJoin.get("firstName")),
+                          "%" + studentKeyword.toLowerCase() + "%"),
                       builder.like(userJoin.get("firstName"), "%" + studentKeyword + "%")
                   ),
                   builder.or(
-                      builder.like(builder.lower(userJoin.get("lastName")), "%" + studentKeyword.toLowerCase() + "%"),
+                      builder.like(builder.lower(userJoin.get("lastName")),
+                          "%" + studentKeyword.toLowerCase() + "%"),
                       builder.like(userJoin.get("lastName"), "%" + studentKeyword + "%")
                   )
               )
@@ -67,12 +70,12 @@ public class StudentAttendanceDao {
       );
     }
 
-    if(courseIds != null && !courseIds.isEmpty()) {
+    if (courseIds != null && !courseIds.isEmpty()) {
       Expression<String> courseIdExpression = courseJoin.get("id");
       predicates.add(builder.and(courseIdExpression.in(courseIds)));
     }
 
-    if(teachersIds != null && !teachersIds.isEmpty()) {
+    if (teachersIds != null && !teachersIds.isEmpty()) {
       Expression<String> teacherIdExpression = teacherJoin.get("id");
       predicates.add(builder.and(teacherIdExpression.in(teachersIds)));
     }
@@ -116,12 +119,14 @@ public class StudentAttendanceDao {
             builder.and(
                 builder.or(
                     builder.between(studentAttendanceRoot.get("createdAt"),
-                        InstantUtils.getCurrentMondayOfTheWeek(), InstantUtils.getCurrentSaturdayOfTheWeek()
+                        InstantUtils.getCurrentMondayOfTheWeek(),
+                        InstantUtils.getCurrentSaturdayOfTheWeek()
                     ),
                     builder.isNull(studentAttendanceRoot.get("createdAt"))
                 ),
                 builder.between(courseSessionJoin.get("begin"),
-                    InstantUtils.getCurrentMondayOfTheWeek(), InstantUtils.getCurrentSaturdayOfTheWeek()
+                    InstantUtils.getCurrentMondayOfTheWeek(),
+                    InstantUtils.getCurrentSaturdayOfTheWeek()
                 )
             )
         );
@@ -142,7 +147,6 @@ public class StudentAttendanceDao {
         .getResultList();
   }
 
-  //TODO: implement the query to get attendances of the current week
   private int getFilterCase(Instant from, Instant to) {
     if (to == null && from == null) {
       return 4;
