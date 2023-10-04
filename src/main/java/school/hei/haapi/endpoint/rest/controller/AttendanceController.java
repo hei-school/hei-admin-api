@@ -23,29 +23,36 @@ import school.hei.haapi.service.AttendanceService;
 @RestController
 @AllArgsConstructor
 public class AttendanceController {
-  private final AttendanceService attendanceService;
   private final AttendanceMapper attendanceMapper;
+  private final AttendanceService attendanceService;
 
   @PostMapping("/attendance/movement")
-  public StudentAttendanceMovement createAttendanceMovement (@RequestBody CreateAttendanceMovement movement) {
-    return attendanceMapper.toRestMovement(
-        attendanceService.createStudentAttendanceMovement(attendanceMapper.toDomain(movement)
-        ));
+  public List<StudentAttendanceMovement> createAttendanceMovement (@RequestBody List<CreateAttendanceMovement> movement) {
+    return attendanceService.createStudentAttendanceMovement(
+            movement.stream().map(attendanceMapper::toDomain).toList())
+        .stream()
+        .map(attendanceMapper::toRestMovement)
+        .collect(Collectors.toUnmodifiableList());
   }
 
   @GetMapping("/attendance")
   public List<StudentAttendance> getStudentsAttendance(
-      @RequestParam(name = "attendance_statuses", required = false)List<AttendanceStatus> attendanceStatuses,
+
+      @RequestParam(name = "page")PageFromOne page, @RequestParam(name = "page_size")BoundedPageSize pageSize,
       @RequestParam(name = "courses_ids", required = false)List<String> coursesIds,
+      @RequestParam(name = "teachers_ids", required = false)List<String> teacherIds,
       @RequestParam(name = "student_key_word", required = false, defaultValue = "")String studentKeyWord,
       @RequestParam(name = "from", required = false)Instant from,
       @RequestParam(name = "to", required = false)Instant to,
-      @RequestParam(name = "page")PageFromOne page, @RequestParam(name = "page_size")BoundedPageSize pageSize
-      ) {
-    List<school.hei.haapi.model.StudentAttendance> toRest = new ArrayList<>(
-        attendanceService.getStudentAttendances(studentKeyWord, coursesIds, attendanceStatuses, from, to, page, pageSize)
-    );
-    return toRest.stream().map(attendanceMapper::toRestAttendance)
+      @RequestParam(name = "attendance_statuses", required = false)List<AttendanceStatus> attendanceStatuses
+  ) {
+    return attendanceService.getStudentAttendances(
+            studentKeyWord, coursesIds, teacherIds,
+            attendanceStatuses, from, to,
+            page, pageSize
+        )
+        .stream()
+        .map(attendanceMapper::toRestAttendance)
         .collect(Collectors.toUnmodifiableList());
   }
 }

@@ -2,7 +2,9 @@ package school.hei.haapi.model;
 
 import static javax.persistence.GenerationType.IDENTITY;
 import java.io.Serializable;
+import java.time.Duration;
 import java.time.Instant;
+
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -63,7 +65,12 @@ public class StudentAttendance implements Serializable {
     return this.createdAt.isAfter(toCompare);
   }
 
-  public int lateOf(Instant toDefine) {
-    return this.createdAt.compareTo(toDefine)*(-1);
+  public long lateOf(Instant toDefine) {
+    long lateOf = 0;
+    if (this.createdAt != null && toDefine != null && this.createdAt.isAfter(toDefine)) {
+      Duration duration = Duration.between(this.createdAt, toDefine);
+      lateOf = Math.abs(duration.toMinutes());
+    }
+    return lateOf;
   }
 }
