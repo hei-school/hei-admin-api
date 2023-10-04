@@ -68,7 +68,7 @@ class AttendanceIT {
     List<StudentAttendance> actualFromAnInstant = api.getStudentsAttendance(
         1, 10, null, null, null, Instant.parse("2021-11-08T07:00:00.00Z"), null, null
     );
-    assertEquals(5, actualFromAnInstant.size());
+    assertEquals(6, actualFromAnInstant.size());
 
     // GET /attendance?page=1&page_size=10&to=2021-08-09T00:15:00.00Z
     List<StudentAttendance> actualToAnInstant = api.getStudentsAttendance(
