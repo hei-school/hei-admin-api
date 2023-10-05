@@ -4,18 +4,17 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import school.hei.haapi.service.AwardedCourseService;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 @AllArgsConstructor
-public class SelfMatcher implements RequestMatcher {
-
+public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
+  private final AwardedCourseService awardedCourseService;
   private final HttpMethod method;
   private final String antPattern;
-  private final String stringBeforeId;
 
   @Override
   public boolean matches(HttpServletRequest request) {
@@ -23,10 +22,11 @@ public class SelfMatcher implements RequestMatcher {
     if (!antMatcher.matches(request)) {
       return false;
     }
-    return Objects.equals(getSecondId(request), AuthProvider.getPrincipal().getUserId());
+    return awardedCourseService.checkTeacherOfAwardedCourse(AuthProvider.getPrincipal().getUserId(),
+        getSelfId(request, "awarded_courses"), getSelfId(request, "groups"));
   }
 
-  private String getSecondId(HttpServletRequest request) {
+  private String getSelfId(HttpServletRequest request, String stringBeforeId) {
     Pattern SELFABLE_URI_PATTERN = Pattern.compile(stringBeforeId + "/(?<id>[^/]+)(/.*)?");
     Matcher uriMatcher = SELFABLE_URI_PATTERN.matcher(request.getRequestURI());
     return uriMatcher.find() ? uriMatcher.group("id") : null;

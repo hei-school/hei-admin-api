@@ -19,7 +19,6 @@ import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 
-import java.sql.SQLOutput;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -31,72 +30,80 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 @AllArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
-    private final EventProducer eventProducer;
-    private final UserValidator userValidator;
-    private final UserManagerDao userManagerDao;
-    private final GroupRepository groupRepository;
-    private final GroupService groupService;
+  private final UserRepository userRepository;
+  private final EventProducer eventProducer;
+  private final UserValidator userValidator;
+  private final UserManagerDao userManagerDao;
+  private final GroupRepository groupRepository;
+  private final GroupService groupService;
 
-    public User getById(String userId) {
-        return userRepository.getById(userId);
-    }
+  public User getById(String userId) {
+    return userRepository.getById(userId);
+  }
 
-    public User getByEmail(String email) {
-        return userRepository.getByEmail(email);
-    }
+  public User getByEmail(String email) {
+    return userRepository.getByEmail(email);
+  }
 
-    @Transactional
-    public List<User> saveAll(List<User> users) {
-        userValidator.accept(users);
-        List<User> savedUsers = userRepository.saveAll(users);
-        eventProducer.accept(users.stream().map(this::toTypedEvent).collect(toUnmodifiableList()));
-        return savedUsers;
-    }
+  @Transactional
+  public List<User> saveAll(List<User> users) {
+    userValidator.accept(users);
+    List<User> savedUsers = userRepository.saveAll(users);
+    eventProducer.accept(users.stream().map(this::toTypedEvent).collect(toUnmodifiableList()));
+    return savedUsers;
+  }
 
-    private TypedUserUpserted toTypedEvent(User user) {
-        return new TypedUserUpserted(new UserUpserted().userId(user.getId()).email(user.getEmail()));
-    }
+  private TypedUserUpserted toTypedEvent(User user) {
+    return new TypedUserUpserted(new UserUpserted().userId(user.getId()).email(user.getEmail()));
+  }
 
-    public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
-        return getByCriteria(role, "", "", "", page, pageSize);
-    }
+  public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
+    return getByCriteria(role, "", "", "", page, pageSize);
+  }
 
-    public List<User> getByCriteria(User.Role role, String firstName, String lastName, String ref, PageFromOne page, BoundedPageSize pageSize) {
-        Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-            return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
-    }
-    public List<User> getByLinkedCourse(User.Role role, String firstName, String lastName, String ref, String courseId, PageFromOne page, BoundedPageSize pageSize) {
-        Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-        List<User> users = userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
+  public List<User> getByCriteria(User.Role role, String firstName, String lastName, String ref,
+                                  PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
+  }
 
-        return courseId.length() > 0 ? users
-                .stream().filter(
-                        user ->  groupService.getByUserId(user.getId()).stream()
-                                    .anyMatch(group -> group.getAwardedCourse().stream()
-                                            .anyMatch(awardedCourse -> awardedCourse.getCourse().getId().equals(courseId)))
-                ).collect(Collectors.toList()) : users;
-    }
+  public List<User> getByLinkedCourse(User.Role role, String firstName, String lastName, String ref,
+                                      String courseId, PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    List<User> users = userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
 
-    public List<User> getByGroupId(String groupId) {
-        Group group = groupRepository.getById(groupId);
-        List<User> users = new ArrayList<>();
-        List<GroupFlow> groupFlows = new ArrayList<>();
-        for (GroupFlow groupFlow : group.getGroupFlows()) {
-            if (!users.contains(groupFlow.getStudent())) {
-                if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.JOIN) {
-                    users.add(groupFlow.getStudent());
-                }
-                groupFlows.add(groupFlow);
-            } else if (groupFlow.getFlowDatetime().isAfter(groupFlows.stream().filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent())).findFirst().get().getFlowDatetime())) {
-                if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.LEAVE) {
-                    users.remove(groupFlow.getStudent());
-                }
-                groupFlows.remove(groupFlows.stream().filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent())).findFirst().get());
-                groupFlows.add(groupFlow);
-            }
+    return courseId.length() > 0 ? users.stream().filter(
+            user -> groupService.getByUserId(user.getId()).stream().anyMatch(
+                group -> group.getAwardedCourse().stream()
+                    .anyMatch(awardedCourse -> awardedCourse.getCourse().getId().equals(courseId))))
+        .collect(Collectors.toList()) : users;
+  }
+
+  public List<User> getByGroupId(String groupId) {
+    Group group = groupRepository.getById(groupId);
+    List<User> users = new ArrayList<>();
+    List<GroupFlow> groupFlows = new ArrayList<>();
+    for (GroupFlow groupFlow : group.getGroupFlows()) {
+      if (!users.contains(groupFlow.getStudent())) {
+        if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.JOIN) {
+          users.add(groupFlow.getStudent());
         }
-        return users.stream().distinct().collect(Collectors.toList());
+        groupFlows.add(groupFlow);
+      } else if (groupFlow.getFlowDatetime().isAfter(groupFlows.stream()
+          .filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent())).findFirst()
+          .get().getFlowDatetime())) {
+        if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.LEAVE) {
+          users.remove(groupFlow.getStudent());
+        }
+        groupFlows.remove(groupFlows.stream()
+            .filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent()))
+            .findFirst().get());
+        groupFlows.add(groupFlow);
+      }
     }
+    return users.stream().distinct().collect(Collectors.toList());
+  }
 
 }

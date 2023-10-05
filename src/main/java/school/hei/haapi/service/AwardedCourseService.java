@@ -9,8 +9,10 @@ import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.model.AwardedCourse;
+import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Group;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.AwardedCourseValidator;
 import school.hei.haapi.repository.AwardedCourseRepository;
@@ -20,6 +22,8 @@ import school.hei.haapi.repository.UserRepository;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 
 @Service
@@ -32,18 +36,20 @@ public class AwardedCourseService {
   private final AwardedCourseMapper awardedCourseMapper;
   private final AwardedCourseValidator awardedCourseValidator;
 
-  public List<AwardedCourse> getByCourseId(String courseId) {
-    return courseRepository.getCourseById(courseId).getAwardedCourses();
-  }
-
   public List<AwardedCourse> getByStudentId(String userId) {
     User student = userRepository.getById(userId);
-    List<Group> groups = student.getGroupFlows().stream().map(groupFlow -> groupFlow.getGroup()).distinct().collect(Collectors.toList());
+    List<Group> groups =
+        student.getGroupFlows().stream().map(groupFlow -> groupFlow.getGroup()).distinct()
+            .collect(Collectors.toList());
     return awardedCourseMapper.getAwardedCoursesDomainByGroups(groups);
   }
 
-  public List<AwardedCourse> getByGroupId(String groupId) {
-    return groupRepository.getById(groupId).getAwardedCourse();
+  public List<AwardedCourse> getByGroupId(String groupId, PageFromOne page,
+                                          BoundedPageSize pageSize) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(),
+            Sort.by(DESC, "creationDatetime"));
+    return awardedCourseRepository.findByGroupId(groupId, pageable);
   }
 
   public AwardedCourse getById(String id, String groupId) {
@@ -54,12 +60,22 @@ public class AwardedCourseService {
     Group group = groupRepository.getById(createAwardedCourse.getGroupId());
     Course course = courseRepository.getById(createAwardedCourse.getCourseId());
     User teacher = userRepository.getById(createAwardedCourse.getMainTeacherId());
-    AwardedCourse awardedCourse = awardedCourseRepository.save(AwardedCourse.builder().course(course).mainTeacher(teacher).group(group).build());
+    AwardedCourse awardedCourse = awardedCourseRepository.save(
+        AwardedCourse.builder().course(course).mainTeacher(teacher).group(group).build());
     awardedCourseValidator.accept(awardedCourse);
     return awardedCourse;
   }
+
+  public Boolean checkTeacherOfAwardedCourse(String teacherId, String awardedCourseId,
+                                             String groupId) {
+    AwardedCourse awardedCourse = getById(awardedCourseId, groupId);
+    return awardedCourse.getMainTeacher().getId().equals(teacherId);
+  }
+
   @Transactional
-  public List<AwardedCourse> createOrUpdateAwardedCourses(List<CreateAwardedCourse> createAwardedCourses) {
-    return createAwardedCourses.stream().map(this::createOrUpdateAwardedCourse).collect(Collectors.toList());
+  public List<AwardedCourse> createOrUpdateAwardedCourses(
+      List<CreateAwardedCourse> createAwardedCourses) {
+    return createAwardedCourses.stream().map(this::createOrUpdateAwardedCourse)
+        .collect(Collectors.toList());
   }
 }

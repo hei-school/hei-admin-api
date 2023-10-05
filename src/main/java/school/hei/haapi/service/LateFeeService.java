@@ -21,16 +21,11 @@ public class LateFeeService implements Consumer<LateFeeVerified> {
   private final EventConf eventConf;
 
   private static String emailSubject(User student, LateFeeVerified lateFee) {
-    return "Retard de paiement - "
-        + student.getRef()
-        + " - "
-        + lateFee.getComment();
+    return "Retard de paiement - " + student.getRef() + " - " + lateFee.getComment();
   }
 
   private static String formatName(User student) {
-    return student.getLastName()
-        + " "
-        + student.getFirstName();
+    return student.getLastName() + " " + student.getFirstName();
   }
 
   private static Context getMailContext(LateFeeVerified lateFee) {

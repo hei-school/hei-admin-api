@@ -153,9 +153,8 @@ class GroupIT {
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    List<Group> toUpdate = api.createOrUpdateGroups(List.of(
-        someCreatableGroup(),
-        someCreatableGroup()));
+    List<Group> toUpdate =
+        api.createOrUpdateGroups(List.of(someCreatableGroup(), someCreatableGroup()));
     Group toUpdate0 = toUpdate.get(0);
     toUpdate0.setName("A new name zero");
     Group toUpdate1 = toUpdate.get(1);

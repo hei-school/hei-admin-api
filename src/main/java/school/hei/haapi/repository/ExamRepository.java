@@ -1,22 +1,28 @@
 package school.hei.haapi.repository;
 
 import java.util.List;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Exam;
-import school.hei.haapi.model.Fee;
-
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, String> {
-  @Query("select e from Exam e where e.awardedCourse.group.id = :group_id and e.awardedCourse.id = :awarded_course_id and e.id = :exam_id")
-  Exam findExamsByIdAndGroupIdAndAwardedGroupId(@Param("exam_id") String examId, @Param("awarded_course_id") String awardedCourseId, @Param("group_id") String groupId);
+  @Query("select e from Exam e where e.awardedCourse.group.id = :group_id " +
+      "and e.awardedCourse.id = :awarded_course_id and e.id = :exam_id")
+  Exam findExamsByIdAndGroupIdAndAwardedGroupId(@Param("exam_id") String examId,
+                                                @Param("awarded_course_id") String awardedCourseId,
+                                                @Param("group_id") String groupId);
 
   @Query("select e from Exam e where e.awardedCourse.course.id = :course_id ")
   List<Exam> findExamsByCourseId(@Param("course_id") String courseId);
 
-  @Query("select e from Exam e where e.awardedCourse.group.id = :group_id and e.awardedCourse.id = :awarded_course_id")
-  List<Exam> findExamsByCourseIdAndAwardedGroupId(@Param("group_id") String courseId, @Param("awarded_course_id") String awardedCourseId);
+  @Query("select e from Exam e where e.awardedCourse.group.id = :group_id and " +
+      "e.awardedCourse.id = :awarded_course_id")
+  Page<Exam> findExamsByGroupIdAndAwardedGroupId(@Param("group_id") String courseId,
+                                                 @Param("awarded_course_id") String awardedCourseId,
+                                                 Pageable pageable);
 }

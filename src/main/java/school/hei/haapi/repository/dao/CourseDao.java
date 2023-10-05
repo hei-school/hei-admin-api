@@ -3,12 +3,10 @@ package school.hei.haapi.repository.dao;
 import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
-import javax.persistence.criteria.CollectionJoin;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
-import javax.persistence.criteria.ListJoin;
 import javax.persistence.criteria.Order;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
@@ -28,47 +26,39 @@ public class CourseDao {
 
   public List<Course> findByCriteria(String code, String name, Integer credits,
                                      String teacherFirstName, String teacherLastName,
-                                     String creditsOrder, String codeOrder,
-                                     Pageable pageable) {
+                                     String creditsOrder, String codeOrder, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
     Root<Course> root = query.from(Course.class);
-//    ListJoin<Course, AwardedCourse> awardedCourses = root.joinList("awardedCourses", JoinType.LEFT);
     Join<Course, AwardedCourse> awardedCourses = root.join("awardedCourses", JoinType.LEFT);
     Join<AwardedCourse, User> teacher = awardedCourses.join("mainTeacher", JoinType.LEFT);
 
     List<Predicate> predicates = new ArrayList<>();
 
     if (code != null) {
-      predicates.add(
-          builder.or(
-              builder.like(builder.lower(root.get("code")), "%" + code + "%"),
-              builder.like(root.get("code"), "%" + code + "%")
-          )
-      );
+      predicates.add(builder.or(builder.like(builder.lower(root.get("code")), "%" + code + "%"),
+          builder.like(root.get("code"), "%" + code + "%")));
     }
 
     if (name != null) {
-      predicates.add(builder.or(
-          builder.like(builder.lower(root.get("name")), "%" + name + "%"),
-          builder.like(root.get("name"), "%" + name + "%")
-      ));
+      predicates.add(
+          builder.or(builder.like(builder.lower(root.get("name")), "%" + name.toLowerCase() + "%"),
+              builder.like(root.get("name"), "%" + name + "%")));
     }
 
     if (teacherLastName != null && !teacherLastName.isBlank()) {
-      predicates.add(builder.like(teacher.get("lastName"), "%" + teacherLastName + "%"));
+      predicates.add(builder.like(builder.lower(teacher.get("lastName")),
+          "%" + teacherLastName.toLowerCase() + "%"));
     }
-
 
 
     if (teacherFirstName != null && !teacherFirstName.isBlank()) {
-      predicates.add(builder.like(teacher.get("firstName"), "%" + teacherFirstName + "%"));
+      predicates.add(builder.like(builder.lower(teacher.get("firstName")),
+          "%" + teacherFirstName.toLowerCase() + "%"));
     }
 
-    Predicate hasCredits = credits != null
-        ? builder.or(
-        builder.equal(root.get("credits"), credits)
-    ) : null;
+    Predicate hasCredits =
+        credits != null ? builder.or(builder.equal(root.get("credits"), credits)) : null;
 
     if (hasCredits != null) {
       predicates.add(hasCredits);
@@ -94,8 +84,7 @@ public class CourseDao {
 
     return entityManager.createQuery(query)
         .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
-        .setMaxResults(pageable.getPageSize())
-        .getResultList();
+        .setMaxResults(pageable.getPageSize()).getResultList();
   }
 
   private Order getOrder(Root<Course> root, CriteriaBuilder builder, String order,
@@ -111,26 +100,5 @@ public class CourseDao {
       return null;
     }
   }
-
-//  public List<Course> getByUserIdAndStatus(String userId, CourseStatus status) {
-//    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-//    CriteriaQuery<Course> query = builder.createQuery(Course.class);
-//    Root<Course> courseRoot = query.from(Course.class);
-//
-//    Join<Course, AwardedCourse> awardedCourse =
-//        courseRoot.join("awardedCourses", JoinType.LEFT);
-//
-//    Join<AwardedCourse, User> user = awardedCourse.join("student", JoinType.LEFT);
-//
-//    Predicate hasUserId =
-//        builder.equal(user.get("id"), userId);
-//    if (status == null) {
-//      status = LINKED;
-//    }
-//    Predicate hasStatus = builder.equal(awardedCourse.get("status"), status);
-//    query.where(builder.and(hasUserId, hasStatus))
-//        .distinct(true);
-//    return entityManager.createQuery(query).getResultList();
-//  }
 
 }
