@@ -17,63 +17,40 @@ import java.util.stream.Collectors;
 @Component
 @AllArgsConstructor
 public class GradeMapper {
-    public school.hei.haapi.model.Grade toDomain(Grade grade) {
-        return school.hei.haapi.model.Grade.builder()
-                .score(grade.getScore().intValue())
-                .creationDatetime(grade.getCreatedAt())
-                .build();
-    }
+  public school.hei.haapi.model.Grade toDomain(Grade grade) {
+    return school.hei.haapi.model.Grade.builder().score(grade.getScore().intValue())
+        .creationDatetime(grade.getCreatedAt()).build();
+  }
 
-    public Grade toRest(school.hei.haapi.model.Grade grade) {
-        return new Grade()
-                .id(grade.getId())
-                .createdAt(grade.getCreationDatetime())
-                .score(Double.valueOf(grade.getScore()));
-    }
+  public Grade toRest(school.hei.haapi.model.Grade grade) {
+    return new Grade().id(grade.getId()).createdAt(grade.getCreationDatetime())
+        .score(Double.valueOf(grade.getScore()));
+  }
 
-    public StudentGrade toRestStudentGrade(school.hei.haapi.model.Grade grade) {
-        if (grade == null) {
-            return null;
-        }
-        return new StudentGrade().id(grade.getStudent().getId()).ref(grade.getStudent().getRef())
-                .firstName(grade.getStudent().getFirstName()).lastName(grade.getStudent().getLastName())
-                .email(grade.getStudent().getEmail()).grade(toRest(grade));
+  public StudentGrade toRestStudentGrade(school.hei.haapi.model.Grade grade) {
+    if (grade == null) {
+      return null;
     }
+    return new StudentGrade().id(grade.getStudent().getId()).ref(grade.getStudent().getRef())
+        .firstName(grade.getStudent().getFirstName()).lastName(grade.getStudent().getLastName())
+        .email(grade.getStudent().getEmail()).grade(toRest(grade));
+  }
 
-    public StudentExamGrade toRestStudentExamGrade(school.hei.haapi.model.Grade grade) {
-        if (grade == null) {
-            return null;
-        }
-        return new StudentExamGrade()
-                .id(grade.getExam().getId())
-                .coefficient(grade.getExam().getCoefficient())
-                .examinationDate(grade.getExam().getExaminationDate())
-                .title(grade.getExam().getTitle())
-                .grade(toRest(grade));
-    }
+  public StudentExamGrade toRestStudentExamGradeFromStudentAndExam(User student, Exam exam) {
+    Optional<school.hei.haapi.model.Grade> optionalGrade = exam.getGrades().stream()
+        .filter(grade -> grade.getStudent().getId().equals(student.getId())).findFirst();
+    school.hei.haapi.model.Grade grade = optionalGrade.get();
+    return new StudentExamGrade().id(grade.getExam().getId())
+        .coefficient(grade.getExam().getCoefficient())
+        .examinationDate(grade.getExam().getExaminationDate()).title(grade.getExam().getTitle())
+        .grade(toRest(grade));
+  }
 
-    public StudentExamGrade toRestStudentExamGradeFromStudentAndExam(User student, Exam exam) {
-        Optional<school.hei.haapi.model.Grade> optionalGrade = exam.getGrades().stream()
-                .filter(grade -> grade.getStudent().getId().equals(student.getId())).findFirst();
-        school.hei.haapi.model.Grade grade = optionalGrade.get();
-        return new StudentExamGrade()
-                .id(grade.getExam().getId())
-                .coefficient(grade.getExam().getCoefficient())
-                .examinationDate(grade.getExam().getExaminationDate())
-                .title(grade.getExam().getTitle())
-                .grade(toRest(grade));
-    }
-
-    public List<StudentExamGrade> toRestStudentExamGradesFromStudentAndExam(User student, List<Exam> exams) {
-        return exams.stream()
-                .map(exam -> toRestStudentExamGradeFromStudentAndExam(student, exam)).collect(Collectors.toList());
-    }
-    public ExamDetail toRestExamDetail(Exam exam, List<school.hei.haapi.model.Grade> grades) {
-        return new ExamDetail().id(exam.getId()).coefficient(exam.getCoefficient())
-                .title(exam.getTitle())
-                .examinationDate(exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
-                .participants(grades.stream()
-                        .map(grade -> this.toRestStudentGrade(grade))
-                        .collect(Collectors.toList()));
-    }
+  public ExamDetail toRestExamDetail(Exam exam, List<school.hei.haapi.model.Grade> grades) {
+    return new ExamDetail().id(exam.getId()).coefficient(exam.getCoefficient())
+        .title(exam.getTitle())
+        .examinationDate(exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
+        .participants(grades.stream().map(grade -> this.toRestStudentGrade(grade))
+            .collect(Collectors.toList()));
+  }
 }

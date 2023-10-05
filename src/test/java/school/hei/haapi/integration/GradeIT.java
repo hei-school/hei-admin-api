@@ -50,7 +50,8 @@ class GradeIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<AwardedCourseExam> actualAwardedCourseExamGrades = api.getStudentGrades(STUDENT1_ID,1, 10);
+    List<AwardedCourseExam> actualAwardedCourseExamGrades =
+        api.getStudentGrades(STUDENT1_ID, 1, 10);
 
     assertEquals(4, actualAwardedCourseExamGrades.size());
     assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam1()));
@@ -58,18 +59,20 @@ class GradeIT {
     assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam3()));
     assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam4()));
 
-    ExamDetail actualExamDetail = api.getExamGrades(GROUP1_ID , EXAM1_ID, AWARDED_COURSE1_ID,1, 10);
+    ExamDetail actualExamDetail = api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID);
     assertEquals(examDetail1(), actualExamDetail);
 
-    StudentGrade actuslStudentGrade = api.getParticipantGrade(GROUP1_ID , EXAM1_ID, STUDENT1_ID, AWARDED_COURSE1_ID);
+    StudentGrade actuslStudentGrade =
+        api.getParticipantGrade(GROUP1_ID, EXAM1_ID, STUDENT1_ID, AWARDED_COURSE1_ID);
     assertEquals(studentGrade1(), actuslStudentGrade);
   }
+
   @Test
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
 
-    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID,1, 10);
+    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
 
     assertEquals(4, actual.size());
     assertTrue(actual.contains(awardedCourseExam1()));
@@ -78,10 +81,11 @@ class GradeIT {
     assertTrue(actual.contains(awardedCourseExam4()));
 
 
-    ExamDetail actualExamDetail = api.getExamGrades(GROUP1_ID , EXAM1_ID, AWARDED_COURSE1_ID,1, 10);
+    ExamDetail actualExamDetail = api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID);
     assertEquals(examDetail1(), actualExamDetail);
 
-    StudentGrade actuslStudentGrade = api.getParticipantGrade(GROUP1_ID , EXAM1_ID, STUDENT1_ID, AWARDED_COURSE1_ID);
+    StudentGrade actuslStudentGrade =
+        api.getParticipantGrade(GROUP1_ID, EXAM1_ID, STUDENT1_ID, AWARDED_COURSE1_ID);
     assertEquals(studentGrade1(), actuslStudentGrade);
   }
 
@@ -90,7 +94,7 @@ class GradeIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
 
-    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID,1, 10);
+    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
 
     assertEquals(4, actual.size());
     assertTrue(actual.contains(awardedCourseExam1()));
@@ -98,7 +102,8 @@ class GradeIT {
     assertTrue(actual.contains(awardedCourseExam3()));
     assertTrue(actual.contains(awardedCourseExam4()));
 
-    StudentGrade actuslStudentGrade = api.getParticipantGrade(GROUP1_ID , EXAM1_ID, STUDENT1_ID, AWARDED_COURSE1_ID);
+    StudentGrade actuslStudentGrade =
+        api.getParticipantGrade(GROUP1_ID, EXAM1_ID, STUDENT1_ID, AWARDED_COURSE1_ID);
     assertEquals(studentGrade1(), actuslStudentGrade);
   }
 
@@ -106,10 +111,9 @@ class GradeIT {
   void student_read_other_grade_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
+    assertThrowsForbiddenException(() -> api.getStudentGrades(STUDENT2_ID, 1, 10));
     assertThrowsForbiddenException(
-            () -> api.getStudentGrades(STUDENT2_ID,1, 10));
-    assertThrowsForbiddenException(
-            () -> api.getParticipantGrade(GROUP1_ID , EXAM1_ID, STUDENT3_ID, AWARDED_COURSE1_ID));
+        () -> api.getParticipantGrade(GROUP1_ID, EXAM1_ID, STUDENT3_ID, AWARDED_COURSE1_ID));
   }
 
   @Test
@@ -117,20 +121,22 @@ class GradeIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsForbiddenException(
-        () -> api.getExamGrades(GROUP1_ID , EXAM1_ID, AWARDED_COURSE1_ID,1, 10));
+        () -> api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID));
   }
 
   void manager_create_grades_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    List<ExamDetail> actual = api.createStudentExamGrade(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID, List.of(createGrade(STUDENT1_ID,EXAM1_ID,AWARDED_COURSE1_ID)));
+    List<ExamDetail> actual = api.createStudentExamGrade(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID,
+        List.of(createGrade(STUDENT1_ID, EXAM1_ID, AWARDED_COURSE1_ID)));
     assertEquals(1, actual.size());
   }
 
   void teacher_create_his_exam_grades_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    List<ExamDetail> actual = api.createStudentExamGrade(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID, List.of(createGrade(STUDENT1_ID,EXAM1_ID,AWARDED_COURSE1_ID)));
+    List<ExamDetail> actual = api.createStudentExamGrade(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID,
+        List.of(createGrade(STUDENT1_ID, EXAM1_ID, AWARDED_COURSE1_ID)));
     assertEquals(1, actual.size());
   }
 

@@ -77,8 +77,8 @@ public class TestUtils {
     client.setScheme("http");
     client.setHost("localhost");
     client.setPort(serverPort);
-    client.setRequestInterceptor(httpRequestBuilder ->
-        httpRequestBuilder.header("Authorization", "Bearer " + token));
+    client.setRequestInterceptor(
+        httpRequestBuilder -> httpRequestBuilder.header("Authorization", "Bearer " + token));
     return client;
   }
 
@@ -91,8 +91,7 @@ public class TestUtils {
 
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {
     when(eventBridgeClient.putEvents((PutEventsRequest) any())).thenReturn(
-        PutEventsResponse.builder().build()
-    );
+        PutEventsResponse.builder().build());
   }
 
   public static void assertThrowsApiException(String expectedBody, Executable executable) {
@@ -103,78 +102,51 @@ public class TestUtils {
   public static void assertThrowsForbiddenException(Executable executable) {
     ApiException apiException = assertThrows(ApiException.class, executable);
     String responseBody = apiException.getResponseBody();
-    assertEquals("{"
-        + "\"type\":\"403 FORBIDDEN\","
-        + "\"message\":\"Access is denied\"}", responseBody);
+    assertEquals("{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}",
+        responseBody);
   }
-
 
 
   public static Teacher someCreatableTeacher() {
-    return new Teacher()
-        .firstName("Some")
-        .lastName("User")
-        .email(randomUUID() + "@hei.school")
-        .ref("TCR21-" + randomUUID())
-        .phone("0332511129")
-        .status(EnableStatus.ENABLED)
-        .sex(Teacher.SexEnum.M)
-        .birthDate(LocalDate.parse("2000-01-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .address("Adr X");
+    return new Teacher().firstName("Some").lastName("User").email(randomUUID() + "@hei.school")
+        .ref("TCR21-" + randomUUID()).phone("0332511129").status(EnableStatus.ENABLED)
+        .sex(Teacher.SexEnum.M).birthDate(LocalDate.parse("2000-01-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z")).address("Adr X");
   }
 
   public static CreateFee creatableFee1() {
-    return new CreateFee()
-            .type(CreateFee.TypeEnum.TUITION)
-            .totalAmount(5000)
-            .comment("Comment")
-            .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+    return new CreateFee().type(CreateFee.TypeEnum.TUITION).totalAmount(5000).comment("Comment")
+        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
+
   public static Group createGroup() {
-    return new Group()
-        .name("Collaborative work like GWSP")
-        .ref("created")
+    return new Group().name("Collaborative work like GWSP").ref("created")
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
   }
 
-  public static Course createCourse() {
-    return new Course()
-            .code("MGT1")
-            .name("Collaborative work like GWSP")
-            .credits(12)
-            .totalHours(5);
+  public static Course createCourse(String code) {
+    return new Course().code(code).name("Collaborative work like GWSP").credits(12).totalHours(5);
   }
 
   public static CreateAwardedCourse updateAwardedCourse1() {
-    return new CreateAwardedCourse()
-            .id(AWARDED_COURSE1_ID)
-            .courseId("course1_id")
-            .groupId("group1_id")
-            .mainTeacherId("teacher1_id");
+    return new CreateAwardedCourse().id(AWARDED_COURSE1_ID).courseId("course1_id")
+        .groupId("group1_id").mainTeacherId("teacher1_id");
   }
 
   public static CreateAwardedCourse createAwardedCourse() {
-    return new CreateAwardedCourse()
-            .courseId("course2_id")
-            .groupId("group2_id")
-            .mainTeacherId("teacher2_id");
+    return new CreateAwardedCourse().courseId("course2_id").groupId("group2_id")
+        .mainTeacherId("teacher2_id");
   }
 
   public static ExamInfo createExam() {
-    return new ExamInfo()
-            .coefficient(10)
-            .title("createExam")
-            .examinationDate(Instant.parse("2021-11-08T08:25:24.00Z"))
-            .awardedCourseId(AWARDED_COURSE1_ID);
+    return new ExamInfo().coefficient(10).title("createExam")
+        .examinationDate(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .awardedCourseId(AWARDED_COURSE1_ID);
   }
 
   public static CreateGrade createGrade(String studentId, String examId, String awardedCourseId) {
-    return new CreateGrade()
-            .score(20.0)
-            .studentId(studentId)
-            .examId(examId)
-            .awardedCourseId(awardedCourseId);
+    return new CreateGrade().score(20.0).studentId(studentId).examId(examId)
+        .awardedCourseId(awardedCourseId);
   }
 
   public static List<Teacher> someCreatableTeacherList(int nbOfTeacher) {
@@ -196,12 +168,13 @@ public class TestUtils {
   public static List<Course> someCreatableCourseList(int nbOfCourse) {
     List<Course> courseList = new ArrayList<>();
     for (int i = 0; i < nbOfCourse; i++) {
-      courseList.add(createCourse());
+      courseList.add(createCourse("ToAdd" + i));
     }
     return courseList;
   }
 
-  public static List<CreateAwardedCourse> someCreatableCreateAwardedCourseList(int nbOfCreateAwardedCourse) {
+  public static List<CreateAwardedCourse> someCreatableCreateAwardedCourseList(
+      int nbOfCreateAwardedCourse) {
     List<CreateAwardedCourse> createAwardedCourseList = new ArrayList<>();
     for (int i = 0; i < nbOfCreateAwardedCourse; i++) {
       createAwardedCourseList.add(createAwardedCourse());
@@ -218,439 +191,255 @@ public class TestUtils {
   }
 
   public static Group group1() {
-    return new Group()
-            .id(GROUP1_ID)
-            .name("Name of group one")
-            .ref("GRP21001")
-            .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    return new Group().id(GROUP1_ID).name("Name of group one").ref("GRP21001")
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
   }
+
   public static Group group2() {
-    return new Group()
-            .id(GROUP2_ID)
-            .name("Name of group two")
-            .ref("GRP21002")
-            .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
+    return new Group().id(GROUP2_ID).name("Name of group two").ref("GRP21002")
+        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
   }
 
 
   public static Teacher teacher1() {
-    return new Teacher()
-            .id("teacher1_id")
-            .firstName("One")
-            .lastName("Teacher")
-            .email("test+teacher1@hei.school")
-            .ref("TCR21001")
-            .phone("0322411125")
-            .status(EnableStatus.ENABLED)
-            .sex(Teacher.SexEnum.F)
-            .birthDate(LocalDate.parse("1990-01-01"))
-            .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
-            .address("Adr 3");
+    return new Teacher().id("teacher1_id").firstName("One").lastName("Teacher")
+        .email("test+teacher1@hei.school").ref("TCR21001").phone("0322411125")
+        .status(EnableStatus.ENABLED).sex(Teacher.SexEnum.F)
+        .birthDate(LocalDate.parse("1990-01-01"))
+        .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z")).address("Adr 3");
   }
 
   public static Teacher teacher2() {
-    return new Teacher()
-            .id("teacher2_id")
-            .firstName("Two")
-            .lastName("Teacher")
-            .email("test+teacher2@hei.school")
-            .ref("TCR21002")
-            .phone("0322411126")
-            .status(EnableStatus.ENABLED)
-            .sex(Teacher.SexEnum.M)
-            .birthDate(LocalDate.parse("1990-01-02"))
-            .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
-            .address("Adr 4");
+    return new Teacher().id("teacher2_id").firstName("Two").lastName("Teacher")
+        .email("test+teacher2@hei.school").ref("TCR21002").phone("0322411126")
+        .status(EnableStatus.ENABLED).sex(Teacher.SexEnum.M)
+        .birthDate(LocalDate.parse("1990-01-02"))
+        .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z")).address("Adr 4");
   }
 
   public static Teacher teacher3() {
-    return new Teacher()
-            .id("teacher3_id")
-            .firstName("Three")
-            .lastName("Teach")
-            .email("test+teacher3@hei.school")
-            .ref("TCR21003")
-            .phone("0322411126")
-            .status(EnableStatus.ENABLED)
-            .sex(Teacher.SexEnum.M)
-            .birthDate(LocalDate.parse("1990-01-02"))
-            .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
-            .address("Adr 4");
+    return new Teacher().id("teacher3_id").firstName("Three").lastName("Teach")
+        .email("test+teacher3@hei.school").ref("TCR21003").phone("0322411126")
+        .status(EnableStatus.ENABLED).sex(Teacher.SexEnum.M)
+        .birthDate(LocalDate.parse("1990-01-02"))
+        .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z")).address("Adr 4");
   }
 
   public static Teacher teacher4() {
-    return new Teacher()
-        .id(TEACHER4_ID)
-        .firstName("Four")
-        .lastName("Binary")
-        .email("test+teacher4@hei.school")
-        .ref("TCR21004")
-        .phone("0322411426")
-        .status(EnableStatus.ENABLED)
-        .sex(Teacher.SexEnum.F)
+    return new Teacher().id(TEACHER4_ID).firstName("Four").lastName("Binary")
+        .email("test+teacher4@hei.school").ref("TCR21004").phone("0322411426")
+        .status(EnableStatus.ENABLED).sex(Teacher.SexEnum.F)
         .birthDate(LocalDate.parse("1990-01-04"))
-        .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
-        .address("Adr 5");
+        .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z")).address("Adr 5");
   }
 
   public static Fee fee1() {
-    return new Fee()
-            .id(FEE1_ID)
-            .studentId(STUDENT1_ID)
-            .status(PAID)
-            .type(TUITION)
-            .totalAmount(5000)
-            .remainingAmount(0)
-            .comment("Comment")
-            .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
-            .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-            .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+    return new Fee().id(FEE1_ID).studentId(STUDENT1_ID).status(PAID).type(TUITION).totalAmount(5000)
+        .remainingAmount(0).comment("Comment").updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
 
   public static Fee fee2() {
-    return new Fee()
-            .id(FEE2_ID)
-            .studentId(STUDENT1_ID)
-            .status(PAID)
-            .type(HARDWARE)
-            .totalAmount(5000)
-            .remainingAmount(0)
-            .comment("Comment")
-            .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
-            .creationDatetime(Instant.parse("2021-11-10T08:25:24.00Z"))
-            .dueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
+    return new Fee().id(FEE2_ID).studentId(STUDENT1_ID).status(PAID).type(HARDWARE)
+        .totalAmount(5000).remainingAmount(0).comment("Comment")
+        .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
+        .creationDatetime(Instant.parse("2021-11-10T08:25:24.00Z"))
+        .dueDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
   }
 
   public static Fee fee3() {
-    return new Fee()
-            .id(FEE3_ID)
-            .studentId(STUDENT1_ID)
-            .status(LATE)
-            .type(TUITION)
-            .totalAmount(5000)
-            .remainingAmount(5000)
-            .comment("Comment")
-            .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
-            .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
-            .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
+    return new Fee().id(FEE3_ID).studentId(STUDENT1_ID).status(LATE).type(TUITION).totalAmount(5000)
+        .remainingAmount(5000).comment("Comment").updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
+        .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
+        .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
   }
 
   public static Course course1() {
-    return new Course()
-        .id(COURSE1_ID)
-        .code("PROG1")
-        .credits(6)
-        .totalHours(20)
-        .name("Algorithmics");
+    return new Course().id(COURSE1_ID).code("PROG1").credits(6).totalHours(20).name("Algorithmics");
   }
 
   public static Course course2() {
-    return new Course()
-        .id(COURSE2_ID)
-        .code("PROG3")
-        .credits(6)
-        .totalHours(24)
-        .name("Advanced OOP");
+    return new Course().id(COURSE2_ID).code("PROG3").credits(6).totalHours(24).name("Advanced OOP");
   }
 
   public static Course course3() {
-    return new Course()
-        .id(COURSE3_ID)
-        .code("IA2")
-        .credits(null)
-        .totalHours(null)
+    return new Course().id(COURSE3_ID).code("IA2").credits(null).totalHours(null)
         .name("Implemented IA");
   }
 
   public static Course course4() {
-    return new Course()
-            .id(COURSE4_ID)
-            .code("donne1")
-            .credits(4)
-            .totalHours(30)
-            .name("relational data base");
+    return new Course().id(COURSE4_ID).code("donne1").credits(4).totalHours(30)
+        .name("relational data base");
   }
 
   public static AwardedCourse awardedCourse1() {
-    return new AwardedCourse()
-            .id(AWARDED_COURSE1_ID)
-            .course(course1())
-            .group(group1())
-            .mainTeacher(teacher1());
+    return new AwardedCourse().id(AWARDED_COURSE1_ID).course(course1()).group(group1())
+        .mainTeacher(teacher1());
   }
 
   public static AwardedCourse awardedCourse2() {
-    return new AwardedCourse()
-            .id(AWARDED_COURSE2_ID)
-            .course(course1())
-            .group(group1())
-            .mainTeacher(teacher2());
+    return new AwardedCourse().id(AWARDED_COURSE2_ID).course(course1()).group(group1())
+        .mainTeacher(teacher2());
   }
 
   public static AwardedCourse awardedCourse3() {
-    return new AwardedCourse()
-            .id(AWARDED_COURSE3_ID)
-            .course(course1())
-            .group(group2())
-            .mainTeacher(teacher2());
+    return new AwardedCourse().id(AWARDED_COURSE3_ID).course(course1()).group(group2())
+        .mainTeacher(teacher2());
   }
 
   public static AwardedCourse awardedCourse4() {
-    return new AwardedCourse()
-            .id(AWARDED_COURSE4_ID)
-            .course(course2())
-            .group(group1())
-            .mainTeacher(teacher4());
+    return new AwardedCourse().id(AWARDED_COURSE4_ID).course(course2()).group(group1())
+        .mainTeacher(teacher4());
   }
+
   public static ExamInfo exam1() {
-    return new ExamInfo()
-        .id(EXAM1_ID)
-        .coefficient(2)
-        .title("Algorithmics")
+    return new ExamInfo().id(EXAM1_ID).coefficient(2).title("Algorithmics")
         .awardedCourseId("awarded_course1_id")
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static ExamInfo exam2() {
-    return new ExamInfo()
-            .id(EXAM2_ID)
-            .coefficient(3)
-            .title("Algorithmics final")
-            .awardedCourseId("awarded_course1_id")
-            .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
+    return new ExamInfo().id(EXAM2_ID).coefficient(3).title("Algorithmics final")
+        .awardedCourseId("awarded_course1_id")
+        .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
   public static ExamInfo exam3() {
-    return new ExamInfo()
-            .id(EXAM3_ID)
-            .coefficient(2)
-            .title("Algorithmics")
-            .awardedCourseId("awarded_course3_id")
-            .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
+    return new ExamInfo().id(EXAM3_ID).coefficient(2).title("Algorithmics")
+        .awardedCourseId("awarded_course3_id")
+        .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static ExamInfo exam4() {
-    return new ExamInfo()
-            .id(EXAM4_ID)
-            .coefficient(3)
-            .title("Algorithmics2")
-            .awardedCourseId("awarded_course2_id")
-            .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
+    return new ExamInfo().id(EXAM4_ID).coefficient(3).title("Algorithmics2")
+        .awardedCourseId("awarded_course2_id")
+        .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
   public static ExamInfo exam5() {
-    return new ExamInfo()
-            .id(EXAM5_ID)
-            .coefficient(1)
-            .title("Prog2 final")
-            .awardedCourseId("awarded_course4_id")
-            .examinationDate(Instant.parse("2022-12-09T08:25:24Z"));
+    return new ExamInfo().id(EXAM5_ID).coefficient(1).title("Prog2 final")
+        .awardedCourseId("awarded_course4_id")
+        .examinationDate(Instant.parse("2022-12-09T08:25:24Z"));
   }
 
   public static Grade grade1() {
-    return new Grade()
-        .id(GRADE1_ID)
-        .score(8.0)
-        .createdAt(Instant.parse("2022-10-09T08:25:24Z"));
+    return new Grade().id(GRADE1_ID).score(8.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade2() {
-    return new Grade()
-            .id(GRADE2_ID)
-            .score(5.0)
-            .createdAt(Instant.parse("2022-11-09T08:25:24Z"));
+    return new Grade().id(GRADE2_ID).score(5.0).createdAt(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
   public static Grade grade3() {
-    return new Grade()
-            .id(GRADE3_ID)
-            .score(11.0)
-            .createdAt(Instant.parse("2022-11-09T08:25:24Z"));
+    return new Grade().id(GRADE3_ID).score(11.0).createdAt(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
   public static Grade grade4() {
-    return new Grade()
-            .id(GRADE4_ID)
-            .score(15.0)
-            .createdAt(Instant.parse("2022-10-09T08:25:24Z"));
+    return new Grade().id(GRADE4_ID).score(15.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade5() {
-    return new Grade()
-            .id(GRADE5_ID)
-            .score(12.0)
-            .createdAt(Instant.parse("2022-10-09T08:25:24Z"));
+    return new Grade().id(GRADE5_ID).score(12.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade6() {
-    return new Grade()
-            .id(GRADE6_ID)
-            .score(18.0)
-            .createdAt(Instant.parse("2022-11-09T08:25:24Z"));
+    return new Grade().id(GRADE6_ID).score(18.0).createdAt(Instant.parse("2022-11-09T08:25:24Z"));
   }
+
   public static Grade grade7() {
-    return new Grade()
-            .id(GRADE7_ID)
-            .score(20.0)
-            .createdAt(Instant.parse("2022-10-09T08:25:24Z"));
+    return new Grade().id(GRADE7_ID).score(20.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static StudentExamGrade studentExamGrade1() {
-    return new StudentExamGrade()
-        .id(exam1().getId())
-        .coefficient(exam1().getCoefficient())
-        .title(exam1().getTitle())
-        .examinationDate(exam1().getExaminationDate())
-        .grade(grade1());
+    return new StudentExamGrade().id(exam1().getId()).coefficient(exam1().getCoefficient())
+        .title(exam1().getTitle()).examinationDate(exam1().getExaminationDate()).grade(grade1());
   }
 
   public static StudentExamGrade studentExamGrade2() {
-    return new StudentExamGrade()
-        .id(exam2().getId())
-        .coefficient(exam2().getCoefficient())
-        .title(exam2().getTitle())
-        .examinationDate(exam2().getExaminationDate())
-        .grade(grade2());
+    return new StudentExamGrade().id(exam2().getId()).coefficient(exam2().getCoefficient())
+        .title(exam2().getTitle()).examinationDate(exam2().getExaminationDate()).grade(grade2());
   }
 
   public static StudentExamGrade studentExamGrade3() {
-    return new StudentExamGrade()
-        .id(exam3().getId())
-        .coefficient(exam3().getCoefficient())
-        .title(exam3().getTitle())
-        .examinationDate(exam3().getExaminationDate())
-        .grade(grade3());
+    return new StudentExamGrade().id(exam3().getId()).coefficient(exam3().getCoefficient())
+        .title(exam3().getTitle()).examinationDate(exam3().getExaminationDate()).grade(grade3());
   }
 
   public static StudentExamGrade studentExamGrade4() {
-    return new StudentExamGrade()
-            .id(exam4().getId())
-            .coefficient(exam4().getCoefficient())
-            .title(exam4().getTitle())
-            .examinationDate(exam4().getExaminationDate())
-            .grade(grade4());
+    return new StudentExamGrade().id(exam4().getId()).coefficient(exam4().getCoefficient())
+        .title(exam4().getTitle()).examinationDate(exam4().getExaminationDate()).grade(grade4());
   }
 
   public static StudentExamGrade studentExamGrade5() {
-    return new StudentExamGrade()
-            .id(exam5().getId())
-            .coefficient(exam5().getCoefficient())
-            .title(exam5().getTitle())
-            .examinationDate(exam5().getExaminationDate())
-            .grade(grade5());
+    return new StudentExamGrade().id(exam5().getId()).coefficient(exam5().getCoefficient())
+        .title(exam5().getTitle()).examinationDate(exam5().getExaminationDate()).grade(grade5());
   }
 
   public static StudentGrade studentGrade1() {
-    return new StudentGrade()
-        .id(STUDENT1_ID)
-        .firstName("Ryan")
-        .lastName("Andria")
-        .ref("STD21001")
-        .email("test+ryan@hei.school")
-        .grade(grade1());
+    return new StudentGrade().id(STUDENT1_ID).firstName("Ryan").lastName("Andria").ref("STD21001")
+        .email("test+ryan@hei.school").grade(grade1());
   }
 
   public static StudentGrade studentGrade2() {
-    return new StudentGrade()
-        .id(STUDENT1_ID)
-        .firstName("Ryan")
-        .lastName("Andria")
-        .ref("STD21001")
-        .email("test+ryan@hei.school")
-        .grade(grade2());
+    return new StudentGrade().id(STUDENT1_ID).firstName("Ryan").lastName("Andria").ref("STD21001")
+        .email("test+ryan@hei.school").grade(grade2());
   }
 
   public static StudentGrade studentGrade3() {
-    return new StudentGrade()
-            .id(STUDENT1_ID)
-            .firstName("Ryan")
-            .lastName("Andria")
-            .ref("STD21001")
-            .email("test+ryan@hei.school")
-            .grade(grade3());
+    return new StudentGrade().id(STUDENT1_ID).firstName("Ryan").lastName("Andria").ref("STD21001")
+        .email("test+ryan@hei.school").grade(grade3());
   }
 
   public static StudentGrade studentGrade4() {
-    return new StudentGrade()
-            .id(STUDENT1_ID)
-            .firstName("Ryan")
-            .lastName("Andria")
-            .ref("STD21001")
-            .email("test+ryan@hei.school")
-            .grade(grade4());
+    return new StudentGrade().id(STUDENT1_ID).firstName("Ryan").lastName("Andria").ref("STD21001")
+        .email("test+ryan@hei.school").grade(grade4());
   }
+
   public static StudentGrade studentGrade5() {
-    return new StudentGrade()
-            .id(STUDENT1_ID)
-            .firstName("Ryan")
-            .lastName("Andria")
-            .ref("STD21001")
-            .email("test+ryan@hei.school")
-            .grade(grade5());
+    return new StudentGrade().id(STUDENT1_ID).firstName("Ryan").lastName("Andria").ref("STD21001")
+        .email("test+ryan@hei.school").grade(grade5());
   }
 
   public static StudentGrade studentGrade6() {
-    return new StudentGrade()
-        .id(STUDENT2_ID)
-        .firstName("Two")
-        .lastName("Student")
-        .ref("STD21002")
-        .email("test+student2@hei.school")
-        .grade(grade6());
+    return new StudentGrade().id(STUDENT2_ID).firstName("Two").lastName("Student").ref("STD21002")
+        .email("test+student2@hei.school").grade(grade6());
   }
 
   public static StudentGrade studentGrade7() {
-    return new StudentGrade()
-            .id(STUDENT3_ID)
-            .firstName("Three")
-            .lastName("Student")
-            .ref("STD21003")
-            .email("test+student3@hei.school")
-            .grade(grade7());
+    return new StudentGrade().id(STUDENT3_ID).firstName("Three").lastName("Student").ref("STD21003")
+        .email("test+student3@hei.school").grade(grade7());
   }
 
   public static ExamDetail examDetail1() {
-    return new ExamDetail()
-        .id(exam1().getId())
-        .title(exam1().getTitle())
-        .examinationDate(exam1().getExaminationDate())
-        .coefficient(exam1().getCoefficient())
+    return new ExamDetail().id(exam1().getId()).title(exam1().getTitle())
+        .examinationDate(exam1().getExaminationDate()).coefficient(exam1().getCoefficient())
         .participants(List.of(studentGrade1(), studentGrade7()));
   }
 
   public static AwardedCourseExam awardedCourseExam1() {
-    return new AwardedCourseExam()
-        .id(AWARDED_COURSE1_ID)
-        .mainTeacher(awardedCourse1().getMainTeacher())
-        .course(awardedCourse1().getCourse())
+    return new AwardedCourseExam().id(AWARDED_COURSE1_ID)
+        .mainTeacher(awardedCourse1().getMainTeacher()).course(awardedCourse1().getCourse())
         .group(awardedCourse1().getGroup())
         .exams(List.of(studentExamGrade1(), studentExamGrade2()));
   }
 
   public static AwardedCourseExam awardedCourseExam2() {
-    return new AwardedCourseExam()
-            .id(AWARDED_COURSE2_ID)
-            .mainTeacher(awardedCourse2().getMainTeacher())
-            .course(awardedCourse2().getCourse())
-            .group(awardedCourse2().getGroup())
-            .exams(List.of(studentExamGrade4()));
+    return new AwardedCourseExam().id(AWARDED_COURSE2_ID)
+        .mainTeacher(awardedCourse2().getMainTeacher()).course(awardedCourse2().getCourse())
+        .group(awardedCourse2().getGroup()).exams(List.of(studentExamGrade4()));
   }
 
   public static AwardedCourseExam awardedCourseExam3() {
-    return new AwardedCourseExam()
-            .id(AWARDED_COURSE3_ID)
-            .mainTeacher(awardedCourse3().getMainTeacher())
-            .course(awardedCourse3().getCourse())
-            .group(awardedCourse3().getGroup())
-            .exams(List.of(studentExamGrade3()));
+    return new AwardedCourseExam().id(AWARDED_COURSE3_ID)
+        .mainTeacher(awardedCourse3().getMainTeacher()).course(awardedCourse3().getCourse())
+        .group(awardedCourse3().getGroup()).exams(List.of(studentExamGrade3()));
   }
+
   public static AwardedCourseExam awardedCourseExam4() {
-    return new AwardedCourseExam()
-            .id(AWARDED_COURSE4_ID)
-            .mainTeacher(awardedCourse4().getMainTeacher())
-            .course(awardedCourse4().getCourse())
-            .group(awardedCourse4().getGroup())
-            .exams(List.of(studentExamGrade5()));
+    return new AwardedCourseExam().id(AWARDED_COURSE4_ID)
+        .mainTeacher(awardedCourse4().getMainTeacher()).course(awardedCourse4().getCourse())
+        .group(awardedCourse4().getGroup()).exams(List.of(studentExamGrade5()));
   }
 
   public static boolean isBefore(String a, String b) {

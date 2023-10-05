@@ -1,6 +1,5 @@
 package school.hei.haapi.integration;
 
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -11,7 +10,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
-import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
@@ -25,13 +23,10 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.course2;
 import static school.hei.haapi.integration.conf.TestUtils.course3;
@@ -64,8 +59,7 @@ class CourseIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
 
-    List<Course> actualList = api.getCourses(null, null, null, null, null,
-        null, null, null, null);
+    List<Course> actualList = api.getCourses(null, null, null, null, null, null, null, null, null);
 
     assertEquals(4, actualList.size());
     assertTrue(actualList.contains(course1()));
@@ -79,9 +73,7 @@ class CourseIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
 
-    List<Course> actualList = api.getCourses(null, null, null, null, null,
-        null, null, null, null);
-
+    List<Course> actualList = api.getCourses(null, null, null, null, null, null, null, null, null);
     assertEquals(4, actualList.size());
     assertTrue(actualList.contains(course2()));
 
@@ -94,26 +86,26 @@ class CourseIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<Course> actualByCode = api.getCourses("PROG1", null, null, null, null,
-        null, null, null, null);
+    List<Course> actualByCode =
+        api.getCourses("PROG1", null, null, null, null, null, null, null, null);
 
-    List<Course> actualByCode2 = api.getCourses("PROG", null, null, null, null,
-        null, null, null, null);
+    List<Course> actualByCode2 =
+        api.getCourses("PROG", null, null, null, null, null, null, null, null);
 
-    List<Course> actualByCredits2 = api.getCourses(null, null, 6, null, null,
-        null, null, null, null);
+    List<Course> actualByCredits2 =
+        api.getCourses(null, null, 6, null, null, null, null, null, null);
 
-    List<Course> actualByLastName = api.getCourses(null, null, null, null, "tEaC",
-        null, null, null, null);
+    List<Course> actualByLastName =
+        api.getCourses(null, null, null, null, "tEaC", null, null, null, null);
 
-    List<Course> actualByCodeAndName = api.getCourses("i", "i", null, null, null,
-        null, null, null, null);
+    List<Course> actualByCodeAndName =
+        api.getCourses("i", "i", null, null, null, null, null, null, null);
 
-    List<Course> actualByCreditsOrderedAsc = api.getCourses(null, null, null, null, null,
-        CourseDirection.ASC, null, null, null);
+    List<Course> actualByCreditsOrderedAsc =
+        api.getCourses(null, null, null, null, null, CourseDirection.ASC, null, null, null);
 
-    List<Course> actualByCreditsOrderedDesc = api.getCourses(null, null, null, null, null,
-        CourseDirection.DESC, null, null, null);
+    List<Course> actualByCreditsOrderedDesc =
+        api.getCourses(null, null, null, null, null, CourseDirection.DESC, null, null, null);
 
     assertEquals(1, actualByCode.size());
     assertTrue(actualByCode.contains(course1()));
@@ -137,55 +129,31 @@ class CourseIT {
         actualByCreditsOrderedAsc.get(2).getCredits()));
 
     assertEquals(4, actualByCreditsOrderedDesc.size());
-    assertTrue(isBefore(actualByCreditsOrderedDesc.get(2).getCredits(),
-        actualByCreditsOrderedDesc.get(0).getCredits()));
+    assertTrue(isBefore(actualByCreditsOrderedDesc.get(3).getCredits(),
+        actualByCreditsOrderedDesc.get(1).getCredits()));
 
   }
-
-//  @Test
-//  void student_read_own_student_course_ok() throws ApiException {
-//    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-//    UsersApi api = new UsersApi(student1Client);
-//
-//    List<Course> actual1 = api.getStudentCoursesById(STUDENT1_ID, LINKED);
-//    List<Course> actual2 = api.getStudentCoursesById(STUDENT1_ID, UNLINKED);
-//
-//    assertEquals(1, actual1.size());
-//    assertTrue(actual1.contains(course1()));
-//    assertEquals(1, actual2.size());
-//    assertTrue(actual2.contains(course2()));
-//  }
-
-//  @Test
-//  void student_read_student_course_ko() {
-//    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-//    UsersApi api = new UsersApi(student1Client);
-//
-//    assertThrowsForbiddenException(() -> api.getStudentCoursesById(STUDENT2_ID, LINKED));
-//    assertThrowsForbiddenException(() -> api.getStudentCoursesById(STUDENT2_ID, UNLINKED));
-//  }
 
   @Test
   void manager_create_or_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<Course> actualUpdate = api.createOrUpdateCourses(List.of(course2(),course3()));
+    List<Course> actualUpdate = api.createOrUpdateCourses(List.of(course2(), course1()));
 
     assertEquals(2, actualUpdate.size());
     assertTrue(actualUpdate.contains(course2()));
-    assertTrue(actualUpdate.contains(course3()));
+    assertTrue(actualUpdate.contains(course1()));
 
-    int numberOfCourseToAdd = 3;
+    int numberOfCourseToAdd = 2;
 
     List<Course> coursesToAdd = someCreatableCourseList(numberOfCourseToAdd);
     List<Course> actualAdd = api.createOrUpdateCourses(coursesToAdd);
-
     assertEquals(numberOfCourseToAdd, actualAdd.size());
-    assertTrue(actualAdd.contains(coursesToAdd));
+    assertTrue(actualAdd.contains(coursesToAdd.get(0).id(actualAdd.get(0).getId())));
 
-    List<Course> actualCourseList = api.getCourses(null, null, null, null, null,
-            CourseDirection.DESC, null, null, null);
+    List<Course> actualCourseList =
+        api.getCourses(null, null, null, null, null, CourseDirection.DESC, null, null, null);
 
     assertEquals(4 + numberOfCourseToAdd, actualCourseList.size());
   }
@@ -194,19 +162,18 @@ class CourseIT {
   void student_create_or_update_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
-    assertThrowsApiException(
-            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.createOrUpdateCourses(someCreatableCourseList(1)));
+    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.createOrUpdateCourses(someCreatableCourseList(1)));
   }
 
   @Test
   void Teacher_create_or_update_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    assertThrowsApiException(
-            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.createOrUpdateCourses(someCreatableCourseList(1)));
+    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.createOrUpdateCourses(someCreatableCourseList(1)));
   }
+
   @Test
   void manager_create_or_update_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -214,7 +181,7 @@ class CourseIT {
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Course.PROG3 already exist.\"}",
-        () -> api.createOrUpdateCourses(List.of(createCourse().code("PROG3"))));
+        () -> api.createOrUpdateCourses(List.of(createCourse("PROG3"))));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

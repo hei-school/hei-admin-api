@@ -11,10 +11,7 @@ import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 
-import javax.management.InstanceAlreadyExistsException;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -28,12 +25,9 @@ public class GroupFlowService {
   public GroupFlow save(CreateGroupFlow createGroupFlow) {
     Group group = groupRepository.getById(createGroupFlow.getGroupId());
     User student = userRepository.getById(createGroupFlow.getStudentId());
-    GroupFlow groupFlow = GroupFlow.builder()
-            .group(group)
-            .flowDatetime(Instant.now())
-            .student(student)
-            .groupFlowType(GroupFlow.group_flow_type.valueOf(createGroupFlow.getMoveType().getValue()))
-            .build();
+    GroupFlow groupFlow =
+        GroupFlow.builder().group(group).flowDatetime(Instant.now()).student(student).groupFlowType(
+            GroupFlow.group_flow_type.valueOf(createGroupFlow.getMoveType().getValue())).build();
     validator.accept(groupFlow);
     return repository.save(groupFlow);
   }
