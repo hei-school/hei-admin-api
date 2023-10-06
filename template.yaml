@@ -1,0 +1,103 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  HEI Admin API Spring Boot Application
+
+Parameters:
+  Env:
+    Type: String
+    Default: dev
+  Tag:
+    Type: String
+    Default: latest
+  DatabaseUrl:
+    Type: String
+    Description: Database Url
+  DatabaseUsername:
+    Type: String
+    Description: Database Username
+  DatabasePassword:
+    Type: String
+    Description: Database Password
+  CognitoUserPoolId:
+    Type: String
+  EventBridgeBus:
+    Type: String
+  SqsQueueUrl:
+    Type: String
+  SesSource:
+    Type: String
+  SesContact:
+    Type: String
+  SentryDsn:
+    Type: String
+
+# More info about Globals: https://github.com/awslabs/serverless-application-model/blob/master/docs/globals.rst
+Globals:
+  Function:
+    MemorySize: 1024
+
+    Tracing: Active
+  Api:
+    TracingEnabled: true
+Resources:
+  HeiAdminApiFunction:
+    Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
+    Properties:
+      PackageType: Image
+      Architectures:
+      - x86_64
+      ImageUri: 088312068315.dkr.ecr.eu-west-3.amazonaws.com/hei-admin-api:poja
+      ImageConfig:
+
+      Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
+        Variables:
+          ENV: !Ref Env
+          AWS_COGNITO_USERPOOL_ID: !Ref CognitoUserPoolId
+          AWS_EVENTBRIDGE_BUS: !Ref EventBridgeBus
+          AWS_SQS_QUEUEURL: !Ref SqsQueueUrl
+          AWS_SES_SOURCE: !Ref SesSource
+          AWS_SES_CONTACT: !Ref SesContact
+          SPRING_DATASOURCE_URL: !Ref DatabaseUrl
+          SPRING_DATASOURCE_USERNAME: !Ref DatabaseUsername
+          SPRING_DATASOURCE_PASSWORD: !Ref DatabasePassword
+          SENTRY_DSN: !Ref SentryDsn
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0b4275f1840dd767d
+        SubnetIds:
+          - subnet-0c1bbfc7c11dfcd05
+          - subnet-0a6e0eb711234aa00
+      Events:
+        ApiCall:
+          Type: HttpApi # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Ref: ApplicationResourceGroup
+      AutoConfigurationEnabled: 'true'
+Outputs:
+  # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
+  # Find out more about other implicit resources you can reference within SAM
+  # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
+  HeiAdminHttpApi:
+    Description: API Gateway endpoint URL for Prod stage for Hei Admin Api function
+    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
+  HeiAdminApiFunction:
+    Description: Hei Admin Api Lambda Function ARN
+    Value: !GetAtt HeiAdminApiFunction.Arn
+  HeiAdminApiFunctionIamRole:
+    Description: Implicit IAM Role created for Hei Admin Api function
+    Value: !GetAtt HeiAdminApiFunctionRole.Arn
