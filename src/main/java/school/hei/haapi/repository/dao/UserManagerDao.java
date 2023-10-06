@@ -29,23 +29,23 @@ public class UserManagerDao {
         Predicate predicate = builder.conjunction();
 
         Predicate hasUserRef =
-                builder.or(
-                        builder.like(builder.lower(root.get("ref")), "%" + ref + "%"),
-                        builder.like(root.get("ref"), "%" + ref + "%")
-                );
+            builder.or(
+                builder.like(builder.lower(root.get("ref")), "%" + ref + "%"),
+                builder.like(root.get("ref"), "%" + ref + "%")
+            );
 
         Predicate hasUserFirstName =
-                builder.or(
-                        builder.like(builder.lower(root.get("firstName")), "%" + firstName + "%"),
-                        builder.like(root.get("firstName"), "%" + firstName + "%")
-                );
+            builder.or(
+                builder.like(builder.lower(root.get("firstName")), "%" + firstName + "%"),
+                builder.like(root.get("firstName"), "%" + firstName + "%")
+            );
 
 
         Predicate hasUserLastName =
-                builder.or(
-                        builder.like(builder.lower(root.get("lastName")), "%" + lastName + "%"),
-                        builder.like(root.get("lastName"), "%" + lastName + "%")
-                );
+            builder.or(
+                builder.like(builder.lower(root.get("lastName")), "%" + lastName + "%"),
+                builder.like(root.get("lastName"), "%" + lastName + "%")
+            );
 
         Predicate hasUserRole = builder.equal(root.get("role"), role);
 
@@ -56,13 +56,13 @@ public class UserManagerDao {
         predicate = builder.and(predicate, hasUserRole, hasUserRef, hasUserLastName);
 
         query
-                .where(predicate)
-                .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
+            .where(predicate)
+            .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
         return entityManager.createQuery(query)
-                .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
+            .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
+            .setMaxResults(pageable.getPageSize())
+            .getResultList();
     }
     //todo: to review
     public List<User> findByLinkedCourse(User.Role role, String courseId, Pageable pageable) {
@@ -80,8 +80,8 @@ public class UserManagerDao {
                 .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
         return entityManager.createQuery(query)
-                .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
-                .setMaxResults(pageable.getPageSize())
-                .getResultList();
+            .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
+            .setMaxResults(pageable.getPageSize())
+            .getResultList();
     }
 }
