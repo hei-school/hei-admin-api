@@ -39,7 +39,8 @@ public class CourseService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "name"));
     return courseDao.findByCriteria(code, name, credits, teacherFirstName, teacherLastName,
-        String.valueOf(creditsOrder), String.valueOf(codeOrder), pageable);
+        creditsOrder == null ? null : creditsOrder.name(),
+        codeOrder == null ? null : codeOrder.name(), pageable);
   }
 
   @Transactional
@@ -51,7 +52,8 @@ public class CourseService {
   public List<Course> getCoursesByTeacherId(String teacherId) {
     User teacher = userRepository.getById(teacherId);
     List<AwardedCourse> awardedCourses = teacher.getAwardedCourses();
-    return awardedCourses.stream().map(awardedCourse -> awardedCourse.getCourse()).distinct()
+    return awardedCourses.stream()
+        .map(awardedCourse -> awardedCourse.getCourse()).distinct()
         .collect(Collectors.toList());
   }
 
@@ -61,7 +63,8 @@ public class CourseService {
     for (Group group : groups) {
       awardedCourses.addAll(group.getAwardedCourse());
     }
-    return awardedCourses.stream().map(awardedCourse -> awardedCourse.getCourse()).distinct()
+    return awardedCourses.stream()
+        .map(awardedCourse -> awardedCourse.getCourse()).distinct()
         .collect(Collectors.toList());
   }
 

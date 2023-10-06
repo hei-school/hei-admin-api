@@ -79,7 +79,7 @@ class FeeIT {
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
     List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 5, null);
-    List<Fee> actualFees2 = api.getFees(String.valueOf(PAID), 1, 10);
+    List<Fee> actualFees2 = api.getFees(PAID.toString(), 1, 10);
 
     assertEquals(fee1(), actualFee);
     assertEquals(2, actualFees2.size());
@@ -169,12 +169,14 @@ class FeeIT {
     ApiException exception3 = assertThrows(ApiException.class,
         () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate3)));
 
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
-    assertEquals(expected.size(), actual.size());
-    assertTrue(expected.containsAll(actual));
     String exceptionMessage1 = exception1.getMessage();
     String exceptionMessage2 = exception2.getMessage();
     String exceptionMessage3 = exception3.getMessage();
+
+    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    assertEquals(expected.size(), actual.size());
+
+    assertTrue(expected.containsAll(actual));
     assertTrue(exceptionMessage1.contains("Total amount is mandatory"));
     assertTrue(exceptionMessage2.contains("Total amount must be positive"));
     assertTrue(exceptionMessage3.contains("Due datetime is mandatory"));

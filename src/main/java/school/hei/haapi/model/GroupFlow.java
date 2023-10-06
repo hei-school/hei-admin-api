@@ -4,6 +4,7 @@ import lombok.*;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
+import school.hei.haapi.service.utils.DataFormatterUtils;
 
 import javax.persistence.*;
 import java.io.Serializable;
@@ -44,6 +45,9 @@ public class GroupFlow implements Serializable {
   private Instant flowDatetime;
 
   public enum group_flow_type {
-    JOIN, LEAVE
+    JOIN, LEAVE;
+    public static group_flow_type fromValue(String value) {
+      return DataFormatterUtils.fromValue(group_flow_type.class, value);
+    }
   }
 }

@@ -8,12 +8,8 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+
+import lombok.*;
 import org.hibernate.Hibernate;
 
 import static javax.persistence.FetchType.LAZY;
@@ -27,6 +23,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class Course implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -42,23 +39,5 @@ public class Course implements Serializable {
 
   @OneToMany(mappedBy = "course", fetch = LAZY)
   private List<AwardedCourse> awardedCourses;
-
-
-  @Override
-  public boolean equals(Object o) {
-    if (this == o) {
-      return true;
-    }
-    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
-      return false;
-    }
-    Course course = (Course) o;
-    return id != null && Objects.equals(id, course.id);
-  }
-
-  @Override
-  public int hashCode() {
-    return getClass().hashCode();
-  }
 
 }

@@ -27,7 +27,7 @@ public class GroupFlowService {
     User student = userRepository.getById(createGroupFlow.getStudentId());
     GroupFlow groupFlow =
         GroupFlow.builder().group(group).flowDatetime(Instant.now()).student(student).groupFlowType(
-            GroupFlow.group_flow_type.valueOf(createGroupFlow.getMoveType().getValue())).build();
+            GroupFlow.group_flow_type.fromValue(createGroupFlow.getMoveType().getValue())).build();
     validator.accept(groupFlow);
     return repository.save(groupFlow);
   }

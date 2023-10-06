@@ -14,7 +14,7 @@ public class GroupFlowMapper {
             .flowdDateTime(domain.getFlowDatetime())
             .groupId(domain.getGroup().getId())
             .studentId(domain.getStudent().getId())
-            .moveType(GroupFlow.MoveTypeEnum.valueOf(domain.getGroupFlowType().toString()));
+            .moveType(GroupFlow.MoveTypeEnum.fromValue(domain.getGroupFlowType().toString()));
   }
 
 }

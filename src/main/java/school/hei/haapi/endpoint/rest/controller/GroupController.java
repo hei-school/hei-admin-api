@@ -32,14 +32,19 @@ public class GroupController {
   public List<Group> getGroups(@RequestParam(value = "page", defaultValue = "1") PageFromOne page,
                                @RequestParam(value = "page_size", defaultValue = "15")
                                BoundedPageSize pageSize) {
-    return groupService.getAll(page, pageSize).stream().map(groupMapper::toRest)
+    return groupService.getAll(page, pageSize).stream()
+        .map(groupMapper::toRest)
         .collect(toUnmodifiableList());
   }
 
   @PutMapping(value = "/groups")
   public List<Group> createOrUpdateGroups(@RequestBody List<Group> toWrite) {
     var saved = groupService.saveAll(
-        toWrite.stream().map(groupMapper::toDomain).collect(toUnmodifiableList()));
-    return saved.stream().map(groupMapper::toRest).collect(toUnmodifiableList());
+        toWrite.stream()
+            .map(groupMapper::toDomain)
+            .collect(toUnmodifiableList()));
+    return saved.stream()
+        .map(groupMapper::toRest)
+        .collect(toUnmodifiableList());
   }
 }

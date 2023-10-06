@@ -49,7 +49,8 @@ public class UserService {
   public List<User> saveAll(List<User> users) {
     userValidator.accept(users);
     List<User> savedUsers = userRepository.saveAll(users);
-    eventProducer.accept(users.stream().map(this::toTypedEvent)
+    eventProducer.accept(users.stream()
+        .map(this::toTypedEvent)
         .collect(toUnmodifiableList()));
     return savedUsers;
   }
@@ -75,9 +76,9 @@ public class UserService {
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     List<User> users = userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
 
-    return courseId.length() > 0 ? users.stream().filter(
-            user -> groupService.getByUserId(user.getId()).stream().anyMatch(
-                group -> group.getAwardedCourse().stream()
+    return courseId.length() > 0 ? users.stream()
+        .filter(user -> groupService.getByUserId(user.getId()).stream()
+            .anyMatch(group -> group.getAwardedCourse().stream()
                     .anyMatch(awardedCourse -> awardedCourse.getCourse().getId().equals(courseId))))
         .collect(Collectors.toList()) : users;
   }
@@ -93,8 +94,10 @@ public class UserService {
         }
         groupFlows.add(groupFlow);
       } else if (groupFlow.getFlowDatetime().isAfter(groupFlows.stream()
-          .filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent())).findFirst()
-          .get().getFlowDatetime())) {
+          .filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent()))
+          .findFirst()
+          .get()
+          .getFlowDatetime())) {
         if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.LEAVE) {
           users.remove(groupFlow.getStudent());
         }
@@ -104,7 +107,9 @@ public class UserService {
         groupFlows.add(groupFlow);
       }
     }
-    return users.stream().distinct().collect(Collectors.toList());
+    return users.stream()
+        .distinct()
+        .collect(Collectors.toList());
   }
 
 }

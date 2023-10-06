@@ -139,7 +139,7 @@ class GroupIT {
     toCreate3.setId(created3.getId());
     assertNotNull(created3.getCreationDatetime());
     toCreate3.setCreationDatetime(created3.getCreationDatetime());
-    //
+
     assertEquals(created3, toCreate3);
     Group created4 = created.get(0);
     assertTrue(isValidUUID(created4.getId()));

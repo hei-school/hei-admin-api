@@ -20,28 +20,32 @@ public class AwardedCourseMapper {
   private final GroupMapper groupMapper;
 
   public AwardedCourse toRest(school.hei.haapi.model.AwardedCourse awardedCourse) {
-    return new AwardedCourse().course(courseMapper.toRest(awardedCourse.getCourse()))
-        .id(awardedCourse.getId()).group(groupMapper.toRest(awardedCourse.getGroup()))
+    return new AwardedCourse()
+        .course(courseMapper.toRest(awardedCourse.getCourse()))
+        .id(awardedCourse.getId())
+        .group(groupMapper.toRest(awardedCourse.getGroup()))
         .mainTeacher(userMapper.toRestTeacher(awardedCourse.getMainTeacher()));
   }
 
-  public AwardedCourseExam toRestStudentCourseExam(
+  public AwardedCourseExam toRest(
       school.hei.haapi.model.AwardedCourse awardedCourse,
       List<StudentExamGrade> studentExamGrades) {
-    return new AwardedCourseExam().id(awardedCourse.getId()).exams(studentExamGrades)
+    return new AwardedCourseExam()
+        .id(awardedCourse.getId())
+        .exams(studentExamGrades)
         .mainTeacher(userMapper.toRestTeacher(awardedCourse.getMainTeacher()))
         .course(courseMapper.toRest(awardedCourse.getCourse()))
         .group(groupMapper.toRest(awardedCourse.getGroup()));
   }
 
-  public List<AwardedCourseExam> toRestAwardedCourseExams(
+  public List<AwardedCourseExam> toRest(
       List<school.hei.haapi.model.AwardedCourse> awardedCourses, User student) {
     List<AwardedCourseExam> awardedCourseExams = new ArrayList<>();
     for (school.hei.haapi.model.AwardedCourse awardedCourse : awardedCourses) {
       List<StudentExamGrade> studentExamGrades = awardedCourse.getExams().stream()
-          .map(exam -> gradeMapper.toRestStudentExamGradeFromStudentAndExam(student, exam))
+          .map(exam -> gradeMapper.toRestStudentExamGrade(student, exam))
           .collect(Collectors.toList());
-      awardedCourseExams.add(toRestStudentCourseExam(awardedCourse, studentExamGrades));
+      awardedCourseExams.add(toRest(awardedCourse, studentExamGrades));
     }
     return awardedCourseExams;
   }

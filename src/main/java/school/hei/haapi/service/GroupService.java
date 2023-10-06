@@ -46,17 +46,21 @@ public class GroupService {
     List<GroupFlow> groupFlows = new ArrayList<>();
     for (GroupFlow groupFlow : student.getGroupFlows()) {
       if (!groups.contains(groupFlow.getGroup())) {
-        if (groupFlows.stream().filter(groupFlow1 -> groupFlow1.getGroup() == groupFlow.getGroup())
+        if (groupFlows.stream()
+            .filter(groupFlow1 -> groupFlow1.getGroup() == groupFlow.getGroup())
             .count() > 0) {
           if (groupFlow.getFlowDatetime().isAfter(groupFlows.stream()
-              .filter(groupFlow1 -> groupFlow1.getGroup().equals(groupFlow.getGroup())).findFirst()
-              .get().getFlowDatetime())) {
+              .filter(groupFlow1 -> groupFlow1.getGroup().equals(groupFlow.getGroup()))
+              .findFirst()
+              .get()
+              .getFlowDatetime())) {
             if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.JOIN) {
               groups.add(groupFlow.getGroup());
             }
             groupFlows.remove(groupFlows.stream()
                 .filter(groupFlow1 -> groupFlow1.getGroup().equals(groupFlow.getGroup()))
-                .findFirst().get());
+                .findFirst()
+                .get());
             groupFlows.add(groupFlow);
           }
         } else {
@@ -66,7 +70,8 @@ public class GroupService {
           groupFlows.add(groupFlow);
         }
       } else if (groupFlow.getFlowDatetime().isAfter(groupFlows.stream()
-          .filter(groupFlow1 -> groupFlow1.getGroup().equals(groupFlow.getGroup())).findFirst()
+          .filter(groupFlow1 -> groupFlow1.getGroup().equals(groupFlow.getGroup()))
+          .findFirst()
           .get().getFlowDatetime())) {
         if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.LEAVE) {
           groups.remove(groupFlow.getGroup());

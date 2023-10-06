@@ -29,7 +29,8 @@ public class AwardedCourseController {
                                           PageFromOne page,
                                           @RequestParam(value = "page_size", defaultValue = "15")
                                           BoundedPageSize pageSize) {
-    return service.getByGroupId(groupId, page, pageSize).stream().map(mapper::toRest)
+    return service.getByGroupId(groupId, page, pageSize).stream()
+        .map(mapper::toRest)
         .collect(Collectors.toList());
   }
 
@@ -43,7 +44,8 @@ public class AwardedCourseController {
   public List<AwardedCourse> createOrUpdateAwardedCourse(@PathVariable("group_id") String groupId,
                                                          @RequestBody
                                                          List<CreateAwardedCourse> courses) {
-    return service.createOrUpdateAwardedCourses(courses).stream().map(mapper::toRest)
+    return service.createOrUpdateAwardedCourses(courses).stream()
+        .map(mapper::toRest)
         .collect(Collectors.toList());
   }
 }

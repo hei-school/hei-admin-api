@@ -11,14 +11,19 @@ import school.hei.haapi.model.AwardedCourse;
 @AllArgsConstructor
 public class ExamMapper {
 
-  public ExamInfo toRestExamInfo(Exam exam) {
-    return new ExamInfo().id(exam.getId()).coefficient(exam.getCoefficient()).title(exam.getTitle())
+  public ExamInfo toRest(Exam exam) {
+    return new ExamInfo()
+        .id(exam.getId())
+        .coefficient(exam.getCoefficient())
+        .title(exam.getTitle())
         .examinationDate(exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
         .awardedCourseId(exam.getAwardedCourse().getId());
   }
 
-  public Exam examInfoToDomain(ExamInfo examInfo, AwardedCourse awardedCourse) {
-    return Exam.builder().id(examInfo.getId()).coefficient(examInfo.getCoefficient())
+  public Exam toDomain(ExamInfo examInfo, AwardedCourse awardedCourse) {
+    return Exam.builder()
+        .id(examInfo.getId())
+        .coefficient(examInfo.getCoefficient())
         .title(examInfo.getTitle())
         .examinationDate(examInfo.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
         .awardedCourse(awardedCourse).build();

@@ -37,7 +37,7 @@ public class GradeController {
       @PathVariable("student_id") String studentId) {
     List<AwardedCourse> awardedCourses = awardedCourseService.getByStudentId(studentId);
     User student = userService.getById(studentId);
-    return awardedCourseMapper.toRestAwardedCourseExams(awardedCourses, student);
+    return awardedCourseMapper.toRest(awardedCourses, student);
   }
 
   @GetMapping(value = "/groups/{group_id}/awarded_courses/" +
@@ -63,7 +63,7 @@ public class GradeController {
                                                  @PathVariable("exam_id") String examId,
                                                  @PathVariable("student_id") String studentId) {
     Grade grade =
-        gradeService.getGradeByExamIdAndStudentId(examId, studentId, awardedCourseId, groupId);
+        gradeService.getGradeByExamIdAndStudentId(examId, studentId);
     return gradeMapper.toRestStudentGrade(grade);
   }
 }

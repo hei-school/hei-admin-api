@@ -38,7 +38,8 @@ public class ExamController {
                                               @RequestParam(value = "page_size", defaultValue = "15")
                                               BoundedPageSize pageSize) {
     return examService.getExamsFromAwardedCourseIdAndGroupId(groupId, awardedCourseId, page,
-        pageSize).stream().map(examMapper::toRestExamInfo)
+        pageSize).stream()
+        .map(examMapper::toRest)
         .collect(Collectors.toList());
   }
 
@@ -47,18 +48,20 @@ public class ExamController {
                                             @PathVariable("awarded_course_id")
                                             String awardedCourseId,
                                             @RequestBody List<ExamInfo> examInfos) {
-    List<Exam> exams = examService.updateOrSaveAll(examInfos.stream().map(
-        examInfo -> examMapper.examInfoToDomain(examInfo,
+    List<Exam> exams = examService.updateOrSaveAll(examInfos.stream()
+        .map(examInfo -> examMapper.toDomain(examInfo,
             awardedCourseService.getById(awardedCourseId, groupId)))
         .collect(Collectors.toList()));
-    return exams.stream().map(examMapper::toRestExamInfo).collect(Collectors.toList());
+    return exams.stream()
+        .map(examMapper::toRest)
+        .collect(Collectors.toList());
   }
 
   @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}")
   public ExamInfo getExamById(@PathVariable("group_id") String groupId,
                               @PathVariable("awarded_course_id") String awardedCourseId,
                               @PathVariable("exam_id") String examId) {
-    return examMapper.toRestExamInfo(
+    return examMapper.toRest(
         examService.getExamsByIdAndGroupIdAndAwardedCourseId(examId, awardedCourseId, groupId));
   }
 }

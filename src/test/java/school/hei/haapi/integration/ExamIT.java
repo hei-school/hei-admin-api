@@ -53,8 +53,7 @@ class ExamIT {
         api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
 
     assertEquals(2, actual.size());
-    assertTrue(actual.contains(exam1()));
-    assertTrue(actual.contains(exam2()));
+    assertTrue(actual.containsAll(List.of(exam1(), exam2())));
   }
 
   @Test
@@ -73,8 +72,7 @@ class ExamIT {
         api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
 
     assertEquals(2, actual.size());
-    assertTrue(actual.contains(exam1()));
-    assertTrue(actual.contains(exam2()));
+    assertTrue(actual.containsAll(List.of(exam1(), exam2())));
   }
 
   @Test
@@ -109,10 +107,12 @@ class ExamIT {
     int numberOfExamToAdd = 3;
     List<ExamInfo> actualCreatList = api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID,
         someCreatableExamInfoList(numberOfExamToAdd));
-    assertEquals(numberOfExamToAdd, actualCreatList.size());
 
     List<ExamInfo> actualUpdateList =
         api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1()));
+
+    assertEquals(numberOfExamToAdd, actualCreatList.size());
+
     assertEquals(1, actualUpdateList.size());
     assertTrue(actualUpdateList.contains(exam1()));
   }
@@ -132,10 +132,12 @@ class ExamIT {
     int numberOfExamToAdd = 3;
     List<ExamInfo> actualCreatList = api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID,
         someCreatableExamInfoList(numberOfExamToAdd));
-    assertEquals(numberOfExamToAdd, actualCreatList.size());
 
     List<ExamInfo> actualUpdateList =
         api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1()));
+
+    assertEquals(numberOfExamToAdd, actualCreatList.size());
+
     assertEquals(1, actualUpdateList.size());
     assertTrue(actualUpdateList.contains(exam1()));
   }

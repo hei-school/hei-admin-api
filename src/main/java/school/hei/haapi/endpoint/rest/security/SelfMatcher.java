@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.Objects;
@@ -20,13 +21,15 @@ public class SelfMatcher implements RequestMatcher {
   @Override
   public boolean matches(HttpServletRequest request) {
     AntPathRequestMatcher antMatcher = new AntPathRequestMatcher(antPattern, method.toString());
+    Principal principal = AuthProvider.getPrincipal();
+    String userIdFromRequest = getSelfId(request);
     if (!antMatcher.matches(request)) {
       return false;
     }
-    return Objects.equals(getSecondId(request), AuthProvider.getPrincipal().getUserId());
+    return Objects.equals(userIdFromRequest, principal.getUserId());
   }
 
-  private String getSecondId(HttpServletRequest request) {
+  private String getSelfId(HttpServletRequest request) {
     Pattern SELFABLE_URI_PATTERN = Pattern.compile(stringBeforeId + "/(?<id>[^/]+)(/.*)?");
     Matcher uriMatcher = SELFABLE_URI_PATTERN.matcher(request.getRequestURI());
     return uriMatcher.find() ? uriMatcher.group("id") : null;

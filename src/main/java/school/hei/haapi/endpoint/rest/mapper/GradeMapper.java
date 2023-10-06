@@ -18,31 +18,42 @@ import java.util.stream.Collectors;
 @AllArgsConstructor
 public class GradeMapper {
   public school.hei.haapi.model.Grade toDomain(Grade grade) {
-    return school.hei.haapi.model.Grade.builder().score(grade.getScore().intValue())
-        .creationDatetime(grade.getCreatedAt()).build();
+    return school.hei.haapi.model.Grade.builder()
+        .score(grade.getScore().intValue())
+        .creationDatetime(grade.getCreatedAt())
+        .build();
   }
 
   public Grade toRest(school.hei.haapi.model.Grade grade) {
-    return new Grade().id(grade.getId()).createdAt(grade.getCreationDatetime())
-        .score(Double.valueOf(grade.getScore()));
+    return new Grade()
+        .id(grade.getId())
+        .createdAt(grade.getCreationDatetime())
+        .score(grade.getScore().doubleValue());
   }
 
   public StudentGrade toRestStudentGrade(school.hei.haapi.model.Grade grade) {
     if (grade == null) {
       return null;
     }
-    return new StudentGrade().id(grade.getStudent().getId()).ref(grade.getStudent().getRef())
-        .firstName(grade.getStudent().getFirstName()).lastName(grade.getStudent().getLastName())
-        .email(grade.getStudent().getEmail()).grade(toRest(grade));
+    return new StudentGrade()
+        .id(grade.getStudent().getId())
+        .ref(grade.getStudent().getRef())
+        .firstName(grade.getStudent().getFirstName())
+        .lastName(grade.getStudent().getLastName())
+        .email(grade.getStudent().getEmail())
+        .grade(toRest(grade));
   }
 
-  public StudentExamGrade toRestStudentExamGradeFromStudentAndExam(User student, Exam exam) {
+  public StudentExamGrade toRestStudentExamGrade(User student, Exam exam) {
     Optional<school.hei.haapi.model.Grade> optionalGrade = exam.getGrades().stream()
-        .filter(grade -> grade.getStudent().getId().equals(student.getId())).findFirst();
+        .filter(grade -> grade.getStudent().getId().equals(student.getId()))
+        .findFirst();
     school.hei.haapi.model.Grade grade = optionalGrade.get();
-    return new StudentExamGrade().id(grade.getExam().getId())
+    return new StudentExamGrade()
+        .id(grade.getExam().getId())
         .coefficient(grade.getExam().getCoefficient())
-        .examinationDate(grade.getExam().getExaminationDate()).title(grade.getExam().getTitle())
+        .examinationDate(grade.getExam().getExaminationDate())
+        .title(grade.getExam().getTitle())
         .grade(toRest(grade));
   }
 
@@ -50,7 +61,8 @@ public class GradeMapper {
     return new ExamDetail().id(exam.getId()).coefficient(exam.getCoefficient())
         .title(exam.getTitle())
         .examinationDate(exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
-        .participants(grades.stream().map(grade -> this.toRestStudentGrade(grade))
+        .participants(grades.stream()
+            .map(grade -> this.toRestStudentGrade(grade))
             .collect(Collectors.toList()));
   }
 }

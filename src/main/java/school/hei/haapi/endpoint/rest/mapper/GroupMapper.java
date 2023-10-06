@@ -7,7 +7,10 @@ import school.hei.haapi.endpoint.rest.model.Group;
 public class GroupMapper {
 
   public Group toRest(school.hei.haapi.model.Group group) {
-    return new Group().id(group.getId()).name(group.getName()).ref(group.getRef())
+    return new Group()
+        .id(group.getId())
+        .name(group.getName())
+        .ref(group.getRef())
         .creationDatetime(group.getCreationDatetime());
   }
 

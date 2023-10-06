@@ -39,7 +39,8 @@ public class AwardedCourseService {
   public List<AwardedCourse> getByStudentId(String userId) {
     User student = userRepository.getById(userId);
     List<Group> groups =
-        student.getGroupFlows().stream().map(groupFlow -> groupFlow.getGroup()).distinct()
+        student.getGroupFlows().stream()
+            .map(groupFlow -> groupFlow.getGroup()).distinct()
             .collect(Collectors.toList());
     return awardedCourseMapper.getAwardedCoursesDomainByGroups(groups);
   }
@@ -75,7 +76,8 @@ public class AwardedCourseService {
   @Transactional
   public List<AwardedCourse> createOrUpdateAwardedCourses(
       List<CreateAwardedCourse> createAwardedCourses) {
-    return createAwardedCourses.stream().map(this::createOrUpdateAwardedCourse)
+    return createAwardedCourses.stream()
+        .map(this::createOrUpdateAwardedCourse)
         .collect(Collectors.toList());
   }
 }

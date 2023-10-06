@@ -72,11 +72,11 @@ public class UserMapper {
         .lastName(teacher.getLastName())
         .email(teacher.getEmail())
         .ref(teacher.getRef())
-        .status(User.Status.valueOf(teacher.getStatus().toString()))
+        .status(User.Status.fromValue(teacher.getStatus().toString()))
         .phone(teacher.getPhone())
         .entranceDatetime(teacher.getEntranceDatetime())
         .birthDate(teacher.getBirthDate())
-        .sex(User.Sex.valueOf(teacher.getSex().toString()))
+        .sex(User.Sex.fromValue(teacher.getSex().toString()))
         .address(teacher.getAddress())
         .build();
   }
@@ -89,11 +89,11 @@ public class UserMapper {
         .lastName(student.getLastName())
         .email(student.getEmail())
         .ref(student.getRef())
-        .status(User.Status.valueOf(student.getStatus().toString()))
+        .status(User.Status.fromValue(student.getStatus().toString()))
         .phone(student.getPhone())
         .entranceDatetime(student.getEntranceDatetime())
         .birthDate(student.getBirthDate())
-        .sex(User.Sex.valueOf(student.getSex().toString()))
+        .sex(User.Sex.fromValue(student.getSex().toString()))
         .address(student.getAddress())
         .build();
   }

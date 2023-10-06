@@ -10,11 +10,8 @@ import school.hei.haapi.repository.GradeRepository;
 public class GradeService {
   private final GradeRepository gradeRepository;
   public Grade getGradeByExamIdAndStudentId(String examId,
-                                            String studentId,
-                                            String awardedCourseId,
-                                            String groupId) {
-    return gradeRepository.getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(examId,
-        awardedCourseId, groupId, studentId);
+                                            String studentId) {
+    return gradeRepository.getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(examId, studentId);
   }
 }
 

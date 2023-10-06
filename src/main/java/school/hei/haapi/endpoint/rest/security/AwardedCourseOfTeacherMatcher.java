@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
+import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.service.AwardedCourseService;
 
 import javax.servlet.http.HttpServletRequest;
@@ -19,11 +20,14 @@ public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
   @Override
   public boolean matches(HttpServletRequest request) {
     AntPathRequestMatcher antMatcher = new AntPathRequestMatcher(antPattern, method.toString());
+    Principal principal = AuthProvider.getPrincipal();
+    String awardedCourseIdFromRequest = getSelfId(request, "awarded_courses");
+    String groupIdFromRequest = getSelfId(request, "groups");
     if (!antMatcher.matches(request)) {
       return false;
     }
-    return awardedCourseService.checkTeacherOfAwardedCourse(AuthProvider.getPrincipal().getUserId(),
-        getSelfId(request, "awarded_courses"), getSelfId(request, "groups"));
+    return awardedCourseService.checkTeacherOfAwardedCourse(principal.getUserId(), awardedCourseIdFromRequest ,
+            groupIdFromRequest);
   }
 
   private String getSelfId(HttpServletRequest request, String stringBeforeId) {
