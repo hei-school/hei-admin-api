@@ -58,7 +58,6 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Status status;
 
-  @NotBlank(message = "Phone number is mandatory")
   private String phone;
 
   private LocalDate birthDate;
@@ -69,7 +68,6 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Sex sex;
 
-  @NotBlank(message = "Address is mandatory")
   private String address;
 
   @Column(name = "\"role\"")

@@ -226,8 +226,6 @@ class TeacherIT {
     assertTrue(exceptionMessage2.contains("Email must be valid"));
     assertTrue(exceptionMessage1.contains("Last name is mandatory"));
     assertTrue(exceptionMessage1.contains("Email is mandatory"));
-    assertTrue(exceptionMessage1.contains("Address is mandatory"));
-    assertTrue(exceptionMessage1.contains("Phone number is mandatory"));
     assertTrue(exceptionMessage1.contains("Reference is mandatory"));
   }
 
