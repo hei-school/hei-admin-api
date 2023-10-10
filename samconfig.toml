@@ -1,0 +1,10 @@
+version = 0.1
+[default.deploy.parameters]
+stack_name = "serverless-hei-admin-api"
+resolve_s3 = true
+s3_prefix = "serverless-hei-admin-api"
+region = "eu-west-3"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+parameter_overrides = "Env=\"dev\" Tag=\"latest\" DatabaseUrl=\"jdbc:postgresql://storage-serverless-hei-admin-api-database.cubnyrx3oedb.eu-west-3.rds.amazonaws.com:5432/hei_admin\" DatabaseUsername=\"postgres\" DatabasePassword=\"6EA}y_jVeeuh+!Z\" CognitoUserPoolId=\"eu-west-3_mGxK1Bi8s\" EventBridgeBus=\"dev-hei-admin\" SqsQueueUrl=\"dev-hei-admin\" SesSource=\"contact@hei.school\" SesContact=\"valisoa@hei.school\" SentryDsn=\"https://c5662b0678b646eaa5c25dbe2b564c7f@o1406254.ingest.sentry.io/6739874\""
+image_repositories = []
