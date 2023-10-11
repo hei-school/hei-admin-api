@@ -186,6 +186,112 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{student_id}/courses:
+    get:
+      tags:
+        - Users
+      summary: Get a specific student courses
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: status
+          in: query
+          schema:
+            $ref: '#/components/schemas/CourseStatus'
+          description: By default, LINKED courses are provided.
+      operationId: getStudentCoursesById
+      responses:
+        '200':
+          description: The student courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Link or unlink courses to a specific student
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: updateStudentCourses
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdateStudentCourse'
+      responses:
+        '200':
+          description: The student updated courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/grades:
+    get:
+      tags:
+        - Teaching
+      summary: Get all grades of a student in every course that had an exam.
+      operationId: getStudentGrades
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of courses with their exams and grades for the specified student.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentCourseExam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
   /students:
     get:
       tags:
@@ -214,6 +320,11 @@ paths:
         - name: last_name
           in: query
           description: "Filter students by last name, case is ignored"
+          schema:
+            type: string
+        - name: course_id
+          in: query
+          description: "Filter students by course they are linked to"
           schema:
             type: string
       responses:
@@ -304,6 +415,51 @@ paths:
         - Teaching
       summary: Get all courses
       operationId: getCourses
+      parameters:
+        - name: code
+          in: query
+          description: "Filter courses by code, case is ignored"
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: "Filter courses by name, case is ignored"
+          schema:
+            type: string
+        - name: credits
+          in: query
+          description: "Filter courses by credits"
+          schema:
+            type: integer
+        - name: teacher_first_name
+          in: query
+          description: "Filter courses by teacher firstname, case is ignored"
+          schema:
+            type: string
+        - name: teacher_last_name
+          in: query
+          description: "Filter courses by teacher lastname, case is ignored"
+          schema:
+            type: string
+        - name: credits_order
+          in: query
+          schema:
+            $ref: '#/components/schemas/CourseDirection'
+        - name: code_order
+          in: query
+          schema:
+            $ref: '#/components/schemas/CourseDirection'
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
       responses:
         '200':
           description: List of all courses
@@ -326,22 +482,26 @@ paths:
     put:
       tags:
         - Teaching
-      summary: Create new courses or update existing courses
+      summary: Crupdate courses
       description: Update courses when id are provided, create them otherwise.
-      operationId: createOrUpdateCourses
+      operationId: crupdateCourses
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Course'
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateCourse'
       responses:
         '200':
-          description: The created or updated courses
+          description: The crupdated courses
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Course'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Course'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -352,6 +512,192 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+
+  /courses/{course_id}/exams:
+    get:
+      tags:
+        - Teaching
+      summary: Get all exam infos of a specified course
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getExamsByCourseId
+      responses:
+        '200':
+          description: List of exam infos without the participants of the specified course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExamInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Teaching
+      summary: Update exams if ID is provided, otherwise create new exams of the specified course.
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: crupdateExams
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/ExamInfo'
+      responses:
+        '200':
+          description: Exams infos without the students participated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ExamInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /courses/{course_id}/exams/{exam_id}/details:
+    get:
+      tags:
+        - Teaching
+      summary: Get exam details with the participants and their grades of the specified exam.
+      operationId: getExamDetail
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Exam infos with the students participated and their grades
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDetail'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /courses/{course_id}/exams/{exam_id}/grades:
+    put:
+      tags:
+        - Teaching
+      summary: Update students grades
+      operationId: crupdateStudentsGrade
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdateStudentGrade'
+      responses:
+        '200':
+          description: Exam infos with the students participated and their grades updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamDetail'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /courses/{course_id}/exams/{exam_id}/participants/{participant_id}:
+    get:
+      tags:
+        - Teaching
+      summary: Return a participant with his grade for the specified exam
+      operationId: getParticipantById
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: participant_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The specified participant with his grade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentGrade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
   '/teachers/{id}':
     get:
       tags:
@@ -885,7 +1231,8 @@ components:
             - MANAGER
         bearer:
           type: string
-    User:
+    UserIdentifier:
+      type: object
       properties:
         id:
           type: string
@@ -896,25 +1243,30 @@ components:
           type: string
         last_name:
           type: string
-        sex:
-          type: string
-          enum:
-            - M
-            - F
-        birth_date:
-          type: string
-          format: date
-        address:
-          type: string
-        phone:
-          type: string
         email:
           type: string
-        entrance_datetime:
-          type: string
-          format: date-time
-        status:
-          $ref: '#/components/schemas/EnableStatus'
+    User:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+        - type: object
+          properties:
+            sex:
+              type: string
+              enum:
+                - M
+                - F
+            birth_date:
+              type: string
+              format: date
+            address:
+              type: string
+            phone:
+              type: string
+            entrance_datetime:
+              type: string
+              format: date-time
+            status:
+              $ref: '#/components/schemas/EnableStatus'
     EnableStatus:
       type: string
       enum:
@@ -943,12 +1295,12 @@ components:
         creation_datetime:
           type: string
           format: date-time
-    Course:
+    CourseTemplate:
       type: object
       properties:
         id:
           type: string
-        ref:
+        code:
           type: string
           example: PROG1
         name:
@@ -958,6 +1310,96 @@ components:
           type: integer
         total_hours:
           type: integer
+    CrupdateCourse:
+      allOf:
+        - $ref: '#/components/schemas/CourseTemplate'
+      type: object
+      properties:
+        main_teacher_id:
+          type: string
+    CourseStatus:
+      type: string
+      enum:
+        - LINKED
+        - UNLINKED
+    UpdateStudentCourse:
+      type: object
+      properties:
+        course_id:
+          type: string
+        status:
+          $ref: '#/components/schemas/CourseStatus'
+    Course:
+      allOf:
+        - $ref: '#/components/schemas/CourseTemplate'
+        - type: object
+          properties:
+            main_teacher:
+              $ref: '#/components/schemas/Teacher'
+    Order:
+      type: string
+      enum:
+        - ASC
+        - DESC
+    ExamInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        coefficient:
+          type: integer
+        title:
+          type: string
+        examination_date:
+          type: string
+          format: date-time
+    ExamDetail:
+      allOf:
+        - $ref: '#/components/schemas/ExamInfo'
+      properties:
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentGrade'
+    Grade:
+      type: object
+      properties:
+        score:
+          type: number
+          format: double
+          example: 12.5
+        created_at:
+          type: string
+          format: date-time
+    StudentGrade:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+      type: object
+      properties:
+        grade:
+          $ref: '#/components/schemas/Grade'
+    UpdateStudentGrade:
+      type: object
+      properties:
+        student_id:
+          type: string
+        score:
+          type: number
+          format: double
+    StudentExamGrade:
+      allOf:
+        - $ref: '#/components/schemas/ExamInfo'
+      properties:
+        grade:
+          $ref: '#/components/schemas/Grade'
+    StudentCourseExam:
+      allOf:
+        - $ref: '#/components/schemas/Course'
+      properties:
+        exams:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentExamGrade'
     CreateFee:
       type: object
       properties:
@@ -1051,7 +1493,11 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
-
+    CourseDirection:
+      type: string
+      enum:
+        - ASC
+        - DESC
     Exception:
       type: object
       properties:

@@ -12,10 +12,10 @@ import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
 import school.hei.haapi.service.UserService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static school.hei.haapi.model.User.Role.STUDENT;
 
 @RestController
 @AllArgsConstructor
@@ -28,16 +28,22 @@ public class StudentController {
     return userMapper.toRestStudent(userService.getById(id));
   }
 
+  //TODO: add a filter by a list of courseId
   @GetMapping("/students")
   public List<Student> getStudents(
       @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
-      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
-    return userService.getByCriteria(User.Role.STUDENT, firstName, lastName, ref, page, pageSize
-        ).stream()
-        .map(userMapper::toRestStudent)
-        .collect(toUnmodifiableList());
+      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
+      @RequestParam(value = "course_id", required = false) String courseId) {
+    return courseId == null ?
+        userService.getByCriteria(STUDENT, firstName, lastName, ref, page, pageSize).stream()
+            .map(userMapper::toRestStudent)
+            .collect(toUnmodifiableList())
+        :
+        userService.getByLinkedCourse(STUDENT, courseId, page, pageSize).stream()
+            .map(userMapper::toRestStudent)
+            .collect(toUnmodifiableList());
   }
 
   @PutMapping("/students")
@@ -51,4 +57,5 @@ public class StudentController {
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
   }
+
 }

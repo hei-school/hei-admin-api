@@ -27,6 +27,7 @@ import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 public class SecurityConf extends WebSecurityConfigurerAdapter {
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
+  private static final String STUDENT_COURSE = "/students/*/courses";
 
   private final AuthProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
@@ -100,6 +101,11 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/groups").authenticated()
         .antMatchers(GET, "/groups/*").authenticated()
         .antMatchers(PUT, "/groups/**").hasAnyRole(MANAGER.getRole())
+        .antMatchers(GET, "/courses").authenticated()
+        .antMatchers(PUT, "/courses/**").hasAnyRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE)).hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, STUDENT_COURSE).hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(PUT, STUDENT_COURSE).hasAnyRole(MANAGER.getRole())
         .antMatchers("/**").denyAll()
 
         // disable superfluous protections

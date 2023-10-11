@@ -63,6 +63,8 @@ Resources:
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/password}}'
             - Name: AWS_SES_SOURCE
               Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/ses/source}}'
+            - Name: AWS_SES_CONTACT
+              Value: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/ses/contact}}'
           LogConfiguration:
             LogDriver: awslogs
             Options:

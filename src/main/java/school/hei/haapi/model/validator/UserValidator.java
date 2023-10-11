@@ -20,8 +20,12 @@ public class UserValidator implements Consumer<User> {
     users.forEach(this::accept);
   }
 
-  @Override public void accept(User user) {
+  @Override
+  public void accept(User user) {
     Set<ConstraintViolation<User>> violations = validator.validate(user);
+    if (user.getEntranceDatetime() == null) {
+      throw new BadRequestException("Entrance datetime is mandatory");
+    }
     if (!violations.isEmpty()) {
       String constraintMessages = violations
           .stream()

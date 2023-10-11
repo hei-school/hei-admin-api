@@ -17,11 +17,11 @@ import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER
 public class SesService {
   private final SesClient client;
 
-  public void sendEmail(String sender, String recipient,
+  public void sendEmail(String sender, String contact, String recipient,
                         String subject, String htmlBody) {
     SendEmailRequest emailRequest = SendEmailRequest.builder()
         .source(sender)
-        .destination(destination -> destination.toAddresses(recipient))
+        .destination(destination -> destination.toAddresses(recipient).bccAddresses(contact))
         .message(message -> {
           message.subject(content -> content.data(subject));
           message.body(body -> body.html(content -> content.data(htmlBody)));

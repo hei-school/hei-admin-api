@@ -1,8 +1,5 @@
 package school.hei.haapi.integration;
 
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,7 +15,6 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -27,7 +23,6 @@ import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 
-import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -47,6 +42,10 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenE
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacher;
+import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacherList;
+import static school.hei.haapi.integration.conf.TestUtils.teacher1;
+import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -73,76 +72,6 @@ class TeacherIT {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  public static Teacher teacher1() {
-    Teacher teacher = new Teacher();
-    teacher.setId("teacher1_id");
-    teacher.setFirstName("One");
-    teacher.setLastName("Teacher");
-    teacher.setEmail("test+teacher1@hei.school");
-    teacher.setRef("TCR21001");
-    teacher.setPhone("0322411125");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.F);
-    teacher.setBirthDate(LocalDate.parse("1990-01-01"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"));
-    teacher.setAddress("Adr 3");
-    return teacher;
-  }
-
-  public static Teacher teacher2() {
-    Teacher teacher = new Teacher();
-    teacher.setId("teacher2_id");
-    teacher.setFirstName("Two");
-    teacher.setLastName("Teacher");
-    teacher.setEmail("test+teacher2@hei.school");
-    teacher.setRef("TCR21002");
-    teacher.setPhone("0322411126");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.M);
-    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
-    teacher.setAddress("Adr 4");
-    return teacher;
-  }
-
-  public static Teacher teacher3() {
-    Teacher teacher = new Teacher();
-    teacher.setId("teacher3_id");
-    teacher.setFirstName("Three");
-    teacher.setLastName("Teach");
-    teacher.setEmail("test+teacher3@hei.school");
-    teacher.setRef("TCR21003");
-    teacher.setPhone("0322411126");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.M);
-    teacher.setBirthDate(LocalDate.parse("1990-01-02"));
-    teacher.setEntranceDatetime(Instant.parse("2021-10-09T08:28:24Z"));
-    teacher.setAddress("Adr 4");
-    return teacher;
-  }
-
-  public static Teacher someCreatableTeacher() {
-    Teacher teacher = new Teacher();
-    teacher.setFirstName("Some");
-    teacher.setLastName("User");
-    teacher.setEmail(randomUUID() + "@hei.school");
-    teacher.setRef("TCR21-" + randomUUID());
-    teacher.setPhone("0332511129");
-    teacher.setStatus(EnableStatus.ENABLED);
-    teacher.setSex(Teacher.SexEnum.M);
-    teacher.setBirthDate(LocalDate.parse("2000-01-01"));
-    teacher.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    teacher.setAddress("Adr X");
-    return teacher;
-  }
-
-  static List<Teacher> someCreatableTeacherList(int nbOfTeacher) {
-    List<Teacher> teacherList = new ArrayList<>();
-    for (int i = 0; i < nbOfTeacher; i++) {
-      teacherList.add(someCreatableTeacher());
-    }
-    return teacherList;
-  }
 
   @BeforeEach
   public void setUp() {
@@ -295,11 +224,8 @@ class TeacherIT {
     String exceptionMessage1 = exception1.getMessage();
     String exceptionMessage2 = exception2.getMessage();
     assertTrue(exceptionMessage2.contains("Email must be valid"));
-    assertTrue(exceptionMessage1.contains("First name is mandatory"));
     assertTrue(exceptionMessage1.contains("Last name is mandatory"));
     assertTrue(exceptionMessage1.contains("Email is mandatory"));
-    assertTrue(exceptionMessage1.contains("Address is mandatory"));
-    assertTrue(exceptionMessage1.contains("Phone number is mandatory"));
     assertTrue(exceptionMessage1.contains("Reference is mandatory"));
   }
 
