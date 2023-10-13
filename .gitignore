@@ -39,3 +39,5 @@ out/
 .vscode/
 
 .DS_Store
+
+.aws-sam
