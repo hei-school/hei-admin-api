@@ -21,8 +21,11 @@ plugins {
     id 'checkstyle'
 }
 
-group = 'school.hei'
-sourceCompatibility = '11'
+java {
+    group = 'school.hei'
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
+}
 
 configurations {
     compileOnly {

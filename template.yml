@@ -44,7 +44,7 @@ Resources:
   HeiAdminApiFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      Runtime: java11
+      Runtime: java17
       CodeUri: .
       SnapStart:
         ApplyOn: PublishedVersions
