@@ -26,7 +26,7 @@ public class InstantUtils {
   }
 
   public static Instant courseSessionStudentAttendanceBeforeIntervalPredicate(CourseSession toPredicate) {
-    return LocalDateTime.ofInstant(toPredicate.getBegin(), ZoneId.systemDefault())
+    return LocalDateTime.ofInstant(toPredicate.getBegin(), ZoneId.of("UTC+3"))
         .plusHours(1)
         .plusMinutes(55)
         .atZone(ZoneId.of("UTC+3"))
@@ -34,7 +34,7 @@ public class InstantUtils {
   }
 
   public static Instant courseSessionStudentAttendanceAfterIntervalPredicate(CourseSession toPredicate) {
-    return LocalDateTime.ofInstant(toPredicate.getBegin(), ZoneId.systemDefault())
+    return LocalDateTime.ofInstant(toPredicate.getBegin(), ZoneId.of("UTC+3"))
         .minusHours(1)
         .minusMinutes(30)
         .atZone(ZoneId.of("UTC+3"))
