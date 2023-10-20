@@ -7,7 +7,7 @@ import school.hei.haapi.endpoint.rest.model.Course;
 @Component
 @AllArgsConstructor
 public class CourseMapper {
-
+  //todo: to review all class
   public Course toRest(school.hei.haapi.model.Course domain) {
     return new Course()
         .id(domain.getId())

@@ -17,6 +17,7 @@ import java.util.stream.Collectors;
 @Component
 @AllArgsConstructor
 public class GradeMapper {
+  //todo: to review all class
   public school.hei.haapi.model.Grade toDomain(Grade grade) {
     return school.hei.haapi.model.Grade.builder()
         .score(grade.getScore().intValue())

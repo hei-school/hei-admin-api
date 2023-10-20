@@ -20,6 +20,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @Service
 @AllArgsConstructor
 public class GroupService {
+  //todo: to review all class
 
   private final GroupRepository repository;
   private final UserRepository userRepository;

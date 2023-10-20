@@ -16,6 +16,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 @Service
 @AllArgsConstructor
 public class ExamService {
+  //todo: to review all class
   private final ExamRepository examRepository;
   public List<Exam> getExamsFromAwardedCourseIdAndGroupId(
       String groupId,

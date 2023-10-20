@@ -38,7 +38,7 @@ public class StudentController {
     return userMapper.toRestStudent(userService.getById(id));
   }
 
-  //TODO: with pagination
+  //todo: to review
   @GetMapping("/groups/{groupId}/students")
   public List<Student> getStudentByGroupId(@PathVariable String groupId) {
     return userService.getByGroupId(groupId).stream()

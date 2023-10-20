@@ -27,6 +27,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class Grade implements Serializable {
+  //todo: to review all class
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private String id;

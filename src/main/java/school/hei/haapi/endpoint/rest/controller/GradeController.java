@@ -31,7 +31,7 @@ public class GradeController {
   private final GradeService gradeService;
   private final GradeMapper gradeMapper;
   private final ExamService examService;
-
+  //todo: to review all class
   @GetMapping("/students/{student_id}/grades")
   public List<AwardedCourseExam> getAllGradesOfStudent(
       @PathVariable("student_id") String studentId) {

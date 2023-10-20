@@ -23,7 +23,7 @@ import school.hei.haapi.service.CourseService;
 public class CourseController {
   private final CourseService service;
   private final CourseMapper mapper;
-
+//todo: to review all class
   @GetMapping("/courses")
   public List<Course> getCourses(
       @RequestParam(value = "code", required = false) String code,

@@ -23,6 +23,7 @@ import school.hei.haapi.model.User;
 @AllArgsConstructor
 public class CourseDao {
   private final EntityManager entityManager;
+  //todo: to review
 
   public List<Course> findByCriteria(String code, String name, Integer credits,
                                      String teacherFirstName, String teacherLastName,

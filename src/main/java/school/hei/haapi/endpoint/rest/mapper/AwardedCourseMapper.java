@@ -18,7 +18,7 @@ public class AwardedCourseMapper {
   private final CourseMapper courseMapper;
   private final GradeMapper gradeMapper;
   private final GroupMapper groupMapper;
-
+  //todo: to review all class
   public AwardedCourse toRest(school.hei.haapi.model.AwardedCourse awardedCourse) {
     return new AwardedCourse()
         .course(courseMapper.toRest(awardedCourse.getCourse()))

@@ -5,7 +5,7 @@ import school.hei.haapi.endpoint.rest.model.Group;
 
 @Component
 public class GroupMapper {
-
+  //todo: to review all class
   public Group toRest(school.hei.haapi.model.Group group) {
     return new Group()
         .id(group.getId())

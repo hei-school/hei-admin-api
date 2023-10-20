@@ -25,6 +25,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class GroupFlow implements Serializable {
+  //todo: to review all class
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;

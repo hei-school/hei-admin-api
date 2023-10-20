@@ -10,7 +10,7 @@ import school.hei.haapi.model.AwardedCourse;
 @Component
 @AllArgsConstructor
 public class ExamMapper {
-
+  //todo: to review all class
   public ExamInfo toRest(Exam exam) {
     return new ExamInfo()
         .id(exam.getId())

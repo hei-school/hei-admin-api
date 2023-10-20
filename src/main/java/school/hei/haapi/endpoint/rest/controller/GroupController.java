@@ -36,7 +36,7 @@ public class GroupController {
         .map(groupMapper::toRest)
         .collect(toUnmodifiableList());
   }
-
+  //todo: to review
   @PutMapping(value = "/groups")
   public List<Group> createOrUpdateGroups(@RequestBody List<Group> toWrite) {
     var saved = groupService.saveAll(
