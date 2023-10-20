@@ -49,7 +49,7 @@ public class Payment implements Serializable {
   @Enumerated(EnumType.STRING)
   private school.hei.haapi.endpoint.rest.model.Payment.TypeEnum type;
 
-  private int amount;
+  private Integer amount;
   private String comment;
 
   @CreationTimestamp

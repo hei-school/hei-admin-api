@@ -37,7 +37,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 @Testcontainers
 @ContextConfiguration(initializers = GroupIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-public class GroupIT {
+class GroupIT {
 
   @MockBean
   private SentryConf sentryConf;
@@ -84,7 +84,7 @@ public class GroupIT {
     ApiClient anonymousClient = anApiClient(BAD_TOKEN);
 
     TeachingApi api = new TeachingApi(anonymousClient);
-    assertThrowsForbiddenException(api::getGroups);
+    assertThrowsForbiddenException(() -> api.getGroups(1, 10));
   }
 
   @Test
@@ -101,7 +101,7 @@ public class GroupIT {
 
     TeachingApi api = new TeachingApi(student1Client);
     Group actual1 = api.getGroupById(GROUP1_ID);
-    List<Group> actualGroups = api.getGroups();
+    List<Group> actualGroups = api.getGroups(1, 10);
 
     assertEquals(group1(), actual1);
     assertTrue(actualGroups.contains(group1()));
@@ -139,7 +139,7 @@ public class GroupIT {
     toCreate3.setId(created3.getId());
     assertNotNull(created3.getCreationDatetime());
     toCreate3.setCreationDatetime(created3.getCreationDatetime());
-    //
+
     assertEquals(created3, toCreate3);
     Group created4 = created.get(0);
     assertTrue(isValidUUID(created4.getId()));
@@ -153,9 +153,8 @@ public class GroupIT {
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    List<Group> toUpdate = api.createOrUpdateGroups(List.of(
-        someCreatableGroup(),
-        someCreatableGroup()));
+    List<Group> toUpdate =
+        api.createOrUpdateGroups(List.of(someCreatableGroup(), someCreatableGroup()));
     Group toUpdate0 = toUpdate.get(0);
     toUpdate0.setName("A new name zero");
     Group toUpdate1 = toUpdate.get(1);

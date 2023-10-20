@@ -14,68 +14,58 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.model.Course;
-import school.hei.haapi.model.StudentCourse;
+import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.User;
 
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.UNLINKED;
 
 @Repository
 @AllArgsConstructor
 public class CourseDao {
   private final EntityManager entityManager;
+  //todo: to review
 
   public List<Course> findByCriteria(String code, String name, Integer credits,
                                      String teacherFirstName, String teacherLastName,
-                                     String creditsOrder, String codeOrder,
-                                     Pageable pageable) {
+                                     String creditsOrder, String codeOrder, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
     Root<Course> root = query.from(Course.class);
-    Join<Course, User> teacher = root.join("mainTeacher");
+    Join<Course, AwardedCourse> awardedCourses = root.join("awardedCourses", JoinType.LEFT);
+    Join<AwardedCourse, User> teacher = awardedCourses.join("mainTeacher", JoinType.LEFT);
 
     List<Predicate> predicates = new ArrayList<>();
 
     if (code != null) {
-      predicates.add(
-          builder.or(
-              builder.like(builder.lower(root.get("code")), "%" + code + "%"),
-              builder.like(root.get("code"), "%" + code + "%")
-          )
-      );
+      predicates.add(builder.or(builder.like(builder.lower(root.get("code")), "%" + code + "%"),
+          builder.like(root.get("code"), "%" + code + "%")));
     }
 
     if (name != null) {
-      predicates.add(builder.or(
-          builder.like(builder.lower(root.get("name")), "%" + name + "%"),
-          builder.like(root.get("name"), "%" + name + "%")
-      ));
+      predicates.add(
+          builder.or(builder.like(builder.lower(root.get("name")), "%" + name.toLowerCase() + "%"),
+              builder.like(root.get("name"), "%" + name + "%")));
     }
 
-    if (teacherFirstName != null) {
-      predicates.add(builder.like(builder.lower(teacher.get("firstName")),
-          "%" + teacherFirstName.toLowerCase() + "%"));
-    }
-    if (teacherLastName != null) {
+    if (teacherLastName != null && !teacherLastName.isBlank()) {
       predicates.add(builder.like(builder.lower(teacher.get("lastName")),
           "%" + teacherLastName.toLowerCase() + "%"));
     }
 
-    Predicate hasCredits = credits != null
-        ? builder.or(
-        builder.equal(root.get("credits"), credits)
-    ) : null;
 
-    /* To prevent in case credits is null
-      and will not affect the other filters
-    */
+    if (teacherFirstName != null && !teacherFirstName.isBlank()) {
+      predicates.add(builder.like(builder.lower(teacher.get("firstName")),
+          "%" + teacherFirstName.toLowerCase() + "%"));
+    }
+
+    Predicate hasCredits =
+        credits != null ? builder.or(builder.equal(root.get("credits"), credits)) : null;
+
     if (hasCredits != null) {
       predicates.add(hasCredits);
     }
 
-    query.where(builder.and(predicates.toArray(new Predicate[0])));
+    query.where(builder.and(predicates.toArray(new Predicate[0]))).distinct(true);
 
     Order creditsSortOrder = getOrder(root, builder, creditsOrder, "credits");
     Order codeSortOrder = getOrder(root, builder, codeOrder, "code");
@@ -87,7 +77,6 @@ public class CourseDao {
     if (codeSortOrder != null) {
       orders.add(codeSortOrder);
     }
-
     if (orders.isEmpty()) {
       query.orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
     } else {
@@ -96,8 +85,7 @@ public class CourseDao {
 
     return entityManager.createQuery(query)
         .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
-        .setMaxResults(pageable.getPageSize())
-        .getResultList();
+        .setMaxResults(pageable.getPageSize()).getResultList();
   }
 
   private Order getOrder(Root<Course> root, CriteriaBuilder builder, String order,
@@ -112,36 +100,6 @@ public class CourseDao {
     } else {
       return null;
     }
-  }
-
-  public List<Course> getByUserIdAndStatus(String userId, CourseStatus status) {
-    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<Course> query = builder.createQuery(Course.class);
-    Root<Course> courseRoot = query.from(Course.class);
-
-    Join<Course, StudentCourse> studentCourse =
-        courseRoot.join("studentCourses", JoinType.LEFT);
-
-    Join<StudentCourse, User> user = studentCourse.join("userId", JoinType.LEFT);
-
-    Predicate hasUserId =
-        builder.equal(user.get("id"), userId);
-
-    if (status == null || status.equals(LINKED)) {
-      Predicate defaultStatus = builder.equal(studentCourse.get("status"), LINKED);
-      query.where(builder.and(hasUserId, defaultStatus));
-    }
-    if (status != null && status.equals(UNLINKED)) {
-      Predicate condition = builder.not(hasUserId);
-      Predicate hasStatus = builder.equal(studentCourse.get("status"), UNLINKED);
-      Predicate unlinkedPredicate = builder.or(condition, hasStatus);
-      query
-          .select(courseRoot)
-          .distinct(true)
-          .where(unlinkedPredicate);
-    }
-
-    return entityManager.createQuery(query).getResultList();
   }
 
 }

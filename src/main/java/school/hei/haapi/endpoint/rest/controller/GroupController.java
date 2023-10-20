@@ -6,9 +6,12 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.GroupMapper;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.GroupService;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
@@ -26,17 +29,20 @@ public class GroupController {
   }
 
   @GetMapping(value = "/groups")
-  public List<Group> getGroups() {
-    return groupService.getAll().stream()
+  public List<Group> getGroups(@RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+                               @RequestParam(value = "page_size", defaultValue = "15")
+                               BoundedPageSize pageSize) {
+    return groupService.getAll(page, pageSize).stream()
         .map(groupMapper::toRest)
         .collect(toUnmodifiableList());
   }
-
+  //todo: to review
   @PutMapping(value = "/groups")
   public List<Group> createOrUpdateGroups(@RequestBody List<Group> toWrite) {
-    var saved = groupService.saveAll(toWrite.stream()
-        .map(groupMapper::toDomain)
-        .collect(toUnmodifiableList()));
+    var saved = groupService.saveAll(
+        toWrite.stream()
+            .map(groupMapper::toDomain)
+            .collect(toUnmodifiableList()));
     return saved.stream()
         .map(groupMapper::toRest)
         .collect(toUnmodifiableList());

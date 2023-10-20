@@ -153,7 +153,7 @@ class PaginationIT {
 
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
-            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >=1\"}",
+            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >= 1\"}",
             () -> api.getStudents(0, 20, null, null, null, null));
     assertThrowsApiException(
             "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",

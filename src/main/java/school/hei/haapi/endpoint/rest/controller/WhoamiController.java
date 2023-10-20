@@ -14,7 +14,7 @@ public class WhoamiController {
     Whoami whoami = new Whoami();
     whoami.setId(principal.getUserId());
     whoami.setBearer(principal.getBearer());
-    whoami.setRole(Whoami.RoleEnum.valueOf(principal.getRole()));
+    whoami.setRole(Whoami.RoleEnum.fromValue(principal.getRole()));
     return whoami;
   }
 }

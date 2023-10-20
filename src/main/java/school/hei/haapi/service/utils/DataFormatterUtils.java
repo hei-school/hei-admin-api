@@ -32,4 +32,14 @@ public class DataFormatterUtils {
     return intConverter.asWords(number).toUpperCase();
   }
 
+  public static <T extends Enum<T>> T fromValue(Class<T> enumClass, String value) {
+    for (T enumConstant : enumClass.getEnumConstants()) {
+      if (enumConstant.name().equals(value)) {
+        return enumConstant;
+      }
+    }
+    throw new IllegalArgumentException("Unexpected value '" + value + "' for enum " + enumClass.getSimpleName());
+  }
+
+
 }

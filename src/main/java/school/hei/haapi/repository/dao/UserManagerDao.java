@@ -13,10 +13,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Course;
-import school.hei.haapi.model.StudentCourse;
+import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.User;
-
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
 
 @Repository
 @AllArgsConstructor
@@ -66,20 +64,19 @@ public class UserManagerDao {
                 .setMaxResults(pageable.getPageSize())
                 .getResultList();
     }
-
+    //todo: to review
     public List<User> findByLinkedCourse(User.Role role, String courseId, Pageable pageable) {
         CriteriaBuilder builder = entityManager.getCriteriaBuilder();
         CriteriaQuery<User> query = builder.createQuery(User.class);
         Root<User> root = query.from(User.class);
-        Join<User, StudentCourse> studentCourse = root.join("studentCourses");
-        Join<StudentCourse, Course> course = studentCourse.join("courseId");
+        Join<User, AwardedCourse> awardedCourse = root.join("awardedCourses");
+        Join<AwardedCourse, Course> course = awardedCourse.join("course");
 
         Predicate hasCourseId = builder.equal(course.get("id"), courseId);
-        Predicate hasLinkedStatus = builder.equal(studentCourse.get("status"), LINKED);
         Predicate hasUserRole = builder.equal(root.get("role"), role);
         query
                 .distinct(true)
-                .where(builder.and(hasUserRole, hasCourseId, hasLinkedStatus))
+                .where(builder.and(hasUserRole, hasCourseId))
                 .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
         return entityManager.createQuery(query)
