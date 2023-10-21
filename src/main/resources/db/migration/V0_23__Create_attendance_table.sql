@@ -13,7 +13,7 @@ $$;
 create table if not exists "attendance" (
     id                                  varchar
     constraint  attendance_pk primary key default uuid_generate_v4(),
-    created_at                          timestampa default null,
+    created_at                          timestamp default null,
     is_late                             boolean default false,
     late_of                             integer,
     attendance_movement_type            attendance_movement_type default 'IN',
