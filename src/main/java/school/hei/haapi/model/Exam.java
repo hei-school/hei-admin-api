@@ -48,4 +48,3 @@ public class Exam implements Serializable {
   @Column(name = "examination_date", nullable = false)
   private Instant examinationDate;
 }
-

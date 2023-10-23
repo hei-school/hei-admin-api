@@ -60,5 +60,4 @@ public class AwardedCourse implements Serializable {
   @CreationTimestamp
   @Getter(AccessLevel.NONE)
   private Instant creationDatetime;
-
 }

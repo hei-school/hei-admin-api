@@ -15,4 +15,3 @@ public class GradeService {
     return gradeRepository.getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(examId, studentId);
   }
 }
-

@@ -27,7 +27,7 @@ public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
       return false;
     }
     return awardedCourseService.checkTeacherOfAwardedCourse(principal.getUserId(), awardedCourseIdFromRequest ,
-            groupIdFromRequest);
+        groupIdFromRequest);
   }
 
   private String getSelfId(HttpServletRequest request, String stringBeforeId) {

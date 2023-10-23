@@ -23,7 +23,8 @@ import school.hei.haapi.service.CourseService;
 public class CourseController {
   private final CourseService service;
   private final CourseMapper mapper;
-//todo: to review all class
+
+  //todo: to review all class
   @GetMapping("/courses")
   public List<Course> getCourses(
       @RequestParam(value = "code", required = false) String code,
@@ -47,7 +48,7 @@ public class CourseController {
   @PutMapping("/courses")
   public List<Course> createOrUpdateCourses(@RequestBody List<Course> courses) {
     return service.createOrUpdateCourses(
-        courses.stream()
+            courses.stream()
                 .map(mapper::toDomain)
                 .collect(Collectors.toUnmodifiableList())).stream()
         .map(mapper::toRest)
@@ -58,6 +59,4 @@ public class CourseController {
   public Course getCoursesById(@PathVariable("course_id") String courseId) {
     return mapper.toRest(service.getById(courseId));
   }
-
-
 }

@@ -1,16 +1,16 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.GenerationType.IDENTITY;
 import java.io.Serializable;
 import java.time.Instant;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
-import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.Table;
+
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -18,27 +18,23 @@ import lombok.Setter;
 import lombok.ToString;
 
 @Entity
-@Table(name = "\"grade\"")
+@Table(name = "\"course_session\"")
 @Getter
 @Setter
-@ToString
-@Builder
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class Grade implements Serializable {
-  //todo: to review all class
+@ToString
+public class CourseSession implements Serializable {
   @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @GeneratedValue(strategy = IDENTITY)
   private String id;
 
   @ManyToOne
-  @JoinColumn(name = "student_id")
-  private User student;
+  @JoinColumn(name = "awarded_course_id")
+  private AwardedCourse awardedCourse;
 
-  @ManyToOne
-  @JoinColumn(name = "exam_id")
-  private Exam exam;
-  private Integer score;
-  private Instant creationDatetime;
+  private Instant begin;
+
+  private Instant end;
 }

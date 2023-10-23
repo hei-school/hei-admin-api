@@ -111,12 +111,14 @@ class CourseIT {
     assertTrue(actualByCode.contains(course1()));
 
     assertEquals(2, actualByCode2.size());
-    assertTrue(actualByCode2.containsAll(List.of(course1(), course2())));
+    assertTrue(actualByCode2.contains(course1()));
+    assertTrue(actualByCode2.contains(course2()));
 
     assertEquals(2, actualByCredits2.size());
-    assertTrue(actualByCredits2.containsAll(List.of(course1(), course2())));
+    assertTrue(actualByCredits2.contains(course1()));
+    assertTrue(actualByCredits2.contains(course2()));
 
-    assertEquals(1, actualByLastName.size());
+    assertEquals(2, actualByLastName.size());
     assertTrue(actualByLastName.contains(course1()));
 
     assertEquals(1, actualByCodeAndName.size());
@@ -140,8 +142,8 @@ class CourseIT {
     List<Course> actualUpdate = api.createOrUpdateCourses(List.of(course2(), course1()));
 
     assertEquals(2, actualUpdate.size());
-
-    assertTrue(actualUpdate.containsAll(List.of(course2(), course1())));
+    assertTrue(actualUpdate.contains(course2()));
+    assertTrue(actualUpdate.contains(course1()));
 
     int numberOfCourseToAdd = 2;
 

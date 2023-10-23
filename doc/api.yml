@@ -1416,6 +1416,119 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/attendance/movement':
+    post:
+      tags:
+        - Attendance
+      summary: Create attendance movement of one student
+      operationId: createAttendanceMovement
+      requestBody:
+        description: Attendance movement to create
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateAttendanceMovement'
+      responses:
+        '200':
+          description: Created student attendance movement
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentAttendanceMovement'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/attendance':
+    get:
+      tags:
+        - Attendance
+      summary: Get all attendances by courses ids or student key word
+      operationId: getStudentsAttendance
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: courses_ids
+          required: false
+          in: query
+          description: Filter attendance by courses ids
+          schema:
+            type: array
+            items:
+              example: 'course1_id'
+        - name: teachers_ids
+          required: false
+          in: query
+          description: Filter attendance by teachers ids
+          schema:
+            type: array
+            items:
+              example: 'teacher1_id'
+        - name: student_key_word
+          in: query
+          required: false
+          description: Filter attendance by student `ref, lastname, firstname`
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          description: Filter attendance from a date, return attendances of the current week by default
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          required: false
+          in: query
+          description: Filter attendance before a date, return attendances of the current week by default
+          schema:
+            type: string
+            format: date-time
+        - name: attendance_statuses
+          required: false
+          in: query
+          description: Filter attendance by attendance status value
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/AttendanceStatus'
+      responses:
+        '200':
+          description: List of attendance by courses ids or student key word
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentAttendance'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -1480,6 +1593,19 @@ components:
           type: string
         email:
           type: string
+    StudentAttendanceMovement:
+      properties:
+        id:
+          type: string
+        attendance_movement_type:
+          $ref: '#/components/schemas/AttendanceMovementType'
+        created_at:
+          type: string
+          format: date-time
+        place:
+          $ref: '#/components/schemas/PlaceEnum'
+        student:
+          $ref: '#/components/schemas/Student'
     User:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
@@ -1507,6 +1633,38 @@ components:
       enum:
         - ENABLED
         - DISABLED
+    StudentAttendance:
+      type: object
+      properties:
+        id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        late_of:
+          type: integer
+          description: if the student is late, that defines how late he or she is
+        place:
+          $ref: '#/components/schemas/PlaceEnum'
+        is_late:
+          type: boolean
+        course_session:
+          $ref: '#/components/schemas/CourseSession'
+        student:
+          $ref: '#/components/schemas/Student'
+    CourseSession:
+      type: object
+      properties:
+        id:
+          type: string
+        awareded_course:
+          $ref: '#/components/schemas/AwardedCourse'
+        begin:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
@@ -1660,6 +1818,23 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentExamGrade'
+    CreateAttendanceMovement:
+      type: object
+      properties:
+        student_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        attendance_movement_type:
+          $ref: '#/components/schemas/AttendanceMovementType'
+        place:
+          $ref: '#/components/schemas/PlaceEnum'
+    PlaceEnum:
+      type: string
+      enum:
+        - IVANDRY
+        - ANDRAHARO
     CreateFee:
       type: object
       properties:
@@ -1753,6 +1928,17 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
+    AttendanceStatus:
+      type: string
+      enum:
+        - MISSING
+        - LATE
+        - PRESENT
+    AttendanceMovementType:
+      type: string
+      enum:
+        - IN
+        - OUT
     CourseDirection:
       type: string
       enum:

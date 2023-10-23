@@ -25,9 +25,9 @@ public class ExamService {
       BoundedPageSize pageSize
   ) {
     Pageable pageable = PageRequest.of(
-            page.getValue() - 1,
-            pageSize.getValue(),
-            Sort.by(DESC, "examinationDate"));
+        page.getValue() - 1,
+        pageSize.getValue(),
+        Sort.by(DESC, "examinationDate"));
     return examRepository.findExamsByGroupIdAndAwardedGroupId(
         groupId,
         awardedCourseId,

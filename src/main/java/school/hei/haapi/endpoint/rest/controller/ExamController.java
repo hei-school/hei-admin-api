@@ -28,7 +28,7 @@ public class ExamController {
   private final ExamService examService;
   private final AwardedCourseService awardedCourseService;
   private final ExamMapper examMapper;
-    //todo: to review all class
+  //todo: to review all class
   @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams")
   public List<ExamInfo> getAwardedCourseExams(@PathVariable("group_id") String groupId,
                                               @PathVariable("awarded_course_id")
@@ -38,7 +38,7 @@ public class ExamController {
                                               @RequestParam(value = "page_size", defaultValue = "15")
                                               BoundedPageSize pageSize) {
     return examService.getExamsFromAwardedCourseIdAndGroupId(groupId, awardedCourseId, page,
-        pageSize).stream()
+            pageSize).stream()
         .map(examMapper::toRest)
         .collect(Collectors.toList());
   }
@@ -65,4 +65,3 @@ public class ExamController {
         examService.getExamsByIdAndGroupIdAndAwardedCourseId(examId, awardedCourseId, groupId));
   }
 }
-

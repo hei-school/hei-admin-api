@@ -45,7 +45,7 @@ public class StudentController {
         .map(userMapper::toRestStudent)
         .collect(Collectors.toList());
   }
-//todo: get with course
+  //todo: get with course
   @GetMapping("/students")
   public List<Student> getStudents(
       @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
@@ -54,8 +54,8 @@ public class StudentController {
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
       @RequestParam(value = "course_id", required = false, defaultValue = "") String courseId) {
     return userService.getByLinkedCourse(STUDENT, firstName, lastName, ref, courseId,  page, pageSize).stream()
-            .map(userMapper::toRestStudent)
-            .collect(toUnmodifiableList());
+        .map(userMapper::toRestStudent)
+        .collect(toUnmodifiableList());
   }
 
   @PutMapping("/students")
@@ -70,8 +70,8 @@ public class StudentController {
 
   @PostMapping("/students/{id}/group_flows")
   public GroupFlow saveStudentGroup(
-          @PathVariable String id,
-          @RequestBody CreateGroupFlow createGroupFlow
+      @PathVariable String id,
+      @RequestBody CreateGroupFlow createGroupFlow
   ) {
     return groupFlowMapper.toRest(groupFlowService.save(createGroupFlow));
   }
