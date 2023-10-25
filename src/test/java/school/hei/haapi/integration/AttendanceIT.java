@@ -66,6 +66,19 @@ class AttendanceIT {
   void setUp() {
     setUpCognito(cognitoComponent);
   }
+
+  @Test
+  void manager_read_attendance_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    AttendanceApi api = new AttendanceApi(manager1Client);
+
+    // GET /attendance?page=1&page_size=10
+    List<StudentAttendance> actualFromAnInstant = api.getStudentsAttendance(
+        1, 10, null, null, null, Instant.parse("2021-11-08T07:00:00.00Z"), null, null
+    );
+    assertEquals(6, actualFromAnInstant.size());
+  }
+
   @Test
   void teacher_read_attendance_from_and_to_instant_criteria() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
