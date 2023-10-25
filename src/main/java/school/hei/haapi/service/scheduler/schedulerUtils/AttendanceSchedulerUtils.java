@@ -54,7 +54,7 @@ public class AttendanceSchedulerUtils {
   }
 
   public List<StudentAttendance> findStudentEscapeCoursePredicate(CourseSession talkingAbout) {
-    Instant endDelay = LocalDateTime.ofInstant(talkingAbout.getEnd(), ZoneId.systemDefault())
+    Instant endDelay = LocalDateTime.ofInstant(talkingAbout.getEnd(), ZoneId.of("UTC+3"))
         .minusHours(1)
         .atZone(ZoneId.of("UTC+3"))
         .toInstant();
@@ -64,7 +64,7 @@ public class AttendanceSchedulerUtils {
   public List<CourseSession> findCourseSessionOfTheDay() {
     Instant beginDate = LocalDate.now()
         .atStartOfDay()
-        .atZone(ZoneId.systemDefault())
+        .atZone(ZoneId.of("UTC+3"))
         .toInstant();
     Instant endDate = LocalDate.now()
         .plusDays(1)
@@ -76,12 +76,12 @@ public class AttendanceSchedulerUtils {
   }
 
   public List<StudentAttendance> findStudentAttendanceOfCourseSession(CourseSession courseSession) {
-    Instant begin = LocalDateTime.ofInstant(courseSession.getBegin(), ZoneId.systemDefault())
+    Instant begin = LocalDateTime.ofInstant(courseSession.getBegin(), ZoneId.of("UTC+3"))
         .minusHours(1)
         .minusMinutes(15)
         .atZone(ZoneId.of("UTC+3"))
         .toInstant();
-    Instant end =  LocalDateTime.ofInstant(courseSession.getEnd(), ZoneId.systemDefault())
+    Instant end =  LocalDateTime.ofInstant(courseSession.getEnd(), ZoneId.of("UTC+3"))
         .minusMinutes(45)
         .atZone(ZoneId.of("UTC+3"))
         .toInstant();
