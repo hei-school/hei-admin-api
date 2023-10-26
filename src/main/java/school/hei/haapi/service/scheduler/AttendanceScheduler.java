@@ -85,12 +85,11 @@ public class AttendanceScheduler {
 
   @Transactional
   public void insertPresentParticipant(User participant, CourseSession courseSession) {
-    Instant begin = LocalDateTime.ofInstant(courseSession.getBegin(), ZoneId.systemDefault())
+    Instant begin = LocalDateTime.ofInstant(courseSession.getBegin(), ZoneId.of("UTC+3"))
         .minusHours(1)
-        .minusMinutes(30)
-        .atZone(ZoneId.systemDefault())
+        .atZone(ZoneId.of("UTC+3"))
         .toInstant();
-    Instant end = LocalDateTime.ofInstant(courseSession.getBegin(), ZoneId.systemDefault())
+    Instant end = LocalDateTime.ofInstant(courseSession.getBegin(), ZoneId.of("UTC+3"))
         .plusMinutes(45)
         .atZone(ZoneId.of("UTC+3"))
         .toInstant();
