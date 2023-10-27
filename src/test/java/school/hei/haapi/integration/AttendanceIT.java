@@ -72,7 +72,12 @@ class AttendanceIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     AttendanceApi api = new AttendanceApi(manager1Client);
 
-    // GET /attendance?page=1&page_size=10
+    List<StudentAttendance> actualWithoutInstant = api.getStudentsAttendance(
+        1, 10, null, null, null, null, null, null
+    );
+    assertEquals(3, actualWithoutInstant.size());
+
+    // GET /attendance?page=1&page_size=10&from=2021-11-08T07:00:00.00Z
     List<StudentAttendance> actualFromAnInstant = api.getStudentsAttendance(
         1, 10, null, null, null, Instant.parse("2021-11-08T07:00:00.00Z"), null, null
     );

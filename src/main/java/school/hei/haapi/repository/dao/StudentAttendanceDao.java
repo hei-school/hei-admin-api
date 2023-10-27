@@ -92,7 +92,10 @@ public class StudentAttendanceDao {
                     builder.greaterThanOrEqualTo(studentAttendanceRoot.get("createdAt"), from),
                     builder.isNull(studentAttendanceRoot.get("createdAt"))
                 ),
-                builder.greaterThanOrEqualTo(courseSessionJoin.get("begin"), from)
+                builder.or(
+                    builder.greaterThanOrEqualTo(courseSessionJoin.get("begin"), from),
+                    builder.isNull(studentAttendanceRoot.get("courseSession"))
+                )
             )
         );
         break;
@@ -103,7 +106,10 @@ public class StudentAttendanceDao {
                     builder.lessThanOrEqualTo(studentAttendanceRoot.get("createdAt"), to),
                     builder.isNull(studentAttendanceRoot.get("createdAt"))
                 ),
-                builder.lessThanOrEqualTo(courseSessionJoin.get("begin"), to)
+                builder.or(
+                    builder.lessThanOrEqualTo(courseSessionJoin.get("begin"), to),
+                    builder.isNull(studentAttendanceRoot.get("courseSession"))
+                )
             )
         );
         break;
@@ -114,7 +120,10 @@ public class StudentAttendanceDao {
                     builder.between(studentAttendanceRoot.get("createdAt"), from, to),
                     builder.isNull(studentAttendanceRoot.get("createdAt"))
                 ),
-                builder.between(courseSessionJoin.get("begin"), from, to)
+                builder.or(
+                    builder.between(courseSessionJoin.get("begin"), from, to),
+                    builder.isNull(studentAttendanceRoot.get("courseSession"))
+                )
             )
         );
         break;
@@ -128,9 +137,11 @@ public class StudentAttendanceDao {
                     ),
                     builder.isNull(studentAttendanceRoot.get("createdAt"))
                 ),
-                builder.between(courseSessionJoin.get("begin"),
-                    InstantUtils.getCurrentMondayOfTheWeek(),
-                    InstantUtils.getCurrentSaturdayOfTheWeek()
+                builder.or(
+                    builder.between(courseSessionJoin.get("begin"),
+                        InstantUtils.getCurrentMondayOfTheWeek(),
+                        InstantUtils.getCurrentSaturdayOfTheWeek()),
+                    builder.isNull(studentAttendanceRoot.get("courseSession"))
                 )
             )
         );
