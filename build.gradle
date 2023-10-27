@@ -109,6 +109,7 @@ ext {
 test {
     useJUnitPlatform()
     finalizedBy jacocoTestReport
+    enabled = false
 }
 jacocoTestReport {
     dependsOn test

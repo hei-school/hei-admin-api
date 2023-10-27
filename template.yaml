@@ -36,6 +36,7 @@ Parameters:
 Globals:
   Function:
     MemorySize: 1024
+    Timeout: 20
 
     Tracing: Active
   Api:
@@ -44,12 +45,14 @@ Resources:
   HeiAdminApiFunction:
     Type: AWS::Serverless::Function # More info about Function Resource: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#awsserverlessfunction
     Properties:
-      PackageType: Image
+      CodeUri: .
+      Handler: school.hei.haapi.LambdaHandler::handleRequest
+      Runtime: java17
       Architectures:
       - x86_64
-      ImageUri: 088312068315.dkr.ecr.eu-west-3.amazonaws.com/hei-admin-api:poja
       Environment: # More info about Env Vars: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#environment-object
         Variables:
+          JAVA_TOOL_OPTIONS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1
           ENV: !Ref Env
           AWS_COGNITO_USERPOOL_ID: !Ref CognitoUserPoolId
           AWS_EVENTBRIDGE_BUS: !Ref EventBridgeBus
@@ -62,13 +65,14 @@ Resources:
           SENTRY_DSN: !Ref SentryDsn
       VpcConfig:
         SecurityGroupIds:
-          - sg-0b4275f1840dd767d
+          - sg-0f2ea94898b88def7
         SubnetIds:
-          - subnet-0c1bbfc7c11dfcd05
-          - subnet-0a6e0eb711234aa00
+          - subnet-0be68ff31430e4d05
+          - subnet-0e361bf00861dd761
+          - subnet-04b6431751c71b6a2
       Events:
         ApiCall:
-          Type: HttpApi # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
+          Type: Api # More info about API Event Source: https://github.com/awslabs/serverless-application-model/blob/master/versions/2016-10-31.md#api
           Properties:
             Path: /{proxy+}
             Method: ANY
@@ -90,9 +94,9 @@ Outputs:
   # ServerlessRestApi is an implicit API created out of Events key under Serverless::Function
   # Find out more about other implicit resources you can reference within SAM
   # https://github.com/awslabs/serverless-application-model/blob/master/docs/internals/generated_resources.rst#api
-  HeiAdminHttpApi:
+  HeiAdminRestApi:
     Description: API Gateway endpoint URL for Prod stage for Hei Admin Api function
-    Value: !Sub "https://${ServerlessHttpApi}.execute-api.${AWS::Region}.amazonaws.com/"
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/"
   HeiAdminApiFunction:
     Description: Hei Admin Api Lambda Function ARN
     Value: !GetAtt HeiAdminApiFunction.Arn
