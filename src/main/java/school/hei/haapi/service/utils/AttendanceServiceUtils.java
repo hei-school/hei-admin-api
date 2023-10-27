@@ -24,7 +24,7 @@ public class AttendanceServiceUtils {
       StudentAttendance toSave, List<StudentAttendance> toCreateMapped
   ) {
     Instant begin = LocalDateTime.ofInstant(toSave.getCreatedAt() , ZoneId.of("UTC+3"))
-        .minusMinutes(30)
+        .minusHours(1)
         .atZone(ZoneId.of("UTC+3"))
         .toInstant();
     Instant end = LocalDateTime.ofInstant(toSave.getCreatedAt(), ZoneId.of("UTC+3"))
@@ -33,12 +33,13 @@ public class AttendanceServiceUtils {
         .atZone(ZoneId.of("UTC+3"))
         .toInstant();
     Optional<StudentAttendance> predicate = attendanceRepository
-        .findStudentAttendanceByFromCourseAndEndCourseAndStudent(begin, end, toSave.getStudent());
+        .findStudentAttendanceByFromCourseAndEndCourseAndStudent(begin, end, toSave.getStudent().getId());
     if (predicate.isPresent()) {
       StudentAttendance attendance = predicate.get();
       attendance.setAttendanceMovementType(toSave.getAttendanceMovementType());
       attendance.setPlace(toSave.getPlace());
       attendance.setCreatedAt(toSave.getCreatedAt());
+      attendance.setLate(attendance.isLateFrom(attendance.getCourseSession().getBegin()));
       toCreateMapped.add(attendanceRepository.save(attendance));
     }
     else {
@@ -46,6 +47,7 @@ public class AttendanceServiceUtils {
     }
     return toCreateMapped;
   }
+
   public static List<StudentAttendance> filterAttendanceFromTwoSet(
       List<StudentAttendance> givenData, Set<StudentAttendance> toCompare
   ) {

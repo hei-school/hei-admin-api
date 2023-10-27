@@ -1,6 +1,7 @@
 package school.hei.haapi.repository;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Pageable;
@@ -21,25 +22,25 @@ public interface AttendanceRepository extends JpaRepository<StudentAttendance, S
       "SELECT a FROM StudentAttendance a " +
           "LEFT JOIN User u on a.student = u " +
           "LEFT JOIN CourseSession cs on a.courseSession = cs " +
-          "WHERE cs.begin BETWEEN :begin AND :end " +
-          "AND u = :student " +
-          "AND a.attendanceMovementType = 'IN'"
+          "WHERE a.attendanceMovementType = 'IN' " +
+          "AND u.id = :student_id " +
+          "AND cs.begin BETWEEN :begin AND :end"
   )
   Optional<StudentAttendance> findStudentAttendanceByFromCourseAndEndCourseAndStudent(
-      @Param(value = "begin")Instant begin, @Param(value = "end")Instant end,
-      @Param(value = "student")User student
+      @Param(value = "begin") Instant begin, @Param(value = "end")Instant end,
+      @Param(value = "student_id")String studentId
   );
 
   @Query(
       "SELECT a FROM StudentAttendance a " +
           "LEFT JOIN User u on a.student = u " +
           "WHERE a.createdAt BETWEEN :begin AND :end " +
-          "AND u = :student " +
+          "AND u.id = :student_id " +
           "AND a.attendanceMovementType = 'IN'"
   )
   Optional<StudentAttendance> findStudentAttendanceFromAndToAndStudent(
       @Param(value = "begin")Instant begin, @Param(value = "end")Instant end,
-      @Param(value = "student") User student
+      @Param(value = "student_id") String studentId
   );
 
   @Query(
@@ -67,7 +68,7 @@ public interface AttendanceRepository extends JpaRepository<StudentAttendance, S
           "WHERE a.createdAt BETWEEN :starting_day AND :ending_day " +
           "AND a.attendanceMovementType = 'IN'"
   )
-  List<StudentAttendance> findStudentAttendancesOfTheDay(
+  List<StudentAttendance> findStudentAttendancesBetween(
       @Param(value = "starting_day") Instant startingDay,
       @Param(value = "ending_day") Instant endingDay
   );

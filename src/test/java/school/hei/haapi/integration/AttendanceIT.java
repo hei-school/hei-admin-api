@@ -76,7 +76,7 @@ class AttendanceIT {
     List<StudentAttendance> actualFromAnInstant = api.getStudentsAttendance(
         1, 10, null, null, null, Instant.parse("2021-11-08T07:00:00.00Z"), null, null
     );
-    assertEquals(6, actualFromAnInstant.size());
+    assertEquals(8, actualFromAnInstant.size());
   }
 
   @Test
@@ -88,7 +88,7 @@ class AttendanceIT {
     List<StudentAttendance> actualFromAnInstant = api.getStudentsAttendance(
         1, 10, null, null, null, Instant.parse("2021-11-08T07:00:00.00Z"), null, null
     );
-    assertEquals(6, actualFromAnInstant.size());
+    assertEquals(8, actualFromAnInstant.size());
 
     // GET /attendance?page=1&page_size=10&to=2021-08-09T00:15:00.00Z
     List<StudentAttendance> actualToAnInstant = api.getStudentsAttendance(
@@ -174,6 +174,12 @@ class AttendanceIT {
   void teacher_read_attendance_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     AttendanceApi api = new AttendanceApi(teacher1Client);
+
+    // GET /attendance?page=1&page_size=10
+    List<StudentAttendance> actualOfCurrentWeek = api.getStudentsAttendance(
+        1, 10, null, null, null, null, null, null
+    );
+    assertEquals(3, actualOfCurrentWeek.size());
 
     // GET /attendance?page=1&page_size=10&from={DEFAULT_FROM}&to={DEFAULT_TO}
     List<StudentAttendance> actualWithoutParameter = api.getStudentsAttendance(
