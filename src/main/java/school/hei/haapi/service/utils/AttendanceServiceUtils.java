@@ -28,8 +28,7 @@ public class AttendanceServiceUtils {
         .atZone(ZoneId.of("UTC+3"))
         .toInstant();
     Instant end = LocalDateTime.ofInstant(toSave.getCreatedAt(), ZoneId.of("UTC+3"))
-        .plusHours(2)
-        .plusMinutes(30)
+        .plusHours(1)
         .atZone(ZoneId.of("UTC+3"))
         .toInstant();
     Optional<StudentAttendance> predicate = attendanceRepository
