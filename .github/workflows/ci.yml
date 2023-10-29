@@ -18,11 +18,10 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0  # no shallow clone for better relevancy of Sonar analysis
-      - name: Set up JDK 11
-        uses: actions/setup-java@v2
+      - uses: actions/setup-java@v3
         with:
-          java-version: '11'
-          distribution: 'adopt'
+          java-version: '17'
+          distribution: 'corretto'
       - name: Cache Gradle packages
         uses: actions/cache@v2
         with:
