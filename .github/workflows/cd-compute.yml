@@ -84,4 +84,10 @@ jobs:
             echo "subnet=${{ secrets.PROD_SUBNET }}" >> $GITHUB_ENV
           fi
       - run: sam build
-      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ github.ref_name }}-compute-hei-admin-api --capabilities CAPABILITY_IAM --parameter-overrides Env=${{ github.ref_name }} --resolve-s3
+      - run: |
+          sam deploy --no-confirm-changeset \
+            --no-fail-on-empty-changeset \
+            --stack-name ${{ github.ref_name }}-compute-hei-admin-api \
+            --capabilities CAPABILITY_IAM \
+            --parameter-overrides Env=${{ env.branch_env }},ListenerRuleAvailablePriority=${{ env.listenerRuleAvailablePriority }},Subnet=${{ env.subnet }},Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }},TasksDesiredCount=1 \
+            --resolve-s3
