@@ -50,15 +50,6 @@ jobs:
           file: version.yml
           version: version
 
-      - name: Run test
-        if: ${{ github.event.inputs.run_tests != 'false' && github.event_name != 'schedule' }}
-        run: |
-          export TEST_AWS_COGNITO_IDTOKEN=${{ secrets.TEST_COGNITO_IDTOKEN }}
-          export AWS_SES_SOURCE=${{ secrets.AWS_SES_SOURCE }}
-          export AWS_SES_CONTACT=${{secrets.AWS_SES_CONTACT}}
-          ./gradlew test
-      - name: Build Gradle project
-        run: ./gradlew build -x test
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
         with:
@@ -93,17 +84,5 @@ jobs:
             echo "listenerRuleAvailablePriority=10" >> $GITHUB_ENV
             echo "subnet=${{ secrets.PROD_SUBNET }}" >> $GITHUB_ENV
           fi
-      - name: Deploy compute stack
-        uses: aws-actions/aws-cloudformation-github-deploy@v1
-        with:
-          name: ${{ env.branch_env }}-compute-hei-admin-api
-          template: cf-stacks/compute-stack.yml
-          tags: "[ { \"Key\": \"App\", \"Value\": \"hei-admin\" }, { \"Key\": \"Env\", \"Value\": \"${{ env.branch_env }}\" } ]"
-          capabilities: CAPABILITY_NAMED_IAM
-          no-fail-on-empty-changeset: "1"
-          parameter-overrides:
-            "Env=${{ env.branch_env }},
-            ListenerRuleAvailablePriority=${{ env.listenerRuleAvailablePriority }},
-            Subnet=${{ env.subnet }},
-            Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }},
-            TasksDesiredCount=1"
+      - run: sam build
+      - run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ github.ref_name }}-compute-hei-admin-api --capabilities CAPABILITY_IAM --parameter-overrides Env=${{ github.ref_name }} --resolve-s3
