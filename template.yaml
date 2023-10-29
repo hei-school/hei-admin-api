@@ -1,0 +1,101 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: >
+  HEI Admin API Spring Boot Application
+
+Parameters:
+  Env:
+    Type: String
+    Default: dev
+  Tag:
+    Type: String
+    Default: latest
+  DatabaseUrl:
+    Type: String
+    Description: Database Url
+  DatabaseUsername:
+    Type: String
+    Description: Database Username
+  DatabasePassword:
+    Type: String
+    Description: Database Password
+  CognitoUserPoolId:
+    Type: String
+  EventBridgeBus:
+    Type: String
+  SqsQueueUrl:
+    Type: String
+  SesSource:
+    Type: String
+  SesContact:
+    Type: String
+  SentryDsn:
+    Type: String
+
+Globals:
+  Function:
+    MemorySize: 1024
+    Timeout: 20
+
+    Tracing: Active
+  Api:
+    TracingEnabled: true
+Resources:
+  HeiAdminApiFunction:
+    Type: AWS::Serverless::Function 
+    Properties:
+      CodeUri: .
+      Handler: school.hei.haapi.LambdaHandler::handleRequest
+      Runtime: java17
+      Architectures:
+      - x86_64
+      Environment: 
+        Variables:
+          JAVA_TOOL_OPTIONS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1
+          ENV: !Ref Env
+          AWS_COGNITO_USERPOOL_ID: !Ref CognitoUserPoolId
+          AWS_EVENTBRIDGE_BUS: !Ref EventBridgeBus
+          AWS_SQS_QUEUEURL: !Ref SqsQueueUrl
+          AWS_SES_SOURCE: !Ref SesSource
+          AWS_SES_CONTACT: !Ref SesContact
+          SPRING_DATASOURCE_URL: !Ref DatabaseUrl
+          SPRING_DATASOURCE_USERNAME: !Ref DatabaseUsername
+          SPRING_DATASOURCE_PASSWORD: !Ref DatabasePassword
+          SENTRY_DSN: !Ref SentryDsn
+      VpcConfig:
+        SecurityGroupIds:
+          - sg-0f2ea94898b88def7
+        SubnetIds:
+          - subnet-0be68ff31430e4d05
+          - subnet-0e361bf00861dd761
+          - subnet-04b6431751c71b6a2
+      Events:
+        ApiCall:
+          Type: Api 
+          Properties:
+            Path: /{proxy+}
+            Method: ANY
+
+  ApplicationResourceGroup:
+    Type: AWS::ResourceGroups::Group
+    Properties:
+      Name:
+        Fn::Sub: ApplicationInsights-SAM-${AWS::StackName}
+      ResourceQuery:
+        Type: CLOUDFORMATION_STACK_1_0
+  ApplicationInsightsMonitoring:
+    Type: AWS::ApplicationInsights::Application
+    Properties:
+      ResourceGroupName:
+        Ref: ApplicationResourceGroup
+      AutoConfigurationEnabled: 'true'
+Outputs:
+  HeiAdminRestApi:
+    Description: API Gateway endpoint URL for Prod stage for Hei Admin Api function
+    Value: !Sub "https://${ServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/"
+  HeiAdminApiFunction:
+    Description: Hei Admin Api Lambda Function ARN
+    Value: !GetAtt HeiAdminApiFunction.Arn
+  HeiAdminApiFunctionIamRole:
+    Description: Implicit IAM Role created for Hei Admin Api function
+    Value: !GetAtt HeiAdminApiFunctionRole.Arn
