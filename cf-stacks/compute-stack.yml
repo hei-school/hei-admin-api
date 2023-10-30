@@ -145,7 +145,7 @@ Resources:
   ListenerRule:
     Type: AWS::ElasticLoadBalancingV2::ListenerRule
     Properties:
-      ListenerArn: '{{resolve:ssm:/hei-admin-api/alb-https-listener-arn:1}}'
+      ListenerArn: !Sub '{{resolve:ssm:/hei-admin-api/alb-https-listener-arn}}'
       Priority: !Ref ListenerRuleAvailablePriority
       Conditions:
         - Field: host-header
