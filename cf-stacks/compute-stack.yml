@@ -114,9 +114,9 @@ Resources:
         AwsvpcConfiguration:
           AssignPublicIp: 'ENABLED'
           SecurityGroups:
-            - '{{resolve:ssm:/hei-admin-api/sg:1}}'
+            - !Sub '{{resolve:ssm:/hei-admin-api/sg-id}}'
           Subnets:
-            - !Sub '{{resolve:ssm:/hei-admin-api/subnet-id}}'
+            - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet1/id}}'
       LoadBalancers:
         - ContainerName: !Ref ContainerName
           ContainerPort: !Ref ContainerPort

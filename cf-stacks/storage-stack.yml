@@ -19,11 +19,17 @@ Parameters:
     MinValue: '5'
     MaxValue: '6144'
     ConstraintDescription: must be between 5+
-  SecurityGroup:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: '/hei-admin-api/sg'
 
 Resources:
+  SubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: !Join [ '', [ Subnet group for , !Ref Env ] ]
+      DBSubnetGroupName: !Join [ '', [ hei-admin-api-, !Ref Env, -subnet-group ] ]
+      SubnetIds:
+        - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet1/id}}'
+        - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet2/id}}'
+
   Database:
     Type: AWS::RDS::DBInstance
     DeletionPolicy: Retain
@@ -36,7 +42,8 @@ Resources:
       MasterUsername: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/username}}'
       MasterUserPassword: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/password}}'
       VPCSecurityGroups: 
-        - !Ref SecurityGroup
+        - !Sub '{{resolve:ssm:/hei-admin-api/sg-id}}'
+      DBSubnetGroupName: !Ref SubnetGroup
   DatabaseSSM:
     Type: AWS::SSM::Parameter
     Properties:
