@@ -43,6 +43,7 @@ jobs:
         run: |
           cp gradle.properties version.yml
           sed -i 's/=/: /g' version.yml
+
       - name: Read semantic version (needed by the docker image build)
         id: read-semver
         uses: CumulusDS/get-yaml-paths-action@v0.1.0
@@ -57,14 +58,26 @@ jobs:
           export AWS_SES_SOURCE=${{ secrets.AWS_SES_SOURCE }}
           export AWS_SES_CONTACT=${{secrets.AWS_SES_CONTACT}}
           ./gradlew test
+
       - name: Build Gradle project
         run: ./gradlew build -x test
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
+
+      - name: Configure dev AWS credentials
+        if: ${{ github.ref_name != 'dev' }}
+        uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure prod AWS credentials
+        if: ${{ github.ref_name != 'prod' }}
+        uses: aws-actions/configure-aws-credentials@v4.0.1
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - name: Set up credentials for private ECR
         id: login-ecr
         uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
@@ -82,28 +95,33 @@ jobs:
             -t $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
 
-      - name: Put branch_env, subnet and listenerRuleAvailablePriority into GITHUB_ENV
+      - name: Get configurations from ecs-conf.yml
+        id: get-configuration
+        uses: CumulusDS/get-yaml-paths-action@v1.0.1
+        with:
+          file: ecs-conf.yml
+          vCpu: envs.${{ github.ref_name }}.vCpu
+          memory: envs.${{ github.ref_name }}.memory
+          tasksDesiredCount: envs.${{ github.ref_name }}.tasksDesiredCount
+          listenerRuleAvailablePriority: envs.${{ github.ref_name }}.listenerRuleAvailablePriority
+
+      - name: Put outputs from get-configuration step into GITHUB_ENV
         run: |
-          if ${{ github.ref_name == 'dev' }}; then
-            echo "branch_env=dev" >> $GITHUB_ENV
-            echo "listenerRuleAvailablePriority=2" >> $GITHUB_ENV
-            echo "subnet=${{ secrets.DEV_SUBNET }}" >> $GITHUB_ENV
-          elif ${{ github.ref_name == 'prod' }}; then
-            echo "branch_env=prod" >> $GITHUB_ENV
-            echo "listenerRuleAvailablePriority=10" >> $GITHUB_ENV
-            echo "subnet=${{ secrets.PROD_SUBNET }}" >> $GITHUB_ENV
-          fi
+          echo "vCpu=${{ steps.get-configuration.outputs.vCpu}}" >> $GITHUB_ENV
+          echo "memory=${{ steps.get-configuration.outputs.memory}}" >> $GITHUB_ENV
+          echo "tasksDesiredCount=${{ steps.get-configuration.outputs.tasksDesiredCount}}" >> $GITHUB_ENV
+          echo "listenerRuleAvailablePriority=${{ steps.get-configuration.outputs.listenerRuleAvailablePriority}}" >> $GITHUB_ENV
+
       - name: Deploy compute stack
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: ${{ env.branch_env }}-compute-hei-admin-api
+          name: ${{ github.ref_name }}-compute-hei-admin-api
           template: cf-stacks/compute-stack.yml
-          tags: "[ { \"Key\": \"App\", \"Value\": \"hei-admin\" }, { \"Key\": \"Env\", \"Value\": \"${{ env.branch_env }}\" } ]"
+          tags: "[ { \"Key\": \"App\", \"Value\": \"hei-admin\" }, { \"Key\": \"Env\", \"Value\": \"${{ github.ref_name }}\" } ]"
           capabilities: CAPABILITY_NAMED_IAM
           no-fail-on-empty-changeset: "1"
           parameter-overrides:
-            "Env=${{ env.branch_env }},
+            "Env=${{ github.ref_name }},
             ListenerRuleAvailablePriority=${{ env.listenerRuleAvailablePriority }},
-            Subnet=${{ env.subnet }},
             Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }},
-            TasksDesiredCount=1"
+            Cpu=${{ env.vCpu }}, Memory=${{ env.memory }}, TasksDesiredCount=${{ env.tasksDesiredCount }}"

@@ -1,0 +1,11 @@
+envs:
+  dev:
+    vCpu: 256
+    memory: 0.5GB
+    tasksDesiredCount: 1
+    listenerRuleAvailablePriority: 2
+  prod:
+    vCpu: 256
+    memory: 0.5GB
+    tasksDesiredCount: 1
+    listenerRuleAvailablePriority: 10

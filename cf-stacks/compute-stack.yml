@@ -19,6 +19,10 @@ Parameters:
     Default: 1
   ListenerRuleAvailablePriority:
     Type: Number
+  Memory:
+    Type: String
+  Cpu:
+    Type: String
 
 Resources:
   Cluster:
@@ -37,8 +41,8 @@ Resources:
       NetworkMode: awsvpc
       RequiresCompatibilities:
         - FARGATE
-      Cpu: 256
-      Memory: 0.5GB
+      Cpu: !Ref Cpu
+      Memory: !Ref Memory
       ExecutionRoleArn: !Ref ExecutionRole
       TaskRoleArn: !Ref TaskRole
       ContainerDefinitions:
@@ -112,7 +116,7 @@ Resources:
           SecurityGroups:
             - '{{resolve:ssm:/hei-admin-api/sg:1}}'
           Subnets:
-            - !Ref Subnet
+            - !Sub '{{resolve:ssm:/hei-admin-api/subnet-id}}'
       LoadBalancers:
         - ContainerName: !Ref ContainerName
           ContainerPort: !Ref ContainerPort
