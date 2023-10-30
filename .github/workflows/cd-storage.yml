@@ -24,9 +24,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v2
 
-      - name: Put branch_env into GITHUB_ENV
-        run: echo "branch_env=${{ github.ref_name }}" >> $GITHUB_ENV
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
         with:
@@ -37,10 +34,10 @@ jobs:
       - name: Deploy storage stack
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
-          name: ${{ env.branch_env }}-storage-hei-admin-api
+          name: ${{ github.ref_name }}-storage-hei-admin-api
           template: cf-stacks/storage-stack.yml
-          tags: "[ { \"Key\": \"app\", \"Value\": \"bpartners\" }, { \"Key\": \"env\", \"Value\": \"${{ env.branch_env }}\" } ]"
+          tags: "[ { \"Key\": \"app\", \"Value\": \"bpartners\" }, { \"Key\": \"env\", \"Value\": \"${{ github.ref_name }}\" } ]"
           capabilities: CAPABILITY_NAMED_IAM
           no-fail-on-empty-changeset: "1"
           parameter-overrides:
-            "Env=${{ env.branch_env }}"
+            "Env=${{ github.ref_name }}"
