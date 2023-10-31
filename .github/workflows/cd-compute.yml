@@ -28,11 +28,11 @@ jobs:
 
     env:
       AWS_REGION: eu-west-3
-      ECR_REPOSITORY: hei-admin-api-latest
 
     steps:
       - name: Checkout
         uses: actions/checkout@v2
+
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
@@ -42,6 +42,7 @@ jobs:
         run: |
           cp gradle.properties version.yml
           sed -i 's/=/: /g' version.yml
+
       - name: Read semantic version (needed by the docker image build)
         id: read-semver
         uses: CumulusDS/get-yaml-paths-action@v0.1.0
@@ -49,45 +50,36 @@ jobs:
           file: version.yml
           version: version
 
-      - name: Configure AWS credentials
-        uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
-      - name: Set up credentials for private ECR
-        id: login-ecr
-        uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
-      - name: Build, tag and push Docker image to AWS private ECR (continue-on-error)
-        # Assume dev and prod point to the same commit.
-        # Assume dev finished publishing the (immutable) image.
-        # In such a case, prod publication will end in an error since image already exists:
-        # Ignore the error and pursue to stack update.
-        continue-on-error: true
-        env:
-          ECR_PRIVATE_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
-          IMAGE_TAG: ${{ github.sha }}
+      - name: Run test
+        if: ${{ github.event.inputs.run_tests != 'false' && github.event_name != 'schedule' }}
         run: |
-          docker build --build-arg version=${{ steps.read-semver.outputs.version }} \
-            -t $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
-          docker push $ECR_PRIVATE_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
+          export TEST_AWS_COGNITO_IDTOKEN=${{ secrets.TEST_COGNITO_IDTOKEN }}
+          export AWS_SES_SOURCE=${{ secrets.AWS_SES_SOURCE }}
+          export AWS_SES_CONTACT=${{secrets.AWS_SES_CONTACT}}
+          ./gradlew test
 
-      - name: Put branch_env, subnet and listenerRuleAvailablePriority into GITHUB_ENV
-        run: |
-          if ${{ github.ref_name == 'dev' }}; then
-            echo "branch_env=dev" >> $GITHUB_ENV
-            echo "listenerRuleAvailablePriority=2" >> $GITHUB_ENV
-            echo "subnet=${{ secrets.DEV_SUBNET }}" >> $GITHUB_ENV
-          elif ${{ github.ref_name == 'prod' }}; then
-            echo "branch_env=prod" >> $GITHUB_ENV
-            echo "listenerRuleAvailablePriority=10" >> $GITHUB_ENV
-            echo "subnet=${{ secrets.PROD_SUBNET }}" >> $GITHUB_ENV
-          fi
+      - name: Configure dev AWS credentials
+        if: ${{ github.ref_name != 'dev' }}
+        uses: aws-actions/configure-aws-credentials@v4.0.1
+        with:
+          aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.`AWS_REGION }}
+
+      - name: Configure prod AWS credentials
+        if: ${{ github.ref_name == 'prod' }}
+        uses: aws-actions/configure-aws-credentials@v4.0.1
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
       - run: sam build
+
       - run: |
           sam deploy --no-confirm-changeset \
             --no-fail-on-empty-changeset \
             --stack-name ${{ github.ref_name }}-compute-hei-admin-api \
             --capabilities CAPABILITY_IAM \
-            --parameter-overrides Env=${{ env.branch_env }},ListenerRuleAvailablePriority=${{ env.listenerRuleAvailablePriority }},Subnet=${{ env.subnet }},Image=${{ steps.login-ecr.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ github.sha }},TasksDesiredCount=1 \
+            --parameter-overrides Env=${{ github.ref_name }}
             --resolve-s3
