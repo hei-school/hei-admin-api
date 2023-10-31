@@ -23,7 +23,12 @@ jobs:
           workdir: ''
 
       - name: Connect to AWS
-        run: sh ./.shell/initAWS.sh ${{ secrets.AWS_ACCESS_KEY_ID }} ${{ secrets.AWS_SECRET_ACCESS_KEY }} ${{ secrets.AWS_REGION }}
+        if: ${{ github.ref_name == 'dev' }}
+        run: sh ./.shell/initAWS.sh ${{ secrets.DEV_AWS_ACCESS_KEY_ID }} ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }} ${{ secrets.AWS_REGION }}
+
+      - name: Connect to AWS
+        if: ${{ github.ref_name == 'prod' }}
+        run: sh ./.shell/initAWS.sh ${{ secrets.PROD_AWS_ACCESS_KEY_ID }} ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }} ${{ secrets.AWS_REGION }}
 
       - name: Put branch_env into GITHUB_ENV
         run: echo "branch_env=${{ github.ref_name }}" >> $GITHUB_ENV
