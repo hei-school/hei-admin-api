@@ -35,6 +35,9 @@ Resources:
     Properties:
       CodeUri: .
       Handler: school.hei.haapi.LambdaHandler::handleRequest
+      AutoPublishAlias: live
+      SnapStart:
+        ApplyOn: PublishedVersions
       Environment: 
         Variables:
           JAVA_TOOL_OPTIONS: -XX:+TieredCompilation -XX:TieredStopAtLevel=1
