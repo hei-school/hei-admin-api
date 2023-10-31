@@ -22,9 +22,9 @@ Globals:
       SecurityGroupIds:
         - !Sub '{{resolve:ssm:/hei-admin-api/sg}}'
       SubnetIds:
-        - !Sub '{{resolve:ssm:/hei-admin-api/public/subnet/id}}'
-        - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet1/id}}'
-        - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet2/id}}'
+        - !Sub '{{resolve:ssm:/hei-admin-api/public/subnet}}'
+        - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet1}}'
+        - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet2}}'
 
   Api:
     TracingEnabled: true
@@ -41,7 +41,7 @@ Resources:
           ENV: !Ref Env
           AWS_COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-id}}'
           AWS_EVENTBRIDGE_BUS: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/eventbridge/bus-name}}'
-          AWS_SQS_QUEUEURL: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/sqs/queue-url}}'
+          AWS_SQS_QUEUEURL: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/sqs/mailbox-queue-url}}'
           AWS_SES_SOURCE: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/ses/source}}'
           AWS_SES_CONTACT: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/ses/contact}}'
           SPRING_DATASOURCE_URL: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/url}}'
