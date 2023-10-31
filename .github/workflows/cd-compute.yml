@@ -59,7 +59,7 @@ jobs:
           ./gradlew test
 
       - name: Configure dev AWS credentials
-        if: ${{ github.ref_name != 'dev' }}
+        if: ${{ github.ref_name == 'dev' }}
         uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
           aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
