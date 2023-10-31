@@ -19,11 +19,18 @@ Parameters:
     MinValue: '5'
     MaxValue: '6144'
     ConstraintDescription: must be between 5+
-  SecurityGroup:
-    Type: AWS::SSM::Parameter::Value<String>
-    Default: '/hei-admin-api/sg'
 
 Resources:
+  SubnetGroup:
+    Type: AWS::RDS::DBSubnetGroup
+    Properties:
+      DBSubnetGroupDescription: !Join [ '', [ Subnet group for , !Ref Env ] ]
+      DBSubnetGroupName: !Join [ '', [ bpartners-, !Ref Env, -subnet-group ] ]
+      SubnetIds:
+        - !Sub '{{resolve:ssm:/hei-admin-api/public/subnet}}'
+        - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet1}}'
+        - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet2}}'
+
   Database:
     Type: AWS::RDS::DBInstance
     DeletionPolicy: Retain
@@ -35,8 +42,10 @@ Resources:
       Engine: postgres
       MasterUsername: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/username}}'
       MasterUserPassword: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/password}}'
+      DBSubnetGroupName: !Ref SubnetGroup
       VPCSecurityGroups: 
-        - !Ref SecurityGroup
+        - !Sub '{{resolve:ssm:/hei-admin-api/sg}}'
+
   DatabaseSSM:
     Type: AWS::SSM::Parameter
     Properties:
@@ -55,6 +64,13 @@ Resources:
                 - Endpoint.Port
             - '/'
             - !Ref DBName
+
+  DatabaseIdentifierSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Join [ '', [ /hei-admin-api/, !Ref Env, /db/identifier ] ]
+      Type: String
+      Value: !GetAtt Database.Endpoint.Address
 
 Outputs:
   DatabaseSSM:
