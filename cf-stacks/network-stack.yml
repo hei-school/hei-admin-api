@@ -273,35 +273,35 @@ Resources:
   VPCIdSSM:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /hei-admin/vpc
+      Name: /hei-admin-api/vpc
       Type: String
       Value: !Ref VPC
 
   SecurityGroupIdSSM:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /hei-admin/sg
+      Name: /hei-admin-api/sg
       Type: String
       Value: !GetAtt SecurityGroup.GroupId
 
   PublicSubnetSSM:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /hei-admin/public/subnet
+      Name: /hei-admin-api/public/subnet
       Type: String
       Value: !Ref PublicSubnet
 
   PrivateSubnet1SSM:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /hei-admin/private/subnet1
+      Name: /hei-admin-api/private/subnet1
       Type: String
       Value: !Ref PrivateSubnet1
 
   PrivateSubnet2SSM:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: /hei-admin/private/subnet2
+      Name: /hei-admin-api/private/subnet2
       Type: String
       Value: !Ref PrivateSubnet2
 
