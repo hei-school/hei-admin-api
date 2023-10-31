@@ -77,9 +77,4 @@ jobs:
       - run: sam build
 
       - run: |
-          sam deploy --no-confirm-changeset \
-            --no-fail-on-empty-changeset \
-            --stack-name ${{ github.ref_name }}-compute-hei-admin-api \
-            --capabilities CAPABILITY_IAM \
-            --parameter-overrides Env=${{ github.ref_name }}
-            --resolve-s3
+          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ github.ref_name }}-compute-hei-admin-api --capabilities CAPABILITY_IAM --parameter-overrides Env=${{ github.ref_name }} --resolve-s3
