@@ -5,8 +5,8 @@ import static java.lang.Thread.currentThread;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.joining;
 
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
