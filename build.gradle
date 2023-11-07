@@ -103,7 +103,10 @@ dependencies {
     testImplementation 'org.testcontainers:postgresql:1.19.1'
 
 implementation 'org.springframework.boot:spring-boot-starter-security'
-implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
+
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 

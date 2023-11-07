@@ -6,6 +6,7 @@ implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 implementation 'com.vladmihalcea:hibernate-types-52:1.0.0'
 
 implementation 'io.swagger:swagger-annotations:1.6.12'
+implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
 
 implementation 'software.amazon.awssdk:cognitoidentityprovider:2.17.109'
 implementation 'software.amazon.awssdk:ses:2.19.4'
