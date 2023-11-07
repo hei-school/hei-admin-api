@@ -1,5 +1,8 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Entity;
@@ -15,9 +18,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "\"course\"")
@@ -46,5 +46,4 @@ public class Course implements Serializable {
 
   @OneToMany(mappedBy = "courseId", fetch = LAZY)
   private List<StudentCourse> studentCourses;
-
 }

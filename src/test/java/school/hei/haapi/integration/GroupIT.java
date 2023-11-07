@@ -1,5 +1,20 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,32 +33,15 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = GroupIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class GroupIT {
 
-  @MockBean
-  private SentryConf sentryConf;
+  @MockBean private SentryConf sentryConf;
 
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -153,9 +151,8 @@ public class GroupIT {
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    List<Group> toUpdate = api.createOrUpdateGroups(List.of(
-        someCreatableGroup(),
-        someCreatableGroup()));
+    List<Group> toUpdate =
+        api.createOrUpdateGroups(List.of(someCreatableGroup(), someCreatableGroup()));
     Group toUpdate0 = toUpdate.get(0);
     toUpdate0.setName("A new name zero");
     Group toUpdate1 = toUpdate.get(1);

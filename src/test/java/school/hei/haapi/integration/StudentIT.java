@@ -1,5 +1,27 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+
 import com.github.javafaker.Faker;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -31,42 +53,17 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 
-import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.reset;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = StudentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class StudentIT {
 
-  @MockBean
-  private SentryConf sentryConf;
+  @MockBean private SentryConf sentryConf;
 
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
-  @MockBean
-  private EventBridgeClient eventBridgeClientMock;
+  @MockBean private EventBridgeClient eventBridgeClientMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -170,8 +167,7 @@ class StudentIT {
 
     assertThrowsForbiddenException(() -> api.getStudentById(TestUtils.STUDENT2_ID));
 
-    assertThrowsForbiddenException(
-        () -> api.getStudents(1, 20, null, null, null, null));
+    assertThrowsForbiddenException(() -> api.getStudents(1, 20, null, null, null, null));
   }
 
   @Test
@@ -190,7 +186,6 @@ class StudentIT {
 
     assertEquals(student1(), actualStudents2.get(0));
     assertEquals(1, actualStudents2.size());
-
   }
 
   @Test
@@ -222,7 +217,6 @@ class StudentIT {
 
     assertEquals(student2(), actualStudents2.get(0));
     assertEquals(1, actualStudents2.size());
-
   }
 
   @Test
@@ -230,8 +224,9 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, student1().getRef(),
-        student1().getFirstName(), student1().getLastName(), null);
+    List<Student> actualStudents =
+        api.getStudents(
+            1, 20, student1().getRef(), student1().getFirstName(), student1().getLastName(), null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student1()));
@@ -278,8 +273,8 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, student2().getRef(),
-        null, student2().getLastName(), null);
+    List<Student> actualStudents =
+        api.getStudents(1, 20, student2().getRef(), null, student2().getLastName(), null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student2()));
@@ -290,8 +285,8 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, student2().getRef(),
-        null, student1().getLastName(), null);
+    List<Student> actualStudents =
+        api.getStudents(1, 20, student2().getRef(), null, student1().getLastName(), null);
 
     assertEquals(0, actualStudents.size());
     assertFalse(actualStudents.contains(student1()));
@@ -345,8 +340,8 @@ class StudentIT {
         () -> api.createOrUpdateStudents(listToCreate));
 
     List<Student> actual = api.getStudents(1, 100, null, null, null, null);
-    assertFalse(actual.stream().anyMatch(
-        s -> Objects.equals(studentToCreate.getEmail(), s.getEmail())));
+    assertFalse(
+        actual.stream().anyMatch(s -> Objects.equals(studentToCreate.getEmail(), s.getEmail())));
   }
 
   @Test
@@ -354,11 +349,13 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
     reset(eventBridgeClientMock);
-    when(eventBridgeClientMock.putEvents((PutEventsRequest) any())).thenReturn(
-        PutEventsResponse.builder().entries(
-                PutEventsResultEntry.builder().eventId("eventId1").build(),
-                PutEventsResultEntry.builder().eventId("eventId2").build())
-            .build());
+    when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
+        .thenReturn(
+            PutEventsResponse.builder()
+                .entries(
+                    PutEventsResultEntry.builder().eventId("eventId1").build(),
+                    PutEventsResultEntry.builder().eventId("eventId2").build())
+                .build());
 
     List<Student> created =
         api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));

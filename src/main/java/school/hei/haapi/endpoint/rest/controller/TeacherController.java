@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +17,6 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.UserService;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-
 @RestController
 @AllArgsConstructor
 public class TeacherController {
@@ -31,12 +31,14 @@ public class TeacherController {
 
   @GetMapping(value = "/teachers")
   public List<Teacher> getTeachers(
-      @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
+      @RequestParam PageFromOne page,
+      @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
-    return userService.getByCriteria(User.Role.TEACHER, firstName, lastName, ref, page, pageSize
-        ).stream()
+    return userService
+        .getByCriteria(User.Role.TEACHER, firstName, lastName, ref, page, pageSize)
+        .stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());
   }
@@ -44,9 +46,7 @@ public class TeacherController {
   @PutMapping(value = "/teachers")
   public List<Teacher> createOrUpdateTeachers(@RequestBody List<Teacher> toWrite) {
     return userService
-        .saveAll(toWrite.stream()
-            .map(userMapper::toDomain)
-            .collect(toUnmodifiableList()))
+        .saveAll(toWrite.stream().map(userMapper::toDomain).collect(toUnmodifiableList()))
         .stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());

@@ -5,5 +5,4 @@ import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Group;
 
 @Repository
-public interface GroupRepository extends JpaRepository<Group, String> {
-}
+public interface GroupRepository extends JpaRepository<Group, String> {}

@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.event;
 
+import static java.util.concurrent.Executors.newFixedThreadPool;
+
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.function.Consumer;
@@ -9,16 +11,13 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.event.model.TypedEvent;
 
-import static java.util.concurrent.Executors.newFixedThreadPool;
-
 @Component
 @Slf4j
 public class EventConsumer implements Consumer<List<EventConsumer.AcknowledgeableTypedEvent>> {
 
   @AllArgsConstructor
   public static class AcknowledgeableTypedEvent {
-    @Getter
-    private final TypedEvent typedEvent;
+    @Getter private final TypedEvent typedEvent;
     private final Runnable acknowledger;
 
     public void ack() {
@@ -39,10 +38,11 @@ public class EventConsumer implements Consumer<List<EventConsumer.Acknowledgeabl
   @Override
   public void accept(List<AcknowledgeableTypedEvent> ackTypedEvents) {
     for (AcknowledgeableTypedEvent ackTypedEvent : ackTypedEvents) {
-      executor.execute(() -> {
-        eventServiceInvoker.accept(ackTypedEvent.getTypedEvent());
-        ackTypedEvent.ack();
-      });
+      executor.execute(
+          () -> {
+            eventServiceInvoker.accept(ackTypedEvent.getTypedEvent());
+            ackTypedEvent.ack();
+          });
     }
   }
 }

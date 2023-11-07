@@ -1,5 +1,7 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.io.Serializable;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -20,8 +22,6 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.repository.types.PostgresEnumType;
-
-import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "\"student_course\"")
@@ -49,5 +49,4 @@ public class StudentCourse implements Serializable {
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   private CourseStatus status;
-
 }

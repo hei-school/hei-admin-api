@@ -1,5 +1,18 @@
 package school.hei.haapi.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -23,33 +36,17 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = PaginationIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class PaginationIT {
 
-  @MockBean
-  private SentryConf sentryConf;
+  @MockBean private SentryConf sentryConf;
 
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
-  @MockBean
-  private EventBridgeClient eventBridgeClientMock;
+  @MockBean private EventBridgeClient eventBridgeClientMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -153,11 +150,11 @@ class PaginationIT {
 
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
-            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >=1\"}",
-            () -> api.getStudents(0, 20, null, null, null, null));
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >=1\"}",
+        () -> api.getStudents(0, 20, null, null, null, null));
     assertThrowsApiException(
-            "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",
-            () -> api.getStudents(1, 1000, null, null, null, null));
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",
+        () -> api.getStudents(1, 1000, null, null, null, null));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.security.cognito;
 
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+
 import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
@@ -10,17 +12,13 @@ import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityPr
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse;
 
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
-
 @Component
 public class CognitoComponent {
 
   private final CognitoConf cognitoConf;
   private final CognitoIdentityProviderClient cognitoClient;
 
-  public CognitoComponent(
-      CognitoConf cognitoConf,
-      CognitoIdentityProviderClient cognitoClient) {
+  public CognitoComponent(CognitoConf cognitoConf, CognitoIdentityProviderClient cognitoClient) {
     this.cognitoConf = cognitoConf;
     this.cognitoClient = cognitoClient;
   }
@@ -31,9 +29,9 @@ public class CognitoComponent {
       claims = cognitoConf.getJwtProcessor().process(idToken, null);
     } catch (ParseException | BadJOSEException | JOSEException e) {
       /* From Javadoc:
-         ParseException – If the string couldn't be parsed to a valid JWT.
-         BadJOSEException – If the JWT is rejected.
-         JOSEException – If an internal processing exception is encountered. */
+      ParseException – If the string couldn't be parsed to a valid JWT.
+      BadJOSEException – If the JWT is rejected.
+      JOSEException – If an internal processing exception is encountered. */
       return null;
     }
 
@@ -49,10 +47,11 @@ public class CognitoComponent {
   }
 
   public String createUser(String email) {
-    AdminCreateUserRequest createRequest = AdminCreateUserRequest.builder()
-        .userPoolId(cognitoConf.getUserPoolId())
-        .username(email)
-        .build();
+    AdminCreateUserRequest createRequest =
+        AdminCreateUserRequest.builder()
+            .userPoolId(cognitoConf.getUserPoolId())
+            .username(email)
+            .build();
 
     AdminCreateUserResponse createResponse = cognitoClient.adminCreateUser(createRequest);
     if (createResponse == null
@@ -60,6 +59,6 @@ public class CognitoComponent {
         || createResponse.user().username().isBlank()) {
       throw new ApiException(SERVER_EXCEPTION, "Cognito response: " + createResponse);
     }
-    return  createResponse.user().username();
+    return createResponse.user().username();
   }
 }

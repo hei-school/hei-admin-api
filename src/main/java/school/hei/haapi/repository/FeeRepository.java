@@ -12,19 +12,17 @@ import school.hei.haapi.model.Fee;
 public interface FeeRepository extends JpaRepository<Fee, String> {
   Fee getByStudentIdAndId(String studentId, String feeId);
 
-  List<Fee> getFeesByStatus(StatusEnum status,
-                            Pageable pageable);
+  List<Fee> getFeesByStatus(StatusEnum status, Pageable pageable);
 
   List<Fee> getFeesByStatus(StatusEnum status);
 
-  List<Fee> getFeesByStudentIdAndStatus(String studentId,
-                                        StatusEnum status,
-                                        Pageable pageable);
+  List<Fee> getFeesByStudentIdAndStatus(String studentId, StatusEnum status, Pageable pageable);
 
   List<Fee> getByStudentId(String studentId, Pageable pageable);
 
-  @Query("select f from Fee f where f.status = 'UNPAID' "
-      + "and f.remainingAmount > 0 "
-      + "and f.dueDatetime < current_date")
+  @Query(
+      "select f from Fee f where f.status = 'UNPAID' "
+          + "and f.remainingAmount > 0 "
+          + "and f.dueDatetime < current_date")
   List<Fee> getUnpaidFees();
 }

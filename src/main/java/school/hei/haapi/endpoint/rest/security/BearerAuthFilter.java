@@ -31,8 +31,10 @@ public class BearerAuthFilter extends AbstractAuthenticationProcessingFilter {
 
   @Override
   protected void successfulAuthentication(
-      HttpServletRequest request, HttpServletResponse response,
-      FilterChain chain, Authentication authenticated)
+      HttpServletRequest request,
+      HttpServletResponse response,
+      FilterChain chain,
+      Authentication authenticated)
       throws IOException, ServletException {
     super.successfulAuthentication(request, response, chain, authenticated);
     chain.doFilter(request, response);

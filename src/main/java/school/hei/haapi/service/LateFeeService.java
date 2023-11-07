@@ -1,5 +1,10 @@
 package school.hei.haapi.service;
 
+import static school.hei.haapi.service.utils.DataFormatterUtils.instantToCommonDate;
+import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
+import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
+import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
+
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -9,11 +14,6 @@ import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.SesService;
 
-import static school.hei.haapi.service.utils.DataFormatterUtils.instantToCommonDate;
-import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
-import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
-import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
-
 @Service
 @AllArgsConstructor
 public class LateFeeService implements Consumer<LateFeeVerified> {
@@ -21,16 +21,11 @@ public class LateFeeService implements Consumer<LateFeeVerified> {
   private final EventConf eventConf;
 
   private static String emailSubject(User student, LateFeeVerified lateFee) {
-    return "Retard de paiement - "
-        + student.getRef()
-        + " - "
-        + lateFee.getComment();
+    return "Retard de paiement - " + student.getRef() + " - " + lateFee.getComment();
   }
 
   private static String formatName(User student) {
-    return student.getLastName()
-        + " "
-        + student.getFirstName();
+    return student.getLastName() + " " + student.getFirstName();
   }
 
   private static Context getMailContext(LateFeeVerified lateFee) {
@@ -53,5 +48,4 @@ public class LateFeeService implements Consumer<LateFeeVerified> {
     String htmlBody = htmlToString("lateFeeEmail", getMailContext(lateFee));
     sesService.sendEmail(sender, contact, recipient, subject, htmlBody);
   }
-
 }

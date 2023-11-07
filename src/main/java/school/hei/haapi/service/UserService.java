@@ -1,5 +1,8 @@
 package school.hei.haapi.service;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -16,9 +19,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
-
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @Service
 @AllArgsConstructor
@@ -42,17 +42,12 @@ public class UserService {
   public List<User> saveAll(List<User> users) {
     userValidator.accept(users);
     List<User> savedUsers = userRepository.saveAll(users);
-    eventProducer.accept(users.stream()
-        .map(this::toTypedEvent)
-        .collect(toUnmodifiableList()));
+    eventProducer.accept(users.stream().map(this::toTypedEvent).collect(toUnmodifiableList()));
     return savedUsers;
   }
 
   private TypedUserUpserted toTypedEvent(User user) {
-    return new TypedUserUpserted(
-        new UserUpserted()
-            .userId(user.getId())
-            .email(user.getEmail()));
+    return new TypedUserUpserted(new UserUpserted().userId(user.getId()).email(user.getEmail()));
   }
 
   public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
@@ -60,23 +55,21 @@ public class UserService {
   }
 
   public List<User> getByCriteria(
-      User.Role role, String firstName, String lastName, String ref,
-      PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable = PageRequest.of(
-        page.getValue() - 1,
-        pageSize.getValue(),
-        Sort.by(ASC, "ref"));
-    return userManagerDao.findByCriteria(
-        role, ref, firstName, lastName, pageable);
+      User.Role role,
+      String firstName,
+      String lastName,
+      String ref,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
   }
 
-  public List<User> getByLinkedCourse(User.Role role, String courseId,
-                                      PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable = PageRequest.of(
-        page.getValue() - 1,
-        pageSize.getValue(),
-        Sort.by(ASC, "ref"));
+  public List<User> getByLinkedCourse(
+      User.Role role, String courseId, PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByLinkedCourse(role, courseId, pageable);
   }
-
 }

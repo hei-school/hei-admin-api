@@ -13,9 +13,10 @@ public class EventConf {
   private final String sesSource;
   private final String sesContact;
 
-  public EventConf(@Value("${aws.region}") String region,
-                   @Value("${aws.ses.source}") String sesSource,
-                   @Value("${aws.ses.contact}") String sesContact) {
+  public EventConf(
+      @Value("${aws.region}") String region,
+      @Value("${aws.ses.source}") String sesSource,
+      @Value("${aws.ses.contact}") String sesContact) {
     this.region = Region.of(region);
     this.sesSource = sesSource;
     this.sesContact = sesContact;
@@ -23,16 +24,12 @@ public class EventConf {
 
   @Bean
   public SqsClient getSqsClient() {
-    return SqsClient.builder()
-        .region(region)
-        .build();
+    return SqsClient.builder().region(region).build();
   }
 
   @Bean
   public SesClient getSesClient() {
-    return SesClient.builder()
-        .region(region)
-        .build();
+    return SesClient.builder().region(region).build();
   }
 
   public String getSesSource() {
@@ -42,5 +39,4 @@ public class EventConf {
   public String getSesContact() {
     return this.sesContact;
   }
-
 }

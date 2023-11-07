@@ -1,5 +1,14 @@
 package school.hei.haapi.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.OPTIONS;
+import static org.springframework.http.HttpMethod.PUT;
+import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -22,26 +31,16 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.OPTIONS;
-import static org.springframework.http.HttpMethod.PUT;
-import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = SpringSecurityIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class SpringSecurityIT {
 
-  @MockBean
-  private SentryConf sentryConf;
+  @MockBean private SentryConf sentryConf;
 
-  @Autowired
-  private CognitoComponent cognitoComponent;
+  @Autowired private CognitoComponent cognitoComponent;
+
   @Value("${test.aws.cognito.idToken}")
   private String bearer;
 
@@ -62,14 +61,15 @@ class SpringSecurityIT {
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
     String basePath = "http://localhost:" + SpringSecurityIT.ContextInitializer.SERVER_PORT;
 
-    HttpResponse<String> response = unauthenticatedClient.send(
-        HttpRequest.newBuilder()
-            .uri(URI.create(basePath + "/ping"))
-            // cors
-            .header("Access-Control-Request-Method", "GET")
-            .header("Origin", "http://localhost:3000")
-            .build(),
-        HttpResponse.BodyHandlers.ofString());
+    HttpResponse<String> response =
+        unauthenticatedClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath + "/ping"))
+                // cors
+                .header("Access-Control-Request-Method", "GET")
+                .header("Origin", "http://localhost:3000")
+                .build(),
+            HttpResponse.BodyHandlers.ofString());
 
     assertEquals(HttpStatus.OK.value(), response.statusCode());
     assertEquals("pong", response.body());
@@ -90,15 +90,16 @@ class SpringSecurityIT {
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
     String basePath = "http://localhost:" + SpringSecurityIT.ContextInitializer.SERVER_PORT;
 
-    HttpResponse<String> response = unauthenticatedClient.send(
-        HttpRequest.newBuilder()
-            .uri(URI.create(basePath + path))
-            .method(OPTIONS.name(), HttpRequest.BodyPublishers.noBody())
-            .header("Access-Control-Request-Headers", "authorization")
-            .header("Access-Control-Request-Method", method.name())
-            .header("Origin", "http://localhost:3000")
-            .build(),
-        HttpResponse.BodyHandlers.ofString());
+    HttpResponse<String> response =
+        unauthenticatedClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath + path))
+                .method(OPTIONS.name(), HttpRequest.BodyPublishers.noBody())
+                .header("Access-Control-Request-Headers", "authorization")
+                .header("Access-Control-Request-Method", method.name())
+                .header("Origin", "http://localhost:3000")
+                .build(),
+            HttpResponse.BodyHandlers.ofString());
 
     var headers = response.headers();
     var origins = headers.allValues("Access-Control-Allow-Origin");
@@ -109,8 +110,8 @@ class SpringSecurityIT {
     assertEquals("authorization", headersList.get(0));
   }
 
-  //TODO: For instance, we set the timezone to be UTC+3 through jackson-time-zone
-  //and verify if it's really the case when the app is running
+  // TODO: For instance, we set the timezone to be UTC+3 through jackson-time-zone
+  // and verify if it's really the case when the app is running
   @Test
   void check_timezone_is_utc_plus_three() {
     ZoneId zoneId = ZoneId.of("Indian/Antananarivo");

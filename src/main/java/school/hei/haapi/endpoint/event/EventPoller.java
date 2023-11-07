@@ -47,11 +47,12 @@ public class EventPoller {
 
   @Scheduled(cron = "0 * * * * *")
   public void poll() {
-    ReceiveMessageRequest receiveMessageRequest = ReceiveMessageRequest.builder()
-        .queueUrl(queueUrl)
-        .waitTimeSeconds(WAIT_TIME.toSecondsPart())
-        .maxNumberOfMessages(MAX_NUMBER_OF_MESSAGES)
-        .build();
+    ReceiveMessageRequest receiveMessageRequest =
+        ReceiveMessageRequest.builder()
+            .queueUrl(queueUrl)
+            .waitTimeSeconds(WAIT_TIME.toSecondsPart())
+            .maxNumberOfMessages(MAX_NUMBER_OF_MESSAGES)
+            .build();
 
     List<Message> messages = sqsClient.receiveMessage(receiveMessageRequest).messages();
     if (!messages.isEmpty()) {
@@ -73,12 +74,15 @@ public class EventPoller {
         continue;
       }
 
-      res.add(new AcknowledgeableTypedEvent(
-          typedEvent,
-          () -> sqsClient.deleteMessage(DeleteMessageRequest.builder()
-              .queueUrl(queueUrl)
-              .receiptHandle(message.receiptHandle())
-              .build())));
+      res.add(
+          new AcknowledgeableTypedEvent(
+              typedEvent,
+              () ->
+                  sqsClient.deleteMessage(
+                      DeleteMessageRequest.builder()
+                          .queueUrl(queueUrl)
+                          .receiptHandle(message.receiptHandle())
+                          .build())));
     }
 
     return res;
@@ -87,8 +91,7 @@ public class EventPoller {
   private TypedEvent toTypedEvent(Message message) throws JsonProcessingException {
     TypedEvent typedEvent;
 
-    TypeReference<Map<String, Object>> typeRef = new TypeReference<>() {
-    };
+    TypeReference<Map<String, Object>> typeRef = new TypeReference<>() {};
     Map<String, Object> body = om.readValue(message.body(), typeRef);
     String typeName = body.get("detail-type").toString();
     if (UserUpserted.class.getTypeName().equals(typeName)) {

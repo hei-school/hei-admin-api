@@ -9,16 +9,14 @@ import java.util.Locale;
 import pl.allegro.finance.tradukisto.ValueConverters;
 
 public class DataFormatterUtils {
-  private DataFormatterUtils() {
-
-  }
+  private DataFormatterUtils() {}
 
   public static String instantToCommonDate(Instant instant) {
-    DateTimeFormatter formatter = DateTimeFormatter
-        .ofLocalizedDate(FormatStyle.LONG)
-        .withLocale(Locale.FRENCH)
-        // Madagascar's timezone
-        .withZone(ZoneId.of("UTC+3"));
+    DateTimeFormatter formatter =
+        DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+            .withLocale(Locale.FRENCH)
+            // Madagascar's timezone
+            .withZone(ZoneId.of("UTC+3"));
     return formatter.format(instant);
   }
 
@@ -31,5 +29,4 @@ public class DataFormatterUtils {
     ValueConverters intConverter = ValueConverters.FRENCH_INTEGER;
     return intConverter.asWords(number).toUpperCase();
   }
-
 }

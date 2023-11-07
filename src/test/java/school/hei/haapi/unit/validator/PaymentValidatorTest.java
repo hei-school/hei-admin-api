@@ -1,5 +1,15 @@
 package school.hei.haapi.unit.validator;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
+import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
+import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.SCHOLARSHIP;
+
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -11,30 +21,15 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.model.validator.PaymentValidator;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
-import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
-import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
-import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.SCHOLARSHIP;
-
-
 class PaymentValidatorTest {
   PaymentValidator subject;
 
   static User student1() {
-    return User.builder()
-        .id(TestUtils.STUDENT1_ID)
-        .build();
+    return User.builder().id(TestUtils.STUDENT1_ID).build();
   }
 
   static User student2() {
-    return User.builder()
-        .id(TestUtils.STUDENT2_ID)
-        .build();
+    return User.builder().id(TestUtils.STUDENT2_ID).build();
   }
 
   static Fee fee1() {
@@ -109,8 +104,7 @@ class PaymentValidatorTest {
     String payment2FeeId = payment2().getFee().getId();
     List<Payment> payments = List.of(payment1(), payment2());
 
-    assertThrows(NotImplementedException.class,
-        () -> subject.accept(payments));
+    assertThrows(NotImplementedException.class, () -> subject.accept(payments));
 
     assertNotEquals(payment1FeeId, payment2FeeId);
   }

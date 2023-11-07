@@ -1,5 +1,11 @@
 package school.hei.haapi.endpoint.event;
 
+import static java.util.UUID.randomUUID;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -10,12 +16,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.service.LateFeeService;
 import school.hei.haapi.service.UserUpsertedService;
 import school.hei.haapi.service.aws.SesService;
-
-import static java.util.UUID.randomUUID;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 class EventServiceInvokerTest {
   EventServiceInvoker eventServiceInvoker;

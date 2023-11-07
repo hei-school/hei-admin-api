@@ -1,24 +1,5 @@
 package school.hei.haapi.integration;
 
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.SentryConf;
-import school.hei.haapi.endpoint.rest.api.TeachingApi;
-import school.hei.haapi.endpoint.rest.api.UsersApi;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
-import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CourseDirection;
-import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.TestUtils;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -43,15 +24,32 @@ import static school.hei.haapi.integration.conf.TestUtils.isBefore;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.updateStudentCourse;
 
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseDirection;
+import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.TestUtils;
+
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = CourseIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class CourseIT {
-  @MockBean
-  private SentryConf sentryConf;
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private SentryConf sentryConf;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, CourseIT.ContextInitializer.SERVER_PORT);
@@ -67,8 +65,7 @@ class CourseIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
 
-    List<Course> actual = api.getCourses(null, null, null, null, null,
-        null, null, null, null);
+    List<Course> actual = api.getCourses(null, null, null, null, null, null, null, null, null);
 
     assertEquals(7, actual.size());
     assertTrue(actual.contains(course1()));
@@ -79,8 +76,7 @@ class CourseIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
 
-    List<Course> actual = api.getCourses(null, null, null, null, null,
-        null, null, null, null);
+    List<Course> actual = api.getCourses(null, null, null, null, null, null, null, null, null);
 
     assertEquals(7, actual.size());
     assertTrue(actual.contains(course2()));
@@ -91,29 +87,29 @@ class CourseIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<Course> actualByCode = api.getCourses("PROG1", null, null, null, null,
-        null, null, null, null);
+    List<Course> actualByCode =
+        api.getCourses("PROG1", null, null, null, null, null, null, null, null);
 
-    List<Course> actualByCode2 = api.getCourses("PROG", null, null, null, null,
-        null, null, null, null);
+    List<Course> actualByCode2 =
+        api.getCourses("PROG", null, null, null, null, null, null, null, null);
 
-    List<Course> actualByCredits = api.getCourses(null, null, 4, null, null,
-        null, null, null, null);
+    List<Course> actualByCredits =
+        api.getCourses(null, null, 4, null, null, null, null, null, null);
 
-    List<Course> actualByCredits2 = api.getCourses(null, null, 6, null, null,
-        null, null, null, null);
+    List<Course> actualByCredits2 =
+        api.getCourses(null, null, 6, null, null, null, null, null, null);
 
-    List<Course> actualByLastName = api.getCourses(null, null, null, null, "tEaC",
-        null, null, null, null);
+    List<Course> actualByLastName =
+        api.getCourses(null, null, null, null, "tEaC", null, null, null, null);
 
-    List<Course> actualByCodeAndName = api.getCourses("W", "w", null, null, null,
-        null, null, null, null);
+    List<Course> actualByCodeAndName =
+        api.getCourses("W", "w", null, null, null, null, null, null, null);
 
-    List<Course> actualByCreditsOrderedAsc = api.getCourses(null, null, null, null, null,
-        CourseDirection.ASC, null, null, null);
+    List<Course> actualByCreditsOrderedAsc =
+        api.getCourses(null, null, null, null, null, CourseDirection.ASC, null, null, null);
 
-    List<Course> actualByCreditsOrderedDesc = api.getCourses(null, null, null, null, null,
-        CourseDirection.DESC, null, null, null);
+    List<Course> actualByCreditsOrderedDesc =
+        api.getCourses(null, null, null, null, null, CourseDirection.DESC, null, null, null);
 
     assertEquals(1, actualByCode.size());
     assertTrue(actualByCode.contains(course1()));
@@ -138,16 +134,23 @@ class CourseIT {
     assertTrue(actualByCodeAndName.contains(course4()));
 
     assertEquals(7, actualByCreditsOrderedAsc.size());
-    assertTrue(isBefore(actualByCreditsOrderedAsc.get(0).getCredits(),
-        actualByCreditsOrderedAsc.get(1).getCredits()));
-    assertTrue(isBefore(actualByCreditsOrderedAsc.get(1).getCredits(),
-        actualByCreditsOrderedAsc.get(2).getCredits()));
+    assertTrue(
+        isBefore(
+            actualByCreditsOrderedAsc.get(0).getCredits(),
+            actualByCreditsOrderedAsc.get(1).getCredits()));
+    assertTrue(
+        isBefore(
+            actualByCreditsOrderedAsc.get(1).getCredits(),
+            actualByCreditsOrderedAsc.get(2).getCredits()));
 
-    assertTrue(isBefore(actualByCreditsOrderedDesc.get(5).getCredits(),
-        actualByCreditsOrderedDesc.get(4).getCredits()));
-    assertTrue(isBefore(actualByCreditsOrderedDesc.get(6).getCredits(),
-        actualByCreditsOrderedDesc.get(5).getCredits()));
-
+    assertTrue(
+        isBefore(
+            actualByCreditsOrderedDesc.get(5).getCredits(),
+            actualByCreditsOrderedDesc.get(4).getCredits()));
+    assertTrue(
+        isBefore(
+            actualByCreditsOrderedDesc.get(6).getCredits(),
+            actualByCreditsOrderedDesc.get(5).getCredits()));
   }
 
   @Test

@@ -1,5 +1,16 @@
 package school.hei.haapi.endpoint.event;
 
+import static java.time.Instant.now;
+import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,17 +23,6 @@ import software.amazon.awssdk.services.sqs.model.Message;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageRequest;
 import software.amazon.awssdk.services.sqs.model.ReceiveMessageResponse;
 
-import static java.time.Instant.now;
-import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
-
 class EventPollerTest {
   EventPoller eventPoller;
   SqsClient sqsClient;
@@ -32,18 +32,12 @@ class EventPollerTest {
   void setUp() {
     sqsClient = mock(SqsClient.class);
     eventConsumer = mock(EventConsumer.class);
-    eventPoller = new EventPoller(
-        "queueUrl",
-        sqsClient,
-        new ObjectMapper(),
-        eventConsumer);
+    eventPoller = new EventPoller("queueUrl", sqsClient, new ObjectMapper(), eventConsumer);
   }
 
   @Test
   void empty_messages_not_triggers_eventConsumer() {
-    ReceiveMessageResponse response = ReceiveMessageResponse.builder()
-        .messages(List.of())
-        .build();
+    ReceiveMessageResponse response = ReceiveMessageResponse.builder().messages(List.of()).build();
     when(sqsClient.receiveMessage((ReceiveMessageRequest) any())).thenReturn(response);
 
     eventPoller.poll();
@@ -53,12 +47,13 @@ class EventPollerTest {
 
   @Test
   void non_empty_messages_triggers_eventConsumer() {
-    ReceiveMessageResponse response = ReceiveMessageResponse.builder()
-        .messages(
-            someMessage(UserUpserted.class),
-            someMessage(Exception.class),
-            someMessage(UserUpserted.class))
-        .build();
+    ReceiveMessageResponse response =
+        ReceiveMessageResponse.builder()
+            .messages(
+                someMessage(UserUpserted.class),
+                someMessage(Exception.class),
+                someMessage(UserUpserted.class))
+            .build();
     when(sqsClient.receiveMessage((ReceiveMessageRequest) any())).thenReturn(response);
 
     eventPoller.poll();
@@ -89,16 +84,26 @@ class EventPollerTest {
     String userId = randomUUID().toString();
     return "{\n"
         + "    \"version\": \"0\",\n"
-        + "    \"id\": \" " + eventId + "\",\n"
-        + "    \"detail-type\": \"" + clazz.getTypeName() + "\",\n"
+        + "    \"id\": \" "
+        + eventId
+        + "\",\n"
+        + "    \"detail-type\": \""
+        + clazz.getTypeName()
+        + "\",\n"
         + "    \"source\": \"school.hei.haapi\",\n"
         + "    \"account\": \"088312068315\",\n"
-        + "    \"time\": \"" + now() + "\",\n"
+        + "    \"time\": \""
+        + now()
+        + "\",\n"
         + "    \"region\": \"eu-west-3\",\n"
         + "    \"resources\": [],\n"
         + "    \"detail\": {\n"
-        + "        \"userId\": \"" + userId + "\",\n"
-        + "        \"email\": \"test+" + userId + "@hei.school\"\n"
+        + "        \"userId\": \""
+        + userId
+        + "\",\n"
+        + "        \"email\": \"test+"
+        + userId
+        + "@hei.school\"\n"
         + "    }\n"
         + "}";
   }

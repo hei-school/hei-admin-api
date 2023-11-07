@@ -1,5 +1,16 @@
 package school.hei.haapi.integration.conf;
 
+import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
+
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Instant;
@@ -21,17 +32,6 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
-
-import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
 
 public class TestUtils {
 
@@ -67,8 +67,8 @@ public class TestUtils {
     client.setScheme("http");
     client.setHost("localhost");
     client.setPort(serverPort);
-    client.setRequestInterceptor(httpRequestBuilder ->
-        httpRequestBuilder.header("Authorization", "Bearer " + token));
+    client.setRequestInterceptor(
+        httpRequestBuilder -> httpRequestBuilder.header("Authorization", "Bearer " + token));
     return client;
   }
 
@@ -80,9 +80,8 @@ public class TestUtils {
   }
 
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {
-    when(eventBridgeClient.putEvents((PutEventsRequest) any())).thenReturn(
-        PutEventsResponse.builder().build()
-    );
+    when(eventBridgeClient.putEvents((PutEventsRequest) any()))
+        .thenReturn(PutEventsResponse.builder().build());
   }
 
   public static void assertThrowsApiException(String expectedBody, Executable executable) {
@@ -93,9 +92,8 @@ public class TestUtils {
   public static void assertThrowsForbiddenException(Executable executable) {
     ApiException apiException = assertThrows(ApiException.class, executable);
     String responseBody = apiException.getResponseBody();
-    assertEquals("{"
-        + "\"type\":\"403 FORBIDDEN\","
-        + "\"message\":\"Access is denied\"}", responseBody);
+    assertEquals(
+        "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", responseBody);
   }
 
   public static Teacher teacher1() {
@@ -177,9 +175,7 @@ public class TestUtils {
   }
 
   public static UpdateStudentCourse updateStudentCourse() {
-    return new UpdateStudentCourse()
-        .courseId(COURSE3_ID)
-        .status(LINKED);
+    return new UpdateStudentCourse().courseId(COURSE3_ID).status(LINKED);
   }
 
   public static List<Teacher> someCreatableTeacherList(int nbOfTeacher) {
@@ -189,7 +185,6 @@ public class TestUtils {
     }
     return teacherList;
   }
-
 
   public static Teacher teacher4() {
     return new Teacher()
@@ -235,7 +230,6 @@ public class TestUtils {
         .mainTeacher(teacher2())
         .name("Web Interface");
   }
-
 
   public static Course course4() {
     return new Course()

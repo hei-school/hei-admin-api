@@ -1,5 +1,11 @@
 package school.hei.haapi.endpoint.event;
 
+import static java.util.UUID.randomUUID;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.verify;
+
 import java.time.Duration;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -7,12 +13,6 @@ import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventConsumer.AcknowledgeableTypedEvent;
 import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
-
-import static java.util.UUID.randomUUID;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
 
 class EventConsumerTest {
   EventConsumer eventConsumer;

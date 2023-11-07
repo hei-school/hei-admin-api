@@ -1,5 +1,13 @@
 package school.hei.haapi.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -22,25 +30,15 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = SecurityIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class SecurityIT {
 
-  @MockBean
-  private SentryConf sentryConf;
+  @MockBean private SentryConf sentryConf;
 
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -110,17 +108,17 @@ class SecurityIT {
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
     String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
 
-    HttpResponse<String> response = unauthenticatedClient.send(
-        HttpRequest.newBuilder()
-            .uri(URI.create(basePath + "/unknown"))
-            .header("Authorization", "Bearer " + MANAGER1_TOKEN)
-            .build(),
-        HttpResponse.BodyHandlers.ofString());
+    HttpResponse<String> response =
+        unauthenticatedClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath + "/unknown"))
+                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
+                .build(),
+            HttpResponse.BodyHandlers.ofString());
 
     assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
-    assertEquals("{"
-        + "\"type\":\"403 FORBIDDEN\","
-        + "\"message\":\"Access is denied\"}", response.body());
+    assertEquals(
+        "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", response.body());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

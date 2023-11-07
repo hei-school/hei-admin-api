@@ -1,5 +1,8 @@
 package school.hei.haapi.service;
 
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
+
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -22,9 +25,6 @@ import school.hei.haapi.repository.StudentCourseRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.CourseDao;
 
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
-
 @Service
 @AllArgsConstructor
 public class CourseService {
@@ -35,16 +35,26 @@ public class CourseService {
   private final StudentCourseRepository studentCourseRepository;
 
   public List<Course> getCourses(
-      String code, String name, Integer credits, CourseDirection creditsOrder,
-      CourseDirection codeOrder, String teacherFirstName, String teacherLastName,
-      PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable = PageRequest.of(
-        page.getValue() - 1,
-        pageSize.getValue(),
-        Sort.by(ASC, "name"));
-    return courseDao.findByCriteria(code, name, credits,
-        teacherFirstName, teacherLastName, String.valueOf(creditsOrder),
-        String.valueOf(codeOrder), pageable);
+      String code,
+      String name,
+      Integer credits,
+      CourseDirection creditsOrder,
+      CourseDirection codeOrder,
+      String teacherFirstName,
+      String teacherLastName,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "name"));
+    return courseDao.findByCriteria(
+        code,
+        name,
+        credits,
+        teacherFirstName,
+        teacherLastName,
+        String.valueOf(creditsOrder),
+        String.valueOf(codeOrder),
+        pageable);
   }
 
   @Transactional
@@ -72,15 +82,10 @@ public class CourseService {
     Course course = courseRepository.getById(update.getCourseId());
     StudentCourse studentCourse = studentCourseRepository.findByUserIdAndCourseId(user, course);
     if (studentCourse == null) {
-      studentCourse = StudentCourse
-          .builder()
-          .userId(user)
-          .courseId(course)
-          .build();
+      studentCourse = StudentCourse.builder().userId(user).courseId(course).build();
     }
     studentCourse.setStatus(update.getStatus());
     studentCourseRepository.save(studentCourse);
     return course;
   }
-
 }

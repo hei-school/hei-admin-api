@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,8 +17,6 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.PaymentService;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-
 @RestController
 @AllArgsConstructor
 public class PaymentController {
@@ -26,11 +26,8 @@ public class PaymentController {
 
   @PostMapping("/students/{studentId}/fees/{feeId}/payments")
   public List<Payment> createPayments(
-      @PathVariable String feeId,
-      @RequestBody List<CreatePayment> toCreate) {
-    return paymentService
-        .saveAll(paymentMapper.toDomainPayment(feeId, toCreate))
-        .stream()
+      @PathVariable String feeId, @RequestBody List<CreatePayment> toCreate) {
+    return paymentService.saveAll(paymentMapper.toDomainPayment(feeId, toCreate)).stream()
         .map(paymentMapper::toRestPayment)
         .collect(toUnmodifiableList());
   }
