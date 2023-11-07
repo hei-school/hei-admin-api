@@ -11,9 +11,9 @@ Globals:
       - x86_64
     Timeout: 600
     MemorySize: 1024
-    #AutoPublishAlias: live
-    #SnapStart:
-    #  ApplyOn: PublishedVersions
+    AutoPublishAlias: live
+    SnapStart:
+      ApplyOn: PublishedVersions
     VpcConfig:
       SecurityGroupIds:
         - !Sub '{{resolve:ssm:/haapi/sg/id}}'
