@@ -1,53 +1,38 @@
 package school.hei.haapi.endpoint.event;
 
 import static java.util.UUID.randomUUID;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
-import static org.mockito.Mockito.verify;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
-import java.time.Duration;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import school.hei.haapi.endpoint.event.EventConsumer.AcknowledgeableTypedEvent;
-import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
-import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
+import org.springframework.beans.factory.annotation.Autowired;
+import school.hei.haapi.conf.FacadeTest;
+import school.hei.haapi.endpoint.event.gen.UuidCreated;
+import school.hei.haapi.repository.DummyUuidRepository;
 
-class EventConsumerTest {
-  EventConsumer eventConsumer;
-  EventServiceInvoker eventServiceInvoker;
+class EventConsumerTest extends FacadeTest {
 
-  static final Duration TIMEOUT = Duration.ofSeconds(3);
-
-  @BeforeEach
-  void setUp() {
-    eventServiceInvoker = mock(EventServiceInvoker.class);
-    eventConsumer = new EventConsumer(eventServiceInvoker);
-  }
+  @Autowired EventConsumer subject;
+  @Autowired DummyUuidRepository dummyUuidRepository;
 
   @Test
-  void event_is_ack_if_eventServiceInvoker_succeeded() {
-    String email = "test+" + randomUUID() + "@hei.school";
-    TypedUserUpserted userUpserted = new TypedUserUpserted(new UserUpserted().email(email));
-    Runnable acknowledger = mock(Runnable.class);
+  void uuid_created_is_persisted() throws InterruptedException, JsonProcessingException {
+    var uuid = randomUUID().toString();
+    var uuidCreated = UuidCreated.builder().uuid(uuid).build();
+    var om = new ObjectMapper();
+    var payloadReceived = om.readValue(om.writeValueAsString(uuidCreated), UuidCreated.class);
 
-    eventConsumer.accept(List.of(new AcknowledgeableTypedEvent(userUpserted, acknowledger)));
+    subject.accept(
+        List.of(
+            new EventConsumer.AcknowledgeableTypedEvent(
+                new EventConsumer.TypedEvent(
+                    "com.company.base.endpoint.event.gen.UuidCreated", payloadReceived),
+                () -> {})));
 
-    verify(eventServiceInvoker, timeout(TIMEOUT.toMillis())).accept(userUpserted);
-    verify(acknowledger, timeout(TIMEOUT.toMillis())).run();
-  }
-
-  @Test
-  void event_is_not_ack_if_eventServiceInvoker_failed() {
-    String email = "test+" + randomUUID() + "@hei.school";
-    TypedUserUpserted userUpserted = new TypedUserUpserted(new UserUpserted().email(email));
-    Runnable acknowledger = mock(Runnable.class);
-    doThrow(RuntimeException.class).when(eventServiceInvoker).accept(userUpserted);
-
-    eventConsumer.accept(List.of(new AcknowledgeableTypedEvent(userUpserted, acknowledger)));
-
-    verify(eventServiceInvoker, timeout(TIMEOUT.toMillis())).accept(userUpserted);
-    verify(acknowledger, timeout(TIMEOUT.toMillis()).times(0)).run();
+    Thread.sleep(2_000);
+    var saved = dummyUuidRepository.findById(uuid).orElseThrow();
+    assertEquals(uuid, saved.getId());
   }
 }

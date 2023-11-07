@@ -4,25 +4,21 @@ buildscript {
             url "https://plugins.gradle.org/m2/"
         }
     }
-    dependencies {
-        classpath "org.openapitools:openapi-generator-gradle-plugin:5.3.0"
-    }
 }
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.5.3'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '3.1.5'
+    id 'io.spring.dependency-management' version '1.1.3'
 
-    id 'org.openapi.generator' version '5.3.0'
-
-    id 'org.sonarqube' version '3.3'
     id 'jacoco'
-    id 'checkstyle'
 }
 
-group = 'school.hei'
-sourceCompatibility = '11'
+java {
+    group = 'school.hei.haapi'
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
+}
 
 configurations {
     compileOnly {
@@ -35,109 +31,38 @@ repositories {
     mavenCentral()
 }
 
-sonarqube {
-    properties {
-        property "sonar.projectKey", "hei-admin-api"
-        property "sonar.organization", "hei-school"
-        property "sonar.host.url", "https://sonarcloud.io"
-    }
-}
-
-task generateJavaClient(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
-    generatorName = "java"
-    inputSpec = "$rootDir/doc/api.yml".toString()
-    outputDir = "$buildDir/gen".toString()
-    apiPackage = "school.hei.haapi.endpoint.rest.api"
-    invokerPackage = "school.hei.haapi.endpoint.rest.client"
-    modelPackage = "school.hei.haapi.endpoint.rest.model"
-
-    configOptions = [
-            serializationLibrary: "jackson",
-            dateLibrary: "custom"
-    ]
-    typeMappings = [
-            // What date-time type to use when? https://i.stack.imgur.com/QPhGW.png
-            Date: "java.time.LocalDate",
-            DateTime: "java.time.Instant",
-    ]
-    library = "native"
-
-    groupId = 'school.hei'
-    id = 'haapi-gen'
-    skipValidateSpec = false
-    logToStderr = true
-    generateAliasAsModel = false
-    enablePostProcessFile = false
-}
-task generateTsClient(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
-    generatorName = "typescript-axios"
-    inputSpec = "$rootDir/doc/api.yml".toString()
-    outputDir = "$buildDir/gen-ts".toString()
-}
-task publishJavaClientToMavenLocal(type: Exec, dependsOn: generateJavaClient) {
-    if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)){
-        commandLine './.shell/publish_gen_to_maven_local.bat'
-    } else {
-        commandLine './.shell/publish_gen_to_maven_local.sh'
-    }
-}
-tasks.compileJava.dependsOn publishJavaClientToMavenLocal
-
-apply plugin: 'checkstyle'
-checkstyle {
-    toolVersion '8.45'
-    configFile file("config/checkstyle/google_checks_custom.xml")
-}
-checkstyleMain {
-    source = 'src/main/java'
-}
-checkstyleTest {
-    source = 'src/test/java'
-}
-tasks.withType(Checkstyle) {
-    reports {
-        xml.enabled true
-    }
-}
-
-ext {
-    set('testcontainersVersion', "1.15.3")
-}
 test {
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
     useJUnitPlatform()
-    finalizedBy jacocoTestReport
+    finalizedBy jacocoTestCoverageVerification
 }
-jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.required = true
+
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                minimum = 0.8
+            }
+        }
     }
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'com.nimbusds:nimbus-jose-jwt'
-
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'com.vladmihalcea:hibernate-types-52:1.0.0'
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.postgresql:postgresql'
 
-    implementation 'school.hei:haapi-gen:1.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
-    implementation 'software.amazon.awssdk:eventbridge:2.17.109'
-    implementation 'software.amazon.awssdk:sqs:2.17.109'
-    implementation 'software.amazon.awssdk:cognitoidentityprovider:2.17.109'
-    implementation 'software.amazon.awssdk:ses:2.19.4'
+    implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot3:2.0.0-M2'
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.3'
+    implementation 'software.amazon.awssdk:sqs:2.21.7'
+    implementation 'software.amazon.awssdk:eventbridge:2.21.7'
 
-    implementation 'io.sentry:sentry-spring-boot-starter:5.5.3'
-    implementation 'io.sentry:sentry-logback:5.5.3'
-
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.thymeleaf:thymeleaf:3.1.1.RELEASE'
-    // A library that format number into words
-    implementation 'pl.allegro.finance:tradukisto:1.12.0'
+    implementation 'org.reflections:reflections:0.10.2'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
@@ -145,15 +70,27 @@ dependencies {
     testAnnotationProcessor 'org.projectlombok:lombok'
 
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
-    testImplementation 'org.springframework.security:spring-security-test'
     testImplementation 'org.testcontainers:junit-jupiter'
+
     testImplementation 'org.testcontainers:postgresql'
 
-    testImplementation 'com.github.javafaker:javafaker:1.0.2'
-}
+implementation 'org.springframework.boot:spring-boot-starter-security'
+implementation 'com.nimbusds:nimbus-jose-jwt'
 
-dependencyManagement {
-    imports {
-        mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
-    }
+implementation 'com.vladmihalcea:hibernate-types-52:1.0.0'
+
+implementation 'software.amazon.awssdk:cognitoidentityprovider:2.17.109'
+implementation 'software.amazon.awssdk:ses:2.19.4'
+
+implementation 'io.sentry:sentry-spring-boot-starter:5.5.3'
+implementation 'io.sentry:sentry-logback:5.5.3'
+
+implementation 'org.springframework.boot:spring-boot-starter-validation'
+implementation 'org.thymeleaf:thymeleaf:3.1.1.RELEASE'
+// A library that format number into words
+implementation 'pl.allegro.finance:tradukisto:1.12.0'
+
+testImplementation 'org.springframework.security:spring-security-test'
+
+testImplementation 'com.github.javafaker:javafaker:1.0.2'
 }

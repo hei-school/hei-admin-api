@@ -1,5 +1,4 @@
 HELP.md
-application-local.properties
 .gradle
 build/
 !gradle/wrapper/gradle-wrapper.jar
@@ -37,4 +36,8 @@ out/
 ### VS Code ###
 .vscode/
 
+.aws-sam
+**.toml
+
+### Mac OS ###
 .DS_Store

@@ -1,33 +1,51 @@
 package school.hei.haapi.endpoint.event;
 
-import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
+import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
+import org.springframework.context.ApplicationContext;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.event.model.TypedEvent;
-import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
-import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
-import school.hei.haapi.service.event.LateFeeVerifiedService;
-import school.hei.haapi.service.event.UserUpsertedService;
+import school.hei.haapi.PojaGenerated;
 
-@Component
+@PojaGenerated
 @AllArgsConstructor
+@Component
 @Slf4j
-public class EventServiceInvoker implements Consumer<TypedEvent> {
+public class EventServiceInvoker implements Consumer<EventConsumer.TypedEvent> {
 
-  private final UserUpsertedService userUpsertedService;
-  private final LateFeeVerifiedService lateFeeVerifiedService;
+  private final ApplicationContext applicationContext;
 
+  @SneakyThrows
   @Override
-  public void accept(TypedEvent typedEvent) {
-    Serializable payload = typedEvent.getPayload();
-    if (UserUpserted.class.getTypeName().equals(typedEvent.getTypeName())) {
-      userUpsertedService.accept((UserUpserted) payload);
-    } else if (LateFeeVerified.class.getTypeName().equals(typedEvent.getTypeName())) {
-      lateFeeVerifiedService.accept((LateFeeVerified) payload);
-    } else {
-      log.error("Unexpected type for event={}", typedEvent);
+  public void accept(EventConsumer.TypedEvent typedEvent) {
+    var typeName = typedEvent.typeName();
+    var eventClasses = getAllClasses("com.company.base.endpoint.event.gen");
+    for (var clazz : eventClasses) {
+      if (clazz.getTypeName().equals(typeName)) {
+        var serviceClazz = Class.forName(getEventService(typeName));
+        var acceptMethod = serviceClazz.getMethod("accept", clazz);
+        acceptMethod.invoke(applicationContext.getBean(serviceClazz), typedEvent.payload());
+        return;
+      }
     }
+
+    throw new RuntimeException("Unexpected type for event=" + typedEvent);
+  }
+
+  private String getEventService(String eventClazzName) {
+    var typeNameAsArray = eventClazzName.split("\\.");
+    return "com.company.base.service.event."
+        + typeNameAsArray[typeNameAsArray.length - 1]
+        + "Service";
+  }
+
+  private Set<Class<?>> getAllClasses(String packageName) {
+    var reflections = new Reflections(packageName, Scanners.SubTypes.filterResultsBy(s -> true));
+    return new HashSet<>(reflections.getSubTypesOf(Object.class));
   }
 }

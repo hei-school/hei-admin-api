@@ -1,4 +1,4 @@
-name: CD compute
+name: CD compute permission
 
 on:
   push:
@@ -8,27 +8,23 @@ on:
 
   workflow_dispatch:
 
-  workflow_call:
-
 jobs:
-  deploy-api:
-    if: ${{ github.ref_name == 'prod' || github.ref_name == 'preprod' }}
+  cd-event:
+    if: github.ref_name == 'prod' || github.ref_name == 'preprod'
+
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+
+    timeout-minutes: 20
 
     env:
       AWS_REGION: eu-west-3
 
     steps:
-      - uses: actions/checkout@v4.1.1
-
-      - uses: actions/setup-java@v3
-        with:
-          java-version: '17'
-          distribution: 'corretto'
+      - name: Checkout
+        uses: actions/checkout@v4.1.1
 
       - name: Configure preprod AWS credentials
-        if: ${{ github.ref_name != 'prod' }}
+        if: ${{ github.ref_name == 'preprod' }}
         uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
           aws-access-key-id: ${{ secrets.PREPROD_AWS_ACCESS_KEY_ID }}
@@ -43,7 +39,13 @@ jobs:
           aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - run: sam build
-
-      - name: Deploy application
-        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ github.ref_name }}-compute-haapi --capabilities CAPABILITY_IAM --parameter-overrides Env=${{ github.ref_name }} --resolve-s3
+      - name: Deploy permission stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: ${{ github.ref_name }}-permission-haapi
+          template: cf-stacks/compute-permission-stack.yml
+          tags: "[ { \"Key\": \"app\", \"Value\": \"haapi\" }, { \"Key\": \"env\", \"Value\": \"${{ github.ref_name }}\" } ]"
+          capabilities: CAPABILITY_NAMED_IAM
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides:
+            "Env=${{ github.ref_name }}"
