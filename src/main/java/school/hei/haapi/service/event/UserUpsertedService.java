@@ -1,4 +1,4 @@
-package school.hei.haapi.service;
+package school.hei.haapi.service.event;
 
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;

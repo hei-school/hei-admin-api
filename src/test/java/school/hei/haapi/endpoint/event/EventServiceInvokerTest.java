@@ -13,14 +13,14 @@ import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
 import school.hei.haapi.model.User;
-import school.hei.haapi.service.LateFeeService;
-import school.hei.haapi.service.UserUpsertedService;
 import school.hei.haapi.service.aws.SesService;
+import school.hei.haapi.service.event.LateFeeVerifiedService;
+import school.hei.haapi.service.event.UserUpsertedService;
 
 class EventServiceInvokerTest {
   EventServiceInvoker eventServiceInvoker;
   UserUpsertedService userUpsertedService;
-  LateFeeService lateFeeService;
+  LateFeeVerifiedService lateFeeVerifiedService;
   SesService sesService;
   EventConf eventConf;
 
@@ -45,8 +45,8 @@ class EventServiceInvokerTest {
     userUpsertedService = mock(UserUpsertedService.class);
     sesService = mock(SesService.class);
     eventConf = mock(EventConf.class);
-    lateFeeService = new LateFeeService(sesService, eventConf);
-    eventServiceInvoker = new EventServiceInvoker(userUpsertedService, lateFeeService);
+    lateFeeVerifiedService = new LateFeeVerifiedService(sesService, eventConf);
+    eventServiceInvoker = new EventServiceInvoker(userUpsertedService, lateFeeVerifiedService);
   }
 
   @Test
@@ -61,7 +61,7 @@ class EventServiceInvokerTest {
 
   @Test
   void lateFeeService_invokes_corresponding_service() {
-    lateFeeService.accept(lateFee());
+    lateFeeVerifiedService.accept(lateFee());
 
     verify(sesService, times(1)).sendEmail(any(), any(), any(), any(), any());
   }

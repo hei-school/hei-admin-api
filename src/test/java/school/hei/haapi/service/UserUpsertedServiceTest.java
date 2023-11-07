@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.service.event.UserUpsertedService;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException;
 
 class UserUpsertedServiceTest {

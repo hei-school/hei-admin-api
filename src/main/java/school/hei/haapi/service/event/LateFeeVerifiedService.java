@@ -1,4 +1,4 @@
-package school.hei.haapi.service;
+package school.hei.haapi.service.event;
 
 import static school.hei.haapi.service.utils.DataFormatterUtils.instantToCommonDate;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
@@ -16,7 +16,7 @@ import school.hei.haapi.service.aws.SesService;
 
 @Service
 @AllArgsConstructor
-public class LateFeeService implements Consumer<LateFeeVerified> {
+public class LateFeeVerifiedService implements Consumer<LateFeeVerified> {
   private final SesService sesService;
   private final EventConf eventConf;
 

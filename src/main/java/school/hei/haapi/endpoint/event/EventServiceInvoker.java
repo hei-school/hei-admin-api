@@ -8,8 +8,8 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.event.model.TypedEvent;
 import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
 import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
-import school.hei.haapi.service.LateFeeService;
-import school.hei.haapi.service.UserUpsertedService;
+import school.hei.haapi.service.event.LateFeeVerifiedService;
+import school.hei.haapi.service.event.UserUpsertedService;
 
 @Component
 @AllArgsConstructor
@@ -17,7 +17,7 @@ import school.hei.haapi.service.UserUpsertedService;
 public class EventServiceInvoker implements Consumer<TypedEvent> {
 
   private final UserUpsertedService userUpsertedService;
-  private final LateFeeService lateFeeService;
+  private final LateFeeVerifiedService lateFeeVerifiedService;
 
   @Override
   public void accept(TypedEvent typedEvent) {
@@ -25,7 +25,7 @@ public class EventServiceInvoker implements Consumer<TypedEvent> {
     if (UserUpserted.class.getTypeName().equals(typedEvent.getTypeName())) {
       userUpsertedService.accept((UserUpserted) payload);
     } else if (LateFeeVerified.class.getTypeName().equals(typedEvent.getTypeName())) {
-      lateFeeService.accept((LateFeeVerified) payload);
+      lateFeeVerifiedService.accept((LateFeeVerified) payload);
     } else {
       log.error("Unexpected type for event={}", typedEvent);
     }
