@@ -1,3 +1,5 @@
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
 buildscript {
     repositories {
         maven {
@@ -33,7 +35,7 @@ repositories {
     mavenCentral()
 }
 
-task generateJavaClient(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+task generateJavaClient(type: GenerateTask) {
     generatorName = "java"
     inputSpec = "$rootDir/doc/api.yml".toString()
     outputDir = "$buildDir/gen".toString()
