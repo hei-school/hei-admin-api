@@ -6,12 +6,15 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import java.text.ParseException;
+
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.model.exception.ApiException;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse;
 
+@Slf4j
 @Component
 public class CognitoComponent {
 
@@ -32,6 +35,7 @@ public class CognitoComponent {
       ParseException – If the string couldn't be parsed to a valid JWT.
       BadJOSEException – If the JWT is rejected.
       JOSEException – If an internal processing exception is encountered. */
+      log.error("Cognito error: %s", e);
       return null;
     }
 
