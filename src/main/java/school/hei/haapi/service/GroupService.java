@@ -2,16 +2,22 @@ package school.hei.haapi.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import school.hei.haapi.endpoint.rest.model.CreateGroup;
+import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 
@@ -24,6 +30,7 @@ public class GroupService {
 
   private final GroupRepository repository;
   private final UserRepository userRepository;
+  private final GroupFlowService groupFlowService;
 
   public Group getById(String groupId) {
     return repository.getById(groupId);
@@ -37,8 +44,26 @@ public class GroupService {
     return repository.getGroups(pageable).toList();
   }
 
-  public List<Group> saveAll(List<Group> groups) {
-    return repository.saveAll(groups);
+  @Transactional
+  public List<Group> saveAll(List<school.hei.haapi.model.notEntity.CreateGroup> createGroups) {
+    List<school.hei.haapi.model.Group> groups = new ArrayList<>();
+    List<CreateGroupFlow> createGroupFlows = new ArrayList<>();
+    for (school.hei.haapi.model.notEntity.CreateGroup createGroup:createGroups) {
+      Group group = repository.save(createGroup.getGroup());
+      groups.add(group);
+      if (createGroup.getStudentsToAdd() != null) {
+        for (String studentId:createGroup.getStudentsToAdd()) {
+          createGroupFlows.add(
+                  new CreateGroupFlow()
+                          .moveType(CreateGroupFlow.MoveTypeEnum.JOIN)
+                          .groupId(group.getId())
+                          .studentId(studentId)
+          );
+        }
+      }
+    }
+    groupFlowService.saveAll(createGroupFlows);
+    return groups;
   }
 
   public List<Group> getByUserId(String studentId) {
