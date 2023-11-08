@@ -35,7 +35,6 @@ public class CognitoComponent {
       ParseException – If the string couldn't be parsed to a valid JWT.
       BadJOSEException – If the JWT is rejected.
       JOSEException – If an internal processing exception is encountered. */
-      log.error("Cognito error: %s", e);
       return null;
     }
 

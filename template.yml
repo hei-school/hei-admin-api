@@ -25,6 +25,7 @@ Globals:
         ENV: !Ref Env
         AWS_SQS_QUEUE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/mailbox-queue-url}}'
         AWS_EVENTBRIDGE_BUS: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-name}}'
+        
         DATABASE_URL: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/url}}'
         DATABASE_USERNAME: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/username}}'
         DATABASE_PASSWORD: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/password}}'
