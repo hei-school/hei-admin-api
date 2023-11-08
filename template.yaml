@@ -22,7 +22,6 @@ Globals:
       SecurityGroupIds:
         - !Sub '{{resolve:ssm:/hei-admin-api/sg}}'
       SubnetIds:
-        - !Sub '{{resolve:ssm:/hei-admin-api/public/subnet}}'
         - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet1}}'
         - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet2}}'
 
