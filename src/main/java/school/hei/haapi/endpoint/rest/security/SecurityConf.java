@@ -64,6 +64,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                 new NegatedRequestMatcher(
                     new OrRequestMatcher(
                         new AntPathRequestMatcher("/ping"),
+                        new AntPathRequestMatcher("/dummy-table"),
+                        new AntPathRequestMatcher("/uuid-created"),
                         new AntPathRequestMatcher("/**", OPTIONS.toString())))),
             AnonymousAuthenticationFilter.class)
         .anonymous()
@@ -71,7 +73,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         // authorize
         .and()
         .authorizeRequests()
-        .antMatchers("/ping")
+        .antMatchers("/ping", "/dummy-table", "/uuid-created")
         .permitAll()
         .antMatchers(OPTIONS, "/**")
         .permitAll()

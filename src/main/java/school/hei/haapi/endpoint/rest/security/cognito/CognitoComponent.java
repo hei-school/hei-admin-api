@@ -6,7 +6,6 @@ import com.nimbusds.jose.JOSEException;
 import com.nimbusds.jose.proc.BadJOSEException;
 import com.nimbusds.jwt.JWTClaimsSet;
 import java.text.ParseException;
-
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.model.exception.ApiException;
