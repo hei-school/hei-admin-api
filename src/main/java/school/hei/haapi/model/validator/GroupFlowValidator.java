@@ -2,6 +2,7 @@ package school.hei.haapi.model.validator;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.exception.BadRequestException;

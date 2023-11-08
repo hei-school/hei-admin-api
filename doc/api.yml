@@ -149,7 +149,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Group'
+                $ref: '#/components/schemas/CreateGroup'
       responses:
         '200':
           description: The created or updated groups
@@ -869,7 +869,9 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateGroupFlow'
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateGroupFlow'
       responses:
         '200':
           description: Detail of student flow in a group
@@ -1688,6 +1690,15 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    CreateGroup:
+      type: object
+      properties:
+        studentsToAdd:
+          type: array
+          items:
+            type: string
+      allOf:
+        - $ref: '#/components/schemas/Group'
     GroupFlow:
       type: object
       properties:

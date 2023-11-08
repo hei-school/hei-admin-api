@@ -107,7 +107,6 @@ ext {
     set('testcontainersVersion', "1.15.3")
 }
 test {
-    exclude 'school/hei/**' //TODO: to rm
     useJUnitPlatform()
     finalizedBy jacocoTestReport
 }

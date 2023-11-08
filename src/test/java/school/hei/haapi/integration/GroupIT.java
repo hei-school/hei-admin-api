@@ -1,19 +1,23 @@
 package school.hei.haapi.integration;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateGroup;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -23,15 +27,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -67,11 +63,28 @@ class GroupIT {
     return group;
   }
 
-  public static Group someCreatableGroup() {
-    Group group = new Group();
-    group.setName("Some name");
-    group.setRef("GRP21-" + randomUUID());
-    return group;
+  public static CreateGroup someCreatableGroup(List<String> students) {
+    CreateGroup createGroup = new CreateGroup();
+    createGroup.setName("Some name");
+    createGroup.setRef("GRP21-" + randomUUID());
+    createGroup.setStudentsToAdd(students);
+    return createGroup;
+  }
+
+  public static Group createGroupToGroup(CreateGroup createGroup) {
+    return new Group()
+            .id(createGroup.getId())
+            .name(createGroup.getName())
+            .creationDatetime(createGroup.getCreationDatetime())
+            .ref(createGroup.getRef());
+  }
+
+  public static CreateGroup groupToCreateGroup(Group group) {
+    return new CreateGroup()
+            .id(group.getId())
+            .name(group.getName())
+            .creationDatetime(group.getCreationDatetime())
+            .ref(group.getRef());
   }
 
   @BeforeEach
@@ -125,13 +138,17 @@ class GroupIT {
   }
 
   @Test
+  @DirtiesContext
   void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    Group toCreate3 = someCreatableGroup();
-    Group toCreate4 = someCreatableGroup();
+    CreateGroup toCreate3 = someCreatableGroup(new ArrayList<>());
+    CreateGroup toCreate4 = someCreatableGroup(new ArrayList<>());
+    CreateGroup toCreate5 = someCreatableGroup(List.of(STUDENT1_ID, STUDENT2_ID));
 
     TeachingApi api = new TeachingApi(manager1Client);
     List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
+    List<Group> createdWithStudent = api.createOrUpdateGroups(List.of(toCreate5));
+    List<Student> students = api.getAllStudentByGroup(createdWithStudent.get(0).getId(),1, 10);
 
     assertEquals(2, created.size());
     Group created3 = created.get(0);
@@ -140,31 +157,33 @@ class GroupIT {
     assertNotNull(created3.getCreationDatetime());
     toCreate3.setCreationDatetime(created3.getCreationDatetime());
 
-    assertEquals(created3, toCreate3);
+    assertEquals(created3, createGroupToGroup(toCreate3));
     Group created4 = created.get(0);
     assertTrue(isValidUUID(created4.getId()));
     toCreate4.setId(created4.getId());
     assertNotNull(created4.getCreationDatetime());
     toCreate4.setCreationDatetime(created4.getCreationDatetime());
-    assertEquals(created4, toCreate3);
+    assertEquals(created4, createGroupToGroup(toCreate3));
+
+    assertEquals(2,students.size());
   }
 
   @Test
+  @DirtiesContext
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    List<Group> toUpdate =
-        api.createOrUpdateGroups(List.of(someCreatableGroup(), someCreatableGroup()));
-    Group toUpdate0 = toUpdate.get(0);
-    toUpdate0.setName("A new name zero");
-    Group toUpdate1 = toUpdate.get(1);
-    toUpdate1.setName("A new name one");
 
-    List<Group> updated = api.createOrUpdateGroups(toUpdate);
+    List<CreateGroup> ModifyGroups = List.of(
+            groupToCreateGroup(group1()).name("A new name zero"),
+            groupToCreateGroup(group2()).name("A new name zero")
+    );
+
+    List<Group> updated = api.createOrUpdateGroups(ModifyGroups);
 
     assertEquals(2, updated.size());
-    assertTrue(updated.contains(toUpdate0));
-    assertTrue(updated.contains(toUpdate1));
+    assertTrue(updated.contains(createGroupToGroup(ModifyGroups.get(0))));
+    assertTrue(updated.contains(createGroupToGroup(ModifyGroups.get(1))));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
