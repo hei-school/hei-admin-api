@@ -11,8 +11,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
-import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
+import school.hei.haapi.endpoint.event.gen.UserUpserted;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
@@ -42,12 +41,15 @@ public class UserService {
   public List<User> saveAll(List<User> users) {
     userValidator.accept(users);
     List<User> savedUsers = userRepository.saveAll(users);
-    eventProducer.accept(users.stream().map(this::toTypedEvent).collect(toUnmodifiableList()));
+    eventProducer.accept(users.stream().map(this::toUserUpserted).collect(toUnmodifiableList()));
     return savedUsers;
   }
 
-  private TypedUserUpserted toTypedEvent(User user) {
-    return new TypedUserUpserted(new UserUpserted().userId(user.getId()).email(user.getEmail()));
+  private UserUpserted toUserUpserted(User user) {
+    var userUpserted = new UserUpserted();
+    userUpserted.setUserId(user.getId());
+    userUpserted.setEmail(user.getEmail());
+    return userUpserted;
   }
 
   public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {

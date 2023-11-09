@@ -1,11 +1,9 @@
-package school.hei.haapi.endpoint.event.model.gen;
+package school.hei.haapi.endpoint.event.gen;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.Objects;
-import javax.annotation.processing.Generated;
 
-@Generated("EventBridge")
 public class UserUpserted implements Serializable {
   private static final long serialVersionUID = 1L;
 

@@ -1,11 +1,10 @@
-package school.hei.haapi.endpoint.event.model.gen;
+package school.hei.haapi.endpoint.event.gen;
 
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.time.Instant;
-import javax.annotation.processing.Generated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,7 +13,6 @@ import lombok.NoArgsConstructor;
 import lombok.ToString;
 import school.hei.haapi.model.User;
 
-@Generated("EventBridge")
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode

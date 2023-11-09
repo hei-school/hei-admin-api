@@ -15,8 +15,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.TypedLateFeeVerified;
-import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
+import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
@@ -93,15 +92,14 @@ public class FeeService {
     feeRepository.saveAll(unpaidFees);
   }
 
-  private TypedLateFeeVerified toTypedEvent(Fee fee) {
-    return new TypedLateFeeVerified(
-        LateFeeVerified.builder()
-            .type(fee.getType())
-            .student(fee.getStudent())
-            .comment(fee.getComment())
-            .remainingAmount(fee.getRemainingAmount())
-            .dueDatetime(fee.getDueDatetime())
-            .build());
+  private LateFeeVerified toLateFeeEvent(Fee fee) {
+    return LateFeeVerified.builder()
+        .type(fee.getType())
+        .student(fee.getStudent())
+        .comment(fee.getComment())
+        .remainingAmount(fee.getRemainingAmount())
+        .dueDatetime(fee.getDueDatetime())
+        .build();
   }
 
   /*
@@ -113,7 +111,7 @@ public class FeeService {
     List<Fee> lateFees = feeRepository.getFeesByStatus(LATE);
     lateFees.forEach(
         fee -> {
-          eventProducer.accept(List.of(toTypedEvent(fee)));
+          eventProducer.accept(List.of(toLateFeeEvent(fee)));
           log.info("Late Fee with id." + fee.getId() + " is sent to Queue");
         });
   }
