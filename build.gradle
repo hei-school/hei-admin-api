@@ -131,11 +131,11 @@ implementation 'org.springframework.boot:spring-boot-starter-security'
 
 implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
 
-implementation 'software.amazon.awssdk:cognitoidentityprovider:2.17.109'
-implementation 'software.amazon.awssdk:ses:2.19.4'
+implementation 'software.amazon.awssdk:cognitoidentityprovider:2.20.66'
+implementation 'software.amazon.awssdk:ses:2.20.69'
 
-implementation 'io.sentry:sentry-spring-boot-starter:5.5.3'
-implementation 'io.sentry:sentry-logback:5.5.3'
+implementation 'io.sentry:sentry-spring-boot-starter:6.16.0'
+implementation 'io.sentry:sentry-logback:6.19.0'
 
 implementation 'org.springframework.boot:spring-boot-starter-validation'
 implementation 'org.thymeleaf:thymeleaf:3.1.1.RELEASE'
