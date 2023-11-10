@@ -37,7 +37,6 @@ public class MailboxEventHandler implements RequestHandler<SQSEvent, String> {
     SpringApplication application = new SpringApplication(PojaApplication.class);
     application.setDefaultProperties(
         Map.of(
-            "spring.main.web-application-type", "none",
             "spring.flyway.enabled", "false"));
     return application.run(args);
   }
