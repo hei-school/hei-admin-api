@@ -1,7 +1,8 @@
 app_name: haapi
-cli_version: 2.2.0
+cli_version: 2.4.1
 custom_java_deps: poja-custom-java-deps.txt
 custom_java_env_vars: poja-custom-java-env-vars.txt
+jacoco-min-coverage: '0.8'
 package_full_name: school.hei.haapi
 region: eu-west-3
 ssm_sg_id: /haapi/sg/id
