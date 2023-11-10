@@ -1,5 +1,5 @@
 app_name: haapi
-cli_version: 0.7.1
+cli_version: 2.2.0
 custom_java_deps: poja-custom-java-deps.txt
 custom_java_env_vars: poja-custom-java-env-vars.txt
 package_full_name: school.hei.haapi
