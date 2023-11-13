@@ -8,4 +8,4 @@ region: eu-west-3
 ssm_sg_id: /haapi/sg/id
 ssm_subnet1_id: /haapi/subnet/private1/id
 ssm_subnet2_id: /haapi/subnet/private2/id
-with_postgres: 'false'
+with_postgres: 'true'
