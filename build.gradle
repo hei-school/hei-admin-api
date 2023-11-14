@@ -76,6 +76,7 @@ task publishJavaClientToMavenLocal(type: Exec, dependsOn: generateJavaClient) {
 }
 tasks.compileJava.dependsOn publishJavaClientToMavenLocal
 
+
 test {
     maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
     useJUnitPlatform()
