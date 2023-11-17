@@ -1,5 +1,16 @@
 package school.hei.haapi.service;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
+
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
@@ -15,17 +26,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
-import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
-
 class FeeServiceTest {
   FeeService subject;
   FeeRepository feeRepository;
@@ -33,9 +33,7 @@ class FeeServiceTest {
   EventProducer eventProducer;
 
   static User student1() {
-    return User.builder()
-        .id(TestUtils.STUDENT1_ID)
-        .build();
+    return User.builder().id(TestUtils.STUDENT1_ID).build();
   }
 
   static int remainingAmount() {
@@ -119,10 +117,8 @@ class FeeServiceTest {
   @Test
   void fee_status_is_paid() {
     Fee initial = fee(remainingAmount());
-    when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial.toBuilder()
-        .remainingAmount(0)
-        .status(PAID)
-        .build());
+    when(feeRepository.getById(TestUtils.FEE1_ID))
+        .thenReturn(initial.toBuilder().remainingAmount(0).status(PAID).build());
 
     Fee actual = subject.getById(TestUtils.FEE1_ID);
 
@@ -137,10 +133,12 @@ class FeeServiceTest {
     int rest = 1000;
     int paymentAmount = remainingAmount() - rest;
     Fee initial = fee(paymentAmount);
-    when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial.toBuilder()
-        .remainingAmount(remainingAmount() - paymentAmount)
-        .status(UNPAID)
-        .build());
+    when(feeRepository.getById(TestUtils.FEE1_ID))
+        .thenReturn(
+            initial.toBuilder()
+                .remainingAmount(remainingAmount() - paymentAmount)
+                .status(UNPAID)
+                .build());
 
     Fee actual = subject.getById(TestUtils.FEE1_ID);
 
@@ -156,10 +154,12 @@ class FeeServiceTest {
     Fee initial = fee(paymentAmount);
     Instant yesterday = Instant.now().minus(1L, ChronoUnit.DAYS);
     initial.setDueDatetime(yesterday);
-    when(feeRepository.getById(TestUtils.FEE1_ID)).thenReturn(initial.toBuilder()
-        .remainingAmount(remainingAmount() - paymentAmount)
-        .status(LATE)
-        .build());
+    when(feeRepository.getById(TestUtils.FEE1_ID))
+        .thenReturn(
+            initial.toBuilder()
+                .remainingAmount(remainingAmount() - paymentAmount)
+                .status(LATE)
+                .build());
 
     Fee actual = subject.getById(TestUtils.FEE1_ID);
 
@@ -175,18 +175,11 @@ class FeeServiceTest {
     BoundedPageSize pageSize = new BoundedPageSize(10);
     boolean isMocked = true;
     when(feeRepository.findAll())
-        .thenReturn(List.of(
-            fee1(isMocked),
-            fee2(isMocked),
-            fee3(isMocked)
-        ));
+        .thenReturn(List.of(fee1(isMocked), fee2(isMocked), fee3(isMocked)));
 
-    List<Fee> actualPaidPage1 = subject.getFees(page1, pageSize,
-        PAID);
-    List<Fee> actualLatePage1 = subject.getFees(page1, pageSize,
-        LATE);
-    List<Fee> actualLatePage2 = subject.getFees(page2, pageSize,
-        LATE);
+    List<Fee> actualPaidPage1 = subject.getFees(page1, pageSize, PAID);
+    List<Fee> actualLatePage1 = subject.getFees(page1, pageSize, LATE);
+    List<Fee> actualLatePage2 = subject.getFees(page2, pageSize, LATE);
 
     assertEquals(0, actualPaidPage1.size());
     assertEquals(0, actualLatePage1.size());

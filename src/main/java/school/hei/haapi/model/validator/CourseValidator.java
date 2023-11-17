@@ -39,9 +39,8 @@ public class CourseValidator implements Consumer<Course> {
       violationMessages.add("Credits must be positive");
     }
     if (!violationMessages.isEmpty()) {
-      String formattedViolationMessages = violationMessages.stream()
-          .map(String::toString)
-          .collect(Collectors.joining(". "));
+      String formattedViolationMessages =
+          violationMessages.stream().map(String::toString).collect(Collectors.joining(". "));
       throw new BadRequestException(formattedViolationMessages);
     }
   }

@@ -1,5 +1,6 @@
 package school.hei.haapi.repository.dao;
 
+
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -7,7 +8,6 @@ import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
@@ -37,9 +37,9 @@ public class UserManagerDao {
         builder.or(builder.like(builder.lower(root.get("firstName")), "%" + firstName + "%"),
             builder.like(root.get("firstName"), "%" + firstName + "%"));
 
-
     Predicate hasUserLastName =
-        builder.or(builder.like(builder.lower(root.get("lastName")), "%" + lastName + "%"),
+        builder.or(
+            builder.like(builder.lower(root.get("lastName")), "%" + lastName + "%"),
             builder.like(root.get("lastName"), "%" + lastName + "%"));
 
     Predicate hasUserRole = builder.equal(root.get("role"), role);

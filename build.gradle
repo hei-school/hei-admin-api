@@ -1,30 +1,28 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
 buildscript {
     repositories {
         maven {
             url "https://plugins.gradle.org/m2/"
         }
     }
-    dependencies {
-        classpath "org.openapitools:openapi-generator-gradle-plugin:5.3.0"
-    }
 }
 
 plugins {
     id 'java'
-    id 'org.springframework.boot' version '2.5.3'
-    id 'io.spring.dependency-management' version '1.0.11.RELEASE'
+    id 'org.springframework.boot' version '2.7.17'
+    id 'io.spring.dependency-management' version '1.1.3'
 
     id 'org.openapi.generator' version '5.3.0'
 
-    id 'org.sonarqube' version '3.3'
     id 'jacoco'
-    id 'checkstyle'
 }
 
 java {
-    group = 'school.hei'
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    group = 'school.hei.haapi'
+    sourceCompatibility = '17'
+    targetCompatibility = '17'
 }
 
 configurations {
@@ -38,15 +36,7 @@ repositories {
     mavenCentral()
 }
 
-sonarqube {
-    properties {
-        property "sonar.projectKey", "hei-admin-api"
-        property "sonar.organization", "hei-school"
-        property "sonar.host.url", "https://sonarcloud.io"
-    }
-}
-
-task generateJavaClient(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+task generateJavaClient(type: GenerateTask) {
     generatorName = "java"
     inputSpec = "$rootDir/doc/api.yml".toString()
     outputDir = "$buildDir/gen".toString()
@@ -78,7 +68,7 @@ task generateTsClient(type: org.openapitools.generator.gradle.plugin.tasks.Gener
     outputDir = "$buildDir/gen-ts".toString()
 }
 task publishJavaClientToMavenLocal(type: Exec, dependsOn: generateJavaClient) {
-    if (org.apache.tools.ant.taskdefs.condition.Os.isFamily(org.apache.tools.ant.taskdefs.condition.Os.FAMILY_WINDOWS)){
+    if (Os.isFamily(Os.FAMILY_WINDOWS)){
         commandLine './.shell/publish_gen_to_maven_local.bat'
     } else {
         commandLine './.shell/publish_gen_to_maven_local.sh'
@@ -86,80 +76,74 @@ task publishJavaClientToMavenLocal(type: Exec, dependsOn: generateJavaClient) {
 }
 tasks.compileJava.dependsOn publishJavaClientToMavenLocal
 
-apply plugin: 'checkstyle'
-checkstyle {
-    toolVersion '8.45'
-    configFile file("config/checkstyle/google_checks_custom.xml")
-}
-checkstyleMain {
-    source = 'src/main/java'
-}
-checkstyleTest {
-    source = 'src/test/java'
-}
-tasks.withType(Checkstyle) {
-    reports {
-        xml.enabled true
-    }
-}
-
-ext {
-    set('testcontainersVersion', "1.15.3")
-}
 test {
-    exclude 'school/hei/**' //TODO: to rm
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
     useJUnitPlatform()
-    finalizedBy jacocoTestReport
+    finalizedBy jacocoTestCoverageVerification
 }
 
-jacocoTestReport {
-    dependsOn test
-    reports {
-        xml.required = true
+jacocoTestCoverageVerification {
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                minimum = 0.8
+            }
+        }
     }
 }
 
 dependencies {
     implementation 'org.springframework.boot:spring-boot-starter-web'
-    implementation 'org.springframework.boot:spring-boot-starter-security'
-    implementation 'com.nimbusds:nimbus-jose-jwt'
-
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
-    implementation 'com.vladmihalcea:hibernate-types-52:1.0.0'
     implementation 'org.flywaydb:flyway-core'
     implementation 'org.postgresql:postgresql'
 
-    implementation 'school.hei:haapi-gen:1.0'
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+    implementation 'com.vladmihalcea:hibernate-types-52:1.0.0'
 
-    implementation 'software.amazon.awssdk:eventbridge:2.17.109'
-    implementation 'software.amazon.awssdk:sqs:2.17.109'
-    implementation 'software.amazon.awssdk:cognitoidentityprovider:2.17.109'
-    implementation 'software.amazon.awssdk:ses:2.19.4'
-
-    implementation 'io.sentry:sentry-spring-boot-starter:5.5.3'
-    implementation 'io.sentry:sentry-logback:5.5.3'
-
-    implementation 'org.springframework.boot:spring-boot-starter-validation'
-    implementation 'org.thymeleaf:thymeleaf:3.1.1.RELEASE'
-    // A library that format number into words
-    implementation 'pl.allegro.finance:tradukisto:1.12.0'
     implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot2:1.9.3'
+    implementation 'software.amazon.awssdk:aws-query-protocol:2.20.26'
+
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.3'
+    implementation 'software.amazon.awssdk:sqs:2.21.7'
+    implementation 'software.amazon.awssdk:eventbridge:2.21.7'
+
+    implementation 'org.reflections:reflections:0.10.2'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'
     testCompileOnly 'org.projectlombok:lombok'
     testAnnotationProcessor 'org.projectlombok:lombok'
 
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+    implementation 'io.swagger:swagger-annotations:1.6.12'
+
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.1'
+
+    testImplementation 'org.testcontainers:postgresql:1.19.1'
+
+    implementation 'school.hei:haapi-gen:1.0'
+
+    implementation 'org.springframework.boot:spring-boot-starter-security'
+
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
+
+    implementation 'software.amazon.awssdk:cognitoidentityprovider:2.20.66'
+    implementation 'software.amazon.awssdk:ses:2.20.69'
+
+    implementation 'io.sentry:sentry-spring-boot-starter:6.16.0'
+    implementation 'io.sentry:sentry-logback:6.19.0'
+
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.thymeleaf:thymeleaf:3.1.1.RELEASE'
+// A library that format number into words
+    implementation 'pl.allegro.finance:tradukisto:1.12.0'
+
     testImplementation 'org.springframework.security:spring-security-test'
-    testImplementation 'org.testcontainers:junit-jupiter'
-    testImplementation 'org.testcontainers:postgresql'
+// Can __NOT__ upgrade javaker to higher versions
+    testImplementation 'com.github.javafaker:javafaker:0.13'
 
-    testImplementation 'com.github.javafaker:javafaker:1.0.2'
-}
-
-dependencyManagement {
-    imports {
-        mavenBom "org.testcontainers:testcontainers-bom:${testcontainersVersion}"
-    }
 }

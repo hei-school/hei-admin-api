@@ -6,9 +6,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.hei.haapi.endpoint.event.EventConsumer;
 import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.TypedUserUpserted;
-import school.hei.haapi.endpoint.event.model.gen.UserUpserted;
+import school.hei.haapi.endpoint.event.gen.UserUpserted;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
@@ -49,14 +49,12 @@ public class UserService {
   public List<User> saveAll(List<User> users) {
     userValidator.accept(users);
     List<User> savedUsers = userRepository.saveAll(users);
-    eventProducer.accept(users.stream()
-        .map(this::toTypedEvent)
-        .collect(toUnmodifiableList()));
+    eventProducer.accept(users.stream().map(this::toTypedEvent).collect(toUnmodifiableList()));
     return savedUsers;
   }
 
-  private TypedUserUpserted toTypedEvent(User user) {
-    return new TypedUserUpserted(new UserUpserted().userId(user.getId()).email(user.getEmail()));
+  private EventConsumer.TypedEvent toTypedEvent(User user) {
+    return new EventConsumer.TypedEvent(UserUpserted.class.getTypeName(), new UserUpserted().userId(user.getId()).email(user.getEmail()));
   }
 
   public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {

@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.security.cognito;
 
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+
 import com.nimbusds.jose.JWSAlgorithm;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.jwk.source.RemoteJWKSet;
@@ -18,8 +20,6 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.model.exception.ApiException;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
-
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 @Component
 public class CognitoConf {

@@ -1,5 +1,7 @@
 package school.hei.haapi.model.validator;
 
+import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
+
 import java.util.List;
 import java.util.function.Consumer;
 import org.springframework.stereotype.Component;
@@ -7,8 +9,6 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotImplementedException;
-
-import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
 
 @Component
 public class PaymentValidator implements Consumer<Payment> {
@@ -23,8 +23,11 @@ public class PaymentValidator implements Consumer<Payment> {
         .sum();
     if (associatedFee.getRemainingAmount() < totalAmount) {
       throw new BadRequestException(
-          "Payment amount (" + totalAmount
-              + ") exceeds fee remaining amount (" + associatedFee.getRemainingAmount() + ")");
+          "Payment amount ("
+              + totalAmount
+              + ") exceeds fee remaining amount ("
+              + associatedFee.getRemainingAmount()
+              + ")");
     }
     payments.forEach(this);
   }
@@ -35,9 +38,7 @@ public class PaymentValidator implements Consumer<Payment> {
       throw new BadRequestException("Amount must be positive");
     }
     if (!toCheck.getType().equals(CASH) && toCheck.getComment() == null) {
-      throw new BadRequestException(
-          "Comment is mandatory for " + toCheck.getType().getValue()
-      );
+      throw new BadRequestException("Comment is mandatory for " + toCheck.getType().getValue());
     }
   }
 

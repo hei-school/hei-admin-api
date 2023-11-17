@@ -1,5 +1,8 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.io.Serializable;
 import java.util.List;
 import java.util.Objects;
@@ -11,9 +14,6 @@ import javax.persistence.Table;
 
 import lombok.*;
 import org.hibernate.Hibernate;
-
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "\"course\"")

@@ -23,8 +23,6 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.GroupService;
 import school.hei.haapi.service.UserService;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-
 @RestController
 @AllArgsConstructor
 public class GroupController {
@@ -45,7 +43,7 @@ public class GroupController {
                                BoundedPageSize pageSize) {
     return groupService.getAll(page, pageSize).stream()
         .map(groupMapper::toRest)
-        .collect(toUnmodifiableList());
+        .collect(Collectors.toUnmodifiableList());
   }
   //todo: to review
   @PutMapping(value = "/groups")
@@ -57,6 +55,6 @@ public class GroupController {
     var saved = groupService.saveAll(createGroups);
     return saved.stream()
         .map(groupMapper::toRest)
-        .collect(toUnmodifiableList());
+        .collect(Collectors.toUnmodifiableList());
   }
 }

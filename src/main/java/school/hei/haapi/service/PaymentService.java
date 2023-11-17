@@ -1,5 +1,8 @@
 package school.hei.haapi.service;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -14,9 +17,6 @@ import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.validator.PaymentValidator;
 import school.hei.haapi.repository.PaymentRepository;
 
-import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
-
 @Service
 @AllArgsConstructor
 public class PaymentService {
@@ -27,10 +27,8 @@ public class PaymentService {
 
   public List<Payment> getByStudentIdAndFeeId(
       String studentId, String feeId, PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable = PageRequest.of(
-        page.getValue() - 1,
-        pageSize.getValue(),
-        Sort.by(DESC, "creationDatetime"));
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
     return paymentRepository.getByStudentIdAndFeeId(studentId, feeId, pageable);
   }
 

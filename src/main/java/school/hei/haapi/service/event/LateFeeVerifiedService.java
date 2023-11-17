@@ -1,24 +1,24 @@
-package school.hei.haapi.service;
-
-import java.util.function.Consumer;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
-import school.hei.haapi.endpoint.event.EventConf;
-import school.hei.haapi.endpoint.event.model.gen.LateFeeVerified;
-import school.hei.haapi.model.User;
-import school.hei.haapi.service.aws.SesService;
+package school.hei.haapi.service.event;
 
 import static school.hei.haapi.service.utils.DataFormatterUtils.instantToCommonDate;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
+import java.util.function.Consumer;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.thymeleaf.context.Context;
+import school.hei.haapi.endpoint.email.SesConf;
+import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
+import school.hei.haapi.model.User;
+import school.hei.haapi.service.aws.SesService;
+
 @Service
 @AllArgsConstructor
-public class LateFeeService implements Consumer<LateFeeVerified> {
+public class LateFeeVerifiedService implements Consumer<LateFeeVerified> {
   private final SesService sesService;
-  private final EventConf eventConf;
+  private final SesConf sesConf;
 
   private static String emailSubject(User student, LateFeeVerified lateFee) {
     return "Retard de paiement - " + student.getRef() + " - " + lateFee.getComment();
@@ -42,11 +42,10 @@ public class LateFeeService implements Consumer<LateFeeVerified> {
   public void accept(LateFeeVerified lateFee) {
     User student = lateFee.getStudent();
     String recipient = student.getEmail();
-    String sender = eventConf.getSesSource();
-    String contact = eventConf.getSesContact();
+    String sender = sesConf.getSesSource();
+    String contact = sesConf.getSesContact();
     String subject = emailSubject(student, lateFee);
     String htmlBody = htmlToString("lateFeeEmail", getMailContext(lateFee));
     sesService.sendEmail(sender, contact, recipient, subject, htmlBody);
   }
-
 }

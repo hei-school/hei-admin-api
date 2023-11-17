@@ -6,9 +6,7 @@ import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 
 public class TemplateUtils {
-  private TemplateUtils() {
-
-  }
+  private TemplateUtils() {}
 
   private static TemplateEngine initializeTemplateEngine() {
     ClassLoaderTemplateResolver templateResolver = new ClassLoaderTemplateResolver();
@@ -26,5 +24,4 @@ public class TemplateUtils {
     TemplateEngine templateEngine = initializeTemplateEngine();
     return templateEngine.process(template, context);
   }
-
 }

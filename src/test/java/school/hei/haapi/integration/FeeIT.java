@@ -1,23 +1,5 @@
 package school.hei.haapi.integration;
 
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.SentryConf;
-import school.hei.haapi.endpoint.rest.api.PayingApi;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
-import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.TestUtils;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -38,20 +20,35 @@ import static school.hei.haapi.integration.conf.TestUtils.fee2;
 import static school.hei.haapi.integration.conf.TestUtils.fee3;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.rest.api.PayingApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.TestUtils;
+
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class FeeIT {
-  @MockBean
-  private SentryConf sentryConf;
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private SentryConf sentryConf;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, FeeIT.ContextInitializer.SERVER_PORT);
   }
-
 
   @BeforeEach
   void setUp() {
@@ -162,12 +159,15 @@ class FeeIT {
     CreateFee toCreate3 = creatableFee1().dueDatetime(null);
     List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
-    ApiException exception1 = assertThrows(ApiException.class,
-        () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate1)));
-    ApiException exception2 = assertThrows(ApiException.class,
-        () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate2)));
-    ApiException exception3 = assertThrows(ApiException.class,
-        () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate3)));
+    ApiException exception1 =
+        assertThrows(
+            ApiException.class, () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate1)));
+    ApiException exception2 =
+        assertThrows(
+            ApiException.class, () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate2)));
+    ApiException exception3 =
+        assertThrows(
+            ApiException.class, () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate3)));
 
     String exceptionMessage1 = exception1.getMessage();
     String exceptionMessage2 = exception2.getMessage();

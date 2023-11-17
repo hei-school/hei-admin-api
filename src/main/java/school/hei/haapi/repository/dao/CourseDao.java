@@ -83,13 +83,14 @@ public class CourseDao {
       query.orderBy(orders);
     }
 
-    return entityManager.createQuery(query)
+    return entityManager
+        .createQuery(query)
         .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
         .setMaxResults(pageable.getPageSize()).getResultList();
   }
 
-  private Order getOrder(Root<Course> root, CriteriaBuilder builder, String order,
-                         String property) {
+  private Order getOrder(
+      Root<Course> root, CriteriaBuilder builder, String order, String property) {
     if (order == null || order.isEmpty()) {
       return null;
     }

@@ -1,5 +1,7 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -31,7 +33,6 @@ import school.hei.haapi.service.utils.DataFormatterUtils;
 
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
-
 @Entity
 @Table(name = "\"user\"")
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)

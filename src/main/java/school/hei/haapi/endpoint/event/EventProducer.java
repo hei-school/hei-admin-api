@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.event;
 
-
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -11,9 +10,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.event.model.TypedEvent;
-import school.hei.haapi.model.exception.ApiException;
-import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.PojaGenerated;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -21,58 +18,65 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
-
+@PojaGenerated
 @Component
 @Slf4j
-public class EventProducer implements Consumer<List<TypedEvent>> {
-
+public class EventProducer implements Consumer<List<Object>> {
   private static final String EVENT_SOURCE = "school.hei.haapi";
-  private final EventBridgeClient eventBridgeClient;
-  private final String eventBusName;
   private final ObjectMapper om;
-  public EventProducer(EventBridgeClient eventBridgeClient,
-                       @Value("${aws.eventBridge.bus}") String eventBusName, ObjectMapper om) {
-    this.eventBridgeClient = eventBridgeClient;
-    this.eventBusName = eventBusName;
+  private final String eventBusName;
+  private final EventBridgeClient eventBridgeClient;
+
+  public EventProducer(
+          ObjectMapper om,
+          @Value("${aws.eventBridge.bus}") String eventBusName,
+          EventBridgeClient eventBridgeClient) {
     this.om = om;
+    this.eventBusName = eventBusName;
+    this.eventBridgeClient = eventBridgeClient;
   }
 
-  /**
-   * Send events to EventBridge bus.
-   *
-   * @param events Events to publish to the configured event bus.
-   */
   @Override
-  public void accept(List<TypedEvent> events) {
-    log.info(
-        // TODO(PII): Personal Identifiable Information can be leaked here
-        "Sending events={}", events);
+  public void accept(List<Object> events) {
+    log.info("Events to send {}", events);
     PutEventsResponse response = sendRequest(events);
     checkResponse(response);
   }
 
-  private PutEventsResponse sendRequest(List<TypedEvent> events) {
+  private PutEventsRequest toEventsRequest(List<Object> events) {
+    return PutEventsRequest.builder()
+            .entries(events.stream().map(this::toRequestEntry).toList())
+            .build();
+  }
+
+  private PutEventsRequestEntry toRequestEntry(Object event) {
+    try {
+      String eventAsString = om.writeValueAsString(event);
+      return PutEventsRequestEntry.builder()
+              .source(EVENT_SOURCE)
+              .detailType(event.getClass().getTypeName())
+              .detail(eventAsString)
+              .eventBusName(eventBusName)
+              .build();
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private PutEventsResponse sendRequest(List<Object> events) {
     checkPayload(events);
     PutEventsRequest eventsRequest = toEventsRequest(events);
     return eventBridgeClient.putEvents(eventsRequest);
   }
 
-  private PutEventsRequest toEventsRequest(List<TypedEvent> events) {
-    return PutEventsRequest.builder()
-        .entries(events.stream().map(this::toRequestEntry)
-            .collect(toUnmodifiableList())).build();
+  private boolean isPayloadValid(List<Object> events) {
+    PutEventsRequest eventsRequest = toEventsRequest(events);
+    return eventsRequest.entries().size() <= Conf.MAX_PUT_EVENT_ENTRIES;
   }
 
-  private PutEventsRequestEntry toRequestEntry(TypedEvent typedEvent) {
-    try {
-      String eventAsString = om.writeValueAsString(typedEvent.getPayload());
-      return PutEventsRequestEntry.builder().source(EVENT_SOURCE)
-          .detailType(typedEvent.getTypeName()).detail(eventAsString).eventBusName(eventBusName)
-          .build();
-    } catch (JsonProcessingException e) {
-      throw new ApiException(SERVER_EXCEPTION, e);
+  private void checkPayload(List<Object> events) {
+    if (!isPayloadValid(events)) {
+      throw new RuntimeException("Request entries must be <= " + Conf.MAX_PUT_EVENT_ENTRIES);
     }
   }
 
@@ -95,21 +99,9 @@ public class EventProducer implements Consumer<List<TypedEvent>> {
     }
   }
 
-  private boolean isPayloadValid(List<TypedEvent> events) {
-    PutEventsRequest eventsRequest = toEventsRequest(events);
-    return eventsRequest.entries().size() <= Conf.MAX_PUT_EVENT_ENTRIES;
-  }
-
-  private void checkPayload(List<TypedEvent> events) {
-    if (!isPayloadValid(events)) {
-      throw new BadRequestException("Request entries must be <= " + Conf.MAX_PUT_EVENT_ENTRIES);
-    }
-  }
-
   @Configuration
   public static class Conf {
-
-    private static final int MAX_PUT_EVENT_ENTRIES = 10;
+    public static final int MAX_PUT_EVENT_ENTRIES = 10;
     private final Region region;
 
     public Conf(@Value("${aws.region}") String region) {

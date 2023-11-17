@@ -1,5 +1,5 @@
-AWSTemplateFormatVersion: 2010-09-09
-Description: Event stack for Hei Admin
+AWSTemplateFormatVersion: "2010-09-09"
+Description: haapi - Event
 
 Parameters:
   Env:
@@ -9,7 +9,8 @@ Resources:
   MailboxQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join ['' , [!Ref Env , -hei-admin]]
+      QueueName: !Join ['' , [!Ref Env , -haapi]]
+      VisibilityTimeout: 601
       RedrivePolicy:
         deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
         maxReceiveCount: 5
@@ -18,7 +19,7 @@ Resources:
   DeadLetterQueue:
     Type: AWS::SQS::Queue
     Properties:
-      QueueName: !Join ['' , [!Ref Env , -hei-admin-dl]]
+      QueueName:  !Join ['' , [!Ref Env , -haapi-dl]]
       SqsManagedSseEnabled: false
 
   MailboxQueuePolicy:
@@ -28,25 +29,25 @@ Resources:
         - !Ref MailboxQueue
       PolicyDocument:
         Version: "2008-10-17"
-        Id: "MailboxQueuePolicy_ID"
+        Id: "MailboxQueue_Policy"
         Statement:
-          - Effect: "Allow"
+          - Action:
+              - "SQS:*"
+            Effect: "Allow"
+            Resource: !GetAtt MailboxQueue.Arn
             Principal:
               AWS:
                 - !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action:
-              - "SQS:*"
+          - Action:
+              - "SQS:SendMessage"
+            Effect: "Allow"
             Resource: !GetAtt MailboxQueue.Arn
-          - Effect: "Allow"
             Principal:
               Service:
                 - "events.amazonaws.com"
-            Action:
-              - "SQS:SendMessage"
-            Resource: !GetAtt MailboxQueue.Arn
             Condition:
               ArnEquals:
-                aws:SourceArn: !GetAtt EventBridgeRule.Arn
+                AWS:SourceArn: !GetAtt EventBridgeRule.Arn
 
   DeadLetterQueuePolicy:
     Type: AWS::SQS::QueuePolicy
@@ -55,63 +56,72 @@ Resources:
         - !Ref DeadLetterQueue
       PolicyDocument:
         Version: "2008-10-17"
-        Id: "DeadLetterQueue_ID"
+        Id: "DeadLetterQueue_Policy"
         Statement:
-          - Effect: "Allow"
+          - Action:
+              - "SQS:*"
+            Effect: "Allow"
+            Resource: !GetAtt DeadLetterQueue.Arn
             Principal:
               AWS:
                 - !Sub arn:aws:iam::${AWS::AccountId}:root
-            Action:
-              - "SQS:*"
-            Resource: !GetAtt DeadLetterQueue.Arn
 
   MailboxQueueSSM:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Join [ '' , [ /hei-admin-api/ , !Ref Env , /sqs/mailbox-queue-url ] ]
+      Name: !Join ['' , [/haapi/ , !Ref Env , /sqs/mailbox-queue-url]]
       Type: String
       Value: !Ref MailboxQueue
+
+  MailboxQueueSSMArn:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Join ['' , [/haapi/ , !Ref Env , /sqs/mailbox-queue-arn]]
+      Type: String
+      Value: !GetAtt MailboxQueue.Arn
 
   DeadLetterQueueSSM:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Join [ '' , [ /hei-admin-api/ , !Ref Env , /sqs/dead-letter-queue-url ] ]
+      Name: !Join ['' , [/haapi/ , !Ref Env , /sqs/dead-letter-queue-url]]
       Type: String
       Value: !Ref DeadLetterQueue
 
   EventBridgeBus:
     Type: AWS::Events::EventBus
     Properties:
-      Name: !Join [ '', [ !Ref Env, -hei-admin ] ]
+      Name: !Join ['', [!Ref Env, -haapi]]
 
   EventBridgeArchive:
     Type: AWS::Events::Archive
     Properties:
-      ArchiveName: !Join [ '', [ !Ref Env, -hei-admin, -archive ] ]
+      ArchiveName: !Join ['', [!Ref Env, -haapi, -archive]]
       SourceArn: !GetAtt EventBridgeBus.Arn
 
   EventBridgeRule:
     Type: AWS::Events::Rule
     Properties:
-      Name: !Join [ '', [ !Ref Env, -hei-admin, -from-api-to-api ] ]
+      Name: !Join ['', [!Ref Env, -haapi, -from-api-to-api]]
       EventBusName: !GetAtt EventBridgeBus.Name
       EventPattern:
         source:
           - school.hei.haapi
       Targets:
         - Arn: !GetAtt MailboxQueue.Arn
-          Id: !Join [ '', [ !Ref Env, -hei-admin, -api-mailbox ] ]
+          Id: !Join ['', [!Ref Env, -haapi, -api-mailbox]]
 
   EventBridgeBusNameSSM:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Join [ '',[ /hei-admin-api/ , !Ref Env , /eventbridge/bus-name ] ]
+      Name: !Join ['',[/haapi/ , !Ref Env , /eventbridge/bus-name]]
       Type: String
       Value: !GetAtt EventBridgeBus.Name
 
 Outputs:
   MailboxQueueURL:
     Value: !Ref MailboxQueueSSM
+  MailboxQueueArn:
+    Value: !Ref MailboxQueueSSMArn
   DeadLetterQueueURL:
     Value: !Ref DeadLetterQueueSSM
   EventBridgeBusName:

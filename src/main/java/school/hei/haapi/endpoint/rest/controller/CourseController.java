@@ -30,17 +30,24 @@ public class CourseController {
       @RequestParam(value = "code", required = false) String code,
       @RequestParam(value = "name", required = false) String name,
       @RequestParam(value = "credits", required = false) Integer credits,
-      @RequestParam(value = "teacher_first_name", required = false)
-      String teacherFirstName,
-      @RequestParam(value = "teacher_last_name", required = false)
-      String teacherLastName,
+      @RequestParam(value = "teacher_first_name", required = false) String teacherFirstName,
+      @RequestParam(value = "teacher_last_name", required = false) String teacherLastName,
       @RequestParam(value = "credits_order", required = false) CourseDirection creditsOrder,
       @RequestParam(value = "code_order", required = false) CourseDirection codeOrder,
       @RequestParam(defaultValue = "1") PageFromOne page,
-      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize
-  ) {
-    return service.getCourses(code, name, credits, creditsOrder, codeOrder, teacherFirstName,
-            teacherLastName, page, pageSize).stream()
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
+    return service
+        .getCourses(
+            code,
+            name,
+            credits,
+            creditsOrder,
+            codeOrder,
+            teacherFirstName,
+            teacherLastName,
+            page,
+            pageSize)
+        .stream()
         .map(mapper::toRest)
         .collect(Collectors.toUnmodifiableList());
   }

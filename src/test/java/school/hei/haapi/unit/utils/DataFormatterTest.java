@@ -1,10 +1,10 @@
 package school.hei.haapi.unit.utils;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+
 import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.service.utils.DataFormatterUtils;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class DataFormatterTest {
 
@@ -24,5 +24,4 @@ class DataFormatterTest {
     String actual = DataFormatterUtils.numberToWords(amount);
     assertEquals(expected, actual);
   }
-
 }

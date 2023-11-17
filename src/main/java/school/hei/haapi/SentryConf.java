@@ -22,11 +22,12 @@ public class SentryConf {
 
   @Bean
   public OptionsConfiguration<SentryOptions> getSentryOptionsConf() {
-    OptionsConfiguration<SentryOptions> optionsConf = options -> {
-      options.setDsn(sentryDsn);
-      options.setEnvironment(env);
-      options.setTracesSampleRate(TRACES_SAMPLE_RATE);
-    };
+    OptionsConfiguration<SentryOptions> optionsConf =
+        options -> {
+          options.setDsn(sentryDsn);
+          options.setEnvironment(env);
+          options.setTracesSampleRate(TRACES_SAMPLE_RATE);
+        };
     Sentry.init(optionsConf);
     return optionsConf;
   }

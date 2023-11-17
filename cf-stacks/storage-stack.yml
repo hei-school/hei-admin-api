@@ -1,69 +1,74 @@
-AWSTemplateFormatVersion: '2010-09-09'
-Description: Storage stack for HEI Admin API
+AWSTemplateFormatVersion: 2010-09-09
+Description: haapi - Storage
 
 Parameters:
   Env:
     Type: String
   DBName:
     Type: String
-    Default: pgDB
-  DBClass:
-    Default: db.t3.micro
-    Description: Database instance class
-    Type: String
-    ConstraintDescription: must select a valid database instance type.
-  DBAllocatedStorage:
-    Default: '5'
-    Description: The size of the database (Gb)
+    Default: haapi-rds
+  ProdDbClusterTimeout:
     Type: Number
-    MinValue: '5'
-    MaxValue: '6144'
-    ConstraintDescription: must be between 5+
+
+Conditions:
+  IsProdEnv: !Equals
+    - !Ref Env
+    - 'prod'
 
 Resources:
-  SubnetGroup:
+  DBSubnetGroup:
     Type: AWS::RDS::DBSubnetGroup
     Properties:
-      DBSubnetGroupDescription: !Join [ '', [ Subnet group for , !Ref Env ] ]
-      DBSubnetGroupName: !Join [ '', [ bpartners-, !Ref Env, -subnet-group ] ]
+      DBSubnetGroupDescription: !Join [ '', [ Subnet group for haapi , !Ref Env ] ]
+      DBSubnetGroupName: !Join [ '', [ haapi-, !Ref Env, -subnet-group ] ]
       SubnetIds:
-        - !Sub '{{resolve:ssm:/hei-admin-api/public/subnet}}'
-        - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet1}}'
-        - !Sub '{{resolve:ssm:/hei-admin-api/private/subnet2}}'
+        - !Sub '{{resolve:ssm:/haapi/subnet/private1/id}}'
+        - !Sub '{{resolve:ssm:/haapi/subnet/private2/id}}'
 
-  Database:
-    Type: AWS::RDS::DBInstance
-    DeletionPolicy: Retain
+  DatabaseCluster:
+    Type: AWS::RDS::DBCluster
     Properties:
-      DBName: !Ref DBName
-      AllocatedStorage: !Ref DBAllocatedStorage
-      DBInstanceClass:
-        Ref: DBClass
-      Engine: postgres
-      MasterUsername: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/username}}'
-      MasterUserPassword: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/db/password}}'
-      DBSubnetGroupName: !Ref SubnetGroup
-      VPCSecurityGroups: 
-        - !Sub '{{resolve:ssm:/hei-admin-api/sg}}'
+      BackupRetentionPeriod: 35
+      DatabaseName: !Join [ '', !Split [ '-', !Ref DBName ] ]
+      DBSubnetGroupName: !Ref DBSubnetGroup
+      DeletionProtection: true
+      Engine: aurora-postgresql
+      EngineMode: serverless
+      EngineVersion: 13.9 #Only postgresql version 13.9 and 11.9 supports Aurora serverless v1
+      MasterUsername: !Sub '{{resolve:ssm:/haapi/${Env}/db/username}}'
+      MasterUserPassword: !Sub '{{resolve:ssm:/haapi/${Env}/db/password}}'
+      VpcSecurityGroupIds:
+        - !Sub '{{resolve:ssm:/haapi/sg/id}}'
+      ScalingConfiguration:
+        SecondsUntilAutoPause:
+          !If [ IsProdEnv,  !Ref ProdDbClusterTimeout, 300 ]
 
-  DatabaseSSM:
+
+  DatabaseClusterSSM:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Join [ '', [ /hei-admin-api/, !Ref Env, /db/url ] ]
+      Name: !Join [ '', [ /haapi/, !Ref Env, /db/url ] ]
       Type: String
       Value:
         Fn::Join:
           - ''
           - - jdbc:postgresql://
             - Fn::GetAtt:
-                - Database
+                - DatabaseCluster
                 - Endpoint.Address
             - ':'
             - Fn::GetAtt:
-                - Database
+                - DatabaseCluster
                 - Endpoint.Port
             - '/'
-            - !Ref DBName
+            - !Join [ '', !Split [ '-', !Ref DBName ] ]
+
+  DatabaseClusterIdentifierSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Join [ '', [ /haapi/, !Ref Env, /db/identifier ] ]
+      Type: String
+      Value: !GetAtt DatabaseCluster.Endpoint.Address
 
   DatabaseIdentifierSSM:
     Type: AWS::SSM::Parameter
@@ -73,5 +78,5 @@ Resources:
       Value: !GetAtt Database.Endpoint.Address
 
 Outputs:
-  DatabaseSSM:
-    Value: !Ref DatabaseSSM
+  DatabaseClusterSSM:
+    Value: !GetAtt DatabaseClusterSSM.Value

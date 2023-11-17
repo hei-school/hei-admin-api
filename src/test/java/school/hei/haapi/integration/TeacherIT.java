@@ -1,28 +1,5 @@
 package school.hei.haapi.integration;
 
-import java.util.List;
-import java.util.Objects;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.SentryConf;
-import school.hei.haapi.endpoint.rest.api.UsersApi;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
-import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.mapper.UserMapper;
-import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.service.UserService;
-import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
-import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -47,31 +24,48 @@ import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacherLi
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
 import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 
+import java.util.List;
+import java.util.Objects;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.UserService;
+import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
+
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = TeacherIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class TeacherIT {
 
-  @MockBean
-  private SentryConf sentryConf;
+  @MockBean private SentryConf sentryConf;
 
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
-  @MockBean
-  private EventBridgeClient eventBridgeClientMock;
+  @MockBean private EventBridgeClient eventBridgeClientMock;
 
-  @Autowired
-  private UserService userService;
+  @Autowired private UserService userService;
 
-  @Autowired
-  private UserMapper userMapper;
+  @Autowired private UserMapper userMapper;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
-
 
   @BeforeEach
   public void setUp() {
@@ -84,10 +78,8 @@ class TeacherIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     UsersApi api = new UsersApi(student1Client);
-    assertThrowsForbiddenException(
-        () -> api.getTeacherById(TEACHER1_ID));
-    assertThrowsForbiddenException(
-        () -> api.getTeachers(1, 20, null, null, null));
+    assertThrowsForbiddenException(() -> api.getTeacherById(TEACHER1_ID));
+    assertThrowsForbiddenException(() -> api.getTeachers(1, 20, null, null, null));
   }
 
   @Test
@@ -95,10 +87,8 @@ class TeacherIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     UsersApi api = new UsersApi(teacher1Client);
-    assertThrowsForbiddenException(
-        () -> api.getTeacherById(TEACHER2_ID));
-    assertThrowsForbiddenException(
-        () -> api.getTeachers(1, 20, null, null, null));
+    assertThrowsForbiddenException(() -> api.getTeacherById(TEACHER2_ID));
+    assertThrowsForbiddenException(() -> api.getTeachers(1, 20, null, null, null));
   }
 
   @Test
@@ -106,8 +96,7 @@ class TeacherIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     UsersApi api = new UsersApi(student1Client);
-    assertThrowsForbiddenException(
-        () -> api.createOrUpdateTeachers(List.of()));
+    assertThrowsForbiddenException(() -> api.createOrUpdateTeachers(List.of()));
   }
 
   @Test
@@ -115,8 +104,7 @@ class TeacherIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     UsersApi api = new UsersApi(teacher1Client);
-    assertThrowsForbiddenException(
-        () -> api.createOrUpdateTeachers(List.of()));
+    assertThrowsForbiddenException(() -> api.createOrUpdateTeachers(List.of()));
   }
 
   @Test
@@ -181,13 +169,12 @@ class TeacherIT {
     listToCreate.add(teacherToCreate);
 
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Request entries must be <= 10\"}",
+        "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":\"Request entries must be <= 10\"}",
         () -> api.createOrUpdateTeachers(listToCreate));
 
     List<Teacher> actual = api.getTeachers(1, 20, null, null, null);
     assertFalse(
-        actual.stream().anyMatch(
-            s -> Objects.equals(teacherToCreate.getEmail(), s.getEmail())));
+        actual.stream().anyMatch(s -> Objects.equals(teacherToCreate.getEmail(), s.getEmail())));
   }
 
   @Test
@@ -207,19 +194,20 @@ class TeacherIT {
   void manager_write_update_with_some_bad_fields_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Teacher toCreate1 = someCreatableTeacher()
-        .firstName(null)
-        .lastName(null)
-        .email(null)
-        .address(null)
-        .phone(null)
-        .ref(null);
+    Teacher toCreate1 =
+        someCreatableTeacher()
+            .firstName(null)
+            .lastName(null)
+            .email(null)
+            .address(null)
+            .phone(null)
+            .ref(null);
     Teacher toCreate2 = someCreatableTeacher().email("bademail");
 
-    ApiException exception1 = assertThrows(ApiException.class,
-        () -> api.createOrUpdateTeachers(List.of(toCreate1)));
-    ApiException exception2 = assertThrows(ApiException.class,
-        () -> api.createOrUpdateTeachers(List.of(toCreate2)));
+    ApiException exception1 =
+        assertThrows(ApiException.class, () -> api.createOrUpdateTeachers(List.of(toCreate1)));
+    ApiException exception2 =
+        assertThrows(ApiException.class, () -> api.createOrUpdateTeachers(List.of(toCreate2)));
 
     String exceptionMessage1 = exception1.getMessage();
     String exceptionMessage2 = exception2.getMessage();

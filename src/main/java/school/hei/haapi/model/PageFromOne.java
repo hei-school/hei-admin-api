@@ -5,8 +5,7 @@ import school.hei.haapi.model.exception.BadRequestException;
 
 public class PageFromOne {
 
-  @Getter
-  private final int value;
+  @Getter private final int value;
 
   public PageFromOne(int value) {
     if (value < 1) {

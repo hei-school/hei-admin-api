@@ -22,7 +22,8 @@ public class UserMapper {
     restStudent.setPhone(user.getPhone());
     restStudent.setEntranceDatetime(user.getEntranceDatetime());
     restStudent.setBirthDate(user.getBirthDate());
-    restStudent.setSex(user.getSex() == null ? null : Student.SexEnum.fromValue(user.getSex().toString()));
+    restStudent.setSex(
+        user.getSex() == null ? null : Student.SexEnum.fromValue(user.getSex().toString()));
     restStudent.setAddress(user.getAddress());
 
     return restStudent;
@@ -40,7 +41,8 @@ public class UserMapper {
     teacher.setPhone(user.getPhone());
     teacher.setEntranceDatetime(user.getEntranceDatetime());
     teacher.setBirthDate(user.getBirthDate());
-    teacher.setSex(user.getSex() == null ? null : Teacher.SexEnum.fromValue(user.getSex().toString()));
+    teacher.setSex(
+        user.getSex() == null ? null : Teacher.SexEnum.fromValue(user.getSex().toString()));
     teacher.setAddress(user.getAddress());
 
     return teacher;

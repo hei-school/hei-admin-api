@@ -1,5 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static school.hei.haapi.model.User.Role.STUDENT;
+
 import java.util.List;
 import java.util.PrimitiveIterator;
 import java.util.stream.Collectors;
@@ -23,9 +26,6 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.GroupFlowService;
 import school.hei.haapi.service.UserService;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static school.hei.haapi.model.User.Role.STUDENT;
-
 @RestController
 @AllArgsConstructor
 public class StudentController {
@@ -45,10 +45,10 @@ public class StudentController {
         .map(userMapper::toRestStudent)
         .collect(Collectors.toList());
   }
-  //todo: get with course
   @GetMapping("/students")
   public List<Student> getStudents(
-      @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize,
+      @RequestParam PageFromOne page,
+      @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,

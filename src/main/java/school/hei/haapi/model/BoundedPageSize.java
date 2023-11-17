@@ -5,8 +5,7 @@ import school.hei.haapi.model.exception.BadRequestException;
 
 public class BoundedPageSize {
 
-  @Getter
-  private final int value;
+  @Getter private final int value;
 
   private static final int MAX_SIZE = 500;
 

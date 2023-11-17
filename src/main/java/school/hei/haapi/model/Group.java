@@ -1,5 +1,7 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
@@ -17,7 +19,6 @@ import org.hibernate.annotations.CreationTimestamp;
 
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
-
 @Entity
 @Table(name = "\"group\"")
 @Getter
@@ -34,8 +35,7 @@ public class Group implements Serializable {
   private String name;
   private String ref;
 
-  @CreationTimestamp
-  private Instant creationDatetime;
+  @CreationTimestamp private Instant creationDatetime;
 
   @OneToMany(mappedBy = "group", fetch = LAZY)
   private List<AwardedCourse> awardedCourse;

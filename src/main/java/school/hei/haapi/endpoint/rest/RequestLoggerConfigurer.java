@@ -1,5 +1,10 @@
 package school.hei.haapi.endpoint.rest;
 
+import static java.lang.System.currentTimeMillis;
+import static java.lang.Thread.currentThread;
+import static java.util.UUID.randomUUID;
+import static java.util.stream.Collectors.joining;
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -13,11 +18,6 @@ import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
-
-import static java.lang.System.currentTimeMillis;
-import static java.lang.Thread.currentThread;
-import static java.util.UUID.randomUUID;
-import static java.util.stream.Collectors.joining;
 
 @Configuration
 public class RequestLoggerConfigurer implements WebMvcConfigurer {
@@ -55,16 +55,22 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
       request.setAttribute(THREAD_OLD_NAME, oldThreadName);
       current.setName(randomUUID().toString().substring(0, REQUEST_ID_LENGTH));
 
-      String parameters = request.getParameterMap().entrySet().stream()
-          .map(entry -> entry.getKey() + "=" + String.join(",", entry.getValue()))
-          .collect(joining(";"));
+      String parameters =
+          request.getParameterMap().entrySet().stream()
+              .map(entry -> entry.getKey() + "=" + String.join(",", entry.getValue()))
+              .collect(joining(";"));
       if (shouldLog()) {
         Principal principal = AuthProvider.getPrincipal();
-        log.info("preHandle: "
+        log.info(
+            "preHandle: "
                 + "userId={}, role={}, method={}, uri={}, parameters=[{}], "
                 + "handler={}, oldThreadName={}",
-            principal.getUserId(), principal.getRole(),
-            request.getMethod(), request.getRequestURI(), parameters, handler,
+            principal.getUserId(),
+            principal.getRole(),
+            request.getMethod(),
+            request.getRequestURI(),
+            parameters,
+            handler,
             oldThreadName);
       }
       return true;
@@ -72,8 +78,10 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
 
     @Override
     public void afterCompletion(
-        HttpServletRequest request, HttpServletResponse response,
-        Object handler, @Nullable Exception ex) {
+        HttpServletRequest request,
+        HttpServletResponse response,
+        Object handler,
+        @Nullable Exception ex) {
       long duration = currentTimeMillis() - (long) request.getAttribute(REQUEST_START_TIME);
       if (shouldLog()) {
         log.info("afterCompletion: status={}, duration={}ms", response.getStatus(), duration, ex);

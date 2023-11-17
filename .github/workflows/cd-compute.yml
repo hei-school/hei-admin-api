@@ -1,69 +1,38 @@
-name: CD
+name: CD compute
 
 on:
   push:
     branches:
-      - 'dev'
       - 'prod'
+      - 'preprod'
 
   workflow_dispatch:
-    inputs:
-      run_tests:
-        type: boolean
-        required: false
-        default: true
 
   workflow_call:
-    inputs:
-      run_tests:
-        type: boolean
-        required: false
-        default: true
 
 jobs:
-  cd-compute:
-    if: github.ref_name == 'dev' || github.ref_name == 'prod'
-
+  deploy-api:
+    if: ${{ github.ref_name == 'prod' || github.ref_name == 'preprod' }}
     runs-on: ubuntu-latest
+    timeout-minutes: 15
 
     env:
       AWS_REGION: eu-west-3
 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+      - uses: actions/checkout@v4.1.1
 
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'corretto'
 
-      - name: From gradle.properties to version.yml
-        run: |
-          cp gradle.properties version.yml
-          sed -i 's/=/: /g' version.yml
-
-      - name: Read semantic version (needed by the docker image build)
-        id: read-semver
-        uses: CumulusDS/get-yaml-paths-action@v0.1.0
-        with:
-          file: version.yml
-          version: version
-
-      - name: Run test
-        if: ${{ github.event.inputs.run_tests != 'false' && github.event_name != 'schedule' }}
-        run: |
-          export TEST_AWS_COGNITO_IDTOKEN=${{ secrets.TEST_COGNITO_IDTOKEN }}
-          export AWS_SES_SOURCE=${{ secrets.AWS_SES_SOURCE }}
-          export AWS_SES_CONTACT=${{secrets.AWS_SES_CONTACT}}
-          ./gradlew test
-
-      - name: Configure dev AWS credentials
-        if: ${{ github.ref_name == 'dev' }}
+      - name: Configure preprod AWS credentials
+        if: ${{ github.ref_name != 'prod' }}
         uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
-          aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          aws-access-key-id: ${{ secrets.PREPROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PREPROD_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
       - name: Configure prod AWS credentials
@@ -76,5 +45,5 @@ jobs:
 
       - run: sam build
 
-      - run: |
-          sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ github.ref_name }}-compute-hei-admin-api --capabilities CAPABILITY_IAM --parameter-overrides Env=${{ github.ref_name }} --resolve-s3
+      - name: Deploy application
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ github.ref_name }}-compute-haapi --capabilities CAPABILITY_IAM --parameter-overrides Env=${{ github.ref_name }} --resolve-s3

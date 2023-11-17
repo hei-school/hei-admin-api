@@ -1,25 +1,5 @@
 package school.hei.haapi.integration;
 
-import java.time.Instant;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.SentryConf;
-import school.hei.haapi.endpoint.rest.api.PayingApi;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
-import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CreatePayment;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.Payment;
-import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.TestUtils;
-
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -41,15 +21,33 @@ import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
+import java.time.Instant;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.rest.api.PayingApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreatePayment;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.Payment;
+import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.TestUtils;
+
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = PaymentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class PaymentIT {
-  @MockBean
-  private SentryConf sentryConf;
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private SentryConf sentryConf;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, PaymentIT.ContextInitializer.SERVER_PORT);
@@ -86,10 +84,7 @@ class PaymentIT {
   }
 
   static CreatePayment creatablePayment1() {
-    return new CreatePayment()
-        .type(CreatePayment.TypeEnum.CASH)
-        .amount(2000)
-        .comment("Comment");
+    return new CreatePayment().type(CreatePayment.TypeEnum.CASH).amount(2000).comment("Comment");
   }
 
   static CreatePayment creatablePayment2() {
@@ -151,8 +146,8 @@ class PaymentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    List<Payment> actual = api.createStudentPayments(STUDENT1_ID, FEE3_ID,
-        List.of(creatablePayment1()));
+    List<Payment> actual =
+        api.createStudentPayments(STUDENT1_ID, FEE3_ID, List.of(creatablePayment1()));
 
     List<Payment> expected = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
     assertTrue(expected.containsAll(actual));
@@ -166,7 +161,6 @@ class PaymentIT {
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createStudentPayments(STUDENT1_ID, FEE1_ID, List.of()));
-
   }
 
   @Test
@@ -188,8 +182,9 @@ class PaymentIT {
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Payment amount (8000)"
             + " exceeds fee remaining amount (5000)\"}",
-        () -> api.createStudentPayments(STUDENT1_ID, FEE3_ID, List.of(creatablePayment1(),
-            creatablePayment2())));
+        () ->
+            api.createStudentPayments(
+                STUDENT1_ID, FEE3_ID, List.of(creatablePayment1(), creatablePayment2())));
 
     List<Payment> actual = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
     assertEquals(0, expected.size());
@@ -203,10 +198,14 @@ class PaymentIT {
     CreatePayment toCreate1 = creatablePayment1().amount(null);
     CreatePayment toCreate2 = creatablePayment1().amount(-1);
 
-    ApiException exception1 = assertThrows(ApiException.class,
-        () -> api.createStudentPayments(STUDENT1_ID, FEE1_ID, List.of(toCreate1)));
-    ApiException exception2 = assertThrows(ApiException.class,
-        () -> api.createStudentPayments(STUDENT1_ID, FEE1_ID, List.of(toCreate2)));
+    ApiException exception1 =
+        assertThrows(
+            ApiException.class,
+            () -> api.createStudentPayments(STUDENT1_ID, FEE1_ID, List.of(toCreate1)));
+    ApiException exception2 =
+        assertThrows(
+            ApiException.class,
+            () -> api.createStudentPayments(STUDENT1_ID, FEE1_ID, List.of(toCreate2)));
 
     String exceptionMessage1 = exception1.getMessage();
     String exceptionMessage2 = exception2.getMessage();
@@ -227,7 +226,8 @@ class PaymentIT {
 
     Fee actualFee3 = api.getStudentFeeById(fee.getStudentId(), fee.getId());
     assertNotEquals(fee, actualFee3);
-    assertEquals((fee.getRemainingAmount() - creatablePayment1().getAmount()),
+    assertEquals(
+        (fee.getRemainingAmount() - creatablePayment1().getAmount()),
         actualFee3.getRemainingAmount());
 
     assertEquals(expected, actual);

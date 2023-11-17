@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -10,8 +12,6 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.FeeService;
-
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 @Component
 @AllArgsConstructor
