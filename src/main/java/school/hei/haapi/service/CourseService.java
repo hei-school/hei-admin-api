@@ -49,39 +49,39 @@ public class CourseService {
     return courseRepository.saveAll(toCreateOrUpdate);
   }
 
-  public List<Course> getCoursesByTeacherId(String teacherId) {
-    User teacher = userRepository.getById(teacherId);
-    List<AwardedCourse> awardedCourses = teacher.getAwardedCourses();
-    return awardedCourses.stream()
-        .map(awardedCourse -> awardedCourse.getCourse()).distinct()
-        .collect(Collectors.toList());
-  }
+//  public List<Course> getCoursesByTeacherId(String teacherId) {
+//    User teacher = userRepository.getById(teacherId);
+//    List<AwardedCourse> awardedCourses = teacher.getAwardedCourses();
+//    return awardedCourses.stream()
+//        .map(awardedCourse -> awardedCourse.getCourse()).distinct()
+//        .collect(Collectors.toList());
+//  }
 
-  public List<Course> getCoursesByStudentId(String studentId) {
-    List<Group> groups = groupService.getByUserId(studentId);
-    List<AwardedCourse> awardedCourses = new ArrayList<>();
-    for (Group group : groups) {
-      awardedCourses.addAll(group.getAwardedCourse());
-    }
-    return awardedCourses.stream()
-        .map(awardedCourse -> awardedCourse.getCourse()).distinct()
-        .collect(Collectors.toList());
-  }
+//  public List<Course> getCoursesByStudentId(String studentId) {
+//    List<Group> groups = groupService.getByUserId(studentId);
+//    List<AwardedCourse> awardedCourses = new ArrayList<>();
+//    for (Group group : groups) {
+//      awardedCourses.addAll(group.getAwardedCourse());
+//    }
+//    return awardedCourses.stream()
+//        .map(awardedCourse -> awardedCourse.getCourse()).distinct()
+//        .collect(Collectors.toList());
+//  }
 
-  public List<Course> getCoursesByUserId(String userId) {
-    User user = userRepository.getById(userId);
-    switch (user.getRole()) {
-      case MANAGER:
-        return courseRepository.findAll();
-      case TEACHER:
-        return getCoursesByTeacherId(userId);
-      case STUDENT:
-        return getCoursesByStudentId(userId);
-      default:
-        return new ArrayList<>();
-    }
-
-  }
+//  public List<Course> getCoursesByUserId(String userId) {
+//    User user = userRepository.getById(userId);
+//    switch (user.getRole()) {
+//      case MANAGER:
+//        return courseRepository.findAll();
+//      case TEACHER:
+//        return getCoursesByTeacherId(userId);
+//      case STUDENT:
+//        return getCoursesByStudentId(userId);
+//      default:
+//        return new ArrayList<>();
+//    }
+//
+//  }
 
   public Course getById(String id) {
     return courseRepository.getCourseById(id);
