@@ -18,7 +18,9 @@ public class PaymentValidator implements Consumer<Payment> {
       throw new NotImplementedException("Payments on multiple fees are not yet implemented");
     }
     Fee associatedFee = payments.get(0).getFee();
-    int totalAmount = payments.stream().mapToInt(Payment::getAmount).sum();
+    int totalAmount = payments.stream()
+        .mapToInt(Payment::getAmount)
+        .sum();
     if (associatedFee.getRemainingAmount() < totalAmount) {
       throw new BadRequestException(
           "Payment amount ("

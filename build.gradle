@@ -125,25 +125,25 @@ dependencies {
 
     testImplementation 'org.testcontainers:postgresql:1.19.1'
 
-implementation 'school.hei:haapi-gen:1.0'
+    implementation 'school.hei:haapi-gen:1.0'
 
-implementation 'org.springframework.boot:spring-boot-starter-security'
+    implementation 'org.springframework.boot:spring-boot-starter-security'
 
-implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
+    implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
 
-implementation 'software.amazon.awssdk:cognitoidentityprovider:2.20.66'
-implementation 'software.amazon.awssdk:ses:2.20.69'
+    implementation 'software.amazon.awssdk:cognitoidentityprovider:2.20.66'
+    implementation 'software.amazon.awssdk:ses:2.20.69'
 
-implementation 'io.sentry:sentry-spring-boot-starter:6.16.0'
-implementation 'io.sentry:sentry-logback:6.19.0'
+    implementation 'io.sentry:sentry-spring-boot-starter:6.16.0'
+    implementation 'io.sentry:sentry-logback:6.19.0'
 
-implementation 'org.springframework.boot:spring-boot-starter-validation'
-implementation 'org.thymeleaf:thymeleaf:3.1.1.RELEASE'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.thymeleaf:thymeleaf:3.1.1.RELEASE'
 // A library that format number into words
-implementation 'pl.allegro.finance:tradukisto:1.12.0'
+    implementation 'pl.allegro.finance:tradukisto:1.12.0'
 
-testImplementation 'org.springframework.security:spring-security-test'
+    testImplementation 'org.springframework.security:spring-security-test'
 // Can __NOT__ upgrade javaker to higher versions
-testImplementation 'com.github.javafaker:javafaker:0.13'
+    testImplementation 'com.github.javafaker:javafaker:0.13'
 
 }

@@ -1,8 +1,6 @@
 package school.hei.haapi.model;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
-import java.io.Serializable;
+import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
@@ -20,11 +18,18 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import school.hei.haapi.endpoint.rest.model.CourseStatus;
 import school.hei.haapi.repository.types.PostgresEnumType;
+import school.hei.haapi.service.utils.DataFormatterUtils;
+
+import java.io.Serializable;
+import java.time.Instant;
+import java.util.List;
+
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.IDENTITY;
 
 @Entity
-@Table(name = "\"student_course\"")
+@Table(name = "\"group_flow\"")
 @Getter
 @Setter
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
@@ -33,20 +38,31 @@ import school.hei.haapi.repository.types.PostgresEnumType;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class StudentCourse implements Serializable {
+public class GroupFlow implements Serializable {
+  //todo: to review all class
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  @ManyToOne
-  @JoinColumn(name = "user_id", referencedColumnName = "id")
-  private User userId;
+  @ManyToOne(fetch = LAZY)
+  @JoinColumn(name = "student_id")
+  private User student;
 
   @ManyToOne
-  @JoinColumn(name = "course_id", referencedColumnName = "id")
-  private Course courseId;
+  @JoinColumn(name = "group_id")
+  private Group group;
 
+  @Column(name = "\"group_flow_type\"")
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
-  private CourseStatus status;
+  private group_flow_type groupFlowType;
+
+  private Instant flowDatetime;
+
+  public enum group_flow_type {
+    JOIN, LEAVE;
+    public static group_flow_type fromValue(String value) {
+      return DataFormatterUtils.fromValue(group_flow_type.class, value);
+    }
+  }
 }

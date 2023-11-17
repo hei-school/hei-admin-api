@@ -4,11 +4,10 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,6 +17,8 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "\"group\"")
 @Getter
@@ -36,6 +37,11 @@ public class Group implements Serializable {
 
   @CreationTimestamp private Instant creationDatetime;
 
+  @OneToMany(mappedBy = "group", fetch = LAZY)
+  private List<AwardedCourse> awardedCourse;
+
+  @OneToMany(mappedBy = "group", fetch = LAZY)
+  private List<GroupFlow> groupFlows;
   @Override
   public boolean equals(Object o) {
     if (this == o) {

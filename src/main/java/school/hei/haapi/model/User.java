@@ -11,6 +11,7 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
@@ -26,8 +27,12 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import school.hei.haapi.endpoint.rest.security.model.Role;
 import school.hei.haapi.repository.types.PostgresEnumType;
+import school.hei.haapi.service.utils.DataFormatterUtils;
 
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "\"user\"")
 @TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
@@ -75,8 +80,14 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Role role;
 
-  @OneToMany(mappedBy = "userId")
-  private List<StudentCourse> studentCourses;
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
+  private List<AwardedCourse> awardedCourses;
+
+  @OneToMany(mappedBy = "student", fetch = LAZY)
+  private List<GroupFlow> groupFlows;
+
+  @OneToMany(mappedBy = "student", fetch = LAZY)
+  private List<Grade> grades;
 
   @Override
   public boolean equals(Object o) {
@@ -96,18 +107,23 @@ public class User implements Serializable {
   }
 
   public enum Sex {
-    M,
-    F
+    M, F;
+    public static Sex fromValue(String value) {
+      return DataFormatterUtils.fromValue(Sex.class, value);
+    }
   }
 
   public enum Status {
-    ENABLED,
-    DISABLED
+    ENABLED, DISABLED;
+    public static Status fromValue(String value) {
+      return DataFormatterUtils.fromValue(Status.class, value);
+    }
   }
 
   public enum Role {
-    STUDENT,
-    TEACHER,
-    MANAGER
+    STUDENT, TEACHER, MANAGER;
+    public static Role fromValue(String value) {
+      return DataFormatterUtils.fromValue(Role.class, value);
+    }
   }
 }

@@ -28,9 +28,9 @@ public class EventProducer implements Consumer<List<Object>> {
   private final EventBridgeClient eventBridgeClient;
 
   public EventProducer(
-      ObjectMapper om,
-      @Value("${aws.eventBridge.bus}") String eventBusName,
-      EventBridgeClient eventBridgeClient) {
+          ObjectMapper om,
+          @Value("${aws.eventBridge.bus}") String eventBusName,
+          EventBridgeClient eventBridgeClient) {
     this.om = om;
     this.eventBusName = eventBusName;
     this.eventBridgeClient = eventBridgeClient;
@@ -45,19 +45,19 @@ public class EventProducer implements Consumer<List<Object>> {
 
   private PutEventsRequest toEventsRequest(List<Object> events) {
     return PutEventsRequest.builder()
-        .entries(events.stream().map(this::toRequestEntry).toList())
-        .build();
+            .entries(events.stream().map(this::toRequestEntry).toList())
+            .build();
   }
 
   private PutEventsRequestEntry toRequestEntry(Object event) {
     try {
       String eventAsString = om.writeValueAsString(event);
       return PutEventsRequestEntry.builder()
-          .source(EVENT_SOURCE)
-          .detailType(event.getClass().getTypeName())
-          .detail(eventAsString)
-          .eventBusName(eventBusName)
-          .build();
+              .source(EVENT_SOURCE)
+              .detailType(event.getClass().getTypeName())
+              .detail(eventAsString)
+              .eventBusName(eventBusName)
+              .build();
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }

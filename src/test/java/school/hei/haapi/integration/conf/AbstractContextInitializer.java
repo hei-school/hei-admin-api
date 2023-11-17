@@ -7,7 +7,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 
 public abstract class AbstractContextInitializer
     implements ApplicationContextInitializer<ConfigurableApplicationContext> {
-
+  private static final String SENTRY_MOCK_DSN = "https://examplePublicKey@example.sentry.io/12345";
   @Override
   public void initialize(ConfigurableApplicationContext applicationContext) {
     PostgreSQLContainer<?> postgresContainer =
@@ -20,6 +20,8 @@ public abstract class AbstractContextInitializer
     String flywayTestdataPath = "classpath:/db/testdata";
     TestPropertySourceUtils.addInlinedPropertiesToEnvironment(
         applicationContext,
+        "sentry.dsn=" + SENTRY_MOCK_DSN,
+        "env=test",
         "server.port=" + this.getServerPort(),
         "aws.cognito.userPool.id=eu-west-3_mGxK1Bi8s",
         "aws.eventBridge.bus=dummy",

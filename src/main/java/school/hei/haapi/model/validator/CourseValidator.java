@@ -38,9 +38,6 @@ public class CourseValidator implements Consumer<Course> {
     if (course.getTotalHours() <= 0) {
       violationMessages.add("Credits must be positive");
     }
-    if (course.getMainTeacher() == null) {
-      violationMessages.add("Main teacher is mandatory");
-    }
     if (!violationMessages.isEmpty()) {
       String formattedViolationMessages =
           violationMessages.stream().map(String::toString).collect(Collectors.joining(". "));

@@ -13,13 +13,11 @@ import school.hei.haapi.endpoint.rest.validator.CreateFeeValidator;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
-import school.hei.haapi.service.UserService;
 
 @Component
 @AllArgsConstructor
 public class FeeMapper {
 
-  private final UserService userService;
   private final CreateFeeValidator createFeeValidator;
 
   public Fee toRestFee(school.hei.haapi.model.Fee fee) {
@@ -54,10 +52,9 @@ public class FeeMapper {
         .build();
   }
 
-  public List<school.hei.haapi.model.Fee> toDomainFee(String studentId, List<CreateFee> toCreate) {
-    User student = userService.getById(studentId);
+  public List<school.hei.haapi.model.Fee> toDomainFee(User student, List<CreateFee> toCreate) {
     if (student == null) {
-      throw new NotFoundException("Student.id=" + studentId + " is not found");
+      throw new NotFoundException("Student.id=" + student.getId() + " is not found");
     }
     return toCreate.stream()
         .map(createFee -> toDomainFee(student, createFee))

@@ -1,26 +1,39 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import org.springframework.stereotype.Component;
-import school.hei.haapi.model.Group;
+import school.hei.haapi.endpoint.rest.model.CreateGroup;
+import school.hei.haapi.endpoint.rest.model.Group;
 
 @Component
 public class GroupMapper {
-
-  public school.hei.haapi.endpoint.rest.model.Group toRest(Group group) {
-    var restGroup = new school.hei.haapi.endpoint.rest.model.Group();
-    restGroup.setId(group.getId());
-    restGroup.setName(group.getName());
-    restGroup.setRef(group.getRef());
-    restGroup.setCreationDatetime(group.getCreationDatetime());
-    return restGroup;
+  //todo: to review all class
+  public Group toRest(school.hei.haapi.model.Group group) {
+    return new Group()
+        .id(group.getId())
+        .name(group.getName())
+        .ref(group.getRef())
+        .creationDatetime(group.getCreationDatetime());
   }
 
-  public Group toDomain(school.hei.haapi.endpoint.rest.model.Group restGroup) {
-    return Group.builder()
+  public school.hei.haapi.model.Group toDomain(Group restGroup) {
+    return school.hei.haapi.model.Group.builder()
         .id(restGroup.getId())
         .name(restGroup.getName())
         .ref(restGroup.getRef())
         .creationDatetime(restGroup.getCreationDatetime())
         .build();
+  }
+
+  public school.hei.haapi.model.notEntity.CreateGroup toDomain(CreateGroup restGroup) {
+    school.hei.haapi.model.Group group = school.hei.haapi.model.Group.builder()
+            .id(restGroup.getId())
+            .name(restGroup.getName())
+            .ref(restGroup.getRef())
+            .creationDatetime(restGroup.getCreationDatetime())
+            .build();
+    return school.hei.haapi.model.notEntity.CreateGroup.builder()
+            .group(group)
+            .studentsToAdd(restGroup.getStudentsToAdd())
+            .build();
   }
 }

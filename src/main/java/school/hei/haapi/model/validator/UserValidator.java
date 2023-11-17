@@ -27,10 +27,9 @@ public class UserValidator implements Consumer<User> {
       throw new BadRequestException("Entrance datetime is mandatory");
     }
     if (!violations.isEmpty()) {
-      String constraintMessages =
-          violations.stream()
-              .map(ConstraintViolation::getMessage)
-              .collect(Collectors.joining(". "));
+      String constraintMessages = violations.stream()
+          .map(ConstraintViolation::getMessage)
+          .collect(Collectors.joining(". "));
       throw new BadRequestException(constraintMessages);
     }
   }
