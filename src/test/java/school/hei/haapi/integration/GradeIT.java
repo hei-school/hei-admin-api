@@ -140,6 +140,7 @@ class GradeIT {
     assertEquals(1, actual.size());
   }
 
+
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
 

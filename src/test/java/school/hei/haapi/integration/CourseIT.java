@@ -35,24 +35,6 @@ import static school.hei.haapi.integration.conf.TestUtils.isBefore;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableCourseList;
 
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.SentryConf;
-import school.hei.haapi.endpoint.rest.api.TeachingApi;
-import school.hei.haapi.endpoint.rest.api.UsersApi;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
-import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CourseDirection;
-import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.TestUtils;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -77,11 +59,11 @@ class CourseIT {
     TeachingApi api = new TeachingApi(student1Client);
 
     List<Course> actualList = api.getCourses(null, null, null, null, null, null, null, null, null);
+    Course actual = api.getCourseById(COURSE1_ID);
 
     assertEquals(4, actualList.size());
     assertTrue(actualList.contains(course1()));
 
-    Course actual = api.getCourseById(COURSE1_ID);
     assertEquals(course1(), actual);
   }
 

@@ -52,9 +52,14 @@ class ExamIT {
     List<ExamInfo> actual =
         api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
 
+    ExamInfo oneActualExam =
+            api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
+
     assertEquals(2, actual.size());
     assertTrue(actual.contains(exam1()));
     assertTrue(actual.contains(exam2()));
+
+    assertEquals(exam1(), oneActualExam);
   }
 
   @Test
@@ -71,10 +76,14 @@ class ExamIT {
     TeachingApi api = new TeachingApi(teacher1Client);
     List<ExamInfo> actual =
         api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
+    ExamInfo oneActualExam =
+            api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
 
     assertEquals(2, actual.size());
     assertTrue(actual.contains(exam1()));
     assertTrue(actual.contains(exam2()));
+
+    assertEquals(exam1(), oneActualExam);
   }
 
   @Test
