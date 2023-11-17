@@ -401,7 +401,7 @@ class AttendanceIT {
     return new CreateAttendanceMovement()
         .place(PlaceEnum.ANDRAHARO)
         .attendanceMovementType(AttendanceMovementType.IN)
-        .studentId("student1_id")
+        .studentRef("STD21001")
         .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"));
   }
 
@@ -409,7 +409,7 @@ class AttendanceIT {
     return new CreateAttendanceMovement()
         .place(PlaceEnum.ANDRAHARO)
         .attendanceMovementType(AttendanceMovementType.IN)
-        .studentId("student_id_ko")
+        .studentRef("student_id_ko")
         .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"));
   }
 

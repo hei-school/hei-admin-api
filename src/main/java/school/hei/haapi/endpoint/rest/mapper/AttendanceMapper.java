@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CourseSession;
@@ -8,6 +9,8 @@ import school.hei.haapi.endpoint.rest.model.StudentAttendanceMovement;
 import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.UserRepository;
+
+import java.util.List;
 
 @AllArgsConstructor
 @Component
@@ -42,16 +45,33 @@ public class AttendanceMapper {
   }
 
   public StudentAttendance toDomain(CreateAttendanceMovement toCreate) {
-    if (userRepository.findById(toCreate.getStudentId()).isEmpty()) {
+    if (userRepository.findByRefContainingIgnoreCase(toCreate.getStudentRef()).isEmpty()) {
       throw new NotFoundException(
-          "the student with #" + toCreate.getStudentId() + " doesn't exist");
+          "the student with #" + toCreate.getStudentRef() + " doesn't exist");
     }
     return StudentAttendance.builder()
         .attendanceMovementType(toCreate.getAttendanceMovementType())
         .place(toCreate.getPlace())
         .createdAt(toCreate.getCreatedAt())
-        .student(userRepository.findById(toCreate.getStudentId()).get())
+        .student(userRepository.findByRefContainingIgnoreCase(toCreate.getStudentRef()).get())
         .build();
+  }
+
+  public void accept(List<CreateAttendanceMovement> toCreates) {
+    List<String> wrongStds = new ArrayList<>();
+    toCreates.forEach(movement -> {
+      if (!userRepository.findByRefContainingIgnoreCase(movement.getStudentRef()).isPresent()) {
+        wrongStds.add(movement.getStudentRef());
+      }
+    });
+    if (!wrongStds.isEmpty()) {
+      if(wrongStds.size() > 1) {
+        throw new NotFoundException("Students with: #" + wrongStds.toString() + " are not found");
+      }
+      else {
+        throw new NotFoundException("Student with: #" + wrongStds.toString() + " is not found");
+      }
+    }
   }
 
   public CourseSession toCourseSession(school.hei.haapi.model.CourseSession toMap) {

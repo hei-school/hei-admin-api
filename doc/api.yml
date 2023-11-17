@@ -1492,7 +1492,7 @@ paths:
         '403':
           $ref: '#/components/responses/403'
         '404':
-          $ref: '#/components/responses/404'
+          $ref: '#/components/responses/404_create_attendance'
         '429':
           $ref: '#/components/responses/429'
         '500':
@@ -1595,6 +1595,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/NotAuthorizedException'
+    '404_create_attendance':
+      description: Student not found for given Ref
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/StudentNotFoundException'
     '404':
       description: Not found
       content:
@@ -1877,7 +1883,7 @@ components:
     CreateAttendanceMovement:
       type: object
       properties:
-        student_id:
+        student_ref:
           type: string
         created_at:
           type: string
@@ -2019,6 +2025,12 @@ components:
       example:
         type: NotAuthorizedException
         message: Not authorized
+    StudentNotFoundException:
+      allOf:
+        - $ref: '#/components/schemas/Exception'
+      example:
+        type: ResourceNotFoundException
+        message: 'Student(s) with: #[<student ref>] are not found'
     ResourceNotFoundException:
       allOf:
         - $ref: '#/components/schemas/Exception'

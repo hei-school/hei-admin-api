@@ -6,5 +6,6 @@ import school.hei.haapi.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
+  Optional<User> findByRefContainingIgnoreCase(String ref);
   User getByEmail(String email);
 }
