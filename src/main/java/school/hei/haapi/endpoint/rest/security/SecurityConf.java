@@ -138,16 +138,14 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/groups/*").authenticated()
         .antMatchers(GET, "/groups/*/awarded_courses").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/groups/*/awarded_courses/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(PUT, "/groups/*/awarded_courses").hasAnyRole(MANAGER.getRole())
         .requestMatchers(new AwardedCourseOfTeacherMatcher(awardedCourseService, PUT, "/groups/*/awarded_courses/*/exams")).hasAnyRole(TEACHER.getRole())
         .antMatchers(GET, "/groups/*/awarded_courses/*/exams").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*/grades").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/groups/*/awarded_courses/*/exams/*/students/*/grade", "students")).hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*/students/*/grade").hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-        .antMatchers(GET, "/groups/*/awarded_courses")
-        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-        .antMatchers(GET, "/groups/*/awarded_courses/*")
-        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+
         .requestMatchers(new AwardedCourseOfTeacherMatcher(awardedCourseService, PUT, "/groups/*" +
             "/awarded_courses/*/exams")).hasAnyRole(TEACHER.getRole())
         .antMatchers(GET, "/groups/*/awarded_courses/*/exams")

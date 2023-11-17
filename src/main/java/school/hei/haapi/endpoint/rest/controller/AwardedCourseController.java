@@ -40,11 +40,11 @@ public class AwardedCourseController {
     return mapper.toRest(service.getById(awardedCourseId, groupId));
   }
 
-  @PutMapping("/groups/{group_id}/awarded_course")
+  @PutMapping("/groups/{group_id}/awarded_courses")
   public List<AwardedCourse> createOrUpdateAwardedCourse(@PathVariable("group_id") String groupId,
                                                          @RequestBody
-                                                         List<CreateAwardedCourse> courses) {
-    return service.createOrUpdateAwardedCourses(courses).stream()
+                                                         List<CreateAwardedCourse> awardedCourses) {
+    return service.createOrUpdateAwardedCourses(awardedCourses).stream()
         .map(mapper::toRest)
         .collect(Collectors.toList());
   }
