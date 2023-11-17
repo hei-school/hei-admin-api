@@ -7,6 +7,7 @@ import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.StudentIT.student2;
 import static school.hei.haapi.integration.StudentIT.student3;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.SCANNER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
@@ -274,6 +275,25 @@ class AttendanceIT {
             .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"))
             .student(student1())
             .attendanceMovementType(AttendanceMovementType.IN);
+
+    assertEquals(expected.getCreatedAt(), actual.get(0).getCreatedAt());
+    assertEquals(expected.getAttendanceMovementType(), actual.get(0).getAttendanceMovementType());
+    assertEquals(expected.getPlace(), actual.get(0).getPlace());
+    assertEquals(expected.getStudent(), actual.get(0).getStudent());
+  }
+
+  @Test
+  void scanner_create_attendance_movement_ok() throws ApiException {
+    ApiClient scanner1Client = anApiClient(SCANNER1_TOKEN);
+    AttendanceApi api = new AttendanceApi(scanner1Client);
+
+    List<StudentAttendanceMovement> actual = api.createAttendanceMovement(List.of(createAttendanceMovement()));
+    StudentAttendanceMovement expected = new StudentAttendanceMovement()
+        .id("attendance1_id")
+        .place(PlaceEnum.ANDRAHARO)
+        .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"))
+        .student(student1())
+        .attendanceMovementType(AttendanceMovementType.IN);
 
     assertEquals(expected.getCreatedAt(), actual.get(0).getCreatedAt());
     assertEquals(expected.getAttendanceMovementType(), actual.get(0).getAttendanceMovementType());

@@ -127,7 +127,6 @@ public class User implements Serializable {
     STUDENT,
     TEACHER,
     MANAGER;
-
     public static Role fromValue(String value) {
       return DataFormatterUtils.fromValue(Role.class, value);
     }
