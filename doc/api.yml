@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  version: '1.0'
+  version: 'latest'
   title: HEI Admin API
   description: |
     _Programmatically connect to a computer programming [school](https://hei.school)._
