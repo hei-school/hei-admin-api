@@ -70,13 +70,6 @@ Resources:
       Type: String
       Value: !GetAtt DatabaseCluster.Endpoint.Address
 
-  DatabaseIdentifierSSM:
-    Type: AWS::SSM::Parameter
-    Properties:
-      Name: !Join [ '', [ /hei-admin-api/, !Ref Env, /db/identifier ] ]
-      Type: String
-      Value: !GetAtt Database.Endpoint.Address
-
 Outputs:
   DatabaseClusterSSM:
     Value: !GetAtt DatabaseClusterSSM.Value
