@@ -28,10 +28,10 @@ Globals:
         DATABASE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/db/url}}'
         DATABASE_USERNAME: !Sub '{{resolve:ssm:/haapi/${Env}/db/username}}'
         DATABASE_PASSWORD: !Sub '{{resolve:ssm:/haapi/${Env}/db/password}}'
-        AWS_COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-id}}'
-        AWS_SES_SOURCE: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/ses/source}}'
-        AWS_SES_CONTACT: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/ses/contact}}'
-        SENTRY_DSN: !Sub '{{resolve:ssm:/hei-admin-api/sentry/dsn}}'
+        AWS_COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/haapi/${Env}/cognito/userpool-id}}'
+        AWS_SES_SOURCE: !Sub '{{resolve:ssm:/haapi/${Env}/ses/source}}'
+        AWS_SES_CONTACT: !Sub '{{resolve:ssm:/haapi/${Env}/ses/contact}}'
+        SENTRY_DSN: !Sub '{{resolve:ssm:/haapi/sentry/dsn}}'
 
 Parameters:
   Env:
