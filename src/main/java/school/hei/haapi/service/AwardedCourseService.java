@@ -56,7 +56,7 @@ public class AwardedCourseService {
   public AwardedCourse getById(String id, String groupId) {
     return awardedCourseRepository.getByIdAndGroupId(id, groupId);
   }
-
+//try if CreateAwardedCourse exist
   public AwardedCourse createOrUpdateAwardedCourse(CreateAwardedCourse createAwardedCourse) {
     Group group = groupRepository.getById(createAwardedCourse.getGroupId());
     Course course = courseRepository.getById(createAwardedCourse.getCourseId());
