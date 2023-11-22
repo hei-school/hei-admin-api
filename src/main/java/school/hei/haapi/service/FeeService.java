@@ -102,11 +102,7 @@ public class FeeService {
         .build();
   }
 
-  /*
-   * An email will be sent to user with late fees
-   * every morning at 8am (UTC+3)
-   * */
-  @Scheduled(cron = "0 0 8 * * *")
+
   public void sendLateFeesEmail() {
     List<Fee> lateFees = feeRepository.getFeesByStatus(LATE);
     lateFees.forEach(
