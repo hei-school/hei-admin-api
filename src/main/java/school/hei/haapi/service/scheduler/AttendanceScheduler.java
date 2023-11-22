@@ -20,6 +20,8 @@ import school.hei.haapi.repository.AttendanceRepository;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.scheduler.schedulerUtils.AttendanceSchedulerUtils;
 
+import static java.util.stream.Collectors.*;
+
 @Component
 @AllArgsConstructor
 @EnableAsync
@@ -55,12 +57,12 @@ public class AttendanceScheduler {
     List<User> hisStudentAttends = attendanceSchedulerUtils
         .findStudentAttendanceOfCourseSession(courseSession)
         .stream().map(attendanceSchedulerUtils::toUserUtils)
-        .collect(Collectors.toList());
+        .collect(toList());
 
     List<User> studentEscapePredicate = attendanceSchedulerUtils
         .findStudentEscapeCoursePredicate(courseSession)
         .stream().map(attendanceSchedulerUtils::toUserUtils)
-        .collect(Collectors.toList());
+        .collect(toList());
 
     if (
         hisStudentAttends.contains(participant) &&

@@ -11,6 +11,8 @@ import school.hei.haapi.endpoint.rest.model.AwardedCourse;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
 
+import static java.util.stream.Collectors.toList;
+
 @AllArgsConstructor
 @Component
 public class AwardedCourseMapper {
@@ -44,7 +46,7 @@ public class AwardedCourseMapper {
     for (school.hei.haapi.model.AwardedCourse awardedCourse : awardedCourses) {
       List<StudentExamGrade> studentExamGrades = awardedCourse.getExams().stream()
           .map(exam -> gradeMapper.toRestStudentExamGrade(student, exam))
-          .collect(Collectors.toList());
+          .collect(toList());
       awardedCourseExams.add(toRest(awardedCourse, studentExamGrades));
     }
     return awardedCourseExams;

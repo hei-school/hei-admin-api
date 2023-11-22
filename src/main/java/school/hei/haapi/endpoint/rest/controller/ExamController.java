@@ -21,6 +21,8 @@ import school.hei.haapi.service.AwardedCourseService;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeService;
 
+import static java.util.stream.Collectors.*;
+
 @RestController
 @AllArgsConstructor
 
@@ -40,7 +42,7 @@ public class ExamController {
     return examService.getExamsFromAwardedCourseIdAndGroupId(groupId, awardedCourseId, page,
             pageSize).stream()
         .map(examMapper::toRest)
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 
   @PutMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams")
@@ -51,10 +53,10 @@ public class ExamController {
     List<Exam> exams = examService.updateOrSaveAll(examInfos.stream()
         .map(examInfo -> examMapper.toDomain(examInfo,
             awardedCourseService.getById(awardedCourseId, groupId)))
-        .collect(Collectors.toList()));
+        .collect(toList()));
     return exams.stream()
         .map(examMapper::toRest)
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 
   @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}")

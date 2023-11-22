@@ -6,7 +6,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import school.hei.haapi.endpoint.event.EventConsumer;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.UserUpserted;
 import school.hei.haapi.model.BoundedPageSize;
@@ -23,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
@@ -49,12 +49,12 @@ public class UserService {
   public List<User> saveAll(List<User> users) {
     userValidator.accept(users);
     List<User> savedUsers = userRepository.saveAll(users);
-    eventProducer.accept(users.stream().map(this::toTypedEvent).collect(toUnmodifiableList()));
+    eventProducer.accept(users.stream().map(this::toUserUpsertedEvent).collect(toUnmodifiableList()));
     return savedUsers;
   }
 
-  private EventConsumer.TypedEvent toTypedEvent(User user) {
-    return new EventConsumer.TypedEvent(UserUpserted.class.getTypeName(), new UserUpserted().userId(user.getId()).email(user.getEmail()));
+  private UserUpserted toUserUpsertedEvent(User user) {
+    return new UserUpserted().userId(user.getId()).email(user.getEmail());
   }
 
   public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
@@ -78,7 +78,7 @@ public class UserService {
         .filter(user -> groupService.getByUserId(user.getId()).stream()
             .anyMatch(group -> group.getAwardedCourse().stream()
                 .anyMatch(awardedCourse -> awardedCourse.getCourse().getId().equals(courseId))))
-        .collect(Collectors.toList()) : users;
+        .collect(toList()) : users;
   }
 
   public List<User> getByGroupId(String groupId) {
@@ -107,7 +107,7 @@ public class UserService {
     }
     return users.stream()
         .distinct()
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 
 }

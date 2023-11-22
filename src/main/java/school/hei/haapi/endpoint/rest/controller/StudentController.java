@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.*;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
@@ -43,7 +44,7 @@ public class StudentController {
   public List<Student> getStudentByGroupId(@PathVariable String groupId) {
     return userService.getByGroupId(groupId).stream()
         .map(userMapper::toRestStudent)
-        .collect(Collectors.toList());
+        .collect(toList());
   }
   @GetMapping("/students")
   public List<Student> getStudents(

@@ -53,12 +53,35 @@ class AwardedCourseIT {
     List<AwardedCourse> actuals =
             api.getAllAwardedCourseByGroup(GROUP1_ID, 1, 10);
 
+    List<AwardedCourse> allAwardedCourse =
+            api.getAllAwardedCourseByCriteria(null, null,null,null);
+
+    List<AwardedCourse> awardedCoursesByTeacher =
+            api.getAllAwardedCourseByCriteria(TEACHER1_ID, null,null,null);
+
+    List<AwardedCourse> awardedCoursesByCourse =
+            api.getAllAwardedCourseByCriteria(null, COURSE1_ID,null,null);
+
     assertEquals(awardedCourse1(), actual);
 
     assertEquals(3, actuals.size());
     assertTrue(actuals.contains(awardedCourse1()));
     assertTrue(actuals.contains(awardedCourse2()));
     assertTrue(actuals.contains(awardedCourse4()));
+
+    assertEquals(5, allAwardedCourse.size());
+    assertTrue(allAwardedCourse.contains(awardedCourse1()));
+    assertTrue(allAwardedCourse.contains(awardedCourse2()));
+    assertTrue(allAwardedCourse.contains(awardedCourse3()));
+    assertTrue(allAwardedCourse.contains(awardedCourse4()));
+
+    assertEquals(1, awardedCoursesByTeacher.size());
+    assertTrue(awardedCoursesByTeacher.contains(awardedCourse1()));
+
+    assertEquals(3, awardedCoursesByCourse.size());
+    assertTrue(awardedCoursesByCourse.contains(awardedCourse1()));
+    assertTrue(awardedCoursesByCourse.contains(awardedCourse2()));
+    assertTrue(awardedCoursesByCourse.contains(awardedCourse3()));
   }
 
   @Test
@@ -81,12 +104,35 @@ class AwardedCourseIT {
     List<AwardedCourse> actuals =
             api.getAllAwardedCourseByGroup(GROUP1_ID, 1, 10);
 
+    List<AwardedCourse> allAwardedCourse =
+            api.getAllAwardedCourseByCriteria(null, null,null,null);
+
+    List<AwardedCourse> awardedCoursesByTeacher =
+            api.getAllAwardedCourseByCriteria(TEACHER1_ID, null,null,null);
+
+    List<AwardedCourse> awardedCoursesByCourse =
+            api.getAllAwardedCourseByCriteria(null, COURSE1_ID,null,null);
+
     assertEquals(awardedCourse1(), actual);
 
     assertEquals(3, actuals.size());
     assertTrue(actuals.contains(awardedCourse1()));
     assertTrue(actuals.contains(awardedCourse2()));
     assertTrue(actuals.contains(awardedCourse4()));
+
+    assertEquals(5, allAwardedCourse.size());
+    assertTrue(allAwardedCourse.contains(awardedCourse1()));
+    assertTrue(allAwardedCourse.contains(awardedCourse2()));
+    assertTrue(allAwardedCourse.contains(awardedCourse3()));
+    assertTrue(allAwardedCourse.contains(awardedCourse4()));
+
+    assertEquals(1, awardedCoursesByTeacher.size());
+    assertTrue(awardedCoursesByTeacher.contains(awardedCourse1()));
+
+    assertEquals(3, awardedCoursesByCourse.size());
+    assertTrue(awardedCoursesByCourse.contains(awardedCourse1()));
+    assertTrue(awardedCoursesByCourse.contains(awardedCourse2()));
+    assertTrue(awardedCoursesByCourse.contains(awardedCourse3()));
   }
 
   void student_create_or_update_ko() throws ApiException {

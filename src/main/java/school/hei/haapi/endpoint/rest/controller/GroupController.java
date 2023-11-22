@@ -23,6 +23,8 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.GroupService;
 import school.hei.haapi.service.UserService;
 
+import static java.util.stream.Collectors.*;
+
 @RestController
 @AllArgsConstructor
 public class GroupController {
@@ -43,18 +45,18 @@ public class GroupController {
                                BoundedPageSize pageSize) {
     return groupService.getAll(page, pageSize).stream()
         .map(groupMapper::toRest)
-        .collect(Collectors.toUnmodifiableList());
+        .collect(toUnmodifiableList());
   }
   //todo: to review
   @PutMapping(value = "/groups")
   public List<Group> createOrUpdateGroups(@RequestBody List<CreateGroup> createGroupsRest) {
     List<school.hei.haapi.model.notEntity.CreateGroup> createGroups = createGroupsRest.stream()
             .map(groupMapper::toDomain)
-            .collect(Collectors.toList());
+            .collect(toList());
 
     var saved = groupService.saveAll(createGroups);
     return saved.stream()
         .map(groupMapper::toRest)
-        .collect(Collectors.toUnmodifiableList());
+        .collect(toUnmodifiableList());
   }
 }
