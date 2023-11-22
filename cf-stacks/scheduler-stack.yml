@@ -1,0 +1,18 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: haapi - Scheduler
+
+Resources:
+  LateFeesEmailScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Description: Scheduler that trigger sendLateFeesEmail function
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name: LateFeesScheduler
+      ScheduleExpression: "cron(0 0 * * * *)"
+      Target:
+        Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-name}}'
+        RoleArn: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
+        EventBridgeParameters:
+          DetailType: 'school.hei.haapi.endpoint.event.gen.SendLateFeesEmailTriggered'
+          Source: 'school.hei.haapi'
