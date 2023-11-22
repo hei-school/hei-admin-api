@@ -36,7 +36,6 @@ public class AttendanceScheduler {
    */
 
   @Async
-  @Scheduled(fixedDelay = 60000)
   @Transactional
   public synchronized void checkAttendancesEachDays() {
     System.out.println(
