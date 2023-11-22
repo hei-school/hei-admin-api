@@ -895,9 +895,9 @@ paths:
       parameters:
         - name: teacher_id
           in: query
-          required: true
           schema:
             type: string
+          required: false
         - name: course_id
           in: query
           schema:
@@ -914,7 +914,8 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getAllAwardedCourse
+          required: false
+      operationId: getAllAwardedCourseByCriteria
       responses:
         '200':
           description: List of all awarded_courses

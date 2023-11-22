@@ -13,4 +13,5 @@ public interface AwardedCourseRepository extends JpaRepository<AwardedCourse, St
   AwardedCourse getByIdAndGroupId(String Id, String groupId);
 
   List<AwardedCourse> findByGroupId(String groupId, Pageable pageable);
+
 }
