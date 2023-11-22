@@ -81,7 +81,6 @@ public class FeeService {
     return initialFee;
   }
 
-  @Scheduled(cron = "0 0 * * * *")
   public void updateFeesStatusToLate() {
     List<Fee> unpaidFees = feeRepository.getUnpaidFees();
     unpaidFees.forEach(
