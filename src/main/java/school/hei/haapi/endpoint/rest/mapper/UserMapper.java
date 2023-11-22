@@ -3,7 +3,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
-import school.hei.haapi.endpoint.rest.model.ScannerUser;
+import school.hei.haapi.endpoint.rest.model.Scanner;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
@@ -11,12 +11,12 @@ import school.hei.haapi.model.User;
 @Component
 public class UserMapper {
 
-  public ScannerUser toRestScannerUser(User user) {
-    return new ScannerUser()
+  public Scanner toRestScannerUser(User user) {
+    return new Scanner()
         .id(user.getId())
         .sex(
             user.getSex() == null ? null :
-            ScannerUser.SexEnum.fromValue(user.getSex().toString())
+            Scanner.SexEnum.fromValue(user.getSex().toString())
             )
         .ref(user.getRef())
         .email(user.getEmail())
@@ -85,9 +85,9 @@ public class UserMapper {
     return manager;
   }
 
-  public User toDomain(ScannerUser scannerUser) {
+  public User toDomain(Scanner scannerUser) {
     return User.builder()
-        .role(User.Role.TEACHER)
+        .role(User.Role.SCANNER)
         .id(scannerUser.getId())
         .firstName(scannerUser.getFirstName())
         .lastName(scannerUser.getLastName())
