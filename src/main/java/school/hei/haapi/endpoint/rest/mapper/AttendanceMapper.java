@@ -1,12 +1,14 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import java.util.ArrayList;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CourseSession;
 import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
 import school.hei.haapi.endpoint.rest.model.StudentAttendanceMovement;
 import school.hei.haapi.model.StudentAttendance;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.UserRepository;
 
@@ -45,32 +47,18 @@ public class AttendanceMapper {
   }
 
   public StudentAttendance toDomain(CreateAttendanceMovement toCreate) {
-    if (userRepository.findByRefContainingIgnoreCase(toCreate.getStudentRef()).isEmpty()) {
+    Optional<User> predicate = userRepository.findByRefContainingIgnoreCase(toCreate.getStudentRef());
+    if (!predicate.isPresent()) {
       throw new NotFoundException(
-          "the student with #" + toCreate.getStudentRef() + " doesn't exist");
+          "Student with ref=" + toCreate.getStudentRef() + " not found");
     }
-    return StudentAttendance.builder()
-        .attendanceMovementType(toCreate.getAttendanceMovementType())
-        .place(toCreate.getPlace())
-        .createdAt(toCreate.getCreatedAt())
-        .student(userRepository.findByRefContainingIgnoreCase(toCreate.getStudentRef()).get())
-        .build();
-  }
-
-  public void accept(List<CreateAttendanceMovement> toCreates) {
-    List<String> wrongStds = new ArrayList<>();
-    toCreates.forEach(movement -> {
-      if (!userRepository.findByRefContainingIgnoreCase(movement.getStudentRef()).isPresent()) {
-        wrongStds.add(movement.getStudentRef());
-      }
-    });
-    if (!wrongStds.isEmpty()) {
-      if(wrongStds.size() > 1) {
-        throw new NotFoundException("Students with: #" + wrongStds.toString() + " are not found");
-      }
-      else {
-        throw new NotFoundException("Student with: #" + wrongStds.toString() + " is not found");
-      }
+    else {
+      return StudentAttendance.builder()
+          .attendanceMovementType(toCreate.getAttendanceMovementType())
+          .place(toCreate.getPlace())
+          .createdAt(toCreate.getCreatedAt())
+          .student(predicate.get())
+          .build();
     }
   }
 

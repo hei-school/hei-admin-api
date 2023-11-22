@@ -14,6 +14,7 @@ import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
 import school.hei.haapi.endpoint.rest.model.StudentAttendance;
 import school.hei.haapi.endpoint.rest.model.StudentAttendanceMovement;
+import school.hei.haapi.endpoint.rest.validator.CreateAttendanceValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.AttendanceService;
@@ -23,6 +24,7 @@ import school.hei.haapi.service.AttendanceService;
 public class AttendanceController {
   private final AttendanceMapper attendanceMapper;
   private final AttendanceService attendanceService;
+  private final CreateAttendanceValidator validator;
 
   @PostMapping("/attendance/movement")
   public List<StudentAttendanceMovement> createAttendanceMovement(
