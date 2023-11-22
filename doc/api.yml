@@ -1013,7 +1013,7 @@ paths:
     get:
       tags:
         - Users
-      summary: Get all scanner users
+      summary: Get all scanners
       operationId: getScannerUsers
       parameters:
         - name: page
@@ -1041,13 +1041,13 @@ paths:
             type: string
       responses:
         '200':
-          description: List of scanner users, ordered by ref.
+          description: List of scanners, ordered by ref.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ScannerUser'
+                  $ref: '#/components/schemas/Scanner'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1061,7 +1061,7 @@ paths:
     put:
       tags:
         - Users
-      summary: Create or update existing scanner users
+      summary: Create or update existing scanner
       description: Update scanner users when `id` are provided, create them otherwise
       operationId: createOrUpdateScannerUsers
       requestBody:
@@ -1071,16 +1071,45 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/ScannerUser'
+                $ref: '#/components/schemas/Scanner'
       responses:
         '200':
-          description: The created or updated scanner users
+          description: The created or updated scanner
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ScannerUser'
+                  $ref: '#/components/schemas/Scanner'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /scanners/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get scanner by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getScannerUserById
+      responses:
+        '200':
+          description: The identified scanner
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scanner'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1574,7 +1603,7 @@ paths:
         '403':
           $ref: '#/components/responses/403'
         '404':
-          $ref: '#/components/responses/404_create_attendance'
+          $ref: '#/components/responses/404'
         '429':
           $ref: '#/components/responses/429'
         '500':
@@ -1677,12 +1706,6 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/NotAuthorizedException'
-    '404_create_attendance':
-      description: Student not found for given Ref
-      content:
-        application/json:
-          schema:
-            $ref: '#/components/schemas/StudentNotFoundException'
     '404':
       description: Not found
       content:
@@ -1800,7 +1823,7 @@ components:
         end:
           type: string
           format: date-time
-    ScannerUser:
+    Scanner:
       allOf:
         - $ref: '#/components/schemas/User'
     Student:
@@ -2110,12 +2133,6 @@ components:
       example:
         type: NotAuthorizedException
         message: Not authorized
-    StudentNotFoundException:
-      allOf:
-        - $ref: '#/components/schemas/Exception'
-      example:
-        type: ResourceNotFoundException
-        message: 'Student(s) with: #[<student ref>] are not found'
     ResourceNotFoundException:
       allOf:
         - $ref: '#/components/schemas/Exception'
