@@ -6,13 +6,14 @@ import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.repository.AttendanceRepository;
+
+import static java.util.stream.Collectors.*;
 
 @Component
 @AllArgsConstructor
@@ -50,7 +51,7 @@ public class AttendanceServiceUtils {
   public static List<StudentAttendance> filterAttendanceFromTwoSet(
       List<StudentAttendance> givenData, Set<StudentAttendance> toCompare
   ) {
-    return givenData.stream().filter(toCompare::contains).collect(Collectors.toList());
+    return givenData.stream().filter(toCompare::contains).collect(toList());
   }
 
   public static int getFilterCase(List<AttendanceStatus> attendanceStatuses) {

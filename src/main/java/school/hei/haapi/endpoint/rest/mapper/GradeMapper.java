@@ -14,6 +14,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
+
 @Component
 @AllArgsConstructor
 public class GradeMapper {
@@ -64,6 +66,6 @@ public class GradeMapper {
         .examinationDate(exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
         .participants(grades.stream()
             .map(grade -> this.toRestStudentGrade(grade))
-            .collect(Collectors.toList()));
+            .collect(toList()));
   }
 }

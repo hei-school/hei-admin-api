@@ -17,6 +17,8 @@ import school.hei.haapi.service.AwardedCourseService;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.*;
+
 @RestController
 @AllArgsConstructor
 public class AwardedCourseController {
@@ -31,7 +33,7 @@ public class AwardedCourseController {
                                           BoundedPageSize pageSize) {
     return service.getByGroupId(groupId, page, pageSize).stream()
         .map(mapper::toRest)
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 
   @GetMapping("/groups/{group_id}/awarded_courses/{awarded_course_id}")
@@ -46,11 +48,11 @@ public class AwardedCourseController {
                                                          List<CreateAwardedCourse> awardedCourses) {
     return service.createOrUpdateAwardedCourses(awardedCourses).stream()
         .map(mapper::toRest)
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 
   @GetMapping("/awarded_courses")
-  public List<AwardedCourse> getByCriteria(@RequestParam(value = "teacher_id", required = false)
+  public List<AwardedCourse> getAllAwardedCourseByCriteria(@RequestParam(value = "teacher_id", required = false)
                                              String teacherId,
                                            @RequestParam(value = "course_id", required = false)
                                            String courseId,
@@ -60,6 +62,6 @@ public class AwardedCourseController {
                                              BoundedPageSize pageSize) {
     return service.getByCriteria(teacherId, courseId, page, pageSize).stream()
             .map(mapper::toRest)
-            .collect(Collectors.toList());
+            .collect(toList());
   }
 }

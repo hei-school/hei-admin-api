@@ -23,8 +23,8 @@ import school.hei.haapi.repository.dao.AwardedCourseDao;
 import software.amazon.awssdk.services.ses.endpoints.internal.Value;
 
 import java.util.List;
-import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.*;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -45,7 +45,7 @@ public class AwardedCourseService {
     List<Group> groups =
         student.getGroupFlows().stream()
             .map(groupFlow -> groupFlow.getGroup()).distinct()
-            .collect(Collectors.toList());
+            .collect(toList());
     return awardedCourseMapper.getAwardedCoursesDomainByGroups(groups);
   }
 
@@ -82,7 +82,7 @@ public class AwardedCourseService {
       List<CreateAwardedCourse> createAwardedCourses) {
     return createAwardedCourses.stream()
         .map(this::createOrUpdateAwardedCourse)
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 
   public List<AwardedCourse> getByCriteria(String teacherId, String courseId, PageFromOne page,

@@ -18,9 +18,8 @@ import java.util.List;
 @AllArgsConstructor
 public class AwardedCourseDao {
   private final EntityManager entityManager;
-  //todo: to review
 
-  public List<AwardedCourse> findByCriteria(String teacher_id, String course_id, Pageable pageable) {
+  public List<AwardedCourse> findByCriteria(String teacherId, String courseId, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<AwardedCourse> query = builder.createQuery(AwardedCourse.class);
     Root<AwardedCourse> root = query.from(AwardedCourse.class);
@@ -29,14 +28,14 @@ public class AwardedCourseDao {
 
     List<Predicate> predicates = new ArrayList<>();
 
-    if (teacher_id != null) {
-      predicates.add(builder.or(builder.like(builder.lower(teacher.get("id")), "%" + teacher_id + "%"),
-          builder.like(teacher.get("id"), "%" + teacher_id + "%")));
+    if (teacherId != null) {
+      predicates.add(builder.or(builder.like(builder.lower(teacher.get("id")), "%" + teacherId + "%"),
+          builder.like(teacher.get("id"), "%" + teacherId + "%")));
     }
 
-    if (course_id != null) {
-      predicates.add(builder.or(builder.like(builder.lower(Courses.get("id")), "%" + course_id + "%"),
-              builder.like(Courses.get("id"), "%" + course_id + "%")));
+    if (courseId != null) {
+      predicates.add(builder.or(builder.like(builder.lower(Courses.get("id")), "%" + courseId + "%"),
+              builder.like(Courses.get("id"), "%" + courseId + "%")));
     }
 
     query.where(builder.and(predicates.toArray(new Predicate[0]))).distinct(true);

@@ -22,6 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
@@ -77,7 +78,7 @@ public class UserService {
         .filter(user -> groupService.getByUserId(user.getId()).stream()
             .anyMatch(group -> group.getAwardedCourse().stream()
                 .anyMatch(awardedCourse -> awardedCourse.getCourse().getId().equals(courseId))))
-        .collect(Collectors.toList()) : users;
+        .collect(toList()) : users;
   }
 
   public List<User> getByGroupId(String groupId) {
@@ -106,7 +107,7 @@ public class UserService {
     }
     return users.stream()
         .distinct()
-        .collect(Collectors.toList());
+        .collect(toList());
   }
 
 }
