@@ -14,7 +14,7 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.ScannerUser;
+import school.hei.haapi.endpoint.rest.model.Scanner;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -55,7 +55,7 @@ public class ScannerIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi usersApi = new UsersApi(manager1Client);
 
-    List<ScannerUser> actual = usersApi.getScannerUsers(1, 20, null, null, null);
+    List<Scanner> actual = usersApi.getScannerUsers(1, 20, null, null, null);
     assertEquals(scannerUser(), actual.get(0));
     assertTrue(actual.contains(scannerUser()));
   }
@@ -64,37 +64,46 @@ public class ScannerIT {
   void manager_create_scanner_users_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi usersApi = new UsersApi(manager1Client);
-    ScannerUser toCreate = scannerUserToCreate();
+    Scanner toCreate = scannerUserToCreate();
 
-    List<ScannerUser> actual = usersApi.createOrUpdateScannerUsers(List.of(toCreate));
+    List<Scanner> actual = usersApi.createOrUpdateScannerUsers(List.of(toCreate));
     assertEquals(1, actual.size());
-    ScannerUser created = actual.get(0);
+    Scanner created = actual.get(0);
     assertTrue(isValidUUID(created.getId()));
     toCreate.setId(created.getId());
     assertEquals(created, toCreate);
   }
 
-  public static ScannerUser scannerUser() {
-    return new ScannerUser()
+  @Test
+  void manager_read_scanner_user_by_id_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi usersApi = new UsersApi(manager1Client);
+
+    Scanner actual = usersApi.getScannerUserById(scannerUser().getId());
+    assertEquals(scannerUser(), actual);
+  }
+
+  public static Scanner scannerUser() {
+    return new Scanner()
         .id("scanner1_id")
         .phone("0340000000")
-        .email("adriano.haritiana.123@gmail.com")
+        .email("test+scanner@hei.school")
         .status(EnableStatus.ENABLED)
         .ref("SCN20001")
-        .sex(ScannerUser.SexEnum.M)
-        .lastName("Haritiana")
-        .firstName("Adriano")
+        .sex(Scanner.SexEnum.M)
+        .lastName("Scanner")
+        .firstName("Test")
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .birthDate(LocalDate.parse("2000-01-01"))
         .address("Adr 1");
   }
 
-  public static ScannerUser scannerUserToCreate() {
-    return new ScannerUser()
+  public static Scanner scannerUserToCreate() {
+    return new Scanner()
         .phone("0320000000")
         .status(EnableStatus.ENABLED)
         .ref("SCN20002")
-        .sex(ScannerUser.SexEnum.M)
+        .sex(Scanner.SexEnum.M)
         .lastName("Scanner")
         .firstName("User")
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))

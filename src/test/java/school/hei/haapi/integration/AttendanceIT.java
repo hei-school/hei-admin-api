@@ -262,9 +262,9 @@ class AttendanceIT {
   }
 
   @Test
-  void manager_create_attendance_movement_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    AttendanceApi api = new AttendanceApi(manager1Client);
+  void scanner_create_attendance_movement_ok() throws ApiException {
+    ApiClient scanner1Client = anApiClient(SCANNER1_TOKEN);
+    AttendanceApi api = new AttendanceApi(scanner1Client);
 
     List<StudentAttendanceMovement> actual =
         api.createAttendanceMovement(List.of(createAttendanceMovement()));
@@ -283,9 +283,9 @@ class AttendanceIT {
   }
 
   @Test
-  void scanner_create_attendance_movement_ok() throws ApiException {
-    ApiClient scanner1Client = anApiClient(SCANNER1_TOKEN);
-    AttendanceApi api = new AttendanceApi(scanner1Client);
+  void manager_create_attendance_movement_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    AttendanceApi api = new AttendanceApi(manager1Client);
 
     List<StudentAttendanceMovement> actual = api.createAttendanceMovement(List.of(createAttendanceMovement()));
     StudentAttendanceMovement expected = new StudentAttendanceMovement()
@@ -429,7 +429,7 @@ class AttendanceIT {
     return new CreateAttendanceMovement()
         .place(PlaceEnum.ANDRAHARO)
         .attendanceMovementType(AttendanceMovementType.IN)
-        .studentRef("student_id_ko")
+        .studentRef("NON_EXISTENT_STUDENT_REF")
         .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"));
   }
 
