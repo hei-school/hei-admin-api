@@ -35,6 +35,7 @@ public class PaymentMapper {
     return school.hei.haapi.model.Payment.builder()
         .fee(associatedFee)
         .type(toDomainPaymentType(createPayment.getType()))
+        .creationDatetime(createPayment.getCreationDatetime())
         .amount(createPayment.getAmount())
         .comment(createPayment.getComment())
         .build();
