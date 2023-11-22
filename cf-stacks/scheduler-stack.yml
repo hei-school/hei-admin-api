@@ -31,3 +31,18 @@ Resources:
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.gen.UpdateFeesStatusToLateTriggered'
           Source: 'school.hei.haapi'
+
+  CheckAttendanceScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Description: Scheduler that trigger updateFeesStatusToLate function
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name: UpdateLateFeesStatusScheduler
+      ScheduleExpression: "cron(0 /1 * * * *)"
+      Target:
+        Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-name}}'
+        RoleArn: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
+        EventBridgeParameters:
+          DetailType: 'school.hei.haapi.endpoint.event.gen.CheckAttendanceTriggered'
+          Source: 'school.hei.haapi'
