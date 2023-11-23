@@ -19,7 +19,7 @@ public class CreatePaymentValidator implements Consumer<CreatePayment> {
     if (createPayment.getCreationDatetime() == null) {
       throw new BadRequestException("Creation datetime is mandatory");
     }
-    if (createPayment.getCreationDatetime().isAfter(Instant.now())) {
+    if (createPayment.getCreationDatetime().isAfter(now.atZone(ZoneId.of("UTC+3")).toInstant())) {
       throw new BadRequestException(
           "Creation datetime must be before or equal to: " + now.getHour() + ":" + now.getMinute());
     }

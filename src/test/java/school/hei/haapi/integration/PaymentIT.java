@@ -247,7 +247,7 @@ class PaymentIT {
   }
 
   @Test
-  void manager_write_with_creation_datetime_upper_than_now_ko() throws ApiException {
+  void manager_write_with_creation_datetime_after_current_time_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
     LocalDateTime now = LocalDateTime.ofInstant(Instant.now(), ZoneId.of("UTC+3"));
