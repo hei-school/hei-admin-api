@@ -1,5 +1,10 @@
 package school.hei.haapi.service;
 
+import static java.util.stream.Collectors.*;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,14 +25,6 @@ import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.AwardedCourseDao;
-import software.amazon.awssdk.services.ses.endpoints.internal.Value;
-
-import java.util.List;
-
-import static java.util.stream.Collectors.*;
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.data.domain.Sort.Direction.DESC;
-
 
 @Service
 @AllArgsConstructor
@@ -44,16 +41,16 @@ public class AwardedCourseService {
     User student = userRepository.getById(userId);
     List<Group> groups =
         student.getGroupFlows().stream()
-            .map(groupFlow -> groupFlow.getGroup()).distinct()
+            .map(groupFlow -> groupFlow.getGroup())
+            .distinct()
             .collect(toList());
     return awardedCourseMapper.getAwardedCoursesDomainByGroups(groups);
   }
 
-  public List<AwardedCourse> getByGroupId(String groupId, PageFromOne page,
-                                          BoundedPageSize pageSize) {
+  public List<AwardedCourse> getByGroupId(
+      String groupId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(),
-            Sort.by(DESC, "creationDatetime"));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
     return awardedCourseRepository.findByGroupId(groupId, pageable);
   }
 
@@ -65,14 +62,15 @@ public class AwardedCourseService {
     Group group = groupRepository.getById(createAwardedCourse.getGroupId());
     Course course = courseRepository.getById(createAwardedCourse.getCourseId());
     User teacher = userRepository.getById(createAwardedCourse.getMainTeacherId());
-    AwardedCourse awardedCourse = awardedCourseRepository.save(
-        AwardedCourse.builder().course(course).mainTeacher(teacher).group(group).build());
+    AwardedCourse awardedCourse =
+        awardedCourseRepository.save(
+            AwardedCourse.builder().course(course).mainTeacher(teacher).group(group).build());
     awardedCourseValidator.accept(awardedCourse);
     return awardedCourse;
   }
 
-  public Boolean checkTeacherOfAwardedCourse(String teacherId, String awardedCourseId,
-                                             String groupId) {
+  public Boolean checkTeacherOfAwardedCourse(
+      String teacherId, String awardedCourseId, String groupId) {
     AwardedCourse awardedCourse = getById(awardedCourseId, groupId);
     return awardedCourse.getMainTeacher().getId().equals(teacherId);
   }
@@ -80,15 +78,13 @@ public class AwardedCourseService {
   @Transactional
   public List<AwardedCourse> createOrUpdateAwardedCourses(
       List<CreateAwardedCourse> createAwardedCourses) {
-    return createAwardedCourses.stream()
-        .map(this::createOrUpdateAwardedCourse)
-        .collect(toList());
+    return createAwardedCourses.stream().map(this::createOrUpdateAwardedCourse).collect(toList());
   }
 
-  public List<AwardedCourse> getByCriteria(String teacherId, String courseId, PageFromOne page,
-                                           BoundedPageSize pageSize){
+  public List<AwardedCourse> getByCriteria(
+      String teacherId, String courseId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
-            PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "name"));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "name"));
     return awardedCourseDao.findByCriteria(teacherId, courseId, pageable);
   }
 }

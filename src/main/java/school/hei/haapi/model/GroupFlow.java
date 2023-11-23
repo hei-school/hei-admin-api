@@ -1,5 +1,10 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.IDENTITY;
+
+import java.io.Serializable;
+import java.time.Instant;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
@@ -21,13 +26,6 @@ import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
-import java.io.Serializable;
-import java.time.Instant;
-import java.util.List;
-
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
-
 @Entity
 @Table(name = "\"group_flow\"")
 @Getter
@@ -39,7 +37,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class GroupFlow implements Serializable {
-  //todo: to review all class
+  // todo: to review all class
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
@@ -60,7 +58,9 @@ public class GroupFlow implements Serializable {
   private Instant flowDatetime;
 
   public enum group_flow_type {
-    JOIN, LEAVE;
+    JOIN,
+    LEAVE;
+
     public static group_flow_type fromValue(String value) {
       return DataFormatterUtils.fromValue(group_flow_type.class, value);
     }

@@ -1,15 +1,14 @@
 package school.hei.haapi.endpoint.rest.security;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.service.AwardedCourseService;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @AllArgsConstructor
 public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
@@ -26,8 +25,8 @@ public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
     if (!antMatcher.matches(request)) {
       return false;
     }
-    return awardedCourseService.checkTeacherOfAwardedCourse(principal.getUserId(), awardedCourseIdFromRequest ,
-        groupIdFromRequest);
+    return awardedCourseService.checkTeacherOfAwardedCourse(
+        principal.getUserId(), awardedCourseIdFromRequest, groupIdFromRequest);
   }
 
   private String getSelfId(HttpServletRequest request, String stringBeforeId) {

@@ -1,5 +1,11 @@
 package school.hei.haapi.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.*;
+
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,14 +22,6 @@ import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-
-import java.util.List;
-
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.*;
-
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -47,20 +45,18 @@ class AwardedCourseIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    AwardedCourse actual =
-            api.getAwardedCoursesByIdAndGroupId(GROUP1_ID, AWARDED_COURSE1_ID);
+    AwardedCourse actual = api.getAwardedCoursesByIdAndGroupId(GROUP1_ID, AWARDED_COURSE1_ID);
 
-    List<AwardedCourse> actuals =
-            api.getAllAwardedCourseByGroup(GROUP1_ID, 1, 10);
+    List<AwardedCourse> actuals = api.getAllAwardedCourseByGroup(GROUP1_ID, 1, 10);
 
     List<AwardedCourse> allAwardedCourse =
-            api.getAllAwardedCourseByCriteria(null, null,null,null);
+        api.getAllAwardedCourseByCriteria(null, null, null, null);
 
     List<AwardedCourse> awardedCoursesByTeacher =
-            api.getAllAwardedCourseByCriteria(TEACHER1_ID, null,null,null);
+        api.getAllAwardedCourseByCriteria(TEACHER1_ID, null, null, null);
 
     List<AwardedCourse> awardedCoursesByCourse =
-            api.getAllAwardedCourseByCriteria(null, COURSE1_ID,null,null);
+        api.getAllAwardedCourseByCriteria(null, COURSE1_ID, null, null);
 
     assertEquals(awardedCourse1(), actual);
 
@@ -89,29 +85,26 @@ class AwardedCourseIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsForbiddenException(
-            () -> api.getAwardedCoursesByIdAndGroupId(GROUP1_ID, AWARDED_COURSE1_ID));
-    assertThrowsForbiddenException(
-            () -> api.getAllAwardedCourseByGroup(GROUP1_ID, 1, 10));
+        () -> api.getAwardedCoursesByIdAndGroupId(GROUP1_ID, AWARDED_COURSE1_ID));
+    assertThrowsForbiddenException(() -> api.getAllAwardedCourseByGroup(GROUP1_ID, 1, 10));
   }
 
   @Test
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    AwardedCourse actual =
-            api.getAwardedCoursesByIdAndGroupId(GROUP1_ID, AWARDED_COURSE1_ID);
+    AwardedCourse actual = api.getAwardedCoursesByIdAndGroupId(GROUP1_ID, AWARDED_COURSE1_ID);
 
-    List<AwardedCourse> actuals =
-            api.getAllAwardedCourseByGroup(GROUP1_ID, 1, 10);
+    List<AwardedCourse> actuals = api.getAllAwardedCourseByGroup(GROUP1_ID, 1, 10);
 
     List<AwardedCourse> allAwardedCourse =
-            api.getAllAwardedCourseByCriteria(null, null,null,null);
+        api.getAllAwardedCourseByCriteria(null, null, null, null);
 
     List<AwardedCourse> awardedCoursesByTeacher =
-            api.getAllAwardedCourseByCriteria(TEACHER1_ID, null,null,null);
+        api.getAllAwardedCourseByCriteria(TEACHER1_ID, null, null, null);
 
     List<AwardedCourse> awardedCoursesByCourse =
-            api.getAllAwardedCourseByCriteria(null, COURSE1_ID,null,null);
+        api.getAllAwardedCourseByCriteria(null, COURSE1_ID, null, null);
 
     assertEquals(awardedCourse1(), actual);
 
@@ -138,14 +131,17 @@ class AwardedCourseIT {
   void student_create_or_update_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
-    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.createOrUpdateAwardedCourses(GROUP1_ID, List.of(createAwardedCourse())));
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.createOrUpdateAwardedCourses(GROUP1_ID, List.of(createAwardedCourse())));
   }
+
   void teacher_create_or_update_ko() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.createOrUpdateAwardedCourses(GROUP1_ID, List.of(createAwardedCourse())));
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.createOrUpdateAwardedCourses(GROUP1_ID, List.of(createAwardedCourse())));
   }
 
   @Test
@@ -154,13 +150,15 @@ class AwardedCourseIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
     int numberOfExamToAdd = 3;
-    List<AwardedCourse> actualCreatList = api.createOrUpdateAwardedCourses(GROUP1_ID, someCreatableCreateAwardedCourseList(numberOfExamToAdd));
+    List<AwardedCourse> actualCreatList =
+        api.createOrUpdateAwardedCourses(
+            GROUP1_ID, someCreatableCreateAwardedCourseList(numberOfExamToAdd));
     assertEquals(numberOfExamToAdd, actualCreatList.size());
 
-//    List<ExamInfo> actualUpdateList =
-//            api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1()));
-//    assertEquals(1, actualUpdateList.size());
-//    assertTrue(actualUpdateList.contains(exam1()));
+    //    List<ExamInfo> actualUpdateList =
+    //            api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1()));
+    //    assertEquals(1, actualUpdateList.size());
+    //    assertTrue(actualUpdateList.contains(exam1()));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

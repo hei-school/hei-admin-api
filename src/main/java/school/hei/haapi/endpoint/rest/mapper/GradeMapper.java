@@ -1,25 +1,23 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.ExamDetail;
-import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
-import school.hei.haapi.model.Exam;
-import school.hei.haapi.endpoint.rest.model.Grade;
-import school.hei.haapi.model.User;
+import static java.util.stream.Collectors.toList;
 
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.ExamDetail;
+import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.User;
 
 @Component
 @AllArgsConstructor
 public class GradeMapper {
-  //todo: to review all class
+  // todo: to review all class
   public school.hei.haapi.model.Grade toDomain(Grade grade) {
     return school.hei.haapi.model.Grade.builder()
         .score(grade.getScore().intValue())
@@ -48,9 +46,10 @@ public class GradeMapper {
   }
 
   public StudentExamGrade toRestStudentExamGrade(User student, Exam exam) {
-    Optional<school.hei.haapi.model.Grade> optionalGrade = exam.getGrades().stream()
-        .filter(grade -> grade.getStudent().getId().equals(student.getId()))
-        .findFirst();
+    Optional<school.hei.haapi.model.Grade> optionalGrade =
+        exam.getGrades().stream()
+            .filter(grade -> grade.getStudent().getId().equals(student.getId()))
+            .findFirst();
     school.hei.haapi.model.Grade grade = optionalGrade.get();
     return new StudentExamGrade()
         .id(grade.getExam().getId())
@@ -61,11 +60,12 @@ public class GradeMapper {
   }
 
   public ExamDetail toRestExamDetail(Exam exam, List<school.hei.haapi.model.Grade> grades) {
-    return new ExamDetail().id(exam.getId()).coefficient(exam.getCoefficient())
+    return new ExamDetail()
+        .id(exam.getId())
+        .coefficient(exam.getCoefficient())
         .title(exam.getTitle())
         .examinationDate(exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
-        .participants(grades.stream()
-            .map(grade -> this.toRestStudentGrade(grade))
-            .collect(toList()));
+        .participants(
+            grades.stream().map(grade -> this.toRestStudentGrade(grade)).collect(toList()));
   }
 }

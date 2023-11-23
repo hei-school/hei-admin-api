@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static school.hei.haapi.service.utils.AttendanceServiceUtils.filterAttendanceFromTwoSet;
 import static school.hei.haapi.service.utils.AttendanceServiceUtils.getFilterCase;
+
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +10,6 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -32,29 +32,34 @@ public class AttendanceService {
 
   public List<StudentAttendance> createStudentAttendanceMovement(List<StudentAttendance> toCreate) {
     List<StudentAttendance> toCreateMapped = new ArrayList<>();
-    toCreate.forEach(studentAttendance -> {
-      utils.saveStudentAttendance(studentAttendance, toCreateMapped);
-    });
+    toCreate.forEach(
+        studentAttendance -> {
+          utils.saveStudentAttendance(studentAttendance, toCreateMapped);
+        });
     return toCreateMapped;
   }
 
   public List<StudentAttendance> getStudentAttendances(
-      String studentKeyword, List<String> coursesIds, List<String> teachersIds,
-      List<AttendanceStatus> attendanceStatuses, Instant from, Instant to,
-      PageFromOne page, BoundedPageSize pageSize
-  ) {
+      String studentKeyword,
+      List<String> coursesIds,
+      List<String> teachersIds,
+      List<AttendanceStatus> attendanceStatuses,
+      Instant from,
+      Instant to,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of((page.getValue() - 1), pageSize.getValue());
     List<StudentAttendance> result = new ArrayList<>();
     List<StudentAttendance> studentAttendanceList =
         studentAttendanceDao.findByStudentKeyWordAndCourseSessionCriteria(
-            studentKeyword, pageable, coursesIds, teachersIds, from, to
-        );
+            studentKeyword, pageable, coursesIds, teachersIds, from, to);
 
     switch (getFilterCase(attendanceStatuses)) {
       case 1:
-        result = filterAttendanceFromTwoSet(
-            studentAttendanceList,
-            new HashSet<>(getAttendanceByAttendanceStatuses(attendanceStatuses, pageable)));
+        result =
+            filterAttendanceFromTwoSet(
+                studentAttendanceList,
+                new HashSet<>(getAttendanceByAttendanceStatuses(attendanceStatuses, pageable)));
         break;
       case 2:
         result = studentAttendanceList;
@@ -66,15 +71,16 @@ public class AttendanceService {
       List<AttendanceStatus> attendanceStatuses, Pageable pageable) {
     Set<StudentAttendance> result = new LinkedHashSet<>();
     Map<AttendanceStatus, List<StudentAttendance>> eachStatusValues = new HashMap<>();
-    eachStatusValues.put(AttendanceStatus.MISSING,
-        attendanceRepository.findStudentsAbsent(pageable));
+    eachStatusValues.put(
+        AttendanceStatus.MISSING, attendanceRepository.findStudentsAbsent(pageable));
     eachStatusValues.put(AttendanceStatus.LATE, attendanceRepository.findStudentLate(pageable));
-    eachStatusValues.put(AttendanceStatus.PRESENT,
-        attendanceRepository.findStudentPresent(pageable));
+    eachStatusValues.put(
+        AttendanceStatus.PRESENT, attendanceRepository.findStudentPresent(pageable));
 
-    attendanceStatuses.forEach(status -> {
-      result.addAll(eachStatusValues.get(status));
-    });
+    attendanceStatuses.forEach(
+        status -> {
+          result.addAll(eachStatusValues.get(status));
+        });
 
     return result;
   }

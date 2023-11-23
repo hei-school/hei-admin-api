@@ -9,8 +9,6 @@ import school.hei.haapi.model.Grade;
 @Repository
 public interface GradeRepository extends JpaRepository<Grade, String> {
   @Query("select g from Grade g where  g.exam.id = :exam_id and g.student.id = :student_id")
-  Grade getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(@Param("exam_id") String examId,
-                                                                 @Param("student_id")
-                                                                 String studentId);
-
+  Grade getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(
+      @Param("exam_id") String examId, @Param("student_id") String studentId);
 }

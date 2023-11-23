@@ -1,5 +1,7 @@
 package school.hei.haapi.service;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -11,35 +13,23 @@ import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.repository.ExamRepository;
 
-import static org.springframework.data.domain.Sort.Direction.DESC;
-
 @Service
 @AllArgsConstructor
 public class ExamService {
-  //todo: to review all class
+  // todo: to review all class
   private final ExamRepository examRepository;
+
   public List<Exam> getExamsFromAwardedCourseIdAndGroupId(
-      String groupId,
-      String awardedCourseId,
-      PageFromOne page,
-      BoundedPageSize pageSize
-  ) {
-    Pageable pageable = PageRequest.of(
-        page.getValue() - 1,
-        pageSize.getValue(),
-        Sort.by(DESC, "examinationDate"));
-    return examRepository.findExamsByGroupIdAndAwardedGroupId(
-        groupId,
-        awardedCourseId,
-        pageable
-    ).toList();
+      String groupId, String awardedCourseId, PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "examinationDate"));
+    return examRepository
+        .findExamsByGroupIdAndAwardedGroupId(groupId, awardedCourseId, pageable)
+        .toList();
   }
 
   public Exam getExamsByIdAndGroupIdAndAwardedCourseId(
-      String id,
-      String awardedCourseId,
-      String groupId
-  ) {
+      String id, String awardedCourseId, String groupId) {
     return examRepository.findExamsByIdAndGroupIdAndAwardedGroupId(id, awardedCourseId, groupId);
   }
 

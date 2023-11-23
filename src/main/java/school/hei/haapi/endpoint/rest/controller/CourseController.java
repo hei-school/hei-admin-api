@@ -1,9 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import java.util.HashMap;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,7 +22,7 @@ public class CourseController {
   private final CourseService service;
   private final CourseMapper mapper;
 
-  //todo: to review all class
+  // todo: to review all class
   @GetMapping("/courses")
   public List<Course> getCourses(
       @RequestParam(value = "code", required = false) String code,
@@ -54,10 +52,10 @@ public class CourseController {
 
   @PutMapping("/courses")
   public List<Course> createOrUpdateCourses(@RequestBody List<Course> courses) {
-    return service.createOrUpdateCourses(
-            courses.stream()
-                .map(mapper::toDomain)
-                .collect(Collectors.toUnmodifiableList())).stream()
+    return service
+        .createOrUpdateCourses(
+            courses.stream().map(mapper::toDomain).collect(Collectors.toUnmodifiableList()))
+        .stream()
         .map(mapper::toRest)
         .collect(Collectors.toUnmodifiableList());
   }

@@ -14,20 +14,26 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.model.Course;
 import school.hei.haapi.model.AwardedCourse;
+import school.hei.haapi.model.Course;
 import school.hei.haapi.model.User;
-
 
 @Repository
 @AllArgsConstructor
 public class CourseDao {
   private final EntityManager entityManager;
-  //todo: to review
 
-  public List<Course> findByCriteria(String code, String name, Integer credits,
-                                     String teacherFirstName, String teacherLastName,
-                                     String creditsOrder, String codeOrder, Pageable pageable) {
+  // todo: to review
+
+  public List<Course> findByCriteria(
+      String code,
+      String name,
+      Integer credits,
+      String teacherFirstName,
+      String teacherLastName,
+      String creditsOrder,
+      String codeOrder,
+      Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
     Root<Course> root = query.from(Course.class);
@@ -37,25 +43,29 @@ public class CourseDao {
     List<Predicate> predicates = new ArrayList<>();
 
     if (code != null) {
-      predicates.add(builder.or(builder.like(builder.lower(root.get("code")), "%" + code + "%"),
-          builder.like(root.get("code"), "%" + code + "%")));
+      predicates.add(
+          builder.or(
+              builder.like(builder.lower(root.get("code")), "%" + code + "%"),
+              builder.like(root.get("code"), "%" + code + "%")));
     }
 
     if (name != null) {
       predicates.add(
-          builder.or(builder.like(builder.lower(root.get("name")), "%" + name.toLowerCase() + "%"),
+          builder.or(
+              builder.like(builder.lower(root.get("name")), "%" + name.toLowerCase() + "%"),
               builder.like(root.get("name"), "%" + name + "%")));
     }
 
     if (teacherLastName != null && !teacherLastName.isBlank()) {
-      predicates.add(builder.like(builder.lower(teacher.get("lastName")),
-          "%" + teacherLastName.toLowerCase() + "%"));
+      predicates.add(
+          builder.like(
+              builder.lower(teacher.get("lastName")), "%" + teacherLastName.toLowerCase() + "%"));
     }
 
-
     if (teacherFirstName != null && !teacherFirstName.isBlank()) {
-      predicates.add(builder.like(builder.lower(teacher.get("firstName")),
-          "%" + teacherFirstName.toLowerCase() + "%"));
+      predicates.add(
+          builder.like(
+              builder.lower(teacher.get("firstName")), "%" + teacherFirstName.toLowerCase() + "%"));
     }
 
     Predicate hasCredits =
@@ -86,7 +96,8 @@ public class CourseDao {
     return entityManager
         .createQuery(query)
         .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
-        .setMaxResults(pageable.getPageSize()).getResultList();
+        .setMaxResults(pageable.getPageSize())
+        .getResultList();
   }
 
   private Order getOrder(

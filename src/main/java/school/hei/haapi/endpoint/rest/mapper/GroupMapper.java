@@ -6,7 +6,7 @@ import school.hei.haapi.endpoint.rest.model.Group;
 
 @Component
 public class GroupMapper {
-  //todo: to review all class
+  // todo: to review all class
   public Group toRest(school.hei.haapi.model.Group group) {
     return new Group()
         .id(group.getId())
@@ -25,15 +25,22 @@ public class GroupMapper {
   }
 
   public school.hei.haapi.model.notEntity.CreateGroup toDomain(CreateGroup restGroup) {
-    school.hei.haapi.model.Group group = school.hei.haapi.model.Group.builder()
+    school.hei.haapi.model.Group group =
+        school.hei.haapi.model.Group.builder()
             .id(restGroup.getId())
             .name(restGroup.getName())
             .ref(restGroup.getRef())
             .creationDatetime(restGroup.getCreationDatetime())
             .build();
-    return school.hei.haapi.model.notEntity.CreateGroup.builder()
-            .group(group)
-            .studentsToAdd(restGroup.getStudentsToAdd())
-            .build();
+    return school
+        .hei
+        .haapi
+        .model
+        .notEntity
+        .CreateGroup
+        .builder()
+        .group(group)
+        .studentsToAdd(restGroup.getStudentsToAdd())
+        .build();
   }
 }

@@ -1,5 +1,11 @@
 package school.hei.haapi.service;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -17,14 +23,6 @@ import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.toList;
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static org.springframework.data.domain.Sort.Direction.ASC;
 
 @Service
 @AllArgsConstructor
@@ -49,7 +47,8 @@ public class UserService {
   public List<User> saveAll(List<User> users) {
     userValidator.accept(users);
     List<User> savedUsers = userRepository.saveAll(users);
-    eventProducer.accept(users.stream().map(this::toUserUpsertedEvent).collect(toUnmodifiableList()));
+    eventProducer.accept(
+        users.stream().map(this::toUserUpsertedEvent).collect(toUnmodifiableList()));
     return savedUsers;
   }
 
@@ -61,24 +60,43 @@ public class UserService {
     return getByCriteria(role, "", "", "", page, pageSize);
   }
 
-  public List<User> getByCriteria(User.Role role, String firstName, String lastName, String ref,
-                                  PageFromOne page, BoundedPageSize pageSize) {
+  public List<User> getByCriteria(
+      User.Role role,
+      String firstName,
+      String lastName,
+      String ref,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
   }
 
-  public List<User> getByLinkedCourse(User.Role role, String firstName, String lastName, String ref,
-                                      String courseId, PageFromOne page, BoundedPageSize pageSize) {
+  public List<User> getByLinkedCourse(
+      User.Role role,
+      String firstName,
+      String lastName,
+      String ref,
+      String courseId,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     List<User> users = userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
 
-    return courseId.length() > 0 ? users.stream()
-        .filter(user -> groupService.getByUserId(user.getId()).stream()
-            .anyMatch(group -> group.getAwardedCourse().stream()
-                .anyMatch(awardedCourse -> awardedCourse.getCourse().getId().equals(courseId))))
-        .collect(toList()) : users;
+    return courseId.length() > 0
+        ? users.stream()
+            .filter(
+                user ->
+                    groupService.getByUserId(user.getId()).stream()
+                        .anyMatch(
+                            group ->
+                                group.getAwardedCourse().stream()
+                                    .anyMatch(
+                                        awardedCourse ->
+                                            awardedCourse.getCourse().getId().equals(courseId))))
+            .collect(toList())
+        : users;
   }
 
   public List<User> getByGroupId(String groupId) {
@@ -91,23 +109,25 @@ public class UserService {
           users.add(groupFlow.getStudent());
         }
         groupFlows.add(groupFlow);
-      } else if (groupFlow.getFlowDatetime().isAfter(groupFlows.stream()
-          .filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent()))
-          .findFirst()
-          .get()
-          .getFlowDatetime())) {
+      } else if (groupFlow
+          .getFlowDatetime()
+          .isAfter(
+              groupFlows.stream()
+                  .filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent()))
+                  .findFirst()
+                  .get()
+                  .getFlowDatetime())) {
         if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.LEAVE) {
           users.remove(groupFlow.getStudent());
         }
-        groupFlows.remove(groupFlows.stream()
-            .filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent()))
-            .findFirst().get());
+        groupFlows.remove(
+            groupFlows.stream()
+                .filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent()))
+                .findFirst()
+                .get());
         groupFlows.add(groupFlow);
       }
     }
-    return users.stream()
-        .distinct()
-        .collect(toList());
+    return users.stream().distinct().collect(toList());
   }
-
 }

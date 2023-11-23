@@ -20,6 +20,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
 import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 import static school.hei.haapi.integration.conf.TestUtils.teacher4;
+
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -50,12 +51,10 @@ import school.hei.haapi.integration.conf.TestUtils;
 @ContextConfiguration(initializers = AttendanceIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class AttendanceIT {
-  private final static Instant DEFAULT_FROM = Instant.parse("2021-08-07T07:30:00.00Z");
-  private final static Instant DEFAULT_TO = Instant.parse("2021-11-09T07:30:00.00Z");
-  @MockBean
-  private SentryConf sentryConf;
-  @MockBean
-  private CognitoComponent cognitoComponent;
+  private static final Instant DEFAULT_FROM = Instant.parse("2021-08-07T07:30:00.00Z");
+  private static final Instant DEFAULT_TO = Instant.parse("2021-11-09T07:30:00.00Z");
+  @MockBean private SentryConf sentryConf;
+  @MockBean private CognitoComponent cognitoComponent;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -71,15 +70,14 @@ class AttendanceIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     AttendanceApi api = new AttendanceApi(manager1Client);
 
-    List<StudentAttendance> actualWithoutInstant = api.getStudentsAttendance(
-        1, 10, null, null, null, null, null, null
-    );
+    List<StudentAttendance> actualWithoutInstant =
+        api.getStudentsAttendance(1, 10, null, null, null, null, null, null);
     assertEquals(3, actualWithoutInstant.size());
 
     // GET /attendance?page=1&page_size=10&from=2021-11-08T07:00:00.00Z
-    List<StudentAttendance> actualFromAnInstant = api.getStudentsAttendance(
-        1, 10, null, null, null, Instant.parse("2021-11-08T07:00:00.00Z"), null, null
-    );
+    List<StudentAttendance> actualFromAnInstant =
+        api.getStudentsAttendance(
+            1, 10, null, null, null, Instant.parse("2021-11-08T07:00:00.00Z"), null, null);
     assertEquals(8, actualFromAnInstant.size());
   }
 
@@ -89,21 +87,28 @@ class AttendanceIT {
     AttendanceApi api = new AttendanceApi(teacher1Client);
 
     // GET /attendance?page=1&page_size=10&from=2021-11-08T07:00:00.00Z
-    List<StudentAttendance> actualFromAnInstant = api.getStudentsAttendance(
-        1, 10, null, null, null, Instant.parse("2021-11-08T07:00:00.00Z"), null, null
-    );
+    List<StudentAttendance> actualFromAnInstant =
+        api.getStudentsAttendance(
+            1, 10, null, null, null, Instant.parse("2021-11-08T07:00:00.00Z"), null, null);
     assertEquals(8, actualFromAnInstant.size());
 
     // GET /attendance?page=1&page_size=10&to=2021-08-09T00:15:00.00Z
-    List<StudentAttendance> actualToAnInstant = api.getStudentsAttendance(
-        1, 10, null, null, null, null, Instant.parse("2021-08-09T00:15:00.00Z"), null
-    );
+    List<StudentAttendance> actualToAnInstant =
+        api.getStudentsAttendance(
+            1, 10, null, null, null, null, Instant.parse("2021-08-09T00:15:00.00Z"), null);
     assertEquals(3, actualToAnInstant.size());
 
     // GET /attendance?page=1&page_size=10&from=2021-08-08T00:15:00.00Z&to=2021-08-09T00:15:00.00Z
-    List<StudentAttendance> actualFromAndToAnInstant = api.getStudentsAttendance(
-        1, 10, null, null, null, Instant.parse("2021-08-08T00:15:00.00Z"), Instant.parse("2021-08-09T00:15:00.00Z"), null
-    );
+    List<StudentAttendance> actualFromAndToAnInstant =
+        api.getStudentsAttendance(
+            1,
+            10,
+            null,
+            null,
+            null,
+            Instant.parse("2021-08-08T00:15:00.00Z"),
+            Instant.parse("2021-08-09T00:15:00.00Z"),
+            null);
     assertEquals(3, actualFromAndToAnInstant.size());
   }
 
@@ -112,33 +117,49 @@ class AttendanceIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     AttendanceApi api = new AttendanceApi(teacher1Client);
 
-    // GET /attendance?page=1&page_size=10&courses_ids=course2_id&from={DEFAULT_FROM}&to={DEFAULT_TO}
-    List<StudentAttendance> actualWithCourse2Id = api.getStudentsAttendance(
-        1, 10, List.of("course2_id"), null, null, DEFAULT_FROM, DEFAULT_TO, null
-    );
+    // GET
+    // /attendance?page=1&page_size=10&courses_ids=course2_id&from={DEFAULT_FROM}&to={DEFAULT_TO}
+    List<StudentAttendance> actualWithCourse2Id =
+        api.getStudentsAttendance(
+            1, 10, List.of("course2_id"), null, null, DEFAULT_FROM, DEFAULT_TO, null);
     assertEquals(3, actualWithCourse2Id.size());
-    assertTrue(actualWithCourse2Id.containsAll(
-            List.of(attendance2Ok(), attendance4Late(), attendance6Missing())
-        )
-    );
+    assertTrue(
+        actualWithCourse2Id.containsAll(
+            List.of(attendance2Ok(), attendance4Late(), attendance6Missing())));
 
-    // GET /attendance?page=1&page_size=10&courses_ids=course2_id&attendance_statuses=MISSING,LATE&from={DEFAULT_FROM}&to={DEFAULT_TO}
-    List<StudentAttendance> actualWithCourse2IdAndMissingAndLate = api.getStudentsAttendance(
-        1, 10, List.of("course2_id"),null,  null, DEFAULT_FROM, DEFAULT_TO, List.of(AttendanceStatus.MISSING, AttendanceStatus.LATE)
-    );
+    // GET
+    // /attendance?page=1&page_size=10&courses_ids=course2_id&attendance_statuses=MISSING,LATE&from={DEFAULT_FROM}&to={DEFAULT_TO}
+    List<StudentAttendance> actualWithCourse2IdAndMissingAndLate =
+        api.getStudentsAttendance(
+            1,
+            10,
+            List.of("course2_id"),
+            null,
+            null,
+            DEFAULT_FROM,
+            DEFAULT_TO,
+            List.of(AttendanceStatus.MISSING, AttendanceStatus.LATE));
     assertEquals(2, actualWithCourse2IdAndMissingAndLate.size());
-    assertTrue(actualWithCourse2IdAndMissingAndLate.containsAll(
-        List.of(attendance6Missing(), attendance4Late())
-    ));
+    assertTrue(
+        actualWithCourse2IdAndMissingAndLate.containsAll(
+            List.of(attendance6Missing(), attendance4Late())));
 
-    // GET /attendance?page=1&page_size=10&courses_ids=course1_id,course2_id&attendance_statuses=MISSING&from={DEFAULT_FROM}&to={DEFAULT_TO}
-    List<StudentAttendance> actualWithCourse1Idand2IdAndMissing = api.getStudentsAttendance(
-        1, 10, List.of(course1().getId(), course2().getId()), null, null, DEFAULT_FROM, DEFAULT_TO, List.of(AttendanceStatus.MISSING)
-    );
+    // GET
+    // /attendance?page=1&page_size=10&courses_ids=course1_id,course2_id&attendance_statuses=MISSING&from={DEFAULT_FROM}&to={DEFAULT_TO}
+    List<StudentAttendance> actualWithCourse1Idand2IdAndMissing =
+        api.getStudentsAttendance(
+            1,
+            10,
+            List.of(course1().getId(), course2().getId()),
+            null,
+            null,
+            DEFAULT_FROM,
+            DEFAULT_TO,
+            List.of(AttendanceStatus.MISSING));
     assertEquals(2, actualWithCourse1Idand2IdAndMissing.size());
-    assertTrue(actualWithCourse1Idand2IdAndMissing.containsAll(
-        List.of(attendance6Missing(), attendance5Missing())
-    ));
+    assertTrue(
+        actualWithCourse1Idand2IdAndMissing.containsAll(
+            List.of(attendance6Missing(), attendance5Missing())));
   }
 
   @Test
@@ -146,32 +167,47 @@ class AttendanceIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     AttendanceApi api = new AttendanceApi(teacher1Client);
 
-    // Get /attendance?page=1&page_size=10&attendance_statuses=MISSING&from={DEFAULT_FROM}&to={DEFAULT_TO}
-    List<StudentAttendance> actualWithStudentMissing = api.getStudentsAttendance(
-        1, 10, null, null, null, DEFAULT_FROM, DEFAULT_TO, List.of(AttendanceStatus.MISSING)
-    );
+    // Get
+    // /attendance?page=1&page_size=10&attendance_statuses=MISSING&from={DEFAULT_FROM}&to={DEFAULT_TO}
+    List<StudentAttendance> actualWithStudentMissing =
+        api.getStudentsAttendance(
+            1, 10, null, null, null, DEFAULT_FROM, DEFAULT_TO, List.of(AttendanceStatus.MISSING));
     assertEquals(2, actualWithStudentMissing.size());
-    assertTrue(actualWithStudentMissing.containsAll(
-        List.of(attendance6Missing(), attendance5Missing())
-    ));
+    assertTrue(
+        actualWithStudentMissing.containsAll(List.of(attendance6Missing(), attendance5Missing())));
 
-    // GET /attendance?page=1&page_size=10&attendance_statuses=LATE,MISSING&from={DEFAULT_FROM}&to={DEFAULT_TO}
-    List<StudentAttendance> actualWithStudentMissingAndLate = api.getStudentsAttendance(
-        1, 10, null, null, null, DEFAULT_FROM, DEFAULT_TO, List.of(AttendanceStatus.MISSING, AttendanceStatus.LATE)
-    );
+    // GET
+    // /attendance?page=1&page_size=10&attendance_statuses=LATE,MISSING&from={DEFAULT_FROM}&to={DEFAULT_TO}
+    List<StudentAttendance> actualWithStudentMissingAndLate =
+        api.getStudentsAttendance(
+            1,
+            10,
+            null,
+            null,
+            null,
+            DEFAULT_FROM,
+            DEFAULT_TO,
+            List.of(AttendanceStatus.MISSING, AttendanceStatus.LATE));
     assertEquals(4, actualWithStudentMissingAndLate.size());
-    assertTrue(actualWithStudentMissingAndLate.containsAll(
-        List.of(attendance5Missing(), attendance6Missing(), attendance3Late(), attendance4Late())
-    ));
+    assertTrue(
+        actualWithStudentMissingAndLate.containsAll(
+            List.of(
+                attendance5Missing(), attendance6Missing(), attendance3Late(), attendance4Late())));
 
-    // GET /attendance?page=1&page_size=10&courses_ids=course2_id&attendance_statuses=MISSING&from={DEFAULT_FROM}&to={DEFAULT_TO}
-    List<StudentAttendance> actualWithCourse2IdAndMissing = api.getStudentsAttendance(
-        1, 10, List.of(course2().getId()),null,  null, DEFAULT_FROM, DEFAULT_TO, List.of(AttendanceStatus.MISSING)
-    );
+    // GET
+    // /attendance?page=1&page_size=10&courses_ids=course2_id&attendance_statuses=MISSING&from={DEFAULT_FROM}&to={DEFAULT_TO}
+    List<StudentAttendance> actualWithCourse2IdAndMissing =
+        api.getStudentsAttendance(
+            1,
+            10,
+            List.of(course2().getId()),
+            null,
+            null,
+            DEFAULT_FROM,
+            DEFAULT_TO,
+            List.of(AttendanceStatus.MISSING));
     assertEquals(1, actualWithCourse2IdAndMissing.size());
-    assertTrue(actualWithCourse2IdAndMissing.containsAll(
-        List.of(attendance6Missing())
-    ));
+    assertTrue(actualWithCourse2IdAndMissing.containsAll(List.of(attendance6Missing())));
   }
 
   @Test
@@ -180,21 +216,27 @@ class AttendanceIT {
     AttendanceApi api = new AttendanceApi(teacher1Client);
 
     // GET /attendance?page=1&page_size=10
-    List<StudentAttendance> actualOfCurrentWeek = api.getStudentsAttendance(
-        1, 10, null, null, null, null, null, null
-    );
+    List<StudentAttendance> actualOfCurrentWeek =
+        api.getStudentsAttendance(1, 10, null, null, null, null, null, null);
     assertEquals(3, actualOfCurrentWeek.size());
 
     // GET /attendance?page=1&page_size=10&from={DEFAULT_FROM}&to={DEFAULT_TO}
-    List<StudentAttendance> actualWithoutParameter = api.getStudentsAttendance(
-        1, 10, null, null,  null, DEFAULT_FROM, DEFAULT_TO, null
-    );
+    List<StudentAttendance> actualWithoutParameter =
+        api.getStudentsAttendance(1, 10, null, null, null, DEFAULT_FROM, DEFAULT_TO, null);
     assertEquals(8, actualWithoutParameter.size());
 
-    // GET /attendance?page=1&page_size=10&from={DEFAULT_FROM}&to={DEFAULT_TO}&student_key_word=tw&attendance_statuses=LATE&courses_ids=course1_id
-    List<StudentAttendance> actualWithStudentKeyowrdAndCourse1AndAttendanceLate = api.getStudentsAttendance(
-        1, 10, List.of(course1().getId()), null,  "tw", DEFAULT_FROM, DEFAULT_TO, List.of(AttendanceStatus.LATE)
-    );
+    // GET
+    // /attendance?page=1&page_size=10&from={DEFAULT_FROM}&to={DEFAULT_TO}&student_key_word=tw&attendance_statuses=LATE&courses_ids=course1_id
+    List<StudentAttendance> actualWithStudentKeyowrdAndCourse1AndAttendanceLate =
+        api.getStudentsAttendance(
+            1,
+            10,
+            List.of(course1().getId()),
+            null,
+            "tw",
+            DEFAULT_FROM,
+            DEFAULT_TO,
+            List.of(AttendanceStatus.LATE));
     assertEquals(1, actualWithStudentKeyowrdAndCourse1AndAttendanceLate.size());
   }
 
@@ -203,10 +245,18 @@ class AttendanceIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     AttendanceApi api = new AttendanceApi(teacher1Client);
 
-    // GET /attendance?page=1&page_size=10&from={DEFAULT_FROM}&to={DEFAULT_TO}&student_key_word=tw&attendance_statuses=LATE&teachers_ids=teacher1_id
-    List<StudentAttendance> actualWithStudentKeyowrdAndTeacher1AndAttendanceLate = api.getStudentsAttendance(
-        1, 10, null, List.of(teacher1().getId()),  "tw", DEFAULT_FROM, DEFAULT_TO, List.of(AttendanceStatus.LATE)
-    );
+    // GET
+    // /attendance?page=1&page_size=10&from={DEFAULT_FROM}&to={DEFAULT_TO}&student_key_word=tw&attendance_statuses=LATE&teachers_ids=teacher1_id
+    List<StudentAttendance> actualWithStudentKeyowrdAndTeacher1AndAttendanceLate =
+        api.getStudentsAttendance(
+            1,
+            10,
+            null,
+            List.of(teacher1().getId()),
+            "tw",
+            DEFAULT_FROM,
+            DEFAULT_TO,
+            List.of(AttendanceStatus.LATE));
     assertEquals(1, actualWithStudentKeyowrdAndTeacher1AndAttendanceLate.size());
   }
 
@@ -215,13 +265,15 @@ class AttendanceIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     AttendanceApi api = new AttendanceApi(manager1Client);
 
-    List<StudentAttendanceMovement> actual = api.createAttendanceMovement(List.of(createAttendanceMovement()));
-    StudentAttendanceMovement expected = new StudentAttendanceMovement()
-        .id("attendance1_id")
-        .place(PlaceEnum.ANDRAHARO)
-        .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"))
-        .student(student1())
-        .attendanceMovementType(AttendanceMovementType.IN);
+    List<StudentAttendanceMovement> actual =
+        api.createAttendanceMovement(List.of(createAttendanceMovement()));
+    StudentAttendanceMovement expected =
+        new StudentAttendanceMovement()
+            .id("attendance1_id")
+            .place(PlaceEnum.ANDRAHARO)
+            .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"))
+            .student(student1())
+            .attendanceMovementType(AttendanceMovementType.IN);
 
     assertEquals(expected.getCreatedAt(), actual.get(0).getCreatedAt());
     assertEquals(expected.getAttendanceMovementType(), actual.get(0).getAttendanceMovementType());
@@ -234,7 +286,9 @@ class AttendanceIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     AttendanceApi api = new AttendanceApi(manager1Client);
 
-    assertThrowsApiException("{\"type\":\"404 NOT_FOUND\",\"message\":\"the student with #student_id_ko doesn't exist\"}",
+    assertThrowsApiException(
+        "{\"type\":\"404 NOT_FOUND\",\"message\":\"the student with #student_id_ko doesn't"
+            + " exist\"}",
         () -> api.createAttendanceMovement(List.of(createAttendanceMovementKo())));
   }
 

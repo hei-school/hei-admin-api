@@ -1,10 +1,9 @@
 package school.hei.haapi.model.notEntity;
 
-import lombok.*;
-import school.hei.haapi.model.Group;
-
 import java.io.Serializable;
 import java.util.List;
+import lombok.*;
+import school.hei.haapi.model.Group;
 
 @Getter
 @Setter

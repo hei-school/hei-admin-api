@@ -33,8 +33,9 @@ public class FeeController {
   @PostMapping("/students/{studentId}/fees")
   public List<Fee> createFees(
       @PathVariable String studentId, @RequestBody List<CreateFee> toCreate) {
-    return feeService.saveAll(
-            feeMapper.toDomainFee(userService.getById(studentId), toCreate)).stream()
+    return feeService
+        .saveAll(feeMapper.toDomainFee(userService.getById(studentId), toCreate))
+        .stream()
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
   }

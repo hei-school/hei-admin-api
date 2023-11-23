@@ -5,17 +5,14 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.AttendanceMovementType;
 import school.hei.haapi.model.CourseSession;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.AttendanceRepository;
 import school.hei.haapi.repository.CourseSessionRepository;
-import school.hei.haapi.service.utils.InstantUtils;
 
 @Component
 @AllArgsConstructor
@@ -54,37 +51,34 @@ public class AttendanceSchedulerUtils {
   }
 
   public List<StudentAttendance> findStudentEscapeCoursePredicate(CourseSession talkingAbout) {
-    Instant endDelay = LocalDateTime.ofInstant(talkingAbout.getEnd(), ZoneId.of("UTC+3"))
-        .minusHours(1)
-        .atZone(ZoneId.of("UTC+3"))
-        .toInstant();
+    Instant endDelay =
+        LocalDateTime.ofInstant(talkingAbout.getEnd(), ZoneId.of("UTC+3"))
+            .minusHours(1)
+            .atZone(ZoneId.of("UTC+3"))
+            .toInstant();
     return attendanceRepository.findStudentEscape(talkingAbout.getBegin(), endDelay);
   }
 
   public List<CourseSession> findCourseSessionOfTheDay() {
-    Instant beginDate = LocalDate.now()
-        .atStartOfDay()
-        .atZone(ZoneId.of("UTC+3"))
-        .toInstant();
-    Instant endDate = LocalDate.now()
-        .plusDays(1)
-        .atStartOfDay()
-        .atZone(ZoneId.of("UTC+3"))
-        .toInstant();
+    Instant beginDate = LocalDate.now().atStartOfDay().atZone(ZoneId.of("UTC+3")).toInstant();
+    Instant endDate =
+        LocalDate.now().plusDays(1).atStartOfDay().atZone(ZoneId.of("UTC+3")).toInstant();
 
     return courseSessionRepository.findCoursesSessionsOfTheDay(beginDate, endDate);
   }
 
   public List<StudentAttendance> findStudentAttendanceOfCourseSession(CourseSession courseSession) {
-    Instant begin = LocalDateTime.ofInstant(courseSession.getBegin(), ZoneId.of("UTC+3"))
-        .minusHours(1)
-        .minusMinutes(15)
-        .atZone(ZoneId.of("UTC+3"))
-        .toInstant();
-    Instant end =  LocalDateTime.ofInstant(courseSession.getEnd(), ZoneId.of("UTC+3"))
-        .minusMinutes(45)
-        .atZone(ZoneId.of("UTC+3"))
-        .toInstant();
+    Instant begin =
+        LocalDateTime.ofInstant(courseSession.getBegin(), ZoneId.of("UTC+3"))
+            .minusHours(1)
+            .minusMinutes(15)
+            .atZone(ZoneId.of("UTC+3"))
+            .toInstant();
+    Instant end =
+        LocalDateTime.ofInstant(courseSession.getEnd(), ZoneId.of("UTC+3"))
+            .minusMinutes(45)
+            .atZone(ZoneId.of("UTC+3"))
+            .toInstant();
     return attendanceRepository.findStudentAttendancesBetween(begin, end);
   }
 }

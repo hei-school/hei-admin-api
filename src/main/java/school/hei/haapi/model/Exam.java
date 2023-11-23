@@ -1,9 +1,10 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
-
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -20,8 +21,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import static javax.persistence.GenerationType.IDENTITY;
-
 @Entity
 @Table(name = "\"exam\"")
 @Getter
@@ -32,12 +31,14 @@ import static javax.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class Exam implements Serializable {
-  //todo: to review all class
+  // todo: to review all class
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
+
   private Integer coefficient;
   private String title;
+
   @ManyToOne
   @JoinColumn(name = "awarded_course_id")
   private AwardedCourse awardedCourse;

@@ -8,10 +8,11 @@ import school.hei.haapi.repository.GradeRepository;
 @Service
 @AllArgsConstructor
 public class GradeService {
-  //todo: to review all class
+  // todo: to review all class
   private final GradeRepository gradeRepository;
-  public Grade getGradeByExamIdAndStudentId(String examId,
-                                            String studentId) {
-    return gradeRepository.getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(examId, studentId);
+
+  public Grade getGradeByExamIdAndStudentId(String examId, String studentId) {
+    return gradeRepository.getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(
+        examId, studentId);
   }
 }

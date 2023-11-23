@@ -1,9 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.*;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,16 +13,11 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
 import school.hei.haapi.endpoint.rest.mapper.GroupMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGroup;
-import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Grade;
-import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.GroupService;
 import school.hei.haapi.service.UserService;
-
-import static java.util.stream.Collectors.*;
 
 @RestController
 @AllArgsConstructor
@@ -40,23 +34,21 @@ public class GroupController {
   }
 
   @GetMapping(value = "/groups")
-  public List<Group> getGroups(@RequestParam(value = "page", defaultValue = "1") PageFromOne page,
-                               @RequestParam(value = "page_size", defaultValue = "15")
-                               BoundedPageSize pageSize) {
+  public List<Group> getGroups(
+      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return groupService.getAll(page, pageSize).stream()
         .map(groupMapper::toRest)
         .collect(toUnmodifiableList());
   }
-  //todo: to review
+
+  // todo: to review
   @PutMapping(value = "/groups")
   public List<Group> createOrUpdateGroups(@RequestBody List<CreateGroup> createGroupsRest) {
-    List<school.hei.haapi.model.notEntity.CreateGroup> createGroups = createGroupsRest.stream()
-            .map(groupMapper::toDomain)
-            .collect(toList());
+    List<school.hei.haapi.model.notEntity.CreateGroup> createGroups =
+        createGroupsRest.stream().map(groupMapper::toDomain).collect(toList());
 
     var saved = groupService.saveAll(createGroups);
-    return saved.stream()
-        .map(groupMapper::toRest)
-        .collect(toUnmodifiableList());
+    return saved.stream().map(groupMapper::toRest).collect(toUnmodifiableList());
   }
 }
