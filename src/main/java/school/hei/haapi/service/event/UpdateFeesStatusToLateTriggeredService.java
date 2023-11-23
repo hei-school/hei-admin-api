@@ -8,7 +8,8 @@ import school.hei.haapi.service.FeeService;
 
 @Service
 @AllArgsConstructor
-public class UpdateFeesStatusToLateTriggeredService implements Consumer<UpdateFeesStatusToLateTriggered> {
+public class UpdateFeesStatusToLateTriggeredService
+    implements Consumer<UpdateFeesStatusToLateTriggered> {
   private final FeeService feeService;
 
   @Override

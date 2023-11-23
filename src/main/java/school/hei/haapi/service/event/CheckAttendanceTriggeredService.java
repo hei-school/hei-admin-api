@@ -10,6 +10,7 @@ import school.hei.haapi.service.scheduler.AttendanceScheduler;
 @AllArgsConstructor
 public class CheckAttendanceTriggeredService implements Consumer<CheckAttendanceTriggered> {
   private final AttendanceScheduler attendanceScheduler;
+
   @Override
   public void accept(CheckAttendanceTriggered checkAttendanceTriggered) {
     attendanceScheduler.checkAttendancesEachDays();

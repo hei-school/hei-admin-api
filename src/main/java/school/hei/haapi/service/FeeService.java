@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
@@ -100,7 +99,6 @@ public class FeeService {
         .dueDatetime(fee.getDueDatetime())
         .build();
   }
-
 
   public void sendLateFeesEmail() {
     List<Fee> lateFees = feeRepository.getFeesByStatus(LATE);
