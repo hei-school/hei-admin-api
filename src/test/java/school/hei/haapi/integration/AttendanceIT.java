@@ -25,12 +25,14 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.event.gen.CheckAttendanceTriggered;
 import school.hei.haapi.endpoint.rest.api.AttendanceApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -45,6 +47,7 @@ import school.hei.haapi.endpoint.rest.model.StudentAttendanceMovement;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.event.CheckAttendanceTriggeredService;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -55,6 +58,8 @@ class AttendanceIT {
   private static final Instant DEFAULT_TO = Instant.parse("2021-11-09T07:30:00.00Z");
   @MockBean private SentryConf sentryConf;
   @MockBean private CognitoComponent cognitoComponent;
+  @Autowired
+  CheckAttendanceTriggeredService checkAttendanceTriggeredService;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -63,6 +68,7 @@ class AttendanceIT {
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponent);
+    checkAttendanceTriggeredService.accept(new CheckAttendanceTriggered());
   }
 
   @Test

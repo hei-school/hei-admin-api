@@ -10,7 +10,6 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.EnableAsync;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.model.AttendanceMovementType;
@@ -36,7 +35,6 @@ public class AttendanceScheduler {
    */
 
   @Async
-  @Scheduled(fixedDelay = 60000)
   @Transactional
   public synchronized void checkAttendancesEachDays() {
     System.out.println(
