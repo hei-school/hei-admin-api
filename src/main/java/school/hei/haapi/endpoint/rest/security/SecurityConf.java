@@ -251,7 +251,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/scanners/*")
         .hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/scanners")
-        .hasAnyRole(SCANNER.getRole())
+        .hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/courses/*" + "/exams/*/participants/*")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))

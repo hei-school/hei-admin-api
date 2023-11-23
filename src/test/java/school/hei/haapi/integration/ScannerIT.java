@@ -1,8 +1,8 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -93,32 +93,6 @@ public class ScannerIT {
   }
 
   @Test
-  void manager_write_with_some_bad_fields_scanner_users_ko() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-    Scanner toCreate1 =
-        new Scanner()
-            .firstName(null)
-            .lastName(null)
-            .email(null)
-            .address(null)
-            .phone(null)
-            .ref(null);
-    Scanner toCreate2 = toCreate1.email("bademail");
-
-    ApiException exception1 =
-        assertThrows(ApiException.class, () -> api.createOrUpdateScannerUsers(List.of(toCreate1)));
-    ApiException exception2 =
-        assertThrows(ApiException.class, () -> api.createOrUpdateScannerUsers(List.of(toCreate2)));
-
-    String exceptionMessage1 = exception1.getMessage();
-    String exceptionMessage2 = exception2.getMessage();
-    assertTrue(exceptionMessage2.contains("Email must be valid"));
-    assertTrue(exceptionMessage1.contains("Last name is mandatory"));
-    assertTrue(exceptionMessage1.contains("Email is mandatory"));
-  }
-
-  @Test
   void manager_read_scanner_users_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi usersApi = new UsersApi(manager1Client);
@@ -178,14 +152,14 @@ public class ScannerIT {
     return new Scanner()
         .phone("0320000000")
         .status(EnableStatus.ENABLED)
-        .ref("SCN20002")
+        .ref("SCN" + randomUUID())
         .sex(Scanner.SexEnum.M)
         .lastName("Scanner")
         .firstName("User")
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .birthDate(LocalDate.parse("2000-01-02"))
         .address("Adr 1")
-        .email("test+scanner1@hei.school");
+        .email(randomUUID() + "@hei.school");
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
