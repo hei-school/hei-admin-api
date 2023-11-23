@@ -13,7 +13,7 @@ Resources:
       FlexibleTimeWindow:
         Mode: "OFF"
       Name: LateFeesScheduler
-      ScheduleExpression: "cron(0 0 8 * * *)"
+      ScheduleExpression: "cron(0 8 * * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
         RoleArn: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
@@ -28,7 +28,7 @@ Resources:
       FlexibleTimeWindow:
         Mode: "OFF"
       Name: UpdateLateFeesStatusScheduler
-      ScheduleExpression: "cron(0 0 * * * *)"
+      ScheduleExpression: "cron(0 0 * * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
         RoleArn: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
@@ -43,7 +43,7 @@ Resources:
       FlexibleTimeWindow:
         Mode: "OFF"
       Name: CheckAttendanceScheduler
-      ScheduleExpression: "cron(0 /1 * * * *)"
+      ScheduleExpression: "cron(0 */2 ? * MON-SAT *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
         RoleArn: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
