@@ -1,6 +1,10 @@
 AWSTemplateFormatVersion: 2010-09-09
 Description: haapi - Scheduler
 
+Parameters:
+  Env:
+    Type: String
+
 Resources:
   LateFeesEmailScheduler:
     Type: AWS::Scheduler::Schedule
