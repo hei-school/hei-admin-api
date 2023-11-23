@@ -117,6 +117,13 @@ Resources:
       Type: String
       Value: !GetAtt EventBridgeBus.Name
 
+  EventBridgeBusArnSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Join [ '',[ /haapi/ , !Ref Env , /eventbridge/bus-arn ] ]
+      Type: String
+      Value: !GetAtt EventBridgeBus.Arn
+
 Outputs:
   MailboxQueueURL:
     Value: !Ref MailboxQueueSSM
@@ -126,3 +133,5 @@ Outputs:
     Value: !Ref DeadLetterQueueSSM
   EventBridgeBusName:
     Value: !Ref EventBridgeBusNameSSM
+  EventBridgeArnName:
+    Value: !Ref EventBridgeBusArnSSM
