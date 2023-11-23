@@ -1,5 +1,10 @@
 package school.hei.haapi.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.*;
+
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,22 +24,14 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.*;
-
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = GradeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class GradeIT {
-  @MockBean
-  private SentryConf sentryConf;
+  @MockBean private SentryConf sentryConf;
 
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, GradeIT.ContextInitializer.SERVER_PORT);
@@ -79,7 +76,6 @@ class GradeIT {
     assertTrue(actual.contains(awardedCourseExam2()));
     assertTrue(actual.contains(awardedCourseExam3()));
     assertTrue(actual.contains(awardedCourseExam4()));
-
 
     ExamDetail actualExamDetail = api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID);
     assertEquals(examDetail1(), actualExamDetail);
@@ -127,19 +123,26 @@ class GradeIT {
   void manager_create_grades_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    List<ExamDetail> actual = api.createStudentExamGrade(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID,
-        List.of(createGrade(STUDENT1_ID, EXAM1_ID, AWARDED_COURSE1_ID)));
+    List<ExamDetail> actual =
+        api.createStudentExamGrade(
+            GROUP1_ID,
+            AWARDED_COURSE1_ID,
+            EXAM1_ID,
+            List.of(createGrade(STUDENT1_ID, EXAM1_ID, AWARDED_COURSE1_ID)));
     assertEquals(1, actual.size());
   }
 
   void teacher_create_his_exam_grades_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    List<ExamDetail> actual = api.createStudentExamGrade(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID,
-        List.of(createGrade(STUDENT1_ID, EXAM1_ID, AWARDED_COURSE1_ID)));
+    List<ExamDetail> actual =
+        api.createStudentExamGrade(
+            GROUP1_ID,
+            AWARDED_COURSE1_ID,
+            EXAM1_ID,
+            List.of(createGrade(STUDENT1_ID, EXAM1_ID, AWARDED_COURSE1_ID)));
     assertEquals(1, actual.size());
   }
-
 
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
@@ -149,5 +152,4 @@ class GradeIT {
       return SERVER_PORT;
     }
   }
-
 }

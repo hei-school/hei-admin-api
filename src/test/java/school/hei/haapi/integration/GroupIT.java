@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -36,13 +37,6 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-
-import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.*;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -86,18 +80,18 @@ class GroupIT {
 
   public static Group createGroupToGroup(CreateGroup createGroup) {
     return new Group()
-            .id(createGroup.getId())
-            .name(createGroup.getName())
-            .creationDatetime(createGroup.getCreationDatetime())
-            .ref(createGroup.getRef());
+        .id(createGroup.getId())
+        .name(createGroup.getName())
+        .creationDatetime(createGroup.getCreationDatetime())
+        .ref(createGroup.getRef());
   }
 
   public static CreateGroup groupToCreateGroup(Group group) {
     return new CreateGroup()
-            .id(group.getId())
-            .name(group.getName())
-            .creationDatetime(group.getCreationDatetime())
-            .ref(group.getRef());
+        .id(group.getId())
+        .name(group.getName())
+        .creationDatetime(group.getCreationDatetime())
+        .ref(group.getRef());
   }
 
   @BeforeEach
@@ -161,7 +155,7 @@ class GroupIT {
     TeachingApi api = new TeachingApi(manager1Client);
     List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
     List<Group> createdWithStudent = api.createOrUpdateGroups(List.of(toCreate5));
-    List<Student> students = api.getAllStudentByGroup(createdWithStudent.get(0).getId(),1, 10);
+    List<Student> students = api.getAllStudentByGroup(createdWithStudent.get(0).getId(), 1, 10);
 
     assertEquals(2, created.size());
     Group created3 = created.get(0);
@@ -178,7 +172,7 @@ class GroupIT {
     toCreate4.setCreationDatetime(created4.getCreationDatetime());
     assertEquals(created4, createGroupToGroup(toCreate3));
 
-    assertEquals(2,students.size());
+    assertEquals(2, students.size());
   }
 
   @Test
@@ -187,10 +181,10 @@ class GroupIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<CreateGroup> ModifyGroups = List.of(
+    List<CreateGroup> ModifyGroups =
+        List.of(
             groupToCreateGroup(group1()).name("A new name zero"),
-            groupToCreateGroup(group2()).name("A new name zero")
-    );
+            groupToCreateGroup(group2()).name("A new name zero"));
 
     List<Group> updated = api.createOrUpdateGroups(ModifyGroups);
 

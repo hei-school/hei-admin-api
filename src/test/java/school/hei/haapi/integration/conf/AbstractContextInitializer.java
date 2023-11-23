@@ -8,6 +8,7 @@ import org.testcontainers.containers.PostgreSQLContainer;
 public abstract class AbstractContextInitializer
     implements ApplicationContextInitializer<ConfigurableApplicationContext> {
   private static final String SENTRY_MOCK_DSN = "https://examplePublicKey@example.sentry.io/12345";
+
   @Override
   public void initialize(ConfigurableApplicationContext applicationContext) {
     PostgreSQLContainer<?> postgresContainer =

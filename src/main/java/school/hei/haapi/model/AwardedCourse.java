@@ -1,5 +1,8 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.FetchType.LAZY;
+import static javax.persistence.GenerationType.IDENTITY;
+
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
@@ -10,7 +13,6 @@ import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -23,9 +25,6 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
-
 @Entity
 @Table(name = "\"awarded_course\"")
 @Getter
@@ -37,7 +36,7 @@ import static javax.persistence.GenerationType.IDENTITY;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class AwardedCourse implements Serializable {
-  //todo: to review all class
+  // todo: to review all class
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;

@@ -1,5 +1,10 @@
 package school.hei.haapi.integration;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -19,21 +24,14 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.*;
-
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = ExamIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class ExamIT {
-  @MockBean
-  private SentryConf sentryConf;
+  @MockBean private SentryConf sentryConf;
 
-  @MockBean
-  private CognitoComponent cognitoComponentMock;
+  @MockBean private CognitoComponent cognitoComponentMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ExamIT.ContextInitializer.SERVER_PORT);
@@ -52,8 +50,7 @@ class ExamIT {
     List<ExamInfo> actual =
         api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
 
-    ExamInfo oneActualExam =
-            api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
+    ExamInfo oneActualExam = api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
 
     assertEquals(2, actual.size());
     assertTrue(actual.contains(exam1()));
@@ -76,8 +73,7 @@ class ExamIT {
     TeachingApi api = new TeachingApi(teacher1Client);
     List<ExamInfo> actual =
         api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
-    ExamInfo oneActualExam =
-            api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
+    ExamInfo oneActualExam = api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
 
     assertEquals(2, actual.size());
     assertTrue(actual.contains(exam1()));
@@ -105,10 +101,10 @@ class ExamIT {
   void student_create_or_update_exam_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
-    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1())));
   }
-
 
   @Test
   @DirtiesContext
@@ -116,8 +112,9 @@ class ExamIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
     int numberOfExamToAdd = 3;
-    List<ExamInfo> actualCreatList = api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID,
-        someCreatableExamInfoList(numberOfExamToAdd));
+    List<ExamInfo> actualCreatList =
+        api.createOrUpdateExams(
+            GROUP1_ID, AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
     assertEquals(numberOfExamToAdd, actualCreatList.size());
 
     List<ExamInfo> actualUpdateList =
@@ -129,7 +126,8 @@ class ExamIT {
   void teacher_create_or_update_others_awarded_course_exam_ko() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE2_ID, List.of(exam2())));
   }
 
@@ -139,8 +137,9 @@ class ExamIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
     int numberOfExamToAdd = 3;
-    List<ExamInfo> actualCreatList = api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID,
-        someCreatableExamInfoList(numberOfExamToAdd));
+    List<ExamInfo> actualCreatList =
+        api.createOrUpdateExams(
+            GROUP1_ID, AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
     assertEquals(numberOfExamToAdd, actualCreatList.size());
 
     List<ExamInfo> actualUpdateList =

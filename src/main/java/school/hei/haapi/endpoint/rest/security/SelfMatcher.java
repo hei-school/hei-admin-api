@@ -1,15 +1,14 @@
 package school.hei.haapi.endpoint.rest.security;
 
+import java.util.Objects;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import javax.servlet.http.HttpServletRequest;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
-
-import javax.servlet.http.HttpServletRequest;
-import java.util.Objects;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @AllArgsConstructor
 public class SelfMatcher implements RequestMatcher {

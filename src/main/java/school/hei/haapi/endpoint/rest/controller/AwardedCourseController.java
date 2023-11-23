@@ -1,5 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.*;
+
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,11 +17,6 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.AwardedCourseService;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.*;
-
 @RestController
 @AllArgsConstructor
 public class AwardedCourseController {
@@ -26,42 +24,39 @@ public class AwardedCourseController {
   private final AwardedCourseMapper mapper;
 
   @GetMapping("/groups/{group_id}/awarded_courses")
-  public List<AwardedCourse> getByGroupId(@PathVariable("group_id") String groupId,
-                                          @RequestParam(value = "page", defaultValue = "1")
-                                          PageFromOne page,
-                                          @RequestParam(value = "page_size", defaultValue = "15")
-                                          BoundedPageSize pageSize) {
+  public List<AwardedCourse> getByGroupId(
+      @PathVariable("group_id") String groupId,
+      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return service.getByGroupId(groupId, page, pageSize).stream()
         .map(mapper::toRest)
         .collect(toList());
   }
 
   @GetMapping("/groups/{group_id}/awarded_courses/{awarded_course_id}")
-  public AwardedCourse getById(@PathVariable("group_id") String groupId,
-                               @PathVariable("awarded_course_id") String awardedCourseId) {
+  public AwardedCourse getById(
+      @PathVariable("group_id") String groupId,
+      @PathVariable("awarded_course_id") String awardedCourseId) {
     return mapper.toRest(service.getById(awardedCourseId, groupId));
   }
 
   @PutMapping("/groups/{group_id}/awarded_courses")
-  public List<AwardedCourse> createOrUpdateAwardedCourse(@PathVariable("group_id") String groupId,
-                                                         @RequestBody
-                                                         List<CreateAwardedCourse> awardedCourses) {
+  public List<AwardedCourse> createOrUpdateAwardedCourse(
+      @PathVariable("group_id") String groupId,
+      @RequestBody List<CreateAwardedCourse> awardedCourses) {
     return service.createOrUpdateAwardedCourses(awardedCourses).stream()
         .map(mapper::toRest)
         .collect(toList());
   }
 
   @GetMapping("/awarded_courses")
-  public List<AwardedCourse> getAllAwardedCourseByCriteria(@RequestParam(value = "teacher_id", required = false)
-                                             String teacherId,
-                                           @RequestParam(value = "course_id", required = false)
-                                           String courseId,
-                                           @RequestParam(value = "page", defaultValue = "1")
-                                             PageFromOne page,
-                                           @RequestParam(value = "page_size", defaultValue = "15")
-                                             BoundedPageSize pageSize) {
+  public List<AwardedCourse> getAllAwardedCourseByCriteria(
+      @RequestParam(value = "teacher_id", required = false) String teacherId,
+      @RequestParam(value = "course_id", required = false) String courseId,
+      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return service.getByCriteria(teacherId, courseId, page, pageSize).stream()
-            .map(mapper::toRest)
-            .collect(toList());
+        .map(mapper::toRest)
+        .collect(toList());
   }
 }

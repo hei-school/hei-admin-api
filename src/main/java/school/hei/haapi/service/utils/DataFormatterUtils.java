@@ -36,8 +36,7 @@ public class DataFormatterUtils {
         return enumConstant;
       }
     }
-    throw new IllegalArgumentException("Unexpected value '" + value + "' for enum " + enumClass.getSimpleName());
+    throw new IllegalArgumentException(
+        "Unexpected value '" + value + "' for enum " + enumClass.getSimpleName());
   }
-
-
 }

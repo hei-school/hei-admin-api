@@ -1,10 +1,10 @@
 package school.hei.haapi.model;
 
 import static javax.persistence.GenerationType.IDENTITY;
+
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
-
 import javax.persistence.Entity;
 import javax.persistence.EnumType;
 import javax.persistence.Enumerated;

@@ -26,10 +26,8 @@ public class PaymentController {
 
   @PostMapping("/students/{studentId}/fees/{feeId}/payments")
   public List<Payment> createPayments(
-      @PathVariable String feeId,
-      @RequestBody List<CreatePayment> toCreate) {
-    return paymentService
-        .saveAll(paymentMapper.toDomainPayment(feeId, toCreate)).stream()
+      @PathVariable String feeId, @RequestBody List<CreatePayment> toCreate) {
+    return paymentService.saveAll(paymentMapper.toDomainPayment(feeId, toCreate)).stream()
         .map(paymentMapper::toRestPayment)
         .collect(toUnmodifiableList());
   }

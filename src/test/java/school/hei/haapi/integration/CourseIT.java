@@ -1,23 +1,5 @@
 package school.hei.haapi.integration;
 
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.SentryConf;
-import school.hei.haapi.endpoint.rest.api.TeachingApi;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
-import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CourseDirection;
-import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.TestUtils;
-
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -35,6 +17,23 @@ import static school.hei.haapi.integration.conf.TestUtils.isBefore;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableCourseList;
 
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseDirection;
+import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.TestUtils;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -124,12 +123,16 @@ class CourseIT {
     assertTrue(actualByCodeAndName.contains(course3()));
 
     assertEquals(4, actualByCreditsOrderedAsc.size());
-    assertTrue(isBefore(actualByCreditsOrderedAsc.get(0).getCredits(),
-        actualByCreditsOrderedAsc.get(2).getCredits()));
+    assertTrue(
+        isBefore(
+            actualByCreditsOrderedAsc.get(0).getCredits(),
+            actualByCreditsOrderedAsc.get(2).getCredits()));
 
     assertEquals(4, actualByCreditsOrderedDesc.size());
-    assertTrue(isBefore(actualByCreditsOrderedDesc.get(3).getCredits(),
-        actualByCreditsOrderedDesc.get(1).getCredits()));
+    assertTrue(
+        isBefore(
+            actualByCreditsOrderedDesc.get(3).getCredits(),
+            actualByCreditsOrderedDesc.get(1).getCredits()));
   }
 
   @Test
@@ -160,7 +163,8 @@ class CourseIT {
   void student_create_or_update_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
-    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateCourses(someCreatableCourseList(1)));
   }
 
@@ -168,7 +172,8 @@ class CourseIT {
   void Teacher_create_or_update_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    assertThrowsApiException("{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateCourses(someCreatableCourseList(1)));
   }
 

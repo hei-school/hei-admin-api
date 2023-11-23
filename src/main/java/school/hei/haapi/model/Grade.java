@@ -27,7 +27,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class Grade implements Serializable {
-  //todo: to review all class
+  // todo: to review all class
   @Id
   @GeneratedValue(strategy = GenerationType.IDENTITY)
   private String id;
@@ -39,6 +39,7 @@ public class Grade implements Serializable {
   @ManyToOne
   @JoinColumn(name = "exam_id")
   private Exam exam;
+
   private Integer score;
   private Instant creationDatetime;
 }

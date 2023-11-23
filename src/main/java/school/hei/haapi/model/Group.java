@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
 import java.io.Serializable;
@@ -7,7 +8,6 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.*;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -17,8 +17,6 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
 @Entity
 @Table(name = "\"group\"")
 @Getter
@@ -42,6 +40,7 @@ public class Group implements Serializable {
 
   @OneToMany(mappedBy = "group", fetch = LAZY)
   private List<GroupFlow> groupFlows;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

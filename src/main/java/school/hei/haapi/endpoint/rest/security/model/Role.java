@@ -2,7 +2,6 @@ package school.hei.haapi.endpoint.rest.security.model;
 
 import org.springframework.security.core.GrantedAuthority;
 
-
 public enum Role implements GrantedAuthority {
   STUDENT,
   TEACHER,
@@ -11,6 +10,7 @@ public enum Role implements GrantedAuthority {
   public String getRole() {
     return name();
   }
+
   public static Role fromValue(String value) {
     for (Role b : Role.values()) {
       if (b.getRole().equals(value)) {

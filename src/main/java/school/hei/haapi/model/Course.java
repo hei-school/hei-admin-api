@@ -5,15 +5,12 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 import java.io.Serializable;
 import java.util.List;
-import java.util.Objects;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-
 import lombok.*;
-import org.hibernate.Hibernate;
 
 @Entity
 @Table(name = "\"course\"")
@@ -39,5 +36,4 @@ public class Course implements Serializable {
 
   @OneToMany(mappedBy = "course", fetch = LAZY)
   private List<AwardedCourse> awardedCourses;
-
 }

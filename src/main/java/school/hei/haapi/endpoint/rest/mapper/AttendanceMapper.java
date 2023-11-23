@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CourseSession;
 import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
 import school.hei.haapi.endpoint.rest.model.StudentAttendanceMovement;
-import school.hei.haapi.model.Course;
 import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.UserRepository;
@@ -19,9 +18,10 @@ public class AttendanceMapper {
 
   public school.hei.haapi.endpoint.rest.model.StudentAttendance toRestAttendance(
       StudentAttendance domain) {
-    CourseSession courseSession = domain.getCourseSession() != null ?
-        toCourseSession(domain.getCourseSession()) :
-        new CourseSession();
+    CourseSession courseSession =
+        domain.getCourseSession() != null
+            ? toCourseSession(domain.getCourseSession())
+            : new CourseSession();
     return new school.hei.haapi.endpoint.rest.model.StudentAttendance()
         .id(domain.getId())
         .createdAt(domain.getCreatedAt())

@@ -1,7 +1,5 @@
 package school.hei.haapi.model.validator;
 
-
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -29,9 +27,8 @@ public class AttendanceValidator implements Consumer<StudentAttendance> {
       violationMessages.add("Student is mandatory");
     }
     if (!violationMessages.isEmpty()) {
-      String formatedViolationMessages = violationMessages.stream()
-          .map(String::toString)
-          .collect(Collectors.joining(". "));
+      String formatedViolationMessages =
+          violationMessages.stream().map(String::toString).collect(Collectors.joining(". "));
       throw new BadRequestException(formatedViolationMessages);
     }
   }
