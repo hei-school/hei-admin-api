@@ -16,7 +16,7 @@ Resources:
       ScheduleExpression: "cron(0 8 * * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
-        RoleArn: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
+        RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.gen.SendLateFeesEmailTriggered'
           Source: 'school.hei.haapi'
@@ -31,7 +31,7 @@ Resources:
       ScheduleExpression: "cron(0 0 * * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
-        RoleArn: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
+        RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.gen.UpdateFeesStatusToLateTriggered'
           Source: 'school.hei.haapi'
@@ -46,7 +46,20 @@ Resources:
       ScheduleExpression: "cron(0 */2 ? * MON-SAT *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
-        RoleArn: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
+        RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.gen.CheckAttendanceTriggered'
           Source: 'school.hei.haapi'
+
+  ScheduledEventExecutionRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Join [ '', [ haapi-, !Ref Env, -ScheduledEventExecutionRole ] ]
+      AssumeRolePolicyDocument:
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: scheduler.amazonaws.com
+            Action: 'sts:AssumeRole'
+      ManagedPolicyArns:
+        - 'arn:aws:iam::aws:policy/AdministratorAccess'
