@@ -9,6 +9,10 @@ import java.time.temporal.TemporalAdjusters;
 import school.hei.haapi.model.CourseSession;
 
 public class InstantUtils {
+  public static Instant Instant_now = LocalDateTime.now()
+      .atZone(ZoneId.of("UTC+3"))
+      .toInstant();
+
   public static Instant getCurrentMondayOfTheWeek() {
     return LocalDate.now()
         .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
