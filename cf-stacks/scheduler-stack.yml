@@ -42,7 +42,7 @@ Resources:
       Description: Scheduler that trigger updateFeesStatusToLate function
       FlexibleTimeWindow:
         Mode: "OFF"
-      Name: UpdateLateFeesStatusScheduler
+      Name: CheckAttendanceScheduler
       ScheduleExpression: "cron(0 /1 * * * *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-name}}'
