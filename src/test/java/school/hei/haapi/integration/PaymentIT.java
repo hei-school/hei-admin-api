@@ -22,6 +22,8 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiExcepti
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -239,7 +241,7 @@ class PaymentIT {
     PayingApi api = new PayingApi(manager1Client);
 
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime is mandatory",
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime is mandatory\"}",
         () ->
             api.createStudentPayments(STUDENT1_ID, FEE3_ID, List.of(paymentNoCreationDatetime())));
   }
@@ -248,10 +250,14 @@ class PaymentIT {
   void manager_write_with_creation_datetime_upper_than_now_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
+    LocalDateTime now = LocalDateTime.ofInstant(Instant.now(), ZoneId.of("UTC+3"));
 
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime must be before: "
-            + Instant.now(),
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime must be before or equal to: "
+            + now.getHour()
+            + ":"
+            + now.getMinute()
+            + "\"}",
         () ->
             api.createStudentPayments(
                 STUDENT1_ID, FEE3_ID, List.of(paymentWithAfterNowCreationDatetime())));
