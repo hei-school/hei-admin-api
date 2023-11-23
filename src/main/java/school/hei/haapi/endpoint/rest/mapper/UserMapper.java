@@ -14,10 +14,7 @@ public class UserMapper {
   public Scanner toRestScannerUser(User user) {
     return new Scanner()
         .id(user.getId())
-        .sex(
-            user.getSex() == null ? null :
-            Scanner.SexEnum.fromValue(user.getSex().toString())
-            )
+        .sex(user.getSex() == null ? null : Scanner.SexEnum.fromValue(user.getSex().toString()))
         .ref(user.getRef())
         .email(user.getEmail())
         .address(user.getAddress())
@@ -97,7 +94,8 @@ public class UserMapper {
         .phone(scannerUser.getPhone())
         .entranceDatetime(scannerUser.getEntranceDatetime())
         .birthDate(scannerUser.getBirthDate())
-        .sex(scannerUser.getSex() == null ? null : User.Sex.valueOf(scannerUser.getSex().toString()))
+        .sex(
+            scannerUser.getSex() == null ? null : User.Sex.valueOf(scannerUser.getSex().toString()))
         .address(scannerUser.getAddress())
         .build();
   }

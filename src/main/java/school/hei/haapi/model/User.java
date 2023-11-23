@@ -126,7 +126,9 @@ public class User implements Serializable {
   public enum Role {
     STUDENT,
     TEACHER,
-    MANAGER;
+    MANAGER,
+    SCANNER;
+
     public static Role fromValue(String value) {
       return DataFormatterUtils.fromValue(Role.class, value);
     }

@@ -28,10 +28,11 @@ public class AttendanceController {
 
   @PostMapping("/attendance/movement")
   public List<StudentAttendanceMovement> createAttendanceMovement(
-      @RequestBody List<CreateAttendanceMovement> movement) {
+      @RequestBody List<CreateAttendanceMovement> movements) {
+    validator.accept(movements);
     return attendanceService
         .createStudentAttendanceMovement(
-            movement.stream()
+            movements.stream()
                 .map(attendanceMapper::toDomain)
                 .collect(Collectors.toUnmodifiableList()))
         .stream()

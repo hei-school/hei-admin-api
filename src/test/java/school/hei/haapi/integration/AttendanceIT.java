@@ -8,9 +8,11 @@ import static school.hei.haapi.integration.StudentIT.student2;
 import static school.hei.haapi.integration.StudentIT.student3;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.SCANNER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.awardedCourse1;
 import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.course2;
@@ -287,13 +289,15 @@ class AttendanceIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     AttendanceApi api = new AttendanceApi(manager1Client);
 
-    List<StudentAttendanceMovement> actual = api.createAttendanceMovement(List.of(createAttendanceMovement()));
-    StudentAttendanceMovement expected = new StudentAttendanceMovement()
-        .id("attendance1_id")
-        .place(PlaceEnum.ANDRAHARO)
-        .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"))
-        .student(student1())
-        .attendanceMovementType(AttendanceMovementType.IN);
+    List<StudentAttendanceMovement> actual =
+        api.createAttendanceMovement(List.of(createAttendanceMovement()));
+    StudentAttendanceMovement expected =
+        new StudentAttendanceMovement()
+            .id("attendance1_id")
+            .place(PlaceEnum.ANDRAHARO)
+            .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"))
+            .student(student1())
+            .attendanceMovementType(AttendanceMovementType.IN);
 
     assertEquals(expected.getCreatedAt(), actual.get(0).getCreatedAt());
     assertEquals(expected.getAttendanceMovementType(), actual.get(0).getAttendanceMovementType());
@@ -302,13 +306,29 @@ class AttendanceIT {
   }
 
   @Test
-  void manager_create_attendance_with_no_student_id() throws ApiException {
+  void student_create_attendance_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    AttendanceApi api = new AttendanceApi(student1Client);
+
+    assertThrowsForbiddenException(() -> api.createAttendanceMovement(List.of()));
+  }
+
+  @Test
+  void teacher_create_attendance_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    AttendanceApi api = new AttendanceApi(student1Client);
+
+    assertThrowsForbiddenException(() -> api.createAttendanceMovement(List.of()));
+  }
+
+  @Test
+  void manager_create_attendance_with_non_existent_student_ref() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     AttendanceApi api = new AttendanceApi(manager1Client);
 
     assertThrowsApiException(
-        "{\"type\":\"404 NOT_FOUND\",\"message\":\"the student with #student_id_ko doesn't"
-            + " exist\"}",
+        "{\"type\":\"404 NOT_FOUND\",\"message\":\"Student with: #[NON_EXISTENT_STUDENT_REF] is not"
+            + " found\"}",
         () -> api.createAttendanceMovement(List.of(createAttendanceMovementKo())));
   }
 

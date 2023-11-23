@@ -1,7 +1,24 @@
 package school.hei.haapi.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -15,19 +32,11 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Scanner;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
-import java.util.List;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
-
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @Testcontainers
@@ -48,6 +57,65 @@ public class ScannerIT {
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
+  }
+
+  @Test
+  void student_write_ko() {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+
+    UsersApi api = new UsersApi(student1Client);
+    assertThrowsForbiddenException(() -> api.createOrUpdateScannerUsers(List.of()));
+  }
+
+  @Test
+  void teacher_write_ko() {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+
+    UsersApi api = new UsersApi(teacher1Client);
+    assertThrowsForbiddenException(() -> api.createOrUpdateScannerUsers(List.of()));
+  }
+
+  @Test
+  void manager_write_update_more_than_10_scanner_users_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    Scanner scannerToCreate = scannerUserToCreate();
+    List<Scanner> listToCreate = someCreatableScanner(11);
+    listToCreate.add(scannerToCreate);
+
+    assertThrowsApiException(
+        "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":\"Request entries must be <= 10\"}",
+        () -> api.createOrUpdateScannerUsers(listToCreate));
+
+    List<Teacher> actual = api.getTeachers(1, 20, null, null, null);
+    assertFalse(
+        actual.stream().anyMatch(s -> Objects.equals(scannerToCreate.getEmail(), s.getEmail())));
+  }
+
+  @Test
+  void manager_write_with_some_bad_fields_scanner_users_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    Scanner toCreate1 =
+        new Scanner()
+            .firstName(null)
+            .lastName(null)
+            .email(null)
+            .address(null)
+            .phone(null)
+            .ref(null);
+    Scanner toCreate2 = toCreate1.email("bademail");
+
+    ApiException exception1 =
+        assertThrows(ApiException.class, () -> api.createOrUpdateScannerUsers(List.of(toCreate1)));
+    ApiException exception2 =
+        assertThrows(ApiException.class, () -> api.createOrUpdateScannerUsers(List.of(toCreate2)));
+
+    String exceptionMessage1 = exception1.getMessage();
+    String exceptionMessage2 = exception2.getMessage();
+    assertTrue(exceptionMessage2.contains("Email must be valid"));
+    assertTrue(exceptionMessage1.contains("Last name is mandatory"));
+    assertTrue(exceptionMessage1.contains("Email is mandatory"));
   }
 
   @Test
@@ -81,6 +149,14 @@ public class ScannerIT {
 
     Scanner actual = usersApi.getScannerUserById(scannerUser().getId());
     assertEquals(scannerUser(), actual);
+  }
+
+  public static List<Scanner> someCreatableScanner(int nbOfScanner) {
+    List<Scanner> scannerList = new ArrayList<>();
+    for (int i = 0; i < nbOfScanner; i++) {
+      scannerList.add(scannerUserToCreate());
+    }
+    return scannerList;
   }
 
   public static Scanner scannerUser() {

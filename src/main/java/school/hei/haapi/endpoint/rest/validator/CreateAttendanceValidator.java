@@ -8,7 +8,6 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.UserRepository;
-import java.util.List;
 
 @Component
 @AllArgsConstructor
@@ -23,13 +22,13 @@ public class CreateAttendanceValidator implements Consumer<List<CreateAttendance
   public void accept(CreateAttendanceMovement createAttendanceMovement, List<String> wrongStds) {
     if (!repository.existsByRefContainingIgnoreCase(createAttendanceMovement.getStudentRef())) {
       wrongStds.add(createAttendanceMovement.getStudentRef());
-    };
+    }
+    ;
 
     if (!wrongStds.isEmpty()) {
-      if(wrongStds.size() > 1) {
+      if (wrongStds.size() > 1) {
         throw new NotFoundException("Students with: #" + wrongStds.toString() + " are not found");
-      }
-      else {
+      } else {
         throw new NotFoundException("Student with: #" + wrongStds.toString() + " is not found");
       }
     }
