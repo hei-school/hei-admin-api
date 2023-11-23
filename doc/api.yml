@@ -1966,6 +1966,9 @@ components:
           type: integer
         comment:
           type: string
+        creation_datetime:
+          type: string
+          format: date-time
     Payment:
       allOf:
         - $ref: '#/components/schemas/CreatePayment'
