@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.validator;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.temporal.ChronoField;
 import java.time.temporal.ChronoUnit;
@@ -16,6 +17,7 @@ public class CreatePaymentValidator implements Consumer<CreatePayment> {
   @Override
   public void accept(CreatePayment createPayment) {
     Instant now = Instant.now();
+    LocalDateTime localDateTimeNow = LocalDateTime.ofInstant(now, ZoneId.of("UTC"));
     if (createPayment.getAmount() == null) {
       throw new BadRequestException("Amount is mandatory");
     }
@@ -24,7 +26,7 @@ public class CreatePaymentValidator implements Consumer<CreatePayment> {
     }
     if (createPayment.getCreationDatetime().isAfter(now)) {
       throw new BadRequestException(
-          "Creation datetime is invalid" );
+          "Creation datetime must be before or equal to: " + localDateTimeNow.getHour() + ":" + localDateTimeNow.getMinute());
     }
   }
 }

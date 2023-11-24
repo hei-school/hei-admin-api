@@ -252,9 +252,15 @@ class PaymentIT {
   void manager_write_with_creation_datetime_after_current_time_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
+    Instant now = Instant.now();
+    LocalDateTime localDateTimeNow = LocalDateTime.ofInstant(now, ZoneId.of("UTC"));
 
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime is invalid\"}",
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime must be before or equal to: " +
+            + localDateTimeNow.getHour()
+            + ":"
+            + localDateTimeNow.getMinute()
+            +"\"}",
         () ->
             api.createStudentPayments(
                 STUDENT1_ID, FEE3_ID, List.of(paymentWithAfterNowCreationDatetime())));
