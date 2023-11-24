@@ -32,6 +32,9 @@ public class PaymentValidator implements Consumer<Payment> {
 
   @Override
   public void accept(Payment toCheck) {
+    if (toCheck.getCreationDatetime() == null) {
+      throw new BadRequestException("Creation datetime is mandatory");
+    }
     if (toCheck.getAmount() < 0) {
       throw new BadRequestException("Amount must be positive");
     }
