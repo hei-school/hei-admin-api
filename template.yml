@@ -10,7 +10,6 @@ Globals:
     Architectures:
       - x86_64
     Timeout: 600
-    MemorySize: 1024
     AutoPublishAlias: live
     SnapStart:
       ApplyOn: PublishedVersions
@@ -38,10 +37,11 @@ Parameters:
     Type: String
 
 Resources:
-  ApiFunction:
+  FrontalFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: school.hei.haapi.ApiEventHandler::handleRequest
+      MemorySize: 1024
       Role: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
       Events:
         ApiCall:
@@ -50,10 +50,11 @@ Resources:
             Path: /{proxy+}
             Method: ANY
 
-  MailboxEventFunction:
+  WorkerFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: school.hei.haapi.MailboxEventHandler::handleRequest
+      MemorySize: 2048
       Role: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
       Events:
         AllEvents:
