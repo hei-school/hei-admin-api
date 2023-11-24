@@ -8,6 +8,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE4_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE5_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.PAYMENT1_ID;
@@ -179,9 +180,9 @@ class PaymentIT {
     PayingApi api = new PayingApi(manager1Client);
 
     List<Payment> actual =
-        api.createStudentPayments(STUDENT1_ID, FEE3_ID, List.of(createWithBankType()));
+        api.createStudentPayments(STUDENT2_ID, FEE5_ID, List.of(createWithBankType()));
 
-    List<Payment> expected = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
+    List<Payment> expected = api.getStudentPayments(STUDENT2_ID, FEE5_ID, 1, 5);
     assertTrue(expected.containsAll(actual));
   }
 
