@@ -17,6 +17,8 @@ Resources:
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
         RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
+        DeadLetterConfig:
+          Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.gen.SendLateFeesEmailTriggered'
           Source: 'school.hei.haapi'
@@ -32,6 +34,8 @@ Resources:
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
         RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
+        DeadLetterConfig:
+          Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.gen.UpdateFeesStatusToLateTriggered'
           Source: 'school.hei.haapi'
@@ -47,6 +51,8 @@ Resources:
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
         RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
+        DeadLetterConfig:
+          Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.gen.CheckAttendanceTriggered'
           Source: 'school.hei.haapi'
