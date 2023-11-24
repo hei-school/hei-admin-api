@@ -8,16 +8,9 @@ import java.util.List;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import lombok.*;
 
 @Entity
 @Table(name = "\"course\"")
@@ -27,6 +20,7 @@ import lombok.ToString;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@EqualsAndHashCode
 public class Course implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -40,10 +34,6 @@ public class Course implements Serializable {
 
   private Integer totalHours;
 
-  @ManyToOne(fetch = LAZY)
-  @JoinColumn(name = "main_teacher")
-  private User mainTeacher;
-
-  @OneToMany(mappedBy = "courseId", fetch = LAZY)
-  private List<StudentCourse> studentCourses;
+  @OneToMany(mappedBy = "course", fetch = LAZY)
+  private List<AwardedCourse> awardedCourses;
 }

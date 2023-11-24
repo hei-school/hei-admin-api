@@ -21,6 +21,7 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
+import school.hei.haapi.service.AwardedCourseService;
 
 @Configuration
 @Slf4j
@@ -28,16 +29,18 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String STUDENT_COURSE = "/students/*/courses";
-
+  private final AwardedCourseService awardedCourseService;
   private final AuthProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
 
   public SecurityConf(
       AuthProvider authProvider,
       // InternalToExternalErrorHandler behind
-      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
+      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
+      AwardedCourseService awardedCourseService) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
+    this.awardedCourseService = awardedCourseService;
   }
 
   @Override
@@ -73,7 +76,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         // authorize
         .and()
         .authorizeRequests()
-        .antMatchers("/ping", "/dummy-table", "/uuid-created")
+        .antMatchers("/ping")
         .permitAll()
         .antMatchers(OPTIONS, "/**")
         .permitAll()
@@ -81,13 +84,21 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .authenticated()
         .antMatchers(GET, "/students")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*"))
+        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*", "students"))
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/fees/*")
         .hasAnyRole(MANAGER.getRole())
-        .requestMatchers(new SelfMatcher(GET, "/students/*/fees"))
+        .requestMatchers(new SelfMatcher(GET, "/students/*/fees", "students"))
         .hasAnyRole(STUDENT.getRole())
-        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments"))
+        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments", "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*", "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*/fees/*")
+        .hasAnyRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/fees", "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments", "students"))
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/fees/*/payments")
         .hasAnyRole(MANAGER.getRole())
@@ -97,23 +108,49 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(MANAGER.getRole())
         .antMatchers(POST, "/students/*/fees")
         .hasAnyRole(MANAGER.getRole())
-        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments"))
+        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments", "students"))
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/fees/*/payments")
         .hasAnyRole(MANAGER.getRole())
         .antMatchers(POST, "/students/*/fees/*/payments")
         .hasAnyRole(MANAGER.getRole())
-        .requestMatchers(new SelfMatcher(GET, "/students/*"))
+        .requestMatchers(new SelfMatcher(GET, "/students/*", "students"))
         .hasAnyRole(STUDENT.getRole())
-        .antMatchers(GET, "/fees")
-        .hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/students/*")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(PUT, "/students/**")
         .hasAnyRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/grades", "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*/grades")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/fees")
+        .hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/teachers")
         .hasAnyRole(MANAGER.getRole())
-        .requestMatchers(new SelfMatcher(GET, "/teachers/*"))
+        .requestMatchers(new SelfMatcher(GET, "/teachers/*", "teachers"))
+        .hasAnyRole(TEACHER.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments", "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*/fees/*/payments")
+        .hasAnyRole(MANAGER.getRole())
+        .antMatchers(POST, "/students/*/fees/*/payments")
+        .hasAnyRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*", "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(PUT, "/students/**")
+        .hasAnyRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/students/*/grades", "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/students/*/grades")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/fees")
+        .hasAnyRole(MANAGER.getRole())
+        .antMatchers(GET, "/teachers")
+        .hasAnyRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/teachers/*", "teachers"))
         .hasAnyRole(TEACHER.getRole())
         .antMatchers(GET, "/teachers/**")
         .hasAnyRole(MANAGER.getRole())
@@ -125,13 +162,94 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .authenticated()
         .antMatchers(GET, "/groups/*")
         .authenticated()
+        .antMatchers(GET, "/groups/*/awarded_courses")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/groups/*/awarded_courses/*")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(PUT, "/groups/*/awarded_courses")
+        .hasAnyRole(MANAGER.getRole())
+        .requestMatchers(
+            new AwardedCourseOfTeacherMatcher(
+                awardedCourseService, PUT, "/groups/*/awarded_courses/*/exams"))
+        .hasAnyRole(TEACHER.getRole())
+        .antMatchers(GET, "/groups/*/awarded_courses/*/exams")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*/grades")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .requestMatchers(
+            new SelfMatcher(
+                GET, "/groups/*/awarded_courses/*/exams/*/students/*/grade", "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*/students/*/grade")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/awarded_courses")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .requestMatchers(
+            new AwardedCourseOfTeacherMatcher(
+                awardedCourseService, PUT, "/groups/*" + "/awarded_courses/*/exams"))
+        .hasAnyRole(TEACHER.getRole())
+        .antMatchers(GET, "/groups/*/awarded_courses/*/exams")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*/grades")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .requestMatchers(
+            new SelfMatcher(
+                GET, "/groups/*/awarded_courses/*" + "/exams/*/students/*/grade", "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*/students/*/grade")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/groups/*/students")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/groups/**")
+        .hasAnyRole(MANAGER.getRole())
         .antMatchers(PUT, "/groups/**")
         .hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/courses")
         .authenticated()
+        .antMatchers(PUT, "/courses")
+        .hasAnyRole(MANAGER.getRole())
         .antMatchers(PUT, "/courses/**")
         .hasAnyRole(MANAGER.getRole())
-        .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE))
+        .antMatchers(GET, "/courses/*")
+        .authenticated()
+        .antMatchers(GET, "/courses/*/exams")
+        .authenticated()
+        .antMatchers(GET, "/courses/*/exams/*")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/courses/*/exams/*/details")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/courses/*/exams/*/participants/*", "participants"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/courses/*/exams/*/participants/*")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/attendance")
+        .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+        .requestMatchers(new SelfMatcher(GET, "/attendance", "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(POST, "/attendance/movement")
+        .hasAnyRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/courses/*")
+        .authenticated()
+        .antMatchers(GET, "/courses/*/exams")
+        .authenticated()
+        .antMatchers(GET, "/courses/*/exams/*")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(GET, "/courses/*" + "/exams/*/details")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .requestMatchers(
+            new SelfMatcher(GET, "/courses/*" + "/exams/*/participants/*", "participants"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(GET, "/courses/*" + "/exams/*/participants/*")
+        .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, STUDENT_COURSE)
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())

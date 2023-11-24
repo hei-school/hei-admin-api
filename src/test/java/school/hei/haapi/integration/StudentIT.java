@@ -10,7 +10,6 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -26,7 +25,6 @@ import com.github.javafaker.Faker;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -83,7 +81,7 @@ class StudentIT {
     Instant birthday = Instant.parse("1993-11-30T18:35:24.00Z");
     int ageOfEntrance = 14 + (int) (Math.random() * 20);
     student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
-    student.setEntranceDatetime(birthday.plus(365L * ageOfEntrance, ChronoUnit.DAYS));
+    student.setEntranceDatetime(birthday.plusSeconds(ageOfEntrance * 365L * 24L * 60L * 60L));
     student.setAddress(faker.address().fullAddress());
     return student;
   }
@@ -182,10 +180,10 @@ class StudentIT {
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
 
-    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE1_ID);
+    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE2_ID);
 
     assertEquals(student1(), actualStudents2.get(0));
-    assertEquals(1, actualStudents2.size());
+    assertEquals(2, actualStudents2.size());
   }
 
   @Test
@@ -215,8 +213,8 @@ class StudentIT {
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
 
-    assertEquals(student2(), actualStudents2.get(0));
-    assertEquals(1, actualStudents2.size());
+    assertEquals(student1(), actualStudents2.get(0));
+    assertEquals(2, actualStudents2.size());
   }
 
   @Test

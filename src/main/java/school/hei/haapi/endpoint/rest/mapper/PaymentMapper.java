@@ -35,6 +35,7 @@ public class PaymentMapper {
     return school.hei.haapi.model.Payment.builder()
         .fee(associatedFee)
         .type(toDomainPaymentType(createPayment.getType()))
+        .creationDatetime(createPayment.getCreationDatetime())
         .amount(createPayment.getAmount())
         .comment(createPayment.getComment())
         .build();
@@ -61,6 +62,8 @@ public class PaymentMapper {
         return Payment.TypeEnum.MOBILE_MONEY;
       case FIX:
         return Payment.TypeEnum.FIX;
+      case BANK_TRANSFER:
+        return Payment.TypeEnum.BANK_TRANSFER;
       default:
         throw new BadRequestException("Unexpected paymentType: " + createPaymentType.getValue());
     }

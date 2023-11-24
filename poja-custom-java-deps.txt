@@ -1,4 +1,4 @@
-implementation 'school.hei:haapi-gen:1.0'
+implementation 'school.hei:haapi-gen:latest'
 
 implementation 'org.springframework.boot:spring-boot-starter-security'
 

@@ -1,4 +1,4 @@
-name: CD storage
+name: CD storage database
 
 on:
   push:
@@ -38,11 +38,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Deploy storage stack
+      - name: Deploy storage database stack
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
+          # TODO: -storage- --> -database-. But it will BREAK backward compatibility.
           name: ${{ github.ref_name }}-storage-haapi
-          template: cf-stacks/storage-stack.yml
+          template: cf-stacks/storage-database-stack.yml
           tags: "[ { \"Key\": \"app\", \"Value\": \"haapi\" }, { \"Key\": \"env\", \"Value\": \"${{ github.ref_name }}\" } ]"
           capabilities: CAPABILITY_NAMED_IAM
           no-fail-on-empty-changeset: "1"

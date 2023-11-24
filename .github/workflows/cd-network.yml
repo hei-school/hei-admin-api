@@ -1,0 +1,101 @@
+name: CD Network
+
+on:
+  workflow_dispatch:
+    inputs:
+      VPCName:
+        type: string
+        default: hei-admin
+        required: false
+        description: The name to be given to the VPC
+      IPv4CIDR:
+        type: string
+        default: 172.31.0.0/16
+        description: The IPv4 CIDR to assign to the VPC
+        required: false
+      PublicSubnetAZ:
+        type: string
+        default: eu-west-3a
+        description: The availability zone for the public subnet
+        required: false
+      PublicSubnetIPv4CIDR:
+        type: string
+        default: 172.31.0.0/20
+        description: The IPv4 CIDR to assign to the public subnet
+        required: false
+      PrivateSubnet1AZ:
+        type: string
+        default: eu-west-3b
+        description: The availability zone Id for the first private subnet
+        required: false
+      PrivateSubnet1IPv4CIDR:
+        type: string
+        default: 172.31.16.0/20
+        description: The IPv4 CIDR to assign to the first private subnet
+        required: false
+      PrivateSubnet2AZ:
+        type: string
+        default: eu-west-3c
+        description: The availability zone Id for the second private subnet
+        required: false
+      PrivateSubnet2IPv4CIDR:
+        type: string
+        default: 172.31.32.0/20
+        description: The IPv4 CIDR to assign to the second private subnet
+        required: false
+      ALBName:
+        type: string
+        default: hei-admin-api-alb
+        description: The name to be given to the Application Load Balancer
+        required: false
+      RepositoryName:
+        type: string
+        default: hei-admin-api-latest
+        description: The name to give to the private repository
+        required: false
+
+jobs:
+  cd-network:
+    if: github.ref_name == 'prod' || github.ref_name == 'dev'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      AWS_REGION: eu-west-3
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Put branch_env into GITHUB_ENV
+        run: |
+          echo "branch_env=${{ github.ref_name }}" >> $GITHUB_ENV
+
+      - name: Configure preprod AWS credentials
+        if: ${{ github.ref_name == 'dev' }}
+        uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
+        with:
+          aws-access-key-id: ${{ secrets.DEV_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.DEV_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Configure prod AWS credentials
+        if: ${{ github.ref_name == 'prod' }}
+        uses: aws-actions/configure-aws-credentials@13d241b293754004c80624b5567555c4a39ffbe3
+        with:
+          aws-access-key-id: ${{ secrets.PROD_AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.PROD_AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Deploy network stack
+        uses: aws-actions/aws-cloudformation-github-deploy@v1
+        with:
+          name: network-hei-admin
+          template: cf-stacks/network-stack.yml
+          tags: "[ { \"Key\": \"App\", \"Value\": \"hei-admin\" }, { \"Key\": \"Env\", \"Value\": \"all\" } ]"
+          capabilities: CAPABILITY_NAMED_IAM
+          no-fail-on-empty-changeset: "1"
+          parameter-overrides:
+            "Env=${{ env.branch_env }}, VPCName=${{ github.event.inputs.VPCName }}, IPv4CIDR=${{ github.event.inputs.IPv4CIDR }},
+            PublicSubnetAZ=${{ github.event.inputs.PublicSubnetAZ }},PrivateSubnet1AZ=${{ github.event.inputs.PrivateSubnet1AZ }},
+            PrivateSubnet1IPv4CIDR=${{ github.event.inputs.PrivateSubnet1IPv4CIDR }}, PrivateSubnet2AZ=${{ github.event.inputs.PrivateSubnet2AZ }},
+            PrivateSubnet2IPv4CIDR=${{ github.event.inputs.PrivateSubnet2IPv4CIDR }}, ALBName=${{ github.event.inputs.ALBName }},
+            PublicSubnetIPv4CIDR=${{ github.event.inputs.PublicSubnetIPv4CIDR }},RepositoryName=${{ github.event.inputs.RepositoryName }}"

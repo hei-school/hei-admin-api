@@ -12,7 +12,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
@@ -81,7 +80,6 @@ public class FeeService {
     return initialFee;
   }
 
-  @Scheduled(cron = "0 0 * * * *")
   public void updateFeesStatusToLate() {
     List<Fee> unpaidFees = feeRepository.getUnpaidFees();
     unpaidFees.forEach(
@@ -102,11 +100,6 @@ public class FeeService {
         .build();
   }
 
-  /*
-   * An email will be sent to user with late fees
-   * every morning at 8am (UTC+3)
-   * */
-  @Scheduled(cron = "0 0 8 * * *")
   public void sendLateFeesEmail() {
     List<Fee> lateFees = feeRepository.getFeesByStatus(LATE);
     lateFees.forEach(

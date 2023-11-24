@@ -8,6 +8,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE4_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE5_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.PAYMENT1_ID;
@@ -22,6 +23,8 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiExcepti
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -83,13 +86,41 @@ class PaymentIT {
         .creationDatetime(Instant.parse("2022-11-12T08:25:26.00Z"));
   }
 
+  static CreatePayment paymentWithAfterNowCreationDatetime() {
+    return new CreatePayment()
+        .type(CreatePayment.TypeEnum.CASH)
+        .amount(2000)
+        .comment("creation datetime upper than now")
+        .creationDatetime(Instant.now().plusSeconds(60));
+  }
+
+  static CreatePayment paymentNoCreationDatetime() {
+    return new CreatePayment()
+        .type(CreatePayment.TypeEnum.CASH)
+        .amount(2000)
+        .comment("non given creation datetime");
+  }
+
+  static CreatePayment createWithBankType() {
+    return new CreatePayment()
+        .type(CreatePayment.TypeEnum.BANK_TRANSFER)
+        .amount(2000)
+        .comment("Comment")
+        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
+  }
+
   static CreatePayment creatablePayment1() {
-    return new CreatePayment().type(CreatePayment.TypeEnum.CASH).amount(2000).comment("Comment");
+    return new CreatePayment()
+        .type(CreatePayment.TypeEnum.CASH)
+        .amount(2000)
+        .comment("Comment")
+        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
   }
 
   static CreatePayment creatablePayment2() {
     return new CreatePayment()
         .type(CreatePayment.TypeEnum.MOBILE_MONEY)
+        .creationDatetime(Instant.parse("2022-11-10T08:25:25.00Z"))
         .amount(6000)
         .comment("Comment");
   }
@@ -139,6 +170,18 @@ class PaymentIT {
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getStudentPayments(STUDENT2_ID, FEE3_ID, null, null));
+  }
+
+  @Test
+  void manager_write_with_bank_type_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    List<Payment> actual =
+        api.createStudentPayments(STUDENT2_ID, FEE5_ID, List.of(createWithBankType()));
+
+    List<Payment> expected = api.getStudentPayments(STUDENT2_ID, FEE5_ID, 1, 5);
+    assertTrue(expected.containsAll(actual));
   }
 
   @Test
@@ -211,6 +254,35 @@ class PaymentIT {
     String exceptionMessage2 = exception2.getMessage();
     assertTrue(exceptionMessage1.contains("Amount is mandatory"));
     assertTrue(exceptionMessage2.contains("Amount must be positive"));
+  }
+
+  @Test
+  void manager_write_with_non_given_creation_datetime_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime is mandatory\"}",
+        () ->
+            api.createStudentPayments(STUDENT1_ID, FEE3_ID, List.of(paymentNoCreationDatetime())));
+  }
+
+  @Test
+  void manager_write_with_creation_datetime_after_current_time_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    Instant now = Instant.now();
+    LocalDateTime localDateTimeNow = LocalDateTime.ofInstant(now, ZoneId.of("UTC"));
+
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime must be before or equal to: "
+            + +localDateTimeNow.getHour()
+            + ":"
+            + localDateTimeNow.getMinute()
+            + "\"}",
+        () ->
+            api.createStudentPayments(
+                STUDENT1_ID, FEE3_ID, List.of(paymentWithAfterNowCreationDatetime())));
   }
 
   @Test

@@ -1,14 +1,13 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import java.util.Objects;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
+import javax.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -35,6 +34,12 @@ public class Group implements Serializable {
   private String ref;
 
   @CreationTimestamp private Instant creationDatetime;
+
+  @OneToMany(mappedBy = "group", fetch = LAZY)
+  private List<AwardedCourse> awardedCourse;
+
+  @OneToMany(mappedBy = "group", fetch = LAZY)
+  private List<GroupFlow> groupFlows;
 
   @Override
   public boolean equals(Object o) {

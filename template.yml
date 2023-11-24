@@ -10,7 +10,6 @@ Globals:
     Architectures:
       - x86_64
     Timeout: 600
-    MemorySize: 1024
     AutoPublishAlias: live
     SnapStart:
       ApplyOn: PublishedVersions
@@ -28,20 +27,21 @@ Globals:
         DATABASE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/db/url}}'
         DATABASE_USERNAME: !Sub '{{resolve:ssm:/haapi/${Env}/db/username}}'
         DATABASE_PASSWORD: !Sub '{{resolve:ssm:/haapi/${Env}/db/password}}'
-        AWS_COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/cognito/userpool-id}}'
-        AWS_SES_SOURCE: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/ses/source}}'
-        AWS_SES_CONTACT: !Sub '{{resolve:ssm:/hei-admin-api/${Env}/ses/contact}}'
-        SENTRY_DSN: !Sub '{{resolve:ssm:/hei-admin-api/sentry/dsn}}'
+        AWS_COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/haapi/${Env}/cognito/userpool-id}}'
+        AWS_SES_SOURCE: !Sub '{{resolve:ssm:/haapi/${Env}/ses/source}}'
+        AWS_SES_CONTACT: !Sub '{{resolve:ssm:/haapi/${Env}/ses/contact}}'
+        SENTRY_DSN: !Sub '{{resolve:ssm:/haapi/sentry/dsn}}'
 
 Parameters:
   Env:
     Type: String
 
 Resources:
-  ApiFunction:
+  FrontalFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: school.hei.haapi.ApiEventHandler::handleRequest
+      MemorySize: 1024
       Role: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
       Events:
         ApiCall:
@@ -50,10 +50,11 @@ Resources:
             Path: /{proxy+}
             Method: ANY
 
-  MailboxEventFunction:
+  WorkerFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: school.hei.haapi.MailboxEventHandler::handleRequest
+      MemorySize: 2048
       Role: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
       Events:
         AllEvents:

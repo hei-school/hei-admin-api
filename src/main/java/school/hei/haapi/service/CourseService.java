@@ -1,10 +1,8 @@
 package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
-import static school.hei.haapi.endpoint.rest.model.CourseStatus.LINKED;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -12,16 +10,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.model.CourseDirection;
-import school.hei.haapi.endpoint.rest.model.CourseStatus;
-import school.hei.haapi.endpoint.rest.model.UpdateStudentCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.StudentCourse;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.CourseValidator;
 import school.hei.haapi.repository.CourseRepository;
-import school.hei.haapi.repository.StudentCourseRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.CourseDao;
 
@@ -32,7 +25,7 @@ public class CourseService {
   private final CourseRepository courseRepository;
   private final CourseValidator courseValidator;
   private final UserRepository userRepository;
-  private final StudentCourseRepository studentCourseRepository;
+  private final GroupService groupService;
 
   public List<Course> getCourses(
       String code,
@@ -52,40 +45,52 @@ public class CourseService {
         credits,
         teacherFirstName,
         teacherLastName,
-        String.valueOf(creditsOrder),
-        String.valueOf(codeOrder),
+        creditsOrder == null ? null : creditsOrder.name(),
+        codeOrder == null ? null : codeOrder.name(),
         pageable);
   }
 
   @Transactional
-  public List<Course> crupdateCourses(List<Course> toCrupdate) {
-    courseValidator.accept(toCrupdate);
-    return courseRepository.saveAll(toCrupdate);
+  public List<Course> createOrUpdateCourses(List<Course> toCreateOrUpdate) {
+    courseValidator.accept(toCreateOrUpdate);
+    return courseRepository.saveAll(toCreateOrUpdate);
   }
 
-  public List<Course> getCoursesByStatus(String userId, CourseStatus status) {
-    if (status == null) {
-      return courseDao.getByUserIdAndStatus(userId, LINKED);
-    }
-    return courseDao.getByUserIdAndStatus(userId, status);
-  }
+  //  public List<Course> getCoursesByTeacherId(String teacherId) {
+  //    User teacher = userRepository.getById(teacherId);
+  //    List<AwardedCourse> awardedCourses = teacher.getAwardedCourses();
+  //    return awardedCourses.stream()
+  //        .map(awardedCourse -> awardedCourse.getCourse()).distinct()
+  //        .collect(Collectors.toList());
+  //  }
 
-  @Transactional
-  public List<Course> updateStudentCourses(String userId, List<UpdateStudentCourse> toUpdate) {
-    User toRetrieve = userRepository.getById(userId);
-    return toUpdate.stream()
-        .map(update -> updateCourseStatus(toRetrieve, update))
-        .collect(Collectors.toList());
-  }
+  //  public List<Course> getCoursesByStudentId(String studentId) {
+  //    List<Group> groups = groupService.getByUserId(studentId);
+  //    List<AwardedCourse> awardedCourses = new ArrayList<>();
+  //    for (Group group : groups) {
+  //      awardedCourses.addAll(group.getAwardedCourse());
+  //    }
+  //    return awardedCourses.stream()
+  //        .map(awardedCourse -> awardedCourse.getCourse()).distinct()
+  //        .collect(Collectors.toList());
+  //  }
 
-  private Course updateCourseStatus(User user, UpdateStudentCourse update) {
-    Course course = courseRepository.getById(update.getCourseId());
-    StudentCourse studentCourse = studentCourseRepository.findByUserIdAndCourseId(user, course);
-    if (studentCourse == null) {
-      studentCourse = StudentCourse.builder().userId(user).courseId(course).build();
-    }
-    studentCourse.setStatus(update.getStatus());
-    studentCourseRepository.save(studentCourse);
-    return course;
+  //  public List<Course> getCoursesByUserId(String userId) {
+  //    User user = userRepository.getById(userId);
+  //    switch (user.getRole()) {
+  //      case MANAGER:
+  //        return courseRepository.findAll();
+  //      case TEACHER:
+  //        return getCoursesByTeacherId(userId);
+  //      case STUDENT:
+  //        return getCoursesByStudentId(userId);
+  //      default:
+  //        return new ArrayList<>();
+  //    }
+  //
+  //  }
+
+  public Course getById(String id) {
+    return courseRepository.getCourseById(id);
   }
 }
