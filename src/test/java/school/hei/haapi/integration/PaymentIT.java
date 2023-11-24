@@ -102,6 +102,14 @@ class PaymentIT {
         .comment("non given creation datetime");
   }
 
+  static CreatePayment createWithBankType() {
+    return new CreatePayment()
+        .type(CreatePayment.TypeEnum.BANK_TRANSFER)
+        .amount(2000)
+        .comment("Comment")
+        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
+  }
+
   static CreatePayment creatablePayment1() {
     return new CreatePayment()
         .type(CreatePayment.TypeEnum.CASH)
@@ -163,6 +171,18 @@ class PaymentIT {
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getStudentPayments(STUDENT2_ID, FEE3_ID, null, null));
+  }
+
+  @Test
+  void manager_write_with_bank_type_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    List<Payment> actual =
+        api.createStudentPayments(STUDENT1_ID, FEE3_ID, List.of(createWithBankType()));
+
+    List<Payment> expected = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
+    assertTrue(expected.containsAll(actual));
   }
 
   @Test
