@@ -58,8 +58,7 @@ class AttendanceIT {
   private static final Instant DEFAULT_TO = Instant.parse("2021-11-09T07:30:00.00Z");
   @MockBean private SentryConf sentryConf;
   @MockBean private CognitoComponent cognitoComponent;
-  @Autowired
-  CheckAttendanceTriggeredService checkAttendanceTriggeredService;
+  @Autowired CheckAttendanceTriggeredService checkAttendanceTriggeredService;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
