@@ -62,6 +62,8 @@ public class PaymentMapper {
         return Payment.TypeEnum.MOBILE_MONEY;
       case FIX:
         return Payment.TypeEnum.FIX;
+      case BANK_TRANSFER:
+        return Payment.TypeEnum.BANK_TRANSFER;
       default:
         throw new BadRequestException("Unexpected paymentType: " + createPaymentType.getValue());
     }

@@ -1958,6 +1958,7 @@ components:
         type:
           type: string
           enum:
+            - BANK_TRANSFER
             - CASH
             - MOBILE_MONEY
             - SCHOLARSHIP
