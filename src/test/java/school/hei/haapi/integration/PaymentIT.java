@@ -24,6 +24,8 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.temporal.ChronoField;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -250,14 +252,9 @@ class PaymentIT {
   void manager_write_with_creation_datetime_after_current_time_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
-    LocalDateTime now = LocalDateTime.ofInstant(Instant.now(), ZoneId.of("UTC+3"));
 
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime must be before or equal to: "
-            + now.getHour()
-            + ":"
-            + now.getMinute()
-            + "\"}",
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime is invalid\"}",
         () ->
             api.createStudentPayments(
                 STUDENT1_ID, FEE3_ID, List.of(paymentWithAfterNowCreationDatetime())));
