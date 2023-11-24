@@ -87,6 +87,13 @@ Resources:
       Type: String
       Value: !Ref DeadLetterQueue
 
+  DeadLetterQueueArnSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Join [ '' , [ /haapi/ , !Ref Env , /sqs/dead-letter-queue-arn ] ]
+      Type: String
+      Value: !GetAtt DeadLetterQueue.Arn
+
   EventBridgeBus:
     Type: AWS::Events::EventBus
     Properties:
@@ -131,6 +138,8 @@ Outputs:
     Value: !Ref MailboxQueueSSMArn
   DeadLetterQueueURL:
     Value: !Ref DeadLetterQueueSSM
+  DeadLetterQueueArn:
+    Value: !Ref DeadLetterQueueArnSSM
   EventBridgeBusName:
     Value: !Ref EventBridgeBusNameSSM
   EventBridgeArnName:
