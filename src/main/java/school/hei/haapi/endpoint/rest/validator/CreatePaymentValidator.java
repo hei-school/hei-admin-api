@@ -3,10 +3,6 @@ package school.hei.haapi.endpoint.rest.validator;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalField;
 import java.util.function.Consumer;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
@@ -26,7 +22,10 @@ public class CreatePaymentValidator implements Consumer<CreatePayment> {
     }
     if (createPayment.getCreationDatetime().isAfter(now)) {
       throw new BadRequestException(
-          "Creation datetime must be before or equal to: " + localDateTimeNow.getHour() + ":" + localDateTimeNow.getMinute());
+          "Creation datetime must be before or equal to: "
+              + localDateTimeNow.getHour()
+              + ":"
+              + localDateTimeNow.getMinute());
     }
   }
 }

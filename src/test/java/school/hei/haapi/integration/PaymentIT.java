@@ -25,8 +25,6 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoField;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -277,11 +275,11 @@ class PaymentIT {
     LocalDateTime localDateTimeNow = LocalDateTime.ofInstant(now, ZoneId.of("UTC"));
 
     assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime must be before or equal to: " +
-            + localDateTimeNow.getHour()
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Creation datetime must be before or equal to: "
+            + +localDateTimeNow.getHour()
             + ":"
             + localDateTimeNow.getMinute()
-            +"\"}",
+            + "\"}",
         () ->
             api.createStudentPayments(
                 STUDENT1_ID, FEE3_ID, List.of(paymentWithAfterNowCreationDatetime())));
