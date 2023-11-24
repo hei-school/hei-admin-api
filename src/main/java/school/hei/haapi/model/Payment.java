@@ -52,8 +52,6 @@ public class Payment implements Serializable {
   private Integer amount;
   private String comment;
 
-  @CreationTimestamp
-  @Getter(AccessLevel.NONE)
   private Instant creationDatetime;
 
   public Instant getCreationDatetime() {

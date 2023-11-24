@@ -170,6 +170,7 @@ class PaymentIT {
 
     List<Payment> actual =
         api.createStudentPayments(STUDENT1_ID, FEE3_ID, List.of(creatablePayment1()));
+    System.out.println(actual);
 
     List<Payment> expected = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
     assertTrue(expected.containsAll(actual));
