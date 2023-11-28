@@ -276,6 +276,14 @@ paths:
           description: "Filter students by course they are linked to"
           schema:
             type: string
+        - name: student_statuses
+          required: false
+          in: query
+          description: Filter student by status value
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/StudentStatus'
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -817,6 +825,14 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: student_statuses
+          required: false
+          in: query
+          description: Filter student by status value
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/StudentStatus'
       operationId: getAllStudentByGroup
       responses:
         '200':
@@ -2027,6 +2043,11 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
+    StudentStatus:
+      type: string
+      enum:
+        - ENABLED
+        - DISABLED
     AttendanceStatus:
       type: string
       enum:
