@@ -276,12 +276,12 @@ paths:
           description: "Filter students by course they are linked to"
           schema:
             type: string
-        - name: student_status
+        - name: status
           required: false
           in: query
-          description: Filter student by status value
+          description: Filter student by status value return all by default
           schema:
-            $ref: '#/components/schemas/StudentStatus'
+            $ref: '#/components/schemas/UserStatus'
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -823,12 +823,12 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
-        - name: student_status
+        - name: status
           required: false
           in: query
-          description: Filter student by status value
+          description: Filter student by status value return all by default
           schema:
-            $ref: '#/components/schemas/StudentStatus'
+            $ref: '#/components/schemas/UserStatus'
       operationId: getAllStudentByGroup
       responses:
         '200':
@@ -1051,6 +1051,12 @@ paths:
           description: "Filter teachers by last name, case is ignored"
           schema:
             type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter teacher by status value return all bu default
+          schema:
+            $ref: '#/components/schemas/UserStatus'
       responses:
         '200':
           description: List of teachers, ordered by ref.
@@ -1148,6 +1154,12 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: status
+          required: false
+          in: query
+          description: Filter manager by status value return all by default
+          schema:
+            $ref: '#/components/schemas/UserStatus'
       responses:
         '200':
           description: List of managers, ordered by ref.
@@ -2039,7 +2051,7 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
-    StudentStatus:
+    UserStatus:
       type: string
       enum:
         - ENABLED
