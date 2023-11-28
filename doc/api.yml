@@ -279,7 +279,7 @@ paths:
         - name: status
           required: false
           in: query
-          description: Filter student by status value return all by default
+          description: Filter students by status value return all by default
           schema:
             $ref: '#/components/schemas/EnableStatus'
       responses:
@@ -826,7 +826,7 @@ paths:
         - name: status
           required: false
           in: query
-          description: Filter student by status value return all by default
+          description: Filter students by status value return all by default
           schema:
             $ref: '#/components/schemas/EnableStatus'
       operationId: getAllStudentByGroup
@@ -1054,7 +1054,7 @@ paths:
         - name: status
           required: false
           in: query
-          description: Filter teacher by status value return all bu default
+          description: Filter teachers by status value return all by default
           schema:
             $ref: '#/components/schemas/EnableStatus'
       responses:
@@ -1157,7 +1157,7 @@ paths:
         - name: status
           required: false
           in: query
-          description: Filter manager by status value return all by default
+          description: Filter managers by status value return all by default
           schema:
             $ref: '#/components/schemas/EnableStatus'
       responses:
