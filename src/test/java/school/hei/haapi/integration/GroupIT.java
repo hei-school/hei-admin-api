@@ -155,7 +155,8 @@ class GroupIT {
     TeachingApi api = new TeachingApi(manager1Client);
     List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
     List<Group> createdWithStudent = api.createOrUpdateGroups(List.of(toCreate5));
-    List<Student> students = api.getAllStudentByGroup(createdWithStudent.get(0).getId(), 1, 10, null);
+    List<Student> students =
+        api.getAllStudentByGroup(createdWithStudent.get(0).getId(), 1, 10, null);
 
     assertEquals(2, created.size());
     Group created3 = created.get(0);

@@ -224,7 +224,13 @@ class StudentIT {
 
     List<Student> actualStudents =
         api.getStudents(
-            1, 20, student1().getRef(), student1().getFirstName(), student1().getLastName(), null, null);
+            1,
+            20,
+            student1().getRef(),
+            student1().getFirstName(),
+            student1().getLastName(),
+            null,
+            null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student1()));
@@ -247,7 +253,8 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, student1().getRef(), null, null, null, null);
+    List<Student> actualStudents =
+        api.getStudents(1, 20, student1().getRef(), null, null, null, null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student1()));
