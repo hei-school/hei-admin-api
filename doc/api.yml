@@ -281,7 +281,7 @@ paths:
           in: query
           description: Filter student by status value return all by default
           schema:
-            $ref: '#/components/schemas/UserStatus'
+            $ref: '#/components/schemas/EnableStatus'
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -828,7 +828,7 @@ paths:
           in: query
           description: Filter student by status value return all by default
           schema:
-            $ref: '#/components/schemas/UserStatus'
+            $ref: '#/components/schemas/EnableStatus'
       operationId: getAllStudentByGroup
       responses:
         '200':
@@ -1056,7 +1056,7 @@ paths:
           in: query
           description: Filter teacher by status value return all bu default
           schema:
-            $ref: '#/components/schemas/UserStatus'
+            $ref: '#/components/schemas/EnableStatus'
       responses:
         '200':
           description: List of teachers, ordered by ref.
@@ -1159,7 +1159,7 @@ paths:
           in: query
           description: Filter manager by status value return all by default
           schema:
-            $ref: '#/components/schemas/UserStatus'
+            $ref: '#/components/schemas/EnableStatus'
       responses:
         '200':
           description: List of managers, ordered by ref.
@@ -2051,11 +2051,6 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
-    UserStatus:
-      type: string
-      enum:
-        - ENABLED
-        - DISABLED
     AttendanceStatus:
       type: string
       enum:
