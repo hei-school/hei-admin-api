@@ -37,12 +37,6 @@ public class AttendanceScheduler {
   @Async
   @Transactional
   public synchronized void checkAttendancesEachDays() {
-    System.out.println(
-        "scheduler running at "
-            + LocalDateTime.now().getHour()
-            + ":"
-            + LocalDateTime.now().getMinute()
-            + " ...");
     List<CourseSession> courseSessions = attendanceSchedulerUtils.findCourseSessionOfTheDay();
 
     courseSessions.forEach(

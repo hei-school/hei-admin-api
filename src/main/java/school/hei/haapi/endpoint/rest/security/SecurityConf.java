@@ -5,6 +5,7 @@ import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
+import static school.hei.haapi.endpoint.rest.security.model.Role.SCANNER;
 import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
 import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 
@@ -67,8 +68,6 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                 new NegatedRequestMatcher(
                     new OrRequestMatcher(
                         new AntPathRequestMatcher("/ping"),
-                        new AntPathRequestMatcher("/dummy-table"),
-                        new AntPathRequestMatcher("/uuid-created"),
                         new AntPathRequestMatcher("/**", OPTIONS.toString())))),
             AnonymousAuthenticationFilter.class)
         .anonymous()
@@ -233,7 +232,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .requestMatchers(new SelfMatcher(GET, "/attendance", "students"))
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(POST, "/attendance/movement")
-        .hasAnyRole(MANAGER.getRole())
+        .hasAnyRole(MANAGER.getRole(), SCANNER.getRole())
         .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/courses/*")
@@ -247,6 +246,12 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .requestMatchers(
             new SelfMatcher(GET, "/courses/*" + "/exams/*/participants/*", "participants"))
         .hasAnyRole(STUDENT.getRole())
+        .antMatchers(PUT, "/scanners")
+        .hasAnyRole(MANAGER.getRole())
+        .antMatchers(GET, "/scanners/*")
+        .hasAnyRole(MANAGER.getRole())
+        .antMatchers(GET, "/scanners")
+        .hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/courses/*" + "/exams/*/participants/*")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))

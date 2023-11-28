@@ -85,6 +85,7 @@ public class TestUtils {
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
+  public static final String SCANNER1_TOKEN = "scanner1_token";
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -101,6 +102,7 @@ public class TestUtils {
     when(cognitoComponent.getEmailByIdToken(STUDENT1_TOKEN)).thenReturn("test+ryan@hei.school");
     when(cognitoComponent.getEmailByIdToken(TEACHER1_TOKEN)).thenReturn("test+teacher1@hei.school");
     when(cognitoComponent.getEmailByIdToken(MANAGER1_TOKEN)).thenReturn("test+manager1@hei.school");
+    when(cognitoComponent.getEmailByIdToken(SCANNER1_TOKEN)).thenReturn("test+scanner@hei.school");
   }
 
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {

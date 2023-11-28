@@ -1,12 +1,13 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CourseSession;
 import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
 import school.hei.haapi.endpoint.rest.model.StudentAttendanceMovement;
 import school.hei.haapi.model.StudentAttendance;
-import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
 
 @AllArgsConstructor
@@ -42,15 +43,13 @@ public class AttendanceMapper {
   }
 
   public StudentAttendance toDomain(CreateAttendanceMovement toCreate) {
-    if (userRepository.findById(toCreate.getStudentId()).isEmpty()) {
-      throw new NotFoundException(
-          "the student with #" + toCreate.getStudentId() + " doesn't exist");
-    }
+    Optional<User> predicate =
+        userRepository.findByRefContainingIgnoreCase(toCreate.getStudentRef());
     return StudentAttendance.builder()
         .attendanceMovementType(toCreate.getAttendanceMovementType())
         .place(toCreate.getPlace())
         .createdAt(toCreate.getCreatedAt())
-        .student(userRepository.findById(toCreate.getStudentId()).get())
+        .student(predicate.get())
         .build();
   }
 

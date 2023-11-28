@@ -3,12 +3,28 @@ package school.hei.haapi.endpoint.rest.mapper;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
+import school.hei.haapi.endpoint.rest.model.Scanner;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
 
 @Component
 public class UserMapper {
+
+  public Scanner toRestScannerUser(User user) {
+    return new Scanner()
+        .id(user.getId())
+        .sex(user.getSex() == null ? null : Scanner.SexEnum.fromValue(user.getSex().toString()))
+        .ref(user.getRef())
+        .email(user.getEmail())
+        .address(user.getAddress())
+        .birthDate(user.getBirthDate())
+        .entranceDatetime(user.getEntranceDatetime())
+        .firstName(user.getFirstName())
+        .lastName(user.getLastName())
+        .status(EnableStatus.fromValue(user.getStatus().toString()))
+        .phone(user.getPhone());
+  }
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
@@ -64,6 +80,24 @@ public class UserMapper {
     manager.setAddress(user.getAddress());
 
     return manager;
+  }
+
+  public User toDomain(Scanner scannerUser) {
+    return User.builder()
+        .role(User.Role.SCANNER)
+        .id(scannerUser.getId())
+        .firstName(scannerUser.getFirstName())
+        .lastName(scannerUser.getLastName())
+        .email(scannerUser.getEmail())
+        .ref(scannerUser.getRef())
+        .status(User.Status.fromValue(scannerUser.getStatus().toString()))
+        .phone(scannerUser.getPhone())
+        .entranceDatetime(scannerUser.getEntranceDatetime())
+        .birthDate(scannerUser.getBirthDate())
+        .sex(
+            scannerUser.getSex() == null ? null : User.Sex.valueOf(scannerUser.getSex().toString()))
+        .address(scannerUser.getAddress())
+        .build();
   }
 
   public User toDomain(Teacher teacher) {

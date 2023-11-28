@@ -1021,6 +1021,117 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /scanners:
+    get:
+      tags:
+        - Users
+      summary: Get all scanners
+      operationId: getScannerUsers
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: ref
+          in: query
+          description: "Filter scanner users by ref, case is ignored"
+          schema:
+            type: string
+        - name: first_name
+          in: query
+          description: "Filter scanner users by first name, case is ignored"
+          schema:
+            type: string
+        - name: last_name
+          in: query
+          description: "Filter scanner users by last name, case is ignored"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of scanners, ordered by ref.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Scanner'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Create or update existing scanner
+      description: Update scanner users when `id` are provided, create them otherwise
+      operationId: createOrUpdateScannerUsers
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Scanner'
+      responses:
+        '200':
+          description: The created or updated scanner
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Scanner'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /scanners/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get scanner by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getScannerUserById
+      responses:
+        '200':
+          description: The identified scanner
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Scanner'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /teachers:
     get:
       tags:
@@ -1775,6 +1886,9 @@ components:
         end:
           type: string
           format: date-time
+    Scanner:
+      allOf:
+        - $ref: '#/components/schemas/User'
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
@@ -1940,7 +2054,7 @@ components:
     CreateAttendanceMovement:
       type: object
       properties:
-        student_id:
+        student_ref:
           type: string
         created_at:
           type: string
