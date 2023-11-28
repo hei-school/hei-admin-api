@@ -276,6 +276,12 @@ paths:
           description: "Filter students by course they are linked to"
           schema:
             type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter students by status value return all by default
+          schema:
+            $ref: '#/components/schemas/EnableStatus'
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -817,6 +823,12 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: status
+          required: false
+          in: query
+          description: Filter students by status value return all by default
+          schema:
+            $ref: '#/components/schemas/EnableStatus'
       operationId: getAllStudentByGroup
       responses:
         '200':
@@ -1039,6 +1051,12 @@ paths:
           description: "Filter teachers by last name, case is ignored"
           schema:
             type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter teachers by status value return all by default
+          schema:
+            $ref: '#/components/schemas/EnableStatus'
       responses:
         '200':
           description: List of teachers, ordered by ref.
@@ -1136,6 +1154,12 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: status
+          required: false
+          in: query
+          description: Filter managers by status value return all by default
+          schema:
+            $ref: '#/components/schemas/EnableStatus'
       responses:
         '200':
           description: List of managers, ordered by ref.
