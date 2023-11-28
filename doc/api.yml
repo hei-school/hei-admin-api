@@ -276,14 +276,12 @@ paths:
           description: "Filter students by course they are linked to"
           schema:
             type: string
-        - name: student_statuses
+        - name: student_status
           required: false
           in: query
           description: Filter student by status value
           schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/StudentStatus'
+            $ref: '#/components/schemas/StudentStatus'
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -825,14 +823,12 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
-        - name: student_statuses
+        - name: student_status
           required: false
           in: query
           description: Filter student by status value
           schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/StudentStatus'
+            $ref: '#/components/schemas/StudentStatus'
       operationId: getAllStudentByGroup
       responses:
         '200':
