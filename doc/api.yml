@@ -1073,6 +1073,8 @@ paths:
           required: false
           in: query
           description: Filter teachers by sex value return all by default
+          schema:
+            $ref: '#/components/schemas/Sex'
       responses:
         '200':
           description: List of teachers, ordered by ref.
