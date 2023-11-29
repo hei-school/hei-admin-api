@@ -120,7 +120,7 @@ public class UserMapper {
         return EnableStatus.DISABLED;
       case SUSPENDED:
         return EnableStatus.SUSPENDED;
-      default: throw new BadRequestException("Unexpected feeType: " + status);
+      default: throw new BadRequestException("Unexpected type: " + status);
     }
   }
 }
