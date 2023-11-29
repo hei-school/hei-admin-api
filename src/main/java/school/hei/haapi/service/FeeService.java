@@ -19,6 +19,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
+import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
 
 @Service
@@ -29,7 +30,7 @@ public class FeeService {
   private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
-
+  private final UpdateFeeValidator updateFeeValidator;
   private final EventProducer eventProducer;
 
   public Fee getById(String id) {
@@ -43,6 +44,12 @@ public class FeeService {
   @Transactional
   public List<Fee> saveAll(List<Fee> fees) {
     feeValidator.accept(fees);
+    return feeRepository.saveAll(fees);
+  }
+
+  @Transactional
+  public List<Fee> updateAll(List<Fee> fees, String studentId) {
+    updateFeeValidator.accept(fees);
     return feeRepository.saveAll(fees);
   }
 
