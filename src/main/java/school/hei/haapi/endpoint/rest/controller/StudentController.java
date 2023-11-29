@@ -40,8 +40,18 @@ public class StudentController {
 
   // todo: to review
   @GetMapping("/groups/{groupId}/students")
-  public List<Student> getStudentByGroupId(@PathVariable String groupId) {
-    return userService.getByGroupId(groupId).stream()
+  public List<Student> getStudentByGroupId(
+      @RequestParam(name = "page", required = false) PageFromOne page,
+      @RequestParam(value = "page_size", required = false) BoundedPageSize pageSize,
+      @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
+      @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
+      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
+      @RequestParam(name = "status", required = false)EnableStatus status,
+      @RequestParam(name = "sex", required = false) Sex sex,
+      @PathVariable(name = "groupId")String groupId) {
+    return userService.getUsersByGroupAndFilteredByCriteria(
+        STUDENT, firstName, lastName, ref, page, pageSize, status, sex, groupId
+        ).stream()
         .map(userMapper::toRestStudent)
         .collect(toList());
   }

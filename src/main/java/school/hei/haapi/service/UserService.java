@@ -6,6 +6,7 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +21,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.GroupRepository;
@@ -135,5 +137,26 @@ public class UserService {
       }
     }
     return users.stream().distinct().collect(toList());
+  }
+
+  public List<User> getUsersByGroupAndFilteredByCriteria(
+      User.Role role,
+      String firstName,
+      String lastName,
+      String ref,
+      PageFromOne page,
+      BoundedPageSize pageSize,
+      EnableStatus status,
+      Sex sex,
+      String groupId
+  ) {
+    List<User> filterByGroupId = getByGroupId(groupId);
+    List<User> filterByCriteria = getByCriteria(role, firstName, lastName, ref, page, pageSize, status, sex);
+    return filterUserFromTwoList(filterByGroupId, filterByCriteria);
+  }
+
+  private List<User> filterUserFromTwoList(
+      List<User> givenData, List<User> toCompare) {
+    return givenData.stream().filter(toCompare::contains).collect(toList());
   }
 }
