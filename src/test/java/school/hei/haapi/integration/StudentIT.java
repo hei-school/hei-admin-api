@@ -267,6 +267,17 @@ class StudentIT {
   }
 
   @Test
+  void manager_read_by_disabled_status_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents =
+        api.getStudents(1, 20, null, null, null, null, EnableStatus.DISABLED, null);
+
+    assertEquals(2, actualStudents.size());
+  }
+
+  @Test
   void manager_read_by_last_name_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
