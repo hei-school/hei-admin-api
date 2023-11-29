@@ -143,6 +143,36 @@ class StudentIT {
     return student;
   }
 
+  public static Student disabledStudent1() {
+    return new Student()
+        .id("student4_id")
+        .firstName("Disable")
+        .lastName("One")
+        .email("test+disable1@hei.school")
+        .ref("STD29001")
+        .status(EnableStatus.DISABLED)
+        .sex(Sex.M)
+        .birthDate(LocalDate.parse("2000-12-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .phone("0322411123")
+        .address("Adr 1");
+  }
+
+  public static Student suspendedStudent1() {
+    return new Student()
+        .id("student6_id")
+        .firstName("Suspended")
+        .lastName("One")
+        .email("test+suspended@hei.school")
+        .ref("STD29003")
+        .status(EnableStatus.SUSPENDED)
+        .sex(Sex.F)
+        .birthDate(LocalDate.parse("2000-12-02"))
+        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
+        .phone("0322411124")
+        .address("Adr 1");
+  }
+
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
@@ -187,6 +217,28 @@ class StudentIT {
 
     assertEquals(student1(), actualStudents2.get(0));
     assertEquals(2, actualStudents2.size());
+  }
+
+  @Test
+  void manager_read_by_disabled_status_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents =
+        api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, null);
+    assertEquals(2, actualStudents.size());
+    assertTrue(actualStudents.contains(disabledStudent1()));
+  }
+
+  @Test
+  void manager_read_by_suspended_status_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents =
+        api.getStudents(1, 10, null, null, null, null, EnableStatus.SUSPENDED, null);
+    assertEquals(1, actualStudents.size());
+    assertTrue(actualStudents.contains(suspendedStudent1()));
   }
 
   @Test
