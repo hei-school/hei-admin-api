@@ -6,6 +6,7 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,10 +15,13 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.UserUpserted;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.GroupRepository;
@@ -56,8 +60,8 @@ public class UserService {
     return new UserUpserted().userId(user.getId()).email(user.getEmail());
   }
 
-  public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
-    return getByCriteria(role, "", "", "", page, pageSize);
+  public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize, EnableStatus status, Sex sex) {
+    return getByCriteria(role, "", "", "", page, pageSize, status, sex);
   }
 
   public List<User> getByCriteria(
@@ -66,10 +70,12 @@ public class UserService {
       String lastName,
       String ref,
       PageFromOne page,
-      BoundedPageSize pageSize) {
+      BoundedPageSize pageSize,
+      EnableStatus status,
+      Sex sex) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-    return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
+    return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
   }
 
   public List<User> getByLinkedCourse(
@@ -79,10 +85,12 @@ public class UserService {
       String ref,
       String courseId,
       PageFromOne page,
-      BoundedPageSize pageSize) {
+      BoundedPageSize pageSize,
+      EnableStatus status,
+      Sex sex) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-    List<User> users = userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
+    List<User> users = userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
 
     return courseId.length() > 0
         ? users.stream()
@@ -129,5 +137,27 @@ public class UserService {
       }
     }
     return users.stream().distinct().collect(toList());
+  }
+
+  public List<User> getStudentByGroupIdAndCriteria(
+      User.Role role,
+      String firstName,
+      String lastName,
+      String ref,
+      PageFromOne page,
+      BoundedPageSize pageSize,
+      EnableStatus status,
+      Sex sex,
+      String groupId
+  ) {
+    return filterUserFromTwoList(
+        getByGroupId(groupId),
+        getByCriteria(role, firstName, lastName, ref, page, pageSize, status, sex)
+    );
+  }
+
+  private List<User> filterUserFromTwoList(
+      List<User> givenData, List<User> toCompare) {
+    return givenData.stream().filter(toCompare::contains).collect(toList());
   }
 }

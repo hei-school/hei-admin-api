@@ -11,6 +11,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -35,9 +37,11 @@ public class TeacherController {
       @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
-      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
+      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
+      @RequestParam(name = "status", required = false)EnableStatus status,
+      @RequestParam(name = "sex", required = false)Sex sex) {
     return userService
-        .getByCriteria(User.Role.TEACHER, firstName, lastName, ref, page, pageSize)
+        .getByCriteria(User.Role.TEACHER, firstName, lastName, ref, page, pageSize, status, sex)
         .stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());

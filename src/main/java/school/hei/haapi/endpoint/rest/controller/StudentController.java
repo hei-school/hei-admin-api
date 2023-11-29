@@ -16,7 +16,9 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.GroupFlow;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -38,8 +40,17 @@ public class StudentController {
 
   // todo: to review
   @GetMapping("/groups/{groupId}/students")
-  public List<Student> getStudentByGroupId(@PathVariable String groupId) {
-    return userService.getByGroupId(groupId).stream()
+  public List<Student> getStudentByGroupId(
+      @PathVariable String groupId,
+      @RequestParam(name = "page", required = false) PageFromOne page,
+      @RequestParam(value = "page_size", required = false) BoundedPageSize pageSize,
+      @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
+      @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
+      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
+      @RequestParam(name = "status", required = false)EnableStatus status,
+      @RequestParam(name = "sex", required = false)Sex sex) {
+    return userService
+        .getStudentByGroupIdAndCriteria(STUDENT, firstName, lastName, ref, page, pageSize, status, sex, groupId).stream()
         .map(userMapper::toRestStudent)
         .collect(toList());
   }
@@ -51,9 +62,11 @@ public class StudentController {
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
-      @RequestParam(value = "course_id", required = false, defaultValue = "") String courseId) {
+      @RequestParam(value = "course_id", required = false, defaultValue = "") String courseId,
+      @RequestParam(name = "status", required = false)EnableStatus status,
+      @RequestParam(name = "sex", required = false)Sex sex) {
     return userService
-        .getByLinkedCourse(STUDENT, firstName, lastName, ref, courseId, page, pageSize)
+        .getByLinkedCourse(STUDENT, firstName, lastName, ref, courseId, page, pageSize, status, sex)
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
