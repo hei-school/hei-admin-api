@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.util.Arrays;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
@@ -7,6 +8,8 @@ import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
+import java.util.List;
 
 @Component
 public class UserMapper {
@@ -73,7 +76,7 @@ public class UserMapper {
         .lastName(teacher.getLastName())
         .email(teacher.getEmail())
         .ref(teacher.getRef())
-        .status(User.Status.fromValue(teacher.getStatus().toString()))
+        .status(toDomainUserStatus(teacher.getStatus()))
         .phone(teacher.getPhone())
         .entranceDatetime(teacher.getEntranceDatetime())
         .birthDate(teacher.getBirthDate())
@@ -90,7 +93,7 @@ public class UserMapper {
         .lastName(student.getLastName())
         .email(student.getEmail())
         .ref(student.getRef())
-        .status(User.Status.fromValue(student.getStatus().toString()))
+        .status(toDomainUserStatus(student.getStatus()))
         .phone(student.getPhone())
         .entranceDatetime(student.getEntranceDatetime())
         .birthDate(student.getBirthDate())
@@ -99,12 +102,25 @@ public class UserMapper {
         .build();
   }
 
+  private User.Status toDomainUserStatus(EnableStatus status) {
+    List<EnableStatus> expectedStatus = Arrays.stream(EnableStatus.values()).toList();
+    switch (status) {
+      case ACTIVE:
+        return User.Status.ENABLED;
+      case LEFT:
+        return User.Status.DISABLED;
+      default: throw new BadRequestException("Status must be type of: " + expectedStatus.toString());
+    }
+  }
+
   private EnableStatus toRestUserStatus(User.Status status) {
+    List<User.Status> expectedStatus = Arrays.stream(User.Status.values()).toList();
     switch (status) {
       case ENABLED:
         return EnableStatus.ACTIVE;
       case DISABLED:
         return EnableStatus.LEFT;
+      default: throw new BadRequestException("Status must be type of: " + expectedStatus.toString());
     }
   }
 }
