@@ -103,20 +103,24 @@ public class UserMapper {
   }
 
   private User.Status toDomainUserStatus(EnableStatus status) {
-    return switch (status) {
-      case ENABLED -> User.Status.ENABLED;
-      case DISABLED -> User.Status.DISABLED;
-      case SUSPENDED -> throw new NotImplementedException("SUSPENDED not implemented");
-      default -> throw new BadRequestException("Unexpected type: " + status);
-    };
+    switch (status) {
+      case ENABLED:
+        return User.Status.ENABLED;
+      case DISABLED:
+        return User.Status.DISABLED;
+      default: throw new BadRequestException("Unexpected type: " + status);
+    }
   }
 
   private EnableStatus toRestUserStatus(User.Status status) {
-    return switch (status) {
-      case ENABLED -> EnableStatus.ENABLED;
-      case DISABLED -> EnableStatus.DISABLED;
-      case SUSPENDED -> throw new NotImplementedException("SUSPENDED not implemented");
-      default -> throw new BadRequestException("Unexpected type: " + status);
-    };
+    switch (status) {
+      case ENABLED:
+        return EnableStatus.ENABLED;
+      case DISABLED:
+        return EnableStatus.DISABLED;
+      case SUSPENDED:
+        return EnableStatus.SUSPENDED;
+      default: throw new BadRequestException("Unexpected feeType: " + status);
+    }
   }
 }
