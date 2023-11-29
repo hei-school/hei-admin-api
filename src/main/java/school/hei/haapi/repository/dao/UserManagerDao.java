@@ -54,12 +54,14 @@ public class UserManagerDao {
 
     if (status != null) {
       predicate = builder.and(
+          predicate,
           builder.equal(root.get("status"), toDomainStatus(status))
       );
     }
 
     if (sex != null) {
       predicate = builder.and(
+          predicate,
           builder.equal(root.get("sex"), toDomainSex(sex))
       );
     }
