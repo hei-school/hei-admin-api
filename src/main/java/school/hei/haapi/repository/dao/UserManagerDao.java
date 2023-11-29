@@ -113,7 +113,8 @@ public class UserManagerDao {
       case ENABLED -> User.Status.ENABLED;
       case DISABLED -> User.Status.DISABLED;
       case SUSPENDED -> User.Status.SUSPENDED;
-      default -> throw new BadRequestException("Status must be type of: " + domainStatus.toString());
+      default -> throw new BadRequestException(
+          "Status must be type of: " + domainStatus.toString());
     };
   }
 }

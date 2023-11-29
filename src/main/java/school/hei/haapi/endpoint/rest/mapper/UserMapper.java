@@ -8,7 +8,6 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
-import school.hei.haapi.model.exception.NotImplementedException;
 
 @Component
 public class UserMapper {
@@ -105,7 +104,7 @@ public class UserMapper {
     return switch (status) {
       case ENABLED -> User.Status.ENABLED;
       case DISABLED -> User.Status.DISABLED;
-      case SUSPENDED -> throw new NotImplementedException("SUSPENDED not implemented");
+      case SUSPENDED -> User.Status.SUSPENDED;
       default -> throw new BadRequestException("Unexpected type: " + status);
     };
   }
@@ -114,7 +113,7 @@ public class UserMapper {
     return switch (status) {
       case ENABLED -> EnableStatus.ENABLED;
       case DISABLED -> EnableStatus.DISABLED;
-      case SUSPENDED -> throw new NotImplementedException("SUSPENDED not implemented");
+      case SUSPENDED -> EnableStatus.SUSPENDED;
       default -> throw new BadRequestException("Unexpected type: " + status);
     };
   }

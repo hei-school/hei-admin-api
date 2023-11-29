@@ -33,7 +33,7 @@ public class ManagerController {
   public List<Manager> getManagers(
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize,
-      @RequestParam(name = "status", required = false)EnableStatus status,
+      @RequestParam(name = "status", required = false) EnableStatus status,
       @RequestParam(name = "sex", required = false) Sex sex) {
     return userService.getByRole(User.Role.MANAGER, page, pageSize, status, sex).stream()
         .map(userMapper::toRestManager)

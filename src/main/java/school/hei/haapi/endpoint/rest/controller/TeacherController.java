@@ -38,8 +38,8 @@ public class TeacherController {
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
-      @RequestParam(name = "status", required = false)EnableStatus status,
-      @RequestParam(name = "sex", required = false)Sex sex) {
+      @RequestParam(name = "status", required = false) EnableStatus status,
+      @RequestParam(name = "sex", required = false) Sex sex) {
     return userService
         .getByCriteria(User.Role.TEACHER, firstName, lastName, ref, page, pageSize, status, sex)
         .stream()

@@ -47,10 +47,12 @@ public class StudentController {
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
-      @RequestParam(name = "status", required = false)EnableStatus status,
-      @RequestParam(name = "sex", required = false)Sex sex) {
+      @RequestParam(name = "status", required = false) EnableStatus status,
+      @RequestParam(name = "sex", required = false) Sex sex) {
     return userService
-        .getStudentByGroupIdAndCriteria(STUDENT, firstName, lastName, ref, page, pageSize, status, sex, groupId).stream()
+        .getStudentByGroupIdAndCriteria(
+            STUDENT, firstName, lastName, ref, page, pageSize, status, sex, groupId)
+        .stream()
         .map(userMapper::toRestStudent)
         .collect(toList());
   }
@@ -63,8 +65,8 @@ public class StudentController {
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
       @RequestParam(value = "course_id", required = false, defaultValue = "") String courseId,
-      @RequestParam(name = "status", required = false)EnableStatus status,
-      @RequestParam(name = "sex", required = false)Sex sex) {
+      @RequestParam(name = "status", required = false) EnableStatus status,
+      @RequestParam(name = "sex", required = false) Sex sex) {
     return userService
         .getByLinkedCourse(STUDENT, firstName, lastName, ref, courseId, page, pageSize, status, sex)
         .stream()
