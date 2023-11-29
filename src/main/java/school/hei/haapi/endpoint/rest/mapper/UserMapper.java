@@ -19,7 +19,7 @@ public class UserMapper {
     restStudent.setLastName(user.getLastName());
     restStudent.setEmail(user.getEmail());
     restStudent.setRef(user.getRef());
-    restStudent.setStatus(EnableStatus.fromValue(user.getStatus().toString()));
+    restStudent.setStatus(toRestUserStatus(user.getStatus()));
     restStudent.setPhone(user.getPhone());
     restStudent.setEntranceDatetime(user.getEntranceDatetime());
     restStudent.setBirthDate(user.getBirthDate());
@@ -37,7 +37,7 @@ public class UserMapper {
     teacher.setLastName(user.getLastName());
     teacher.setEmail(user.getEmail());
     teacher.setRef(user.getRef());
-    teacher.setStatus(EnableStatus.fromValue(user.getStatus().toString()));
+    teacher.setStatus(toRestUserStatus(user.getStatus()));
     teacher.setPhone(user.getPhone());
     teacher.setEntranceDatetime(user.getEntranceDatetime());
     teacher.setBirthDate(user.getBirthDate());
@@ -55,7 +55,7 @@ public class UserMapper {
     manager.setLastName(user.getLastName());
     manager.setEmail(user.getEmail());
     manager.setRef(user.getRef());
-    manager.setStatus(EnableStatus.fromValue(user.getStatus().toString()));
+    manager.setStatus(toRestUserStatus(user.getStatus()));
     manager.setPhone(user.getPhone());
     manager.setEntranceDatetime(user.getEntranceDatetime());
     manager.setBirthDate(user.getBirthDate());
@@ -97,5 +97,14 @@ public class UserMapper {
         .sex(student.getSex() == null ? null : User.Sex.valueOf(student.getSex().toString()))
         .address(student.getAddress())
         .build();
+  }
+
+  private EnableStatus toRestUserStatus(User.Status status) {
+    switch (status) {
+      case ENABLED:
+        return EnableStatus.ACTIVE;
+      case DISABLED:
+        return EnableStatus.LEFT;
+    }
   }
 }
