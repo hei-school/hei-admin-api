@@ -77,7 +77,7 @@ class StudentIT {
     student.setEmail("test+" + randomUUID() + "@hei.school");
     student.setRef("STD21" + (int) (Math.random() * 1_000_000));
     student.setPhone("03" + (int) (Math.random() * 1_000_000_000));
-    student.setStatus(EnableStatus.ACTIVE);
+    student.setStatus(EnableStatus.ENABLED);
     student.setSex(Math.random() < 0.3 ? Sex.F : Sex.M);
     Instant birthday = Instant.parse("1993-11-30T18:35:24.00Z");
     int ageOfEntrance = 14 + (int) (Math.random() * 20);
@@ -103,7 +103,7 @@ class StudentIT {
     student.setEmail("test+ryan@hei.school");
     student.setRef("STD21001");
     student.setPhone("0322411123");
-    student.setStatus(EnableStatus.ACTIVE);
+    student.setStatus(EnableStatus.ENABLED);
     student.setSex(Sex.M);
     student.setBirthDate(LocalDate.parse("2000-01-01"));
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
@@ -119,7 +119,7 @@ class StudentIT {
     student.setEmail("test+student2@hei.school");
     student.setRef("STD21002");
     student.setPhone("0322411124");
-    student.setStatus(EnableStatus.ACTIVE);
+    student.setStatus(EnableStatus.ENABLED);
     student.setSex(Sex.F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
@@ -135,7 +135,7 @@ class StudentIT {
     student.setEmail("test+student3@hei.school");
     student.setRef("STD21003");
     student.setPhone("0322411124");
-    student.setStatus(EnableStatus.ACTIVE);
+    student.setStatus(EnableStatus.ENABLED);
     student.setSex(Sex.F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));

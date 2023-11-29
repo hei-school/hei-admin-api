@@ -1767,9 +1767,9 @@ components:
     EnableStatus:
       type: string
       enum:
-        - LEFT
+        - ENABLED
+        - DISABLED
         - SUSPENDED
-        - ACTIVE
     StudentAttendance:
       type: object
       properties:
