@@ -211,6 +211,7 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null, null, null);
+
     List<Student> actualStudents2 =
         api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null);
 

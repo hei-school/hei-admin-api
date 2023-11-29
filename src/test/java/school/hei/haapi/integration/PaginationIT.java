@@ -91,7 +91,6 @@ class PaginationIT {
     final List<Student> page4 = api.getStudents(4, pageSize, null, null, null, null, null, null);
     final List<Student> page100 =
         api.getStudents(100, pageSize, null, null, null, null, null, null);
-
     assertEquals(pageSize, page1.size());
     assertEquals(pageSize, page2.size());
     assertEquals(2, page3.size());
