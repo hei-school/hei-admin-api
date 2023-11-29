@@ -223,7 +223,8 @@ class TeacherIT {
   void manager_read_with_disabled_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    List<Teacher> actualTeachers = api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, null);
+    List<Teacher> actualTeachers =
+        api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, null);
 
     assertEquals(2, actualTeachers.size());
   }
@@ -232,7 +233,8 @@ class TeacherIT {
   void manager_read_by_disabled_and_sex_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    List<Teacher> actualTeachers = api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, Sex.F);
+    List<Teacher> actualTeachers =
+        api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, Sex.F);
 
     assertEquals(1, actualTeachers.size());
   }

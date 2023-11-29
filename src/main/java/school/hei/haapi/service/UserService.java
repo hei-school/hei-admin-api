@@ -6,7 +6,6 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +20,6 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.GroupRepository;
@@ -60,7 +58,8 @@ public class UserService {
     return new UserUpserted().userId(user.getId()).email(user.getEmail());
   }
 
-  public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize, EnableStatus status, Sex sex) {
+  public List<User> getByRole(
+      User.Role role, PageFromOne page, BoundedPageSize pageSize, EnableStatus status, Sex sex) {
     return getByCriteria(role, "", "", "", page, pageSize, status, sex);
   }
 
@@ -90,7 +89,8 @@ public class UserService {
       Sex sex) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-    List<User> users = userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
+    List<User> users =
+        userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
 
     return courseId.length() > 0
         ? users.stream()
@@ -148,15 +148,14 @@ public class UserService {
       BoundedPageSize pageSize,
       EnableStatus status,
       Sex sex,
-      String groupId
-  ) {
+      String groupId) {
     List<User> filterByGroupId = getByGroupId(groupId);
-    List<User> filterByCriteria = getByCriteria(role, firstName, lastName, ref, page, pageSize, status, sex);
+    List<User> filterByCriteria =
+        getByCriteria(role, firstName, lastName, ref, page, pageSize, status, sex);
     return filterUserFromTwoList(filterByGroupId, filterByCriteria);
   }
 
-  private List<User> filterUserFromTwoList(
-      List<User> givenData, List<User> toCompare) {
+  private List<User> filterUserFromTwoList(List<User> givenData, List<User> toCompare) {
     return givenData.stream().filter(toCompare::contains).collect(toList());
   }
 }

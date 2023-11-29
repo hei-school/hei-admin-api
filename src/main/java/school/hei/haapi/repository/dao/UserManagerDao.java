@@ -25,7 +25,13 @@ public class UserManagerDao {
   private EntityManager entityManager;
 
   public List<User> findByCriteria(
-      User.Role role, String ref, String firstName, String lastName, Pageable pageable, EnableStatus status, Sex sex) {
+      User.Role role,
+      String ref,
+      String firstName,
+      String lastName,
+      Pageable pageable,
+      EnableStatus status,
+      Sex sex) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
@@ -53,17 +59,11 @@ public class UserManagerDao {
     }
 
     if (status != null) {
-      predicate = builder.and(
-          predicate,
-          builder.equal(root.get("status"), toDomainStatus(status))
-      );
+      predicate = builder.and(predicate, builder.equal(root.get("status"), toDomainStatus(status)));
     }
 
     if (sex != null) {
-      predicate = builder.and(
-          predicate,
-          builder.equal(root.get("sex"), toDomainSex(sex))
-      );
+      predicate = builder.and(predicate, builder.equal(root.get("sex"), toDomainSex(sex)));
     }
 
     predicate = builder.and(predicate, hasUserRole, hasUserRef, hasUserLastName);
@@ -101,18 +101,24 @@ public class UserManagerDao {
   private User.Sex toDomainSex(Sex sex) {
     List<User.Sex> domainSex = Arrays.stream(User.Sex.values()).toList();
     switch (sex) {
-      case F: return User.Sex.F;
-      case M: return User.Sex.M;
-      default: throw new BadRequestException("Sex must be type of: " + domainSex.toString());
+      case F:
+        return User.Sex.F;
+      case M:
+        return User.Sex.M;
+      default:
+        throw new BadRequestException("Sex must be type of: " + domainSex.toString());
     }
   }
 
   private User.Status toDomainStatus(EnableStatus status) {
     List<User.Status> domainStatus = Arrays.stream(User.Status.values()).toList();
     switch (status) {
-      case ENABLED : return User.Status.ENABLED;
-      case DISABLED : return User.Status.DISABLED;
-      default: throw new BadRequestException("Status must be type of: " + domainStatus.toString());
+      case ENABLED:
+        return User.Status.ENABLED;
+      case DISABLED:
+        return User.Status.DISABLED;
+      default:
+        throw new BadRequestException("Status must be type of: " + domainStatus.toString());
     }
   }
 }
