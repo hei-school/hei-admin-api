@@ -105,6 +105,15 @@ class ManagerIT {
     assertEquals(manager1(), managers.get(0));
   }
 
+  @Test
+  void manager_read_by_status_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    List<Manager> managers = api.getManagers(1, 20, EnableStatus.DISABLED, Sex.M);
+
+    assertEquals(1, managers.size());
+  }
+
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
 

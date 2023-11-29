@@ -39,6 +39,8 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -215,6 +217,24 @@ class TeacherIT {
     assertTrue(exceptionMessage1.contains("Last name is mandatory"));
     assertTrue(exceptionMessage1.contains("Email is mandatory"));
     assertTrue(exceptionMessage1.contains("Reference is mandatory"));
+  }
+
+  @Test
+  void manager_read_with_disabled_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    List<Teacher> actualTeachers = api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, null);
+
+    assertEquals(2, actualTeachers.size());
+  }
+
+  @Test
+  void manager_read_by_disabled_and_sex_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    List<Teacher> actualTeachers = api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, Sex.F);
+
+    assertEquals(1, actualTeachers.size());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
