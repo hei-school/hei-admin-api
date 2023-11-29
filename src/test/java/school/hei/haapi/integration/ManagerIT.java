@@ -53,7 +53,7 @@ class ManagerIT {
     manager.setEmail("test+manager1@hei.school");
     manager.setRef("MGR21001");
     manager.setPhone("0322411127");
-    manager.setStatus(EnableStatus.ENABLED);
+    manager.setStatus(EnableStatus.ACTIVE);
     manager.setSex(Sex.M);
     manager.setBirthDate(LocalDate.parse("1890-01-01"));
     manager.setEntranceDatetime(Instant.parse("2021-09-08T08:25:29Z"));
