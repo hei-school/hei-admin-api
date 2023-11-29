@@ -105,9 +105,9 @@ public class UserMapper {
   private User.Status toDomainUserStatus(EnableStatus status) {
     List<EnableStatus> expectedStatus = Arrays.stream(EnableStatus.values()).toList();
     switch (status) {
-      case ACTIVE:
+      case ENABLED:
         return User.Status.ENABLED;
-      case LEFT:
+      case DISABLED:
         return User.Status.DISABLED;
       default: throw new BadRequestException("Status must be type of: " + expectedStatus.toString());
     }
@@ -117,9 +117,9 @@ public class UserMapper {
     List<User.Status> expectedStatus = Arrays.stream(User.Status.values()).toList();
     switch (status) {
       case ENABLED:
-        return EnableStatus.ACTIVE;
+        return EnableStatus.ENABLED;
       case DISABLED:
-        return EnableStatus.LEFT;
+        return EnableStatus.DISABLED;
       default: throw new BadRequestException("Status must be type of: " + expectedStatus.toString());
     }
   }
