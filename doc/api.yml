@@ -1746,10 +1746,7 @@ components:
         - type: object
           properties:
             sex:
-              type: string
-              enum:
-                - M
-                - F
+              $ref: '#/components/schemas/Sex'
             birth_date:
               type: string
               format: date

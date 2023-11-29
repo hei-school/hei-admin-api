@@ -41,6 +41,7 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -77,7 +78,7 @@ class StudentIT {
     student.setRef("STD21" + (int) (Math.random() * 1_000_000));
     student.setPhone("03" + (int) (Math.random() * 1_000_000_000));
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Math.random() < 0.3 ? Student.SexEnum.F : Student.SexEnum.M);
+    student.setSex(Math.random() < 0.3 ? Sex.F : Sex.M);
     Instant birthday = Instant.parse("1993-11-30T18:35:24.00Z");
     int ageOfEntrance = 14 + (int) (Math.random() * 20);
     student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
@@ -103,7 +104,7 @@ class StudentIT {
     student.setRef("STD21001");
     student.setPhone("0322411123");
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Student.SexEnum.M);
+    student.setSex(Sex.M);
     student.setBirthDate(LocalDate.parse("2000-01-01"));
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setAddress("Adr 1");
@@ -119,7 +120,7 @@ class StudentIT {
     student.setRef("STD21002");
     student.setPhone("0322411124");
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Student.SexEnum.F);
+    student.setSex(Sex.F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
@@ -135,7 +136,7 @@ class StudentIT {
     student.setRef("STD21003");
     student.setPhone("0322411124");
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Student.SexEnum.F);
+    student.setSex(Sex.F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
