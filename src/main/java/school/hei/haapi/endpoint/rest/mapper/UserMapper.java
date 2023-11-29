@@ -103,24 +103,24 @@ public class UserMapper {
   }
 
   private User.Status toDomainUserStatus(EnableStatus status) {
-    List<EnableStatus> expectedStatus = Arrays.stream(EnableStatus.values()).toList();
     switch (status) {
       case ENABLED:
         return User.Status.ENABLED;
       case DISABLED:
         return User.Status.DISABLED;
-      default: throw new BadRequestException("Status must be type of: " + expectedStatus.toString());
+      default: throw new BadRequestException("Unexpected type: " + status);
     }
   }
 
   private EnableStatus toRestUserStatus(User.Status status) {
-    List<User.Status> expectedStatus = Arrays.stream(User.Status.values()).toList();
     switch (status) {
       case ENABLED:
         return EnableStatus.ENABLED;
       case DISABLED:
         return EnableStatus.DISABLED;
-      default: throw new BadRequestException("Status must be type of: " + expectedStatus.toString());
+      case SUSPENDED:
+        return EnableStatus.SUSPENDED;
+      default: throw new BadRequestException("Unexpected feeType: " + status);
     }
   }
 }
