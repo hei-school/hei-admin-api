@@ -1769,6 +1769,7 @@ components:
       enum:
         - ENABLED
         - DISABLED
+        - SUSPENDED
     StudentAttendance:
       type: object
       properties:

@@ -7,6 +7,8 @@ import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.NotImplementedException;
 
 @Component
 public class UserMapper {
@@ -19,7 +21,7 @@ public class UserMapper {
     restStudent.setLastName(user.getLastName());
     restStudent.setEmail(user.getEmail());
     restStudent.setRef(user.getRef());
-    restStudent.setStatus(EnableStatus.fromValue(user.getStatus().toString()));
+    restStudent.setStatus(toRestUserStatus(user.getStatus()));
     restStudent.setPhone(user.getPhone());
     restStudent.setEntranceDatetime(user.getEntranceDatetime());
     restStudent.setBirthDate(user.getBirthDate());
@@ -37,7 +39,7 @@ public class UserMapper {
     teacher.setLastName(user.getLastName());
     teacher.setEmail(user.getEmail());
     teacher.setRef(user.getRef());
-    teacher.setStatus(EnableStatus.fromValue(user.getStatus().toString()));
+    teacher.setStatus(toRestUserStatus(user.getStatus()));
     teacher.setPhone(user.getPhone());
     teacher.setEntranceDatetime(user.getEntranceDatetime());
     teacher.setBirthDate(user.getBirthDate());
@@ -55,7 +57,7 @@ public class UserMapper {
     manager.setLastName(user.getLastName());
     manager.setEmail(user.getEmail());
     manager.setRef(user.getRef());
-    manager.setStatus(EnableStatus.fromValue(user.getStatus().toString()));
+    manager.setStatus(toRestUserStatus(user.getStatus()));
     manager.setPhone(user.getPhone());
     manager.setEntranceDatetime(user.getEntranceDatetime());
     manager.setBirthDate(user.getBirthDate());
@@ -73,7 +75,7 @@ public class UserMapper {
         .lastName(teacher.getLastName())
         .email(teacher.getEmail())
         .ref(teacher.getRef())
-        .status(User.Status.fromValue(teacher.getStatus().toString()))
+        .status(toDomainUserStatus(teacher.getStatus()))
         .phone(teacher.getPhone())
         .entranceDatetime(teacher.getEntranceDatetime())
         .birthDate(teacher.getBirthDate())
@@ -90,12 +92,30 @@ public class UserMapper {
         .lastName(student.getLastName())
         .email(student.getEmail())
         .ref(student.getRef())
-        .status(User.Status.fromValue(student.getStatus().toString()))
+        .status(toDomainUserStatus(student.getStatus()))
         .phone(student.getPhone())
         .entranceDatetime(student.getEntranceDatetime())
         .birthDate(student.getBirthDate())
         .sex(student.getSex() == null ? null : User.Sex.valueOf(student.getSex().toString()))
         .address(student.getAddress())
         .build();
+  }
+
+  private User.Status toDomainUserStatus(EnableStatus status) {
+    return switch (status) {
+      case ENABLED -> User.Status.ENABLED;
+      case DISABLED -> User.Status.DISABLED;
+      case SUSPENDED -> throw new NotImplementedException("SUSPENDED not implemented");
+      default -> throw new BadRequestException("Unexpected type: " + status);
+    };
+  }
+
+  private EnableStatus toRestUserStatus(User.Status status) {
+    return switch (status) {
+      case ENABLED -> EnableStatus.ENABLED;
+      case DISABLED -> EnableStatus.DISABLED;
+      case SUSPENDED -> throw new NotImplementedException("SUSPENDED not implemented");
+      default -> throw new BadRequestException("Unexpected type: " + status);
+    };
   }
 }
