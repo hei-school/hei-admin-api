@@ -21,7 +21,11 @@ public class UserManagerDao {
   private EntityManager entityManager;
 
   public List<User> findByCriteria(
-      User.Role role, String ref, String firstName, String lastName, Pageable pageable) {
+      User.Role role,
+      String ref,
+      String firstName,
+      String lastName,
+      Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);

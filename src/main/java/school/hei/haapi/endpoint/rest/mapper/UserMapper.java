@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.util.Arrays;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
@@ -104,23 +103,19 @@ public class UserMapper {
 
   private User.Status toDomainUserStatus(EnableStatus status) {
     switch (status) {
-      case ENABLED:
-        return User.Status.ENABLED;
-      case DISABLED:
-        return User.Status.DISABLED;
-      default: throw new BadRequestException("Unexpected type: " + status);
+      case ENABLED -> { return User.Status.ENABLED; }
+      case DISABLED -> { return User.Status.DISABLED; }
+      case SUSPENDED -> { throw new NotImplementedException("not implemented"); }
+      default-> { throw new BadRequestException("Unexpected type: " + status); }
     }
   }
 
   private EnableStatus toRestUserStatus(User.Status status) {
     switch (status) {
-      case ENABLED:
-        return EnableStatus.ENABLED;
-      case DISABLED:
-        return EnableStatus.DISABLED;
-      case SUSPENDED:
-        return EnableStatus.SUSPENDED;
-      default: throw new BadRequestException("Unexpected type: " + status);
+      case ENABLED -> { return EnableStatus.ENABLED; }
+      case DISABLED -> { return EnableStatus.DISABLED; }
+      case SUSPENDED -> { throw new NotImplementedException("not implemented"); }
+      default-> { throw new BadRequestException("Unexpected type: " + status); }
     }
   }
 }
