@@ -41,6 +41,7 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -77,7 +78,7 @@ class StudentIT {
     student.setRef("STD21" + (int) (Math.random() * 1_000_000));
     student.setPhone("03" + (int) (Math.random() * 1_000_000_000));
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Math.random() < 0.3 ? Student.SexEnum.F : Student.SexEnum.M);
+    student.setSex(Math.random() < 0.3 ? Sex.F : Sex.M);
     Instant birthday = Instant.parse("1993-11-30T18:35:24.00Z");
     int ageOfEntrance = 14 + (int) (Math.random() * 20);
     student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
@@ -103,7 +104,7 @@ class StudentIT {
     student.setRef("STD21001");
     student.setPhone("0322411123");
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Student.SexEnum.M);
+    student.setSex(Sex.M);
     student.setBirthDate(LocalDate.parse("2000-01-01"));
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setAddress("Adr 1");
@@ -119,7 +120,7 @@ class StudentIT {
     student.setRef("STD21002");
     student.setPhone("0322411124");
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Student.SexEnum.F);
+    student.setSex(Sex.F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
@@ -135,7 +136,7 @@ class StudentIT {
     student.setRef("STD21003");
     student.setPhone("0322411124");
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Student.SexEnum.F);
+    student.setSex(Sex.F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
@@ -165,7 +166,8 @@ class StudentIT {
 
     assertThrowsForbiddenException(() -> api.getStudentById(TestUtils.STUDENT2_ID));
 
-    assertThrowsForbiddenException(() -> api.getStudents(1, 20, null, null, null, null, null));
+    assertThrowsForbiddenException(
+        () -> api.getStudents(1, 20, null, null, null, null, null, null));
   }
 
   @Test
@@ -174,13 +176,14 @@ class StudentIT {
     UsersApi api = new UsersApi(teacher1Client);
     Student actualStudent1 = api.getStudentById(STUDENT1_ID);
 
-    List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null, null);
+    List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null, null, null);
 
     assertEquals(student1(), actualStudent1);
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
 
-    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE2_ID, null);
+    List<Student> actualStudents2 =
+        api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null);
 
     assertEquals(student1(), actualStudents2.get(0));
     assertEquals(2, actualStudents2.size());
@@ -207,8 +210,9 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null, null);
-    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE2_ID, null);
+    List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null, null, null);
+    List<Student> actualStudents2 =
+        api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null);
 
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
@@ -230,6 +234,7 @@ class StudentIT {
             student1().getFirstName(),
             student1().getLastName(),
             null,
+            null,
             null);
 
     assertEquals(1, actualStudents.size());
@@ -241,7 +246,7 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, "std21001", null, null, null, null);
+    List<Student> actualStudents = api.getStudents(1, 20, "std21001", null, null, null, null, null);
 
     assertEquals("STD21001", student1().getRef());
     assertEquals(1, actualStudents.size());
@@ -254,7 +259,7 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 20, student1().getRef(), null, null, null, null);
+        api.getStudents(1, 20, student1().getRef(), null, null, null, null, null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student1()));
@@ -266,7 +271,7 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 20, null, null, student2().getLastName(), null, null);
+        api.getStudents(1, 20, null, null, student2().getLastName(), null, null, null);
 
     assertEquals(2, actualStudents.size());
     assertTrue(actualStudents.contains(student2()));
@@ -279,7 +284,8 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 20, student2().getRef(), null, student2().getLastName(), null, null);
+        api.getStudents(
+            1, 20, student2().getRef(), null, student2().getLastName(), null, null, null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student2()));
@@ -291,7 +297,8 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 20, student2().getRef(), null, student1().getLastName(), null, null);
+        api.getStudents(
+            1, 20, student2().getRef(), null, student1().getLastName(), null, null, null);
 
     assertEquals(0, actualStudents.size());
     assertFalse(actualStudents.contains(student1()));
@@ -328,7 +335,7 @@ class StudentIT {
         "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
         () -> api.createOrUpdateStudents(List.of(toCreate)));
 
-    List<Student> actual = api.getStudents(1, 100, null, null, null, null, null);
+    List<Student> actual = api.getStudents(1, 100, null, null, null, null, null, null);
     assertFalse(actual.stream().anyMatch(s -> Objects.equals(toCreate.getEmail(), s.getEmail())));
   }
 
@@ -344,7 +351,7 @@ class StudentIT {
         "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":\"Request entries must be <= 10\"}",
         () -> api.createOrUpdateStudents(listToCreate));
 
-    List<Student> actual = api.getStudents(1, 100, null, null, null, null, null);
+    List<Student> actual = api.getStudents(1, 100, null, null, null, null, null, null);
     assertFalse(
         actual.stream().anyMatch(s -> Objects.equals(studentToCreate.getEmail(), s.getEmail())));
   }

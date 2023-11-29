@@ -79,7 +79,7 @@ class TeacherIT {
 
     UsersApi api = new UsersApi(student1Client);
     assertThrowsForbiddenException(() -> api.getTeacherById(TEACHER1_ID));
-    assertThrowsForbiddenException(() -> api.getTeachers(1, 20, null, null, null, null));
+    assertThrowsForbiddenException(() -> api.getTeachers(1, 20, null, null, null, null, null));
   }
 
   @Test
@@ -88,7 +88,7 @@ class TeacherIT {
 
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsForbiddenException(() -> api.getTeacherById(TEACHER2_ID));
-    assertThrowsForbiddenException(() -> api.getTeachers(1, 20, null, null, null, null));
+    assertThrowsForbiddenException(() -> api.getTeachers(1, 20, null, null, null, null, null));
   }
 
   @Test
@@ -122,7 +122,7 @@ class TeacherIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     UsersApi api = new UsersApi(manager1Client);
-    List<Teacher> teachers = api.getTeachers(1, 20, null, null, null, null);
+    List<Teacher> teachers = api.getTeachers(1, 20, null, null, null, null, null);
 
     assertTrue(teachers.contains(teacher1()));
     assertTrue(teachers.contains(teacher2()));
@@ -141,7 +141,7 @@ class TeacherIT {
         "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
         () -> api.createOrUpdateTeachers(List.of(toCreate)));
 
-    List<Teacher> actual = api.getTeachers(1, 100, null, null, null, null);
+    List<Teacher> actual = api.getTeachers(1, 100, null, null, null, null, null);
     assertFalse(actual.stream().anyMatch(s -> Objects.equals(toCreate.getEmail(), s.getEmail())));
   }
 
@@ -172,7 +172,7 @@ class TeacherIT {
         "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":\"Request entries must be <= 10\"}",
         () -> api.createOrUpdateTeachers(listToCreate));
 
-    List<Teacher> actual = api.getTeachers(1, 20, null, null, null, null);
+    List<Teacher> actual = api.getTeachers(1, 20, null, null, null, null, null);
     assertFalse(
         actual.stream().anyMatch(s -> Objects.equals(teacherToCreate.getEmail(), s.getEmail())));
   }

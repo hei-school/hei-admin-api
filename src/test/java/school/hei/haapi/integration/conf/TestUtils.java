@@ -32,6 +32,7 @@ import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.Teacher;
@@ -128,7 +129,7 @@ public class TestUtils {
         .ref("TCR21-" + randomUUID())
         .phone("0332511129")
         .status(EnableStatus.ENABLED)
-        .sex(Teacher.SexEnum.M)
+        .sex(Sex.M)
         .birthDate(LocalDate.parse("2000-01-01"))
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .address("Adr X");
@@ -250,7 +251,7 @@ public class TestUtils {
         .ref("TCR21001")
         .phone("0322411125")
         .status(EnableStatus.ENABLED)
-        .sex(Teacher.SexEnum.F)
+        .sex(Sex.F)
         .birthDate(LocalDate.parse("1990-01-01"))
         .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
         .address("Adr 3");
@@ -265,7 +266,7 @@ public class TestUtils {
         .ref("TCR21002")
         .phone("0322411126")
         .status(EnableStatus.ENABLED)
-        .sex(Teacher.SexEnum.M)
+        .sex(Sex.M)
         .birthDate(LocalDate.parse("1990-01-02"))
         .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
         .address("Adr 4");
@@ -280,7 +281,7 @@ public class TestUtils {
         .ref("TCR21003")
         .phone("0322411126")
         .status(EnableStatus.ENABLED)
-        .sex(Teacher.SexEnum.M)
+        .sex(Sex.M)
         .birthDate(LocalDate.parse("1990-01-02"))
         .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
         .address("Adr 4");
@@ -295,7 +296,7 @@ public class TestUtils {
         .ref("TCR21004")
         .phone("0322411426")
         .status(EnableStatus.ENABLED)
-        .sex(Teacher.SexEnum.F)
+        .sex(Sex.F)
         .birthDate(LocalDate.parse("1990-01-04"))
         .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
         .address("Adr 5");

@@ -282,6 +282,12 @@ paths:
           description: Filter students by status value return all by default
           schema:
             $ref: '#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter students by sex value return all by default
+          schema:
+            $ref: '#/components/schemas/Sex'
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -829,6 +835,12 @@ paths:
           description: Filter students by status value return all by default
           schema:
             $ref: '#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter students by sex value return all by default
+          schema:
+            $ref: '#/components/schemas/Sex'
       operationId: getAllStudentByGroup
       responses:
         '200':
@@ -1057,6 +1069,12 @@ paths:
           description: Filter teachers by status value return all by default
           schema:
             $ref: '#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter teachers by sex value return all by default
+          schema:
+            $ref: '#/components/schemas/Sex'
       responses:
         '200':
           description: List of teachers, ordered by ref.
@@ -1160,6 +1178,12 @@ paths:
           description: Filter managers by status value return all by default
           schema:
             $ref: '#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter managers by sex value return all by default
+          schema:
+            $ref: '#/components/schemas/Sex'
       responses:
         '200':
           description: List of managers, ordered by ref.
@@ -1722,10 +1746,7 @@ components:
         - type: object
           properties:
             sex:
-              type: string
-              enum:
-                - M
-                - F
+              $ref: '#/components/schemas/Sex'
             birth_date:
               type: string
               format: date
@@ -1738,6 +1759,11 @@ components:
               format: date-time
             status:
               $ref: '#/components/schemas/EnableStatus'
+    Sex:
+      type: string
+      enum:
+        - M
+        - F
     EnableStatus:
       type: string
       enum:

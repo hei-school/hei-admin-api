@@ -26,6 +26,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -53,7 +54,7 @@ class ManagerIT {
     manager.setRef("MGR21001");
     manager.setPhone("0322411127");
     manager.setStatus(EnableStatus.ENABLED);
-    manager.setSex(Manager.SexEnum.M);
+    manager.setSex(Sex.M);
     manager.setBirthDate(LocalDate.parse("1890-01-01"));
     manager.setEntranceDatetime(Instant.parse("2021-09-08T08:25:29Z"));
     manager.setAddress("Adr 5");
@@ -71,7 +72,7 @@ class ManagerIT {
 
     UsersApi api = new UsersApi(student1Client);
     assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_ID));
-    assertThrowsForbiddenException(() -> api.getManagers(1, 20, null));
+    assertThrowsForbiddenException(() -> api.getManagers(1, 20, null, null));
   }
 
   @Test
@@ -80,7 +81,7 @@ class ManagerIT {
 
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_ID));
-    assertThrowsForbiddenException(() -> api.getManagers(1, 20, null));
+    assertThrowsForbiddenException(() -> api.getManagers(1, 20, null, null));
   }
 
   @Test
@@ -98,7 +99,7 @@ class ManagerIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     UsersApi api = new UsersApi(manager1Client);
-    List<Manager> managers = api.getManagers(1, 20, null);
+    List<Manager> managers = api.getManagers(1, 20, null, null);
 
     assertEquals(1, managers.size());
     assertEquals(manager1(), managers.get(0));
