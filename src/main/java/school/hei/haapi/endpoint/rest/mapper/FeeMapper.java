@@ -34,6 +34,21 @@ public class FeeMapper {
         .dueDatetime(fee.getDueDatetime());
   }
 
+  public school.hei.haapi.model.Fee toDomain(Fee fee, User student) {
+    return school.hei.haapi.model.Fee.builder()
+        .id(fee.getId())
+        .student(student)
+        .type(fee.getType())
+        .totalAmount(fee.getTotalAmount())
+        .updatedAt(fee.getCreationDatetime())
+        .status(fee.getStatus())
+        .remainingAmount(fee.getRemainingAmount())
+        .comment(fee.getComment())
+        .creationDatetime(fee.getCreationDatetime())
+        .dueDatetime(fee.getDueDatetime())
+        .build();
+  }
+
   private school.hei.haapi.model.Fee toDomainFee(User student, CreateFee createFee) {
     createFeeValidator.accept(createFee);
     if (!student.getRole().equals(User.Role.STUDENT)) {
