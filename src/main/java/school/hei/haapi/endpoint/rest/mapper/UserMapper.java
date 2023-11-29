@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.util.Arrays;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
@@ -8,7 +9,11 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
+<<<<<<< HEAD
 import school.hei.haapi.model.exception.NotImplementedException;
+=======
+import java.util.List;
+>>>>>>> 4d1ef74 (refactor: user mapper with the user status)
 
 @Component
 public class UserMapper {
