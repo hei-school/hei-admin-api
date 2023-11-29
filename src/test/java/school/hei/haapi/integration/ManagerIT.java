@@ -71,7 +71,7 @@ class ManagerIT {
 
     UsersApi api = new UsersApi(student1Client);
     assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_ID));
-    assertThrowsForbiddenException(() -> api.getManagers(1, 20, null));
+    assertThrowsForbiddenException(() -> api.getManagers(1, 20, null, null));
   }
 
   @Test
@@ -80,7 +80,7 @@ class ManagerIT {
 
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_ID));
-    assertThrowsForbiddenException(() -> api.getManagers(1, 20, null));
+    assertThrowsForbiddenException(() -> api.getManagers(1, 20, null, null));
   }
 
   @Test
@@ -98,7 +98,7 @@ class ManagerIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     UsersApi api = new UsersApi(manager1Client);
-    List<Manager> managers = api.getManagers(1, 20, null);
+    List<Manager> managers = api.getManagers(1, 20, null, null);
 
     assertEquals(1, managers.size());
     assertEquals(manager1(), managers.get(0));
