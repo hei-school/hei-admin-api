@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
@@ -22,8 +23,7 @@ public class UserMapper {
     restStudent.setPhone(user.getPhone());
     restStudent.setEntranceDatetime(user.getEntranceDatetime());
     restStudent.setBirthDate(user.getBirthDate());
-    restStudent.setSex(
-        user.getSex() == null ? null : Student.SexEnum.fromValue(user.getSex().toString()));
+    restStudent.setSex(user.getSex() == null ? null : Sex.fromValue(user.getSex().toString()));
     restStudent.setAddress(user.getAddress());
 
     return restStudent;
@@ -41,8 +41,7 @@ public class UserMapper {
     teacher.setPhone(user.getPhone());
     teacher.setEntranceDatetime(user.getEntranceDatetime());
     teacher.setBirthDate(user.getBirthDate());
-    teacher.setSex(
-        user.getSex() == null ? null : Teacher.SexEnum.fromValue(user.getSex().toString()));
+    teacher.setSex(user.getSex() == null ? null : Sex.fromValue(user.getSex().toString()));
     teacher.setAddress(user.getAddress());
 
     return teacher;
@@ -60,7 +59,7 @@ public class UserMapper {
     manager.setPhone(user.getPhone());
     manager.setEntranceDatetime(user.getEntranceDatetime());
     manager.setBirthDate(user.getBirthDate());
-    manager.setSex(Manager.SexEnum.fromValue(user.getSex().toString()));
+    manager.setSex(Sex.fromValue(user.getSex().toString()));
     manager.setAddress(user.getAddress());
 
     return manager;

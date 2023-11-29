@@ -166,7 +166,8 @@ class StudentIT {
 
     assertThrowsForbiddenException(() -> api.getStudentById(TestUtils.STUDENT2_ID));
 
-    assertThrowsForbiddenException(() -> api.getStudents(1, 20, null, null, null, null, null, null));
+    assertThrowsForbiddenException(
+        () -> api.getStudents(1, 20, null, null, null, null, null, null));
   }
 
   @Test
@@ -181,7 +182,8 @@ class StudentIT {
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
 
-    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null);
+    List<Student> actualStudents2 =
+        api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null);
 
     assertEquals(student1(), actualStudents2.get(0));
     assertEquals(2, actualStudents2.size());
@@ -209,7 +211,8 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null, null, null);
-    List<Student> actualStudents2 = api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null);
+    List<Student> actualStudents2 =
+        api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null);
 
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
@@ -281,7 +284,8 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 20, student2().getRef(), null, student2().getLastName(), null, null, null);
+        api.getStudents(
+            1, 20, student2().getRef(), null, student2().getLastName(), null, null, null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student2()));
@@ -293,7 +297,8 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 20, student2().getRef(), null, student1().getLastName(), null, null, null);
+        api.getStudents(
+            1, 20, student2().getRef(), null, student1().getLastName(), null, null, null);
 
     assertEquals(0, actualStudents.size());
     assertFalse(actualStudents.contains(student1()));
