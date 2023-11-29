@@ -1,5 +1,6 @@
 package school.hei.haapi.repository.dao;
 
+import java.util.Arrays;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
@@ -11,9 +12,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 
 @Repository
 @AllArgsConstructor
@@ -21,7 +25,7 @@ public class UserManagerDao {
   private EntityManager entityManager;
 
   public List<User> findByCriteria(
-      User.Role role, String ref, String firstName, String lastName, Pageable pageable) {
+      User.Role role, String ref, String firstName, String lastName, Pageable pageable, EnableStatus status, Sex sex) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
@@ -46,6 +50,18 @@ public class UserManagerDao {
 
     if (firstName != null && !firstName.isEmpty()) {
       predicate = builder.and(predicate, hasUserFirstName);
+    }
+
+    if (status != null) {
+      predicate = builder.and(
+          builder.equal(root.get("status"), toDomainStatus(status))
+      );
+    }
+
+    if (sex != null) {
+      predicate = builder.and(
+          builder.equal(root.get("sex"), toDomainSex(sex))
+      );
     }
 
     predicate = builder.and(predicate, hasUserRole, hasUserRef, hasUserLastName);
@@ -78,5 +94,23 @@ public class UserManagerDao {
         .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
         .setMaxResults(pageable.getPageSize())
         .getResultList();
+  }
+
+  private User.Sex toDomainSex(Sex sex) {
+    List<User.Sex> domainSex = Arrays.stream(User.Sex.values()).toList();
+    switch (sex) {
+      case F: return User.Sex.F;
+      case M: return User.Sex.M;
+      default: throw new BadRequestException("Sex must be type of: " + domainSex.toString());
+    }
+  }
+
+  private User.Status toDomainStatus(EnableStatus status) {
+    List<User.Status> domainStatus = Arrays.stream(User.Status.values()).toList();
+    switch (status) {
+      case ENABLED : return User.Status.ENABLED;
+      case DISABLED : return User.Status.DISABLED;
+      default: throw new BadRequestException("Status must be type of: " + domainStatus.toString());
+    }
   }
 }
