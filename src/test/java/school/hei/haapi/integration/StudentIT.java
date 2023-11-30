@@ -22,6 +22,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 
 import com.github.javafaker.Faker;
+import io.swagger.annotations.Api;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -239,6 +240,16 @@ class StudentIT {
         api.getStudents(1, 10, null, null, null, null, EnableStatus.SUSPENDED, null);
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(suspendedStudent1()));
+  }
+
+  @Test
+  void manager_read_by_status_and_sex_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents =
+        api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, Sex.F);
+    assertEquals(1, actualStudents.size());
   }
 
   @Test
