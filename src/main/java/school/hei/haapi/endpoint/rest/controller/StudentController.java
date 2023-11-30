@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -14,6 +15,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
+import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
+import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
@@ -22,6 +25,7 @@ import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
 import school.hei.haapi.service.GroupFlowService;
 import school.hei.haapi.service.UserService;
 
@@ -32,6 +36,8 @@ public class StudentController {
   private final UserMapper userMapper;
   private final GroupFlowService groupFlowService;
   private final GroupFlowMapper groupFlowMapper;
+  private final StatusEnumMapper statusEnumMapper;
+  private final SexEnumMapper sexEnumMapper;
 
   @GetMapping("/students/{id}")
   public Student getStudentById(@PathVariable String id) {
@@ -49,12 +55,14 @@ public class StudentController {
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
       @RequestParam(name = "status", required = false) EnableStatus status,
       @RequestParam(name = "sex", required = false) Sex sex) {
+    User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
+    User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
     return userService
-        .getStudentByGroupIdAndCriteria(
-            STUDENT, firstName, lastName, ref, page, pageSize, status, sex, groupId)
+        .getByGroupIdAndStudentCriteria(
+            STUDENT, firstName, lastName, ref, page, pageSize, domainStatus, domainSex, groupId)
         .stream()
         .map(userMapper::toRestStudent)
-        .collect(toList());
+        .collect(Collectors.toUnmodifiableList());
   }
 
   @GetMapping("/students")
@@ -67,8 +75,11 @@ public class StudentController {
       @RequestParam(value = "course_id", required = false, defaultValue = "") String courseId,
       @RequestParam(name = "status", required = false) EnableStatus status,
       @RequestParam(name = "sex", required = false) Sex sex) {
+    User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
+    User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
     return userService
-        .getByLinkedCourse(STUDENT, firstName, lastName, ref, courseId, page, pageSize, status, sex)
+        .getByLinkedCourse(
+            STUDENT, firstName, lastName, ref, courseId, page, pageSize, domainStatus, domainSex)
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());

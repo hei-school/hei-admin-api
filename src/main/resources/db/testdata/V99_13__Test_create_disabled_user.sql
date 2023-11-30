@@ -1,6 +1,5 @@
 insert into "user"
-(id, first_name, last_name, email, ref, status, sex, birth_date, entrance_datetime, phone, address,
- "role")
+(id, first_name, last_name, email, ref, status, sex, birth_date, entrance_datetime, phone, address, "role")
 values ('student4_id', 'Disable', 'One', 'test+disable1@hei.school', 'STD29001', 'DISABLED', 'M',
         '2000-12-01',
         '2021-11-08T08:25:24.00Z', '0322411123', 'Adr 1', 'STUDENT'),

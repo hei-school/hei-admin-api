@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
+import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -22,7 +24,8 @@ import school.hei.haapi.service.UserService;
 @RestController
 @AllArgsConstructor
 public class TeacherController {
-
+  private final SexEnumMapper sexEnumMapper;
+  private final StatusEnumMapper statusEnumMapper;
   private final UserService userService;
   private final UserMapper userMapper;
 
@@ -40,8 +43,11 @@ public class TeacherController {
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
       @RequestParam(name = "status", required = false) EnableStatus status,
       @RequestParam(name = "sex", required = false) Sex sex) {
+    User.Sex domainSex = sex != null ? sexEnumMapper.toDomainSexEnum(sex) : null;
+    User.Status domainStatus = status != null ? statusEnumMapper.toDomainStatus(status) : null;
     return userService
-        .getByCriteria(User.Role.TEACHER, firstName, lastName, ref, page, pageSize, status, sex)
+        .getByCriteria(
+            User.Role.TEACHER, firstName, lastName, ref, page, pageSize, domainStatus, domainSex)
         .stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());

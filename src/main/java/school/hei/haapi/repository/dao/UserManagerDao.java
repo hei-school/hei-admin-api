@@ -1,28 +1,112 @@
 package school.hei.haapi.repository.dao;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.BadRequestException;
 
 @Repository
 @AllArgsConstructor
 public class UserManagerDao {
   private EntityManager entityManager;
+
+  public List<User> findByGroupIdAndCriteria(
+      User.Role role,
+      String ref,
+      String firstName,
+      String lastName,
+      Pageable pageable,
+      User.Status status,
+      User.Sex sex,
+      String groupId) {
+    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<User> query = builder.createQuery(User.class);
+    Root<User> userRoot = query.from(User.class);
+    Join<User, GroupFlow> groupGroupFlowJoin = userRoot.join("groupFlows", JoinType.LEFT);
+    Join<GroupFlow, Group> groupJoin = groupGroupFlowJoin.join("group", JoinType.LEFT);
+    List<Predicate> predicates = new ArrayList<>();
+
+    // Take only the actual student in group
+    Subquery<String> maxFlowDatetimeSubquery = query.subquery(String.class);
+    Root<GroupFlow> subqueryGfRoot = maxFlowDatetimeSubquery.from(GroupFlow.class);
+    maxFlowDatetimeSubquery.select(
+        builder.function("MAX", String.class, subqueryGfRoot.get("flowDatetime")));
+    maxFlowDatetimeSubquery.where(
+        builder.equal(subqueryGfRoot.get("student"), groupGroupFlowJoin.get("student")),
+        builder.equal(subqueryGfRoot.get("group"), groupGroupFlowJoin.get("group")));
+
+    predicates.add(
+        builder.and(
+            builder.equal(groupJoin.get("id"), groupId),
+            builder.or(
+                builder.equal(
+                    groupGroupFlowJoin.get("groupFlowType"), GroupFlow.group_flow_type.JOIN),
+                builder.and(
+                    builder.equal(
+                        groupGroupFlowJoin.get("groupFlowType"), GroupFlow.group_flow_type.LEAVE),
+                    builder.equal(
+                        groupGroupFlowJoin.get("flowDatetime"), maxFlowDatetimeSubquery)))));
+
+    if (firstName != null && !firstName.isEmpty()) {
+      predicates.add(
+          builder.and(
+              builder.or(
+                  builder.like(builder.lower(userRoot.get("firstName")), "%" + firstName + "%"),
+                  builder.like(userRoot.get("firstName"), "%" + firstName + "%"))));
+    }
+
+    if (ref != null && !ref.isEmpty()) {
+      predicates.add(
+          builder.and(
+              builder.or(
+                  builder.like(builder.lower(userRoot.get("ref")), "%" + ref + "%"),
+                  builder.like(userRoot.get("ref"), "%" + ref + "%"))));
+    }
+
+    if (lastName != null && !lastName.isEmpty()) {
+      predicates.add(
+          builder.and(
+              builder.or(
+                  builder.like(builder.lower(userRoot.get("lastName")), "%" + lastName + "%"),
+                  builder.like(userRoot.get("lastName"), "%" + lastName + "%"))));
+    }
+
+    predicates.add(builder.equal(userRoot.get("role"), role));
+
+    if (status != null) {
+      predicates.add(builder.and(builder.equal(userRoot.get("status"), status)));
+    }
+
+    if (sex != null) {
+      predicates.add(builder.and(builder.equal(userRoot.get("sex"), sex)));
+    }
+
+    Expression groupIdExpression = groupJoin.get("id");
+    predicates.add(builder.equal(groupIdExpression, groupId));
+
+    query.distinct(true).where(predicates.toArray(new Predicate[0]));
+    return entityManager
+        .createQuery(query)
+        .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
+        .setMaxResults(pageable.getPageSize())
+        .getResultList();
+  }
 
   public List<User> findByCriteria(
       User.Role role,
@@ -30,8 +114,8 @@ public class UserManagerDao {
       String firstName,
       String lastName,
       Pageable pageable,
-      EnableStatus status,
-      Sex sex) {
+      User.Status status,
+      User.Sex sex) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
@@ -59,11 +143,11 @@ public class UserManagerDao {
     }
 
     if (status != null) {
-      predicate = builder.and(predicate, builder.equal(root.get("status"), toDomainStatus(status)));
+      predicate = builder.and(predicate, builder.equal(root.get("status"), status));
     }
 
     if (sex != null) {
-      predicate = builder.and(predicate, builder.equal(root.get("sex"), toDomainSex(sex)));
+      predicate = builder.and(predicate, builder.equal(root.get("sex"), sex));
     }
 
     predicate = builder.and(predicate, hasUserRole, hasUserRef, hasUserLastName);
@@ -96,25 +180,5 @@ public class UserManagerDao {
         .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
         .setMaxResults(pageable.getPageSize())
         .getResultList();
-  }
-
-  private User.Sex toDomainSex(Sex sex) {
-    List<User.Sex> domainSex = Arrays.stream(User.Sex.values()).toList();
-    return switch (sex) {
-      case F -> User.Sex.F;
-      case M -> User.Sex.M;
-      default -> throw new BadRequestException("Sex must be type of: " + domainSex.toString());
-    };
-  }
-
-  private User.Status toDomainStatus(EnableStatus status) {
-    List<User.Status> domainStatus = Arrays.stream(User.Status.values()).toList();
-    return switch (status) {
-      case ENABLED -> User.Status.ENABLED;
-      case DISABLED -> User.Status.DISABLED;
-      case SUSPENDED -> User.Status.SUSPENDED;
-      default -> throw new BadRequestException(
-          "Status must be type of: " + domainStatus.toString());
-    };
   }
 }

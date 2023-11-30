@@ -8,6 +8,8 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
+import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
@@ -20,7 +22,8 @@ import school.hei.haapi.service.UserService;
 @RestController
 @AllArgsConstructor
 public class ManagerController {
-
+  private final SexEnumMapper sexEnumMapper;
+  private final StatusEnumMapper statusEnumMapper;
   private final UserService userService;
   private final UserMapper userMapper;
 
@@ -35,7 +38,11 @@ public class ManagerController {
       @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(name = "status", required = false) EnableStatus status,
       @RequestParam(name = "sex", required = false) Sex sex) {
-    return userService.getByRole(User.Role.MANAGER, page, pageSize, status, sex).stream()
+    User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
+    User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
+    return userService
+        .getByRole(User.Role.MANAGER, page, pageSize, domainStatus, domainSex)
+        .stream()
         .map(userMapper::toRestManager)
         .collect(toUnmodifiableList());
   }
