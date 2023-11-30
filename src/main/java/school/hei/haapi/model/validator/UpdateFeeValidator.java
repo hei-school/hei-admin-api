@@ -73,9 +73,6 @@ public class UpdateFeeValidator implements Consumer<Fee> {
         if (!fee.getType().equals(originalFee.getType())) {
           violationMessages.add("Can't modify Type");
         }
-        if (!fee.getStatus().equals(originalFee.getStatus())) {
-          violationMessages.add("Can't modify Status");
-        }
       }
     }
     if (!violationMessages.isEmpty()) {

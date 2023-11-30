@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -202,10 +201,6 @@ class FeeIT {
         assertThrows(
             ApiException.class,
             () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().remainingAmount(10))));
-    ApiException exception8 =
-        assertThrows(
-            ApiException.class,
-            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().status(UNPAID))));
     ApiException exception9 =
         assertThrows(
             ApiException.class,
@@ -228,7 +223,6 @@ class FeeIT {
     String exceptionMessage4 = exception4.getMessage();
     String exceptionMessage6 = exception6.getMessage();
     String exceptionMessage7 = exception7.getMessage();
-    String exceptionMessage8 = exception8.getMessage();
     String exceptionMessage9 = exception9.getMessage();
     String exceptionMessage10 = exception10.getMessage();
     String exceptionMessage11 = exception11.getMessage();
@@ -244,7 +238,6 @@ class FeeIT {
     assertTrue(exceptionMessage4.contains("Id is mandatory"));
     assertTrue(exceptionMessage6.contains("Can't modify Type"));
     assertTrue(exceptionMessage7.contains("Can't modify remainingAmount"));
-    assertTrue(exceptionMessage8.contains("Can't modify Status"));
     assertTrue(exceptionMessage9.contains("Can't modify total amount"));
     assertTrue(exceptionMessage10.contains("Can't modify CreationDatetime"));
     assertTrue(exceptionMessage11.contains("Fee with id " + wrongId + "does not exist"));
