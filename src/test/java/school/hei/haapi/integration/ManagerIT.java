@@ -61,6 +61,36 @@ class ManagerIT {
     return manager;
   }
 
+  public static Manager disabledManager1() {
+    return new Manager()
+        .id("'manager2_id'")
+        .firstName("Disable")
+        .lastName("One")
+        .email("manager+disable1@hei.school")
+        .ref("MGR29001")
+        .status(EnableStatus.DISABLED)
+        .sex(Sex.M)
+        .birthDate(LocalDate.parse("2000-12-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .phone("0322411123")
+        .address("Adr 1");
+  }
+
+  public static Manager suspendedManager1() {
+    return new Manager()
+        .id("'manager3_id'")
+        .firstName("Suspended")
+        .lastName("One")
+        .email("manager+suspended@hei.school")
+        .ref("MGR29003")
+        .status(EnableStatus.SUSPENDED)
+        .sex(Sex.F)
+        .birthDate(LocalDate.parse("2000-12-02"))
+        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
+        .phone("0322411123")
+        .address("Adr 2");
+  }
+
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
