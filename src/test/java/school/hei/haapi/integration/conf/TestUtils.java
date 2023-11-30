@@ -25,11 +25,14 @@ import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CreateFeeType;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeType;
+import school.hei.haapi.endpoint.rest.model.FeeTypeComponent;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -82,6 +85,12 @@ public class TestUtils {
   public static final String GRADE5_ID = "grade5_id";
   public static final String GRADE6_ID = "grade6_id";
   public static final String GRADE7_ID = "grade7_id";
+
+  public static final String FEE_TYPE1_ID = "fee_type1_id";
+
+  public static final String FEE_TYPE_COMPONENT1_ID = "fee_type_component1_id";
+
+  public static final String FEE_TYPE_COMPONENT2_ID = "fee_type_component2_id";
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
@@ -342,6 +351,40 @@ public class TestUtils {
         .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
         .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
         .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
+  }
+
+  public static FeeTypeComponent feeTypeController1() {
+    return new FeeTypeComponent()
+        .type(CreateFeeType.TUITION)
+        .monthlyAmount(500000)
+        .monthsNumber(2)
+        .name("ecolage1");
+  }
+
+  public static FeeTypeComponent feeTypeController2() {
+    return new FeeTypeComponent()
+        .type(CreateFeeType.TUITION)
+        .monthlyAmount(300000)
+        .monthsNumber(2)
+        .name("ecolage2");
+  }
+
+  public static FeeTypeComponent newFeeTypeController(String name) {
+    return new FeeTypeComponent()
+        .type(CreateFeeType.TUITION)
+        .monthlyAmount(100000)
+        .monthsNumber(1)
+        .name(name);
+  }
+
+  public static FeeType feeType1() {
+    return new FeeType()
+        .id(FEE_TYPE1_ID)
+        .types(List.of(feeTypeController1(), feeTypeController2()));
+  }
+
+  public static FeeType newFeeType1(List<FeeTypeComponent> feeTypeComponents) {
+    return new FeeType().types(feeTypeComponents);
   }
 
   public static Course course1() {
