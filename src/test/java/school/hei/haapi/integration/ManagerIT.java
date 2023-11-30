@@ -131,7 +131,7 @@ class ManagerIT {
     UsersApi api = new UsersApi(manager1Client);
     List<Manager> managers = api.getManagers(1, 20, null, null);
 
-    assertEquals(1, managers.size());
+    assertEquals(3, managers.size());
     assertEquals(manager1(), managers.get(0));
   }
 

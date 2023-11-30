@@ -29,8 +29,13 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import org.junit.FixMethodOrder;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Order;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.runners.MethodSorters;
 import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -44,6 +49,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -57,6 +63,7 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 @Testcontainers
 @ContextConfiguration(initializers = StudentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
+@TestMethodOrder(MethodOrderer.OrderAnnotation.class)
 class StudentIT {
 
   @MockBean private SentryConf sentryConf;
@@ -159,6 +166,20 @@ class StudentIT {
         .address("Adr 1");
   }
 
+  public static Student creatableSuspendedStudent() {
+    return new Student()
+        .firstName("Suspended")
+        .lastName("Two")
+        .email("test+suspended2@hei.school")
+        .ref("STD29004")
+        .status(EnableStatus.SUSPENDED)
+        .sex(Sex.F)
+        .birthDate(LocalDate.parse("2000-12-02"))
+        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
+        .phone("0322411124")
+        .address("Adr 3");
+  }
+
   public static Student suspendedStudent1() {
     return new Student()
         .id("student6_id")
@@ -171,7 +192,7 @@ class StudentIT {
         .birthDate(LocalDate.parse("2000-12-02"))
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
         .phone("0322411124")
-        .address("Adr 1");
+        .address("Adr 2");
   }
 
   @BeforeEach
@@ -181,6 +202,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(1)
   void student_read_own_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
@@ -191,6 +213,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(2)
   void student_read_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
@@ -202,6 +225,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(3)
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     UsersApi api = new UsersApi(teacher1Client);
@@ -221,6 +245,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(4)
   void manager_read_by_disabled_status_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -232,6 +257,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(5)
   void manager_read_by_suspended_status_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -243,6 +269,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(6)
   void manager_read_by_status_and_sex_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -253,6 +280,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(7)
   void student_write_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
@@ -261,6 +289,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(8)
   void teacher_write_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     UsersApi api = new UsersApi(teacher1Client);
@@ -269,6 +298,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(9)
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -285,6 +315,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(10)
   void manager_read_by_ref_and_name_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -305,6 +336,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(11)
   void manager_read_by_ref_ignoring_case_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -317,6 +349,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(12)
   void manager_read_by_ref_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -329,6 +362,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(13)
   void manager_read_by_last_name_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -342,6 +376,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(14)
   void manager_read_by_ref_and_last_name_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -355,6 +390,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(15)
   void manager_read_by_ref_and_bad_name_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -368,6 +404,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(16)
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -386,6 +423,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(17)
   void manager_write_update_rollback_on_event_error() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -403,6 +441,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(18)
   void manager_write_update_more_than_10_students_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -420,6 +459,7 @@ class StudentIT {
   }
 
   @Test
+  @Order(19)
   void manager_write_update_triggers_userUpserted() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -448,6 +488,34 @@ class StudentIT {
     PutEventsRequestEntry requestEntry1 = actualRequestEntries.get(1);
     assertTrue(requestEntry1.detail().contains(created1.getId()));
     assertTrue(requestEntry1.detail().contains(created1.getEmail()));
+  }
+
+  @Test
+  @Order(20)
+  void manager_write_suspended_student() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actual = api.createOrUpdateStudents(List.of(creatableSuspendedStudent()));
+     Student created = actual.get(0);
+    List<Student> suspended = api.getStudents(1, 10, null, "Suspended", null, null, EnableStatus.SUSPENDED, null);
+
+    assertTrue(suspended.contains(created));
+    assertEquals(1, actual.size());
+  }
+
+  @Test
+  @Order(21)
+  void manager_update_student_to_suspended() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actual = api.createOrUpdateStudents(List.of(student2().status(EnableStatus.SUSPENDED)));
+    Student updated = actual.get(0);
+    List<Student> suspended = api.getStudents(1, 10, null, null, null, null, EnableStatus.SUSPENDED, null);
+
+    assertTrue(suspended.contains(updated));
+    assertEquals(1, actual.size());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

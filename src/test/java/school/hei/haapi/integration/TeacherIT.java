@@ -227,10 +227,10 @@ class TeacherIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Teacher> actualStudents =
+    List<Teacher> actualTeachers =
         api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, null);
-    assertEquals(2, actualStudents.size());
-    assertTrue(actualStudents.contains(disabledTeacher1()));
+    assertEquals(2, actualTeachers.size());
+    assertTrue(actualTeachers.contains(disabledTeacher1()));
   }
 
   @Test
@@ -238,10 +238,11 @@ class TeacherIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents =
-        api.getStudents(1, 10, null, null, null, null, EnableStatus.SUSPENDED, null);
-    assertEquals(1, actualStudents.size());
-    assertTrue(actualStudents.contains((suspendedTeacher1())));
+    List<Teacher> actualTeachers =
+        api.getTeachers(1, 10, null, null, null, EnableStatus.SUSPENDED, Sex.F);
+    assertEquals(1, actualTeachers.size());
+    assertEquals(actualTeachers.get(0), suspendedTeacher1());
+    assertTrue(actualTeachers.contains((suspendedTeacher1())));
   }
 
   @Test
@@ -249,9 +250,9 @@ class TeacherIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents =
-        api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, Sex.F);
-    assertEquals(1, actualStudents.size());
+    List<Teacher> actualTeachers =
+        api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, Sex.F);
+    assertEquals(1, actualTeachers.size());
   }
 
   public static Teacher disabledTeacher1() {
@@ -271,7 +272,7 @@ class TeacherIT {
 
   public static Teacher suspendedTeacher1() {
     return new Teacher()
-        .id("'teacher7_id'")
+        .id("teacher7_id")
         .firstName("Suspended")
         .lastName("One")
         .email("teacher+suspended@hei.school")
@@ -280,7 +281,7 @@ class TeacherIT {
         .sex(Sex.F)
         .birthDate(LocalDate.parse("2000-12-02"))
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
-        .phone("'0322411124'")
+        .phone("0322411124")
         .address("Adr 2");
   }
 
