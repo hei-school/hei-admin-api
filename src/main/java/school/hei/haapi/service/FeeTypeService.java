@@ -5,21 +5,21 @@ import static java.util.stream.Collectors.toList;
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.FeeType;
 import school.hei.haapi.model.*;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.model.validator.FeeTypeComponentValidator;
 import school.hei.haapi.model.validator.FeeTypeValidator;
 import school.hei.haapi.repository.FeeTypeRepository;
 
 @Service
 @AllArgsConstructor
-@Slf4j
 public class FeeTypeService {
   private final FeeTypeRepository feeTypeRepository;
   private final FeeTypeComponentService feeTypeComponentService;
   private final FeeTypeValidator feeTypeValidator;
+  private final FeeTypeComponentValidator feeTypeComponentValidator;
 
   public List<FeeTypeEntity> getAll() {
     return feeTypeRepository.findAll();
@@ -29,8 +29,10 @@ public class FeeTypeService {
   public FeeTypeEntity updateOrSave(
       List<FeeTypeComponentEntity> feeTypeComponentEntities, FeeType feeType) {
     feeTypeValidator.accept(feeType);
+    feeTypeComponentValidator.accept(feeType.getTypes());
     FeeTypeEntity saved =
-        feeTypeRepository.save(FeeTypeEntity.builder().id(feeType.getId()).build());
+        feeTypeRepository.save(
+            FeeTypeEntity.builder().id(feeType.getId()).name(feeType.getName()).build());
 
     if (feeType.getId() != null) {
       List<FeeTypeComponentEntity> actualFeeTypeComponentEntities =

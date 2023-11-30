@@ -1653,15 +1653,15 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /fee_type:
+  /fee_types:
     get:
       tags:
         - Configuration
-      summary: get all type of fee
+      summary: get all types of fee
       operationId: getAllFeeType
       responses:
         '200':
-          description: List of all type of fee
+          description: List of all types of fee
           content:
             application/json:
               schema:
@@ -1678,6 +1678,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /fee_type:
     put:
       tags:
         - Configuration
@@ -2238,14 +2239,16 @@ components:
           type: string
         monthlyAmount:
           type: integer
-          description: Price of one payment
+          description: price all fees to be paid separately
         monthsNumber:
           type: integer
-          description: Number of months payment
+          description: Number of months available to pay
     FeeType:
       type: object
       properties:
         id:
+          type: string
+        name:
           type: string
         types:
           type: array

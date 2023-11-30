@@ -1,6 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -18,13 +18,17 @@ public class FeeTypeMapper {
   public FeeType toRest(FeeTypeEntity feeTypeEntity) {
     return new FeeType()
         .id(feeTypeEntity.getId())
+        .name(feeTypeEntity.getName())
         .types(
             feeTypeEntity.getFeeTypeComponentEntities().stream()
                 .map(feeTypeComponentMapper::toRest)
-                .collect(toList()));
+                .collect(toUnmodifiableList()));
   }
 
   public FeeType toRest(FeeTypeEntity feeTypeEntity, List<FeeTypeComponent> feeTypeComponents) {
-    return new FeeType().id(feeTypeEntity.getId()).types(feeTypeComponents);
+    return new FeeType()
+        .id(feeTypeEntity.getId())
+        .name(feeTypeEntity.getName())
+        .types(feeTypeComponents);
   }
 }

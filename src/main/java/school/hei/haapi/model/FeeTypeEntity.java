@@ -33,6 +33,8 @@ public class FeeTypeEntity implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
+  private String name;
+
   @OneToMany(mappedBy = "feeTypeEntity", fetch = LAZY)
   @JsonIgnoreProperties("feeTypeEntity")
   private List<FeeTypeComponentEntity> feeTypeComponentEntities;

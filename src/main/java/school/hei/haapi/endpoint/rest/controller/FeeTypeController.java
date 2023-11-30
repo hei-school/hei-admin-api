@@ -1,10 +1,13 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.FeeTypeComponentMapper;
 import school.hei.haapi.endpoint.rest.mapper.FeeTypeMapper;
 import school.hei.haapi.endpoint.rest.model.FeeType;
@@ -31,13 +34,15 @@ public class FeeTypeController {
     List<FeeTypeComponent> feeComponents =
         feeTypeComponentService.getByFeeTypeId(feeTypeEntity.getId()).stream()
             .map(feeTypeComponentMapper::toRest)
-            .collect(toList());
+            .collect(toUnmodifiableList());
 
     return feeTypeMapper.toRest(feeTypeEntity, feeComponents);
   }
 
-  @GetMapping("/fee_type")
+  @GetMapping("/fee_types")
   public List<FeeType> getAllFeeType() {
-    return feeTypeService.getAll().stream().map(feeTypeMapper::toRest).collect(toList());
+    return feeTypeService.getAll().stream()
+        .map(feeTypeMapper::toRest)
+        .collect(toUnmodifiableList());
   }
 }

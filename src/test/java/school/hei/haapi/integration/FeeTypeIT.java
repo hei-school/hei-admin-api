@@ -155,17 +155,26 @@ class FeeTypeIT {
         assertThrows(
             ApiException.class, () -> api.createOrUpdateFeeType(newFeeType1(new ArrayList<>())));
 
+    ApiException exception6 =
+        assertThrows(
+            ApiException.class,
+            () ->
+                api.createOrUpdateFeeType(
+                    newFeeType1(List.of(newFeeTypeController("newTypeController"))).name(null)));
+
     String exceptionMessage1 = exception1.getMessage();
     String exceptionMessage2 = exception2.getMessage();
     String exceptionMessage3 = exception3.getMessage();
     String exceptionMessage4 = exception4.getMessage();
     String exceptionMessage5 = exception5.getMessage();
+    String exceptionMessage6 = exception6.getMessage();
 
     assertTrue(exceptionMessage1.contains("feeTypeComponent have to have a name"));
     assertTrue(exceptionMessage2.contains("feeTypeComponent have to have a Type"));
     assertTrue(exceptionMessage3.contains("feeTypeComponent have to have a MonthlyAmount"));
     assertTrue(exceptionMessage4.contains("feeTypeComponent have to have a MonthsNumber"));
     assertTrue(exceptionMessage5.contains("Type is mandatory"));
+    assertTrue(exceptionMessage6.contains("Name is mandatory"));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

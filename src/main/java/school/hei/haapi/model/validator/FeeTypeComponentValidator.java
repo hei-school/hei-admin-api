@@ -13,7 +13,7 @@ import school.hei.haapi.model.exception.BadRequestException;
 public class FeeTypeComponentValidator implements Consumer<FeeTypeComponent> {
 
   public void accept(List<FeeTypeComponent> FeeTypeComponent) {
-    FeeTypeComponent.forEach(this::accept);
+    FeeTypeComponent.forEach(this);
   }
 
   @Override

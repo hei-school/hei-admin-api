@@ -14,19 +14,18 @@ import school.hei.haapi.model.exception.BadRequestException;
 @AllArgsConstructor
 public class FeeTypeValidator implements Consumer<FeeType> {
 
-  private final FeeTypeComponentValidator feeTypeComponentValidator;
-
   public void accept(List<FeeType> feeTypes) {
-    feeTypes.forEach(this::accept);
+    feeTypes.forEach(this);
   }
 
   @Override
   public void accept(FeeType feeType) {
     Set<String> violationMessages = new HashSet<>();
+    if (feeType.getName() == null) {
+      violationMessages.add("Name is mandatory");
+    }
     if (feeType.getTypes() == null || feeType.getTypes().isEmpty()) {
       violationMessages.add("Type is mandatory");
-    } else {
-      feeTypeComponentValidator.accept(feeType.getTypes());
     }
     if (!violationMessages.isEmpty()) {
       String formattedViolationMessages =

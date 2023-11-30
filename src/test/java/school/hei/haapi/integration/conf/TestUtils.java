@@ -380,11 +380,12 @@ public class TestUtils {
   public static FeeType feeType1() {
     return new FeeType()
         .id(FEE_TYPE1_ID)
+        .name("fee_type_1")
         .types(List.of(feeTypeController1(), feeTypeController2()));
   }
 
   public static FeeType newFeeType1(List<FeeTypeComponent> feeTypeComponents) {
-    return new FeeType().types(feeTypeComponents);
+    return new FeeType().name("new_fee_type").types(feeTypeComponents);
   }
 
   public static Course course1() {

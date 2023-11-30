@@ -1,6 +1,7 @@
 create table if not exists "create_fee_type" (
     id                    varchar
-    constraint create_fee_type_pk primary key default uuid_generate_v4()
+    constraint create_fee_type_pk primary key default uuid_generate_v4(),
+    name             varchar                     not null
 );
 
 create table if not exists "fee_type_component" (
