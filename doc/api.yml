@@ -1550,6 +1550,60 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /fee_type:
+    get:
+      tags:
+        - Configuration
+      summary: get all type of fee
+      operationId: getAllFeeType
+      responses:
+        '200':
+          description: List of all type of fee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeeType'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Configuration
+      summary: Create new fee type or update existing fee type
+      description: Update fee type when `id` are provided, create them otherwise.
+      operationId: createOrUpdateFeeType
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeeType'
+      responses:
+        '200':
+          description: The created or updated fee type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeType'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/attendance/movement':
     post:
       tags:
@@ -2072,6 +2126,28 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    FeeTypeComponent:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/CreateFeeType"
+        name:
+          type: string
+        monthlyAmount:
+          type: integer
+          description: Price of one payment
+        monthsNumber:
+          type: integer
+          description: Number of months payment
+    FeeType:
+      type: object
+      properties:
+        id:
+          type: string
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeTypeComponent'
     Page:
       type: integer
       description: Start at `1`
@@ -2089,6 +2165,11 @@ components:
       enum:
         - IN
         - OUT
+    CreateFeeType:
+      type: string
+      enum:
+        - TUITION
+        - HARDWARE
     CourseDirection:
       type: string
       enum:
