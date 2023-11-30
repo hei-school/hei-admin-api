@@ -1,3 +1,20 @@
+# [0.10.0](https://github.com/hei-school/hei-admin-api/compare/v0.9.0...v0.10.0) (2023-11-30)
+
+
+### Bug Fixes
+
+* status in creation fees ([525c5b3](https://github.com/hei-school/hei-admin-api/commit/525c5b3070e60fd5e620f12ef6cf95c869625206))
+
+
+### Features
+
+* add update fees in spec ([b031fbe](https://github.com/hei-school/hei-admin-api/commit/b031fbef56684348f15cf888c6d30559f4253e7e))
+* **doc/api:** filter users by sex (not-implemented) ([2511c10](https://github.com/hei-school/hei-admin-api/commit/2511c1041168bf88607cec3d0f1a97e7f7ff237b))
+* **doc/api:** filter users by status with new Suspended status (not-implemented) ([357059d](https://github.com/hei-school/hei-admin-api/commit/357059dbb4cd469bdabf7019d635bdeda13fd7d9))
+* implement update fees in the code ([296412c](https://github.com/hei-school/hei-admin-api/commit/296412c27e0f1d0c1cca72812cadae974b3e9d09))
+
+
+
 # [0.9.0](https://github.com/hei-school/hei-admin-api/compare/v0.7.1...v0.9.0) (2023-11-28)
 
 
@@ -182,15 +199,6 @@
 ### Features
 
 * authenticated GET /students/{id} and /teachers/{id} ([665cef5](https://github.com/hei-school/hei-admin-api/commit/665cef5ede25c3253cf727c5c9dcb56fdec1a66c))
-
-
-
-# [0.1.0](https://github.com/hei-school/hei-admin-api/compare/91930769a08d93b29b795201c438f464e7697018...v0.1.0) (2021-08-11)
-
-
-### Features
-
-* ping-pong endpoint ([9193076](https://github.com/hei-school/hei-admin-api/commit/91930769a08d93b29b795201c438f464e7697018))
 
 
 
