@@ -34,6 +34,7 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
@@ -143,6 +144,50 @@ class StudentIT {
     return student;
   }
 
+  public static Student disabledStudent1() {
+    return new Student()
+        .id("student4_id")
+        .firstName("Disable")
+        .lastName("One")
+        .email("test+disable1@hei.school")
+        .ref("STD29001")
+        .status(EnableStatus.DISABLED)
+        .sex(Sex.M)
+        .birthDate(LocalDate.parse("2000-12-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .phone("0322411123")
+        .address("Adr 1");
+  }
+
+  public static Student creatableSuspendedStudent() {
+    return new Student()
+        .firstName("Suspended")
+        .lastName("Two")
+        .email("test+suspended2@hei.school")
+        .ref("STD29004")
+        .status(EnableStatus.SUSPENDED)
+        .sex(Sex.F)
+        .birthDate(LocalDate.parse("2000-12-02"))
+        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
+        .phone("0322411124")
+        .address("Adr 3");
+  }
+
+  public static Student suspendedStudent1() {
+    return new Student()
+        .id("student6_id")
+        .firstName("Suspended")
+        .lastName("One")
+        .email("test+suspended@hei.school")
+        .ref("STD29003")
+        .status(EnableStatus.SUSPENDED)
+        .sex(Sex.F)
+        .birthDate(LocalDate.parse("2000-12-02"))
+        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
+        .phone("0322411124")
+        .address("Adr 2");
+  }
+
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
@@ -187,6 +232,38 @@ class StudentIT {
 
     assertEquals(student1(), actualStudents2.get(0));
     assertEquals(2, actualStudents2.size());
+  }
+
+  @Test
+  void manager_read_by_disabled_status_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents =
+        api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, null);
+    assertEquals(2, actualStudents.size());
+    assertTrue(actualStudents.contains(disabledStudent1()));
+  }
+
+  @Test
+  void manager_read_by_suspended_status_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents =
+        api.getStudents(1, 10, null, null, null, null, EnableStatus.SUSPENDED, null);
+    assertEquals(1, actualStudents.size());
+    assertTrue(actualStudents.contains(suspendedStudent1()));
+  }
+
+  @Test
+  void manager_read_by_status_and_sex_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents =
+        api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, Sex.F);
+    assertEquals(1, actualStudents.size());
   }
 
   @Test
@@ -385,6 +462,37 @@ class StudentIT {
     PutEventsRequestEntry requestEntry1 = actualRequestEntries.get(1);
     assertTrue(requestEntry1.detail().contains(created1.getId()));
     assertTrue(requestEntry1.detail().contains(created1.getEmail()));
+  }
+
+  @Test
+  @DirtiesContext
+  void manager_write_suspended_student() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actual = api.createOrUpdateStudents(List.of(creatableSuspendedStudent()));
+    Student created = actual.get(0);
+    List<Student> suspended =
+        api.getStudents(1, 10, null, "Suspended", null, null, EnableStatus.SUSPENDED, null);
+
+    assertTrue(suspended.contains(created));
+    assertEquals(1, actual.size());
+  }
+
+  @Test
+  @DirtiesContext
+  void manager_update_student_to_suspended() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actual =
+        api.createOrUpdateStudents(List.of(student2().status(EnableStatus.SUSPENDED)));
+    Student updated = actual.get(0);
+    List<Student> suspended =
+        api.getStudents(1, 10, null, null, null, null, EnableStatus.SUSPENDED, null);
+
+    assertTrue(suspended.contains(updated));
+    assertEquals(1, actual.size());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

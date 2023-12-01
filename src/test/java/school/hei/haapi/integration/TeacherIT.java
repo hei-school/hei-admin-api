@@ -24,6 +24,8 @@ import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacherLi
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
 import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 
+import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
@@ -39,6 +41,8 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -215,6 +219,69 @@ class TeacherIT {
     assertTrue(exceptionMessage1.contains("Last name is mandatory"));
     assertTrue(exceptionMessage1.contains("Email is mandatory"));
     assertTrue(exceptionMessage1.contains("Reference is mandatory"));
+  }
+
+  @Test
+  void manager_read_by_disabled_status_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Teacher> actualTeachers =
+        api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, null);
+    assertEquals(2, actualTeachers.size());
+    assertTrue(actualTeachers.contains(disabledTeacher1()));
+  }
+
+  @Test
+  void manager_read_by_suspended_status_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Teacher> actualTeachers =
+        api.getTeachers(1, 10, null, null, null, EnableStatus.SUSPENDED, Sex.F);
+    assertEquals(1, actualTeachers.size());
+    assertEquals(actualTeachers.get(0), suspendedTeacher1());
+    assertTrue(actualTeachers.contains((suspendedTeacher1())));
+  }
+
+  @Test
+  void manager_read_by_status_and_sex_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Teacher> actualTeachers =
+        api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, Sex.F);
+    assertEquals(1, actualTeachers.size());
+  }
+
+  public static Teacher disabledTeacher1() {
+    return new Teacher()
+        .id("teacher5_id")
+        .firstName("Disable")
+        .lastName("One")
+        .email("teacher+disable1@hei.school")
+        .ref("TCR29001")
+        .status(EnableStatus.DISABLED)
+        .sex(Sex.M)
+        .birthDate(LocalDate.parse("2000-12-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .phone("0322411123")
+        .address("Adr 1");
+  }
+
+  public static Teacher suspendedTeacher1() {
+    return new Teacher()
+        .id("teacher7_id")
+        .firstName("Suspended")
+        .lastName("One")
+        .email("teacher+suspended@hei.school")
+        .ref("TCR29003")
+        .status(EnableStatus.SUSPENDED)
+        .sex(Sex.F)
+        .birthDate(LocalDate.parse("2000-12-02"))
+        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
+        .phone("0322411124")
+        .address("Adr 2");
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

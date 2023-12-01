@@ -21,7 +21,13 @@ public class UserManagerDao {
   private EntityManager entityManager;
 
   public List<User> findByCriteria(
-      User.Role role, String ref, String firstName, String lastName, Pageable pageable) {
+      User.Role role,
+      String ref,
+      String firstName,
+      String lastName,
+      Pageable pageable,
+      User.Status status,
+      User.Sex sex) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
@@ -46,6 +52,14 @@ public class UserManagerDao {
 
     if (firstName != null && !firstName.isEmpty()) {
       predicate = builder.and(predicate, hasUserFirstName);
+    }
+
+    if (status != null) {
+      predicate = builder.and(predicate, builder.equal(root.get("status"), status));
+    }
+
+    if (sex != null) {
+      predicate = builder.and(predicate, builder.equal(root.get("sex"), sex));
     }
 
     predicate = builder.and(predicate, hasUserRole, hasUserRef, hasUserLastName);
