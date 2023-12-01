@@ -69,7 +69,7 @@ task generateTsClient(type: org.openapitools.generator.gradle.plugin.tasks.Gener
     ]
     additionalProperties = [
             enumPropertyNaming: "original",
-            npmName           : "haapi-Ts-client",
+            npmName           : "@haapi/typescript-client",
             npmVersion        : project.properties["args"] ?: "latest"
     ]
 }
@@ -152,5 +152,7 @@ implementation 'pl.allegro.finance:tradukisto:1.12.0'
 testImplementation 'org.springframework.security:spring-security-test'
 // Can __NOT__ upgrade javaker to higher versions
 testImplementation 'com.github.javafaker:javafaker:0.13'
+
+
 
 }
