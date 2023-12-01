@@ -44,6 +44,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.UserProfile;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -67,6 +68,24 @@ class StudentIT {
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+  }
+
+  public static UserProfile someUpdatableStudent() {
+    return new UserProfile()
+        .address("Adr 999")
+        .sex(Sex.F)
+        .lastName("Other last")
+        .firstName("Other first")
+        .birthDate(LocalDate.parse("2000-01-03"));
+  }
+
+  public static Student expectedUpdated() {
+    return student1()
+        .address("Adr 999")
+        .sex(Sex.F)
+        .lastName("Other last")
+        .firstName("Other first")
+        .birthDate(LocalDate.parse("2000-01-03"));
   }
 
   public static Student someCreatableStudent() {
@@ -192,6 +211,16 @@ class StudentIT {
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
+  }
+
+  @Test
+  @DirtiesContext
+  void student_update_own_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    UsersApi api = new UsersApi(student1Client);
+
+    Student actual = api.updateStudent(STUDENT1_ID, someUpdatableStudent());
+    assertEquals(expectedUpdated(), actual);
   }
 
   @Test

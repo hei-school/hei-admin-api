@@ -29,7 +29,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String STUDENT_COURSE = "/students/*/courses";
-  private static final String USER_PROFILE = "/*/profile";
+  private static final String USER_PROFILE = "/*";
   private final AwardedCourseService awardedCourseService;
   private final AuthProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
