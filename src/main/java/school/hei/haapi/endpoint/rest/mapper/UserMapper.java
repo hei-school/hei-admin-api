@@ -16,18 +16,6 @@ public class UserMapper {
   private final SexEnumMapper sexEnumMapper;
   private final UserRepository repository;
 
-  public User toDomain(UserProfile profile, String userId) {
-    User toUpdate = repository.findById(userId).orElseThrow(() -> {throw new NotFoundException("Student with id: " + userId + " not found");
-    });
-    toUpdate.setAddress(profile.getAddress());
-    toUpdate.setBirthDate(profile.getBirthDate());
-    toUpdate.setFirstName(profile.getFirstName());
-    toUpdate.setLastName(profile.getLastName());
-    toUpdate.setSex(sexEnumMapper.toDomainSexEnum(profile.getSex()));
-    toUpdate.setPhone(profile.getPhone());
-    return toUpdate;
-  }
-
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
     restStudent.setId(user.getId());
@@ -80,6 +68,23 @@ public class UserMapper {
     manager.setAddress(user.getAddress());
 
     return manager;
+  }
+
+  public User toDomain(Manager manager) {
+    return User.builder()
+        .role(User.Role.MANAGER)
+        .id(manager.getId())
+        .firstName(manager.getFirstName())
+        .lastName(manager.getLastName())
+        .email(manager.getEmail())
+        .ref(manager.getRef())
+        .status(statusEnumMapper.toDomainStatus(manager.getStatus()))
+        .phone(manager.getPhone())
+        .entranceDatetime(manager.getEntranceDatetime())
+        .birthDate(manager.getBirthDate())
+        .sex(sexEnumMapper.toDomainSexEnum(manager.getSex()))
+        .address(manager.getAddress())
+        .build();
   }
 
   public User toDomain(Teacher teacher) {

@@ -36,8 +36,8 @@ public class TeacherController {
   }
 
   @PutMapping("/teachers/{id}")
-  public Teacher updateTeacher(@PathVariable(name = "id")String teacherId, @RequestBody UserProfile toUpdate) {
-    return userMapper.toRestTeacher(userService.updateUser(userMapper.toDomain(toUpdate, teacherId)));
+  public Teacher updateTeacher(@PathVariable(name = "id")String teacherId, @RequestBody Teacher toUpdate) {
+    return userMapper.toRestTeacher(userService.updateUser(userMapper.toDomain(toUpdate), teacherId));
   }
 
   @GetMapping(value = "/teachers")
