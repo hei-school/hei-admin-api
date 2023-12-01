@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.model.UserProfile;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.UserRepository;

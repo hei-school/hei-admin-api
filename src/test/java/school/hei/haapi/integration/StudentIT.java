@@ -70,16 +70,7 @@ class StudentIT {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  public static UserProfile someUpdatableStudent() {
-    return new UserProfile()
-        .address("Adr 999")
-        .sex(Sex.F)
-        .lastName("Other last")
-        .firstName("Other first")
-        .birthDate(LocalDate.parse("2000-01-03"));
-  }
-
-  public static Student expectedUpdated() {
+  public static Student someUpdatableStudent() {
     return student1()
         .address("Adr 999")
         .sex(Sex.F)
