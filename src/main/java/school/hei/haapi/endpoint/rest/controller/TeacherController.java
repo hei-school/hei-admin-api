@@ -16,6 +16,7 @@ import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.UserProfile;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
@@ -32,6 +33,11 @@ public class TeacherController {
   @GetMapping(value = "/teachers/{id}")
   public Teacher getTeacherById(@PathVariable String id) {
     return userMapper.toRestTeacher(userService.getById(id));
+  }
+
+  @PutMapping("/teachers/{id}")
+  public Teacher updateTeacher(@PathVariable(name = "id")String teacherId, @RequestBody UserProfile toUpdate) {
+    return userMapper.toRestTeacher(userService.updateUser(userMapper.toDomain(toUpdate, teacherId)));
   }
 
   @GetMapping(value = "/teachers")

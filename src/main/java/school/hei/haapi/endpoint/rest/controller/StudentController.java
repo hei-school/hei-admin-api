@@ -23,6 +23,7 @@ import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.GroupFlow;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.UserProfile;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
@@ -79,6 +80,11 @@ public class StudentController {
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
+  }
+
+  @PutMapping("/students/{id}")
+  public Student updateStudent(@PathVariable(name = "id")String studentId, @RequestBody UserProfile toUpdate) {
+    return userMapper.toRestStudent(userService.updateUser(userMapper.toDomain(toUpdate, studentId)));
   }
 
   @PostMapping("/students/{id}/group_flows")

@@ -35,6 +35,10 @@ public class UserService {
   private final GroupRepository groupRepository;
   private final GroupService groupService;
 
+  public User updateUser(User toUpdate) {
+    return userRepository.save(toUpdate);
+  }
+
   public User getById(String userId) {
     return userRepository.getById(userId);
   }

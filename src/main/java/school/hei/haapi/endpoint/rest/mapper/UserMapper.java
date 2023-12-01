@@ -5,13 +5,29 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.UserProfile;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.repository.UserRepository;
 
 @Component
 @AllArgsConstructor
 public class UserMapper {
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
+  private final UserRepository repository;
+
+  public User toDomain(UserProfile profile, String userId) {
+    User toUpdate = repository.findById(userId).orElseThrow(() -> {throw new NotFoundException("Student with id: " + userId + " not found");
+    });
+    toUpdate.setAddress(profile.getAddress());
+    toUpdate.setBirthDate(profile.getBirthDate());
+    toUpdate.setFirstName(profile.getFirstName());
+    toUpdate.setLastName(profile.getLastName());
+    toUpdate.setSex(sexEnumMapper.toDomainSexEnum(profile.getSex()));
+    toUpdate.setPhone(profile.getPhone());
+    return toUpdate;
+  }
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();

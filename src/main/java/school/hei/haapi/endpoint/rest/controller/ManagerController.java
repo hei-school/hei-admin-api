@@ -6,6 +6,8 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
@@ -14,6 +16,7 @@ import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
+import school.hei.haapi.endpoint.rest.model.UserProfile;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
@@ -30,6 +33,11 @@ public class ManagerController {
   @GetMapping(value = "/managers/{id}")
   public Manager getManagerById(@PathVariable String id) {
     return userMapper.toRestManager(userService.getById(id));
+  }
+
+  @PutMapping("/managers/{id}")
+  public Manager updateManager(@PathVariable(name = "id")String managerId, @RequestBody UserProfile toUpdate) {
+    return userMapper.toRestManager(userService.updateUser(userMapper.toDomain(toUpdate, managerId)));
   }
 
   @GetMapping(value = "/managers")
