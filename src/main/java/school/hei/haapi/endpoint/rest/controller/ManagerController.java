@@ -35,8 +35,10 @@ public class ManagerController {
   }
 
   @PutMapping("/managers/{id}")
-  public Manager updateManager(@PathVariable(name = "id")String managerId, @RequestBody Manager toUpdate) {
-    return userMapper.toRestManager(userService.updateUser(userMapper.toDomain(toUpdate), managerId));
+  public Manager updateManager(
+      @PathVariable(name = "id") String managerId, @RequestBody Manager toUpdate) {
+    return userMapper.toRestManager(
+        userService.updateUser(userMapper.toDomain(toUpdate), managerId));
   }
 
   @GetMapping(value = "/managers")

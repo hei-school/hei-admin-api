@@ -37,8 +37,13 @@ public class UserService {
   private final GroupService groupService;
 
   public User updateUser(User toUpdate, String userId) {
-    User user = userRepository.findById(userId).orElseThrow(() -> {throw new NotFoundException("User with id: " + userId + " not found");
-    });
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(
+                () -> {
+                  throw new NotFoundException("User with id: " + userId + " not found");
+                });
     user.setAddress(toUpdate.getAddress());
     user.setBirthDate(toUpdate.getBirthDate());
     user.setFirstName(toUpdate.getFirstName());

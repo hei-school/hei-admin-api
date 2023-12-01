@@ -81,8 +81,10 @@ public class StudentController {
   }
 
   @PutMapping("/students/{id}")
-  public Student updateStudent(@PathVariable(name = "id")String studentId, @RequestBody Student toUpdate) {
-    return userMapper.toRestStudent(userService.updateUser(userMapper.toDomain(toUpdate), studentId));
+  public Student updateStudent(
+      @PathVariable(name = "id") String studentId, @RequestBody Student toUpdate) {
+    return userMapper.toRestStudent(
+        userService.updateUser(userMapper.toDomain(toUpdate), studentId));
   }
 
   @PostMapping("/students/{id}/group_flows")

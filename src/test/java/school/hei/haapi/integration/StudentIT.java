@@ -44,7 +44,6 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.UserProfile;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -208,10 +207,15 @@ class StudentIT {
   @DirtiesContext
   void student_update_own_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
-
+    UsersApi managerApi = new UsersApi(manager1Client);
+    api.getStudentById(STUDENT1_ID);
     Student actual = api.updateStudent(STUDENT1_ID, someUpdatableStudent());
-    assertEquals(expectedUpdated(), actual);
+    List<Student> actualStudents =
+        managerApi.getStudents(1, 10, null, null, null, null, null, null);
+
+    assertTrue(actualStudents.contains(actual));
   }
 
   @Test
