@@ -3,32 +3,28 @@ package school.hei.haapi.model.validator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.FeeType;
 import school.hei.haapi.model.exception.BadRequestException;
 
 @Component
 @AllArgsConstructor
-public class FeeTypeValidator implements Consumer<FeeType> {
+public class UUIDValidator implements Consumer<String> {
 
-  public void accept(List<FeeType> feeTypes) {
-    feeTypes.forEach(this);
+  public void accept(List<String> UIDIds) {
+    UIDIds.forEach(this);
   }
 
   @Override
-  public void accept(FeeType feeType) {
+  public void accept(String UIDId) {
     Set<String> violationMessages = new HashSet<>();
-    if (feeType.getId() == null) {
-      violationMessages.add("Id is mandatory");
-    }
-    if (feeType.getName() == null) {
-      violationMessages.add("Name is mandatory");
-    }
-    if (feeType.getTypes() == null || feeType.getTypes().isEmpty()) {
-      violationMessages.add("Type is mandatory");
+    try {
+      UUID uid = UUID.fromString(UIDId);
+    } catch (Exception e) {
+      violationMessages.add("The Id " + UIDId + " must be an UID.");
     }
     if (!violationMessages.isEmpty()) {
       String formattedViolationMessages =

@@ -88,9 +88,7 @@ public class TestUtils {
 
   public static final String FEE_TYPE1_ID = "fee_type1_id";
 
-  public static final String FEE_TYPE_COMPONENT1_ID = "fee_type_component1_id";
-
-  public static final String FEE_TYPE_COMPONENT2_ID = "fee_type_component2_id";
+  //  public static final String NEW_FEE_TYPE_ID = UUID.randomUUID().toString();
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
@@ -385,7 +383,10 @@ public class TestUtils {
   }
 
   public static FeeType newFeeType1(List<FeeTypeComponent> feeTypeComponents) {
-    return new FeeType().name("new_fee_type").types(feeTypeComponents);
+    return new FeeType()
+        .id(UUID.randomUUID().toString())
+        .name("new_fee_type")
+        .types(feeTypeComponents);
   }
 
   public static Course course1() {

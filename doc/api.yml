@@ -1678,12 +1678,18 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /fee_type:
+  /fee_types/{fee_type_id}:
     put:
       tags:
         - Configuration
       summary: Create new fee type or update existing fee type
-      description: Update fee type when `id` are provided, create them otherwise.
+      description: Update fee type when `id` exist, create them otherwise.
+      parameters:
+        - name: fee_type_id
+          in: path
+          required: true
+          schema:
+            type: string
       operationId: createOrUpdateFeeType
       requestBody:
         required: true

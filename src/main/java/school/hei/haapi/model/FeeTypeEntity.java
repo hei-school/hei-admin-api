@@ -1,13 +1,11 @@
 package school.hei.haapi.model;
 
 import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.io.Serializable;
 import java.util.List;
 import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
@@ -29,9 +27,7 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class FeeTypeEntity implements Serializable {
-  @Id
-  @GeneratedValue(strategy = IDENTITY)
-  private String id;
+  @Id private String id;
 
   private String name;
 

@@ -84,11 +84,13 @@ class FeeTypeIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     ConfigurationApi api = new ConfigurationApi(manager1Client);
 
-    FeeType newFeeType =
-        api.createOrUpdateFeeType(
-            newFeeType1(List.of(newFeeTypeController("new"), newFeeTypeController("new2"))));
+    FeeType createFeeType =
+        newFeeType1(List.of(newFeeTypeController("new"), newFeeTypeController("new2")));
+
+    FeeType newFeeType = api.createOrUpdateFeeType(createFeeType.getId(), createFeeType);
     FeeType updateFeeType =
-        api.createOrUpdateFeeType(feeType1().types(List.of(newFeeTypeController("new"))));
+        api.createOrUpdateFeeType(
+            FEE_TYPE1_ID, feeType1().types(List.of(newFeeTypeController("new"))));
 
     assertEquals(2, Objects.requireNonNull(newFeeType.getTypes()).size());
 
@@ -103,7 +105,9 @@ class FeeTypeIT {
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateFeeType(feeType1().types(List.of(newFeeTypeController("new")))));
+        () ->
+            api.createOrUpdateFeeType(
+                FEE_TYPE1_ID, feeType1().types(List.of(newFeeTypeController("new")))));
   }
 
   @Test
@@ -113,7 +117,9 @@ class FeeTypeIT {
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateFeeType(feeType1().types(List.of(newFeeTypeController("new")))));
+        () ->
+            api.createOrUpdateFeeType(
+                FEE_TYPE1_ID, feeType1().types(List.of(newFeeTypeController("new")))));
   }
 
   @Test
@@ -121,46 +127,56 @@ class FeeTypeIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     ConfigurationApi api = new ConfigurationApi(manager1Client);
 
+    String wrongUID = "notUID";
+
+    FeeType createFeeType1 =
+        newFeeType1(List.of(newFeeTypeController("newTypeController").name(null)));
+    FeeType createFeeType2 =
+        newFeeType1(List.of(newFeeTypeController("newTypeController").type(null)));
+    FeeType createFeeType3 =
+        newFeeType1(List.of(newFeeTypeController("newTypeController").monthlyAmount(null)));
+    FeeType createFeeType4 =
+        newFeeType1(List.of(newFeeTypeController("newTypeController").monthsNumber(null)));
+    FeeType createFeeType5 = newFeeType1(new ArrayList<>());
+    FeeType createFeeType6 =
+        newFeeType1(List.of(newFeeTypeController("newTypeController"))).name(null);
+    FeeType createFeeType7 =
+        newFeeType1(List.of(newFeeTypeController("newTypeController"))).id(wrongUID);
+
     ApiException exception1 =
         assertThrows(
             ApiException.class,
-            () ->
-                api.createOrUpdateFeeType(
-                    newFeeType1(List.of(newFeeTypeController("newTypeController").name(null)))));
+            () -> api.createOrUpdateFeeType(createFeeType1.getId(), createFeeType1));
 
     ApiException exception2 =
         assertThrows(
             ApiException.class,
-            () ->
-                api.createOrUpdateFeeType(
-                    newFeeType1(List.of(newFeeTypeController("newTypeController").type(null)))));
+            () -> api.createOrUpdateFeeType(createFeeType2.getId(), createFeeType2));
 
     ApiException exception3 =
         assertThrows(
             ApiException.class,
-            () ->
-                api.createOrUpdateFeeType(
-                    newFeeType1(
-                        List.of(newFeeTypeController("newTypeController").monthlyAmount(null)))));
+            () -> api.createOrUpdateFeeType(createFeeType3.getId(), createFeeType3));
 
     ApiException exception4 =
         assertThrows(
             ApiException.class,
-            () ->
-                api.createOrUpdateFeeType(
-                    newFeeType1(
-                        List.of(newFeeTypeController("newTypeController").monthsNumber(null)))));
+            () -> api.createOrUpdateFeeType(createFeeType4.getId(), createFeeType4));
 
     ApiException exception5 =
         assertThrows(
-            ApiException.class, () -> api.createOrUpdateFeeType(newFeeType1(new ArrayList<>())));
+            ApiException.class,
+            () -> api.createOrUpdateFeeType(createFeeType5.getId(), createFeeType5));
 
     ApiException exception6 =
         assertThrows(
             ApiException.class,
-            () ->
-                api.createOrUpdateFeeType(
-                    newFeeType1(List.of(newFeeTypeController("newTypeController"))).name(null)));
+            () -> api.createOrUpdateFeeType(createFeeType6.getId(), createFeeType6));
+
+    ApiException exception7 =
+        assertThrows(
+            ApiException.class,
+            () -> api.createOrUpdateFeeType(createFeeType7.getId(), createFeeType7));
 
     String exceptionMessage1 = exception1.getMessage();
     String exceptionMessage2 = exception2.getMessage();
@@ -168,6 +184,7 @@ class FeeTypeIT {
     String exceptionMessage4 = exception4.getMessage();
     String exceptionMessage5 = exception5.getMessage();
     String exceptionMessage6 = exception6.getMessage();
+    String exceptionMessage7 = exception7.getMessage();
 
     assertTrue(exceptionMessage1.contains("feeTypeComponent have to have a name"));
     assertTrue(exceptionMessage2.contains("feeTypeComponent have to have a Type"));
@@ -175,6 +192,7 @@ class FeeTypeIT {
     assertTrue(exceptionMessage4.contains("feeTypeComponent have to have a MonthsNumber"));
     assertTrue(exceptionMessage5.contains("Type is mandatory"));
     assertTrue(exceptionMessage6.contains("Name is mandatory"));
+    assertTrue(exceptionMessage7.contains("The Id " + wrongUID + " must be an UID."));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

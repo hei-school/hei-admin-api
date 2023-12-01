@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static java.util.stream.Collectors.toList;
 
 import java.util.List;
+import java.util.Objects;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import school.hei.haapi.model.*;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.FeeTypeComponentValidator;
 import school.hei.haapi.model.validator.FeeTypeValidator;
+import school.hei.haapi.model.validator.UUIDValidator;
 import school.hei.haapi.repository.FeeTypeRepository;
 
 @Service
@@ -20,6 +22,7 @@ public class FeeTypeService {
   private final FeeTypeComponentService feeTypeComponentService;
   private final FeeTypeValidator feeTypeValidator;
   private final FeeTypeComponentValidator feeTypeComponentValidator;
+  private final UUIDValidator uuidValidator;
 
   public List<FeeTypeEntity> getAll() {
     return feeTypeRepository.findAll();
@@ -30,15 +33,18 @@ public class FeeTypeService {
       List<FeeTypeComponentEntity> feeTypeComponentEntities, FeeType feeType) {
     feeTypeValidator.accept(feeType);
     feeTypeComponentValidator.accept(feeType.getTypes());
-    FeeTypeEntity saved =
-        feeTypeRepository.save(
-            FeeTypeEntity.builder().id(feeType.getId()).name(feeType.getName()).build());
 
-    if (feeType.getId() != null) {
+    if (feeTypeRepository.findById(Objects.requireNonNull(feeType.getId())).isPresent()) {
       List<FeeTypeComponentEntity> actualFeeTypeComponentEntities =
           feeTypeComponentService.getByFeeTypeId(feeType.getId());
       feeTypeComponentService.deleteAll(actualFeeTypeComponentEntities);
+    } else {
+      uuidValidator.accept(feeType.getId());
     }
+
+    FeeTypeEntity saved =
+        feeTypeRepository.save(
+            FeeTypeEntity.builder().id(feeType.getId()).name(feeType.getName()).build());
 
     List<FeeTypeComponentEntity> newFeeTypeComponentEntities =
         feeTypeComponentService.updateOrSaveAll(

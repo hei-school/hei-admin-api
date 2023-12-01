@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -25,8 +26,9 @@ public class FeeTypeController {
   private final FeeTypeComponentMapper feeTypeComponentMapper;
   private final FeeTypeComponentService feeTypeComponentService;
 
-  @PutMapping("/fee_type")
-  public FeeType createOrUpdateFeeType(@RequestBody FeeType feeType) {
+  @PutMapping("/fee_types/{fee_type_id}")
+  public FeeType createOrUpdateFeeType(
+      @PathVariable String fee_type_id, @RequestBody FeeType feeType) {
     List<FeeTypeComponentEntity> feeTypeComponentsToAddEntity =
         feeTypeComponentMapper.toDomain(feeType);
     FeeTypeEntity feeTypeEntity =
