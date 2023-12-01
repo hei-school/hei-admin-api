@@ -47,19 +47,9 @@ public class StudentController {
   // todo: to review
   @GetMapping("/groups/{groupId}/students")
   public List<Student> getStudentByGroupId(
-      @PathVariable String groupId,
-      @RequestParam(name = "page", required = false) PageFromOne page,
-      @RequestParam(value = "page_size", required = false) BoundedPageSize pageSize,
-      @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
-      @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
-      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
-      @RequestParam(name = "status", required = false) EnableStatus status,
-      @RequestParam(name = "sex", required = false) Sex sex) {
-    User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
-    User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
+      @PathVariable String groupId) {
     return userService
-        .getByGroupIdAndStudentCriteria(
-            STUDENT, firstName, lastName, ref, page, pageSize, domainStatus, domainSex, groupId)
+        .getByGroupId(groupId)
         .stream()
         .map(userMapper::toRestStudent)
         .collect(Collectors.toUnmodifiableList());

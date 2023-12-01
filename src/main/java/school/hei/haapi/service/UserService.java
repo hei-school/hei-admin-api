@@ -79,22 +79,6 @@ public class UserService {
     return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
   }
 
-  public List<User> getByGroupIdAndStudentCriteria(
-      User.Role role,
-      String firstName,
-      String lastName,
-      String ref,
-      PageFromOne page,
-      BoundedPageSize pageSize,
-      User.Status status,
-      User.Sex sex,
-      String groupId) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-    return userManagerDao.findByGroupIdAndCriteria(
-        role, ref, firstName, lastName, pageable, status, sex, groupId);
-  }
-
   public List<User> getByLinkedCourse(
       User.Role role,
       String firstName,
