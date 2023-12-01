@@ -56,8 +56,13 @@ public class UserService {
     return new UserUpserted().userId(user.getId()).email(user.getEmail());
   }
 
-  public List<User> getByRole(User.Role role, PageFromOne page, BoundedPageSize pageSize) {
-    return getByCriteria(role, "", "", "", page, pageSize);
+  public List<User> getByRole(
+      User.Role role,
+      PageFromOne page,
+      BoundedPageSize pageSize,
+      User.Status status,
+      User.Sex sex) {
+    return getByCriteria(role, "", "", "", page, pageSize, status, sex);
   }
 
   public List<User> getByCriteria(
@@ -66,10 +71,12 @@ public class UserService {
       String lastName,
       String ref,
       PageFromOne page,
-      BoundedPageSize pageSize) {
+      BoundedPageSize pageSize,
+      User.Status status,
+      User.Sex sex) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-    return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
+    return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
   }
 
   public List<User> getByLinkedCourse(
@@ -79,10 +86,13 @@ public class UserService {
       String ref,
       String courseId,
       PageFromOne page,
-      BoundedPageSize pageSize) {
+      BoundedPageSize pageSize,
+      User.Status status,
+      User.Sex sex) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-    List<User> users = userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable);
+    List<User> users =
+        userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
 
     return courseId.length() > 0
         ? users.stream()

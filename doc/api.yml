@@ -276,6 +276,18 @@ paths:
           description: "Filter students by course they are linked to"
           schema:
             type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter students by status value return all by default
+          schema:
+            $ref: '#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter students by sex value return all by default
+          schema:
+            $ref: '#/components/schemas/Sex'
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -486,7 +498,7 @@ paths:
           content:
             application/json:
               schema:
-                  $ref: '#/components/schemas/AwardedCourse'
+                $ref: '#/components/schemas/AwardedCourse'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -817,6 +829,18 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: status
+          required: false
+          in: query
+          description: Filter students by status value return all by default
+          schema:
+            $ref: '#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter students by sex value return all by default
+          schema:
+            $ref: '#/components/schemas/Sex'
       operationId: getAllStudentByGroup
       responses:
         '200':
@@ -1039,6 +1063,18 @@ paths:
           description: "Filter teachers by last name, case is ignored"
           schema:
             type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter teachers by status value return all by default
+          schema:
+            $ref: '#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter teachers by sex value return all by default
+          schema:
+            $ref: '#/components/schemas/Sex'
       responses:
         '200':
           description: List of teachers, ordered by ref.
@@ -1136,6 +1172,18 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: status
+          required: false
+          in: query
+          description: Filter managers by status value return all by default
+          schema:
+            $ref: '#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter managers by sex value return all by default
+          schema:
+            $ref: '#/components/schemas/Sex'
       responses:
         '200':
           description: List of managers, ordered by ref.
@@ -1315,6 +1363,45 @@ paths:
       responses:
         '200':
           description: Created student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Paying
+      summary: Update student fees, can only modify due_datetime and comment, must contain an ID
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: updateStudentFees
+      requestBody:
+        description: Student fees to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Fee'
+      responses:
+        '200':
+          description: Update student fees
           content:
             application/json:
               schema:
@@ -1659,10 +1746,7 @@ components:
         - type: object
           properties:
             sex:
-              type: string
-              enum:
-                - M
-                - F
+              $ref: '#/components/schemas/Sex'
             birth_date:
               type: string
               format: date
@@ -1675,11 +1759,17 @@ components:
               format: date-time
             status:
               $ref: '#/components/schemas/EnableStatus'
+    Sex:
+      type: string
+      enum:
+        - M
+        - F
     EnableStatus:
       type: string
       enum:
         - ENABLED
         - DISABLED
+        - SUSPENDED
     StudentAttendance:
       type: object
       properties:

@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.util.List;
@@ -7,6 +8,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -15,6 +17,8 @@ import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.UserService;
 
@@ -24,6 +28,7 @@ public class FeeController {
   private final UserService userService;
   private final FeeService feeService;
   private final FeeMapper feeMapper;
+  private final UpdateFeeValidator updateFeeValidator;
 
   @GetMapping("/students/{studentId}/fees/{feeId}")
   public Fee getFeeByStudentId(@PathVariable String studentId, @PathVariable String feeId) {
@@ -36,6 +41,17 @@ public class FeeController {
     return feeService
         .saveAll(feeMapper.toDomainFee(userService.getById(studentId), toCreate))
         .stream()
+        .map(feeMapper::toRestFee)
+        .collect(toUnmodifiableList());
+  }
+
+  @PutMapping("/students/{studentId}/fees")
+  public List<Fee> updateStudentFees(@PathVariable String studentId, @RequestBody List<Fee> fees) {
+    updateFeeValidator.accept(fees, studentId);
+    User student = userService.getById(studentId);
+    List<school.hei.haapi.model.Fee> domainFeeList =
+        fees.stream().map(fee -> feeMapper.toDomain(fee, student)).collect(toList());
+    return feeService.updateAll(domainFeeList, studentId).stream()
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
   }

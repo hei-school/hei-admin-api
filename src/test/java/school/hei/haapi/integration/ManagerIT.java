@@ -26,6 +26,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -53,11 +54,41 @@ class ManagerIT {
     manager.setRef("MGR21001");
     manager.setPhone("0322411127");
     manager.setStatus(EnableStatus.ENABLED);
-    manager.setSex(Manager.SexEnum.M);
+    manager.setSex(Sex.M);
     manager.setBirthDate(LocalDate.parse("1890-01-01"));
     manager.setEntranceDatetime(Instant.parse("2021-09-08T08:25:29Z"));
     manager.setAddress("Adr 5");
     return manager;
+  }
+
+  public static Manager disabledManager1() {
+    return new Manager()
+        .id("'manager2_id'")
+        .firstName("Disable")
+        .lastName("One")
+        .email("manager+disable1@hei.school")
+        .ref("MGR29001")
+        .status(EnableStatus.DISABLED)
+        .sex(Sex.M)
+        .birthDate(LocalDate.parse("2000-12-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .phone("0322411123")
+        .address("Adr 1");
+  }
+
+  public static Manager suspendedManager1() {
+    return new Manager()
+        .id("'manager3_id'")
+        .firstName("Suspended")
+        .lastName("One")
+        .email("manager+suspended@hei.school")
+        .ref("MGR29003")
+        .status(EnableStatus.SUSPENDED)
+        .sex(Sex.F)
+        .birthDate(LocalDate.parse("2000-12-02"))
+        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
+        .phone("0322411123")
+        .address("Adr 2");
   }
 
   @BeforeEach
@@ -71,7 +102,7 @@ class ManagerIT {
 
     UsersApi api = new UsersApi(student1Client);
     assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_ID));
-    assertThrowsForbiddenException(() -> api.getManagers(1, 20));
+    assertThrowsForbiddenException(() -> api.getManagers(1, 20, null, null));
   }
 
   @Test
@@ -80,7 +111,7 @@ class ManagerIT {
 
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_ID));
-    assertThrowsForbiddenException(() -> api.getManagers(1, 20));
+    assertThrowsForbiddenException(() -> api.getManagers(1, 20, null, null));
   }
 
   @Test
@@ -98,9 +129,9 @@ class ManagerIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     UsersApi api = new UsersApi(manager1Client);
-    List<Manager> managers = api.getManagers(1, 20);
+    List<Manager> managers = api.getManagers(1, 20, null, null);
 
-    assertEquals(1, managers.size());
+    assertEquals(3, managers.size());
     assertEquals(manager1(), managers.get(0));
   }
 

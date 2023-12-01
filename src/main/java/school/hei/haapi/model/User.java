@@ -116,7 +116,8 @@ public class User implements Serializable {
 
   public enum Status {
     ENABLED,
-    DISABLED;
+    DISABLED,
+    SUSPENDED;
 
     public static Status fromValue(String value) {
       return DataFormatterUtils.fromValue(Status.class, value);

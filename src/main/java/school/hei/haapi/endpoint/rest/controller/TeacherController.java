@@ -10,7 +10,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
+import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -20,7 +24,8 @@ import school.hei.haapi.service.UserService;
 @RestController
 @AllArgsConstructor
 public class TeacherController {
-
+  private final SexEnumMapper sexEnumMapper;
+  private final StatusEnumMapper statusEnumMapper;
   private final UserService userService;
   private final UserMapper userMapper;
 
@@ -35,9 +40,14 @@ public class TeacherController {
       @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
       @RequestParam(value = "first_name", required = false, defaultValue = "") String firstName,
-      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName) {
+      @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
+      @RequestParam(name = "status", required = false) EnableStatus status,
+      @RequestParam(name = "sex", required = false) Sex sex) {
+    User.Sex domainSex = sex != null ? sexEnumMapper.toDomainSexEnum(sex) : null;
+    User.Status domainStatus = status != null ? statusEnumMapper.toDomainStatus(status) : null;
     return userService
-        .getByCriteria(User.Role.TEACHER, firstName, lastName, ref, page, pageSize)
+        .getByCriteria(
+            User.Role.TEACHER, firstName, lastName, ref, page, pageSize, domainStatus, domainSex)
         .stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());

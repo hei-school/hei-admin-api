@@ -1,14 +1,17 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
 
 @Component
+@AllArgsConstructor
 public class UserMapper {
+  private final StatusEnumMapper statusEnumMapper;
+  private final SexEnumMapper sexEnumMapper;
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
@@ -18,12 +21,11 @@ public class UserMapper {
     restStudent.setLastName(user.getLastName());
     restStudent.setEmail(user.getEmail());
     restStudent.setRef(user.getRef());
-    restStudent.setStatus(EnableStatus.fromValue(user.getStatus().toString()));
+    restStudent.setStatus(statusEnumMapper.toRestStatus(user.getStatus()));
     restStudent.setPhone(user.getPhone());
     restStudent.setEntranceDatetime(user.getEntranceDatetime());
     restStudent.setBirthDate(user.getBirthDate());
-    restStudent.setSex(
-        user.getSex() == null ? null : Student.SexEnum.fromValue(user.getSex().toString()));
+    restStudent.setSex(sexEnumMapper.toRestSexEnum(user.getSex()));
     restStudent.setAddress(user.getAddress());
 
     return restStudent;
@@ -37,12 +39,11 @@ public class UserMapper {
     teacher.setLastName(user.getLastName());
     teacher.setEmail(user.getEmail());
     teacher.setRef(user.getRef());
-    teacher.setStatus(EnableStatus.fromValue(user.getStatus().toString()));
+    teacher.setStatus(statusEnumMapper.toRestStatus(user.getStatus()));
     teacher.setPhone(user.getPhone());
     teacher.setEntranceDatetime(user.getEntranceDatetime());
     teacher.setBirthDate(user.getBirthDate());
-    teacher.setSex(
-        user.getSex() == null ? null : Teacher.SexEnum.fromValue(user.getSex().toString()));
+    teacher.setSex(sexEnumMapper.toRestSexEnum(user.getSex()));
     teacher.setAddress(user.getAddress());
 
     return teacher;
@@ -56,11 +57,11 @@ public class UserMapper {
     manager.setLastName(user.getLastName());
     manager.setEmail(user.getEmail());
     manager.setRef(user.getRef());
-    manager.setStatus(EnableStatus.fromValue(user.getStatus().toString()));
+    manager.setStatus(statusEnumMapper.toRestStatus(user.getStatus()));
     manager.setPhone(user.getPhone());
     manager.setEntranceDatetime(user.getEntranceDatetime());
     manager.setBirthDate(user.getBirthDate());
-    manager.setSex(Manager.SexEnum.fromValue(user.getSex().toString()));
+    manager.setSex(sexEnumMapper.toRestSexEnum(user.getSex()));
     manager.setAddress(user.getAddress());
 
     return manager;
@@ -74,11 +75,11 @@ public class UserMapper {
         .lastName(teacher.getLastName())
         .email(teacher.getEmail())
         .ref(teacher.getRef())
-        .status(User.Status.fromValue(teacher.getStatus().toString()))
+        .status(statusEnumMapper.toDomainStatus(teacher.getStatus()))
         .phone(teacher.getPhone())
         .entranceDatetime(teacher.getEntranceDatetime())
         .birthDate(teacher.getBirthDate())
-        .sex(teacher.getSex() == null ? null : User.Sex.valueOf(teacher.getSex().toString()))
+        .sex(sexEnumMapper.toDomainSexEnum(teacher.getSex()))
         .address(teacher.getAddress())
         .build();
   }
@@ -91,11 +92,11 @@ public class UserMapper {
         .lastName(student.getLastName())
         .email(student.getEmail())
         .ref(student.getRef())
-        .status(User.Status.fromValue(student.getStatus().toString()))
+        .status(statusEnumMapper.toDomainStatus(student.getStatus()))
         .phone(student.getPhone())
         .entranceDatetime(student.getEntranceDatetime())
         .birthDate(student.getBirthDate())
-        .sex(student.getSex() == null ? null : User.Sex.valueOf(student.getSex().toString()))
+        .sex(sexEnumMapper.toDomainSexEnum(student.getSex()))
         .address(student.getAddress())
         .build();
   }

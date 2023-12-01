@@ -20,12 +20,14 @@ import static school.hei.haapi.integration.conf.TestUtils.fee2;
 import static school.hei.haapi.integration.conf.TestUtils.fee3;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
+import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
@@ -124,9 +126,19 @@ class FeeIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
+    Fee updatedFee =
+        fee1().comment("M1 + M2 + M3").dueDatetime(Instant.parse("2021-11-09T10:10:10.00Z"));
+
     List<Fee> actual = api.createStudentFees(STUDENT1_ID, List.of(creatableFee1()));
 
+    List<Fee> actualUpdated = api.updateStudentFees(STUDENT1_ID, List.of(updatedFee));
+
     List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    assertTrue(expected.containsAll(actual));
+
+    assertEquals(1, actualUpdated.size());
+    assertEquals(actualUpdated.get(0).getComment(), updatedFee.getComment());
+    assertEquals(actualUpdated.get(0).getDueDatetime(), updatedFee.getDueDatetime());
     assertTrue(expected.containsAll(actual));
   }
 
@@ -134,7 +146,11 @@ class FeeIT {
   void student_write_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
-
+    Fee feeUpdated =
+        fee1().comment("nex comment").dueDatetime(Instant.parse("2021-11-09T10:10:10.00Z"));
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(feeUpdated)));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createStudentFees(STUDENT1_ID, List.of()));
@@ -144,12 +160,17 @@ class FeeIT {
   void teacher_write_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     PayingApi api = new PayingApi(teacher1Client);
-
+    Fee feeUpdated =
+        fee1().comment("nex comment").dueDatetime(Instant.parse("2021-11-09T10:10:10.00Z"));
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(feeUpdated)));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createStudentFees(STUDENT1_ID, List.of()));
   }
 
+  @DirtiesContext
   @Test
   void manager_write_with_some_bad_fields_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -157,6 +178,7 @@ class FeeIT {
     CreateFee toCreate1 = creatableFee1().totalAmount(null);
     CreateFee toCreate2 = creatableFee1().totalAmount(-1);
     CreateFee toCreate3 = creatableFee1().dueDatetime(null);
+    String wrongId = "wrong id";
     List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
     ApiException exception1 =
@@ -168,10 +190,42 @@ class FeeIT {
     ApiException exception3 =
         assertThrows(
             ApiException.class, () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate3)));
+    ApiException exception4 =
+        assertThrows(
+            ApiException.class, () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(null))));
+    ApiException exception6 =
+        assertThrows(
+            ApiException.class,
+            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(Fee.TypeEnum.HARDWARE))));
+    ApiException exception7 =
+        assertThrows(
+            ApiException.class,
+            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().remainingAmount(10))));
+    ApiException exception9 =
+        assertThrows(
+            ApiException.class,
+            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().totalAmount(10))));
+    ApiException exception10 =
+        assertThrows(
+            ApiException.class,
+            () ->
+                api.updateStudentFees(
+                    STUDENT1_ID,
+                    List.of(fee1().creationDatetime(Instant.parse("2021-11-09T10:10:10.00Z")))));
+    ApiException exception11 =
+        assertThrows(
+            ApiException.class,
+            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(wrongId))));
 
     String exceptionMessage1 = exception1.getMessage();
     String exceptionMessage2 = exception2.getMessage();
     String exceptionMessage3 = exception3.getMessage();
+    String exceptionMessage4 = exception4.getMessage();
+    String exceptionMessage6 = exception6.getMessage();
+    String exceptionMessage7 = exception7.getMessage();
+    String exceptionMessage9 = exception9.getMessage();
+    String exceptionMessage10 = exception10.getMessage();
+    String exceptionMessage11 = exception11.getMessage();
 
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
     assertEquals(expected.size(), actual.size());
@@ -180,6 +234,13 @@ class FeeIT {
     assertTrue(exceptionMessage1.contains("Total amount is mandatory"));
     assertTrue(exceptionMessage2.contains("Total amount must be positive"));
     assertTrue(exceptionMessage3.contains("Due datetime is mandatory"));
+
+    assertTrue(exceptionMessage4.contains("Id is mandatory"));
+    assertTrue(exceptionMessage6.contains("Can't modify Type"));
+    assertTrue(exceptionMessage7.contains("Can't modify remainingAmount"));
+    assertTrue(exceptionMessage9.contains("Can't modify total amount"));
+    assertTrue(exceptionMessage10.contains("Can't modify CreationDatetime"));
+    assertTrue(exceptionMessage11.contains("Fee with id " + wrongId + "does not exist"));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
