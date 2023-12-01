@@ -41,7 +41,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: school.hei.haapi.ApiEventHandler::handleRequest
-      MemorySize: 1024
+      MemorySize: 512
       Role: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
       Events:
         ApiCall:
@@ -54,7 +54,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: school.hei.haapi.MailboxEventHandler::handleRequest
-      MemorySize: 2048
+      MemorySize: 1024
       Role: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
       Events:
         AllEvents:
