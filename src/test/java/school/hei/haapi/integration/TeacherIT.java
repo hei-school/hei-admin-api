@@ -45,7 +45,6 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
-import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -89,8 +88,7 @@ class TeacherIT {
     UsersApi managerApi = new UsersApi(manager1Client);
     api.getStudentById(STUDENT1_ID);
     Teacher actual = api.updateTeacher(TEACHER1_ID, someUpdatableTeacher1());
-    List<Teacher> actualTeachers =
-        managerApi.getTeachers(1, 10, null, null, null, null, null);
+    List<Teacher> actualTeachers = managerApi.getTeachers(1, 10, null, null, null, null, null);
 
     assertTrue(actualTeachers.contains(actual));
   }
@@ -301,15 +299,15 @@ class TeacherIT {
         .phone("0322411124")
         .address("Adr 2");
   }
-public static Teacher someUpdatableTeacher1() {
+
+  public static Teacher someUpdatableTeacher1() {
     return teacher1()
         .address("Adr 999")
         .sex(Sex.F)
         .lastName("Other last")
         .firstName("Other first")
         .birthDate(LocalDate.parse("2000-01-03"));
-}
-
+  }
 
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();

@@ -1,7 +1,6 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
@@ -109,7 +108,7 @@ class ManagerIT {
 
   @Test
   @DirtiesContext
-  void manager_update_own_ok() throws ApiException{
+  void manager_update_own_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
     Manager updated = api.updateManager(MANAGER_ID, someUpdatableManager1());
