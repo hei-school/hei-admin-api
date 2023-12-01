@@ -1,3 +1,12 @@
+# [0.11.0](https://github.com/hei-school/hei-admin-api/compare/v0.10.0...v0.11.0) (2023-12-01)
+
+
+### Features
+
+* upgrade poja to v4.0.0 ([9a55b49](https://github.com/hei-school/hei-admin-api/commit/9a55b495d6579d70d4988c581866679a05e7f17d))
+
+
+
 # [0.10.0](https://github.com/hei-school/hei-admin-api/compare/v0.9.0...v0.10.0) (2023-11-30)
 
 
@@ -190,15 +199,6 @@
 * PUT /teachers ([87cbec8](https://github.com/hei-school/hei-admin-api/commit/87cbec80f5f3dd961ee0bdad74fa40d5839c20cc))
 * send events on PUT users ([8fb8ad5](https://github.com/hei-school/hei-admin-api/commit/8fb8ad58f975fe45a27bac36777f560e42af44c4))
 * whoami ([0563e9c](https://github.com/hei-school/hei-admin-api/commit/0563e9c8d1cee528429a35f34365ec7dc4ad84cd))
-
-
-
-# [0.2.0](https://github.com/hei-school/hei-admin-api/compare/v0.1.0...v0.2.0) (2021-09-10)
-
-
-### Features
-
-* authenticated GET /students/{id} and /teachers/{id} ([665cef5](https://github.com/hei-school/hei-admin-api/commit/665cef5ede25c3253cf727c5c9dcb56fdec1a66c))
 
 
 
