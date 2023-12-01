@@ -46,11 +46,8 @@ public class StudentController {
 
   // todo: to review
   @GetMapping("/groups/{groupId}/students")
-  public List<Student> getStudentByGroupId(
-      @PathVariable String groupId) {
-    return userService
-        .getByGroupId(groupId)
-        .stream()
+  public List<Student> getStudentByGroupId(@PathVariable String groupId) {
+    return userService.getByGroupId(groupId).stream()
         .map(userMapper::toRestStudent)
         .collect(Collectors.toUnmodifiableList());
   }

@@ -1,24 +1,18 @@
 package school.hei.haapi.repository.dao;
 
-import java.util.ArrayList;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
-import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
-import javax.persistence.criteria.Subquery;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Course;
-import school.hei.haapi.model.Group;
-import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
 
 @Repository
