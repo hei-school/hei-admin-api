@@ -29,7 +29,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String STUDENT_COURSE = "/students/*/courses";
-  private static final String USER_PROFILE = "/users/*/profile";
+  private static final String USER_PROFILE = "/*/profile";
   private final AwardedCourseService awardedCourseService;
   private final AuthProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
@@ -260,15 +260,15 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(MANAGER.getRole())
         .requestMatchers(
             new SelfMatcher(
-                PUT, USER_PROFILE, "students"))
+                PUT, "/students" + USER_PROFILE, "students"))
         .hasAnyRole(STUDENT.getRole())
         .requestMatchers(
             new SelfMatcher(
-                PUT, USER_PROFILE, "teachers"))
+                PUT, "/teachers" + USER_PROFILE, "teachers"))
         .hasAnyRole(TEACHER.getRole())
         .requestMatchers(
             new SelfMatcher(
-                PUT, USER_PROFILE, "managers"))
+                PUT, "/managers" + USER_PROFILE, "managers"))
         .hasAnyRole(MANAGER.getRole())
         .antMatchers("/**")
         .denyAll()
