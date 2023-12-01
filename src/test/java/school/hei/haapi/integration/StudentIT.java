@@ -69,6 +69,15 @@ class StudentIT {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
+  public static Student someUpdatableStudent() {
+    return student1()
+        .address("Adr 999")
+        .sex(Sex.F)
+        .lastName("Other last")
+        .firstName("Other first")
+        .birthDate(LocalDate.parse("2000-01-03"));
+  }
+
   public static Student someCreatableStudent() {
     Student student = student1();
     Faker faker = new Faker();
@@ -192,6 +201,21 @@ class StudentIT {
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
+  }
+
+  @Test
+  @DirtiesContext
+  void student_update_own_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(student1Client);
+    UsersApi managerApi = new UsersApi(manager1Client);
+    api.getStudentById(STUDENT1_ID);
+    Student actual = api.updateStudent(STUDENT1_ID, someUpdatableStudent());
+    List<Student> actualStudents =
+        managerApi.getStudents(1, 10, null, null, null, null, null, null);
+
+    assertTrue(actualStudents.contains(actual));
   }
 
   @Test

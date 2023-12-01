@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static java.util.stream.Collectors.*;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
@@ -79,6 +78,13 @@ public class StudentController {
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
+  }
+
+  @PutMapping("/students/{id}")
+  public Student updateStudent(
+      @PathVariable(name = "id") String studentId, @RequestBody Student toUpdate) {
+    return userMapper.toRestStudent(
+        userService.updateUser(userMapper.toDomain(toUpdate), studentId));
   }
 
   @PostMapping("/students/{id}/group_flows")
