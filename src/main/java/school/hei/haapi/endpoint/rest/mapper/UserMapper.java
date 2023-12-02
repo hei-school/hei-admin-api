@@ -6,12 +6,14 @@ import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
+import school.hei.haapi.repository.UserRepository;
 
 @Component
 @AllArgsConstructor
 public class UserMapper {
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
+  private final UserRepository repository;
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
@@ -65,6 +67,23 @@ public class UserMapper {
     manager.setAddress(user.getAddress());
 
     return manager;
+  }
+
+  public User toDomain(Manager manager) {
+    return User.builder()
+        .role(User.Role.MANAGER)
+        .id(manager.getId())
+        .firstName(manager.getFirstName())
+        .lastName(manager.getLastName())
+        .email(manager.getEmail())
+        .ref(manager.getRef())
+        .status(statusEnumMapper.toDomainStatus(manager.getStatus()))
+        .phone(manager.getPhone())
+        .entranceDatetime(manager.getEntranceDatetime())
+        .birthDate(manager.getBirthDate())
+        .sex(sexEnumMapper.toDomainSexEnum(manager.getSex()))
+        .address(manager.getAddress())
+        .build();
   }
 
   public User toDomain(Teacher teacher) {

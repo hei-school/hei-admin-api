@@ -19,6 +19,7 @@ import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -34,6 +35,23 @@ public class UserService {
   private final UserManagerDao userManagerDao;
   private final GroupRepository groupRepository;
   private final GroupService groupService;
+
+  public User updateUser(User toUpdate, String userId) {
+    User user =
+        userRepository
+            .findById(userId)
+            .orElseThrow(
+                () -> {
+                  throw new NotFoundException("User with id: " + userId + " not found");
+                });
+    user.setAddress(toUpdate.getAddress());
+    user.setBirthDate(toUpdate.getBirthDate());
+    user.setFirstName(toUpdate.getFirstName());
+    user.setLastName(toUpdate.getLastName());
+    user.setSex(toUpdate.getSex());
+    user.setPhone(toUpdate.getPhone());
+    return userRepository.save(user);
+  }
 
   public User getById(String userId) {
     return userRepository.getById(userId);

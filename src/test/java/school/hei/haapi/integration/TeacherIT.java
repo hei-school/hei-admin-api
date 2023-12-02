@@ -9,6 +9,7 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
@@ -34,6 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
@@ -75,6 +77,20 @@ class TeacherIT {
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
+  }
+
+  @Test
+  @DirtiesContext
+  void teacher_update_own_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(teacher1Client);
+    UsersApi managerApi = new UsersApi(manager1Client);
+    api.getStudentById(STUDENT1_ID);
+    Teacher actual = api.updateTeacher(TEACHER1_ID, someUpdatableTeacher1());
+    List<Teacher> actualTeachers = managerApi.getTeachers(1, 10, null, null, null, null, null);
+
+    assertTrue(actualTeachers.contains(actual));
   }
 
   @Test
@@ -282,6 +298,15 @@ class TeacherIT {
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
         .phone("0322411124")
         .address("Adr 2");
+  }
+
+  public static Teacher someUpdatableTeacher1() {
+    return teacher1()
+        .address("Adr 999")
+        .sex(Sex.F)
+        .lastName("Other last")
+        .firstName("Other first")
+        .birthDate(LocalDate.parse("2000-01-03"));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

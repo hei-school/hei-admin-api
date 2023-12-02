@@ -18,6 +18,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
@@ -91,9 +92,28 @@ class ManagerIT {
         .address("Adr 2");
   }
 
+  public static Manager someUpdatableManager1() {
+    return manager1()
+        .address("Adr 999")
+        .sex(Sex.F)
+        .lastName("Other last")
+        .firstName("Other first")
+        .birthDate(LocalDate.parse("2000-01-03"));
+  }
+
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
+  }
+
+  @Test
+  @DirtiesContext
+  void manager_update_own_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+    Manager updated = api.updateManager(MANAGER_ID, someUpdatableManager1());
+    Manager managers = api.getManagerById(MANAGER_ID);
+    assertEquals(managers, updated);
   }
 
   @Test
