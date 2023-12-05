@@ -1765,7 +1765,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/students/{id}/schoolarship_certificate/raw':
+  '/students/{id}/scholarship_certificate/raw':
     get:
       tags:
         - Students file
