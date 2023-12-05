@@ -1765,7 +1765,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/students/{id}/scholarship_certificate/raw':
+  '/students/{id}/schoolarship_certificate/raw':
     get:
       tags:
         - Students file
@@ -1784,7 +1784,7 @@ paths:
             application/pdf:
               schema:
                 type: string
-                format: binary
+                format: byte
                 example: PDF VERSION
         '400':
           $ref: '#/components/responses/400'
