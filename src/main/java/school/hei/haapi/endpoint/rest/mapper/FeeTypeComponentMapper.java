@@ -1,9 +1,8 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.util.List;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.FeeType;
 import school.hei.haapi.endpoint.rest.model.FeeTypeComponent;
 import school.hei.haapi.model.FeeTypeComponentEntity;
 import school.hei.haapi.model.FeeTypeEntity;
@@ -40,12 +39,5 @@ public class FeeTypeComponentMapper {
         .monthlyAmount(feeTypeComponent.getMonthlyAmount())
         .type(feeTypeComponent.getType())
         .build();
-  }
-
-  public List<FeeTypeComponentEntity> toDomain(FeeType feeType) {
-    feeTypeValidator.accept(feeType);
-    List<FeeTypeComponent> feeTypeComponents = feeType.getTypes();
-    assert feeTypeComponents != null;
-    return feeTypeComponents.stream().map(this::toDomain).toList();
   }
 }

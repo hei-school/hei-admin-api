@@ -7,17 +7,25 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.FeeTypeComponent;
+import school.hei.haapi.model.FeeTypeComponentEntity;
 import school.hei.haapi.model.exception.BadRequestException;
 
 @Component
-public class FeeTypeComponentValidator implements Consumer<FeeTypeComponent> {
+public class FeeTypeComponentValidator implements Consumer<FeeTypeComponentEntity> {
 
-  public void accept(List<FeeTypeComponent> FeeTypeComponent) {
-    FeeTypeComponent.forEach(this);
+  public Set<String> getErrors(List<FeeTypeComponentEntity> FeeTypeComponent) {
+    Set<String> violationMessages = new HashSet<>();
+    FeeTypeComponent.forEach(
+        feeTypeComponent -> {
+          Set<String> feeTypeComponentError = getErrors(feeTypeComponent);
+          if (!feeTypeComponentError.isEmpty()) {
+            violationMessages.addAll(feeTypeComponentError);
+          }
+        });
+    return violationMessages;
   }
 
-  @Override
-  public void accept(FeeTypeComponent feeTypeComponent) {
+  public Set<String> getErrors(FeeTypeComponentEntity feeTypeComponent) {
     Set<String> violationMessages = new HashSet<>();
     if (feeTypeComponent.getType() == null) {
       violationMessages.add("feeTypeComponent have to have a Type");
@@ -31,6 +39,16 @@ public class FeeTypeComponentValidator implements Consumer<FeeTypeComponent> {
     if (feeTypeComponent.getMonthlyAmount() == null) {
       violationMessages.add("feeTypeComponent have to have a MonthlyAmount");
     }
+    return violationMessages;
+  }
+
+  public void accept(List<FeeTypeComponentEntity> feeTypeComponents) {
+    feeTypeComponents.forEach(this);
+  }
+
+  @Override
+  public void accept(FeeTypeComponentEntity feeTypeComponent) {
+    Set<String> violationMessages = getErrors(feeTypeComponent);
     if (!violationMessages.isEmpty()) {
       String formattedViolationMessages =
           violationMessages.stream().map(String::toString).collect(Collectors.joining(". "));

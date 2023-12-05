@@ -3,10 +3,12 @@ package school.hei.haapi.endpoint.rest.mapper;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.util.List;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.FeeType;
 import school.hei.haapi.endpoint.rest.model.FeeTypeComponent;
+import school.hei.haapi.model.FeeTypeComponentEntity;
 import school.hei.haapi.model.FeeTypeEntity;
 
 @Component
@@ -30,5 +32,17 @@ public class FeeTypeMapper {
         .id(feeTypeEntity.getId())
         .name(feeTypeEntity.getName())
         .types(feeTypeComponents);
+  }
+
+  public FeeTypeEntity toDomain(FeeType feeType, String feeTypeId) {
+    List<FeeTypeComponentEntity> feeTypeComponents =
+        Objects.requireNonNull(feeType.getTypes()).stream()
+            .map(feeTypeComponentMapper::toDomain)
+            .toList();
+    return FeeTypeEntity.builder()
+        .id(feeTypeId)
+        .name(feeType.getName())
+        .feeTypeComponentEntities(feeTypeComponents)
+        .build();
   }
 }

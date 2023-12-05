@@ -7,7 +7,6 @@ import java.util.Objects;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.endpoint.rest.model.FeeType;
 import school.hei.haapi.model.*;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.FeeTypeComponentValidator;
@@ -29,11 +28,11 @@ public class FeeTypeService {
   }
 
   @Transactional
-  public FeeTypeEntity updateOrSave(
-      List<FeeTypeComponentEntity> feeTypeComponentEntities, FeeType feeType) {
-    feeTypeValidator.accept(feeType);
-    feeTypeComponentValidator.accept(feeType.getTypes());
+  public FeeTypeEntity updateOrSave(FeeTypeEntity feeType) {
 
+    feeTypeValidator.accept(feeType);
+
+    List<FeeTypeComponentEntity> feeTypeComponentEntities = feeType.getFeeTypeComponentEntities();
     if (feeTypeRepository.findById(Objects.requireNonNull(feeType.getId())).isPresent()) {
       List<FeeTypeComponentEntity> actualFeeTypeComponentEntities =
           feeTypeComponentService.getByFeeTypeId(feeType.getId());
@@ -46,17 +45,18 @@ public class FeeTypeService {
         feeTypeRepository.save(
             FeeTypeEntity.builder().id(feeType.getId()).name(feeType.getName()).build());
 
-    List<FeeTypeComponentEntity> newFeeTypeComponentEntities =
-        feeTypeComponentService.updateOrSaveAll(
-            feeTypeComponentEntities.stream()
-                .map(
-                    typeFeeComponent -> {
-                      typeFeeComponent.setFeeTypeEntity(saved);
-                      return typeFeeComponent;
-                    })
-                .collect(toList()));
+    feeTypeComponentService.updateOrSaveAll(
+        feeTypeComponentEntities.stream()
+            .map(
+                typeFeeComponent -> {
+                  typeFeeComponent.setFeeTypeEntity(saved);
+                  return typeFeeComponent;
+                })
+            .collect(toList()));
 
-    return findById(saved.getId());
+    List<FeeTypeComponentEntity> feeComponents =
+        feeTypeComponentService.getByFeeTypeId(feeType.getId());
+    return findById(saved.getId()).toBuilder().feeTypeComponentEntities(feeComponents).build();
   }
 
   public FeeTypeEntity findById(String id) {
