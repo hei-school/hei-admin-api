@@ -153,6 +153,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        // scholarship security conf
         .requestMatchers(
             new SelfMatcher(GET, "/students/*/scholarship_certificate/raw", "students"))
         .hasRole(STUDENT.getRole())

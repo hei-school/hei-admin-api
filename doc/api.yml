@@ -1768,7 +1768,7 @@ paths:
   '/students/{id}/scholarship_certificate/raw':
     get:
       tags:
-        - Students file
+        - StudentsFile
       summary: Get scholarship certificate pdf of a student.
       operationId: getStudentScholarshipCertificatePdf
       parameters:
