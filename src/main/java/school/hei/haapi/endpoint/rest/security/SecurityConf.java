@@ -84,6 +84,9 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .authenticated()
         .antMatchers(GET, "/students")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        //
+        // Fees resources
+        //
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*", "students"))
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/fees/*")
@@ -109,6 +112,9 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(POST, "/students/*/fees")
         .hasAnyRole(MANAGER.getRole())
         .antMatchers(PUT, "/students/*/fees")
+        //
+        // Payments resources
+        //
         .hasAnyRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments", "students"))
         .hasAnyRole(STUDENT.getRole())
@@ -124,6 +130,9 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasRole(STUDENT.getRole())
         .antMatchers(PUT, "/students/**")
         .hasAnyRole(MANAGER.getRole())
+        //
+        // Grades resources
+        //
         .requestMatchers(new SelfMatcher(GET, "/students/*/grades", "students"))
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/grades")
@@ -144,6 +153,9 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .requestMatchers(
+            new SelfMatcher(GET, "/students/*/scholarship_certificate/raw", "students"))
+        .hasRole(STUDENT.getRole())
         .antMatchers(PUT, "/students/**")
         .hasAnyRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/grades", "students"))
@@ -236,6 +248,9 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))
         .hasAnyRole(STUDENT.getRole())
+        //
+        // Attendances resources
+        //
         .antMatchers(GET, "/attendance")
         .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/attendance", "students"))
