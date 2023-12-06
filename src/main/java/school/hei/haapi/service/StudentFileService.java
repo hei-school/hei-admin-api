@@ -60,6 +60,6 @@ public class StudentFileService {
   }
 
   private String parseTemplateToString(Context context) {
-    return templateEngine.process("scholarshipPdf", context);
+    return templateEngine.process("scolarity", context);
   }
 }

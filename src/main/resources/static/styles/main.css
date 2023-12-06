@@ -1,0 +1,154 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-size: 20px;
+    font-family: Arial, Helvetica, sans-serif;
+}
+body {
+    margin: 2vh 2vw;
+    overflow-x: hidden;
+}
+a {
+    color: black;
+}
+/*All header certificat header*/
+.logo_content {
+    width: 50vw;
+    height: 20vh;
+    margin: 0 auto;
+}
+.logo_content img {
+    height: 100%;
+    width: 100%;
+    object-fit: contain;
+}
+.certificat_title h1 {
+    text-align: center;
+    * {
+        margin: 0;
+        padding: 0;
+        font-size: 20px;
+        font-family: Arial, Helvetica, sans-serif;
+    }
+    body {
+        margin: 2%;
+        overflow-x: hidden;
+    }
+    a {
+        color: black;
+    }
+    /*All header certificat header*/
+    .logo_content {
+        width: 500px;
+        height: 150px;
+        margin: 0 auto;
+    }
+    .logo_content img {
+        height: 100%;
+        width: 100%;
+        object-fit: contain;
+    }
+    .certificat_title {
+        position: relative;
+        height: fit-content;
+    }
+    .certificat_title h1 {
+        text-align: center;
+        font-size: 1.1rem;
+        font-weight: 400;
+        position: absolute;
+        bottom: 0;
+        width: 100%;
+        margin: 0 auto;
+        margin-top: 10px;
+    }
+    h3 {
+        font-weight: 500;
+        font-size: 1.8rem;
+        margin: 20px 0;
+        margin-top: 40px;
+    }
+    .personal_information {
+        margin: 2% 0;
+        padding: 1% 2%;
+    }
+    .personal_information ul {
+        list-style-type: none;
+    }
+    .signature_content {
+        width: fit-content;
+        margin: 5% 0;
+        margin-left: 40%;
+    }
+    .signature_img {
+        width: fit-content;
+        margin: 0 auto;
+        height: 10%;
+    }
+    .signature_img img {
+        object-fit: contain;
+        display: flex;
+        justify-content: flex-end;
+        width: 100px;
+        height: 100px;
+        display: block;
+    }
+
+    footer {
+        width: fit-content;
+        border-top: 0.5px solid black;
+        position: absolute;
+        bottom: 10px;
+        padding-top: 1vh;
+    }
+    footer p:first-child {
+        color: #dfa408;
+    }
+
+    font-size: 1.1rem;
+    font-weight: 400;
+    position: absolute;
+    top: 18vh;
+    width: 100%;
+}
+h3 {
+    font-weight: 500;
+    font-size: 1.8rem;
+    margin: 4vh 0 2vh 0;
+}
+.personal_information {
+    margin: 2vh 0;
+    padding: 1vh 2vw;
+}
+.personal_information ul {
+    list-style-type: none;
+}
+.signature_content {
+    width: fit-content;
+    margin: 5vh 0;
+    margin-left: 40%;
+}
+.signature_img {
+    width: fit-content;
+    margin: 0 auto;
+    height: 10vh;
+    display: flex;
+    flex-direction: row;
+}
+.signature_img img {
+    object-fit: contain;
+    display: flex;
+    justify-content: flex-end;
+    scale: 0.8;
+}
+footer {
+    width: fit-content;
+    border-top: 0.5px solid black;
+    position: absolute;
+    bottom: 2vh;
+    padding-top: 1vh;
+}
+footer p:first-child {
+    color: #dfa408;
+}
