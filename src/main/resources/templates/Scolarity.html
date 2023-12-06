@@ -1,10 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Certificat de scolarité</title>
-    <link rel="stylesheet" type="text/css" href="/asset/css/style.css" />
+    <link th:href="@{/styles/cssan}" rel="stylesheet" />
   </head>
   <body>
     <div class="certificat_title">
@@ -48,12 +47,12 @@
         />
       </div>
       <p>Dr Fonenantsoa(Lou) MAURICA</p>
-      <a href="#">lou@hei.school</a>
+      <a href="mailto:lou@hei.school">lou@hei.school</a>
     </div>
     <footer>
       <p>Haute École d’Informatique Madagascar</p>
       <p>Lot II 161R Ivandry, Antananarivo</p>
-      <a href="#">contact@hei.school</a>
+      <a href="mailto:contact@hei.school">contact@hei.school</a>
     </footer>
   </body>
 </html>
