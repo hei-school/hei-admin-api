@@ -3,13 +3,13 @@
   <head>
     <meta charset="UTF-8" />
     <title>Certificat de scolarité</title>
-    <link th:href="@{/styles/cssan}" rel="stylesheet" />
+    <link th:href="@{classpath:static/styles/main.css}" rel="stylesheet"></link>
   </head>
   <body>
     <div class="certificat_title">
       <div class="logo_content">
         <img
-          src="asset/photo/Logo HEI - Jaune transparent.png"
+          th:src="@{classpath:templates/asset/photo/HEI_logo.png}"
           alt="Logo HEI"
         />
       </div>
@@ -46,7 +46,7 @@
           alt="Dr Fonenantsoa Signature"
         />
       </div>
-      <p>Dr Fonenantsoa(Lou) MAURICA</p>
+      <p>Dr Fonenantsoa Lou MAURICA</p>
       <a href="mailto:lou@hei.school">lou@hei.school</a>
     </div>
     <footer>
