@@ -1,7 +1,7 @@
 * {
   margin: 0;
   padding: 0;
-  font-size: 20px;
+  font-size: 16px;
   font-family: Arial, Helvetica, sans-serif;
 }
 
@@ -74,10 +74,13 @@ h3 {
 /* Certificat footer */
 footer {
   width: auto;
-  border-top: 1px solid black;
-  position: absolute;
-  bottom: 10px;
+  bottom: 5px;
   padding-top: 1vh;
+  position: relative;
+}
+footer::before {
+  content: "------------------------------------------------------";
+  margin-bottom: 10px;
 }
 
 footer p:first-child {
