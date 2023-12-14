@@ -9,7 +9,7 @@ import school.hei.haapi.service.StudentFileService;
 
 @RestController
 @AllArgsConstructor
-public class StudentFIleController {
+public class StudentFileController {
   private final StudentFileService fileService;
 
   @GetMapping(
