@@ -1521,6 +1521,44 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /fee_types/{fee_type_id}/fees:
+    post:
+      tags:
+        - Paying
+      summary: Create student fees
+      parameters:
+        - name: fee_type_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createStudentFeesFromFeeType
+      requestBody:
+        description: Student fees Option to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatFeeOption'
+      responses:
+        '200':
+          description: Created student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /fees:
     get:
       tags:
@@ -2260,6 +2298,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FeeTypeComponent'
+    CreatFeeOption:
+      type: object
+      properties:
+        StudentId:
+          type: string
+        FeeTypeId:
+          type: string
+        firstDueDatetime:
+          type: string
+          format: date-time
+        isInEndOfMoth:
+          type: boolean
     Page:
       type: integer
       description: Start at `1`
