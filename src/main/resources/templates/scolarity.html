@@ -11,18 +11,18 @@
       <h1>Haute École d’Informatique de Madagascar</h1>
     </div>
     <h3>Certificat de scolarité</h3>
-    <p>
-      Ce {18 janvier 2023}, est régulièrement inscrit.e en {"Premier année
-      d'informatique - tronc commun, année scolaire 2022-2023"} l'étudiant.e
-      suivant.e:
+    <p
+      th:text="${intro}"
+    >
     </p>
     <div class="personal_information">
       <ul>
-        <li>Prénom : {Doe}</li>
-        <li>Nom : {John}</li>
-        <li>Date de naissance : {12/02/2002}</li>
-        <li>Lieu de Naissance : {Ivandry}</li>
-        <li>Numéro CIN: {101 311 182 747}</li>
+        <li th:text="'Prenom: ' + ${student.getFirstName()}"></li>
+        <li th:text="'Nom: ' + ${student.getLastName()}"></li>
+        <li th:text="'Date de naissance: ' + ${student.getBirthDate()}"></li>
+        <li th:text="'Adresse: ' + ${student.getAddress()}"></li>
+        <li th:text="'Tel: ' + ${student.getPhone()}"></li>
+        <li th:text="'Email: ' + ${student.getEmail()}"></li>
       </ul>
     </div>
     <p>
