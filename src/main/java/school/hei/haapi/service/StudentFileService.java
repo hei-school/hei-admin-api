@@ -51,10 +51,15 @@ public class StudentFileService {
   }
 
   private String introductionScolarshipCertificate(User student) {
-    return "Ce " + instantToCommonDate(Instant_now) + " est régulièrement inscrit.e en " +
-        getScholarityYear(student) + " année d'informatique - tronc commun" +
-        ", année scolaire " + instantToCommonDate(student.getEntranceDatetime()) + " " +
-        "l'étudiant.e suivant.e";
+    return "Ce "
+        + instantToCommonDate(Instant_now)
+        + " est régulièrement inscrit.e en "
+        + getScholarityYear(student)
+        + " année d'informatique - tronc commun"
+        + ", année scolaire "
+        + instantToCommonDate(student.getEntranceDatetime())
+        + " "
+        + "l'étudiant.e suivant.e";
   }
 
   private Context loadContext(String studentId) {

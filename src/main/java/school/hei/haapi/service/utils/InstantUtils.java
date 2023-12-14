@@ -22,7 +22,7 @@ public class InstantUtils {
       case 0 -> "Premiére";
       case 1 -> "Deuxiéme";
       case 2 -> "Troisiéme";
-      default ->  null;
+      default -> null;
     };
   }
 
