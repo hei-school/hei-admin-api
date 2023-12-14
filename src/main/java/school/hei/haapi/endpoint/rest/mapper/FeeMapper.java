@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
 
 import java.time.Instant;
@@ -38,13 +39,15 @@ public class FeeMapper {
   }
 
   public school.hei.haapi.model.Fee toDomain(Fee fee, User student) {
+    Fee.StatusEnum dueDatetimeDependantStatus =
+        DataFormatterUtils.isLate(fee.getDueDatetime()) ? LATE : UNPAID;
     return school.hei.haapi.model.Fee.builder()
         .id(fee.getId())
         .student(student)
         .type(fee.getType())
         .totalAmount(fee.getTotalAmount())
         .updatedAt(Instant.now())
-        .status(DataFormatterUtils.isLate(fee.getDueDatetime()) ? LATE : UNPAID)
+        .status(fee.getRemainingAmount() > 0 ? dueDatetimeDependantStatus : PAID)
         .remainingAmount(fee.getRemainingAmount())
         .comment(fee.getComment())
         .creationDatetime(fee.getCreationDatetime())
