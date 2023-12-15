@@ -16,6 +16,6 @@ public class StudentFileController {
       value = "/students/{id}/scholarship_certificate/raw",
       produces = {MediaType.APPLICATION_PDF_VALUE})
   public byte[] getStudentScholarshipCertificatePdf(@PathVariable(name = "id") String studentId) {
-    return fileService.generatePdf(studentId);
+    return fileService.generatePdf(studentId, "scolarity");
   }
 }
