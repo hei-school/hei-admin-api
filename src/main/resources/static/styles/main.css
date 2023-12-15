@@ -18,7 +18,7 @@ a {
   width: 500px;
   height: 150px;
   margin: 0 auto;
-  background-image: url(../../templates/asset/photo/HEI_logo.png);
+  background-image: url(../assets/images/HEI_logo.png);
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -38,13 +38,15 @@ a {
   width: 100%;
   margin: 0 auto;
   margin-top: 10px;
+  font-family: "Times New Roman";
 }
 
-h3 {
+h2 {
   font-weight: 500;
-  font-size: 1.8rem;
+  font-size: 1.5em;
   margin: 20px 0;
   margin-top: 40px;
+  font-family: "Times New Roman";
 }
 /* Personal information */
 .personal_information {
@@ -62,11 +64,19 @@ h3 {
   margin-left: 40%;
 }
 
+span {
+  font-weight: bold;
+}
+
+blockquote {
+  margin-bottom: 2%;
+}
+
 .signature_img {
   display: block;
   width: 150px;
   height: 150px;
-  background-image: url(../../templates/asset/photo/signature.png);
+  background-image: url(../assets/images/signature.png);
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
@@ -84,5 +94,6 @@ footer::before {
 }
 
 footer p:first-child {
+  font-family: "Times New Roman";
   color: #dfa408;
 }

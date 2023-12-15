@@ -1877,8 +1877,8 @@ paths:
     get:
       tags:
         - StudentsFile
-      summary: Get scholarship certificate pdf of a student.
-      operationId: getStudentScholarshipCertificatePdf
+      summary: Get scholarship certificate of a student.
+      operationId: getStudentScholarshipCertificate
       parameters:
         - name: id
           in: path
@@ -1887,7 +1887,7 @@ paths:
             type: string
       responses:
         '200':
-          description: Scholarship certificate pdf of student
+          description: Scholarship certificate of student
           content:
             application/pdf:
               schema:

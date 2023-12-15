@@ -1,7 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static org.springframework.http.MediaType.APPLICATION_PDF_VALUE;
+
 import lombok.AllArgsConstructor;
-import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,8 +15,8 @@ public class StudentFileController {
 
   @GetMapping(
       value = "/students/{id}/scholarship_certificate/raw",
-      produces = {MediaType.APPLICATION_PDF_VALUE})
-  public byte[] getStudentScholarshipCertificatePdf(@PathVariable(name = "id") String studentId) {
+      produces = APPLICATION_PDF_VALUE)
+  public byte[] getStudentScholarshipCertificate(@PathVariable(name = "id") String studentId) {
     return fileService.generatePdf(studentId, "scolarity");
   }
 }
