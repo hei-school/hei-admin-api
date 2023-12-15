@@ -4,7 +4,9 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 
+import java.sql.Timestamp;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
@@ -15,8 +17,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
+import school.hei.haapi.endpoint.rest.model.CreatFeeOption;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.FeeTypeComponentEntity;
+import school.hei.haapi.model.FeeTypeEntity;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
@@ -32,6 +37,7 @@ public class FeeService {
   private final FeeValidator feeValidator;
   private final UpdateFeeValidator updateFeeValidator;
   private final EventProducer eventProducer;
+  private final FeeTypeService feeTypeService;
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
@@ -45,6 +51,30 @@ public class FeeService {
   public List<Fee> saveAll(List<Fee> fees) {
     feeValidator.accept(fees);
     return feeRepository.saveAll(fees);
+  }
+
+  @Transactional
+  public List<Fee> saveAll(CreatFeeOption creatFeeOption) {
+    FeeTypeEntity feeTypeEntity = feeTypeService.findById(creatFeeOption.getStudentId());
+    List<Fee> fees = new ArrayList<>();
+    Instant actualTimestamp = creatFeeOption.getFirstDueDatetime();
+    for (FeeTypeComponentEntity feeTypeComponent:feeTypeEntity.getFeeTypeComponentEntities()) {
+      if (creatFeeOption.getIsInEndOfMoth()) {
+        for (int i = 0; i < feeTypeComponent.getMonthsNumber(); i++) {
+          Fee fee = Fee.builder()
+                  .type(null)
+                  .creationDatetime(null)
+                  .student(null)
+                  .build();
+        }
+      }else {
+
+      }
+    }
+
+
+
+    return saveAll(fees);
   }
 
   @Transactional
