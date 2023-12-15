@@ -24,7 +24,6 @@ import school.hei.haapi.repository.UserRepository;
 @AllArgsConstructor
 public class StudentFileService {
   private final UserRepository userRepository;
-  private final String PDF_SOURCE = "templates/";
 
   public byte[] generatePdf(String studentId, String template) {
     Context context = loadContext(studentId);
@@ -35,13 +34,10 @@ public class StudentFileService {
   private byte[] renderPdf(String pdf) {
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     ITextRenderer renderer = new ITextRenderer();
-    try {
-      renderer.setDocumentFromString(
-          pdf, new ClassPathResource(PDF_SOURCE).getURL().toExternalForm());
-    } catch (IOException e) {
-      throw new ApiException(SERVER_EXCEPTION, e.getMessage());
-    }
+
+    renderer.setDocumentFromString(pdf);
     renderer.layout();
+
     try {
       renderer.createPDF(outputStream);
     } catch (DocumentException e) {
@@ -69,7 +65,7 @@ public class StudentFileService {
   private TemplateEngine configureTemplate() {
     ClassLoaderTemplateResolver resolver = new ClassLoaderTemplateResolver();
     resolver.setPrefix("/templates/");
-    resolver.setPrefix(".html");
+    resolver.setSuffix(".html");
     resolver.setCharacterEncoding("UTF-8");
     resolver.setTemplateMode(TemplateMode.HTML);
 
