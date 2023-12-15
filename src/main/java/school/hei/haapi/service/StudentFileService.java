@@ -1,17 +1,14 @@
 package school.hei.haapi.service;
 
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
-import static school.hei.haapi.service.utils.ScholarshipCertificateUtils.introductionScolarshipCertificate;
+import static school.hei.haapi.service.utils.ScholarshipCertificateUtils.getStudentIntroductionSentence;
 
 import com.lowagie.text.DocumentException;
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.TemplateEngine;
 import org.thymeleaf.context.Context;
-import org.thymeleaf.spring5.SpringTemplateEngine;
 import org.thymeleaf.templatemode.TemplateMode;
 import org.thymeleaf.templateresolver.ClassLoaderTemplateResolver;
 import org.xhtmlrenderer.pdf.ITextRenderer;
@@ -53,7 +50,7 @@ public class StudentFileService {
             .findById(studentId)
             .orElseThrow(() -> new NotFoundException("Student not found"));
     context.setVariable("student", student);
-    context.setVariable("intro", introductionScolarshipCertificate(student));
+    context.setVariable("introduction", getStudentIntroductionSentence(student));
     return context;
   }
 

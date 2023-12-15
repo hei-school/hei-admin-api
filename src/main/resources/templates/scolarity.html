@@ -12,12 +12,12 @@
     </div>
     <h3>Certificat de scolarité</h3>
     <p
-      th:text="${intro}"
+      th:text="${introduction}"
     >
     </p>
     <div class="personal_information">
       <ul>
-        <li th:text="'Prenom: ' + ${student.getFirstName()}"></li>
+        <li th:text="'Prénom: ' + ${student.getFirstName()}"></li>
         <li th:text="'Nom: ' + ${student.getLastName()}"></li>
         <li th:text="'Date de naissance: ' + ${student.getBirthDate()}"></li>
         <li th:text="'Adresse: ' + ${student.getAddress()}"></li>
@@ -26,7 +26,7 @@
       </ul>
     </div>
     <p>
-      A ce jour , l'étudiant.e s'est acquitté.e de ses obligations
+      À ce jour , l'étudiant.e s'est acquitté.e de ses obligations
       administratives ainsi que de ses obligations scolaires.
     </p>
     <p>

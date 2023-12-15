@@ -5,11 +5,8 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import java.time.temporal.TemporalAdjusters;
 import school.hei.haapi.model.CourseSession;
-import school.hei.haapi.model.User;
 
 public class InstantUtils {
   public static Instant Instant_now = LocalDateTime.now().atZone(ZoneId.of("UTC+3")).toInstant();
