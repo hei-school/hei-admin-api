@@ -19,6 +19,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.ConfigurationApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeeType;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -134,7 +135,7 @@ class FeeTypeIT {
     FeeType createFeeType2 =
         newFeeType1(List.of(newFeeTypeController("newTypeController").type(null)));
     FeeType createFeeType3 =
-        newFeeType1(List.of(newFeeTypeController("newTypeController").monthlyAmount(null)));
+        newFeeType1(List.of(newFeeTypeController("newTypeController").totalAmount(null)));
     FeeType createFeeType4 =
         newFeeType1(List.of(newFeeTypeController("newTypeController").monthsNumber(null)));
     FeeType createFeeType5 = newFeeType1(new ArrayList<>());

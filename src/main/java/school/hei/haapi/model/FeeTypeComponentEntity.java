@@ -43,7 +43,7 @@ public class FeeTypeComponentEntity implements Serializable {
 
   private String name;
 
-  private Integer monthlyAmount;
+  private Integer totalAmount;
 
   private Integer monthsNumber;
 

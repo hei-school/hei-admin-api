@@ -17,7 +17,7 @@ public class FeeTypeComponentMapper {
     return new FeeTypeComponent()
         .name(feeTypeComponentEntity.getName())
         .monthsNumber(feeTypeComponentEntity.getMonthsNumber())
-        .monthlyAmount(feeTypeComponentEntity.getMonthlyAmount())
+        .totalAmount(feeTypeComponentEntity.getTotalAmount())
         .type(feeTypeComponentEntity.getType());
   }
 
@@ -27,7 +27,7 @@ public class FeeTypeComponentMapper {
         .feeTypeEntity(feeTypeEntity)
         .name(feeTypeComponent.getName())
         .monthsNumber(feeTypeComponent.getMonthsNumber())
-        .monthlyAmount(feeTypeComponent.getMonthlyAmount())
+        .totalAmount(feeTypeComponent.getTotalAmount())
         .type(feeTypeComponent.getType())
         .build();
   }
@@ -36,7 +36,7 @@ public class FeeTypeComponentMapper {
     return FeeTypeComponentEntity.builder()
         .name(feeTypeComponent.getName())
         .monthsNumber(feeTypeComponent.getMonthsNumber())
-        .monthlyAmount(feeTypeComponent.getMonthlyAmount())
+        .totalAmount(feeTypeComponent.getTotalAmount())
         .type(feeTypeComponent.getType())
         .build();
   }

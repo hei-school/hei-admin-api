@@ -4,23 +4,9 @@ import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.reflections.Reflections.log;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE4_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE5_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.PAYMENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.PAYMENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.PAYMENT4_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -124,6 +110,8 @@ class PaymentIT {
         .amount(6000)
         .comment("Comment");
   }
+
+
 
   @BeforeEach
   void setUp() {
@@ -303,6 +291,17 @@ class PaymentIT {
         actualFee3.getRemainingAmount());
 
     assertEquals(expected, actual);
+  }
+
+  @Test
+  void  manager_create_students_fees_with_end_of_months_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+    List<Fee> actual = api.createStudentFeesFromFeeType(feeType1().getId(), createFeeOption1());
+    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 20, null);
+
+    assertEquals(4, actual.size());
+    assertTrue(expected.containsAll(actual));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

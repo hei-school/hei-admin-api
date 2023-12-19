@@ -11,6 +11,7 @@ import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
 
 import java.io.IOException;
+import java.lang.Exception;
 import java.net.ServerSocket;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -20,25 +21,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.function.Executable;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.AwardedCourse;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
-import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.CreateFeeType;
-import school.hei.haapi.endpoint.rest.model.CreateGrade;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.ExamDetail;
-import school.hei.haapi.endpoint.rest.model.ExamInfo;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.FeeType;
-import school.hei.haapi.endpoint.rest.model.FeeTypeComponent;
-import school.hei.haapi.endpoint.rest.model.Grade;
-import school.hei.haapi.endpoint.rest.model.Group;
-import school.hei.haapi.endpoint.rest.model.Sex;
-import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
-import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -354,7 +337,7 @@ public class TestUtils {
   public static FeeTypeComponent feeTypeController1() {
     return new FeeTypeComponent()
         .type(CreateFeeType.TUITION)
-        .monthlyAmount(500000)
+        .totalAmount(500000)
         .monthsNumber(2)
         .name("ecolage1");
   }
@@ -362,7 +345,7 @@ public class TestUtils {
   public static FeeTypeComponent feeTypeController2() {
     return new FeeTypeComponent()
         .type(CreateFeeType.TUITION)
-        .monthlyAmount(300000)
+        .totalAmount(300000)
         .monthsNumber(2)
         .name("ecolage2");
   }
@@ -370,7 +353,7 @@ public class TestUtils {
   public static FeeTypeComponent newFeeTypeController(String name) {
     return new FeeTypeComponent()
         .type(CreateFeeType.TUITION)
-        .monthlyAmount(100000)
+        .totalAmount(100000)
         .monthsNumber(1)
         .name(name);
   }
@@ -380,6 +363,15 @@ public class TestUtils {
         .id(FEE_TYPE1_ID)
         .name("fee_type_1")
         .types(List.of(feeTypeController1(), feeTypeController2()));
+  }
+
+  //Parameter to consider : isInEndOfMonth
+  public static CreateFeeOption createFeeOption1(){
+    return new CreateFeeOption()
+            .feeTypeId(FEE_TYPE1_ID)
+            .studentId(STUDENT1_ID)
+            .firstDueDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
+            .isInEndOfMonth(true);
   }
 
   public static FeeType newFeeType1(List<FeeTypeComponent> feeTypeComponents) {

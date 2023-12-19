@@ -267,6 +267,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(PUT, "/fee_types/*")
         .hasAnyRole(MANAGER.getRole())
+            .antMatchers(POST, "/fee_types/*/fees")
+            .hasAnyRole(MANAGER.getRole())
         .antMatchers("/**")
         .denyAll()
 

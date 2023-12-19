@@ -1539,10 +1539,10 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreatFeeOption'
+              $ref: '#/components/schemas/CreateFeeOption'
       responses:
         '200':
-          description: Created student fees
+          description: student fees created
           content:
             application/json:
               schema:
@@ -2281,12 +2281,12 @@ components:
           $ref: "#/components/schemas/CreateFeeType"
         name:
           type: string
-        monthlyAmount:
+        total_amount:
           type: integer
-          description: price all fees to be paid separately
-        monthsNumber:
+          description: price of all fees to be paid separately
+        months_number:
           type: integer
-          description: Number of months available to pay
+          description: total of months to pay
     FeeType:
       type: object
       properties:
@@ -2298,7 +2298,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/FeeTypeComponent'
-    CreatFeeOption:
+    CreateFeeOption:
       type: object
       properties:
         StudentId:
@@ -2308,7 +2308,7 @@ components:
         firstDueDatetime:
           type: string
           format: date-time
-        isInEndOfMoth:
+        isInEndOfMonth:
           type: boolean
     Page:
       type: integer

@@ -13,8 +13,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
-import school.hei.haapi.endpoint.rest.model.CreatFeeOption;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CreateFeeOption;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -47,9 +47,10 @@ public class FeeController {
   }
 
 
-  @PostMapping("/fee_types/{fee_type_id}/fees")
+  @PostMapping("/fee_types/{feeTypeId}/fees")
   public List<Fee> createFeesFromFeeType(
-          @PathVariable String feeTypeId, @RequestBody CreatFeeOption toCreate) {
+          @PathVariable String feeTypeId, @RequestBody CreateFeeOption toCreate) {
+    toCreate.setFeeTypeId(feeTypeId);
     return feeService
             .saveAll(toCreate)
             .stream()

@@ -3,8 +3,8 @@ package school.hei.haapi.service;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.service.utils.InstantUtils.getNextDueDateTime;
 
-import java.sql.Timestamp;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -17,12 +17,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
-import school.hei.haapi.endpoint.rest.model.CreatFeeOption;
-import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.FeeTypeComponentEntity;
-import school.hei.haapi.model.FeeTypeEntity;
-import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.endpoint.rest.model.CreateFeeOption;
+import school.hei.haapi.model.*;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
@@ -38,6 +34,7 @@ public class FeeService {
   private final UpdateFeeValidator updateFeeValidator;
   private final EventProducer eventProducer;
   private final FeeTypeService feeTypeService;
+  private final UserService userService;
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
@@ -52,28 +49,31 @@ public class FeeService {
     feeValidator.accept(fees);
     return feeRepository.saveAll(fees);
   }
-
   @Transactional
-  public List<Fee> saveAll(CreatFeeOption creatFeeOption) {
-    FeeTypeEntity feeTypeEntity = feeTypeService.findById(creatFeeOption.getStudentId());
+  public List<Fee> saveAll(CreateFeeOption creatFeeOption) {
+    FeeTypeEntity feeTypeEntity = feeTypeService.findById(creatFeeOption.getFeeTypeId());
+    User student = userService.getById(creatFeeOption.getStudentId());
     List<Fee> fees = new ArrayList<>();
     Instant actualTimestamp = creatFeeOption.getFirstDueDatetime();
+    Integer delay = 0;
     for (FeeTypeComponentEntity feeTypeComponent:feeTypeEntity.getFeeTypeComponentEntities()) {
-      if (creatFeeOption.getIsInEndOfMoth()) {
         for (int i = 0; i < feeTypeComponent.getMonthsNumber(); i++) {
+          Integer toPayMonthly = feeTypeComponent.getTotalAmount() / feeTypeComponent.getMonthsNumber();
           Fee fee = Fee.builder()
-                  .type(null)
-                  .creationDatetime(null)
-                  .student(null)
+                  .type(school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.fromValue(feeTypeComponent.getType().getValue()))
+                  .creationDatetime(actualTimestamp)
+                  .student(student)
+                  .comment(feeTypeComponent.getName())
+                  .dueDatetime(getNextDueDateTime(creatFeeOption.getFirstDueDatetime(), creatFeeOption.getIsInEndOfMonth(),delay))
+                  .updatedAt(actualTimestamp)
+                  .totalAmount(toPayMonthly)
+                  .remainingAmount(toPayMonthly)
+                  .status(school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID)
                   .build();
-        }
-      }else {
-
+          fees.add(fee);
+          delay++;
       }
     }
-
-
-
     return saveAll(fees);
   }
 

@@ -36,7 +36,7 @@ public class FeeTypeComponentValidator implements Consumer<FeeTypeComponentEntit
     if (feeTypeComponent.getMonthsNumber() == null) {
       violationMessages.add("feeTypeComponent have to have a MonthsNumber");
     }
-    if (feeTypeComponent.getMonthlyAmount() == null) {
+    if (feeTypeComponent.getTotalAmount() == null) {
       violationMessages.add("feeTypeComponent have to have a MonthlyAmount");
     }
     return violationMessages;

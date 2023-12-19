@@ -1,10 +1,6 @@
 package school.hei.haapi.service.utils;
 
-import java.time.DayOfWeek;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
+import java.time.*;
 import java.time.temporal.TemporalAdjusters;
 import school.hei.haapi.model.CourseSession;
 
@@ -43,5 +39,18 @@ public class InstantUtils {
         .minusMinutes(30)
         .atZone(ZoneId.of("UTC+3"))
         .toInstant();
+  }
+
+  public static Instant getNextDueDateTime(Instant currentInstant, boolean isEndOfMonth, int delay) {
+    YearMonth yearMonthAfterDelay = YearMonth.from(LocalDateTime.ofInstant(currentInstant, ZoneOffset.UTC)).plusMonths(delay);
+    LocalDate endOfMonth = yearMonthAfterDelay.atEndOfMonth();
+    if (isEndOfMonth) {
+      return endOfMonth.atStartOfDay().toInstant(ZoneOffset.UTC);
+    }
+    int currentDayOfMonth = LocalDateTime.ofInstant(currentInstant, ZoneOffset.UTC).getDayOfMonth();
+    int endOfMonthAfterDelay = endOfMonth.getDayOfMonth();
+    int dueDateDay = Math.min(currentDayOfMonth, endOfMonthAfterDelay);
+    LocalDateTime localDueDateTime = LocalDateTime.of(LocalDate.of(yearMonthAfterDelay.getYear(), yearMonthAfterDelay.getMonth(), dueDateDay), LocalTime.of(0,0,0)) ;
+    return localDueDateTime.toInstant(ZoneOffset.UTC);
   }
 }
