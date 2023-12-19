@@ -1860,6 +1860,8 @@ components:
           type: string
         email:
           type: string
+        cin:
+          type: string
     StudentAttendanceMovement:
       properties:
         id:
@@ -1883,6 +1885,8 @@ components:
             birth_date:
               type: string
               format: date
+            birth_place:
+              type: string
             address:
               type: string
             phone:
