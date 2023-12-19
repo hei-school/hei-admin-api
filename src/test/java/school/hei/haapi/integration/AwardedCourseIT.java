@@ -63,6 +63,7 @@ class AwardedCourseIT {
     assertEquals(3, actuals.size());
     assertTrue(actuals.contains(awardedCourse1()));
     assertTrue(actuals.contains(awardedCourse2()));
+    System.out.println(actuals);
     assertTrue(actuals.contains(awardedCourse4()));
 
     assertEquals(5, allAwardedCourse.size());
