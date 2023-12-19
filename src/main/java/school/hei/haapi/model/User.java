@@ -58,6 +58,8 @@ public class User implements Serializable {
   @NotBlank(message = "Reference is mandatory")
   private String ref;
 
+  private String cin;
+
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   private Status status;
@@ -65,6 +67,8 @@ public class User implements Serializable {
   private String phone;
 
   private LocalDate birthDate;
+
+  private String birthPlace;
 
   private Instant entranceDatetime;
 

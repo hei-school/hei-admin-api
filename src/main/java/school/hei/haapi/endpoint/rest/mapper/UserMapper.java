@@ -29,6 +29,8 @@ public class UserMapper {
     restStudent.setBirthDate(user.getBirthDate());
     restStudent.setSex(sexEnumMapper.toRestSexEnum(user.getSex()));
     restStudent.setAddress(user.getAddress());
+    restStudent.setCin(user.getCin());
+    restStudent.setBirthPlace(user.getBirthPlace());
 
     return restStudent;
   }
@@ -47,6 +49,8 @@ public class UserMapper {
     teacher.setBirthDate(user.getBirthDate());
     teacher.setSex(sexEnumMapper.toRestSexEnum(user.getSex()));
     teacher.setAddress(user.getAddress());
+    teacher.setBirthPlace(user.getBirthPlace());
+    teacher.setCin(user.getCin());
 
     return teacher;
   }
@@ -65,6 +69,8 @@ public class UserMapper {
     manager.setBirthDate(user.getBirthDate());
     manager.setSex(sexEnumMapper.toRestSexEnum(user.getSex()));
     manager.setAddress(user.getAddress());
+    manager.setBirthPlace(user.getBirthPlace());
+    manager.setCin(user.getCin());
 
     return manager;
   }
@@ -83,6 +89,8 @@ public class UserMapper {
         .birthDate(manager.getBirthDate())
         .sex(sexEnumMapper.toDomainSexEnum(manager.getSex()))
         .address(manager.getAddress())
+        .cin(manager.getCin())
+        .birthPlace(manager.getBirthPlace())
         .build();
   }
 
@@ -100,6 +108,8 @@ public class UserMapper {
         .birthDate(teacher.getBirthDate())
         .sex(sexEnumMapper.toDomainSexEnum(teacher.getSex()))
         .address(teacher.getAddress())
+        .cin(teacher.getCin())
+        .birthPlace(teacher.getBirthPlace())
         .build();
   }
 
@@ -117,6 +127,8 @@ public class UserMapper {
         .birthDate(student.getBirthDate())
         .sex(sexEnumMapper.toDomainSexEnum(student.getSex()))
         .address(student.getAddress())
+        .birthPlace(student.getBirthPlace())
+        .cin(student.getCin())
         .build();
   }
 }

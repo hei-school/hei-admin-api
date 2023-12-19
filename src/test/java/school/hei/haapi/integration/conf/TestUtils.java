@@ -254,6 +254,8 @@ public class TestUtils {
         .sex(Sex.F)
         .birthDate(LocalDate.parse("1990-01-01"))
         .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
+        .cin("")
+        .birthPlace("")
         .address("Adr 3");
   }
 
@@ -269,6 +271,8 @@ public class TestUtils {
         .sex(Sex.M)
         .birthDate(LocalDate.parse("1990-01-02"))
         .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
+        .cin("")
+        .birthPlace("")
         .address("Adr 4");
   }
 
