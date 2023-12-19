@@ -59,6 +59,8 @@ class ManagerIT {
     manager.setBirthDate(LocalDate.parse("1890-01-01"));
     manager.setEntranceDatetime(Instant.parse("2021-09-08T08:25:29Z"));
     manager.setAddress("Adr 5");
+    manager.setBirthPlace("");
+    manager.setCin("");
     return manager;
   }
 
@@ -74,6 +76,8 @@ class ManagerIT {
         .birthDate(LocalDate.parse("2000-12-01"))
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .phone("0322411123")
+        .cin("")
+        .birthPlace("")
         .address("Adr 1");
   }
 
@@ -89,6 +93,8 @@ class ManagerIT {
         .birthDate(LocalDate.parse("2000-12-02"))
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
         .phone("0322411123")
+        .cin("")
+        .birthPlace("")
         .address("Adr 2");
   }
 
