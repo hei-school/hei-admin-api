@@ -1,0 +1,2 @@
+postgres : n'a pas pu accéder au répertoire « /usr/local/pgsql/data » : Aucun fichier ou dossier de ce type
+Lancer initdb ou pg_basebackup pour initialiser un répertoire de données PostgreSQL.

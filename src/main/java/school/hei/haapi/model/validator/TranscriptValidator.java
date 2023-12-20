@@ -1,33 +1,32 @@
 package school.hei.haapi.model.validator;
 
 import java.util.HashSet;
-import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.Transcript;
 import school.hei.haapi.model.exception.BadRequestException;
 
 @Component
-public class FeeValidator implements Consumer<Fee> {
-
-  public void accept(List<Fee> fees) {
-
-    fees.forEach(this::accept);
-  }
+@AllArgsConstructor
+public class TranscriptValidator implements Consumer<Transcript> {
 
   @Override
-  public void accept(Fee fee) {
+  public void accept(Transcript transcript) {
     Set<String> violationMessages = new HashSet<>();
-    if (fee.getStudent() == null) {
+    if (transcript.getId() == null) {
+      violationMessages.add("Id is mandatory");
+    }
+    if (transcript.getStudent() == null) {
       violationMessages.add("Student is mandatory");
     }
-    if (fee.getDueDatetime() == null) {
-      violationMessages.add("Due datetime is mandatory");
+    if (transcript.getSemester() == null) {
+      violationMessages.add("Semester is mandatory");
     }
-    if (fee.getTotalAmount() < 0) {
-      violationMessages.add("Total amount must be positive");
+    if (transcript.getAcademicYear() == null) {
+      violationMessages.add("Academic year is mandatory");
     }
     if (!violationMessages.isEmpty()) {
       String formattedViolationMessages =

@@ -12,6 +12,7 @@ import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
+import org.springframework.web.multipart.MultipartException;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -95,6 +96,16 @@ public class InternalToRestExceptionHandler {
       NotImplementedException e) {
     log.error("Not implemented", e);
     return new ResponseEntity<>(toRest(e, HttpStatus.NOT_IMPLEMENTED), HttpStatus.NOT_IMPLEMENTED);
+  }
+
+  @ExceptionHandler(value = {MultipartException.class})
+  ResponseEntity<school.hei.haapi.endpoint.rest.model.Exception>
+      handleFileSizeLimitExceededRequests(MultipartException e) {
+    log.info("File not conform", e);
+    return new ResponseEntity<>(
+        // toRest(e, HttpStatus.BAD_REQUEST),
+        toRest(new BadRequestException("File upload error"), HttpStatus.BAD_REQUEST),
+        HttpStatus.BAD_REQUEST);
   }
 
   @ExceptionHandler(value = {Exception.class})

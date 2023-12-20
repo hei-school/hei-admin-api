@@ -111,6 +111,13 @@ dependencies {
 
     implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot2:1.9.3'
     implementation 'software.amazon.awssdk:aws-query-protocol:2.20.26'
+//todo: check if i can add
+    implementation 'software.amazon.awssdk:eventbridge:2.17.109'
+    implementation 'software.amazon.awssdk:sqs:2.17.109'
+    implementation 'software.amazon.awssdk:cognitoidentityprovider:2.17.109'
+    implementation 'software.amazon.awssdk:ses:2.19.4'
+    implementation 'software.amazon.awssdk:s3:2.20.109'
+//todo: check if i can add
 
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
     implementation 'com.amazonaws:aws-lambda-java-events:3.11.3'
@@ -118,6 +125,12 @@ dependencies {
     implementation 'software.amazon.awssdk:eventbridge:2.21.7'
 
     implementation 'org.reflections:reflections:0.10.2'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
+    implementation 'org.thymeleaf:thymeleaf:3.1.1.RELEASE'
+    // A library that check content type of byte[]
+    implementation 'org.apache.tika:tika-core:1.27'
+    // A library that format number into words
+    implementation 'pl.allegro.finance:tradukisto:1.12.0'
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

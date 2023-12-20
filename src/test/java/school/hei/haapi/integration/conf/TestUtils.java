@@ -35,8 +35,12 @@ import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.StudentTranscriptClaim;
+import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
 import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.Transcript;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.service.aws.S3Service;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -82,10 +86,61 @@ public class TestUtils {
   public static final String GRADE5_ID = "grade5_id";
   public static final String GRADE6_ID = "grade6_id";
   public static final String GRADE7_ID = "grade7_id";
+  public static final String COURSE5_ID = "course5_id";
+
+  public static final String TRANSCRIPT1_ID = "transcript1_id";
+  public static final String TRANSCRIPT2_ID = "transcript2_id";
+  public static final String TRANSCRIPT3_ID = "transcript3_id";
+  public static final String TRANSCRIPT4_ID = "transcript4_id";
+  public static final String TRANSCRIPT5_ID = "transcript5_id";
+  public static final String TRANSCRIPT6_ID = "transcript6_id";
+  public static final String MANAGER_ROLE = "MANAGER";
+  public static final String STUDENT_TRANSCRIPT_VERSION1_ID = "transcript_version1_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION2_ID = "transcript_version2_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION3_ID = "transcript_version3_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION4_ID = "transcript_version4_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION5_ID = "transcript_version5_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION6_ID = "transcript_version6_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION7_ID = "transcript_version7_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION8_ID = "transcript_version8_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION9_ID = "transcript_version9_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION10_ID = "transcript_version10_id";
+  public static final String STUDENT_TRANSCRIPT_VERSION11_ID = "transcript_version11_id";
+
+  public static final String STUDENT_TRANSCRIPT_VERSION_CLAIM1_ID = "transcript_claim1_id";
+
+  public static final String STUDENT_TRANSCRIPT_VERSION_CLAIM2_ID = "transcript_claim2_id";
+
+  public static final String STUDENT_TRANSCRIPT_VERSION_CLAIM3_ID = "transcript_claim3_id";
+
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
+
+  public static final String TRANSCRIPT_VERSION1_ID = "transcript_version1_id";
+  public static final Instant TRANSCRIPT_VERSION1_CREATION_DATETIME =
+      Instant.parse("2023-10-01T08:25:24.00Z");
+
+  public static final Instant TRANSCRIPT_CLAIM1_CREATION_DATETIME =
+      Instant.parse("2022-10-02T08:25:24.00Z");
+
+  public static final Instant TRANSCRIPT_CLAIM1_CLOSED_DATETIME = null;
+
+  public static final Instant TRANSCRIPT_CLAIM2_CREATION_DATETIME =
+      Instant.parse("2022-10-02T08:25:24.00Z");
+
+  public static final Instant TRANSCRIPT_CLAIM2_CLOSED_DATETIME =
+      Instant.parse("2023-10-02T08:25:24.00Z");
+
+  public static final Instant TRANSCRIPT_CLAIM3_CREATION_DATETIME =
+      Instant.parse("2022-10-03T08:25:24.00Z");
+
+  public static final Instant TRANSCRIPT_CLAIM3_CLOSED_DATETIME =
+      Instant.parse("2023-10-03T08:25:24.00Z");
+
+  public static final String TRANSCRIPT_VERSION1_PDF_LINK = "STD21001-2021-S1-V1";
+  public static final byte[] MULTIPART_FILE_UPLOADED = "".getBytes();
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -643,6 +698,177 @@ public class TestUtils {
         .exams(List.of(studentExamGrade5()));
   }
 
+  public static Transcript transcript1() {
+    return new Transcript()
+        .id(TRANSCRIPT1_ID)
+        .studentId(STUDENT1_ID)
+        .semester(Transcript.SemesterEnum.S1)
+        .academicYear(2021)
+        .isDefinitive(true)
+        .creationDatetime(Instant.parse("2021-05-08T08:25:24.00Z"));
+  }
+
+  public static Transcript transcript2() {
+    return new Transcript()
+        .id(TRANSCRIPT2_ID)
+        .studentId(STUDENT1_ID)
+        .semester(Transcript.SemesterEnum.S2)
+        .academicYear(2021)
+        .isDefinitive(true)
+        .creationDatetime(Instant.parse("2021-12-10T08:25:24.00Z"));
+  }
+
+  public static Transcript transcript3() {
+    return new Transcript()
+        .id(TRANSCRIPT3_ID)
+        .studentId(STUDENT1_ID)
+        .semester(Transcript.SemesterEnum.S3)
+        .academicYear(2022)
+        .isDefinitive(false)
+        .creationDatetime(Instant.parse("2022-05-09T08:25:24.00Z"));
+  }
+
+  public static Transcript transcript4() {
+    return new Transcript()
+        .id(TRANSCRIPT4_ID)
+        .studentId(STUDENT2_ID)
+        .semester(Transcript.SemesterEnum.S1)
+        .academicYear(2021)
+        .isDefinitive(true)
+        .creationDatetime(Instant.parse("2021-05-09T08:25:25.00Z"));
+  }
+
+  public static Transcript transcript6() {
+    return new Transcript()
+        .id(TRANSCRIPT6_ID)
+        .studentId(STUDENT3_ID)
+        .semester(Transcript.SemesterEnum.S1)
+        .academicYear(2021)
+        .isDefinitive(true)
+        .creationDatetime(Instant.parse("2021-12-09T08:25:25.00Z"));
+  }
+
+  public static Transcript createTranscript1() {
+    Transcript transcript = new Transcript();
+    transcript.setId("transcript_create_1");
+    transcript.setStudentId(STUDENT1_ID);
+    transcript.setAcademicYear(2021);
+    transcript.setSemester(Transcript.SemesterEnum.S4);
+    transcript.setIsDefinitive(false);
+    transcript.setCreationDatetime(Instant.parse("2023-08-05T07:29:54.00Z"));
+    return transcript;
+  }
+
+  public static StudentTranscriptVersion studentTranscriptVersion1() {
+    return new StudentTranscriptVersion()
+        .id(STUDENT_TRANSCRIPT_VERSION1_ID)
+        .ref(1)
+        .creationDatetime(Instant.parse("2023-10-01T08:25:24.00Z"))
+        .transcriptId(TRANSCRIPT1_ID)
+        .createdByUserId(MANAGER_ID)
+        .createdByUserRole(MANAGER_ROLE);
+  }
+
+  public static StudentTranscriptVersion studentTranscriptVersion2() {
+    return new StudentTranscriptVersion()
+        .id(STUDENT_TRANSCRIPT_VERSION2_ID)
+        .ref(2)
+        .creationDatetime(Instant.parse("2023-10-02T08:25:24.00Z"))
+        .transcriptId(TRANSCRIPT1_ID)
+        .createdByUserId(MANAGER_ID)
+        .createdByUserRole(MANAGER_ROLE);
+  }
+
+  public static StudentTranscriptVersion studentTranscriptVersion3() {
+    return new StudentTranscriptVersion()
+        .id(STUDENT_TRANSCRIPT_VERSION3_ID)
+        .ref(3)
+        .creationDatetime(Instant.parse("2023-10-03T08:25:24.00Z"))
+        .transcriptId(TRANSCRIPT1_ID)
+        .createdByUserId(MANAGER_ID)
+        .createdByUserRole(MANAGER_ROLE);
+  }
+
+  public static StudentTranscriptVersion studentTranscriptVersion4() {
+    return new StudentTranscriptVersion()
+        .id(STUDENT_TRANSCRIPT_VERSION4_ID)
+        .ref(4)
+        .creationDatetime(Instant.parse("2023-10-04T08:25:24.00Z"))
+        .transcriptId(TRANSCRIPT1_ID)
+        .createdByUserId(MANAGER_ID)
+        .createdByUserRole(MANAGER_ROLE);
+  }
+
+  public static StudentTranscriptVersion studentTranscriptVersion5() {
+    return new StudentTranscriptVersion()
+        .id(STUDENT_TRANSCRIPT_VERSION5_ID)
+        .ref(1)
+        .creationDatetime(Instant.parse("2023-11-01T08:25:24.00Z"))
+        .transcriptId(TRANSCRIPT2_ID)
+        .createdByUserId(MANAGER_ID)
+        .createdByUserRole(MANAGER_ROLE);
+  }
+
+  public static StudentTranscriptVersion studentTranscriptVersion6() {
+    return new StudentTranscriptVersion()
+        .id(STUDENT_TRANSCRIPT_VERSION6_ID)
+        .ref(2)
+        .creationDatetime(Instant.parse("2023-11-02T08:25:24.00Z"))
+        .transcriptId(TRANSCRIPT2_ID)
+        .createdByUserId(MANAGER_ID)
+        .createdByUserRole(MANAGER_ROLE);
+  }
+
+  public static StudentTranscriptVersion studentTranscriptVersion7() {
+    return new StudentTranscriptVersion()
+        .id(STUDENT_TRANSCRIPT_VERSION7_ID)
+        .ref(3)
+        .creationDatetime(Instant.parse("2023-11-03T08:25:24.00Z"))
+        .transcriptId(TRANSCRIPT2_ID)
+        .createdByUserId(MANAGER_ID)
+        .createdByUserRole(MANAGER_ROLE);
+  }
+
+  public static StudentTranscriptVersion studentTranscriptVersion8() {
+    return new StudentTranscriptVersion()
+        .id(STUDENT_TRANSCRIPT_VERSION8_ID)
+        .ref(1)
+        .creationDatetime(Instant.parse("2023-12-04T08:25:24.00Z"))
+        .transcriptId(TRANSCRIPT4_ID)
+        .createdByUserId(MANAGER_ID)
+        .createdByUserRole(MANAGER_ROLE);
+  }
+
+  public static StudentTranscriptVersion studentTranscriptVersion9() {
+    return new StudentTranscriptVersion()
+        .id(STUDENT_TRANSCRIPT_VERSION9_ID)
+        .ref(2)
+        .creationDatetime(Instant.parse("2023-12-05T08:25:24.00Z"))
+        .transcriptId(TRANSCRIPT4_ID)
+        .createdByUserId(MANAGER_ID)
+        .createdByUserRole(MANAGER_ROLE);
+  }
+
+  public static StudentTranscriptVersion studentTranscriptVersion10() {
+    return new StudentTranscriptVersion()
+        .id(STUDENT_TRANSCRIPT_VERSION10_ID)
+        .ref(3)
+        .creationDatetime(Instant.parse("2023-12-06T08:25:24.00Z"))
+        .transcriptId(TRANSCRIPT4_ID)
+        .createdByUserId(MANAGER_ID)
+        .createdByUserRole(MANAGER_ROLE);
+  }
+
+  public static StudentTranscriptVersion studentTranscriptVersion11() {
+    return new StudentTranscriptVersion()
+        .id(STUDENT_TRANSCRIPT_VERSION11_ID)
+        .ref(1)
+        .creationDatetime(Instant.parse("2023-12-09T08:25:24.00Z"))
+        .transcriptId(TRANSCRIPT6_ID)
+        .createdByUserId(MANAGER_ID)
+        .createdByUserRole(MANAGER_ROLE);
+  }
+
   public static boolean isBefore(String a, String b) {
     return a.compareTo(b) < 0;
   }
@@ -666,5 +892,44 @@ public class TestUtils {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static void setUpS3Service(S3Service s3Service) {
+    when(s3Service.uploadObjectToS3Bucket(TRANSCRIPT_VERSION1_PDF_LINK, MULTIPART_FILE_UPLOADED))
+        .thenReturn(TRANSCRIPT_VERSION1_PDF_LINK);
+  }
+
+  public static StudentTranscriptClaim studentTranscriptClaim1() {
+    return new StudentTranscriptClaim()
+        .id(STUDENT_TRANSCRIPT_VERSION_CLAIM1_ID)
+        .transcriptId(TRANSCRIPT1_ID)
+        .status(StudentTranscriptClaim.StatusEnum.OPEN)
+        .transcriptVersionId(STUDENT_TRANSCRIPT_VERSION1_ID)
+        .reason("reason1")
+        .creationDatetime(TRANSCRIPT_CLAIM1_CREATION_DATETIME)
+        .closedDatetime(TRANSCRIPT_CLAIM1_CLOSED_DATETIME);
+  }
+
+  public static StudentTranscriptClaim studentTranscriptClaim2() {
+
+    return new StudentTranscriptClaim()
+        .id(STUDENT_TRANSCRIPT_VERSION_CLAIM2_ID)
+        .transcriptId(TRANSCRIPT1_ID)
+        .status(StudentTranscriptClaim.StatusEnum.CLOSE)
+        .transcriptVersionId(STUDENT_TRANSCRIPT_VERSION1_ID)
+        .reason("reason2")
+        .creationDatetime(TRANSCRIPT_CLAIM2_CREATION_DATETIME)
+        .closedDatetime(TRANSCRIPT_CLAIM2_CLOSED_DATETIME);
+  }
+
+  public static StudentTranscriptClaim studentTranscriptClaim3() {
+    return new StudentTranscriptClaim()
+        .id(STUDENT_TRANSCRIPT_VERSION_CLAIM3_ID)
+        .transcriptId(TRANSCRIPT2_ID)
+        .status(StudentTranscriptClaim.StatusEnum.CLOSE)
+        .transcriptVersionId(STUDENT_TRANSCRIPT_VERSION3_ID)
+        .reason("reason3")
+        .creationDatetime(TRANSCRIPT_CLAIM3_CREATION_DATETIME)
+        .closedDatetime(TRANSCRIPT_CLAIM3_CLOSED_DATETIME);
   }
 }
