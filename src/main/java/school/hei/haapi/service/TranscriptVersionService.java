@@ -86,7 +86,8 @@ public class TranscriptVersionService {
         .isEmpty()) {
       newRef = getTranscriptVersion(studentId, transcriptId, "latest").getRef() + 1;
     }
-    String key = "transcripts/"
+    String key =
+        "transcripts/"
             + transcript.getAcademicYear()
             + "/"
             + transcript.getSemester()

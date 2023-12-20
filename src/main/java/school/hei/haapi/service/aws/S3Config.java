@@ -18,7 +18,7 @@ public class S3Config {
         .region(
             Region.of(
                 awsS3Region)) // no need to add awsS3AccessKeyId and  awsS3SecretKey. AWS will find
-                              // it automatically
+        // it automatically
         .build();
   }
 }
