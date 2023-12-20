@@ -1866,6 +1866,12 @@ components:
               format: date-time
             status:
               $ref: '#/components/schemas/EnableStatus'
+    AcademicSector:
+      type: string
+      enum:
+        - COMMON_CORE
+        - EL
+        - TN
     Sex:
       type: string
       enum:
@@ -1912,6 +1918,10 @@ components:
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            academic_sector:
+              $ref: '#/components/schemas/AcademicSector'
     Teacher:
       allOf:
         - $ref: '#/components/schemas/User'

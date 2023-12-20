@@ -31,6 +31,7 @@ public class UserMapper {
     restStudent.setAddress(user.getAddress());
     restStudent.setNic(user.getNic());
     restStudent.setBirthPlace(user.getBirthPlace());
+    restStudent.setAcademicSector(user.getAcademicSector());
 
     return restStudent;
   }
@@ -129,6 +130,7 @@ public class UserMapper {
         .address(student.getAddress())
         .birthPlace(student.getBirthPlace())
         .nic(student.getNic())
+        .academicSector(student.getAcademicSector())
         .build();
   }
 }

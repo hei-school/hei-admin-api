@@ -28,6 +28,7 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import school.hei.haapi.endpoint.rest.model.AcademicSector;
 import school.hei.haapi.endpoint.rest.security.model.Role;
 import school.hei.haapi.repository.types.PostgresEnumType;
 import school.hei.haapi.service.utils.DataFormatterUtils;
@@ -71,6 +72,10 @@ public class User implements Serializable {
   private String birthPlace;
 
   private Instant entranceDatetime;
+
+  @Type(type = "pgsql_enum")
+  @Enumerated(EnumType.STRING)
+  private AcademicSector academicSector;
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
