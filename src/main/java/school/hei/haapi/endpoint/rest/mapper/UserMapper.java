@@ -31,7 +31,7 @@ public class UserMapper {
     restStudent.setAddress(user.getAddress());
     restStudent.setNic(user.getNic());
     restStudent.setBirthPlace(user.getBirthPlace());
-    restStudent.setAcademicStream(user.getAcademicStream());
+    restStudent.setSpecializationChannel(user.getSpecializationChannel());
 
     return restStudent;
   }
@@ -130,7 +130,7 @@ public class UserMapper {
         .address(student.getAddress())
         .birthPlace(student.getBirthPlace())
         .nic(student.getNic())
-        .academicStream(student.getAcademicStream())
+        .specializationChannel(student.getSpecializationChannel())
         .build();
   }
 }

@@ -41,7 +41,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.AcademicStream;
+import school.hei.haapi.endpoint.rest.model.SpecializationChannel;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
@@ -76,7 +76,7 @@ class StudentIT {
         .sex(Sex.F)
         .lastName("Other last")
         .firstName("Other first")
-        .academicStream(AcademicStream.TN)
+        .specializationChannel(SpecializationChannel.TN)
         .birthDate(LocalDate.parse("2000-01-03"));
   }
 
@@ -96,7 +96,7 @@ class StudentIT {
     student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
     student.setEntranceDatetime(birthday.plusSeconds(ageOfEntrance * 365L * 24L * 60L * 60L));
     student.setAddress(faker.address().fullAddress());
-    student.setAcademicStream(AcademicStream.COMMON_CORE);
+    student.specializationChannel(SpecializationChannel.COMMON_CORE);
 
     return student;
   }

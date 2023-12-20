@@ -28,7 +28,7 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import school.hei.haapi.endpoint.rest.model.AcademicStream;
+import school.hei.haapi.endpoint.rest.model.SpecializationChannel;
 import school.hei.haapi.repository.types.PostgresEnumType;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
@@ -74,7 +74,7 @@ public class User implements Serializable {
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
-  private AcademicStream academicStream;
+  private SpecializationChannel specializationChannel;
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
