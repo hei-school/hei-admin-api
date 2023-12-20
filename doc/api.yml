@@ -1866,7 +1866,7 @@ components:
               format: date-time
             status:
               $ref: '#/components/schemas/EnableStatus'
-    AcademicSector:
+    AcademicStream:
       type: string
       enum:
         - COMMON_CORE
@@ -1920,8 +1920,8 @@ components:
         - $ref: '#/components/schemas/User'
         - type: object
           properties:
-            academic_sector:
-              $ref: '#/components/schemas/AcademicSector'
+            academic_stream:
+              $ref: '#/components/schemas/AcademicStream'
     Teacher:
       allOf:
         - $ref: '#/components/schemas/User'
