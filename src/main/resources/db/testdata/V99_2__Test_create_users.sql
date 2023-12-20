@@ -1,6 +1,6 @@
 insert into "user"
 (id, first_name, last_name, email, ref, status, sex, birth_date, entrance_datetime, phone, address,
- "role", birth_place, cin)
+ "role", birth_place, nic)
 values ('student1_id', 'Ryan', 'Andria', 'test+ryan@hei.school', 'STD21001', 'ENABLED', 'M',
         '2000-01-01',
         '2021-11-08T08:25:24.00Z', '0322411123', 'Adr 1', 'STUDENT', '', ''),
