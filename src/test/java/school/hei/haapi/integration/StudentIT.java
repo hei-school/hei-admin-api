@@ -118,7 +118,7 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-01"));
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setAddress("Adr 1");
-    student.setCin("");
+    student.setNic("");
     student.setBirthPlace("");
     return student;
   }
@@ -137,7 +137,7 @@ class StudentIT {
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
     student.setBirthPlace("");
-    student.setCin("");
+    student.setNic("");
     return student;
   }
 
@@ -155,7 +155,7 @@ class StudentIT {
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
     student.setBirthPlace("Befelatanana");
-    student.setCin("0000000000");
+    student.setNic("0000000000");
     return student;
   }
 
@@ -171,7 +171,7 @@ class StudentIT {
         .birthDate(LocalDate.parse("2000-12-01"))
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .phone("0322411123")
-        .cin("")
+        .nic("")
         .birthPlace("")
         .address("Adr 1");
   }
@@ -202,7 +202,7 @@ class StudentIT {
         .birthDate(LocalDate.parse("2000-12-02"))
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
         .phone("0322411124")
-        .cin("")
+        .nic("")
         .birthPlace("")
         .address("Adr 2");
   }

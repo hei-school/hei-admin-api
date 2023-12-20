@@ -58,7 +58,7 @@ public class User implements Serializable {
   @NotBlank(message = "Reference is mandatory")
   private String ref;
 
-  private String cin;
+  private String nic;
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)

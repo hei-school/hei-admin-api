@@ -1819,19 +1819,19 @@ components:
     UserIdentifier:
       type: object
       properties:
-         id:
-           type: string
-         ref:
-           type: string
-           example: STD000001
-         first_name:
-           type: string
-         last_name:
-           type: string
-         email:
-           type: string
-         cin:
-           type: string
+        id:
+          type: string
+        ref:
+          type: string
+          example: STD000001
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        nic:
+          type: string
     StudentAttendanceMovement:
       properties:
         id:
