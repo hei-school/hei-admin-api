@@ -1,3 +1,19 @@
+# [0.13.0](https://github.com/hei-school/hei-admin-api/compare/v0.12.0...v0.13.0) (2023-12-21)
+
+
+### Bug Fixes
+
+* map fee status to paid if remaining amount is 0 ([d0abc2b](https://github.com/hei-school/hei-admin-api/commit/d0abc2b1179ce01a2f8d9369696705b40f50394b))
+* missing update adding migration to update paid fee status ([135ea1a](https://github.com/hei-school/hei-admin-api/commit/135ea1ad6ef06ed239712cfeb6acad0237a3af57))
+
+
+### Features
+
+* add birth place and nic to user attributes ([0ba9ac2](https://github.com/hei-school/hei-admin-api/commit/0ba9ac24cc0549eb541aa3b03b38a7d7cee28f63))
+* permit teacher, manager, student update ([4eec73b](https://github.com/hei-school/hei-admin-api/commit/4eec73b586b739e921a27b192051c3887031f5b0))
+
+
+
 # [0.12.0](https://github.com/hei-school/hei-admin-api/compare/v0.11.0...v0.12.0) (2023-12-01)
 
 
@@ -152,23 +168,6 @@
 ### Features
 
 * filter users by params ignoring case ([d151927](https://github.com/hei-school/hei-admin-api/commit/d151927dd01bdb31604af85b69c7031aedf2b71f)), closes [#47](https://github.com/hei-school/hei-admin-api/issues/47)
-
-
-
-# [0.4.0](https://github.com/hei-school/hei-admin-api/compare/v0.3.0...v0.4.0) (2022-02-08)
-
-
-### Bug Fixes
-
-* build.gradle works for both unix and windows os ([ddfc835](https://github.com/hei-school/hei-admin-api/commit/ddfc83510b68bec2212ec7feaa5980f239071c8c))
-* limit user upsertion to EventBridge max ([9be6693](https://github.com/hei-school/hei-admin-api/commit/9be66939823eecfbdf6c4c134a1c1f5b630415a8)), closes [#37](https://github.com/hei-school/hei-admin-api/issues/37)
-* users can be filter by ref and names ([0dd534f](https://github.com/hei-school/hei-admin-api/commit/0dd534f2952d8a835180c0c39aa2e355958a0fe2)), closes [#39](https://github.com/hei-school/hei-admin-api/issues/39)
-
-
-### Features
-
-* add cors headers for all methods ([799bed0](https://github.com/hei-school/hei-admin-api/commit/799bed0d7fe66e9e8ec1ac28e1ddff335a86db19))
-* GET /fees/{id} ([8ed301c](https://github.com/hei-school/hei-admin-api/commit/8ed301ca58cbf2b767940dba0da2a7e676e720f8))
 
 
 
