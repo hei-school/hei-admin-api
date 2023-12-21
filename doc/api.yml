@@ -1830,6 +1830,8 @@ components:
           type: string
         email:
           type: string
+        nic:
+          type: string
     StudentAttendanceMovement:
       properties:
         id:
@@ -1853,6 +1855,8 @@ components:
             birth_date:
               type: string
               format: date
+            birth_place:
+              type: string
             address:
               type: string
             phone:
@@ -1862,6 +1866,12 @@ components:
               format: date-time
             status:
               $ref: '#/components/schemas/EnableStatus'
+    SpecializationField:
+      type: string
+      enum:
+        - COMMON_CORE
+        - EL
+        - TN
     Sex:
       type: string
       enum:
@@ -1908,6 +1918,10 @@ components:
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            specialization_field:
+              $ref: '#/components/schemas/SpecializationField'
     Teacher:
       allOf:
         - $ref: '#/components/schemas/User'
