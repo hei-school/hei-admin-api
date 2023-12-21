@@ -10,6 +10,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
+import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -43,7 +45,6 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
-import school.hei.haapi.endpoint.rest.model.SpecializationField;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -76,7 +77,7 @@ class StudentIT {
         .sex(Sex.F)
         .lastName("Other last")
         .firstName("Other first")
-        .specializationField(SpecializationField.TN)
+        .specializationField(TN)
         .birthDate(LocalDate.parse("2000-01-03"));
   }
 
@@ -96,7 +97,7 @@ class StudentIT {
     student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
     student.setEntranceDatetime(birthday.plusSeconds(ageOfEntrance * 365L * 24L * 60L * 60L));
     student.setAddress(faker.address().fullAddress());
-    student.specializationField(SpecializationField.COMMON_CORE);
+    student.specializationField(COMMON_CORE);
 
     return student;
   }
