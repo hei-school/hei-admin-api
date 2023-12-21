@@ -1521,6 +1521,44 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /fee_types/{fee_type_id}/fees:
+    post:
+      tags:
+        - Paying
+      summary: Create student fees
+      parameters:
+        - name: fee_type_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createStudentFeesFromFeeType
+      requestBody:
+        description: Student fees Option to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatFeeOption'
+      responses:
+        '200':
+          description: Created student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /fees:
     get:
       tags:
@@ -1643,6 +1681,67 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Payment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /fee_types:
+    get:
+      tags:
+        - Configuration
+      summary: get all types of fee
+      operationId: getAllFeeType
+      responses:
+        '200':
+          description: List of all types of fee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeeType'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /fee_types/{fee_type_id}:
+    put:
+      tags:
+        - Configuration
+      summary: Create new fee type or update existing fee type
+      description: Update fee type when `id` exist, create them otherwise.
+      parameters:
+        - name: fee_type_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createOrUpdateFeeType
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeeType'
+      responses:
+        '200':
+          description: The created or updated fee type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeType'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2175,6 +2274,42 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    FeeTypeComponent:
+      type: object
+      properties:
+        type:
+          $ref: "#/components/schemas/CreateFeeType"
+        name:
+          type: string
+        monthlyAmount:
+          type: integer
+          description: price all fees to be paid separately
+        monthsNumber:
+          type: integer
+          description: Number of months available to pay
+    FeeType:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        types:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeTypeComponent'
+    CreatFeeOption:
+      type: object
+      properties:
+        StudentId:
+          type: string
+        FeeTypeId:
+          type: string
+        firstDueDatetime:
+          type: string
+          format: date-time
+        isInEndOfMoth:
+          type: boolean
     Page:
       type: integer
       description: Start at `1`
@@ -2192,6 +2327,11 @@ components:
       enum:
         - IN
         - OUT
+    CreateFeeType:
+      type: string
+      enum:
+        - TUITION
+        - HARDWARE
     CourseDirection:
       type: string
       enum:
