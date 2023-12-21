@@ -10,6 +10,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
+import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -75,6 +77,7 @@ class StudentIT {
         .sex(Sex.F)
         .lastName("Other last")
         .firstName("Other first")
+        .specializationField(TN)
         .birthDate(LocalDate.parse("2000-01-03"));
   }
 
@@ -94,6 +97,8 @@ class StudentIT {
     student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
     student.setEntranceDatetime(birthday.plusSeconds(ageOfEntrance * 365L * 24L * 60L * 60L));
     student.setAddress(faker.address().fullAddress());
+    student.specializationField(COMMON_CORE);
+
     return student;
   }
 
@@ -118,6 +123,8 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-01"));
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setAddress("Adr 1");
+    student.setNic("");
+    student.setBirthPlace("");
     return student;
   }
 
@@ -134,6 +141,8 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
+    student.setBirthPlace("");
+    student.setNic("");
     return student;
   }
 
@@ -150,6 +159,8 @@ class StudentIT {
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
+    student.setBirthPlace("Befelatanana");
+    student.setNic("0000000000");
     return student;
   }
 
@@ -165,6 +176,8 @@ class StudentIT {
         .birthDate(LocalDate.parse("2000-12-01"))
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .phone("0322411123")
+        .nic("")
+        .birthPlace("")
         .address("Adr 1");
   }
 
@@ -194,6 +207,8 @@ class StudentIT {
         .birthDate(LocalDate.parse("2000-12-02"))
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
         .phone("0322411124")
+        .nic("")
+        .birthPlace("")
         .address("Adr 2");
   }
 
@@ -317,6 +332,7 @@ class StudentIT {
 
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
+    assertTrue(actualStudents.contains(student3()));
 
     assertEquals(student1(), actualStudents2.get(0));
     assertEquals(2, actualStudents2.size());

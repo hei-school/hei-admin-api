@@ -28,7 +28,7 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import school.hei.haapi.endpoint.rest.security.model.Role;
+import school.hei.haapi.endpoint.rest.model.SpecializationField;
 import school.hei.haapi.repository.types.PostgresEnumType;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
@@ -58,6 +58,8 @@ public class User implements Serializable {
   @NotBlank(message = "Reference is mandatory")
   private String ref;
 
+  private String nic;
+
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
   private Status status;
@@ -66,7 +68,13 @@ public class User implements Serializable {
 
   private LocalDate birthDate;
 
+  private String birthPlace;
+
   private Instant entranceDatetime;
+
+  @Type(type = "pgsql_enum")
+  @Enumerated(EnumType.STRING)
+  private SpecializationField specializationField;
 
   @Type(type = "pgsql_enum")
   @Enumerated(EnumType.STRING)
