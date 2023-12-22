@@ -4,7 +4,7 @@ custom_java_deps: poja-custom-java-deps.txt
 custom_java_env_vars: poja-custom-java-env-vars.txt
 custom_java_repositories: poja-custom-java-repositories.txt
 frontal_memory: 512
-jacoco-min-coverage: '0.8'
+jacoco-min-coverage: 0.8
 package_full_name: school.hei.haapi
 region: eu-west-3
 ssm_sg_id: /haapi/sg/id

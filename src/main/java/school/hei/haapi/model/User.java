@@ -96,6 +96,12 @@ public class User implements Serializable {
   @OneToMany(mappedBy = "student", fetch = LAZY)
   private List<Grade> grades;
 
+  @OneToMany(mappedBy = "student")
+  private List<Transcript> transcripts;
+
+  @OneToMany(mappedBy = "editor")
+  private List<TranscriptVersion> transcriptVersions;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
