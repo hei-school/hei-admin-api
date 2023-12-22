@@ -11,5 +11,5 @@ import school.hei.haapi.model.Transcript;
 public interface TranscriptRepository extends JpaRepository<Transcript, String> {
   List<Transcript> findAllByStudentId(String studentId, Pageable pageable);
 
-  Optional<Transcript> getByIdAndStudentId(String id, String studentId);
+  Optional<Transcript> findByIdAndStudentId(String id, String studentId);
 }

@@ -1,7 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,7 +31,7 @@ public class TranscriptController {
       @RequestParam("page_size") BoundedPageSize pageSize) {
     return transcriptService.getAllByStudentId(student_id, page, pageSize).stream()
         .map(transcriptMapper::toRest)
-        .collect(Collectors.toUnmodifiableList());
+        .collect(toUnmodifiableList());
   }
 
   @GetMapping(value = "/students/{student_id}/transcripts/{transcript_id}")
@@ -47,9 +48,9 @@ public class TranscriptController {
     List<school.hei.haapi.model.Transcript> transcriptsEntity =
         transcripts.stream()
             .map(transcript -> transcriptMapper.toDomain(student_id, transcript))
-            .collect(Collectors.toList());
+            .collect(toUnmodifiableList());
     return transcriptService.updateStudentTranscript(student_id, transcriptsEntity).stream()
         .map(transcriptMapper::toRest)
-        .collect(Collectors.toList());
+        .collect(toUnmodifiableList());
   }
 }

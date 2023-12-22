@@ -1,9 +1,10 @@
 package school.hei.haapi.service;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -28,7 +29,7 @@ public class TranscriptService {
 
   public Transcript getByIdAndStudent(String id, String studentId) {
     return transcriptRepository
-        .getByIdAndStudentId(id, studentId)
+        .findByIdAndStudentId(id, studentId)
         .orElseThrow(() -> new NotFoundException("Transcript with id " + id + " not found"));
   }
 
@@ -44,19 +45,22 @@ public class TranscriptService {
     User user = userRepository.getById(studentId);
     return transcripts.stream()
         .map(transcript -> this.updateTranscript(user, transcript))
-        .collect(Collectors.toList());
+        .collect(toUnmodifiableList());
   }
 
   private Transcript updateTranscript(User user, Transcript update) {
-    Transcript studentTranscript =
-        transcriptRepository.getByIdAndStudentId(update.getId(), user.getId()).orElse(null);
-    if (studentTranscript == null) {
+    Optional<Transcript> optionalTranscript =
+        transcriptRepository.findByIdAndStudentId(update.getId(), user.getId());
+    Transcript studentTranscript;
+    if (optionalTranscript.isEmpty()) {
       studentTranscript =
           Transcript.builder()
               .id(update.getId())
               .student(user)
               .creationDatetime(update.getCreationDatetime())
               .build();
+    } else {
+      studentTranscript = optionalTranscript.get();
     }
     studentTranscript.setSemester(update.getSemester());
     studentTranscript.setAcademicYear(update.getAcademicYear());

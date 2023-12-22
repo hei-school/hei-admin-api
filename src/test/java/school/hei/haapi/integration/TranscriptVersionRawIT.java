@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MULTIPART_FILE_UPLOADED;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TRANSCRIPT1_ID;
@@ -16,6 +15,7 @@ import static school.hei.haapi.integration.conf.TestUtils.transcript1;
 import static school.hei.haapi.integration.conf.TestUtils.transcript2;
 import static school.hei.haapi.integration.conf.TestUtils.transcript3;
 
+import java.io.File;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -30,6 +30,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.TranscriptApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
 import school.hei.haapi.endpoint.rest.model.Transcript;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -47,6 +48,11 @@ public class TranscriptVersionRawIT {
   @MockBean private S3Service s3ServiceMock;
 
   @Autowired private MockMvc mockMvc;
+
+  public File getMockPdf() {
+    return new File(this.getClass().getClassLoader().getResource("mockData/sample.pdf").getFile());
+  }
+
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, TranscriptVersionRawIT.ContextInitializer.SERVER_PORT);
@@ -81,21 +87,20 @@ public class TranscriptVersionRawIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TranscriptApiMultipart api = new TranscriptApiMultipart(manager1Client);
 
-    // StudentTranscriptVersion actualTranscript =
-    // api.putStudentTranscriptVersionPdf(STUDENT1_ID,TRANSCRIPT1_ID, MULTIPART_FILE_UPLOADED);
-    // assertEquals(transcriptVersion1(), actualTranscript);
+//     StudentTranscriptVersion actual =
+//     api.putStudentTranscriptVersionPdf(STUDENT1_ID,TRANSCRIPT1_ID, getMockPdf());
   }
 
   @Test
   void student_write_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    TranscriptApiMultipart api = new TranscriptApiMultipart(student1Client);
+    TranscriptApi api = new TranscriptApi(student1Client);
 
-    assertThrowsApiException(
+      assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () ->
             api.putStudentTranscriptVersionPdf(
-                STUDENT1_ID, TRANSCRIPT1_ID, MULTIPART_FILE_UPLOADED));
+                STUDENT1_ID, TRANSCRIPT1_ID, getMockPdf()));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

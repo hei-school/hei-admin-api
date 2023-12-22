@@ -86,15 +86,18 @@ public class TranscriptVersionService {
         .isEmpty()) {
       newRef = getTranscriptVersion(studentId, transcriptId, "latest").getRef() + 1;
     }
+    Instant creationDatetime = Instant.now();
     String key =
         "transcripts/"
             + transcript.getAcademicYear()
             + "/"
             + transcript.getSemester()
-            + "/"
+            + "/V"
             + student.getRef()
             + "_"
             + newRef
+            + "_"
+            + creationDatetime
             + ".pdf";
     String pdfKey = s3Service.uploadObjectToS3Bucket(key, pdfFile);
     return repository.save(
@@ -103,7 +106,7 @@ public class TranscriptVersionService {
             .ref(newRef)
             .editor(editor)
             .pdfLink(pdfKey)
-            .creationDatetime(Instant.now())
+            .creationDatetime(creationDatetime)
             .build());
   }
 }

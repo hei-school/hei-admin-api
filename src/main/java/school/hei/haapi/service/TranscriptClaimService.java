@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.TranscriptClaim;
-import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.TranscriptClaimValidator;
 import school.hei.haapi.repository.TranscriptClaimRepository;
@@ -31,8 +30,7 @@ public class TranscriptClaimService {
   public TranscriptClaim findByVersionIdAndClaimId(
       String studentId, String transcriptId, String versionId, String claimId) {
     return transcriptClaimRepository
-        .findByTranscriptVersionTranscriptStudentIdAndTranscriptVersionTranscriptIdAndTranscriptVersionIdAndId(
-            studentId, transcriptId, versionId, claimId)
+        .findTranscriptClaimWithCriteria(studentId, transcriptId, versionId, claimId)
         .orElseThrow(() -> new NotFoundException("Transcript claim id " + claimId + " not found"));
   }
 
@@ -44,9 +42,8 @@ public class TranscriptClaimService {
       BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return transcriptClaimRepository
-        .findAllByTranscriptVersionTranscriptStudentIdAndTranscriptVersionTranscriptIdAndTranscriptVersionId(
-            studentId, transcriptId, versionId, pageable);
+    return transcriptClaimRepository.findTranscriptClaimsByCriteria(
+        studentId, transcriptId, versionId, pageable);
   }
 
   public TranscriptClaim save(
@@ -59,8 +56,7 @@ public class TranscriptClaimService {
     transcriptClaimValidator.accept(domain);
     // check if the claim already exist and all information given are corrects - to modify
     if (transcriptClaimRepository
-        .findByTranscriptVersionTranscriptStudentIdAndTranscriptVersionTranscriptIdAndTranscriptVersionIdAndId(
-            studentId, transcriptId, versionId, claimId)
+        .findTranscriptClaimWithCriteria(studentId, transcriptId, versionId, claimId)
         .isPresent()) {
       return transcriptClaimRepository.save(domain);
       // check if this claim doesn't exist and all information given are corrects - to modify
@@ -70,7 +66,7 @@ public class TranscriptClaimService {
             .isPresent()) {
       return transcriptClaimRepository.save(domain);
     } else {
-      throw new BadRequestException(
+      throw new NotFoundException(
           "Some of the information about the student is incorrect: student_id or transcript_id or"
               + " version_id");
     }

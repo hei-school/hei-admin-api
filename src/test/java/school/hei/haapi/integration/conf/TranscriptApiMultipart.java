@@ -2,6 +2,8 @@ package school.hei.haapi.integration.conf;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -43,34 +45,37 @@ public class TranscriptApiMultipart extends TranscriptApi {
     memberVarAsyncResponseInterceptor = apiClient.getAsyncResponseInterceptor();
   }
 
-  private HttpRequest.Builder putStudentTranscriptVersionPdfRequestBuilder(
-      String studentId, String transcriptId, byte[] pdfFile) throws ApiException {
+  private HttpRequest.Builder putStudentTranscriptVersionPdfRequestBuilder(String studentId, String transcriptId, File body) throws ApiException {
     // verify the required parameter 'studentId' is set
     if (studentId == null) {
-      throw new ApiException(
-          400,
-          "Missing the required parameter 'studentId' when calling putStudentTranscriptVersionPdf");
+      throw new ApiException(400, "Missing the required parameter 'studentId' when calling putStudentTranscriptVersionPdf");
     }
     // verify the required parameter 'transcriptId' is set
     if (transcriptId == null) {
-      throw new ApiException(
-          400,
-          "Missing the required parameter 'transcriptId' when calling"
-              + " putStudentTranscriptVersionPdf");
+      throw new ApiException(400, "Missing the required parameter 'transcriptId' when calling putStudentTranscriptVersionPdf");
+    }
+    // verify the required parameter 'body' is set
+    if (body == null) {
+      throw new ApiException(400, "Missing the required parameter 'body' when calling putStudentTranscriptVersionPdf");
     }
 
     HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
 
-    String localVarPath =
-        "/students/{student_id}/transcripts/{transcript_id}/versions/latest/raw"
+    String localVarPath = "/students/{student_id}/transcripts/{transcript_id}/versions/latest/raw"
             .replace("{student_id}", ApiClient.urlEncode(studentId.toString()))
             .replace("{transcript_id}", ApiClient.urlEncode(transcriptId.toString()));
 
     localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
 
-    localVarRequestBuilder.header("Accept", "application/json");
+    localVarRequestBuilder.header("Content-Type", "application/pdf");
+    localVarRequestBuilder.header("Accept", "application/pdf");
 
-    localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.noBody());
+    try {
+      byte[] localVarPostBody = memberVarObjectMapper.writeValueAsBytes(body);
+      localVarRequestBuilder.method("POST", HttpRequest.BodyPublishers.ofByteArray(localVarPostBody));
+    } catch (IOException e) {
+      throw new ApiException(e);
+    }
     if (memberVarReadTimeout != null) {
       localVarRequestBuilder.timeout(memberVarReadTimeout);
     }
@@ -81,7 +86,7 @@ public class TranscriptApiMultipart extends TranscriptApi {
   }
 
   public ApiResponse<StudentTranscriptVersion> putStudentTranscriptVersionPdfWithHttpInfo(
-      String studentId, String transcriptId, byte[] pdfFile) throws ApiException {
+      String studentId, String transcriptId, File pdfFile) throws ApiException {
     HttpRequest.Builder localVarRequestBuilder =
         putStudentTranscriptVersionPdfRequestBuilder(studentId, transcriptId, pdfFile);
     try {
@@ -108,9 +113,9 @@ public class TranscriptApiMultipart extends TranscriptApi {
   }
 
   public StudentTranscriptVersion putStudentTranscriptVersionPdf(
-      String studentId, String transcriptId, byte[] pdfFile) throws ApiException {
+      String studentId, String transcriptId, File file) throws ApiException {
     ApiResponse<StudentTranscriptVersion> localVarResponse =
-        putStudentTranscriptVersionPdfWithHttpInfo(studentId, transcriptId, pdfFile);
+        putStudentTranscriptVersionPdfWithHttpInfo(studentId, transcriptId, file);
     return localVarResponse.getData();
   }
 }

@@ -103,7 +103,6 @@ public class InternalToRestExceptionHandler {
       handleFileSizeLimitExceededRequests(MultipartException e) {
     log.info("File not conform", e);
     return new ResponseEntity<>(
-        // toRest(e, HttpStatus.BAD_REQUEST),
         toRest(new BadRequestException("File upload error"), HttpStatus.BAD_REQUEST),
         HttpStatus.BAD_REQUEST);
   }

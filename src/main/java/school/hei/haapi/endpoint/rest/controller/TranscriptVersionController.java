@@ -3,7 +3,9 @@ package school.hei.haapi.endpoint.rest.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,7 +13,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import school.hei.haapi.endpoint.rest.mapper.FileMapper;
 import school.hei.haapi.endpoint.rest.mapper.TranscriptVersionMapper;
 import school.hei.haapi.endpoint.rest.model.StudentTranscriptVersion;
 import school.hei.haapi.endpoint.rest.security.AuthProvider;
@@ -46,19 +47,27 @@ public class TranscriptVersionController {
     return mapper.toRest(service.getTranscriptVersion(studentId, transcriptId, versionId));
   }
 
-  @GetMapping("students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/raw")
-  public ResponseEntity<ByteArrayResource> getTranscriptVersionAsPdf(
+  @GetMapping(
+      value = "students/{student_id}/transcripts/{transcript_id}/versions/{version_id}/raw",
+      produces = {MediaType.APPLICATION_PDF_VALUE})
+  public ResponseEntity<byte[]> getTranscriptVersionAsPdf(
       @PathVariable(value = "student_id") String studentId,
       @PathVariable(value = "transcript_id") String transcriptId,
       @PathVariable(value = "version_id") String versionId) {
-    return FileMapper.customFileResponse(
+    byte[] transcriptPdfAsBytes =
         service.getTranscriptVersionPdfByStudentIdAndTranscriptIdAndVersionId(
-            studentId, transcriptId, versionId),
-        service.getTranscriptVersion(studentId, transcriptId, versionId).getPdfLink(),
-        "application/pdf");
+            studentId, transcriptId, versionId);
+    String pdfLink = service.getTranscriptVersion(studentId, transcriptId, versionId).getPdfLink();
+
+    HttpHeaders headers = new HttpHeaders();
+    headers.setContentType(MediaType.APPLICATION_PDF);
+    headers.setContentDispositionFormData("attachment", pdfLink);
+
+    return new ResponseEntity<>(transcriptPdfAsBytes, headers, HttpStatus.OK);
   }
 
-  @PostMapping("/students/{studentId}/transcripts/{transcriptId}/versions/latest/raw")
+  @PostMapping(value = "/students/{studentId}/transcripts/{transcriptId}/versions/latest/raw",
+  consumes = {MediaType.APPLICATION_PDF_VALUE})
   public StudentTranscriptVersion addNewTranscriptVersionWithPdf(
       @PathVariable String studentId,
       @PathVariable String transcriptId,

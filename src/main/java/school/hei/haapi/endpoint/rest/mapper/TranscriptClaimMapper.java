@@ -39,16 +39,15 @@ public class TranscriptClaimMapper {
       String versionId,
       String claimId) {
     Optional<TranscriptClaim> claim =
-        transcriptClaimRepository
-            .findByTranscriptVersionTranscriptStudentIdAndTranscriptVersionTranscriptIdAndTranscriptVersionIdAndId(
-                studentId, transcriptId, versionId, claimId);
+        transcriptClaimRepository.findTranscriptClaimWithCriteria(
+            studentId, transcriptId, versionId, claimId);
     Instant creationDatetime = Instant.now();
     Instant closedDatetime = null;
     TranscriptClaim.ClaimStatus status =
         studentTranscriptClaim.getStatus() == null
             ? TranscriptClaim.ClaimStatus.OPEN
             : TranscriptClaim.ClaimStatus.valueOf(studentTranscriptClaim.getStatus().toString());
-    if (claim != null && claim.isPresent()) {
+    if (claim.isPresent()) {
 
       creationDatetime = studentTranscriptClaim.getCreationDatetime();
       closedDatetime = studentTranscriptClaim.getClosedDatetime();
@@ -63,7 +62,7 @@ public class TranscriptClaimMapper {
       if (studentTranscriptClaim.getCreationDatetime() != null
           || studentTranscriptClaim.getClosedDatetime() != null) {
         throw new BadRequestException(
-            "At creation, creationDatetime and closedDatetime should be empty");
+            "At creation, creationDatetime and closedDatetime must be empty");
       }
     }
 

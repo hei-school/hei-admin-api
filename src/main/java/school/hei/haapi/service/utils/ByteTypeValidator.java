@@ -16,7 +16,6 @@ public class ByteTypeValidator {
   public static void isValid(byte[] pdfData, String type, String subType) {
     try {
       DefaultDetector detector = new DefaultDetector();
-      Parser parser = new AutoDetectParser(detector);
       Metadata metadata = new Metadata();
       ByteArrayInputStream inputStream = new ByteArrayInputStream(pdfData);
       MediaType mediaType = detector.detect(inputStream, metadata);

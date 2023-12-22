@@ -202,6 +202,4 @@ class GroupIT {
       return SERVER_PORT;
     }
   }
-
-  public static class TranscriptClaimIT {}
 }

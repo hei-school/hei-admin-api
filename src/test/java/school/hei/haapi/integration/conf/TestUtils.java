@@ -10,6 +10,7 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Instant;
@@ -140,6 +141,7 @@ public class TestUtils {
       Instant.parse("2023-10-03T08:25:24.00Z");
 
   public static final String TRANSCRIPT_VERSION1_PDF_LINK = "STD21001-2021-S1-V1";
+
   public static final byte[] MULTIPART_FILE_UPLOADED = "".getBytes();
 
   public static ApiClient anApiClient(String token, int serverPort) {
