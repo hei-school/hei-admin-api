@@ -215,7 +215,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Student'
+              $ref: '#/components/schemas/CreateStudent'
       responses:
         '200':
           description: student updated.
@@ -354,7 +354,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Student'
+                $ref: '#/components/schemas/CreateStudent'
       responses:
         '200':
           description: The created or updated students
@@ -1084,7 +1084,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Teacher'
+              $ref: '#/components/schemas/CreateTeacher'
       responses:
         '200':
           description: updated teacher.
@@ -1176,7 +1176,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Teacher'
+                $ref: '#/components/schemas/CreateTeacher'
       responses:
         '200':
           description: The created or updated teachers
@@ -1242,7 +1242,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Manager'
+              $ref: '#/components/schemas/CreateManager'
       responses:
         '200':
           description: updated manager.
@@ -1687,6 +1687,114 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/teachers/{teacher_id}/picture/raw':
+    post:
+      tags:
+        - Users
+      summary: Upload teacher profile picture
+      operationId: uploadTeacherProfilePicture
+      parameters:
+        - name: teacher_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Teacher updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/managers/{manager_id}/picture/raw':
+    post:
+      tags:
+        - Users
+      summary: Upload manager profile picture
+      operationId: uploadManagerProfilePicture
+      parameters:
+        - name: manager_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Manager updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manager'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/picture/raw':
+    post:
+      tags:
+        - Users
+      summary: Upload student profile picture
+      operationId: uploadStudentProfilePicture
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Student updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/attendance':
     get:
       tags:
@@ -1832,6 +1940,10 @@ components:
           type: string
         nic:
           type: string
+    ProfilePictureUrl:
+      properties:
+        profile_url:
+          type: string
     StudentAttendanceMovement:
       properties:
         id:
@@ -1915,6 +2027,19 @@ components:
         end:
           type: string
           format: date-time
+    CreateStudent:
+      allOf:
+        - $ref: '#/components/schemas/User'
+        - type: object
+          properties:
+            specialization_field:
+              $ref: '#/components/schemas/SpecializationField'
+    CreateTeacher:
+      allOf:
+        - $ref: '#/components/schemas/User'
+    CreateManager:
+      allOf:
+        - $ref: '#/components/schemas/User'
     Student:
       allOf:
         - $ref: '#/components/schemas/User'
@@ -1922,12 +2047,15 @@ components:
           properties:
             specialization_field:
               $ref: '#/components/schemas/SpecializationField'
+        - $ref: '#/components/schemas/ProfilePictureUrl'
     Teacher:
       allOf:
         - $ref: '#/components/schemas/User'
+        - $ref: '#/components/schemas/ProfilePictureUrl'
     Manager:
       allOf:
         - $ref: '#/components/schemas/User'
+        - $ref: '#/components/schemas/ProfilePictureUrl'
     Group:
       type: object
       properties:
