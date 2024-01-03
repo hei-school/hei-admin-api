@@ -486,7 +486,7 @@ class StudentIT {
 
     Student created1 = toCreate.get(1);
     CreateStudent toUpdate1 =
-        toUpdate0
+        new CreateStudent()
             .birthDate(created1.getBirthDate())
             .id(created1.getId())
             .entranceDatetime(created1.getEntranceDatetime())
@@ -504,42 +504,42 @@ class StudentIT {
     toUpdate1.setLastName("A new name one");
 
     Student updated0 = new Student()
-        .birthDate(created0.getBirthDate())
-        .id(created0.getId())
-        .entranceDatetime(created0.getEntranceDatetime())
-        .phone(created0.getPhone())
-        .nic(created0.getNic())
-        .birthPlace(created0.getBirthPlace())
-        .email(created0.getEmail())
-        .address(created0.getAddress())
-        .firstName(created0.getFirstName())
+        .birthDate(toUpdate0.getBirthDate())
+        .id(toUpdate0.getId())
+        .entranceDatetime(toUpdate0.getEntranceDatetime())
+        .phone(toUpdate0.getPhone())
+        .nic(toUpdate0.getNic())
+        .birthPlace(toUpdate0.getBirthPlace())
+        .email(toUpdate0.getEmail())
+        .address(toUpdate0.getAddress())
+        .firstName(toUpdate0.getFirstName())
         .lastName("A new name zero")
-        .sex(created0.getSex())
-        .ref(created0.getRef())
-        .specializationField(created0.getSpecializationField())
-        .status(created0.getStatus());
+        .sex(toUpdate0.getSex())
+        .ref(toUpdate0.getRef())
+        .specializationField(toUpdate0.getSpecializationField())
+        .status(toUpdate0.getStatus());
 
     Student updated1 = new Student()
-        .birthDate(created1.getBirthDate())
-        .id(created1.getId())
-        .entranceDatetime(created1.getEntranceDatetime())
-        .phone(created1.getPhone())
-        .nic(created1.getNic())
-        .birthPlace(created1.getBirthPlace())
-        .email(created1.getEmail())
-        .address(created1.getAddress())
-        .firstName(created1.getFirstName())
+        .birthDate(toUpdate1.getBirthDate())
+        .id(toUpdate1.getId())
+        .entranceDatetime(toUpdate1.getEntranceDatetime())
+        .phone(toUpdate1.getPhone())
+        .nic(toUpdate1.getNic())
+        .birthPlace(toUpdate1.getBirthPlace())
+        .email(toUpdate1.getEmail())
+        .address(toUpdate1.getAddress())
+        .firstName(toUpdate1.getFirstName())
         .lastName("A new name one")
-        .sex(created1.getSex())
-        .ref(created1.getRef())
-        .specializationField(created1.getSpecializationField())
-        .status(created1.getStatus());
+        .sex(toUpdate1.getSex())
+        .ref(toUpdate1.getRef())
+        .specializationField(toUpdate1.getSpecializationField())
+        .status(toUpdate1.getStatus());
 
     List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1));
 
     assertEquals(2, updated.size());
-    assertTrue(updated.contains(toUpdate0));
-    assertTrue(updated.contains(toUpdate1));
+    assertTrue(updated.contains(updated0));
+    assertTrue(updated.contains(updated1));
   }
 
   @Test

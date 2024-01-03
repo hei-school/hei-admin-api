@@ -172,7 +172,7 @@ class TeacherIT {
   void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     CreateTeacher toCreate = someCreatableTeacher();
-
+    Teacher expected = expectedSomeTeacherCreated();
 
     UsersApi api = new UsersApi(manager1Client);
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toCreate));
@@ -180,8 +180,10 @@ class TeacherIT {
     assertEquals(1, created.size());
     Teacher created0 = created.get(0);
     assertTrue(isValidUUID(created0.getId()));
-    toCreate.setId(created0.getId());
-    assertEquals(expectedSomeTeacherCreated(), created0);
+    expected.setId(created0.getId());
+    expected.setRef(toCreate.getRef());
+    expected.setEmail(toCreate.getEmail());
+    assertEquals(expected, created0);
   }
 
   @Test
@@ -207,8 +209,14 @@ class TeacherIT {
     UsersApi api = new UsersApi(manager1Client);
     CreateTeacher toUpdate = someCreatableTeacher();
 
-    Teacher expected = expectedSomeTeacherCreated()
-        .lastName("New last name");
+    List<Teacher> created = api.createOrUpdateTeachers(List.of(toUpdate));
+    toUpdate.setId(created.get(0).getId());
+
+    Teacher expected = expectedSomeTeacherCreated();
+        expected.setId(created.get(0).getId());
+        expected.setLastName("New last name");
+        expected.setEmail(toUpdate.getEmail());
+        expected.setRef(toUpdate.getRef());
 
     toUpdate.setLastName("New last name");
 
