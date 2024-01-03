@@ -26,6 +26,7 @@ import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
+import school.hei.haapi.endpoint.rest.model.CreateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
@@ -121,8 +122,22 @@ public class TestUtils {
         "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", responseBody);
   }
 
-  public static Teacher someCreatableTeacher() {
+  public static Teacher expectedSomeTeacherCreated() {
     return new Teacher()
+        .firstName("Some")
+        .lastName("User")
+        .email(randomUUID() + "@hei.school")
+        .ref("TCR21-" + randomUUID())
+        .phone("0332511129")
+        .status(EnableStatus.ENABLED)
+        .sex(Sex.M)
+        .birthDate(LocalDate.parse("2000-01-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .address("Adr X");
+  }
+
+  public static CreateTeacher someCreatableTeacher() {
+    return new CreateTeacher()
         .firstName("Some")
         .lastName("User")
         .email(randomUUID() + "@hei.school")
@@ -185,8 +200,8 @@ public class TestUtils {
         .awardedCourseId(awardedCourseId);
   }
 
-  public static List<Teacher> someCreatableTeacherList(int nbOfTeacher) {
-    List<Teacher> teacherList = new ArrayList<>();
+  public static List<CreateTeacher> someCreatableTeacherList(int nbOfTeacher) {
+    List<CreateTeacher> teacherList = new ArrayList<>();
     for (int i = 0; i < nbOfTeacher; i++) {
       teacherList.add(someCreatableTeacher());
     }

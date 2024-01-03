@@ -25,6 +25,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CreateManager;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -98,8 +99,22 @@ class ManagerIT {
         .address("Adr 2");
   }
 
-  public static Manager someUpdatableManager1() {
-    return manager1()
+  public static CreateManager someUpdatableManager1() {
+    CreateManager manager = new CreateManager();
+    manager.setId("manager1_id");
+    manager.setFirstName("One");
+    manager.setLastName("Manager");
+    manager.setEmail("test+manager1@hei.school");
+    manager.setRef("MGR21001");
+    manager.setPhone("0322411127");
+    manager.setStatus(EnableStatus.ENABLED);
+    manager.setSex(Sex.M);
+    manager.setBirthDate(LocalDate.parse("1890-01-01"));
+    manager.setEntranceDatetime(Instant.parse("2021-09-08T08:25:29Z"));
+    manager.setAddress("Adr 5");
+    manager.setBirthPlace("");
+    manager.setNic("");
+    return manager
         .address("Adr 999")
         .sex(Sex.F)
         .lastName("Other last")

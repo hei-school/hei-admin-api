@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.CreateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
@@ -36,7 +37,7 @@ public class TeacherController {
 
   @PutMapping("/teachers/{id}")
   public Teacher updateTeacher(
-      @PathVariable(name = "id") String teacherId, @RequestBody Teacher toUpdate) {
+      @PathVariable(name = "id") String teacherId, @RequestBody CreateTeacher toUpdate) {
     return userMapper.toRestTeacher(
         userService.updateUser(userMapper.toDomain(toUpdate), teacherId));
   }
@@ -61,7 +62,7 @@ public class TeacherController {
   }
 
   @PutMapping(value = "/teachers")
-  public List<Teacher> createOrUpdateTeachers(@RequestBody List<Teacher> toWrite) {
+  public List<Teacher> createOrUpdateTeachers(@RequestBody List<CreateTeacher> toWrite) {
     return userService
         .saveAll(toWrite.stream().map(userMapper::toDomain).collect(toUnmodifiableList()))
         .stream()
