@@ -1565,6 +1565,105 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /fees/fee_types/{fee_type_id}:
+    post:
+      tags:
+        - Paying
+      summary: Create fees with predefined types
+      parameters:
+        - name: fee_type_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createStudentFeesFromFeeType
+      requestBody:
+        description: Student fees Option to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateFeeOption'
+      responses:
+        '200':
+          description: student fees created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /fee_types:
+    get:
+      tags:
+        - Paying
+      summary: Get all predefined types of fee
+      operationId: getPredefinedFeeTypes
+      responses:
+        '200':
+          description: List of predefined type of fee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeeType'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /fee_types/{fee_type_id}:
+    put:
+      tags:
+        - Paying
+      summary: Create new fee type or update existing fee type
+      description: Update fee type when `id` exist, create them otherwise.
+      parameters:
+        - name: fee_type_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createOrUpdateFeeType
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeeType'
+      responses:
+        '200':
+          description: The created or updated fee type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeType'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees/{fee_id}/payments:
     get:
       tags:
@@ -2177,6 +2276,32 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    FeeType:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        total_amount:
+          type: integer
+        number_of_months:
+          type: integer
+        creation_datetime:
+          type : string
+          format : date-time
+    CreateFeeOption:
+      type: object
+      properties:
+        StudentId:
+          type: string
+        FeeTypeId:
+          type: string
+        firstDueDatetime:
+          type: string
+          format: date-time
+        isInEndOfMonth:
+          type: boolean
     Payment:
       allOf:
         - $ref: '#/components/schemas/CreatePayment'
