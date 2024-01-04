@@ -1571,7 +1571,7 @@ paths:
       tags:
         - Paying
       summary: Get all predefined types of fee
-      operationId: getPredefinedFeeTypes
+      operationId: getFeeTypes
       responses:
         '200':
           description: List of predefined type of fee

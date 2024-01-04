@@ -13,13 +13,16 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
+import school.hei.haapi.endpoint.rest.mapper.FeeTypeMapper;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeType;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.service.FeeService;
+import school.hei.haapi.service.FeeTypeService;
 import school.hei.haapi.service.UserService;
 
 @RestController
@@ -29,6 +32,8 @@ public class FeeController {
   private final FeeService feeService;
   private final FeeMapper feeMapper;
   private final UpdateFeeValidator updateFeeValidator;
+  private final FeeTypeService feeTypeService;
+  private final FeeTypeMapper feeTypeMapper;
 
   @GetMapping("/students/{studentId}/fees/{feeId}")
   public Fee getFeeByStudentId(@PathVariable String studentId, @PathVariable String feeId) {
@@ -76,4 +81,15 @@ public class FeeController {
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
   }
+
+  @GetMapping("/fees/types")
+  public List<FeeType> getPredefinedFeeTypes(){
+    return feeTypeService.getFeeTypes().stream().map(feeTypeMapper::toRest).collect(toUnmodifiableList());
+  }
+
+  @PutMapping("/fees/types")
+  public FeeType createOrUpdatePredefinedFeetype(@RequestBody FeeType feeType){
+       return feeTypeMapper.toRest(feeTypeService.createOrUpdateFeeTypes(feeTypeMapper.toDomain(feeType)));
+  }
+
 }

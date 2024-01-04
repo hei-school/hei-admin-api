@@ -35,8 +35,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
 
   public SecurityConf(
       AuthProvider authProvider,
-      // InternalToExternalErrorHandler behind
-      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
+       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
       AwardedCourseService awardedCourseService) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
@@ -151,6 +150,10 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/students/*/grades")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/fees")
+        .hasAnyRole(MANAGER.getRole())
+        .antMatchers(GET, "/fees/types")
+        .hasAnyRole(MANAGER.getRole())
+        .antMatchers(PUT, "/fees/types")
         .hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/teachers")
         .hasAnyRole(MANAGER.getRole())
