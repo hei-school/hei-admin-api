@@ -122,20 +122,6 @@ public class TestUtils {
         "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", responseBody);
   }
 
-  public static Teacher expectedSomeTeacherCreated() {
-    return new Teacher()
-        .firstName("Some")
-        .lastName("User")
-        .email(randomUUID() + "@hei.school")
-        .ref("TCR21-" + randomUUID())
-        .phone("0332511129")
-        .status(EnableStatus.ENABLED)
-        .sex(Sex.M)
-        .birthDate(LocalDate.parse("2000-01-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .address("Adr X");
-  }
-
   public static CrupdateTeacher someCreatableTeacher() {
     return new CrupdateTeacher()
         .firstName("Some")

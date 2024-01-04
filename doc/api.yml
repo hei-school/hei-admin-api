@@ -1953,7 +1953,7 @@ components:
           $ref: '#/components/schemas/PlaceEnum'
         student:
           $ref: '#/components/schemas/Student'
-    User:
+    CrupdateUser:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
         - type: object
@@ -2025,39 +2025,36 @@ components:
           format: date-time
     CrupdateStudent:
       allOf:
-        - $ref: '#/components/schemas/User'
-        - type: object
-          properties:
-            specialization_field:
-              $ref: '#/components/schemas/SpecializationField'
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        specialization_field:
+          $ref: '#/components/schemas/SpecializationField'
     CrupdateTeacher:
       allOf:
-        - $ref: '#/components/schemas/User'
+        - $ref: '#/components/schemas/CrupdateUser'
     CrupdateManager:
       allOf:
-        - $ref: '#/components/schemas/User'
+        - $ref: '#/components/schemas/CrupdateUser'
     Student:
       allOf:
-        - $ref: '#/components/schemas/User'
-        - type: object
-          properties:
-            specialization_field:
-              $ref: '#/components/schemas/SpecializationField'
-        - properties:
-            profile_picture:
-              type: string
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        specialization_field:
+          $ref: '#/components/schemas/SpecializationField'
+        profile_picture:
+          type: string
     Teacher:
       allOf:
-        - $ref: '#/components/schemas/User'
-        - properties:
-            profile_picture:
-              type: string
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        profile_picture:
+          type: string
     Manager:
       allOf:
-        - $ref: '#/components/schemas/User'
-        - properties:
-            profile_picture:
-              type: string
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        profile_picture:
+          type: string
     Group:
       type: object
       properties:

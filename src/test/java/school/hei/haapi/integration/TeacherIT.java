@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -17,7 +18,6 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.expectedSomeTeacherCreated;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -171,7 +171,7 @@ class TeacherIT {
   void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     CrupdateTeacher toCreate = someCreatableTeacher();
-    Teacher expected = expectedSomeTeacherCreated();
+    Teacher expected = expectedCreatedTeacher();
 
     UsersApi api = new UsersApi(manager1Client);
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toCreate));
@@ -211,7 +211,7 @@ class TeacherIT {
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toUpdate));
     toUpdate.setId(created.get(0).getId());
 
-    Teacher expected = expectedSomeTeacherCreated();
+    Teacher expected = expectedCreatedTeacher();
         expected.setId(created.get(0).getId());
         expected.setLastName("New last name");
         expected.setEmail(toUpdate.getEmail());
@@ -283,6 +283,20 @@ class TeacherIT {
     List<Teacher> actualTeachers =
         api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, Sex.F);
     assertEquals(1, actualTeachers.size());
+  }
+
+  private static Teacher expectedCreatedTeacher() {
+    return new Teacher()
+        .firstName("Some")
+        .lastName("User")
+        .email(randomUUID() + "@hei.school")
+        .ref("TCR21-" + randomUUID())
+        .phone("0332511129")
+        .status(EnableStatus.ENABLED)
+        .sex(Sex.M)
+        .birthDate(LocalDate.parse("2000-01-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .address("Adr X");
   }
 
   public static Teacher disabledTeacher1() {
