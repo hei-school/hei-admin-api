@@ -25,7 +25,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CreateManager;
+import school.hei.haapi.endpoint.rest.model.CrupdateManager;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -99,8 +99,8 @@ class ManagerIT {
         .address("Adr 2");
   }
 
-  public static CreateManager someUpdatableManager1() {
-    CreateManager manager = new CreateManager();
+  public static CrupdateManager someUpdatableManager1() {
+    CrupdateManager manager = new CrupdateManager();
     manager.setId("manager1_id");
     manager.setFirstName("One");
     manager.setLastName("Manager");

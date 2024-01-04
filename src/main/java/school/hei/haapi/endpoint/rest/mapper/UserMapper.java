@@ -2,9 +2,9 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.CreateManager;
-import school.hei.haapi.endpoint.rest.model.CreateStudent;
-import school.hei.haapi.endpoint.rest.model.CreateTeacher;
+import school.hei.haapi.endpoint.rest.model.CrupdateManager;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
+import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
@@ -79,7 +79,7 @@ public class UserMapper {
     return manager;
   }
 
-  public User toDomain(CreateManager manager) {
+  public User toDomain(CrupdateManager manager) {
     return User.builder()
         .role(User.Role.MANAGER)
         .id(manager.getId())
@@ -98,7 +98,7 @@ public class UserMapper {
         .build();
   }
 
-  public User toDomain(CreateTeacher teacher) {
+  public User toDomain(CrupdateTeacher teacher) {
     return User.builder()
         .role(User.Role.TEACHER)
         .id(teacher.getId())
@@ -117,7 +117,7 @@ public class UserMapper {
         .build();
   }
 
-  public User toDomain(CreateStudent student) {
+  public User toDomain(CrupdateStudent student) {
     return User.builder()
         .role(User.Role.STUDENT)
         .id(student.getId())

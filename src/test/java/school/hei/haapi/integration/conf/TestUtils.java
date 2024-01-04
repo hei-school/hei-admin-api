@@ -26,7 +26,7 @@ import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
-import school.hei.haapi.endpoint.rest.model.CreateTeacher;
+import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
@@ -136,8 +136,8 @@ public class TestUtils {
         .address("Adr X");
   }
 
-  public static CreateTeacher someCreatableTeacher() {
-    return new CreateTeacher()
+  public static CrupdateTeacher someCreatableTeacher() {
+    return new CrupdateTeacher()
         .firstName("Some")
         .lastName("User")
         .email(randomUUID() + "@hei.school")
@@ -200,8 +200,8 @@ public class TestUtils {
         .awardedCourseId(awardedCourseId);
   }
 
-  public static List<CreateTeacher> someCreatableTeacherList(int nbOfTeacher) {
-    List<CreateTeacher> teacherList = new ArrayList<>();
+  public static List<CrupdateTeacher> someCreatableTeacherList(int nbOfTeacher) {
+    List<CrupdateTeacher> teacherList = new ArrayList<>();
     for (int i = 0; i < nbOfTeacher; i++) {
       teacherList.add(someCreatableTeacher());
     }

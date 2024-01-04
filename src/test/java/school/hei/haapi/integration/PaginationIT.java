@@ -28,7 +28,7 @@ import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CreateStudent;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.model.Student;
@@ -70,7 +70,7 @@ class PaginationIT {
   }
 
   private void someCreatableStudentList(int nbOfNewStudents) throws ApiException {
-    List<CreateStudent> newStudents = new ArrayList<>();
+    List<CrupdateStudent> newStudents = new ArrayList<>();
     for (int i = 0; i < nbOfNewStudents; i++) {
       newStudents.add(StudentIT.someCreatableStudent());
     }

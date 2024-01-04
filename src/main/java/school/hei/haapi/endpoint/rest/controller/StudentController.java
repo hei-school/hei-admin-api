@@ -18,7 +18,7 @@ import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
-import school.hei.haapi.endpoint.rest.model.CreateStudent;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.GroupFlow;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -73,7 +73,7 @@ public class StudentController {
   }
 
   @PutMapping("/students")
-  public List<Student> saveAll(@RequestBody List<CreateStudent> toWrite) {
+  public List<Student> saveAll(@RequestBody List<CrupdateStudent> toWrite) {
     return userService
         .saveAll(toWrite.stream().map(userMapper::toDomain).collect(toUnmodifiableList()))
         .stream()
@@ -83,7 +83,7 @@ public class StudentController {
 
   @PutMapping("/students/{id}")
   public Student updateStudent(
-      @PathVariable(name = "id") String studentId, @RequestBody CreateStudent toUpdate) {
+      @PathVariable(name = "id") String studentId, @RequestBody CrupdateStudent toUpdate) {
     return userMapper.toRestStudent(
         userService.updateUser(userMapper.toDomain(toUpdate), studentId));
   }

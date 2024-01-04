@@ -215,7 +215,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateStudent'
+              $ref: '#/components/schemas/CrupdateStudent'
       responses:
         '200':
           description: student updated.
@@ -354,7 +354,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/CreateStudent'
+                $ref: '#/components/schemas/CrupdateStudent'
       responses:
         '200':
           description: The created or updated students
@@ -1084,7 +1084,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateTeacher'
+              $ref: '#/components/schemas/CrupdateTeacher'
       responses:
         '200':
           description: updated teacher.
@@ -1176,7 +1176,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/CreateTeacher'
+                $ref: '#/components/schemas/CrupdateTeacher'
       responses:
         '200':
           description: The created or updated teachers
@@ -1242,7 +1242,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateManager'
+              $ref: '#/components/schemas/CrupdateManager'
       responses:
         '200':
           description: updated manager.
@@ -1940,10 +1940,6 @@ components:
           type: string
         nic:
           type: string
-    ProfilePictureUrl:
-      properties:
-        profile_url:
-          type: string
     StudentAttendanceMovement:
       properties:
         id:
@@ -2027,17 +2023,17 @@ components:
         end:
           type: string
           format: date-time
-    CreateStudent:
+    CrupdateStudent:
       allOf:
         - $ref: '#/components/schemas/User'
         - type: object
           properties:
             specialization_field:
               $ref: '#/components/schemas/SpecializationField'
-    CreateTeacher:
+    CrupdateTeacher:
       allOf:
         - $ref: '#/components/schemas/User'
-    CreateManager:
+    CrupdateManager:
       allOf:
         - $ref: '#/components/schemas/User'
     Student:
@@ -2047,15 +2043,21 @@ components:
           properties:
             specialization_field:
               $ref: '#/components/schemas/SpecializationField'
-        - $ref: '#/components/schemas/ProfilePictureUrl'
+        - properties:
+            profile_picture:
+              type: string
     Teacher:
       allOf:
         - $ref: '#/components/schemas/User'
-        - $ref: '#/components/schemas/ProfilePictureUrl'
+        - properties:
+            profile_picture:
+              type: string
     Manager:
       allOf:
         - $ref: '#/components/schemas/User'
-        - $ref: '#/components/schemas/ProfilePictureUrl'
+        - properties:
+            profile_picture:
+              type: string
     Group:
       type: object
       properties:

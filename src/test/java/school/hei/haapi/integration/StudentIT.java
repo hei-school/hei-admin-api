@@ -43,7 +43,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CreateStudent;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
@@ -72,8 +72,8 @@ class StudentIT {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  public static CreateStudent createStudent1() {
-    CreateStudent student = new CreateStudent();
+  public static CrupdateStudent createStudent1() {
+    CrupdateStudent student = new CrupdateStudent();
     student.setId("student1_id");
     student.setFirstName("Ryan");
     student.setLastName("Andria");
@@ -90,7 +90,7 @@ class StudentIT {
     return student;
   }
 
-  public static CreateStudent someUpdatableStudent() {
+  public static CrupdateStudent someUpdatableStudent() {
     return createStudent1()
         .address("Adr 999")
         .sex(Sex.F)
@@ -100,8 +100,8 @@ class StudentIT {
         .birthDate(LocalDate.parse("2000-01-03"));
   }
 
-  public static CreateStudent someCreatableStudent() {
-    CreateStudent student = createStudent1();
+  public static CrupdateStudent someCreatableStudent() {
+    CrupdateStudent student = createStudent1();
     Faker faker = new Faker();
     student.setId(null);
     student.setFirstName(faker.name().firstName());
@@ -121,8 +121,8 @@ class StudentIT {
     return student;
   }
 
-  static List<CreateStudent> someCreatableStudentList(int nbOfStudent) {
-    List<CreateStudent> studentList = new ArrayList<>();
+  static List<CrupdateStudent> someCreatableStudentList(int nbOfStudent) {
+    List<CrupdateStudent> studentList = new ArrayList<>();
     for (int i = 0; i < nbOfStudent; i++) {
       studentList.add(someCreatableStudent());
     }
@@ -165,8 +165,8 @@ class StudentIT {
     return student;
   }
 
-  public static CreateStudent createStudent2() {
-    CreateStudent student = new CreateStudent();
+  public static CrupdateStudent createStudent2() {
+    CrupdateStudent student = new CrupdateStudent();
     student.setId("student2_id");
     student.setFirstName("Two");
     student.setLastName("Student");
@@ -218,8 +218,8 @@ class StudentIT {
         .address("Adr 1");
   }
 
-  public static CreateStudent creatableSuspendedStudent() {
-    return new CreateStudent()
+  public static CrupdateStudent creatableSuspendedStudent() {
+    return new CrupdateStudent()
         .firstName("Suspended")
         .lastName("Two")
         .email("test+suspended2@hei.school")
@@ -466,8 +466,8 @@ class StudentIT {
         api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));
 
     Student created0 = toCreate.get(0);
-    CreateStudent toUpdate0 =
-        new CreateStudent()
+    CrupdateStudent toUpdate0 =
+        new CrupdateStudent()
             .birthDate(created0.getBirthDate())
             .id(created0.getId())
             .entranceDatetime(created0.getEntranceDatetime())
@@ -485,8 +485,8 @@ class StudentIT {
     toUpdate0.setLastName("A new name zero");
 
     Student created1 = toCreate.get(1);
-    CreateStudent toUpdate1 =
-        new CreateStudent()
+    CrupdateStudent toUpdate1 =
+        new CrupdateStudent()
             .birthDate(created1.getBirthDate())
             .id(created1.getId())
             .entranceDatetime(created1.getEntranceDatetime())
@@ -546,7 +546,7 @@ class StudentIT {
   void manager_write_update_rollback_on_event_error() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    CreateStudent toCreate = someCreatableStudent();
+    CrupdateStudent toCreate = someCreatableStudent();
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
         .thenThrow(RuntimeException.class);
@@ -563,8 +563,8 @@ class StudentIT {
   void manager_write_update_more_than_10_students_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    CreateStudent studentToCreate = someCreatableStudent();
-    List<CreateStudent> listToCreate = someCreatableStudentList(11);
+    CrupdateStudent studentToCreate = someCreatableStudent();
+    List<CrupdateStudent> listToCreate = someCreatableStudentList(11);
     listToCreate.add(studentToCreate);
 
     assertThrowsApiException(
