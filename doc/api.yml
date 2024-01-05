@@ -2421,8 +2421,6 @@ components:
     CrupdateFeeType:
       type: object
       properties:
-        id:
-          type: string
         name:
           type: string
         total_amount:
