@@ -1565,6 +1565,83 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+
+  /fees/types:
+    get:
+      tags:
+        - Paying
+      summary: Get all predefined types of fee
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: total_amount
+          in: query
+          schema:
+            type: integer
+        - name: number_of_months
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getFeeTypes
+      responses:
+        '200':
+          description: List of predefined type of fee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeeType'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Paying
+      summary: Create new fee type or update existing fee type
+      description: Update fee type when `id` exist, create it otherwise.
+      operationId: createOrUpdateFeeType
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FeeType'
+      responses:
+        '200':
+          description: The created or updated fee type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeType'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
   /students/{student_id}/fees/{fee_id}/payments:
     get:
       tags:
@@ -2304,6 +2381,20 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    FeeType:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        total_amount:
+          type: integer
+        number_of_months:
+          type: integer
+        creation_datetime:
+          type : string
+          format : date-time
     Payment:
       allOf:
         - $ref: '#/components/schemas/CreatePayment'
