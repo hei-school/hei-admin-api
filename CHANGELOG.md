@@ -1,3 +1,15 @@
+# [1.0.0](https://github.com/hei-school/hei-admin-api/compare/v0.13.0...v1.0.0) (2024-01-05)
+
+
+* feat!: add profile picture to user attributes, also separate crupdate payload from response payload for Users (Student, Manager, Teacher) ([0536cdf](https://github.com/hei-school/hei-admin-api/commit/0536cdf1b7b3d22fef6e7e5645fb8fef1d0cd023))
+
+
+### BREAKING CHANGES
+
+* separate crupdate payload from response components
+
+
+
 # [0.13.0](https://github.com/hei-school/hei-admin-api/compare/v0.12.0...v0.13.0) (2023-12-21)
 
 
@@ -159,15 +171,6 @@
 ### Bug Fixes
 
 * PUT /users validation ([a1b3fab](https://github.com/hei-school/hei-admin-api/commit/a1b3fabf692cf4a75b64a37393e8604fc80c99db)), closes [#50](https://github.com/hei-school/hei-admin-api/issues/50)
-
-
-
-# [0.5.0](https://github.com/hei-school/hei-admin-api/compare/v0.4.0...v0.5.0) (2022-02-24)
-
-
-### Features
-
-* filter users by params ignoring case ([d151927](https://github.com/hei-school/hei-admin-api/commit/d151927dd01bdb31604af85b69c7031aedf2b71f)), closes [#47](https://github.com/hei-school/hei-admin-api/issues/47)
 
 
 
