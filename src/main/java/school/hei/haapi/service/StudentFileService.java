@@ -35,10 +35,10 @@ public class StudentFileService {
             .findById(studentId)
             .orElseThrow(() -> new NotFoundException("Student not found"));
     context.setVariable("student", student);
-    context.setVariable("now", localDateToCommonDate(now()));
+    context.setVariable("now", formatLocalDate(now()));
     context.setVariable("academic_sentence", getAcademicYearSentence(student));
     context.setVariable("academic_promotion", getAcademicYearPromotion(student));
-    context.setVariable("birthday", formatLocalDate(student.getBirthDate(), "dd/mm/yyyy"));
+    context.setVariable("birthday", formatLocalDate(student.getBirthDate(), "dd/MM/yyyy"));
     return context;
   }
 }

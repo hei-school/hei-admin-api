@@ -18,7 +18,7 @@ public class DataFormatterUtils {
     return localDate.format(pattern);
   }
 
-  public static String localDateToCommonDate(LocalDate localDate) {
+  public static String formatLocalDate(LocalDate localDate) {
     DateTimeFormatter formatter =
         DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
             .withLocale(Locale.FRENCH)
