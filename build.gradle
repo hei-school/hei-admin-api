@@ -152,7 +152,5 @@ implementation 'pl.allegro.finance:tradukisto:1.12.0'
 testImplementation 'org.springframework.security:spring-security-test'
 // Can __NOT__ upgrade javaker to higher versions
 testImplementation 'com.github.javafaker:javafaker:0.13'
-
-
-
+implementation 'org.xhtmlrenderer:flying-saucer-pdf:9.3.1'
 }

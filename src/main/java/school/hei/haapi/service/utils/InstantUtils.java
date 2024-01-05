@@ -9,7 +9,11 @@ import java.time.temporal.TemporalAdjusters;
 import school.hei.haapi.model.CourseSession;
 
 public class InstantUtils {
-  public static Instant Instant_now = LocalDateTime.now().atZone(ZoneId.of("UTC+3")).toInstant();
+
+  //TODO: create a system var or bean to not need always specifying the ZonedId
+  public static Instant now() {
+    return LocalDateTime.now().atZone(ZoneId.of("UTC+3")).toInstant();
+  }
 
   public static Instant getCurrentMondayOfTheWeek() {
     return LocalDate.now()

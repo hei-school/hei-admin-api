@@ -2,6 +2,8 @@ package school.hei.haapi.service.utils;
 
 import java.text.NumberFormat;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -10,6 +12,19 @@ import pl.allegro.finance.tradukisto.ValueConverters;
 
 public class DataFormatterUtils {
   private DataFormatterUtils() {}
+
+  public static String formatLocalDate(LocalDate localDate, String format) {
+    DateTimeFormatter pattern = DateTimeFormatter.ofPattern(format);
+    return localDate.format(pattern);
+  }
+
+  public static String formatLocalDate(LocalDate localDate) {
+    DateTimeFormatter formatter =
+        DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG)
+            .withLocale(Locale.FRENCH)
+            .withZone(ZoneId.of("UTC+3"));
+    return formatter.format(localDate);
+  }
 
   public static String instantToCommonDate(Instant instant) {
     DateTimeFormatter formatter =

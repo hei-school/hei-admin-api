@@ -1873,7 +1873,37 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  '/students/{id}/scholarship_certificate/raw':
+    get:
+      tags:
+        - StudentsFile
+      summary: Get scholarship certificate of a student.
+      operationId: getStudentScholarshipCertificate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Scholarship certificate of student
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: byte
+                example: PDF VERSION
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:

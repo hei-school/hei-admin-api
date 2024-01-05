@@ -1,0 +1,99 @@
+* {
+  margin: 0;
+  padding: 0;
+  font-size: 16px;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+body {
+  margin: 2%;
+}
+
+a {
+  color: black;
+}
+
+/* All header certificat header */
+.logo_content {
+  width: 500px;
+  height: 150px;
+  margin: 0 auto;
+  background-image: url(../assets/images/HEI_logo.png);
+  background-size: contain;
+  background-position: center;
+  background-repeat: no-repeat;
+}
+
+.certificat_title {
+  position: relative;
+  height: auto;
+}
+
+.certificat_title h1 {
+  text-align: center;
+  font-size: 1.1rem;
+  font-weight: 400;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  margin: 0 auto;
+  margin-top: 10px;
+  font-family: "Times New Roman";
+}
+
+h2 {
+  font-weight: 500;
+  font-size: 1.5em;
+  margin: 20px 0;
+  margin-top: 40px;
+  font-family: "Times New Roman";
+}
+/* Personal information */
+.personal_information {
+  margin: 2% 0;
+  padding: 1% 2%;
+}
+
+.personal_information ul {
+  list-style: none;
+}
+/* Signature section */
+.signature_content {
+  width: auto;
+  margin: 5% 0;
+  margin-left: 40%;
+}
+
+span {
+  font-weight: bold;
+}
+
+blockquote {
+  margin-bottom: 2%;
+}
+
+.signature_img {
+  display: block;
+  width: 150px;
+  height: 150px;
+  background-image: url(../assets/images/signature.png);
+  background-position: center;
+  background-size: contain;
+  background-repeat: no-repeat;
+}
+/* Certificat footer */
+footer {
+  width: auto;
+  bottom: 5px;
+  padding-top: 1vh;
+  position: relative;
+}
+footer::before {
+  content: "------------------------------------------------------";
+  margin-bottom: 10px;
+}
+
+footer p:first-child {
+  font-family: "Times New Roman";
+  color: #dfa408;
+}
