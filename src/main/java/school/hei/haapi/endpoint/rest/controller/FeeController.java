@@ -13,13 +13,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
+import school.hei.haapi.endpoint.rest.mapper.FeeTypeMapper;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CrupdateFeeType;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeType;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.service.FeeService;
+import school.hei.haapi.service.FeeTypeService;
 import school.hei.haapi.service.UserService;
 
 @RestController
@@ -29,6 +33,8 @@ public class FeeController {
   private final FeeService feeService;
   private final FeeMapper feeMapper;
   private final UpdateFeeValidator updateFeeValidator;
+  private final FeeTypeService feeTypeService;
+  private final FeeTypeMapper feeTypeMapper;
 
   @GetMapping("/students/{studentId}/fees/{feeId}")
   public Fee getFeeByStudentId(@PathVariable String studentId, @PathVariable String feeId) {
@@ -75,5 +81,24 @@ public class FeeController {
     return feeService.getFees(page, pageSize, status).stream()
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
+  }
+
+  @GetMapping("/fees/types")
+  public List<FeeType> getPredefinedFeeTypes(
+      @RequestParam(value = "name", required = false) String name,
+      @RequestParam(value = "total_amount", required = false) Integer totalAmount,
+      @RequestParam(value = "number_of_months", required = false) Integer numberOfMonths,
+      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+      @RequestParam(value = "page_size", defaultValue = "10") BoundedPageSize pageSize) {
+    return feeTypeService.getFeeTypes(name, totalAmount, numberOfMonths, page, pageSize).stream()
+        .map(feeTypeMapper::toRest)
+        .collect(toUnmodifiableList());
+  }
+
+  @PutMapping("/fees/types/{id}")
+  public FeeType createOrUpdatePredefinedFeetype(
+      @PathVariable String id, @RequestBody CrupdateFeeType feeType) {
+    return feeTypeMapper.toRest(
+        feeTypeService.createOrUpdateFeeTypes(feeTypeMapper.toDomain(feeType)));
   }
 }
