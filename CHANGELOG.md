@@ -1,3 +1,12 @@
+# [1.1.0](https://github.com/hei-school/hei-admin-api/compare/v1.0.0...v1.1.0) (2024-01-05)
+
+
+### Features
+
+* handle scholarship certificate gen for a Student ([62f83e7](https://github.com/hei-school/hei-admin-api/commit/62f83e7856aa9274593ee1afdf729549cbda1f14))
+
+
+
 # [1.0.0](https://github.com/hei-school/hei-admin-api/compare/v0.13.0...v1.0.0) (2024-01-05)
 
 
@@ -162,15 +171,6 @@
 
 * GET fees/{id}/payments and POST fees/{id}/payments ([8a15311](https://github.com/hei-school/hei-admin-api/commit/8a15311af3152061a5bd7c7f332d248afede05d4))
 * POST and GET /students/{studentId}/fees ([6a2be51](https://github.com/hei-school/hei-admin-api/commit/6a2be515c76959fe12ced16a122f658d8443782b))
-
-
-
-## [0.5.1](https://github.com/hei-school/hei-admin-api/compare/v0.5.0...v0.5.1) (2022-03-03)
-
-
-### Bug Fixes
-
-* PUT /users validation ([a1b3fab](https://github.com/hei-school/hei-admin-api/commit/a1b3fabf692cf4a75b64a37393e8604fc80c99db)), closes [#50](https://github.com/hei-school/hei-admin-api/issues/50)
 
 
 
