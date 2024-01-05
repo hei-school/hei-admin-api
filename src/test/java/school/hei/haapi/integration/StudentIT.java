@@ -143,6 +143,7 @@ class StudentIT {
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setAddress("Adr 1");
     student.setNic("");
+    student.setSpecializationField(COMMON_CORE);
     student.setBirthPlace("");
     return student;
   }
@@ -162,6 +163,7 @@ class StudentIT {
     student.setAddress("Adr 2");
     student.setBirthPlace("");
     student.setNic("");
+    student.setSpecializationField(COMMON_CORE);
     return student;
   }
 
@@ -198,6 +200,7 @@ class StudentIT {
     student.setAddress("Adr 2");
     student.setBirthPlace("Befelatanana");
     student.setNic("0000000000");
+    student.setSpecializationField(COMMON_CORE);
     return student;
   }
 
@@ -213,6 +216,7 @@ class StudentIT {
         .birthDate(LocalDate.parse("2000-12-01"))
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .phone("0322411123")
+        .specializationField(COMMON_CORE)
         .nic("")
         .birthPlace("")
         .address("Adr 1");
@@ -245,6 +249,7 @@ class StudentIT {
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
         .phone("0322411124")
         .nic("")
+        .specializationField(COMMON_CORE)
         .birthPlace("")
         .address("Adr 2");
   }
