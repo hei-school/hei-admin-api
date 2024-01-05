@@ -1583,7 +1583,7 @@ paths:
         - name: number_of_months
           in: query
           schema:
-            type: string
+            type: integer
         - name: page
           in: query
           schema:
