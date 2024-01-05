@@ -1,3 +1,17 @@
+# [1.2.0](https://github.com/hei-school/hei-admin-api/compare/v1.1.0...v1.2.0) (2024-01-05)
+
+
+### Bug Fixes
+
+* use common core as default value for student ([ddff084](https://github.com/hei-school/hei-admin-api/commit/ddff08470b7393a192109fe6de728be51d68b8d9))
+
+
+### Features
+
+* **api:** add fee types endpoint(not-implemented) ([10e9608](https://github.com/hei-school/hei-admin-api/commit/10e9608e714f1bda39551df7b134cf1e1b44db4a))
+
+
+
 # [1.1.0](https://github.com/hei-school/hei-admin-api/compare/v1.0.0...v1.1.0) (2024-01-05)
 
 
@@ -154,23 +168,6 @@
 ### Features
 
 * filter fees by status without cache ([2c27555](https://github.com/hei-school/hei-admin-api/commit/2c27555f7fe06284f9a70e144a7399f2a5ae2524))
-
-
-
-# [0.6.0](https://github.com/hei-school/hei-admin-api/compare/v0.5.1...v0.6.0) (2022-07-26)
-
-
-### Bug Fixes
-
-* compute remaining amount ([572cc9f](https://github.com/hei-school/hei-admin-api/commit/572cc9f01bedd1689c81edb9a68b43bdcb210c91))
-* LATE status is correctly computed ([756e366](https://github.com/hei-school/hei-admin-api/commit/756e3669f911a457c9388311001389a14f695a9b)), closes [#61](https://github.com/hei-school/hei-admin-api/issues/61) [#62](https://github.com/hei-school/hei-admin-api/issues/62)
-* multiple fees in payment are not implemented ([fc1deeb](https://github.com/hei-school/hei-admin-api/commit/fc1deeb13f9c772908c6a4d0b7ffd9772ed0de1f))
-
-
-### Features
-
-* GET fees/{id}/payments and POST fees/{id}/payments ([8a15311](https://github.com/hei-school/hei-admin-api/commit/8a15311af3152061a5bd7c7f332d248afede05d4))
-* POST and GET /students/{studentId}/fees ([6a2be51](https://github.com/hei-school/hei-admin-api/commit/6a2be515c76959fe12ced16a122f658d8443782b))
 
 
 
