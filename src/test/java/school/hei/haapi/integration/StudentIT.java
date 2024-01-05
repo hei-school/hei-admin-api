@@ -43,6 +43,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
@@ -71,8 +72,26 @@ class StudentIT {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
 
-  public static Student someUpdatableStudent() {
-    return student1()
+  public static CrupdateStudent createStudent1() {
+    CrupdateStudent student = new CrupdateStudent();
+    student.setId("student1_id");
+    student.setFirstName("Ryan");
+    student.setLastName("Andria");
+    student.setEmail("test+ryan@hei.school");
+    student.setRef("STD21001");
+    student.setPhone("0322411123");
+    student.setStatus(EnableStatus.ENABLED);
+    student.setSex(Sex.M);
+    student.setBirthDate(LocalDate.parse("2000-01-01"));
+    student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    student.setAddress("Adr 1");
+    student.setNic("");
+    student.setBirthPlace("");
+    return student;
+  }
+
+  public static CrupdateStudent someUpdatableStudent() {
+    return createStudent1()
         .address("Adr 999")
         .sex(Sex.F)
         .lastName("Other last")
@@ -81,8 +100,8 @@ class StudentIT {
         .birthDate(LocalDate.parse("2000-01-03"));
   }
 
-  public static Student someCreatableStudent() {
-    Student student = student1();
+  public static CrupdateStudent someCreatableStudent() {
+    CrupdateStudent student = createStudent1();
     Faker faker = new Faker();
     student.setId(null);
     student.setFirstName(faker.name().firstName());
@@ -102,8 +121,8 @@ class StudentIT {
     return student;
   }
 
-  static List<Student> someCreatableStudentList(int nbOfStudent) {
-    List<Student> studentList = new ArrayList<>();
+  static List<CrupdateStudent> someCreatableStudentList(int nbOfStudent) {
+    List<CrupdateStudent> studentList = new ArrayList<>();
     for (int i = 0; i < nbOfStudent; i++) {
       studentList.add(someCreatableStudent());
     }
@@ -130,6 +149,24 @@ class StudentIT {
 
   public static Student student2() {
     Student student = new Student();
+    student.setId("student2_id");
+    student.setFirstName("Two");
+    student.setLastName("Student");
+    student.setEmail("test+student2@hei.school");
+    student.setRef("STD21002");
+    student.setPhone("0322411124");
+    student.setStatus(EnableStatus.ENABLED);
+    student.setSex(Sex.F);
+    student.setBirthDate(LocalDate.parse("2000-01-02"));
+    student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+    student.setAddress("Adr 2");
+    student.setBirthPlace("");
+    student.setNic("");
+    return student;
+  }
+
+  public static CrupdateStudent createStudent2() {
+    CrupdateStudent student = new CrupdateStudent();
     student.setId("student2_id");
     student.setFirstName("Two");
     student.setLastName("Student");
@@ -181,8 +218,8 @@ class StudentIT {
         .address("Adr 1");
   }
 
-  public static Student creatableSuspendedStudent() {
-    return new Student()
+  public static CrupdateStudent creatableSuspendedStudent() {
+    return new CrupdateStudent()
         .firstName("Suspended")
         .lastName("Two")
         .email("test+suspended2@hei.school")
@@ -425,25 +462,91 @@ class StudentIT {
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    List<Student> toUpdate =
+    List<Student> toCreate =
         api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));
-    Student toUpdate0 = toUpdate.get(0);
+
+    Student created0 = toCreate.get(0);
+    CrupdateStudent toUpdate0 =
+        new CrupdateStudent()
+            .birthDate(created0.getBirthDate())
+            .id(created0.getId())
+            .entranceDatetime(created0.getEntranceDatetime())
+            .phone(created0.getPhone())
+            .nic(created0.getNic())
+            .birthPlace(created0.getBirthPlace())
+            .email(created0.getEmail())
+            .address(created0.getAddress())
+            .firstName(created0.getFirstName())
+            .lastName(created0.getLastName())
+            .sex(created0.getSex())
+            .ref(created0.getRef())
+            .specializationField(created0.getSpecializationField())
+            .status(created0.getStatus());
     toUpdate0.setLastName("A new name zero");
-    Student toUpdate1 = toUpdate.get(1);
+
+    Student created1 = toCreate.get(1);
+    CrupdateStudent toUpdate1 =
+        new CrupdateStudent()
+            .birthDate(created1.getBirthDate())
+            .id(created1.getId())
+            .entranceDatetime(created1.getEntranceDatetime())
+            .phone(created1.getPhone())
+            .nic(created1.getNic())
+            .birthPlace(created1.getBirthPlace())
+            .email(created1.getEmail())
+            .address(created1.getAddress())
+            .firstName(created1.getFirstName())
+            .lastName(created1.getLastName())
+            .sex(created1.getSex())
+            .ref(created1.getRef())
+            .specializationField(created1.getSpecializationField())
+            .status(created1.getStatus());
     toUpdate1.setLastName("A new name one");
 
-    List<Student> updated = api.createOrUpdateStudents(toUpdate);
+    Student updated0 = new Student()
+        .birthDate(toUpdate0.getBirthDate())
+        .id(toUpdate0.getId())
+        .entranceDatetime(toUpdate0.getEntranceDatetime())
+        .phone(toUpdate0.getPhone())
+        .nic(toUpdate0.getNic())
+        .birthPlace(toUpdate0.getBirthPlace())
+        .email(toUpdate0.getEmail())
+        .address(toUpdate0.getAddress())
+        .firstName(toUpdate0.getFirstName())
+        .lastName("A new name zero")
+        .sex(toUpdate0.getSex())
+        .ref(toUpdate0.getRef())
+        .specializationField(toUpdate0.getSpecializationField())
+        .status(toUpdate0.getStatus());
+
+    Student updated1 = new Student()
+        .birthDate(toUpdate1.getBirthDate())
+        .id(toUpdate1.getId())
+        .entranceDatetime(toUpdate1.getEntranceDatetime())
+        .phone(toUpdate1.getPhone())
+        .nic(toUpdate1.getNic())
+        .birthPlace(toUpdate1.getBirthPlace())
+        .email(toUpdate1.getEmail())
+        .address(toUpdate1.getAddress())
+        .firstName(toUpdate1.getFirstName())
+        .lastName("A new name one")
+        .sex(toUpdate1.getSex())
+        .ref(toUpdate1.getRef())
+        .specializationField(toUpdate1.getSpecializationField())
+        .status(toUpdate1.getStatus());
+
+    List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1));
 
     assertEquals(2, updated.size());
-    assertTrue(updated.contains(toUpdate0));
-    assertTrue(updated.contains(toUpdate1));
+    assertTrue(updated.contains(updated0));
+    assertTrue(updated.contains(updated1));
   }
 
   @Test
   void manager_write_update_rollback_on_event_error() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Student toCreate = someCreatableStudent();
+    CrupdateStudent toCreate = someCreatableStudent();
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
         .thenThrow(RuntimeException.class);
@@ -460,8 +563,8 @@ class StudentIT {
   void manager_write_update_more_than_10_students_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Student studentToCreate = someCreatableStudent();
-    List<Student> listToCreate = someCreatableStudentList(11);
+    CrupdateStudent studentToCreate = someCreatableStudent();
+    List<CrupdateStudent> listToCreate = someCreatableStudentList(11);
     listToCreate.add(studentToCreate);
 
     assertThrowsApiException(
@@ -526,7 +629,7 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actual =
-        api.createOrUpdateStudents(List.of(student2().status(EnableStatus.SUSPENDED)));
+        api.createOrUpdateStudents(List.of(createStudent2().status(EnableStatus.SUSPENDED)));
     Student updated = actual.get(0);
     List<Student> suspended =
         api.getStudents(1, 10, null, null, null, null, EnableStatus.SUSPENDED, null);

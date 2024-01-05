@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -43,6 +44,7 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
@@ -152,7 +154,7 @@ class TeacherIT {
   void manager_write_update_rollback_on_event_error() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Teacher toCreate = someCreatableTeacher();
+    CrupdateTeacher toCreate = someCreatableTeacher();
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
         .thenThrow(RuntimeException.class);
@@ -168,7 +170,8 @@ class TeacherIT {
   @Test
   void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    Teacher toCreate = someCreatableTeacher();
+    CrupdateTeacher toCreate = someCreatableTeacher();
+    Teacher expected = expectedCreatedTeacher();
 
     UsersApi api = new UsersApi(manager1Client);
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toCreate));
@@ -176,16 +179,18 @@ class TeacherIT {
     assertEquals(1, created.size());
     Teacher created0 = created.get(0);
     assertTrue(isValidUUID(created0.getId()));
-    toCreate.setId(created0.getId());
-    assertEquals(toCreate, created0);
+    expected.setId(created0.getId());
+    expected.setRef(toCreate.getRef());
+    expected.setEmail(toCreate.getEmail());
+    assertEquals(expected, created0);
   }
 
   @Test
   void manager_write_update_more_than_10_teachers_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Teacher teacherToCreate = someCreatableTeacher();
-    List<Teacher> listToCreate = someCreatableTeacherList(11);
+    CrupdateTeacher teacherToCreate = someCreatableTeacher();
+    List<CrupdateTeacher> listToCreate = someCreatableTeacherList(11);
     listToCreate.add(teacherToCreate);
 
     assertThrowsApiException(
@@ -201,20 +206,30 @@ class TeacherIT {
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Teacher toUpdate = api.createOrUpdateTeachers(List.of(someCreatableTeacher())).get(0);
+    CrupdateTeacher toUpdate = someCreatableTeacher();
+
+    List<Teacher> created = api.createOrUpdateTeachers(List.of(toUpdate));
+    toUpdate.setId(created.get(0).getId());
+
+    Teacher expected = expectedCreatedTeacher();
+        expected.setId(created.get(0).getId());
+        expected.setLastName("New last name");
+        expected.setEmail(toUpdate.getEmail());
+        expected.setRef(toUpdate.getRef());
+
     toUpdate.setLastName("New last name");
 
     List<Teacher> updated = api.createOrUpdateTeachers(List.of(toUpdate));
 
     assertEquals(1, updated.size());
-    assertEquals(toUpdate, updated.get(0));
+    assertEquals(expected, updated.get(0));
   }
 
   @Test
   void manager_write_update_with_some_bad_fields_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Teacher toCreate1 =
+    CrupdateTeacher toCreate1 =
         someCreatableTeacher()
             .firstName(null)
             .lastName(null)
@@ -222,7 +237,7 @@ class TeacherIT {
             .address(null)
             .phone(null)
             .ref(null);
-    Teacher toCreate2 = someCreatableTeacher().email("bademail");
+    CrupdateTeacher toCreate2 = someCreatableTeacher().email("bademail");
 
     ApiException exception1 =
         assertThrows(ApiException.class, () -> api.createOrUpdateTeachers(List.of(toCreate1)));
@@ -270,6 +285,20 @@ class TeacherIT {
     assertEquals(1, actualTeachers.size());
   }
 
+  private static Teacher expectedCreatedTeacher() {
+    return new Teacher()
+        .firstName("Some")
+        .lastName("User")
+        .email(randomUUID() + "@hei.school")
+        .ref("TCR21-" + randomUUID())
+        .phone("0332511129")
+        .status(EnableStatus.ENABLED)
+        .sex(Sex.M)
+        .birthDate(LocalDate.parse("2000-01-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .address("Adr X");
+  }
+
   public static Teacher disabledTeacher1() {
     return new Teacher()
         .id("teacher5_id")
@@ -304,8 +333,17 @@ class TeacherIT {
         .address("Adr 2");
   }
 
-  public static Teacher someUpdatableTeacher1() {
-    return teacher1()
+  public static CrupdateTeacher someUpdatableTeacher1() {
+    return new CrupdateTeacher()
+        .id("teacher1_id")
+        .email("test+teacher1@hei.school")
+        .ref("TCR21001")
+        .phone("0322411125")
+        .status(EnableStatus.ENABLED)
+        .sex(Sex.F)
+        .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
+        .nic("")
+        .birthPlace("")
         .address("Adr 999")
         .sex(Sex.F)
         .lastName("Other last")
