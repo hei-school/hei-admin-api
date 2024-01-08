@@ -10,6 +10,7 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.aws.S3Service;
 
 @Component
 @AllArgsConstructor
@@ -17,8 +18,10 @@ public class UserMapper {
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
   private final UserRepository repository;
+  private final S3Service s3Service;
 
   public Student toRestStudent(User user) {
+    String presignedProfilePictureUrl = s3Service.getPresignedUrl(user.getRef(), 604800L);
     Student restStudent = new Student();
     restStudent.setId(user.getId());
 
@@ -35,11 +38,13 @@ public class UserMapper {
     restStudent.setNic(user.getNic());
     restStudent.setBirthPlace(user.getBirthPlace());
     restStudent.setSpecializationField(user.getSpecializationField());
+    restStudent.setProfilePicture(presignedProfilePictureUrl);
 
     return restStudent;
   }
 
   public Teacher toRestTeacher(User user) {
+    String presignedProfilePictureUrl = s3Service.getPresignedUrl(user.getRef(), 604800L);
     Teacher teacher = new Teacher();
     teacher.setId(user.getId());
 
@@ -55,11 +60,13 @@ public class UserMapper {
     teacher.setAddress(user.getAddress());
     teacher.setBirthPlace(user.getBirthPlace());
     teacher.setNic(user.getNic());
+    teacher.setProfilePicture(presignedProfilePictureUrl);
 
     return teacher;
   }
 
   public Manager toRestManager(User user) {
+    String presignedProfilePictureUrl = s3Service.getPresignedUrl(user.getRef(), 604800L);
     Manager manager = new Manager();
     manager.setId(user.getId());
 
@@ -75,6 +82,7 @@ public class UserMapper {
     manager.setAddress(user.getAddress());
     manager.setBirthPlace(user.getBirthPlace());
     manager.setNic(user.getNic());
+    manager.setProfilePicture(presignedProfilePictureUrl);
 
     return manager;
   }

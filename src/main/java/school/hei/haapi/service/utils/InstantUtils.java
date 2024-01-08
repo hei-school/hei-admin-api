@@ -10,7 +10,7 @@ import school.hei.haapi.model.CourseSession;
 
 public class InstantUtils {
 
-  //TODO: create a system var or bean to not need always specifying the ZonedId
+  // TODO: create a system var or bean to not need always specifying the ZonedId
   public static Instant now() {
     return LocalDateTime.now().atZone(ZoneId.of("UTC+3")).toInstant();
   }

@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
 import java.util.List;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
@@ -38,6 +40,13 @@ public class StudentController {
   private final GroupFlowMapper groupFlowMapper;
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
+
+  @PostMapping(value = "/students/{id}/picture/raw", consumes = IMAGE_PNG_VALUE)
+  public Student uploadStudentProfilePicture(
+      @RequestBody MultipartFile profilePicture, @PathVariable(name = "id") String studentId) {
+    userService.uploadUserProfilePicture(profilePicture, studentId);
+    return userMapper.toRestStudent(userService.getById(studentId));
+  }
 
   @GetMapping("/students/{id}")
   public Student getStudentById(@PathVariable String id) {

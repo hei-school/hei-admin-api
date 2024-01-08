@@ -1,15 +1,18 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
@@ -29,6 +32,13 @@ public class ManagerController {
   private final StatusEnumMapper statusEnumMapper;
   private final UserService userService;
   private final UserMapper userMapper;
+
+  @PostMapping(value = "/managers/{id}/picture/raw", consumes = IMAGE_PNG_VALUE)
+  public Manager uploadTeacherProfilePicture(
+      @RequestBody MultipartFile profilePicture, @PathVariable(name = "id") String managerId) {
+    userService.uploadUserProfilePicture(profilePicture, managerId);
+    return userMapper.toRestManager(userService.getById(managerId));
+  }
 
   @GetMapping(value = "/managers/{id}")
   public Manager getManagerById(@PathVariable String id) {
