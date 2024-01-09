@@ -41,13 +41,13 @@ public class UserService {
   private final S3Service s3Service;
   private final FileParser fileParser;
 
-  public void uploadUserProfilePicture(MultipartFile profilePicture, String userId) {
+  public String uploadUserProfilePicture(MultipartFile profilePicture, String userId) {
     byte[] file = fileParser.apply(profilePicture);
     User user =
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
     String key = user.getRef();
 
-    s3Service.uploadObjectToS3Bucket(key, file);
+    return s3Service.uploadObjectToS3Bucket(key, file);
   }
 
   public User updateUser(User toUpdate, String userId) {

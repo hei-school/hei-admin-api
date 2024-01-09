@@ -31,6 +31,7 @@ Globals:
         AWS_SES_SOURCE: !Sub '{{resolve:ssm:/haapi/${Env}/ses/source}}'
         AWS_SES_CONTACT: !Sub '{{resolve:ssm:/haapi/${Env}/ses/contact}}'
         SENTRY_DSN: !Sub '{{resolve:ssm:/haapi/sentry/dsn}}'
+        AWS_S3_BUCKET: !Sub '{{resolve:ssm:/haapi/${Env}/s3/bucket/name}}'
 
 Parameters:
   Env:

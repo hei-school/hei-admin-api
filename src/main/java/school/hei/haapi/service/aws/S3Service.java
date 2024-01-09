@@ -52,7 +52,7 @@ public class S3Service {
 
     try {
       s3Conf.getS3Client().putObject(putObjectRequest, RequestBody.fromBytes(file));
-      return getPresignedUrl(key, 604800L);
+      return getPresignedUrl(key, 180L);
     } catch (AwsServiceException | SdkClientException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
