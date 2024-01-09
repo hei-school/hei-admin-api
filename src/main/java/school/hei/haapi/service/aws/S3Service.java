@@ -14,6 +14,7 @@ import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.model.ChecksumAlgorithm;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
 
@@ -29,17 +30,22 @@ public class S3Service {
 
     GetObjectRequest getObjectRequest =
         GetObjectRequest.builder().bucket(s3Conf.getS3BucketName()).key(key).build();
+    PresignedGetObjectRequest presignedRequest = null;
 
-    PresignedGetObjectRequest presignedRequest =
-        s3Conf
-            .getS3Presigner()
-            .presignGetObject(
-                GetObjectPresignRequest.builder()
-                    .signatureDuration(expirationDuration)
-                    .getObjectRequest(getObjectRequest)
-                    .build());
-
-    return presignedRequest.url().toString();
+    try {
+      presignedRequest =
+          s3Conf
+              .getS3Presigner()
+              .presignGetObject(
+                  GetObjectPresignRequest.builder()
+                      .signatureDuration(expirationDuration)
+                      .getObjectRequest(getObjectRequest)
+                      .build());
+      return presignedRequest.url().toString();
+    }
+    catch (S3Exception e) {
+     return null;
+    }
   }
 
   public String uploadObjectToS3Bucket(String key, byte[] file) {
