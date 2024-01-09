@@ -11,7 +11,7 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 @Configuration
 @Getter
 public class S3Conf {
-  @Value("${AWS_S3_BUCKET}")
+  @Value("${aws.bucket.name}")
   private String s3BucketName;
 
   @Value("${aws.region}")
