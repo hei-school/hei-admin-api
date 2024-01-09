@@ -42,9 +42,8 @@ public class S3Service {
                       .getObjectRequest(getObjectRequest)
                       .build());
       return presignedRequest.url().toString();
-    }
-    catch (S3Exception e) {
-     return null;
+    } catch (S3Exception e) {
+      return null;
     }
   }
 

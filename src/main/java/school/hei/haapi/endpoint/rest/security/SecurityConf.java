@@ -141,6 +141,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/teachers")
         .hasAnyRole(MANAGER.getRole())
+        // teachers profile picture
         .requestMatchers(new SelfMatcher(POST, "/teachers/*/picture/raw", "teachers"))
         .hasRole(TEACHER.getRole())
         .antMatchers(POST, "/teachers/*/picture/raw")
@@ -163,6 +164,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/scholarship_certificate/raw")
         .hasRole(MANAGER.getRole())
+        // students profile picture
         .antMatchers(POST, "/students/*/picture/raw")
         .hasRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(POST, "/students/*/picture/raw", "students"))
@@ -185,6 +187,7 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasRole(TEACHER.getRole())
         .antMatchers(PUT, "/teachers/**")
         .hasAnyRole(MANAGER.getRole())
+        // managers profile picture
         .requestMatchers(new SelfMatcher(POST, "/managers/*/picture/raw", "managers"))
         .hasRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(PUT, "/managers/*", "managers"))

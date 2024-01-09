@@ -10,6 +10,7 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Instant;
@@ -33,7 +34,9 @@ import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
+import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.Teacher;
@@ -107,10 +110,19 @@ public class TestUtils {
     when(cognitoComponent.getEmailByIdToken(MANAGER1_TOKEN)).thenReturn("test+manager1@hei.school");
   }
 
-  public static void setUpS3Service(S3Service s3Service) {
-    String MANAGER_REF = "MGR21001";
-    when(s3Service.uploadObjectToS3Bucket(MANAGER_REF, MANAGER1_PROFILE_PNG))
-        .thenReturn(MANAGER_REF);
+  public static void setUpS3Service(S3Service s3Service, Student user) {
+    String USER_REF = user.getRef();
+    when(s3Service.uploadObjectToS3Bucket(USER_REF, MANAGER1_PROFILE_PNG)).thenReturn(USER_REF);
+  }
+
+  public static void setUpS3Service(S3Service s3Service, Teacher user) {
+    String USER_REF = user.getRef();
+    when(s3Service.uploadObjectToS3Bucket(USER_REF, MANAGER1_PROFILE_PNG)).thenReturn(USER_REF);
+  }
+
+  public static void setUpS3Service(S3Service s3Service, Manager user) {
+    String USER_REF = user.getRef();
+    when(s3Service.uploadObjectToS3Bucket(USER_REF, MANAGER1_PROFILE_PNG)).thenReturn(USER_REF);
   }
 
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {
@@ -128,6 +140,11 @@ public class TestUtils {
     String responseBody = apiException.getResponseBody();
     assertEquals(
         "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", responseBody);
+  }
+
+  public static File getMockedFile(String fileName, String fileType) {
+    File file = new File("src/main/resources/mock/" + fileName + fileType);
+    return file;
   }
 
   public static CrupdateTeacher someCreatableTeacher() {

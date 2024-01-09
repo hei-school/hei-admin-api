@@ -8,7 +8,9 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -32,6 +34,7 @@ import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.aws.S3Service;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -42,6 +45,8 @@ class ManagerIT {
   @MockBean private SentryConf sentryConf;
 
   @MockBean private CognitoComponent cognitoComponentMock;
+
+  @MockBean private S3Service s3Service;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -125,6 +130,16 @@ class ManagerIT {
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
+    setUpS3Service(s3Service, manager1());
+  }
+
+  @Test
+  void manager_upload_own_profile_picture() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    Manager uploaded = api.uploadManagerProfilePicture("manager1_id", getMockedFile("img", "png"));
+    assertEquals("MGR21001", uploaded.getProfilePicture());
   }
 
   @Test

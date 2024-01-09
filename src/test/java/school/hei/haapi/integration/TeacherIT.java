@@ -18,9 +18,11 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacher;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacherList;
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
@@ -52,6 +54,7 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.UserService;
+import school.hei.haapi.service.aws.S3Service;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 
@@ -67,6 +70,8 @@ class TeacherIT {
 
   @MockBean private EventBridgeClient eventBridgeClientMock;
 
+  @MockBean private S3Service s3Service;
+
   @Autowired private UserService userService;
 
   @Autowired private UserMapper userMapper;
@@ -79,6 +84,25 @@ class TeacherIT {
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
+    setUpS3Service(s3Service, teacher1());
+  }
+
+  @Test
+  void manager_upload_profile_picture() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    Teacher uploaded = api.uploadTeacherProfilePicture("teacher1_id", getMockedFile("img", "png"));
+    assertEquals("TCR21001", uploaded.getProfilePicture());
+  }
+
+  @Test
+  void teacher_upload_own_profile_picture() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    UsersApi api = new UsersApi(teacher1Client);
+
+    Teacher uploaded = api.uploadTeacherProfilePicture("teacher1_id", getMockedFile("img", "png"));
+    assertEquals("TCR21001", uploaded.getProfilePicture());
   }
 
   @Test
