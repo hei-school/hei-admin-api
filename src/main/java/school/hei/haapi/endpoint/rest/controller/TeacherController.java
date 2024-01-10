@@ -75,7 +75,7 @@ public class TeacherController {
 
   @PostMapping(value = "/teachers/{id}/picture/raw", consumes = IMAGE_PNG_VALUE)
   public Teacher uploadTeacherProfilePicture(
-      @RequestBody MultipartFile profilePicture, @PathVariable(name = "id") String teacherId) {
+      @RequestBody byte[] profilePicture, @PathVariable(name = "id") String teacherId) {
     userService.uploadUserProfilePicture(profilePicture, teacherId);
     return userMapper.toRestTeacher(userService.getById(teacherId));
   }

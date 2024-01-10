@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.UserUpserted;
 import school.hei.haapi.model.BoundedPageSize;
@@ -26,7 +25,6 @@ import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.service.aws.S3Service;
-import school.hei.haapi.service.utils.FileParser;
 
 @Service
 @AllArgsConstructor
@@ -39,15 +37,13 @@ public class UserService {
   private final GroupRepository groupRepository;
   private final GroupService groupService;
   private final S3Service s3Service;
-  private final FileParser fileParser;
 
-  public String uploadUserProfilePicture(MultipartFile profilePicture, String userId) {
-    byte[] file = fileParser.apply(profilePicture);
+  public String uploadUserProfilePicture(byte[] profilePicture, String userId) {
     User user =
         userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
     String key = user.getRef();
 
-    return s3Service.uploadObjectToS3Bucket(key, file);
+    return s3Service.uploadObjectToS3Bucket(key, profilePicture);
   }
 
   public User updateUser(User toUpdate, String userId) {
