@@ -9,7 +9,7 @@ import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
-import school.hei.haapi.endpoint.email.SesConf;
+import school.hei.haapi.mail.SesConf;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.SesService;

@@ -1,4 +1,4 @@
-package school.hei.haapi.endpoint.email;
+package school.hei.haapi.mail;
 
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;

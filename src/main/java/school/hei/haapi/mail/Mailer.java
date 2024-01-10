@@ -33,7 +33,7 @@ import software.amazon.awssdk.services.ses.model.SendRawEmailRequest;
 @Component
 @AllArgsConstructor
 public class Mailer implements Consumer<Email> {
-  private final EmailConf emailConf;
+  private final SesConf emailConf;
   private final FileTyper fileTyper;
 
   @Override

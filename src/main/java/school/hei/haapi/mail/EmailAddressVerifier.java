@@ -12,7 +12,7 @@ import software.amazon.awssdk.services.ses.model.VerifyEmailIdentityRequest;
 @PojaGenerated
 public class EmailAddressVerifier implements Consumer<InternetAddress> {
 
-  private final EmailConf emailConf;
+  private final SesConf emailConf;
 
   @Override
   public void accept(InternetAddress emailAddress) {

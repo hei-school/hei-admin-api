@@ -9,7 +9,7 @@ import static org.mockito.Mockito.verify;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import school.hei.haapi.endpoint.email.SesConf;
+import school.hei.haapi.mail.SesConf;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.SesService;
