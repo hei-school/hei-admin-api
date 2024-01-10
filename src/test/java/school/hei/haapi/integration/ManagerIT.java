@@ -35,6 +35,7 @@ import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.aws.S3Service;
+import school.hei.haapi.service.event.S3Conf;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -45,6 +46,8 @@ class ManagerIT {
   @MockBean private SentryConf sentryConf;
 
   @MockBean private CognitoComponent cognitoComponentMock;
+
+  @MockBean private S3Conf s3Conf;
 
   @MockBean private S3Service s3Service;
 

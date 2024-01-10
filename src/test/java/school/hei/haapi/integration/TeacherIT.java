@@ -55,6 +55,7 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.aws.S3Service;
+import school.hei.haapi.service.event.S3Conf;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 
@@ -71,6 +72,8 @@ class TeacherIT {
   @MockBean private EventBridgeClient eventBridgeClientMock;
 
   @MockBean private S3Service s3Service;
+
+  @MockBean private S3Conf s3Conf;
 
   @Autowired private UserService userService;
 
