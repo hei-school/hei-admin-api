@@ -1,11 +1,9 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 import java.io.IOException;
@@ -15,33 +13,29 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.conf.FacadeIT;
 import school.hei.haapi.endpoint.rest.api.SecurityApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Whoami;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = SecurityIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-class SecurityIT {
+class SecurityIT extends FacadeIT {
+  @LocalServerPort private int serverPort;
 
   @MockBean private SentryConf sentryConf;
 
   @MockBean private CognitoComponent cognitoComponentMock;
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, serverPort);
   }
 
   public static Whoami whoisStudent1() {
@@ -106,7 +100,7 @@ class SecurityIT {
   @Test
   void manager_read_unknown_ko() throws IOException, InterruptedException {
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
+    String basePath = "http://localhost:" + serverPort;
 
     HttpResponse<String> response =
         unauthenticatedClient.send(
@@ -119,14 +113,5 @@ class SecurityIT {
     assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
     assertEquals(
         "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", response.body());
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
   }
 }

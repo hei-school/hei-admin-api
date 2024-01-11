@@ -2,12 +2,10 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNull;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.PUT;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 
 import java.io.IOException;
 import java.net.URI;
@@ -21,22 +19,18 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.conf.FacadeIT;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = SpringSecurityIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-class SpringSecurityIT {
+class SpringSecurityIT extends FacadeIT {
+  @LocalServerPort private int serverPort;
 
   @MockBean private SentryConf sentryConf;
 
@@ -62,7 +56,7 @@ class SpringSecurityIT {
   void ping_with_cors() throws IOException, InterruptedException {
     // /!\ The HttpClient produced by openapi-generator SEEMS to not support text/plain
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + SpringSecurityIT.ContextInitializer.SERVER_PORT;
+    String basePath = "http://localhost:" + serverPort;
 
     HttpResponse<String> response =
         unauthenticatedClient.send(
@@ -91,7 +85,7 @@ class SpringSecurityIT {
 
   void test_cors(HttpMethod method, String path) throws IOException, InterruptedException {
     HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + SpringSecurityIT.ContextInitializer.SERVER_PORT;
+    String basePath = "http://localhost:" + serverPort;
 
     HttpResponse<String> response =
         unauthenticatedClient.send(
@@ -121,14 +115,5 @@ class SpringSecurityIT {
     String utc = "+03:00";
     ZoneOffset offset = zoneId.getRules().getOffset(Instant.now());
     assertEquals(utc, offset.getId());
-  }
-
-  public static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
   }
 }

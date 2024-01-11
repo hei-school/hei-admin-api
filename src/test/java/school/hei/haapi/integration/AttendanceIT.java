@@ -2,13 +2,11 @@ package school.hei.haapi.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.StudentIT.student2;
 import static school.hei.haapi.integration.StudentIT.student3;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.awardedCourse1;
 import static school.hei.haapi.integration.conf.TestUtils.course1;
@@ -26,12 +24,11 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.conf.FacadeIT;
 import school.hei.haapi.endpoint.event.gen.CheckAttendanceTriggered;
 import school.hei.haapi.endpoint.rest.api.AttendanceApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -45,23 +42,20 @@ import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.endpoint.rest.model.StudentAttendance;
 import school.hei.haapi.endpoint.rest.model.StudentAttendanceMovement;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.event.CheckAttendanceTriggeredService;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = AttendanceIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-class AttendanceIT {
+class AttendanceIT extends FacadeIT {
+  @LocalServerPort private int serverPort;
   private static final Instant DEFAULT_FROM = Instant.parse("2021-08-07T07:30:00.00Z");
   private static final Instant DEFAULT_TO = Instant.parse("2021-11-09T07:30:00.00Z");
   @MockBean private SentryConf sentryConf;
   @MockBean private CognitoComponent cognitoComponent;
   @Autowired CheckAttendanceTriggeredService checkAttendanceTriggeredService;
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, serverPort);
   }
 
   @BeforeEach
@@ -416,14 +410,5 @@ class AttendanceIT {
         .attendanceMovementType(AttendanceMovementType.IN)
         .studentId("student_id_ko")
         .createdAt(Instant.parse("2021-11-08T07:30:00.00Z"));
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
   }
 }

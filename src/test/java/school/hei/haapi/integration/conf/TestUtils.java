@@ -163,19 +163,12 @@ public class TestUtils {
         .mainTeacherId("teacher1_id");
   }
 
-  public static CreateAwardedCourse createAwardedCourse() {
-    return new CreateAwardedCourse()
-        .courseId("course2_id")
-        .groupId("group2_id")
-        .mainTeacherId("teacher2_id");
-  }
-
-  public static ExamInfo createExam() {
+  public static ExamInfo createExam(String awaredCourseId) {
     return new ExamInfo()
         .coefficient(10)
         .title("createExam")
         .examinationDate(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .awardedCourseId(AWARDED_COURSE1_ID);
+        .awardedCourseId(awaredCourseId);
   }
 
   public static CreateGrade createGrade(String studentId, String examId, String awardedCourseId) {
@@ -210,19 +203,10 @@ public class TestUtils {
     return courseList;
   }
 
-  public static List<CreateAwardedCourse> someCreatableCreateAwardedCourseList(
-      int nbOfCreateAwardedCourse) {
-    List<CreateAwardedCourse> createAwardedCourseList = new ArrayList<>();
-    for (int i = 0; i < nbOfCreateAwardedCourse; i++) {
-      createAwardedCourseList.add(createAwardedCourse());
-    }
-    return createAwardedCourseList;
-  }
-
-  public static List<ExamInfo> someCreatableExamInfoList(int nbOfExamInfo) {
+  public static List<ExamInfo> someCreatableExamInfoList(int nbOfExamInfo, String awardedCourseId) {
     List<ExamInfo> examInfoList = new ArrayList<>();
     for (int i = 0; i < nbOfExamInfo; i++) {
-      examInfoList.add(createExam());
+      examInfoList.add(createExam(awardedCourseId));
     }
     return examInfoList;
   }
@@ -411,7 +395,7 @@ public class TestUtils {
         .mainTeacher(teacher4());
   }
 
-  public static ExamInfo exam1() {
+  public static ExamInfo examInfo1() {
     return new ExamInfo()
         .id(EXAM1_ID)
         .coefficient(2)
@@ -420,7 +404,7 @@ public class TestUtils {
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
-  public static ExamInfo exam2() {
+  public static ExamInfo examInfo2() {
     return new ExamInfo()
         .id(EXAM2_ID)
         .coefficient(3)
@@ -486,19 +470,19 @@ public class TestUtils {
 
   public static StudentExamGrade studentExamGrade1() {
     return new StudentExamGrade()
-        .id(exam1().getId())
-        .coefficient(exam1().getCoefficient())
-        .title(exam1().getTitle())
-        .examinationDate(exam1().getExaminationDate())
+        .id(examInfo1().getId())
+        .coefficient(examInfo1().getCoefficient())
+        .title(examInfo1().getTitle())
+        .examinationDate(examInfo1().getExaminationDate())
         .grade(grade1());
   }
 
   public static StudentExamGrade studentExamGrade2() {
     return new StudentExamGrade()
-        .id(exam2().getId())
-        .coefficient(exam2().getCoefficient())
-        .title(exam2().getTitle())
-        .examinationDate(exam2().getExaminationDate())
+        .id(examInfo2().getId())
+        .coefficient(examInfo2().getCoefficient())
+        .title(examInfo2().getTitle())
+        .examinationDate(examInfo2().getExaminationDate())
         .grade(grade2());
   }
 
@@ -601,10 +585,10 @@ public class TestUtils {
 
   public static ExamDetail examDetail1() {
     return new ExamDetail()
-        .id(exam1().getId())
-        .title(exam1().getTitle())
-        .examinationDate(exam1().getExaminationDate())
-        .coefficient(exam1().getCoefficient())
+        .id(examInfo1().getId())
+        .title(examInfo1().getTitle())
+        .examinationDate(examInfo1().getExaminationDate())
+        .coefficient(examInfo1().getCoefficient())
         .participants(List.of(studentGrade1(), studentGrade7()));
   }
 

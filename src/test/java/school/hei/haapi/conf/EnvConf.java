@@ -9,5 +9,7 @@ public class EnvConf {
     registry.add("aws.ses.source", () -> "dummy");
     registry.add("aws.ses.contact", () -> "dummy");
     registry.add("aws.cognito.userPool.id", () -> "dummy");
+    registry.add("spring.flyway.locations", () -> "classpath:/db/migration,classpath:/db/testdata");
+    registry.add("test.aws.cognito.idToken", () -> "dummy");
   }
 }

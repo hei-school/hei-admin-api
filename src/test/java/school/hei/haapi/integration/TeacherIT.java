@@ -8,14 +8,13 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
+import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
@@ -33,13 +32,11 @@ import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.conf.FacadeIT;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -49,17 +46,14 @@ import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = TeacherIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-class TeacherIT {
+class TeacherIT extends FacadeIT {
+  @LocalServerPort private int serverPort;
 
   @MockBean private SentryConf sentryConf;
 
@@ -71,8 +65,8 @@ class TeacherIT {
 
   @Autowired private UserMapper userMapper;
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, serverPort);
   }
 
   @BeforeEach
@@ -82,17 +76,20 @@ class TeacherIT {
   }
 
   @Test
-  @DirtiesContext
   void teacher_update_own_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(teacher1Client);
     UsersApi managerApi = new UsersApi(manager1Client);
-    api.getStudentById(STUDENT1_ID);
-    Teacher actual = api.updateTeacher(TEACHER1_ID, someUpdatableTeacher1());
+    CrupdateTeacher updatedTeacher1 = update(teacher1());
+
+    Teacher actual = api.updateTeacher(TEACHER1_ID, updatedTeacher1);
     List<Teacher> actualTeachers = managerApi.getTeachers(1, 10, null, null, null, null, null);
 
     assertTrue(actualTeachers.contains(actual));
+
+    // cleanup
+    api.updateTeacher(TEACHER1_ID, toCrupdateTeacher(teacher1()));
   }
 
   @Test
@@ -212,10 +209,10 @@ class TeacherIT {
     toUpdate.setId(created.get(0).getId());
 
     Teacher expected = expectedCreatedTeacher();
-        expected.setId(created.get(0).getId());
-        expected.setLastName("New last name");
-        expected.setEmail(toUpdate.getEmail());
-        expected.setRef(toUpdate.getRef());
+    expected.setId(created.get(0).getId());
+    expected.setLastName("New last name");
+    expected.setEmail(toUpdate.getEmail());
+    expected.setRef(toUpdate.getRef());
 
     toUpdate.setLastName("New last name");
 
@@ -269,7 +266,7 @@ class TeacherIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Teacher> actualTeachers =
-        api.getTeachers(1, 10, null, null, null, EnableStatus.SUSPENDED, Sex.F);
+        api.getTeachers(1, 10, null, null, null, EnableStatus.SUSPENDED, F);
     assertEquals(1, actualTeachers.size());
     assertEquals(actualTeachers.get(0), suspendedTeacher1());
     assertTrue(actualTeachers.contains((suspendedTeacher1())));
@@ -281,7 +278,7 @@ class TeacherIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Teacher> actualTeachers =
-        api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, Sex.F);
+        api.getTeachers(1, 10, null, null, null, EnableStatus.DISABLED, F);
     assertEquals(1, actualTeachers.size());
   }
 
@@ -292,7 +289,7 @@ class TeacherIT {
         .email(randomUUID() + "@hei.school")
         .ref("TCR21-" + randomUUID())
         .phone("0332511129")
-        .status(EnableStatus.ENABLED)
+        .status(ENABLED)
         .sex(Sex.M)
         .birthDate(LocalDate.parse("2000-01-01"))
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
@@ -324,7 +321,7 @@ class TeacherIT {
         .email("teacher+suspended@hei.school")
         .ref("TCR29003")
         .status(EnableStatus.SUSPENDED)
-        .sex(Sex.F)
+        .sex(F)
         .birthDate(LocalDate.parse("2000-12-02"))
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
         .phone("0322411124")
@@ -333,30 +330,24 @@ class TeacherIT {
         .address("Adr 2");
   }
 
-  public static CrupdateTeacher someUpdatableTeacher1() {
-    return new CrupdateTeacher()
-        .id("teacher1_id")
-        .email("test+teacher1@hei.school")
-        .ref("TCR21001")
-        .phone("0322411125")
-        .status(EnableStatus.ENABLED)
-        .sex(Sex.F)
-        .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
-        .nic("")
-        .birthPlace("")
-        .address("Adr 999")
-        .sex(Sex.F)
-        .lastName("Other last")
-        .firstName("Other first")
-        .birthDate(LocalDate.parse("2000-01-03"));
+  private static CrupdateTeacher update(Teacher teacher) {
+    return toCrupdateTeacher(teacher).lastName("Other last").firstName("Other first");
   }
 
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
+  private static CrupdateTeacher toCrupdateTeacher(Teacher teacher) {
+    return new CrupdateTeacher()
+        .id(teacher.getId())
+        .email(teacher.getEmail())
+        .ref(teacher.getRef())
+        .phone(teacher.getPhone())
+        .status(teacher.getStatus())
+        .sex(teacher.getSex())
+        .entranceDatetime(teacher.getEntranceDatetime())
+        .nic(teacher.getNic())
+        .birthPlace(teacher.getBirthPlace())
+        .address(teacher.getAddress())
+        .lastName(teacher.getLastName())
+        .firstName(teacher.getFirstName())
+        .birthDate(teacher.getBirthDate());
   }
 }

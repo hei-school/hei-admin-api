@@ -2,37 +2,45 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.conf.TestUtils.AWARDED_COURSE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.awardedCourse1;
+import static school.hei.haapi.integration.conf.TestUtils.awardedCourse2;
+import static school.hei.haapi.integration.conf.TestUtils.awardedCourse3;
+import static school.hei.haapi.integration.conf.TestUtils.awardedCourse4;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.conf.FacadeIT;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.AwardedCourse;
+import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = AwardedCourseIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-class AwardedCourseIT {
+class AwardedCourseIT extends FacadeIT {
+  @LocalServerPort private int serverPort;
   @MockBean private SentryConf sentryConf;
   @MockBean private CognitoComponent cognitoComponentMock;
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, AwardedCourseIT.ContextInitializer.SERVER_PORT);
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, serverPort);
   }
 
   @BeforeEach
@@ -128,6 +136,7 @@ class AwardedCourseIT {
     assertTrue(awardedCoursesByCourse.contains(awardedCourse3()));
   }
 
+  @Test
   void student_create_or_update_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
@@ -136,6 +145,7 @@ class AwardedCourseIT {
         () -> api.createOrUpdateAwardedCourses(GROUP1_ID, List.of(createAwardedCourse())));
   }
 
+  @Test
   void teacher_create_or_update_ko() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
@@ -145,28 +155,20 @@ class AwardedCourseIT {
   }
 
   @Test
-  @DirtiesContext
   void manager_create_or_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    int numberOfExamToAdd = 3;
-    List<AwardedCourse> actualCreatList =
-        api.createOrUpdateAwardedCourses(
-            GROUP1_ID, someCreatableCreateAwardedCourseList(numberOfExamToAdd));
-    assertEquals(numberOfExamToAdd, actualCreatList.size());
 
-    //    List<ExamInfo> actualUpdateList =
-    //            api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1()));
-    //    assertEquals(1, actualUpdateList.size());
-    //    assertTrue(actualUpdateList.contains(exam1()));
+    List<AwardedCourse> actualCreatedAwardedCourses =
+        api.createOrUpdateAwardedCourses(GROUP1_ID, List.of(createAwardedCourse()));
+
+    assertEquals(1, actualCreatedAwardedCourses.size());
   }
 
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
+  private static CreateAwardedCourse createAwardedCourse() {
+    return new CreateAwardedCourse()
+        .courseId("course2_id")
+        .groupId("group2_id")
+        .mainTeacherId("teacher2_id");
   }
 }

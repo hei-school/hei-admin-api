@@ -24,6 +24,8 @@ Globals:
         ENV: !Ref Env
         AWS_SQS_QUEUE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/mailbox-queue-url}}'
         AWS_EVENTBRIDGE_BUS: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-name}}'
+        AWS_S3_BUCKET: !Sub '{{resolve:ssm:/haapi/${Env}/s3/bucket-name}}'
+        
         DATABASE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/db/url}}'
         DATABASE_USERNAME: !Sub '{{resolve:ssm:/haapi/${Env}/db/username}}'
         DATABASE_PASSWORD: !Sub '{{resolve:ssm:/haapi/${Env}/db/password}}'
@@ -31,24 +33,27 @@ Globals:
         AWS_SES_SOURCE: !Sub '{{resolve:ssm:/haapi/${Env}/ses/source}}'
         AWS_SES_CONTACT: !Sub '{{resolve:ssm:/haapi/${Env}/ses/contact}}'
         SENTRY_DSN: !Sub '{{resolve:ssm:/haapi/sentry/dsn}}'
+        
 
 Parameters:
   Env:
     Type: String
 
 Resources:
-  FrontalApi:
+  FrontalServerlessRestApi:
     Type: AWS::Serverless::Api
     Properties:
       StageName: Prod
       BinaryMediaTypes:
         - "*~1*"
+
   FrontalFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: school.hei.haapi.ApiEventHandler::handleRequest
-      MemorySize: 512
+      MemorySize: 2048
       Role: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
+      
       Events:
         ApiCall:
           Type: Api
@@ -56,7 +61,7 @@ Resources:
             Path: /{proxy+}
             Method: ANY
             RestApiId:
-              Ref: FrontalApi
+              Ref: FrontalServerlessRestApi
 
   WorkerFunction:
     Type: AWS::Serverless::Function
@@ -64,6 +69,7 @@ Resources:
       Handler: school.hei.haapi.MailboxEventHandler::handleRequest
       MemorySize: 1024
       Role: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
+      
       Events:
         AllEvents:
           Type: SQS
@@ -89,7 +95,7 @@ Resources:
     Properties:
       Name: !Join [ '', [ /haapi/, !Ref Env, /api/url ] ]
       Type: String
-      Value: !Sub "https://${FrontalApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
+      Value: !Sub "https://${FrontalServerlessRestApi}.execute-api.${AWS::Region}.amazonaws.com/Prod"
 
 Outputs:
   ApiUrl:

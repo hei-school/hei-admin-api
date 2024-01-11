@@ -1,0 +1,58 @@
+AWSTemplateFormatVersion: 2010-09-09
+Description: haapi - Storage EFS
+
+Parameters:
+  Env:
+    Type: String
+  FilesystemName:
+    Type: String
+    Default: haapi-efs
+
+Resources:
+  Filesystem:
+    Type: AWS::EFS::FileSystem
+    Properties:
+      FileSystemTags:
+        - Key: Name
+          Value: !Ref FilesystemName
+
+  AccessPoint:
+    Type: AWS::EFS::AccessPoint
+    Properties:
+      FileSystemId: !Ref Filesystem
+      PosixUser:
+        Uid: "1000"
+        Gid: "1000"
+      RootDirectory:
+        CreationInfo:
+          OwnerGid: "1000"
+          OwnerUid: "1000"
+          Permissions: "0777"
+        Path: "/efs"
+
+  AccessPointArnSSM:
+    Type: AWS::SSM::Parameter
+    Properties:
+      Name: !Join [ '', [ /haapi/, !Ref Env, /efs/access-point/arn ] ]
+      Type: String
+      Value: !GetAtt AccessPoint.Arn
+
+  MountTarget1:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref Filesystem
+      SubnetId: !Sub '{{resolve:ssm:/haapi/subnet/private1/id}}'
+      SecurityGroups:
+        - !Sub '{{resolve:ssm:/haapi/sg/id}}'
+
+  MountTarget2:
+    Type: AWS::EFS::MountTarget
+    Properties:
+      FileSystemId: !Ref Filesystem
+      SubnetId: !Sub '{{resolve:ssm:/haapi/subnet/private2/id}}'
+      SecurityGroups:
+        - !Sub '{{resolve:ssm:/haapi/sg/id}}'
+
+Outputs:
+  AccessPointArnSSM:
+    Value: !GetAtt AccessPointArnSSM.Value

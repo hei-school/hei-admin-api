@@ -1,40 +1,47 @@
 package school.hei.haapi.integration;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.*;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.integration.conf.TestUtils.AWARDED_COURSE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.AWARDED_COURSE2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.examDetail1;
+import static school.hei.haapi.integration.conf.TestUtils.examInfo1;
+import static school.hei.haapi.integration.conf.TestUtils.examInfo2;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.someCreatableExamInfoList;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.conf.FacadeIT;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = ExamIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-class ExamIT {
+class ExamIT extends FacadeIT {
+  @LocalServerPort private int serverPort;
   @MockBean private SentryConf sentryConf;
 
   @MockBean private CognitoComponent cognitoComponentMock;
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, ExamIT.ContextInitializer.SERVER_PORT);
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, serverPort);
   }
 
   @BeforeEach
@@ -50,13 +57,11 @@ class ExamIT {
     List<ExamInfo> actual =
         api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
 
-    ExamInfo oneActualExam = api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
+    ExamInfo actualExam1 = api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
 
-    assertEquals(2, actual.size());
-    assertTrue(actual.contains(exam1()));
-    assertTrue(actual.contains(exam2()));
-
-    assertEquals(exam1(), oneActualExam);
+    assertTrue(actual.contains(examInfo1()));
+    assertTrue(actual.contains(examInfo2()));
+    assertEquals(examInfo1(), actualExam1);
   }
 
   @Test
@@ -73,13 +78,11 @@ class ExamIT {
     TeachingApi api = new TeachingApi(teacher1Client);
     List<ExamInfo> actual =
         api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
-    ExamInfo oneActualExam = api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
+    ExamInfo actualExamInfo1 = api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
 
-    assertEquals(2, actual.size());
-    assertTrue(actual.contains(exam1()));
-    assertTrue(actual.contains(exam2()));
-
-    assertEquals(exam1(), oneActualExam);
+    assertTrue(actual.contains(examInfo1()));
+    assertTrue(actual.contains(examInfo2()));
+    assertEquals(examInfo1(), actualExamInfo1);
   }
 
   @Test
@@ -98,62 +101,68 @@ class ExamIT {
     assertEquals(examDetail1(), actual);
   }
 
+  @Test
   void student_create_or_update_exam_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1())));
+        () -> api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(examInfo1())));
   }
 
   @Test
-  @DirtiesContext
   void teacher_create_or_update_his_awarded_course_exam_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
     int numberOfExamToAdd = 3;
-    List<ExamInfo> actualCreatList =
-        api.createOrUpdateExams(
-            GROUP1_ID, AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
-    assertEquals(numberOfExamToAdd, actualCreatList.size());
+    List<ExamInfo> creatableExamInfo =
+        someCreatableExamInfoList(numberOfExamToAdd, AWARDED_COURSE1_ID);
 
-    List<ExamInfo> actualUpdateList =
-        api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1()));
-    assertEquals(1, actualUpdateList.size());
-    assertTrue(actualUpdateList.contains(exam1()));
+    List<ExamInfo> actual =
+        api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, creatableExamInfo);
+    ExamInfo createdExamInfo0 = actual.get(0);
+    ExamInfo updatedExamInfo0 = update(createdExamInfo0);
+    List<ExamInfo> updated =
+        api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(updatedExamInfo0));
+
+    assertEquals(numberOfExamToAdd, actual.size());
+    assertEquals(1, updated.size());
+    assertTrue(updated.contains(updatedExamInfo0));
   }
 
+  @Test
   void teacher_create_or_update_others_awarded_course_exam_ko() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE2_ID, List.of(exam2())));
+        () -> api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE2_ID, List.of(examInfo2())));
   }
 
   @Test
-  @DirtiesContext
   void manager_create_or_update_exam_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
     int numberOfExamToAdd = 3;
-    List<ExamInfo> actualCreatList =
-        api.createOrUpdateExams(
-            GROUP1_ID, AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
-    assertEquals(numberOfExamToAdd, actualCreatList.size());
+    List<ExamInfo> creatableExamInfoList =
+        someCreatableExamInfoList(numberOfExamToAdd, AWARDED_COURSE1_ID);
 
-    List<ExamInfo> actualUpdateList =
-        api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1()));
-    assertEquals(1, actualUpdateList.size());
-    assertTrue(actualUpdateList.contains(exam1()));
+    List<ExamInfo> actual =
+        api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, creatableExamInfoList);
+    ExamInfo createdExamInfo0 = actual.get(0);
+    ExamInfo updatedExamInfo0 = update(createdExamInfo0);
+    List<ExamInfo> updated =
+        api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(updatedExamInfo0));
+
+    assertEquals(numberOfExamToAdd, actual.size());
+    assertEquals(1, updated.size());
+    assertTrue(updated.contains(updatedExamInfo0));
   }
 
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
+  private ExamInfo update(ExamInfo examInfo) {
+    Integer coefficient = examInfo.getCoefficient();
+    int COEFFICIENT_ADD_VALUE = 10;
+    return examInfo.coefficient(
+        coefficient != null ? coefficient + COEFFICIENT_ADD_VALUE : COEFFICIENT_ADD_VALUE);
   }
 }

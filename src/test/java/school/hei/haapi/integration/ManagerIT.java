@@ -1,12 +1,11 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER_1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
@@ -15,13 +14,11 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.conf.FacadeIT;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -30,21 +27,18 @@ import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = ManagerIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-class ManagerIT {
+class ManagerIT extends FacadeIT {
+  @LocalServerPort private int serverPort;
 
   @MockBean private SentryConf sentryConf;
 
   @MockBean private CognitoComponent cognitoComponentMock;
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, serverPort);
   }
 
   public static Manager manager1() {
@@ -82,44 +76,47 @@ class ManagerIT {
         .address("Adr 1");
   }
 
-  public static Manager suspendedManager1() {
-    return new Manager()
-        .id("'manager3_id'")
-        .firstName("Suspended")
-        .lastName("One")
-        .email("manager+suspended@hei.school")
-        .ref("MGR29003")
-        .status(EnableStatus.SUSPENDED)
-        .sex(Sex.F)
-        .birthDate(LocalDate.parse("2000-12-02"))
-        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
-        .phone("0322411123")
-        .nic("")
-        .birthPlace("")
-        .address("Adr 2");
-  }
-
-  public static CrupdateManager someUpdatableManager1() {
-    CrupdateManager manager = new CrupdateManager();
-    manager.setId("manager1_id");
-    manager.setFirstName("One");
-    manager.setLastName("Manager");
-    manager.setEmail("test+manager1@hei.school");
-    manager.setRef("MGR21001");
-    manager.setPhone("0322411127");
-    manager.setStatus(EnableStatus.ENABLED);
-    manager.setSex(Sex.M);
-    manager.setBirthDate(LocalDate.parse("1890-01-01"));
-    manager.setEntranceDatetime(Instant.parse("2021-09-08T08:25:29Z"));
-    manager.setAddress("Adr 5");
-    manager.setBirthPlace("");
-    manager.setNic("");
-    return manager
+  private static CrupdateManager update(Manager manager) {
+    return toCrupdateManager(manager)
         .address("Adr 999")
-        .sex(Sex.F)
+        .sex(F)
         .lastName("Other last")
         .firstName("Other first")
         .birthDate(LocalDate.parse("2000-01-03"));
+  }
+
+  private static CrupdateManager toCrupdateManager(Manager manager) {
+    return new CrupdateManager()
+        .id(manager.getId())
+        .firstName(manager.getFirstName())
+        .lastName(manager.getLastName())
+        .email(manager.getEmail())
+        .ref(manager.getRef())
+        .phone(manager.getPhone())
+        .status(manager.getStatus())
+        .sex(manager.getSex())
+        .birthDate(manager.getBirthDate())
+        .entranceDatetime(manager.getEntranceDatetime())
+        .address(manager.getAddress())
+        .birthPlace(manager.getBirthPlace())
+        .nic(manager.getNic());
+  }
+
+  private static Manager toManager(CrupdateManager crupdateManager) {
+    return new Manager()
+        .id(crupdateManager.getId())
+        .firstName(crupdateManager.getFirstName())
+        .lastName(crupdateManager.getLastName())
+        .email(crupdateManager.getEmail())
+        .ref(crupdateManager.getRef())
+        .phone(crupdateManager.getPhone())
+        .status(crupdateManager.getStatus())
+        .sex(crupdateManager.getSex())
+        .birthDate(crupdateManager.getBirthDate())
+        .entranceDatetime(crupdateManager.getEntranceDatetime())
+        .address(crupdateManager.getAddress())
+        .birthPlace(crupdateManager.getBirthPlace())
+        .nic(crupdateManager.getNic());
   }
 
   @BeforeEach
@@ -128,13 +125,16 @@ class ManagerIT {
   }
 
   @Test
-  @DirtiesContext
-  void manager_update_own_ok() throws ApiException {
+  void manager_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    Manager updated = api.updateManager(MANAGER_ID, someUpdatableManager1());
-    Manager managers = api.getManagerById(MANAGER_ID);
-    assertEquals(managers, updated);
+    CrupdateManager updatedManager1 = update(manager1());
+
+    Manager updated = api.updateManager(MANAGER_1_ID, updatedManager1);
+    assertEquals(toManager(updatedManager1), updated);
+
+    // cleanup
+    api.updateManager(MANAGER_1_ID, toCrupdateManager(manager1()));
   }
 
   @Test
@@ -142,7 +142,7 @@ class ManagerIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     UsersApi api = new UsersApi(student1Client);
-    assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_ID));
+    assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_1_ID));
     assertThrowsForbiddenException(() -> api.getManagers(1, 20, null, null));
   }
 
@@ -151,7 +151,7 @@ class ManagerIT {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
     UsersApi api = new UsersApi(teacher1Client);
-    assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_ID));
+    assertThrowsForbiddenException(() -> api.getManagerById(MANAGER_1_ID));
     assertThrowsForbiddenException(() -> api.getManagers(1, 20, null, null));
   }
 
@@ -160,7 +160,7 @@ class ManagerIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
 
     UsersApi api = new UsersApi(manager1Client);
-    Manager actual = api.getManagerById(MANAGER_ID);
+    Manager actual = api.getManagerById(MANAGER_1_ID);
 
     assertEquals(manager1(), actual);
   }
@@ -174,14 +174,5 @@ class ManagerIT {
 
     assertEquals(3, managers.size());
     assertEquals(manager1(), managers.get(0));
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
   }
 }
