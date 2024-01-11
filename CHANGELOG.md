@@ -1,3 +1,38 @@
+# [1.2.0](https://github.com/hei-school/hei-admin-api/compare/v1.1.0...v1.2.0) (2024-01-05)
+
+
+### Bug Fixes
+
+* use common core as default value for student ([ddff084](https://github.com/hei-school/hei-admin-api/commit/ddff08470b7393a192109fe6de728be51d68b8d9))
+
+
+### Features
+
+* **api:** add fee types endpoint(not-implemented) ([10e9608](https://github.com/hei-school/hei-admin-api/commit/10e9608e714f1bda39551df7b134cf1e1b44db4a))
+
+
+
+# [1.1.0](https://github.com/hei-school/hei-admin-api/compare/v1.0.0...v1.1.0) (2024-01-05)
+
+
+### Features
+
+* handle scholarship certificate gen for a Student ([62f83e7](https://github.com/hei-school/hei-admin-api/commit/62f83e7856aa9274593ee1afdf729549cbda1f14))
+
+
+
+# [1.0.0](https://github.com/hei-school/hei-admin-api/compare/v0.13.0...v1.0.0) (2024-01-05)
+
+
+* feat!: add profile picture to user attributes, also separate crupdate payload from response payload for Users (Student, Manager, Teacher) ([0536cdf](https://github.com/hei-school/hei-admin-api/commit/0536cdf1b7b3d22fef6e7e5645fb8fef1d0cd023))
+
+
+### BREAKING CHANGES
+
+* separate crupdate payload from response components
+
+
+
 # [0.13.0](https://github.com/hei-school/hei-admin-api/compare/v0.12.0...v0.13.0) (2023-12-21)
 
 
@@ -133,41 +168,6 @@
 ### Features
 
 * filter fees by status without cache ([2c27555](https://github.com/hei-school/hei-admin-api/commit/2c27555f7fe06284f9a70e144a7399f2a5ae2524))
-
-
-
-# [0.6.0](https://github.com/hei-school/hei-admin-api/compare/v0.5.1...v0.6.0) (2022-07-26)
-
-
-### Bug Fixes
-
-* compute remaining amount ([572cc9f](https://github.com/hei-school/hei-admin-api/commit/572cc9f01bedd1689c81edb9a68b43bdcb210c91))
-* LATE status is correctly computed ([756e366](https://github.com/hei-school/hei-admin-api/commit/756e3669f911a457c9388311001389a14f695a9b)), closes [#61](https://github.com/hei-school/hei-admin-api/issues/61) [#62](https://github.com/hei-school/hei-admin-api/issues/62)
-* multiple fees in payment are not implemented ([fc1deeb](https://github.com/hei-school/hei-admin-api/commit/fc1deeb13f9c772908c6a4d0b7ffd9772ed0de1f))
-
-
-### Features
-
-* GET fees/{id}/payments and POST fees/{id}/payments ([8a15311](https://github.com/hei-school/hei-admin-api/commit/8a15311af3152061a5bd7c7f332d248afede05d4))
-* POST and GET /students/{studentId}/fees ([6a2be51](https://github.com/hei-school/hei-admin-api/commit/6a2be515c76959fe12ced16a122f658d8443782b))
-
-
-
-## [0.5.1](https://github.com/hei-school/hei-admin-api/compare/v0.5.0...v0.5.1) (2022-03-03)
-
-
-### Bug Fixes
-
-* PUT /users validation ([a1b3fab](https://github.com/hei-school/hei-admin-api/commit/a1b3fabf692cf4a75b64a37393e8604fc80c99db)), closes [#50](https://github.com/hei-school/hei-admin-api/issues/50)
-
-
-
-# [0.5.0](https://github.com/hei-school/hei-admin-api/compare/v0.4.0...v0.5.0) (2022-02-24)
-
-
-### Features
-
-* filter users by params ignoring case ([d151927](https://github.com/hei-school/hei-admin-api/commit/d151927dd01bdb31604af85b69c7031aedf2b71f)), closes [#47](https://github.com/hei-school/hei-admin-api/issues/47)
 
 
 

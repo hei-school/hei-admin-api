@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.CrupdateManager;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -36,7 +37,7 @@ public class ManagerController {
 
   @PutMapping("/managers/{id}")
   public Manager updateManager(
-      @PathVariable(name = "id") String managerId, @RequestBody Manager toUpdate) {
+      @PathVariable(name = "id") String managerId, @RequestBody CrupdateManager toUpdate) {
     return userMapper.toRestManager(
         userService.updateUser(userMapper.toDomain(toUpdate), managerId));
   }

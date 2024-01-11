@@ -215,7 +215,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Student'
+              $ref: '#/components/schemas/CrupdateStudent'
       responses:
         '200':
           description: student updated.
@@ -354,7 +354,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Student'
+                $ref: '#/components/schemas/CrupdateStudent'
       responses:
         '200':
           description: The created or updated students
@@ -1084,7 +1084,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Teacher'
+              $ref: '#/components/schemas/CrupdateTeacher'
       responses:
         '200':
           description: updated teacher.
@@ -1176,7 +1176,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/Teacher'
+                $ref: '#/components/schemas/CrupdateTeacher'
       responses:
         '200':
           description: The created or updated teachers
@@ -1242,7 +1242,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/Manager'
+              $ref: '#/components/schemas/CrupdateManager'
       responses:
         '200':
           description: updated manager.
@@ -1565,6 +1565,90 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+
+  /fees/types:
+    get:
+      tags:
+        - Paying
+      summary: Get all predefined types of fee
+      parameters:
+        - name: name
+          in: query
+          schema:
+            type: string
+        - name: total_amount
+          in: query
+          schema:
+            type: integer
+        - name: number_of_months
+          in: query
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getFeeTypes
+      responses:
+        '200':
+          description: List of predefined type of fee
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FeeType'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /fees/types/{id}:
+    put:
+      tags:
+        - Paying
+      summary: Create a new fee type or update existing fee type
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      description: Update fee type when `id` exist, create it otherwise.
+      operationId: crupdateFeeType
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrupdateFeeType'
+      responses:
+        '200':
+          description: The created or updated fee type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeType'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
   /students/{student_id}/fees/{fee_id}/payments:
     get:
       tags:
@@ -1687,6 +1771,114 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/teachers/{teacher_id}/picture/raw':
+    post:
+      tags:
+        - Users
+      summary: Upload teacher profile picture
+      operationId: uploadTeacherProfilePicture
+      parameters:
+        - name: teacher_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Teacher updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Teacher'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/managers/{manager_id}/picture/raw':
+    post:
+      tags:
+        - Users
+      summary: Upload manager profile picture
+      operationId: uploadManagerProfilePicture
+      parameters:
+        - name: manager_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Manager updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Manager'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/picture/raw':
+    post:
+      tags:
+        - Users
+      summary: Upload student profile picture
+      operationId: uploadStudentProfilePicture
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          image/png:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Student updated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/attendance':
     get:
       tags:
@@ -1765,7 +1957,37 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  '/students/{id}/scholarship_certificate/raw':
+    get:
+      tags:
+        - StudentsFile
+      summary: Get scholarship certificate of a student.
+      operationId: getStudentScholarshipCertificate
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Scholarship certificate of student
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: byte
+                example: PDF VERSION
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
@@ -1845,7 +2067,7 @@ components:
           $ref: '#/components/schemas/PlaceEnum'
         student:
           $ref: '#/components/schemas/Student'
-    User:
+    CrupdateUser:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
         - type: object
@@ -1915,19 +2137,38 @@ components:
         end:
           type: string
           format: date-time
+    CrupdateStudent:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        specialization_field:
+          $ref: '#/components/schemas/SpecializationField'
+    CrupdateTeacher:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+    CrupdateManager:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
     Student:
       allOf:
-        - $ref: '#/components/schemas/User'
-        - type: object
-          properties:
-            specialization_field:
-              $ref: '#/components/schemas/SpecializationField'
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        specialization_field:
+          $ref: '#/components/schemas/SpecializationField'
+        profile_picture:
+          type: string
     Teacher:
       allOf:
-        - $ref: '#/components/schemas/User'
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        profile_picture:
+          type: string
     Manager:
       allOf:
-        - $ref: '#/components/schemas/User'
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        profile_picture:
+          type: string
     Group:
       type: object
       properties:
@@ -2174,6 +2415,25 @@ components:
           type: integer
         comment:
           type: string
+        creation_datetime:
+          type: string
+          format: date-time
+    CrupdateFeeType:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        total_amount:
+          type: integer
+        number_of_months:
+          type: integer
+    FeeType:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateFeeType'
+      type: object
+      properties:
         creation_datetime:
           type: string
           format: date-time
