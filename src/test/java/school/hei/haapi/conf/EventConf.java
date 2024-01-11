@@ -8,5 +8,6 @@ public class EventConf {
     registry.add("aws.region", () -> "dummy-region");
     registry.add("aws.sqs.queue.url", () -> "dummy-queue-url");
     registry.add("aws.eventBridge.bus", () -> "dummy-bus-url");
+    registry.add("aws.s3.bucket", () -> "dummy");
   }
 }

@@ -43,7 +43,7 @@ public class StudentController {
 
   @PostMapping(value = "/students/{id}/picture/raw", consumes = IMAGE_PNG_VALUE)
   public Student uploadStudentProfilePicture(
-      @RequestBody byte[] profilePicture, @PathVariable(name = "id") String studentId) {
+      @RequestParam byte[] profilePicture, @PathVariable(name = "id") String studentId) {
     userService.uploadUserProfilePicture(profilePicture, studentId);
     return userMapper.toRestStudent(userService.getById(studentId));
   }
