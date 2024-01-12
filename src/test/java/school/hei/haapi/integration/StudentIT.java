@@ -274,7 +274,7 @@ class StudentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    Student uploaded = api.uploadStudentProfilePicture("student1_id", getMockedFile("img", "png"));
+    Student uploaded = api.uploadStudentProfilePicture(STUDENT1_ID, getMockedFile("img", "png"));
     assertEquals("STD21001", uploaded.getProfilePicture());
   }
 
@@ -283,7 +283,7 @@ class StudentIT {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
 
-    Student uploaded = api.uploadStudentProfilePicture("student1_id", getMockedFile("img", "png"));
+    Student uploaded = api.uploadStudentProfilePicture(STUDENT1_ID, getMockedFile("img", "png"));
     assertEquals("STD21001", uploaded.getProfilePicture());
   }
 
