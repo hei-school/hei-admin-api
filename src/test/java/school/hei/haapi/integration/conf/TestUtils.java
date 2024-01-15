@@ -51,7 +51,7 @@ public class TestUtils {
   public static final String TEACHER2_ID = "teacher2_id";
   public static final String TEACHER3_ID = "teacher3_id";
   public static final String TEACHER4_ID = "teacher4_id";
-  public static final String MANAGER_ID = "manager1_id";
+  public static final String MANAGER_1_ID = "manager1_id";
   public static final String GROUP1_ID = "group1_id";
   public static final String GROUP2_ID = "group2_id";
   public static final String FEE1_ID = "fee1_id";
