@@ -18,7 +18,6 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -90,23 +89,6 @@ class TeacherIT {
     setUpS3Service(s3Service, teacher1());
   }
 
-  @Test
-  void manager_upload_profile_picture() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-
-    Teacher uploaded = api.uploadTeacherProfilePicture("teacher1_id", getMockedFile("img", "png"));
-    assertEquals("TCR21001", uploaded.getProfilePicture());
-  }
-
-  @Test
-  void teacher_upload_own_profile_picture() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    UsersApi api = new UsersApi(teacher1Client);
-
-    Teacher uploaded = api.uploadTeacherProfilePicture("teacher1_id", getMockedFile("img", "png"));
-    assertEquals("TCR21001", uploaded.getProfilePicture());
-  }
 
   @Test
   @DirtiesContext

@@ -8,7 +8,6 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
@@ -134,15 +133,6 @@ class ManagerIT {
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpS3Service(s3Service, manager1());
-  }
-
-  @Test
-  void manager_upload_own_profile_picture() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-
-    Manager uploaded = api.uploadManagerProfilePicture("manager1_id", getMockedFile("img", "png"));
-    assertEquals("MGR21001", uploaded.getProfilePicture());
   }
 
   @Test

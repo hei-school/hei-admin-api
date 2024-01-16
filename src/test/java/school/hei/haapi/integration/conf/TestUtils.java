@@ -9,6 +9,7 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import java.io.File;
 import java.io.IOException;
@@ -18,7 +19,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
@@ -110,9 +115,10 @@ public class TestUtils {
     when(cognitoComponent.getEmailByIdToken(MANAGER1_TOKEN)).thenReturn("test+manager1@hei.school");
   }
 
-  public static void setUpS3Service(S3Service s3Service, Student user) {
+  public static void setUpS3Service(S3Service s3Service, Student user){
     String USER_REF = user.getRef();
-    when(s3Service.uploadObjectToS3Bucket(USER_REF, MANAGER1_PROFILE_PNG)).thenReturn(USER_REF);
+    when(s3Service.getPresignedUrl(USER_REF, 180L)).thenReturn(USER_REF);
+    when(s3Service.uploadObjectToS3Bucket(USER_REF, getMockedFileAsByte("img", ".png"))).thenReturn(USER_REF);
   }
 
   public static void setUpS3Service(S3Service s3Service, Teacher user) {
@@ -142,9 +148,15 @@ public class TestUtils {
         "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", responseBody);
   }
 
-  public static File getMockedFile(String fileName, String fileType) {
-    File file = new File("src/main/resources/mock/" + fileName + fileType);
-    return file;
+  public static byte[] getMockedFileAsByte(String fileName, String fileType) {
+    try {
+      Resource resource = new ClassPathResource("mock/"+fileName+fileType);
+      File file = resource.getFile();
+      return FileUtils.readFileToByteArray(file);
+    }
+    catch (IOException e) {
+      throw new school.hei.haapi.model.exception.ApiException(SERVER_EXCEPTION, e.getMessage());
+    }
   }
 
   public static CrupdateTeacher someCreatableTeacher() {

@@ -20,12 +20,19 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.github.javafaker.Faker;
+import java.io.IOException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -59,6 +66,7 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
+import java.net.URI;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -270,21 +278,51 @@ class StudentIT {
   }
 
   @Test
-  void manager_upload_profile_picture() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
+  void manager_upload_profile_picture() throws IOException, InterruptedException {
+    String STUDENT_ONE_PICTURE_RAW = "/students/"+STUDENT1_ID+"/picture/raw";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
 
-    Student uploaded = api.uploadStudentProfilePicture(STUDENT1_ID, getMockedFile("img", "png"));
-    assertEquals("STD21001", uploaded.getProfilePicture());
+    HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers
+        .ofByteArray(getMockedFileAsByte("img", ".png"));
+    HttpResponse<String> response =  httpClient.send(
+        HttpRequest.newBuilder()
+            .uri(URI.create(basePath+STUDENT_ONE_PICTURE_RAW))
+            .POST(body)
+            .setHeader("Content-Type", "image/png")
+            .header("Authorization", "Bearer "+MANAGER1_TOKEN)
+            .build(), HttpResponse.BodyHandlers.ofString());
+
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(new JSR310Module());
+    mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Student responseBody = mapper.readValue(response.body(), Student.class);
+
+    assertEquals("STD21001", responseBody.getRef());
   }
 
   @Test
-  void student_upload_own_profile_picture() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    UsersApi api = new UsersApi(student1Client);
+  void student_update_own_profile_picture() throws IOException, InterruptedException {
+    String STUDENT_ONE_PICTURE_RAW = "/students/"+STUDENT1_ID+"/picture/raw";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
 
-    Student uploaded = api.uploadStudentProfilePicture(STUDENT1_ID, getMockedFile("img", "png"));
-    assertEquals("STD21001", uploaded.getProfilePicture());
+    HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers
+        .ofByteArray(getMockedFileAsByte("img", ".png"));
+    HttpResponse<String> response =  httpClient.send(
+        HttpRequest.newBuilder()
+            .uri(URI.create(basePath+STUDENT_ONE_PICTURE_RAW))
+            .POST(body)
+            .setHeader("Content-Type", "image/png")
+            .header("Authorization", "Bearer "+STUDENT1_TOKEN)
+            .build(), HttpResponse.BodyHandlers.ofString());
+
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(new JSR310Module());
+    mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Student responseBody = mapper.readValue(response.body(), Student.class);
+
+    assertEquals("STD21001", responseBody.getRef());
   }
 
   @Test

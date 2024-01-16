@@ -21,7 +21,7 @@ public class UserMapper {
   private final S3Service s3Service;
 
   public Student toRestStudent(User user) {
-    String presignedProfilePictureUrl = s3Service.getPresignedUrl(user.getRef(), 604800L);
+    String presignedProfilePictureUrl = s3Service.getPresignedUrl(user.getRef(), 3600L);
     Student restStudent = new Student();
     restStudent.setId(user.getId());
 
@@ -44,7 +44,7 @@ public class UserMapper {
   }
 
   public Teacher toRestTeacher(User user) {
-    String presignedProfilePictureUrl = s3Service.getPresignedUrl(user.getRef(), 604800L);
+    String presignedProfilePictureUrl = s3Service.getPresignedUrl(user.getRef(), 3600L);
     Teacher teacher = new Teacher();
     teacher.setId(user.getId());
 
@@ -66,7 +66,7 @@ public class UserMapper {
   }
 
   public Manager toRestManager(User user) {
-    String presignedProfilePictureUrl = s3Service.getPresignedUrl(user.getRef(), 604800L);
+    String presignedProfilePictureUrl = s3Service.getPresignedUrl(user.getRef(), 3600L);
     Manager manager = new Manager();
     manager.setId(user.getId());
 

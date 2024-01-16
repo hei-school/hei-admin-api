@@ -8,12 +8,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.service.event.S3Conf;
-import software.amazon.awssdk.awscore.exception.AwsServiceException;
-import software.amazon.awssdk.core.exception.SdkClientException;
+import software.amazon.awssdk.core.internal.waiters.ResponseOrException;
 import software.amazon.awssdk.core.sync.RequestBody;
 import software.amazon.awssdk.services.s3.model.ChecksumAlgorithm;
 import software.amazon.awssdk.services.s3.model.GetObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectRequest;
+import software.amazon.awssdk.services.s3.model.HeadObjectResponse;
 import software.amazon.awssdk.services.s3.model.PutObjectRequest;
+import software.amazon.awssdk.services.s3.model.PutObjectResponse;
 import software.amazon.awssdk.services.s3.model.S3Exception;
 import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequest;
@@ -54,12 +56,24 @@ public class S3Service {
             .key(key)
             .checksumAlgorithm(ChecksumAlgorithm.SHA256)
             .build();
+        PutObjectResponse response = s3Conf.getS3Client().putObject(putObjectRequest, RequestBody.fromBytes(file));
 
-    try {
-      s3Conf.getS3Client().putObject(putObjectRequest, RequestBody.fromBytes(file));
-      return getPresignedUrl(key, 180L);
-    } catch (AwsServiceException | SdkClientException e) {
-      throw new ApiException(SERVER_EXCEPTION, e);
-    }
+    ResponseOrException<HeadObjectResponse> responseOrException = s3Conf.getS3Client()
+        .waiter()
+        .waitUntilObjectExists(
+            HeadObjectRequest.builder()
+                .bucket(s3Conf.getS3BucketName())
+                .key(key)
+                .build()
+        ).matched();
+
+    responseOrException
+        .exception()
+        .ifPresent(
+            throwable -> {throw new ApiException(SERVER_EXCEPTION, throwable.getMessage());
+            }
+        );
+
+    return response.checksumSHA256();
   }
 }
