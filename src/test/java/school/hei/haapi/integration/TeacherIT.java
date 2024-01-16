@@ -18,6 +18,7 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -27,6 +28,14 @@ import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacherLi
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
 import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -48,6 +57,7 @@ import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
+import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -87,6 +97,30 @@ class TeacherIT {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(s3Service, teacher1());
+  }
+
+  @Test
+  void teacher_update_own_profile_picture() throws IOException, InterruptedException {
+    String TEACHER_ONE_PICTURE_RAW = "/teachers/"+TEACHER1_ID+"/picture/raw";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + StudentIT.ContextInitializer.SERVER_PORT;
+
+    HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers
+        .ofByteArray(getMockedFileAsByte("img", ".png"));
+    HttpResponse<String> response =  httpClient.send(
+        HttpRequest.newBuilder()
+            .uri(URI.create(basePath+TEACHER_ONE_PICTURE_RAW))
+            .POST(body)
+            .setHeader("Content-Type", "image/png")
+            .header("Authorization", "Bearer "+TEACHER1_TOKEN)
+            .build(), HttpResponse.BodyHandlers.ofString());
+
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(new JSR310Module());
+    mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Student responseBody = mapper.readValue(response.body(), Student.class);
+
+    assertEquals("TCR21001", responseBody.getRef());
   }
 
 

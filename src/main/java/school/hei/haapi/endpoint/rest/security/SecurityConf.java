@@ -105,9 +105,19 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/fees/*/payments")
         .hasAnyRole(MANAGER.getRole())
+        // profile picture security
+        // students profile picture
         .requestMatchers(new SelfMatcher(POST, "/students/*/picture/raw", "students"))
         .hasRole(STUDENT.getRole())
         .antMatchers(POST, "/students/*/picture/raw")
+        .hasRole(MANAGER.getRole())
+        // teachers profile picture
+        .requestMatchers(new SelfMatcher(POST, "/teachers/*/picture/raw", "teachers"))
+        .hasRole(TEACHER.getRole())
+        .antMatchers(POST, "/teachers/*/picture/raw")
+        .hasRole(MANAGER.getRole())
+        // managers profile picture
+        .requestMatchers(new SelfMatcher(POST, "/managers/*/picture/raw", "managers"))
         .hasRole(MANAGER.getRole())
         .antMatchers(POST, "/students/*/fees/*/payments")
         .hasAnyRole(MANAGER.getRole())
@@ -145,11 +155,6 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/teachers")
         .hasAnyRole(MANAGER.getRole())
-        // teachers profile picture
-        .requestMatchers(new SelfMatcher(POST, "/teachers/*/picture/raw", "teachers"))
-        .hasRole(TEACHER.getRole())
-        .antMatchers(POST, "/teachers/*/picture/raw")
-        .hasRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/teachers/*", "teachers"))
         .hasAnyRole(TEACHER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments", "students"))
@@ -186,9 +191,6 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasRole(TEACHER.getRole())
         .antMatchers(PUT, "/teachers/**")
         .hasAnyRole(MANAGER.getRole())
-        // managers profile picture
-        .requestMatchers(new SelfMatcher(POST, "/managers/*/picture/raw", "managers"))
-        .hasRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(PUT, "/managers/*", "managers"))
         .hasRole(MANAGER.getRole())
         .antMatchers("/managers/**")
