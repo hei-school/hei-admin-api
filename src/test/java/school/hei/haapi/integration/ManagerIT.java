@@ -150,7 +150,7 @@ class ManagerIT {
   void teacher_update_own_profile_picture() throws IOException, InterruptedException {
     String MANAGER_ONE_PICTURE_RAW = "/managers/"+MANAGER_ID+"/picture/raw";
     HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + StudentIT.ContextInitializer.SERVER_PORT;
+    String basePath = "http://localhost:" + ManagerIT.ContextInitializer.SERVER_PORT;
 
     HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers
         .ofByteArray(getMockedFileAsByte("img", ".png"));

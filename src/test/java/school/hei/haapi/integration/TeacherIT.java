@@ -103,7 +103,7 @@ class TeacherIT {
   void teacher_update_own_profile_picture() throws IOException, InterruptedException {
     String TEACHER_ONE_PICTURE_RAW = "/teachers/"+TEACHER1_ID+"/picture/raw";
     HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + StudentIT.ContextInitializer.SERVER_PORT;
+    String basePath = "http://localhost:" + TeacherIT.ContextInitializer.SERVER_PORT;
 
     HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers
         .ofByteArray(getMockedFileAsByte("img", ".png"));
