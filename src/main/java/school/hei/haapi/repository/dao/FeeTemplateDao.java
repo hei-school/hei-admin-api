@@ -11,18 +11,18 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.model.FeeType;
+import school.hei.haapi.model.FeeTemplate;
 
 @Repository
 @AllArgsConstructor
-public class FeeTypeDao {
+public class FeeTemplateDao {
   private final EntityManager entityManager;
 
-  public List<FeeType> findByCriteria(
-      String name, Integer totalAmount, Integer numberOfMonths, Pageable pageable) {
+  public List<FeeTemplate> findByCriteria(
+      String name, Integer amount, Integer numberOfPayments, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<FeeType> query = builder.createQuery(FeeType.class);
-    Root<FeeType> root = query.from(FeeType.class);
+    CriteriaQuery<FeeTemplate> query = builder.createQuery(FeeTemplate.class);
+    Root<FeeTemplate> root = query.from(FeeTemplate.class);
 
     List<Predicate> predicates = new ArrayList<>();
 
@@ -33,12 +33,12 @@ public class FeeTypeDao {
               builder.like(root.get("name"), "%" + name + "%")));
     }
 
-    if (totalAmount != null) {
-      predicates.add(builder.or(builder.equal(root.get("totalAmount"), totalAmount)));
+    if (amount != null) {
+      predicates.add(builder.or(builder.equal(root.get("amount"), amount)));
     }
 
-    if (numberOfMonths != null) {
-      predicates.add(builder.or(builder.equal(root.get("numberOfMonths"), numberOfMonths)));
+    if (numberOfPayments != null) {
+      predicates.add(builder.or(builder.equal(root.get("numberOfPayments"), numberOfPayments)));
     }
 
     if (!predicates.isEmpty()) {

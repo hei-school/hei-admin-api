@@ -26,13 +26,13 @@ import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
-import school.hei.haapi.endpoint.rest.model.CrupdateFeeType;
+import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.FeeType;
+import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -89,8 +89,8 @@ public class TestUtils {
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
-  public static final String FEE_TYPE1_ID = "fee_type1";
-  public static final String FEE_TYPE2_ID = "fee_type2";
+  public static final String FEE_TEMPLATE1_ID = "fee_template1";
+  public static final String FEE_TEMPLATE2_ID = "fee_template2";
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -603,30 +603,32 @@ public class TestUtils {
         .grade(grade7());
   }
 
-  public static FeeType feeType1() {
-    return new FeeType()
-        .id(FEE_TYPE1_ID)
+  public static FeeTemplate feeTemplate1() {
+    return new FeeTemplate()
+        .id(FEE_TEMPLATE1_ID)
         .name("annuel x9")
-        .numberOfMonths(9)
-        .totalAmount(200000)
+        .numberOfPayments(9)
+        .amount(200000)
+        .type(FeeTemplate.TypeEnum.TUITION)
         .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
   }
 
-  public static CrupdateFeeType createFeeType2() {
-    return new CrupdateFeeType()
-        .id(FEE_TYPE2_ID)
+  public static CrupdateFeeTemplate createFeeTemplate2() {
+    return new CrupdateFeeTemplate()
+        .id(FEE_TEMPLATE2_ID)
         .name("annuel x1")
-        .numberOfMonths(1)
-        .totalAmount(10000);
+        .numberOfPayments(1)
+        .amount(10000)
+        .type(CrupdateFeeTemplate.TypeEnum.TUITION);
   }
 
-  public static FeeType feetype2() {
-    return new FeeType()
-        .id(FEE_TYPE2_ID)
+  public static FeeTemplate feeTemplate2() {
+    return new FeeTemplate()
+        .id(FEE_TEMPLATE2_ID)
         .name("annuel x1")
-        .numberOfMonths(1)
-        .totalAmount(10000)
-        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
+        .numberOfPayments(1)
+        .amount(10000)
+        .type(FeeTemplate.TypeEnum.TUITION);
   }
 
   public static ExamDetail examDetail1() {

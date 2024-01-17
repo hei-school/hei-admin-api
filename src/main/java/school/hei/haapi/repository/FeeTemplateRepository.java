@@ -5,4 +5,4 @@ import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.FeeTemplate;
 
 @Repository
-public interface FeeTypeRepository extends JpaRepository<FeeTemplate, String> {}
+public interface FeeTemplateRepository extends JpaRepository<FeeTemplate, String> {}

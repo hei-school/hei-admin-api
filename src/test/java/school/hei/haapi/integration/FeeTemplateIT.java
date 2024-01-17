@@ -18,22 +18,21 @@ import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
-import school.hei.haapi.endpoint.rest.model.FeeType;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = FeeTypeIT.ContextInitializer.class)
+@ContextConfiguration(initializers = FeeTemplateIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-public class FeeTypeIT {
+public class FeeTemplateIT {
 
   @MockBean private SentryConf sentryConf;
   @MockBean private CognitoComponent cognitoComponentMock;
 
   private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, FeeTypeIT.ContextInitializer.SERVER_PORT);
+    return TestUtils.anApiClient(token, FeeTemplateIT.ContextInitializer.SERVER_PORT);
   }
 
   @BeforeEach
@@ -54,7 +53,8 @@ public class FeeTypeIT {
   void manager_create_fee_types() throws ApiException {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(managerClient);
-    FeeTemplate createdFeeTemplate = api.crupdateFeeTemplate(FEE_TYPE2_ID, createFeeTemplate2());
+    FeeTemplate createdFeeTemplate =
+        api.crupdateFeeTemplate(FEE_TEMPLATE2_ID, createFeeTemplate2());
     assertEquals(feeTemplate2().getName(), createdFeeTemplate.getName());
     assertEquals(feeTemplate2().getAmount(), createdFeeTemplate.getAmount());
     assertEquals(feeTemplate2().getNumberOfPayments(), createdFeeTemplate.getNumberOfPayments());

@@ -4,6 +4,8 @@ import static javax.persistence.GenerationType.IDENTITY;
 
 import java.time.Instant;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
@@ -14,6 +16,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
+import school.hei.haapi.repository.types.PostgresEnumType;
 
 @Entity
 @Table(name = "\"fee_template\"")
@@ -23,6 +28,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 public class FeeTemplate {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -30,10 +36,13 @@ public class FeeTemplate {
 
   private String name;
 
-  @CreationTimestamp
-  private Instant creationDatetime;
+  @CreationTimestamp private Instant creationDatetime;
 
-  private Integer totalAmount;
+  private Integer amount;
 
-  private Integer numberOfMonths;
+  private Integer numberOfPayments;
+
+  @Type(type = "pgsql_enum")
+  @Enumerated(EnumType.STRING)
+  private school.hei.haapi.endpoint.rest.model.FeeTemplate.TypeEnum type;
 }

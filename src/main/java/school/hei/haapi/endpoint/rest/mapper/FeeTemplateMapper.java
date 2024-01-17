@@ -1,27 +1,33 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.CrupdateFeeType;
-import school.hei.haapi.endpoint.rest.model.FeeType;
+import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
+import school.hei.haapi.model.FeeTemplate;
 
 @Component
-public class FeeTypeMapper {
+@AllArgsConstructor
+public class FeeTemplateMapper {
 
-  public FeeType toRest(school.hei.haapi.model.FeeType domain) {
-    return new FeeType()
-        .id(domain.getId())
-        .name(domain.getName())
-        .creationDatetime(domain.getCreationDatetime())
-        .totalAmount(domain.getTotalAmount())
-        .numberOfMonths(domain.getNumberOfMonths());
-  }
+  private final FeeTemplateTypeEnumMapper feeTemplateTypeEnumMapper;
 
-  public school.hei.haapi.model.FeeType toDomain(CrupdateFeeType rest) {
-    return school.hei.haapi.model.FeeType.builder()
+  public FeeTemplate toDomain(CrupdateFeeTemplate rest) {
+    return FeeTemplate.builder()
         .id(rest.getId())
         .name(rest.getName())
-        .totalAmount(rest.getTotalAmount())
-        .numberOfMonths(rest.getNumberOfMonths())
+        .amount(rest.getAmount())
+        .numberOfPayments(rest.getNumberOfPayments())
+        .type(feeTemplateTypeEnumMapper.toDomainEnum(rest.getType()))
         .build();
+  }
+
+  public school.hei.haapi.endpoint.rest.model.FeeTemplate toRest(FeeTemplate domain) {
+    return new school.hei.haapi.endpoint.rest.model.FeeTemplate()
+        .id(domain.getId())
+        .type(domain.getType())
+        .amount(domain.getAmount())
+        .name(domain.getName())
+        .creationDatetime(domain.getCreationDatetime())
+        .numberOfPayments(domain.getNumberOfPayments());
   }
 }
