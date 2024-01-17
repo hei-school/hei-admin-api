@@ -34,7 +34,7 @@ public class ManagerController {
 
   @PostMapping(value = "/managers/{id}/picture/raw", consumes = IMAGE_PNG_VALUE)
   public Manager uploadTeacherProfilePicture(
-      @RequestParam byte[] profilePicture, @PathVariable(name = "id") String managerId) {
+      @RequestBody byte[] profilePicture, @PathVariable(name = "id") String managerId) {
     userService.uploadUserProfilePicture(profilePicture, managerId);
     return userMapper.toRestManager(userService.getById(managerId));
   }
