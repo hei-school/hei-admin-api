@@ -9,5 +9,6 @@ public class EnvConf {
     registry.add("aws.ses.source", () -> "dummy");
     registry.add("aws.ses.contact", () -> "dummy");
     registry.add("aws.cognito.userPool.id", () -> "dummy");
+    registry.add("aws.s3.bucket", () -> "dummy");
   }
 }
