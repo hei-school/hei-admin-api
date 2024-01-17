@@ -6,8 +6,11 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.PUT;
+import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,6 +20,7 @@ import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,8 +33,11 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
+import school.hei.haapi.endpoint.event.gen.CheckAttendanceTriggered;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.service.aws.S3Service;
+import school.hei.haapi.service.event.S3Conf;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -42,8 +49,17 @@ class SpringSecurityIT {
 
   @Autowired private CognitoComponent cognitoComponent;
 
+  @MockBean private S3Service s3Service;
+
+  @MockBean private S3Conf s3Conf;
+
   @Value("${test.aws.cognito.idToken}")
   private String bearer;
+
+  @BeforeEach
+  void setUp() {
+    setUpS3Service(s3Service, student1());
+  }
 
   @Disabled("Cognito should be mocked")
   @Test

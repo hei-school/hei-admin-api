@@ -1,9 +1,25 @@
 package school.hei.haapi.integration;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.AWARDED_COURSE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.AWARDED_COURSE2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.exam1;
+import static school.hei.haapi.integration.conf.TestUtils.exam2;
+import static school.hei.haapi.integration.conf.TestUtils.examDetail1;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.someCreatableExamInfoList;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -23,6 +39,8 @@ import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.aws.S3Service;
+import school.hei.haapi.service.event.S3Conf;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -32,6 +50,9 @@ class ExamIT {
   @MockBean private SentryConf sentryConf;
 
   @MockBean private CognitoComponent cognitoComponentMock;
+  @MockBean private S3Service s3Service;
+
+  @MockBean private S3Conf s3Conf;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ExamIT.ContextInitializer.SERVER_PORT);
@@ -40,6 +61,7 @@ class ExamIT {
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
+    setUpS3Service(s3Service, student1());
   }
 
   @Test
