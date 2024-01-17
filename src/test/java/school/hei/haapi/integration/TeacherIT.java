@@ -118,7 +118,7 @@ class TeacherIT {
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JSR310Module());
     mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-    Student responseBody = mapper.readValue(response.body(), Student.class);
+    Teacher responseBody = mapper.readValue(response.body(), Teacher.class);
 
     assertEquals("TCR21001", responseBody.getRef());
   }

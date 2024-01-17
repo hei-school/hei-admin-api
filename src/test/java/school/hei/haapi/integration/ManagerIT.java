@@ -165,7 +165,7 @@ class ManagerIT {
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JSR310Module());
     mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-    Student responseBody = mapper.readValue(response.body(), Student.class);
+    Manager responseBody = mapper.readValue(response.body(), Manager.class);
 
     assertEquals("MGR21001", responseBody.getRef());
   }
