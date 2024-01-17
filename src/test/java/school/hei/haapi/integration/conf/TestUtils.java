@@ -9,7 +9,9 @@ import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Instant;
@@ -17,7 +19,11 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
@@ -33,11 +39,14 @@ import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
+import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.service.aws.S3Service;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -87,6 +96,7 @@ public class TestUtils {
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
+  public static final byte[] MANAGER1_PROFILE_PNG = "manager1.png".getBytes();
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -105,6 +115,22 @@ public class TestUtils {
     when(cognitoComponent.getEmailByIdToken(MANAGER1_TOKEN)).thenReturn("test+manager1@hei.school");
   }
 
+  public static void setUpS3Service(S3Service s3Service, Student user){
+    String USER_REF = user.getRef();
+    when(s3Service.getPresignedUrl(USER_REF, 180L)).thenReturn(USER_REF);
+    when(s3Service.uploadObjectToS3Bucket(USER_REF, getMockedFileAsByte("img", ".png"))).thenReturn(USER_REF);
+  }
+
+  public static void setUpS3Service(S3Service s3Service, Teacher user) {
+    String USER_REF = user.getRef();
+    when(s3Service.uploadObjectToS3Bucket(USER_REF, MANAGER1_PROFILE_PNG)).thenReturn(USER_REF);
+  }
+
+  public static void setUpS3Service(S3Service s3Service, Manager user) {
+    String USER_REF = user.getRef();
+    when(s3Service.uploadObjectToS3Bucket(USER_REF, MANAGER1_PROFILE_PNG)).thenReturn(USER_REF);
+  }
+
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {
     when(eventBridgeClient.putEvents((PutEventsRequest) any()))
         .thenReturn(PutEventsResponse.builder().build());
@@ -120,6 +146,17 @@ public class TestUtils {
     String responseBody = apiException.getResponseBody();
     assertEquals(
         "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", responseBody);
+  }
+
+  public static byte[] getMockedFileAsByte(String fileName, String fileType) {
+    try {
+      Resource resource = new ClassPathResource("mock/"+fileName+fileType);
+      File file = resource.getFile();
+      return FileUtils.readFileToByteArray(file);
+    }
+    catch (IOException e) {
+      throw new school.hei.haapi.model.exception.ApiException(SERVER_EXCEPTION, e.getMessage());
+    }
   }
 
   public static CrupdateTeacher someCreatableTeacher() {

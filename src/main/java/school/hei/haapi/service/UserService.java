@@ -24,6 +24,7 @@ import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
+import school.hei.haapi.service.aws.S3Service;
 
 @Service
 @AllArgsConstructor
@@ -35,6 +36,15 @@ public class UserService {
   private final UserManagerDao userManagerDao;
   private final GroupRepository groupRepository;
   private final GroupService groupService;
+  private final S3Service s3Service;
+
+  public String uploadUserProfilePicture(byte[] profilePicture, String userId) {
+    User user =
+        userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+    String key = user.getRef();
+
+    return s3Service.uploadObjectToS3Bucket(key, profilePicture);
+  }
 
   public User updateUser(User toUpdate, String userId) {
     User user =
@@ -114,16 +124,16 @@ public class UserService {
 
     return courseId.length() > 0
         ? users.stream()
-            .filter(
-                user ->
-                    groupService.getByUserId(user.getId()).stream()
-                        .anyMatch(
-                            group ->
-                                group.getAwardedCourse().stream()
-                                    .anyMatch(
-                                        awardedCourse ->
-                                            awardedCourse.getCourse().getId().equals(courseId))))
-            .collect(toList())
+        .filter(
+            user ->
+                groupService.getByUserId(user.getId()).stream()
+                    .anyMatch(
+                        group ->
+                            group.getAwardedCourse().stream()
+                                .anyMatch(
+                                    awardedCourse ->
+                                        awardedCourse.getCourse().getId().equals(courseId))))
+        .collect(toList())
         : users;
   }
 

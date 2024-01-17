@@ -20,10 +20,19 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.github.javafaker.Faker;
+import java.io.IOException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -50,11 +59,14 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.aws.S3Service;
+import school.hei.haapi.service.event.S3Conf;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
+import java.net.URI;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -67,6 +79,10 @@ class StudentIT {
   @MockBean private CognitoComponent cognitoComponentMock;
 
   @MockBean private EventBridgeClient eventBridgeClientMock;
+
+  @MockBean private S3Service s3Service;
+
+  @MockBean private S3Conf s3Conf;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -258,6 +274,55 @@ class StudentIT {
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
+    setUpS3Service(s3Service, student1());
+  }
+
+  @Test
+  void manager_upload_profile_picture() throws IOException, InterruptedException {
+    String STUDENT_ONE_PICTURE_RAW = "/students/"+STUDENT1_ID+"/picture/raw";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
+
+    HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers
+        .ofByteArray(getMockedFileAsByte("img", ".png"));
+    HttpResponse<String> response =  httpClient.send(
+        HttpRequest.newBuilder()
+            .uri(URI.create(basePath+STUDENT_ONE_PICTURE_RAW))
+            .POST(body)
+            .setHeader("Content-Type", "image/png")
+            .header("Authorization", "Bearer "+MANAGER1_TOKEN)
+            .build(), HttpResponse.BodyHandlers.ofString());
+
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(new JSR310Module());
+    mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Student responseBody = mapper.readValue(response.body(), Student.class);
+
+    assertEquals("STD21001", responseBody.getRef());
+  }
+
+  @Test
+  void student_update_own_profile_picture() throws IOException, InterruptedException {
+    String STUDENT_ONE_PICTURE_RAW = "/students/"+STUDENT1_ID+"/picture/raw";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
+
+    HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers
+        .ofByteArray(getMockedFileAsByte("img", ".png"));
+    HttpResponse<String> response =  httpClient.send(
+        HttpRequest.newBuilder()
+            .uri(URI.create(basePath+STUDENT_ONE_PICTURE_RAW))
+            .POST(body)
+            .setHeader("Content-Type", "image/png")
+            .header("Authorization", "Bearer "+STUDENT1_TOKEN)
+            .build(), HttpResponse.BodyHandlers.ofString());
+
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(new JSR310Module());
+    mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Student responseBody = mapper.readValue(response.body(), Student.class);
+
+    assertEquals("STD21001", responseBody.getRef());
   }
 
   @Test
@@ -508,37 +573,39 @@ class StudentIT {
             .status(created1.getStatus());
     toUpdate1.setLastName("A new name one");
 
-    Student updated0 = new Student()
-        .birthDate(toUpdate0.getBirthDate())
-        .id(toUpdate0.getId())
-        .entranceDatetime(toUpdate0.getEntranceDatetime())
-        .phone(toUpdate0.getPhone())
-        .nic(toUpdate0.getNic())
-        .birthPlace(toUpdate0.getBirthPlace())
-        .email(toUpdate0.getEmail())
-        .address(toUpdate0.getAddress())
-        .firstName(toUpdate0.getFirstName())
-        .lastName("A new name zero")
-        .sex(toUpdate0.getSex())
-        .ref(toUpdate0.getRef())
-        .specializationField(toUpdate0.getSpecializationField())
-        .status(toUpdate0.getStatus());
+    Student updated0 =
+        new Student()
+            .birthDate(toUpdate0.getBirthDate())
+            .id(toUpdate0.getId())
+            .entranceDatetime(toUpdate0.getEntranceDatetime())
+            .phone(toUpdate0.getPhone())
+            .nic(toUpdate0.getNic())
+            .birthPlace(toUpdate0.getBirthPlace())
+            .email(toUpdate0.getEmail())
+            .address(toUpdate0.getAddress())
+            .firstName(toUpdate0.getFirstName())
+            .lastName("A new name zero")
+            .sex(toUpdate0.getSex())
+            .ref(toUpdate0.getRef())
+            .specializationField(toUpdate0.getSpecializationField())
+            .status(toUpdate0.getStatus());
 
-    Student updated1 = new Student()
-        .birthDate(toUpdate1.getBirthDate())
-        .id(toUpdate1.getId())
-        .entranceDatetime(toUpdate1.getEntranceDatetime())
-        .phone(toUpdate1.getPhone())
-        .nic(toUpdate1.getNic())
-        .birthPlace(toUpdate1.getBirthPlace())
-        .email(toUpdate1.getEmail())
-        .address(toUpdate1.getAddress())
-        .firstName(toUpdate1.getFirstName())
-        .lastName("A new name one")
-        .sex(toUpdate1.getSex())
-        .ref(toUpdate1.getRef())
-        .specializationField(toUpdate1.getSpecializationField())
-        .status(toUpdate1.getStatus());
+    Student updated1 =
+        new Student()
+            .birthDate(toUpdate1.getBirthDate())
+            .id(toUpdate1.getId())
+            .entranceDatetime(toUpdate1.getEntranceDatetime())
+            .phone(toUpdate1.getPhone())
+            .nic(toUpdate1.getNic())
+            .birthPlace(toUpdate1.getBirthPlace())
+            .email(toUpdate1.getEmail())
+            .address(toUpdate1.getAddress())
+            .firstName(toUpdate1.getFirstName())
+            .lastName("A new name one")
+            .sex(toUpdate1.getSex())
+            .ref(toUpdate1.getRef())
+            .specializationField(toUpdate1.getSpecializationField())
+            .status(toUpdate1.getStatus());
 
     List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1));
 
