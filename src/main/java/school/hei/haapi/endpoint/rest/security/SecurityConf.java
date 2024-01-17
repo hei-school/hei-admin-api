@@ -82,6 +82,19 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .permitAll()
         .antMatchers("/whoami")
         .authenticated()
+        //
+        // Profile picture resources
+        //
+        .requestMatchers(new SelfMatcher(POST, "/students/*/picture/raw", "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(POST, "/students/*/picture/raw")
+        .hasRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(POST, "/teachers/*/picture/raw", "teachers"))
+        .hasRole(TEACHER.getRole())
+        .antMatchers(POST, "/teachers/*/picture/raw")
+        .hasRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(POST, "/managers/*/picture/raw", "managers"))
+        .hasRole(MANAGER.getRole())
         .antMatchers(GET, "/students")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         //
