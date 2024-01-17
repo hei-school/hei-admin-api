@@ -16,14 +16,14 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
-@Table(name = "\"predefined_fee_type\"")
+@Table(name = "\"fee_template\"")
 @Getter
 @Setter
 @ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
-public class FeeType {
+public class FeeTemplate {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
