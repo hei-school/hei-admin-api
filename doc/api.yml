@@ -1583,7 +1583,7 @@ paths:
         - name: number_of_months
           in: query
           schema:
-            type: integer
+            type: string
         - name: page
           in: query
           schema:
@@ -2428,6 +2428,19 @@ components:
         total_amount:
           type: integer
         number_of_months:
+          type: integer
+        fees:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeTypeComponent'
+    FeeTypeComponent:
+      type: object
+      properties:
+        id:
+          type: string
+        month_number:
+          type: integer
+        amount:
           type: integer
     FeeType:
       allOf:
