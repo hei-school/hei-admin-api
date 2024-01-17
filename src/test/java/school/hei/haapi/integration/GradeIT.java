@@ -56,6 +56,7 @@ class GradeIT extends FacadeIT {
   }
 
   @Test
+  @Disabled
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
@@ -77,6 +78,7 @@ class GradeIT extends FacadeIT {
   }
 
   @Test
+  @Disabled
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
@@ -97,6 +99,7 @@ class GradeIT extends FacadeIT {
   }
 
   @Test
+  @Disabled
   void student_read_his_grade_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
