@@ -154,4 +154,5 @@ testImplementation 'org.springframework.security:spring-security-test'
 testImplementation 'com.github.javafaker:javafaker:0.13'
 implementation 'org.xhtmlrenderer:flying-saucer-pdf:9.3.1'
 implementation 'software.amazon.awssdk:s3:2.20.109'
+implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.16.1'
 }
