@@ -17,6 +17,7 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.endpoint.rest.model.FeeType;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -44,19 +45,19 @@ public class FeeTypeIT {
   void manager_get_predefined_types() throws ApiException {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(managerClient);
-    List<FeeType> actual = api.getFeeTypes(null, 200000, 9, 1, 10);
+    List<FeeTemplate> actual = api.getFeeTemplates(null, 200000, 9, 1, 10);
     assertEquals(1, actual.size());
-    assertTrue(actual.contains(feeType1()));
+    assertTrue(actual.contains(feeTemplate1()));
   }
 
   @Test
   void manager_create_fee_types() throws ApiException {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(managerClient);
-    FeeType createdFeeType = api.crupdateFeeType(FEE_TYPE2_ID, createFeeType2());
-    assertEquals(feetype2().getName(), createdFeeType.getName());
-    assertEquals(feetype2().getTotalAmount(), createdFeeType.getTotalAmount());
-    assertEquals(feetype2().getNumberOfMonths(), createdFeeType.getNumberOfMonths());
+    FeeTemplate createdFeeTemplate = api.crupdateFeeTemplate(FEE_TYPE2_ID, createFeeTemplate2());
+    assertEquals(feeTemplate2().getName(), createdFeeTemplate.getName());
+    assertEquals(feeTemplate2().getAmount(), createdFeeTemplate.getAmount());
+    assertEquals(feeTemplate2().getNumberOfPayments(), createdFeeTemplate.getNumberOfPayments());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
