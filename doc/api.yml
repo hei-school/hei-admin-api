@@ -2429,6 +2429,19 @@ components:
           type: integer
         number_of_months:
           type: integer
+        fees:
+          type: array
+          items:
+            $ref: '#/components/schemas/FeeTypeComponent'
+    FeeTypeComponent:
+      type: object
+      properties:
+        id:
+          type: string
+        month_number:
+          type: integer
+        amount:
+          type: integer
     FeeType:
       allOf:
         - $ref: '#/components/schemas/CrupdateFeeType'
