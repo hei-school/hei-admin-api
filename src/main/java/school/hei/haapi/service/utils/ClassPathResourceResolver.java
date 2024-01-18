@@ -6,10 +6,10 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Component;
 
 @Component
-public class ClassPathResourceResolver implements BiFunction<String, String, ClassPathResource> {
+public class ClassPathResourceResolver implements BiFunction<String, String, Resource> {
   @Override
-  public ClassPathResource apply(String fileName, String fileType) {
+  public Resource apply(String fileName, String fileType) {
     Resource resource = new ClassPathResource("static/images/" + fileName + fileType);
-    return (ClassPathResource) resource;
+    return resource;
   }
 }

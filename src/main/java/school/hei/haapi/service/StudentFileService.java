@@ -7,6 +7,7 @@ import static school.hei.haapi.service.utils.ScholarshipCertificateUtils.getAcad
 
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.model.User;
@@ -32,8 +33,8 @@ public class StudentFileService {
 
   private Context loadContext(String studentId) {
     ClassPathResourceResolver pathResolver = new ClassPathResourceResolver();
-    ClassPathResource logo = pathResolver.apply("HEI_logo", ".png");
-    ClassPathResource signature = pathResolver.apply("signature", ".png");
+    Resource logo = pathResolver.apply("HEI_logo", ".png");
+    Resource signature = pathResolver.apply("signature", ".png");
     Base64Converter base64Converter = new Base64Converter();
     Context context = new Context();
     User student =
