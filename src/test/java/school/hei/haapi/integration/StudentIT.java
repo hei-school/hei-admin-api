@@ -263,11 +263,6 @@ class StudentIT {
   }
 
   @Test
-  void student_load_certificate_ok() throws ApiException {
-
-  }
-
-  @Test
   @DirtiesContext
   void student_update_own_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);

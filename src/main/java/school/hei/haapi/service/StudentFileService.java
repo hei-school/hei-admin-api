@@ -6,7 +6,6 @@ import static school.hei.haapi.service.utils.ScholarshipCertificateUtils.getAcad
 import static school.hei.haapi.service.utils.ScholarshipCertificateUtils.getAcademicYearSentence;
 
 import lombok.AllArgsConstructor;
-import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -21,6 +20,8 @@ import school.hei.haapi.service.utils.PdfRenderer;
 @Service
 @AllArgsConstructor
 public class StudentFileService {
+  private final Base64Converter base64Converter;
+  private final ClassPathResourceResolver classPathResourceResolver;
   private final UserRepository userRepository;
   private final HtmlParser htmlParser;
   private final PdfRenderer pdfRenderer;
@@ -32,10 +33,8 @@ public class StudentFileService {
   }
 
   private Context loadContext(String studentId) {
-    ClassPathResourceResolver pathResolver = new ClassPathResourceResolver();
-    Resource logo = pathResolver.apply("HEI_logo", ".png");
-    Resource signature = pathResolver.apply("signature", ".png");
-    Base64Converter base64Converter = new Base64Converter();
+    Resource logo = classPathResourceResolver.apply("HEI_logo", ".png");
+    Resource signature = classPathResourceResolver.apply("signature", ".png");
     Context context = new Context();
     User student =
         userRepository
