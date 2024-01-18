@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 public class ClassPathResourceResolver implements BiFunction<String, String, Resource> {
   @Override
   public Resource apply(String fileName, String fileType) {
-    Resource resource = new ClassPathResource("static/images/" + fileName + fileType);
-    return resource;
+    return new ClassPathResource("static/images/" + fileName + fileType);
   }
 }

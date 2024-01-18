@@ -16,9 +16,9 @@ public class Base64Converter implements Function<Resource, String> {
 
   @Override
   @SneakyThrows
-  public String apply(Resource path) {
+  public String apply(Resource resource) {
     try {
-      byte[] file = path.getInputStream().readAllBytes();
+      byte[] file = resource.getInputStream().readAllBytes();
       return Base64.getEncoder().encodeToString(file);
     } catch (ImagingOpException e) {
       throw new ApiException(SERVER_EXCEPTION, e.getMessage());
