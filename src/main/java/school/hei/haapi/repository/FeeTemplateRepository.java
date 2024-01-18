@@ -7,6 +7,4 @@ import school.hei.haapi.model.FeeTemplate;
 import java.util.Optional;
 
 @Repository
-public interface FeeTemplateRepository extends JpaRepository<FeeTemplate, String> {
-    Optional<FeeTemplate> findById(String s);
-}
+public interface FeeTemplateRepository extends JpaRepository<FeeTemplate, String> {}

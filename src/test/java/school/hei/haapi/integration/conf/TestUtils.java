@@ -7,8 +7,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -142,7 +143,7 @@ public class TestUtils {
 
   public static CreateFee creatableFee1() {
     return new CreateFee()
-        .type(CreateFee.TypeEnum.TUITION)
+        .type(TUITION)
         .totalAmount(5000)
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
@@ -609,8 +610,18 @@ public class TestUtils {
         .name("annuel x9")
         .numberOfPayments(9)
         .amount(200000)
-        .type(FeeTemplate.TypeEnum.TUITION)
+        .type(TUITION)
         .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
+  }
+
+  public static FeeTemplate feeTemplate3() {
+    return new FeeTemplate()
+            .id("fee_template3")
+            .name("Keyboard")
+            .numberOfPayments(1)
+            .amount(1000)
+            .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"))
+            .type(HARDWARE);
   }
 
   public static CrupdateFeeTemplate createFeeTemplate2() {
@@ -619,7 +630,7 @@ public class TestUtils {
         .name("annuel x1")
         .numberOfPayments(1)
         .amount(10000)
-        .type(CrupdateFeeTemplate.TypeEnum.TUITION);
+        .type(TUITION);
   }
 
   public static FeeTemplate feeTemplate2() {
@@ -628,7 +639,7 @@ public class TestUtils {
         .name("annuel x1")
         .numberOfPayments(1)
         .amount(10000)
-        .type(FeeTemplate.TypeEnum.TUITION);
+        .type(TUITION);
   }
 
   public static ExamDetail examDetail1() {

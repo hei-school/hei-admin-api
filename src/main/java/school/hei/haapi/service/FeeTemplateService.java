@@ -37,9 +37,8 @@ public class FeeTemplateService {
 
   public FeeTemplate getFeeTemplateById(String id) {
     return feeTemplateRepository.findById(id).orElseThrow(
-            () -> {
-              throw new NotFoundException("{\"type\":\"404 NOT_FOUND\",\"message\":\"FeeTemplate with id: \" + id_not_existing + \" not found\"}");
-            });
+            () ->  new NotFoundException("FeeTemplate with id: " + id + " not found")
+            );
   }
 
   public FeeTemplate createOrUpdateFeeTemplate(FeeTemplate domain) {

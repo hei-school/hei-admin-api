@@ -4,14 +4,18 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.REMEDIAL_COSTS;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.STUDENT_INSURANCE;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.validator.CreateFeeValidator;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -63,7 +67,7 @@ public class FeeMapper {
     school.hei.haapi.model.Fee fee =
         school.hei.haapi.model.Fee.builder()
             .student(student)
-            .type(toDomainFeeType(Objects.requireNonNull(createFee.getType())))
+            .type(createFee.getType())
             .totalAmount(createFee.getTotalAmount())
             .updatedAt(createFee.getCreationDatetime())
             .remainingAmount(createFee.getTotalAmount())
@@ -87,12 +91,16 @@ public class FeeMapper {
         .collect(toUnmodifiableList());
   }
 
-  private Fee.TypeEnum toDomainFeeType(CreateFee.TypeEnum createFeeType) {
+  private FeeTypeEnum toDomainFeeType(FeeTypeEnum createFeeType) {
     switch (createFeeType) {
       case TUITION:
-        return Fee.TypeEnum.TUITION;
+        return TUITION;
       case HARDWARE:
-        return Fee.TypeEnum.HARDWARE;
+        return HARDWARE;
+      case REMEDIAL_COSTS:
+        return REMEDIAL_COSTS;
+      case STUDENT_INSURANCE:
+        return STUDENT_INSURANCE;
       default:
         throw new BadRequestException("Unexpected feeType: " + createFeeType.getValue());
     }

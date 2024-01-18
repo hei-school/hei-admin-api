@@ -25,8 +25,6 @@ public class GroupController {
 
   private final GroupService groupService;
   private final GroupMapper groupMapper;
-  private final GroupFlowMapper groupFlowMapper;
-  private final UserService userService;
 
   @GetMapping(value = "/groups/{id}")
   public Group getGroupById(@PathVariable String id) {

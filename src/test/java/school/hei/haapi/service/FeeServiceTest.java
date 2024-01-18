@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
 
 import java.time.Instant;

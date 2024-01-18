@@ -1,10 +1,10 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
 
 import java.time.Instant;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -18,6 +18,7 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
 @Entity
@@ -43,6 +44,6 @@ public class FeeTemplate {
   private Integer numberOfPayments;
 
   @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
-  private school.hei.haapi.endpoint.rest.model.FeeTemplate.TypeEnum type;
+  @Enumerated(STRING)
+  private FeeTypeEnum type;
 }

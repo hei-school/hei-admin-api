@@ -3,25 +3,24 @@ package school.hei.haapi.endpoint.rest.mapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
-import school.hei.haapi.model.FeeTemplate;
+import school.hei.haapi.endpoint.rest.model.FeeTemplate;
+
 
 @Component
 @AllArgsConstructor
 public class FeeTemplateMapper {
 
-  private final FeeTemplateTypeEnumMapper feeTemplateTypeEnumMapper;
-
-  public FeeTemplate toDomain(CrupdateFeeTemplate rest) {
-    return FeeTemplate.builder()
+  public school.hei.haapi.model.FeeTemplate toDomain(CrupdateFeeTemplate rest) {
+    return school.hei.haapi.model.FeeTemplate.builder()
         .id(rest.getId())
         .name(rest.getName())
         .amount(rest.getAmount())
         .numberOfPayments(rest.getNumberOfPayments())
-        .type(feeTemplateTypeEnumMapper.toDomainEnum(rest.getType()))
+        .type(rest.getType())
         .build();
   }
 
-  public school.hei.haapi.endpoint.rest.model.FeeTemplate toRest(FeeTemplate domain) {
+  public FeeTemplate toRest(school.hei.haapi.model.FeeTemplate domain) {
     return new school.hei.haapi.endpoint.rest.model.FeeTemplate()
         .id(domain.getId())
         .type(domain.getType())

@@ -1570,7 +1570,7 @@ paths:
     get:
       tags:
         - Paying
-      summary: Get all templates of fee
+      summary: Get all fee templates
       parameters:
         - name: name
           in: query
@@ -1652,7 +1652,7 @@ paths:
           required: true
           schema:
             type: string
-      description: Update fee type when `id` exist, create it otherwise.
+      description: Update fee type if `id` exist, create it otherwise.
       operationId: crupdateFeeTemplate
       requestBody:
         required: true
@@ -2372,10 +2372,7 @@ components:
       type: object
       properties:
         type:
-          type: string
-          enum:
-            - TUITION
-            - HARDWARE
+          $ref: '#/components/schemas/FeeTypeEnum'
         comment:
           type: string
         total_amount:
@@ -2455,12 +2452,7 @@ components:
         name:
           type: string
         type:
-           type: string
-           enum:
-             - TUITION
-             - HARDWARE
-             - STUDENT_INSURANCE
-             - REMEDIAL_COSTS
+          $ref: '#/components/schemas/FeeTypeEnum'
         amount:
           type: integer
         number_of_payments:
@@ -2485,6 +2477,13 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    FeeTypeEnum:
+      type: string
+      enum:
+        - TUITION
+        - HARDWARE
+        - STUDENT_INSURANCE
+        - REMEDIAL_COSTS
     Page:
       type: integer
       description: Start at `1`
