@@ -8,6 +8,7 @@ import static school.hei.haapi.integration.conf.TestUtils.*;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -41,7 +42,7 @@ public class FeeTemplateIT {
   }
 
   @Test
-  void manager_get_predefined_types() throws ApiException {
+  void manager_get_fee_templates() throws ApiException {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(managerClient);
     List<FeeTemplate> actual = api.getFeeTemplates(null, 200000, 9, 1, 10);
@@ -58,6 +59,14 @@ public class FeeTemplateIT {
     assertEquals(feeTemplate2().getName(), createdFeeTemplate.getName());
     assertEquals(feeTemplate2().getAmount(), createdFeeTemplate.getAmount());
     assertEquals(feeTemplate2().getNumberOfPayments(), createdFeeTemplate.getNumberOfPayments());
+  }
+
+  @Test
+  void get_fee_template_by_id_not_existing() throws ApiException{
+    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(managerClient);
+    FeeTemplate actual = api.getFeeTemplateById(FEE_TEMPLATE1_ID);
+    assertEquals(feeTemplate1(), actual);
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

@@ -1570,7 +1570,7 @@ paths:
     get:
       tags:
         - Paying
-      summary: Get all predefined types of fee
+      summary: Get all templates of fee
       parameters:
         - name: name
           in: query
@@ -1595,7 +1595,7 @@ paths:
       operationId: getFeeTemplates
       responses:
         '200':
-          description: List of predefined type of fee
+          description: List of templates of fee
           content:
             application/json:
               schema:
@@ -1613,6 +1613,35 @@ paths:
         '500':
           $ref: '#/components/responses/500'
   /fees/templates/{id}:
+    get:
+      tags:
+        - Paying
+      summary: Get fee template by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      description: Get fee template by `id` if `id` exists
+      operationId: getFeeTemplateById
+      responses:
+        '200':
+          description: The fee template requested
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeTemplate'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     put:
       tags:
         - Paying

@@ -84,22 +84,27 @@ public class FeeController {
   }
 
   @GetMapping("/fees/templates")
-  public List<FeeTemplate> getPredefinedFeeTypes(
+  public List<FeeTemplate> getFeeTemplates(
           @RequestParam(value = "name", required = false) String name,
           @RequestParam(value = "amount", required = false) Integer amount,
           @RequestParam(value = "number_of_payments", required = false) Integer numberOfPayments,
           @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
           @RequestParam(value = "page_size", defaultValue = "10") BoundedPageSize pageSize) {
-    return feeTemplateService.getFeeTypes(name, amount, numberOfPayments, page, pageSize).stream()
+    return feeTemplateService.getFeeTemplates(name, amount, numberOfPayments, page, pageSize).stream()
             .map(feeTemplateMapper::toRest)
             .collect(toUnmodifiableList());
   }
 
+  @GetMapping("/fees/templates/{id}")
+  public FeeTemplate getFeeTemplateById(@PathVariable String id){
+    return feeTemplateMapper.toRest(feeTemplateService.getFeeTemplateById(id));
+  }
+
   @PutMapping("/fees/templates/{id}")
-  public FeeTemplate createOrUpdatePredefinedFeetype(
+  public FeeTemplate createOrUpdateFeeTemplate(
           @PathVariable String id, @RequestBody CrupdateFeeTemplate feeType) {
     return feeTemplateMapper.toRest(
-            feeTemplateService.createOrUpdateFeeTypes(feeTemplateMapper.toDomain(feeType)));
+            feeTemplateService.createOrUpdateFeeTemplate(feeTemplateMapper.toDomain(feeType)));
   }
 }
 

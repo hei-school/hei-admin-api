@@ -9,9 +9,6 @@ import school.hei.haapi.model.exception.BadRequestException;
 public class FeeTemplateTypeEnumMapper {
 
   public CrupdateFeeTemplate.TypeEnum toRestEnum(FeeTemplate.TypeEnum domain) {
-    if (domain == null) {
-      return null;
-    }
     return switch (domain) {
       case TUITION -> CrupdateFeeTemplate.TypeEnum.TUITION;
       case HARDWARE -> CrupdateFeeTemplate.TypeEnum.HARDWARE;
@@ -22,9 +19,6 @@ public class FeeTemplateTypeEnumMapper {
   }
 
   public FeeTemplate.TypeEnum toDomainEnum(CrupdateFeeTemplate.TypeEnum rest) {
-    if (rest == null) {
-      return null;
-    }
     return switch (rest) {
       case TUITION -> FeeTemplate.TypeEnum.TUITION;
       case HARDWARE -> FeeTemplate.TypeEnum.HARDWARE;
