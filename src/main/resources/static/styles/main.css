@@ -18,7 +18,7 @@ a {
   width: 500px;
   height: 150px;
   margin: 0 auto;
-  background-image: url(../assets/images/HEI_logo.png);
+  background-image: url(../images/HEI_logo.png);
   background-size: contain;
   background-position: center;
   background-repeat: no-repeat;
@@ -76,7 +76,7 @@ blockquote {
   display: block;
   width: 150px;
   height: 150px;
-  background-image: url(../assets/images/signature.png);
+  background-image: url(../images/signature.png);
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
