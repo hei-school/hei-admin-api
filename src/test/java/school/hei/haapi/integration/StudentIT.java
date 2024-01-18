@@ -508,37 +508,39 @@ class StudentIT {
             .status(created1.getStatus());
     toUpdate1.setLastName("A new name one");
 
-    Student updated0 = new Student()
-        .birthDate(toUpdate0.getBirthDate())
-        .id(toUpdate0.getId())
-        .entranceDatetime(toUpdate0.getEntranceDatetime())
-        .phone(toUpdate0.getPhone())
-        .nic(toUpdate0.getNic())
-        .birthPlace(toUpdate0.getBirthPlace())
-        .email(toUpdate0.getEmail())
-        .address(toUpdate0.getAddress())
-        .firstName(toUpdate0.getFirstName())
-        .lastName("A new name zero")
-        .sex(toUpdate0.getSex())
-        .ref(toUpdate0.getRef())
-        .specializationField(toUpdate0.getSpecializationField())
-        .status(toUpdate0.getStatus());
+    Student updated0 =
+        new Student()
+            .birthDate(toUpdate0.getBirthDate())
+            .id(toUpdate0.getId())
+            .entranceDatetime(toUpdate0.getEntranceDatetime())
+            .phone(toUpdate0.getPhone())
+            .nic(toUpdate0.getNic())
+            .birthPlace(toUpdate0.getBirthPlace())
+            .email(toUpdate0.getEmail())
+            .address(toUpdate0.getAddress())
+            .firstName(toUpdate0.getFirstName())
+            .lastName("A new name zero")
+            .sex(toUpdate0.getSex())
+            .ref(toUpdate0.getRef())
+            .specializationField(toUpdate0.getSpecializationField())
+            .status(toUpdate0.getStatus());
 
-    Student updated1 = new Student()
-        .birthDate(toUpdate1.getBirthDate())
-        .id(toUpdate1.getId())
-        .entranceDatetime(toUpdate1.getEntranceDatetime())
-        .phone(toUpdate1.getPhone())
-        .nic(toUpdate1.getNic())
-        .birthPlace(toUpdate1.getBirthPlace())
-        .email(toUpdate1.getEmail())
-        .address(toUpdate1.getAddress())
-        .firstName(toUpdate1.getFirstName())
-        .lastName("A new name one")
-        .sex(toUpdate1.getSex())
-        .ref(toUpdate1.getRef())
-        .specializationField(toUpdate1.getSpecializationField())
-        .status(toUpdate1.getStatus());
+    Student updated1 =
+        new Student()
+            .birthDate(toUpdate1.getBirthDate())
+            .id(toUpdate1.getId())
+            .entranceDatetime(toUpdate1.getEntranceDatetime())
+            .phone(toUpdate1.getPhone())
+            .nic(toUpdate1.getNic())
+            .birthPlace(toUpdate1.getBirthPlace())
+            .email(toUpdate1.getEmail())
+            .address(toUpdate1.getAddress())
+            .firstName(toUpdate1.getFirstName())
+            .lastName("A new name one")
+            .sex(toUpdate1.getSex())
+            .ref(toUpdate1.getRef())
+            .specializationField(toUpdate1.getSpecializationField())
+            .status(toUpdate1.getStatus());
 
     List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1));
 
