@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -115,10 +114,11 @@ public class TestUtils {
     when(cognitoComponent.getEmailByIdToken(MANAGER1_TOKEN)).thenReturn("test+manager1@hei.school");
   }
 
-  public static void setUpS3Service(S3Service s3Service, Student user){
+  public static void setUpS3Service(S3Service s3Service, Student user) {
     String USER_REF = user.getRef();
     when(s3Service.getPresignedUrl(USER_REF, 180L)).thenReturn(USER_REF);
-    when(s3Service.uploadObjectToS3Bucket(USER_REF, getMockedFileAsByte("img", ".png"))).thenReturn(USER_REF);
+    when(s3Service.uploadObjectToS3Bucket(USER_REF, getMockedFileAsByte("img", ".png")))
+        .thenReturn(USER_REF);
   }
 
   public static void setUpS3Service(S3Service s3Service, Teacher user) {
@@ -150,11 +150,20 @@ public class TestUtils {
 
   public static byte[] getMockedFileAsByte(String fileName, String fileType) {
     try {
-      Resource resource = new ClassPathResource("mock/"+fileName+fileType);
+      Resource resource = new ClassPathResource("mock/" + fileName + fileType);
       File file = resource.getFile();
       return FileUtils.readFileToByteArray(file);
+    } catch (IOException e) {
+      throw new school.hei.haapi.model.exception.ApiException(SERVER_EXCEPTION, e.getMessage());
     }
-    catch (IOException e) {
+  }
+
+  public static File getMockedFile(String fileName, String fileType) {
+    try {
+      Resource resource = new ClassPathResource("mock/" + fileName + fileType);
+      File file = resource.getFile();
+      return file;
+    } catch (IOException e) {
       throw new school.hei.haapi.model.exception.ApiException(SERVER_EXCEPTION, e.getMessage());
     }
   }

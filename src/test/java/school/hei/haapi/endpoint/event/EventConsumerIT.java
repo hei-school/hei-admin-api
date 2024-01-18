@@ -27,8 +27,7 @@ class EventConsumerIT extends FacadeIT {
 
   @Autowired EventConsumer subject;
   @Autowired DummyUuidRepository dummyUuidRepository;
-  @MockBean
-  private S3Service s3Service;
+  @MockBean private S3Service s3Service;
 
   @MockBean private S3Conf s3Conf;
 

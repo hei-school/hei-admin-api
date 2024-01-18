@@ -124,16 +124,16 @@ public class UserService {
 
     return courseId.length() > 0
         ? users.stream()
-        .filter(
-            user ->
-                groupService.getByUserId(user.getId()).stream()
-                    .anyMatch(
-                        group ->
-                            group.getAwardedCourse().stream()
-                                .anyMatch(
-                                    awardedCourse ->
-                                        awardedCourse.getCourse().getId().equals(courseId))))
-        .collect(toList())
+            .filter(
+                user ->
+                    groupService.getByUserId(user.getId()).stream()
+                        .anyMatch(
+                            group ->
+                                group.getAwardedCourse().stream()
+                                    .anyMatch(
+                                        awardedCourse ->
+                                            awardedCourse.getCourse().getId().equals(courseId))))
+            .collect(toList())
         : users;
   }
 

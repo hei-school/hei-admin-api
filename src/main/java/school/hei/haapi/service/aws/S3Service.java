@@ -56,23 +56,23 @@ public class S3Service {
             .key(key)
             .checksumAlgorithm(ChecksumAlgorithm.SHA256)
             .build();
-    PutObjectResponse response = s3Conf.getS3Client().putObject(putObjectRequest, RequestBody.fromBytes(file));
+    PutObjectResponse response =
+        s3Conf.getS3Client().putObject(putObjectRequest, RequestBody.fromBytes(file));
 
-    ResponseOrException<HeadObjectResponse> responseOrException = s3Conf.getS3Client()
-        .waiter()
-        .waitUntilObjectExists(
-            HeadObjectRequest.builder()
-                .bucket(s3Conf.getS3BucketName())
-                .key(key)
-                .build()
-        ).matched();
+    ResponseOrException<HeadObjectResponse> responseOrException =
+        s3Conf
+            .getS3Client()
+            .waiter()
+            .waitUntilObjectExists(
+                HeadObjectRequest.builder().bucket(s3Conf.getS3BucketName()).key(key).build())
+            .matched();
 
     responseOrException
         .exception()
         .ifPresent(
-            throwable -> {throw new ApiException(SERVER_EXCEPTION, throwable.getMessage());
-            }
-        );
+            throwable -> {
+              throw new ApiException(SERVER_EXCEPTION, throwable.getMessage());
+            });
 
     return response.checksumSHA256();
   }

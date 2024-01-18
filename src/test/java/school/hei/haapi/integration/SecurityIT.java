@@ -24,7 +24,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
-import school.hei.haapi.endpoint.event.gen.CheckAttendanceTriggered;
 import school.hei.haapi.endpoint.rest.api.SecurityApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;

@@ -18,6 +18,7 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -57,7 +58,6 @@ import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
-import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -101,19 +101,21 @@ class TeacherIT {
 
   @Test
   void teacher_update_own_profile_picture() throws IOException, InterruptedException {
-    String TEACHER_ONE_PICTURE_RAW = "/teachers/"+TEACHER1_ID+"/picture/raw";
+    String TEACHER_ONE_PICTURE_RAW = "/teachers/" + TEACHER1_ID + "/picture/raw";
     HttpClient httpClient = HttpClient.newBuilder().build();
     String basePath = "http://localhost:" + TeacherIT.ContextInitializer.SERVER_PORT;
 
-    HttpRequest.BodyPublisher body = HttpRequest.BodyPublishers
-        .ofByteArray(getMockedFileAsByte("img", ".png"));
-    HttpResponse<String> response =  httpClient.send(
-        HttpRequest.newBuilder()
-            .uri(URI.create(basePath+TEACHER_ONE_PICTURE_RAW))
-            .POST(body)
-            .setHeader("Content-Type", "image/png")
-            .header("Authorization", "Bearer "+TEACHER1_TOKEN)
-            .build(), HttpResponse.BodyHandlers.ofString());
+    HttpRequest.BodyPublisher body =
+        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
+    HttpResponse<String> response =
+        httpClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath + TEACHER_ONE_PICTURE_RAW))
+                .POST(body)
+                .setHeader("Content-Type", "image/png")
+                .header("Authorization", "Bearer " + TEACHER1_TOKEN)
+                .build(),
+            HttpResponse.BodyHandlers.ofString());
 
     ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JSR310Module());
@@ -123,6 +125,13 @@ class TeacherIT {
     assertEquals("TCR21001", responseBody.getRef());
   }
 
+  @Test
+  void teacher_update_other_profile_picture_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    UsersApi api = new UsersApi(teacher1Client);
+    assertThrowsForbiddenException(
+        () -> api.uploadTeacherProfilePicture("teacher2_id", getMockedFile("img", ".png")));
+  }
 
   @Test
   @DirtiesContext
