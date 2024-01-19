@@ -1,12 +1,24 @@
 package school.hei.haapi.integration;
 
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.StudentFileIT.ContextInitializer.SERVER_PORT;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -23,27 +35,13 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.StudentFileIT.ContextInitializer.SERVER_PORT;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = StudentFileIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class StudentFileIT {
 
-  @MockBean
-  private SentryConf sentryConf;
+  @MockBean private SentryConf sentryConf;
 
   @MockBean private CognitoComponent cognitoComponentMock;
 
@@ -65,9 +63,9 @@ public class StudentFileIT {
 
   @Test
   void student_load_certificate_via_http_client_ok() throws IOException, InterruptedException {
-    String STUDENT_CERTIFICATE = "/students/"+STUDENT1_ID+"/scholarship_certificate/raw";
+    String STUDENT_CERTIFICATE = "/students/" + STUDENT1_ID + "/scholarship_certificate/raw";
     HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:"+SERVER_PORT;
+    String basePath = "http://localhost:" + SERVER_PORT;
 
     HttpResponse response =
         httpClient.send(
@@ -84,9 +82,9 @@ public class StudentFileIT {
 
   @Test
   void manager_load_via_http_client_certificate_ok() throws IOException, InterruptedException {
-    String STUDENT_CERTIFICATE = "/students/"+STUDENT2_ID+"/scholarship_certificate/raw";
+    String STUDENT_CERTIFICATE = "/students/" + STUDENT2_ID + "/scholarship_certificate/raw";
     HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:"+SERVER_PORT;
+    String basePath = "http://localhost:" + SERVER_PORT;
 
     HttpResponse response =
         httpClient.send(

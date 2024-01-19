@@ -10,8 +10,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.NotFoundException;
-import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
 import school.hei.haapi.service.utils.HtmlParser;
@@ -22,9 +20,9 @@ import school.hei.haapi.service.utils.PdfRenderer;
 public class StudentFileService {
   private final Base64Converter base64Converter;
   private final ClassPathResourceResolver classPathResourceResolver;
-  private final UserRepository userRepository;
   private final HtmlParser htmlParser;
   private final PdfRenderer pdfRenderer;
+  private final UserService userService;
 
   public byte[] generatePdf(String studentId, String template) {
     Context context = loadContext(studentId);
@@ -35,11 +33,8 @@ public class StudentFileService {
   private Context loadContext(String studentId) {
     Resource logo = classPathResourceResolver.apply("HEI_logo", ".png");
     Resource signature = classPathResourceResolver.apply("signature", ".png");
+    User student = userService.getById(studentId);
     Context context = new Context();
-    User student =
-        userRepository
-            .findById(studentId)
-            .orElseThrow(() -> new NotFoundException("Student not found"));
 
     context.setVariable("student", student);
     context.setVariable("now", formatLocalDate(now()));
