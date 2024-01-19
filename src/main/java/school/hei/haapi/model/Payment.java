@@ -1,5 +1,7 @@
 package school.hei.haapi.model;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
 
 import java.io.Serializable;
@@ -44,7 +46,7 @@ public class Payment implements Serializable {
   private Fee fee;
 
   @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
+  @Enumerated(STRING)
   private school.hei.haapi.endpoint.rest.model.Payment.TypeEnum type;
 
   private Integer amount;
@@ -53,7 +55,7 @@ public class Payment implements Serializable {
   private Instant creationDatetime;
 
   public Instant getCreationDatetime() {
-    return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
+    return creationDatetime.truncatedTo(SECONDS);
   }
 
   @Override
@@ -69,7 +71,7 @@ public class Payment implements Serializable {
         && Objects.equals(id, payment.id)
         && Objects.equals(fee.getId(), payment.getFee().getId())
         && type == payment.type
-        && creationDatetime.compareTo(payment.creationDatetime) == 0;
+        && getCreationDatetime().compareTo(payment.getCreationDatetime()) == 0;
   }
 
   @Override
