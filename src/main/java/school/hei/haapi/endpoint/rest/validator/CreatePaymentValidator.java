@@ -10,12 +10,13 @@ import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.model.exception.BadRequestException;
 
 import static java.time.temporal.ChronoUnit.MILLIS;
+import static java.time.temporal.ChronoUnit.SECONDS;
 
 @Component
 public class CreatePaymentValidator implements Consumer<CreatePayment> {
   @Override
   public void accept(CreatePayment createPayment) {
-    Instant now = Instant.now().truncatedTo(MILLIS);
+    Instant now = Instant.now().truncatedTo(SECONDS);
     LocalDateTime localDateTimeNow = LocalDateTime.ofInstant(now, ZoneId.of("UTC"));
     if (createPayment.getAmount() == null) {
       throw new BadRequestException("Amount is mandatory");
@@ -23,7 +24,7 @@ public class CreatePaymentValidator implements Consumer<CreatePayment> {
     if (createPayment.getCreationDatetime() == null) {
       throw new BadRequestException("Creation datetime is mandatory");
     }
-    if (createPayment.getCreationDatetime().truncatedTo(MILLIS).isAfter(now)) {
+    if (createPayment.getCreationDatetime().truncatedTo(SECONDS).isAfter(now)) {
       throw new BadRequestException(
           "Creation datetime must be before or equal to: "
               + localDateTimeNow.getHour()
