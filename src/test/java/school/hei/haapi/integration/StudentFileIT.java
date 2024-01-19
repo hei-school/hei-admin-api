@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.StudentFileIT.ContextInitializer.SERVER_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -77,6 +78,7 @@ public class StudentFileIT {
             HttpResponse.BodyHandlers.ofByteArray());
 
     assertEquals(HttpStatus.OK.value(), response.statusCode());
+    assertNotNull(response.body());
     assertNotNull(response);
   }
 
@@ -96,6 +98,7 @@ public class StudentFileIT {
             HttpResponse.BodyHandlers.ofByteArray());
 
     assertEquals(HttpStatus.OK.value(), response.statusCode());
+    assertNotNull(response.body());
     assertNotNull(response);
   }
 
