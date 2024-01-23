@@ -10,6 +10,7 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.aws.S3Service;
 
 @Component
 @AllArgsConstructor
@@ -17,10 +18,12 @@ public class UserMapper {
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
   private final UserRepository repository;
+  private final S3Service s3Service;
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
     restStudent.setId(user.getId());
+    String url = s3Service.getPresignedUrl(user.getRef(), 3600L);
 
     restStudent.setFirstName(user.getFirstName());
     restStudent.setLastName(user.getLastName());
@@ -35,6 +38,7 @@ public class UserMapper {
     restStudent.setNic(user.getNic());
     restStudent.setBirthPlace(user.getBirthPlace());
     restStudent.setSpecializationField(user.getSpecializationField());
+    restStudent.setProfilePicture(url);
 
     return restStudent;
   }
@@ -42,6 +46,7 @@ public class UserMapper {
   public Teacher toRestTeacher(User user) {
     Teacher teacher = new Teacher();
     teacher.setId(user.getId());
+    String url = s3Service.getPresignedUrl(user.getRef(), 3600L);
 
     teacher.setFirstName(user.getFirstName());
     teacher.setLastName(user.getLastName());
@@ -55,6 +60,7 @@ public class UserMapper {
     teacher.setAddress(user.getAddress());
     teacher.setBirthPlace(user.getBirthPlace());
     teacher.setNic(user.getNic());
+    teacher.setProfilePicture(url);
 
     return teacher;
   }
@@ -62,6 +68,7 @@ public class UserMapper {
   public Manager toRestManager(User user) {
     Manager manager = new Manager();
     manager.setId(user.getId());
+    String url = s3Service.getPresignedUrl(user.getRef(), 3600L);
 
     manager.setFirstName(user.getFirstName());
     manager.setLastName(user.getLastName());
@@ -75,6 +82,7 @@ public class UserMapper {
     manager.setAddress(user.getAddress());
     manager.setBirthPlace(user.getBirthPlace());
     manager.setNic(user.getNic());
+    manager.setProfilePicture(url);
 
     return manager;
   }

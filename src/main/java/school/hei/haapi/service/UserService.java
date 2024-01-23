@@ -24,6 +24,7 @@ import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
+import school.hei.haapi.service.aws.S3Service;
 
 @Service
 @AllArgsConstructor

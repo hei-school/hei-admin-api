@@ -8,8 +8,17 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -137,6 +146,32 @@ class ManagerIT {
     Manager updated = api.updateManager(MANAGER_ID, someUpdatableManager1());
     Manager managers = api.getManagerById(MANAGER_ID);
     assertEquals(managers, updated);
+  }
+
+  @Test
+  void manager_update_own_profile_picture() throws IOException, InterruptedException {
+    String MANAGER_ONE_PICTURE_RAW = "/managers/" + MANAGER_ID + "/picture/raw";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + ManagerIT.ContextInitializer.SERVER_PORT;
+
+    HttpRequest.BodyPublisher body =
+        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
+    HttpResponse<String> response =
+        httpClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath + MANAGER_ONE_PICTURE_RAW))
+                .POST(body)
+                .setHeader("Content-Type", "image/png")
+                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
+                .build(),
+            HttpResponse.BodyHandlers.ofString());
+
+    ObjectMapper mapper = new ObjectMapper();
+    mapper.registerModule(new JSR310Module());
+    mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Manager responseBody = mapper.readValue(response.body(), Manager.class);
+
+    assertEquals("MGR21001", responseBody.getRef());
   }
 
   @Test

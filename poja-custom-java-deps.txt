@@ -18,3 +18,11 @@ testImplementation 'org.springframework.security:spring-security-test'
 // Can __NOT__ upgrade javaker to higher versions
 testImplementation 'com.github.javafaker:javafaker:0.13'
 implementation 'org.xhtmlrenderer:flying-saucer-pdf:9.3.1'
+implementation 'software.amazon.awssdk:s3:2.20.109'
+implementation 'com.fasterxml.jackson:jackson-bom:2.16.0'
+implementation 'com.fasterxml.jackson.core:jackson-core:2.16.0'
+implementation 'com.fasterxml.jackson.core:jackson-databind:2.16.0'
+implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+// org.owasp.dependencycheck needs these versions. Other plugins pull in older versions..
+implementation 'org.apache.commons:commons-lang3:3.14.0'
+implementation 'org.apache.commons:commons-text:1.11.0'
