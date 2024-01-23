@@ -212,10 +212,10 @@ class TeacherIT {
     toUpdate.setId(created.get(0).getId());
 
     Teacher expected = expectedCreatedTeacher();
-        expected.setId(created.get(0).getId());
-        expected.setLastName("New last name");
-        expected.setEmail(toUpdate.getEmail());
-        expected.setRef(toUpdate.getRef());
+    expected.setId(created.get(0).getId());
+    expected.setLastName("New last name");
+    expected.setEmail(toUpdate.getEmail());
+    expected.setRef(toUpdate.getRef());
 
     toUpdate.setLastName("New last name");
 
