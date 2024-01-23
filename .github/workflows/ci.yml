@@ -15,20 +15,23 @@ jobs:
   quality-check:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+
+    env:
+      AWS_REGION: eu-west-3
+
     steps:
       - uses: actions/checkout@v4.1.1
+
+      - uses: hei-school/aws-credentials-setter@v1.0.3
+        with:
+          secrets: ${{ toJSON(secrets) }}
+          region: ${{ env.AWS_REGION }}
+
+      - run: chmod +x gradlew
 
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'corretto'
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v3.3.2
-        with:
-          key: ${{ runner.os }}-maven-${{ hashFiles('**/build.gradle', '**/api.yml') }}
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
 
       - run: ./gradlew test

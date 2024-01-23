@@ -23,8 +23,6 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiExcepti
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 
 import java.time.Instant;
-import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -41,6 +39,7 @@ import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
@@ -51,6 +50,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 class PaymentIT {
   @MockBean private SentryConf sentryConf;
   @MockBean private CognitoComponent cognitoComponentMock;
+  @MockBean BucketConf bucketConf;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, PaymentIT.ContextInitializer.SERVER_PORT);

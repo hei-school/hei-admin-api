@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: 2010-09-09
-Description: haapi - Storage
+Description: haapi - Storage Postgres
 
 Parameters:
   Env:

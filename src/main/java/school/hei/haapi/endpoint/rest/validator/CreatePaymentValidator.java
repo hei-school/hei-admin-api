@@ -1,16 +1,14 @@
 package school.hei.haapi.endpoint.rest.validator;
 
+import static java.time.temporal.ChronoUnit.SECONDS;
+
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import java.util.function.Consumer;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
 import school.hei.haapi.model.exception.BadRequestException;
-
-import static java.time.temporal.ChronoUnit.MILLIS;
-import static java.time.temporal.ChronoUnit.SECONDS;
 
 @Component
 public class CreatePaymentValidator implements Consumer<CreatePayment> {

@@ -27,6 +27,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Whoami;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
@@ -39,6 +40,7 @@ class SecurityIT {
   @MockBean private SentryConf sentryConf;
 
   @MockBean private CognitoComponent cognitoComponentMock;
+  @MockBean BucketConf bucketConf;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);

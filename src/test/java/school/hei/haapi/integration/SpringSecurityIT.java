@@ -30,6 +30,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -41,6 +42,7 @@ class SpringSecurityIT {
   @MockBean private SentryConf sentryConf;
 
   @Autowired private CognitoComponent cognitoComponent;
+  @MockBean BucketConf bucketConf;
 
   @Value("${test.aws.cognito.idToken}")
   private String bearer;
