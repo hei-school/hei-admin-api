@@ -9,13 +9,14 @@ import org.junit.jupiter.api.BeforeAll;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import school.hei.haapi.PojaGenerated;
 
+@PojaGenerated
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Slf4j
 public class FacadeIT {
 
   private static final PostgresConf POSTGRES_CONF = new PostgresConf();
-  private static final EventConf EVENT_CONF = new EventConf();
 
   @BeforeAll
   static void beforeAll() {
@@ -31,7 +32,10 @@ public class FacadeIT {
   @DynamicPropertySource
   static void configureProperties(DynamicPropertyRegistry registry) {
     POSTGRES_CONF.configureProperties(registry);
-    EVENT_CONF.configureProperties(registry);
+
+    new EventConf().configureProperties(registry);
+    new BucketConf().configureProperties(registry);
+    new EmailConf().configureProperties(registry);
 
     try {
       var envConfClazz = Class.forName("school.hei.haapi.conf.EnvConf");

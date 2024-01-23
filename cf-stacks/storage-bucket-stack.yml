@@ -21,7 +21,7 @@ Resources:
   BucketSSM:
     Type: AWS::SSM::Parameter
     Properties:
-      Name: !Join ['', [/haapi/feature-detector/, !Ref Env, /s3/bucket-name]]
+      Name: !Join ['', [/haapi/, !Ref Env, /s3/bucket-name]]
       Type: String
       Value: !Ref Bucket
 

@@ -48,6 +48,7 @@ import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -67,6 +68,7 @@ class StudentIT {
   @MockBean private CognitoComponent cognitoComponentMock;
 
   @MockBean private EventBridgeClient eventBridgeClientMock;
+  @MockBean BucketConf bucketConf;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
