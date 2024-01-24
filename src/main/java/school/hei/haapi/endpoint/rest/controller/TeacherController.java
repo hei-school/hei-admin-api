@@ -76,6 +76,6 @@ public class TeacherController {
   public Teacher uploadTeacherProfilePicture(
       @RequestBody byte[] profilePicture, @PathVariable(name = "id") String teacherId) {
     userService.uploadUserProfilePicture(profilePicture, teacherId);
-    return userMapper.toRestTeacher(userService.getById(teacherId));
+    return userMapper.toRestTeacher(userService.findById(teacherId));
   }
 }

@@ -36,7 +36,7 @@ public class ManagerController {
   public Manager uploadTeacherProfilePicture(
       @RequestBody byte[] profilePicture, @PathVariable(name = "id") String managerId) {
     userService.uploadUserProfilePicture(profilePicture, managerId);
-    return userMapper.toRestManager(userService.getById(managerId));
+    return userMapper.toRestManager(userService.findById(managerId));
   }
 
   @GetMapping(value = "/managers/{id}")
