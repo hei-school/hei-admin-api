@@ -56,7 +56,7 @@ public class Payment implements Serializable {
 
   private Instant creationDatetime;
 
-  private Boolean isDeleted;
+  private boolean isDeleted = false;
 
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(SECONDS);

@@ -77,7 +77,7 @@ public class Fee implements Serializable {
   @OneToMany(mappedBy = "fee")
   private List<Payment> payments;
 
-  private Boolean isDeleted;
+  private boolean isDeleted = false;
 
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);

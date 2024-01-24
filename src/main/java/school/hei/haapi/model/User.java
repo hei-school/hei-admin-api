@@ -100,7 +100,7 @@ public class User implements Serializable {
   @OneToMany(mappedBy = "student", fetch = LAZY)
   private List<Grade> grades;
 
-  private Boolean isDeleted;
+  private boolean isDeleted = false;
 
   @Override
   public boolean equals(Object o) {

@@ -38,7 +38,7 @@ public class Course implements Serializable {
 
   private Integer totalHours;
 
-  private Boolean isDeleted;
+  private boolean isDeleted = false;
 
   @OneToMany(mappedBy = "course", fetch = LAZY)
   private List<AwardedCourse> awardedCourses;

@@ -45,7 +45,7 @@ public class Group implements Serializable {
   @OneToMany(mappedBy = "group", fetch = LAZY)
   private List<GroupFlow> groupFlows;
 
-  private Boolean isDeleted;
+  private boolean isDeleted = false;
 
   @Override
   public boolean equals(Object o) {
