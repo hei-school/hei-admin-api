@@ -37,6 +37,11 @@ public class UserService {
   private final GroupRepository groupRepository;
   private final GroupService groupService;
 
+  public String uploadUserProfilePicture(byte[] file, String userId) {
+    User user = findById(userId);
+    return s3Service.uploadObjectToS3Bucket(user.getRef(), file);
+  }
+
   public User updateUser(User user, String userId) {
     User toUpdate = findById(userId);
 

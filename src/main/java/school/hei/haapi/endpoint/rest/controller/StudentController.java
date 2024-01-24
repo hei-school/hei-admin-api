@@ -44,7 +44,7 @@ public class StudentController {
   public Student uploadStudentProfilePicture(
       @RequestBody byte[] profilePicture, @PathVariable(name = "id") String studentId) {
     userService.uploadUserProfilePicture(profilePicture, studentId);
-    return userMapper.toRestStudent(userService.getById(studentId));
+    return userMapper.toRestStudent(userService.findById(studentId));
   }
 
   @GetMapping("/students/{id}")

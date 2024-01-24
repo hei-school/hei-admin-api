@@ -1,13 +1,11 @@
 package school.hei.haapi.service.aws;
 
-import java.net.URL;
 import java.time.Duration;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.file.BucketComponent;
-import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.model.exception.ApiException;
 import software.amazon.awssdk.core.internal.waiters.ResponseOrException;
