@@ -43,11 +43,6 @@ public class ManagerController {
         userService.updateUser(userMapper.toDomain(toUpdate), managerId));
   }
 
-  @DeleteMapping("/managers/{id}")
-  public Manager deleteManagerById(@PathVariable(name = "id") String managerId) {
-    return userMapper.toRestManager(userService.deleteById(managerId));
-  }
-
   @GetMapping(value = "/managers")
   public List<Manager> getManagers(
       @RequestParam PageFromOne page,

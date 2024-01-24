@@ -85,6 +85,16 @@ class TeacherIT {
 
   @Test
   @DirtiesContext
+  void manager_delete_ok() throws ApiException {
+    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(managerClient);
+
+    Teacher teacher = api.deleteTeacherById(TEACHER1_ID);
+    assertEquals(teacher1(), teacher);
+  }
+
+  @Test
+  @DirtiesContext
   void teacher_update_own_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);

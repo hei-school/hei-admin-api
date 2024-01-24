@@ -18,6 +18,7 @@ import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
@@ -276,6 +277,24 @@ class StudentIT {
         managerApi.getStudents(1, 10, null, null, null, null, null, null);
 
     assertTrue(actualStudents.contains(actual));
+  }
+
+  @Test
+  void student_delete_other_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    UsersApi api = new UsersApi(student1Client);
+
+    assertThrowsForbiddenException(() -> api.deleteStudentById(STUDENT3_ID));
+  }
+
+  @Test
+  @DirtiesContext
+  void manager_delete_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    Student studentDeleted = api.deleteStudentById(STUDENT1_ID);
+    assertEquals(student1(), studentDeleted);
   }
 
   @Test

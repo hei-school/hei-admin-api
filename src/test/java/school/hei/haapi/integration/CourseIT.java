@@ -23,6 +23,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
@@ -52,6 +53,16 @@ class CourseIT {
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
+  }
+
+  @Test
+  @DirtiesContext
+  void manager_delete_course_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+    Course course = api.deleteCourseById(COURSE1_ID);
+
+    assertEquals(course1(), course);
   }
 
   @Test

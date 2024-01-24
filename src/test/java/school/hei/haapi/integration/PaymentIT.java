@@ -29,6 +29,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
@@ -128,6 +129,16 @@ class PaymentIT {
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
+  }
+
+  @Test
+  @DirtiesContext
+  void manager_delete_payment_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    Payment payment = api.deleteStudentPaymentById(STUDENT1_ID, FEE1_ID, PAYMENT1_ID);
+    assertEquals(payment1(), payment);
   }
 
   @Test

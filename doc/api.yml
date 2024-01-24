@@ -1175,7 +1175,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Student'
+                $ref: '#/components/schemas/Teacher'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1344,34 +1344,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    delete:
-      tags:
-        - Users
-      summary: Delete manager by identifier
-      operationId: deleteManagerById
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: manager deleted.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Student'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
+
   /managers:
     get:
       tags:

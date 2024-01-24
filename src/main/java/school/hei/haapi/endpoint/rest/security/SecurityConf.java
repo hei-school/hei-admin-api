@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.security;
 
+import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.POST;
@@ -100,6 +101,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         //
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*", "students"))
         .hasAnyRole(STUDENT.getRole())
+        .antMatchers(DELETE, "/students/*/fees/*")
+        .hasRole(MANAGER.getRole())
         .antMatchers(GET, "/students/*/fees/*")
         .hasAnyRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees", "students"))
@@ -114,6 +117,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(STUDENT.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments", "students"))
         .hasAnyRole(STUDENT.getRole())
+        .antMatchers(DELETE, "/students/*/fees/*/payments/*")
+        .hasRole(MANAGER.getRole())
         .antMatchers(GET, "/students/*/fees/*/payments")
         .hasAnyRole(MANAGER.getRole())
         .antMatchers(POST, "/students/*/fees/*/payments")
@@ -164,6 +169,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+        .antMatchers(DELETE, "/students/*")
+        .hasRole(MANAGER.getRole())
         // scholarship security conf
         .requestMatchers(
             new SelfMatcher(GET, "/students/*/scholarship_certificate/raw", "students"))
@@ -256,6 +263,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/courses/*")
         .authenticated()
+        .antMatchers(DELETE, "/courses/*")
+        .hasRole(MANAGER.getRole())
         .antMatchers(GET, "/courses/*/exams")
         .authenticated()
         .antMatchers(GET, "/courses/*/exams/*")

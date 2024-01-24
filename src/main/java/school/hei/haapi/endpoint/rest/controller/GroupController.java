@@ -30,11 +30,6 @@ public class GroupController {
     return groupMapper.toRest(groupService.getById(id));
   }
 
-  @DeleteMapping("/groups/{id}")
-  public Group deleteGroupBuId(@PathVariable(name = "id") String groupId) {
-    return groupMapper.toRest(groupService.deleteById(groupId));
-  }
-
   @GetMapping(value = "/groups")
   public List<Group> getGroups(
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
