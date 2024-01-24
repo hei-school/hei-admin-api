@@ -32,7 +32,7 @@ public class TeacherController {
 
   @GetMapping(value = "/teachers/{id}")
   public Teacher getTeacherById(@PathVariable String id) {
-    return userMapper.toRestTeacher(userService.getById(id));
+    return userMapper.toRestTeacher(userService.findById(id));
   }
 
   @PutMapping("/teachers/{id}")

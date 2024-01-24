@@ -32,6 +32,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseDirection;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
@@ -42,6 +43,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 class CourseIT {
   @MockBean private SentryConf sentryConf;
   @MockBean private CognitoComponent cognitoComponentMock;
+  @MockBean BucketConf bucketConf;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, CourseIT.ContextInitializer.SERVER_PORT);

@@ -21,6 +21,7 @@ import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 
@@ -32,6 +33,7 @@ class GradeIT {
   @MockBean private SentryConf sentryConf;
 
   @MockBean private CognitoComponent cognitoComponentMock;
+  @MockBean BucketConf bucketConf;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, GradeIT.ContextInitializer.SERVER_PORT);

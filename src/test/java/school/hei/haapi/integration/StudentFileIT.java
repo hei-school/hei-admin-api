@@ -2,7 +2,6 @@ package school.hei.haapi.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.StudentFileIT.ContextInitializer.SERVER_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -32,6 +31,7 @@ import school.hei.haapi.endpoint.rest.api.StudentsFileApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -47,6 +47,7 @@ public class StudentFileIT {
   @MockBean private CognitoComponent cognitoComponentMock;
 
   @MockBean private EventBridgeClient eventBridgeClientMock;
+  @MockBean BucketConf bucketConf;
 
   @BeforeEach
   public void setUp() {
