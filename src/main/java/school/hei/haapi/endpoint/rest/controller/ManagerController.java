@@ -32,7 +32,7 @@ public class ManagerController {
 
   @GetMapping(value = "/managers/{id}")
   public Manager getManagerById(@PathVariable String id) {
-    return userMapper.toRestManager(userService.getById(id));
+    return userMapper.toRestManager(userService.findById(id));
   }
 
   @PutMapping("/managers/{id}")

@@ -39,7 +39,7 @@ public class FeeController {
   public List<Fee> createFees(
       @PathVariable String studentId, @RequestBody List<CreateFee> toCreate) {
     return feeService
-        .saveAll(feeMapper.toDomainFee(userService.getById(studentId), toCreate))
+        .saveAll(feeMapper.toDomainFee(userService.findById(studentId), toCreate))
         .stream()
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
@@ -48,7 +48,7 @@ public class FeeController {
   @PutMapping("/students/{studentId}/fees")
   public List<Fee> updateStudentFees(@PathVariable String studentId, @RequestBody List<Fee> fees) {
     updateFeeValidator.accept(fees, studentId);
-    User student = userService.getById(studentId);
+    User student = userService.findById(studentId);
     List<school.hei.haapi.model.Fee> domainFeeList =
         fees.stream().map(fee -> feeMapper.toDomain(fee, student)).collect(toList());
     return feeService.updateAll(domainFeeList, studentId).stream()

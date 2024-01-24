@@ -34,7 +34,7 @@ public class GradeController {
   public List<AwardedCourseExam> getAllGradesOfStudent(
       @PathVariable("student_id") String studentId) {
     List<AwardedCourse> awardedCourses = awardedCourseService.getByStudentId(studentId);
-    User student = userService.getById(studentId);
+    User student = userService.findById(studentId);
     return awardedCourseMapper.toRest(awardedCourses, student);
   }
 

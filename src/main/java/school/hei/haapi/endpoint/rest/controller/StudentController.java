@@ -41,7 +41,7 @@ public class StudentController {
 
   @GetMapping("/students/{id}")
   public Student getStudentById(@PathVariable String id) {
-    return userMapper.toRestStudent(userService.getById(id));
+    return userMapper.toRestStudent(userService.findById(id));
   }
 
   // todo: to review
