@@ -16,6 +16,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "\"group\"")
@@ -25,6 +27,8 @@ import org.hibernate.annotations.CreationTimestamp;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "update \"group\" set is_deleted = true where id=?")
+@Where(clause = "is_deleted=false")
 public class Group implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -40,6 +44,8 @@ public class Group implements Serializable {
 
   @OneToMany(mappedBy = "group", fetch = LAZY)
   private List<GroupFlow> groupFlows;
+
+  private Boolean isDeleted;
 
   @Override
   public boolean equals(Object o) {

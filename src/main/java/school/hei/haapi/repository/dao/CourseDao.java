@@ -68,6 +68,8 @@ public class CourseDao {
               builder.lower(teacher.get("firstName")), "%" + teacherFirstName.toLowerCase() + "%"));
     }
 
+    predicates.add(builder.isFalse(root.get("isDeleted")));
+
     Predicate hasCredits =
         credits != null ? builder.or(builder.equal(root.get("credits"), credits)) : null;
 

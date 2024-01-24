@@ -21,8 +21,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.Where;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
 @Entity
@@ -34,6 +36,8 @@ import school.hei.haapi.repository.types.PostgresEnumType;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "update \"payment\" set is_deleted = true where id=?")
+@Where(clause = "is_deleted=false")
 public class Payment implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -51,6 +55,8 @@ public class Payment implements Serializable {
   private String comment;
 
   private Instant creationDatetime;
+
+  private Boolean isDeleted;
 
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(SECONDS);

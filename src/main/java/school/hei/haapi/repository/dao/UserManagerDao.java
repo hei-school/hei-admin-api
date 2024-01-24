@@ -50,6 +50,8 @@ public class UserManagerDao {
 
     Predicate hasUserRole = builder.equal(root.get("role"), role);
 
+    Predicate isNotDeleted = builder.isFalse(root.get("isDeleted"));
+
     if (firstName != null && !firstName.isEmpty()) {
       predicate = builder.and(predicate, hasUserFirstName);
     }
@@ -62,7 +64,7 @@ public class UserManagerDao {
       predicate = builder.and(predicate, builder.equal(root.get("sex"), sex));
     }
 
-    predicate = builder.and(predicate, hasUserRole, hasUserRef, hasUserLastName);
+    predicate = builder.and(predicate, hasUserRole, hasUserRef, hasUserLastName, isNotDeleted);
 
     query.where(predicate).orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
