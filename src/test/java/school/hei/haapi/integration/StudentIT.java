@@ -10,6 +10,8 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.Sex.F;
+import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
@@ -45,7 +47,6 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.file.BucketConf;
@@ -83,7 +84,7 @@ class StudentIT {
     student.setRef("STD21001");
     student.setPhone("0322411123");
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Sex.M);
+    student.setSex(M);
     student.setBirthDate(LocalDate.parse("2000-01-01"));
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setAddress("Adr 1");
@@ -95,7 +96,7 @@ class StudentIT {
   public static CrupdateStudent someUpdatableStudent() {
     return createStudent1()
         .address("Adr 999")
-        .sex(Sex.F)
+        .sex(F)
         .lastName("Other last")
         .firstName("Other first")
         .specializationField(TN)
@@ -103,7 +104,7 @@ class StudentIT {
   }
 
   public static CrupdateStudent someCreatableStudent() {
-    CrupdateStudent student = createStudent1();
+    CrupdateStudent student = new CrupdateStudent();
     Faker faker = new Faker();
     student.setId(null);
     student.setFirstName(faker.name().firstName());
@@ -112,7 +113,7 @@ class StudentIT {
     student.setRef("STD21" + (int) (Math.random() * 1_000_000));
     student.setPhone("03" + (int) (Math.random() * 1_000_000_000));
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Math.random() < 0.3 ? Sex.F : Sex.M);
+    student.setSex(Math.random() < 0.3 ? F : M);
     Instant birthday = Instant.parse("1993-11-30T18:35:24.00Z");
     int ageOfEntrance = 14 + (int) (Math.random() * 20);
     student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
@@ -140,7 +141,7 @@ class StudentIT {
     student.setRef("STD21001");
     student.setPhone("0322411123");
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Sex.M);
+    student.setSex(M);
     student.setBirthDate(LocalDate.parse("2000-01-01"));
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setAddress("Adr 1");
@@ -159,7 +160,7 @@ class StudentIT {
     student.setRef("STD21002");
     student.setPhone("0322411124");
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Sex.F);
+    student.setSex(F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
@@ -178,7 +179,7 @@ class StudentIT {
     student.setRef("STD21002");
     student.setPhone("0322411124");
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Sex.F);
+    student.setSex(F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
@@ -196,7 +197,7 @@ class StudentIT {
     student.setRef("STD21003");
     student.setPhone("0322411124");
     student.setStatus(EnableStatus.ENABLED);
-    student.setSex(Sex.F);
+    student.setSex(F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
     student.setAddress("Adr 2");
@@ -214,7 +215,7 @@ class StudentIT {
         .email("test+disable1@hei.school")
         .ref("STD29001")
         .status(EnableStatus.DISABLED)
-        .sex(Sex.M)
+        .sex(M)
         .birthDate(LocalDate.parse("2000-12-01"))
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .phone("0322411123")
@@ -231,7 +232,7 @@ class StudentIT {
         .email("test+suspended2@hei.school")
         .ref("STD29004")
         .status(EnableStatus.SUSPENDED)
-        .sex(Sex.F)
+        .sex(F)
         .birthDate(LocalDate.parse("2000-12-02"))
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
         .phone("0322411124")
@@ -246,7 +247,7 @@ class StudentIT {
         .email("test+suspended@hei.school")
         .ref("STD29003")
         .status(EnableStatus.SUSPENDED)
-        .sex(Sex.F)
+        .sex(F)
         .birthDate(LocalDate.parse("2000-12-02"))
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
         .phone("0322411124")
@@ -345,7 +346,7 @@ class StudentIT {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, Sex.F);
+        api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, F);
     assertEquals(1, actualStudents.size());
   }
 
@@ -647,6 +648,75 @@ class StudentIT {
     assertEquals(1, actual.size());
   }
 
+  @Test
+  void student_update_self_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    UsersApi api = new UsersApi(student1Client);
+    Student currentStudent1 = api.getStudentById(STUDENT1_ID);
+    Student expectedStudent1AfterUpdate = randomizeStudentUpdatableValues(currentStudent1);
+    CrupdateStudent payload = toCrupdateStudent(expectedStudent1AfterUpdate);
+
+    Student updatedStudent1 = api.updateStudent(STUDENT1_ID,payload);
+
+    assertEquals(expectedStudent1AfterUpdate, updatedStudent1);
+    //cleanup
+    api.updateStudent(STUDENT1_ID, toCrupdateStudent(currentStudent1));
+  }
+
+  private Student toStudent(CrupdateStudent crupdateStudent){
+    return new Student()
+            .id(crupdateStudent.getId())
+            .birthDate(crupdateStudent.getBirthDate())
+            .id(crupdateStudent.getId())
+            .entranceDatetime(crupdateStudent.getEntranceDatetime())
+            .phone(crupdateStudent.getPhone())
+            .nic(crupdateStudent.getNic())
+            .birthPlace(crupdateStudent.getBirthPlace())
+            .email(crupdateStudent.getEmail())
+            .address(crupdateStudent.getAddress())
+            .firstName(crupdateStudent.getFirstName())
+            .lastName(crupdateStudent.getLastName())
+            .sex(crupdateStudent.getSex())
+            .ref(crupdateStudent.getRef())
+            .specializationField(crupdateStudent.getSpecializationField())
+            .status(crupdateStudent.getStatus());
+  }
+  private CrupdateStudent toCrupdateStudent(Student student){
+    return new CrupdateStudent()
+            .id(student.getId())
+            .birthDate(student.getBirthDate())
+            .id(student.getId())
+            .entranceDatetime(student.getEntranceDatetime())
+            .phone(student.getPhone())
+            .nic(student.getNic())
+            .birthPlace(student.getBirthPlace())
+            .email(student.getEmail())
+            .address(student.getAddress())
+            .firstName(student.getFirstName())
+            .lastName(student.getLastName())
+            .sex(student.getSex())
+            .ref(student.getRef())
+            .specializationField(student.getSpecializationField())
+            .status(student.getStatus());
+  }
+
+  private Student randomizeStudentUpdatableValues(Student student){
+      return new Student()
+              .id(student.getId())
+              .entranceDatetime(student.getEntranceDatetime())
+              .status(student.getStatus())
+              .email(student.getEmail())
+              .ref(student.getRef())
+              .birthDate(LocalDate.parse("2000-12-05"))
+              .birthPlace(randomUUID().toString())
+              .nic(randomUUID().toString())
+              .phone(randomUUID().toString())
+              .sex(student.getSex() != null ? (student.getSex().equals(M) ? F:M) : null)
+              .address(randomUUID().toString())
+              .lastName(randomUUID().toString())
+              .firstName(randomUUID().toString())
+              .specializationField(student.getSpecializationField());
+  }
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
 
