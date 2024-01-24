@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.*;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -27,6 +28,11 @@ public class GroupController {
   @GetMapping(value = "/groups/{id}")
   public Group getGroupById(@PathVariable String id) {
     return groupMapper.toRest(groupService.getById(id));
+  }
+
+  @DeleteMapping("/groups/{id}")
+  public Group deleteGroupBuId(@PathVariable(name = "id") String groupId) {
+    return groupMapper.toRest(groupService.deleteById(groupId));
   }
 
   @GetMapping(value = "/groups")

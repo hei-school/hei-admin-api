@@ -6,6 +6,7 @@ import static school.hei.haapi.model.User.Role.STUDENT;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -86,6 +87,11 @@ public class StudentController {
       @PathVariable(name = "id") String studentId, @RequestBody CrupdateStudent toUpdate) {
     return userMapper.toRestStudent(
         userService.updateUser(userMapper.toDomain(toUpdate), studentId));
+  }
+
+  @DeleteMapping("/students/{id}")
+  public Student deleteStudentById(@PathVariable(name = "id") String studentId) {
+    return userMapper.toRestStudent(userService.deleteById(studentId));
   }
 
   @PostMapping("/students/{id}/group_flows")

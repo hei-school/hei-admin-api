@@ -14,6 +14,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.PaymentValidator;
 import school.hei.haapi.repository.PaymentRepository;
 
@@ -24,6 +25,18 @@ public class PaymentService {
   private final FeeService feeService;
   private final PaymentRepository paymentRepository;
   private final PaymentValidator paymentValidator;
+
+  public Payment deleteById(String paymentId) {
+    Payment payment = getById(paymentId);
+    paymentRepository.deleteById(paymentId);
+    return payment;
+  }
+
+  public Payment getById(String paymentId) {
+    return paymentRepository
+        .findById(paymentId)
+        .orElseThrow(() -> new NotFoundException("Payment with id: " + paymentId + " not found"));
+  }
 
   public List<Payment> getByStudentIdAndFeeId(
       String studentId, String feeId, PageFromOne page, BoundedPageSize pageSize) {

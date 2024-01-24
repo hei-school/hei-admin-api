@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -68,5 +69,10 @@ public class TeacherController {
         .stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());
+  }
+
+  @DeleteMapping("/teachers/{id}")
+  public Teacher deleteTeacherById(@PathVariable(name = "id") String teacherId) {
+    return userMapper.toRestTeacher(userService.deleteById(teacherId));
   }
 }

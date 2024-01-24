@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -40,6 +41,11 @@ public class ManagerController {
       @PathVariable(name = "id") String managerId, @RequestBody CrupdateManager toUpdate) {
     return userMapper.toRestManager(
         userService.updateUser(userMapper.toDomain(toUpdate), managerId));
+  }
+
+  @DeleteMapping("/managers/{id}")
+  public Manager deleteManagerById(@PathVariable(name = "id") String managerId) {
+    return userMapper.toRestManager(userService.deleteById(managerId));
   }
 
   @GetMapping(value = "/managers")

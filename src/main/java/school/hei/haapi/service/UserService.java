@@ -51,6 +51,12 @@ public class UserService {
     return userRepository.save(toUpdate);
   }
 
+  public User deleteById(String userId) {
+    User user = findById(userId);
+    userRepository.deleteById(userId);
+    return user;
+  }
+
   public User findById(String userId) {
     return userRepository
         .findById(userId)

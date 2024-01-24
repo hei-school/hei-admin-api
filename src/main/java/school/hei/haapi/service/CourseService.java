@@ -50,6 +50,12 @@ public class CourseService {
         pageable);
   }
 
+  public Course deleteById(String courseId) {
+    Course course = getById(courseId);
+    courseRepository.deleteById(courseId);
+    return course;
+  }
+
   @Transactional
   public List<Course> createOrUpdateCourses(List<Course> toCreateOrUpdate) {
     courseValidator.accept(toCreateOrUpdate);

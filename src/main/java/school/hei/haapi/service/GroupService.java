@@ -28,6 +28,12 @@ public class GroupService {
   private final UserRepository userRepository;
   private final GroupFlowService groupFlowService;
 
+  public Group deleteById(String groupId) {
+    Group group = getById(groupId);
+    repository.deleteById(groupId);
+    return group;
+  }
+
   public Group getById(String groupId) {
     return repository.getById(groupId);
   }
