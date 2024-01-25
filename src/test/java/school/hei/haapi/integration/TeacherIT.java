@@ -89,8 +89,11 @@ class TeacherIT {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(managerClient);
 
-    Teacher teacher = api.deleteTeacherById(TEACHER1_ID);
-    assertEquals(teacher1(), teacher);
+    Teacher deletedTeacher = api.deleteTeacherById(TEACHER1_ID);
+    assertEquals(teacher1(), deletedTeacher);
+
+    List<Teacher> teachers = api.getTeachers(1, 20, null, null, null, null, null);
+    assertTrue(!teachers.contains(deletedTeacher));
   }
 
   @Test

@@ -65,9 +65,12 @@ class FeeIT {
   void manager_delete_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
-    Fee fee = api.deleteStudentFeeById(FEE1_ID, STUDENT1_ID);
 
-    assertEquals(fee1(), fee);
+    Fee deletedFee = api.deleteStudentFeeById(FEE1_ID, STUDENT1_ID);
+    assertEquals(fee1(), deletedFee);
+
+    List<Fee> fees = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    assertTrue(!fees.contains(deletedFee));
   }
 
   @Test

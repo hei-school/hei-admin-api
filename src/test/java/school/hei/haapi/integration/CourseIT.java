@@ -60,9 +60,12 @@ class CourseIT {
   void manager_delete_course_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    Course course = api.deleteCourseById(COURSE1_ID);
 
-    assertEquals(course1(), course);
+    Course deletedCourse = api.deleteCourseById(COURSE1_ID);
+    assertEquals(course1(), deletedCourse);
+
+    List<Course> courses = api.getCourses(null, null, null, null, null, null, null, null, null);
+    assertTrue(!courses.contains(deletedCourse));
   }
 
   @Test

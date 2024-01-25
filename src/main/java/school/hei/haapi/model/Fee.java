@@ -30,6 +30,7 @@ import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.endpoint.rest.model.Fee.StatusEnum;
 import org.hibernate.annotations.Where;
+import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
 @Entity

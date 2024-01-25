@@ -73,6 +73,6 @@ public class TeacherController {
 
   @DeleteMapping("/teachers/{id}")
   public Teacher deleteTeacherById(@PathVariable(name = "id") String teacherId) {
-    return userMapper.toRestTeacher(userService.deleteById(teacherId));
+    return userMapper.toRestTeacher(userService.deleteUserById(teacherId));
   }
 }

@@ -68,6 +68,6 @@ public class CourseController {
 
   @DeleteMapping("/courses/{courseId}")
   public Course deleteCourseById(@PathVariable("courseId") String courseId) {
-    return mapper.toRest(service.deleteById(courseId));
+    return mapper.toRest(service.deleteCourseById(courseId));
   }
 }

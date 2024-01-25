@@ -91,7 +91,7 @@ public class StudentController {
 
   @DeleteMapping("/students/{id}")
   public Student deleteStudentById(@PathVariable(name = "id") String studentId) {
-    return userMapper.toRestStudent(userService.deleteById(studentId));
+    return userMapper.toRestStudent(userService.deleteUserById(studentId));
   }
 
   @PostMapping("/students/{id}/group_flows")

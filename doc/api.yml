@@ -237,6 +237,7 @@ paths:
       tags:
         - Users
       summary: Delete student by identifier.
+      description: Soft delete
       operationId: deleteStudentById
       parameters:
         - name: id
@@ -246,7 +247,7 @@ paths:
             type: string
       responses:
         '200':
-          description: student deleted.
+          description: deleted student.
           content:
             application/json:
               schema:
@@ -445,7 +446,7 @@ paths:
             type: string
       responses:
         '200':
-          description: course deleted.
+          description: deleted course.
           content:
             application/json:
               schema:
@@ -1099,6 +1100,7 @@ paths:
       tags:
         - Users
       summary: Get teacher by identifier
+      description: Soft delete
       parameters:
         - name: id
           in: path
@@ -1171,7 +1173,7 @@ paths:
             type: string
       responses:
         '200':
-          description: teacher deleted.
+          description: deleted teacher.
           content:
             application/json:
               schema:
@@ -1483,7 +1485,8 @@ paths:
     delete:
       tags:
         - Paying
-      summary: Delete student fee by identifier
+      summary: Delete student fee by identifier.
+      description: Soft delete
       operationId: deleteStudentFeeById
       parameters:
         - name: fee_id
@@ -1800,8 +1803,9 @@ paths:
     delete:
       tags:
         - Paying
-      summary: Delete student payment by identifier.
-      operationId: deleteStudentPaymentById
+      summary: Delete student payment on a fee.
+      description: Soft delete
+      operationId: deleteStudentFeePaymentById
       parameters:
         - name: student_id
           in: path

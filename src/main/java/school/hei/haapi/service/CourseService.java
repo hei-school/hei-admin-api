@@ -50,10 +50,10 @@ public class CourseService {
         pageable);
   }
 
-  public Course deleteById(String courseId) {
-    Course course = getById(courseId);
+  public Course deleteCourseById(String courseId) {
+    Course deletedCourse = getById(courseId);
     courseRepository.deleteById(courseId);
-    return course;
+    return deletedCourse;
   }
 
   @Transactional

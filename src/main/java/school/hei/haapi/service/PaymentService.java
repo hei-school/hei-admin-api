@@ -26,10 +26,10 @@ public class PaymentService {
   private final PaymentRepository paymentRepository;
   private final PaymentValidator paymentValidator;
 
-  public Payment deleteById(String paymentId) {
-    Payment payment = getById(paymentId);
+  public Payment deleteFeePaymentById(String paymentId) {
+    Payment deletedPayment = getById(paymentId);
     paymentRepository.deleteById(paymentId);
-    return payment;
+    return deletedPayment;
   }
 
   public Payment getById(String paymentId) {

@@ -33,10 +33,10 @@ public class FeeService {
   private final UpdateFeeValidator updateFeeValidator;
   private final EventProducer eventProducer;
 
-  public Fee deleteById(String feeId) {
-    Fee fee = getById(feeId);
+  public Fee deleteFeeByStudentIdAndFeeId(String studentId, String feeId) {
+    Fee deletedFee = getByStudentIdAndFeeId(studentId, feeId);
     feeRepository.deleteById(feeId);
-    return fee;
+    return deletedFee;
   }
 
   public Fee getById(String id) {

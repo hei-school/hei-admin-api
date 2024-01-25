@@ -34,11 +34,11 @@ public class PaymentController {
   }
 
   @DeleteMapping("/students/{studentId}/fees/{feeId}/payments/{paymentId}")
-  public Payment deleteStudentPaymentById(
+  public Payment deleteStudentFeePaymentById(
       @PathVariable(name = "studentId") String studentId,
       @PathVariable(name = "feeId") String feeId,
       @PathVariable("paymentId") String paymentId) {
-    return paymentMapper.toRestPayment(paymentService.deleteById(paymentId));
+    return paymentMapper.toRestPayment(paymentService.deleteFeePaymentById(paymentId));
   }
 
   @GetMapping("/students/{studentId}/fees/{feeId}/payments")

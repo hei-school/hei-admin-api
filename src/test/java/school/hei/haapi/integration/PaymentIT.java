@@ -137,8 +137,11 @@ class PaymentIT {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    Payment payment = api.deleteStudentPaymentById(STUDENT1_ID, FEE1_ID, PAYMENT1_ID);
-    assertEquals(payment1(), payment);
+    Payment deletedPayment = api.deleteStudentFeePaymentById(STUDENT1_ID, FEE1_ID, PAYMENT1_ID);
+    assertEquals(payment1(), deletedPayment);
+
+    List<Payment> payments = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, 5);
+    assertTrue(!payments.contains(deletedPayment));
   }
 
   @Test

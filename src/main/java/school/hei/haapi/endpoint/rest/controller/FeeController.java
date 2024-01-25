@@ -47,7 +47,7 @@ public class FeeController {
   public Fee deleteStudentFeeById(
       @PathVariable(name = "studentId") String studentId,
       @PathVariable(name = "feeId") String feeId) {
-    return feeMapper.toRestFee(feeService.deleteById(feeId));
+    return feeMapper.toRestFee(feeService.deleteFeeByStudentIdAndFeeId(studentId, feeId));
   }
 
   @PostMapping("/students/{studentId}/fees")
