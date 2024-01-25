@@ -1,6 +1,7 @@
 package school.hei.haapi.model;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -21,6 +22,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -45,6 +48,7 @@ public class Payment implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "fee_id", nullable = false)
+  @OnDelete(action = OnDeleteAction.CASCADE)
   private Fee fee;
 
   @Type(type = "pgsql_enum")

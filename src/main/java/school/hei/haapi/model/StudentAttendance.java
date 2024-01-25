@@ -1,6 +1,8 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.GenerationType.IDENTITY;
+import static org.hibernate.annotations.OnDeleteAction.CASCADE;
 
 import java.io.Serializable;
 import java.time.Duration;
@@ -20,8 +22,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.Where;
 import school.hei.haapi.endpoint.rest.model.AttendanceMovementType;
 import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.repository.types.PostgresEnumType;
@@ -36,6 +42,8 @@ import school.hei.haapi.repository.types.PostgresEnumType;
 @Builder(toBuilder = true)
 @EqualsAndHashCode
 @ToString
+@SQLDelete(sql = "update \"attendance\" set is_deleted = true where id=?")
+@Where(clause = "is_deleted=false")
 public class StudentAttendance implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -55,11 +63,15 @@ public class StudentAttendance implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "course_session_id")
+  @OnDelete(action = CASCADE)
   private CourseSession courseSession;
 
   @ManyToOne
   @JoinColumn(name = "student_id")
+  @OnDelete(action = CASCADE)
   private User student;
+
+  private boolean isDeleted;
 
   public boolean isLateFrom(Instant toCompare) {
     return this.createdAt.isAfter(toCompare);

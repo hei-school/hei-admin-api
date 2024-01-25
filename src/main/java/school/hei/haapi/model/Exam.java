@@ -1,6 +1,8 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.GenerationType.IDENTITY;
+import static org.hibernate.annotations.OnDeleteAction.CASCADE;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -20,6 +22,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "\"exam\"")
@@ -30,6 +36,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@SQLDelete(sql = "update \"exam\" set is_deleted = true where id=?")
+@Where(clause = "is_deleted=false")
 public class Exam implements Serializable {
   // todo: to review all class
   @Id
@@ -41,11 +49,14 @@ public class Exam implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "awarded_course_id")
+  @OnDelete(action = CASCADE)
   private AwardedCourse awardedCourse;
 
-  @OneToMany(mappedBy = "exam")
+  @OneToMany(mappedBy = "exam", cascade = REMOVE)
   private List<Grade> grades;
 
   @Column(name = "examination_date", nullable = false)
   private Instant examinationDate;
+
+  private boolean isDeleted;
 }

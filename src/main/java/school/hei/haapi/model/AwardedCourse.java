@@ -1,7 +1,9 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
+import static org.hibernate.annotations.OnDeleteAction.CASCADE;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -22,7 +24,10 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.Where;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
 @Entity
@@ -35,6 +40,8 @@ import school.hei.haapi.repository.types.PostgresEnumType;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@SQLDelete(sql = "update \"awarded_course\" set is_deleted = true where id=?")
+@Where(clause = "is_deleted=false")
 public class AwardedCourse implements Serializable {
   // todo: to review all class
   @Id
@@ -43,14 +50,17 @@ public class AwardedCourse implements Serializable {
 
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "teacher_id")
+  @OnDelete(action = CASCADE)
   private User mainTeacher;
 
   @ManyToOne
   @JoinColumn(name = "course_id")
+  @OnDelete(action = CASCADE)
   private Course course;
 
   @ManyToOne
   @JoinColumn(name = "group_id")
+  @OnDelete(action = CASCADE)
   private Group group;
 
   @OneToMany(mappedBy = "awardedCourse", fetch = LAZY)
@@ -59,4 +69,6 @@ public class AwardedCourse implements Serializable {
   @CreationTimestamp
   @Getter(AccessLevel.NONE)
   private Instant creationDatetime;
+
+  private boolean isDeleted;
 }

@@ -3,6 +3,7 @@ package school.hei.haapi.model;
 import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
+import static org.hibernate.annotations.OnDeleteAction.CASCADE;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -26,6 +27,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
@@ -52,6 +55,7 @@ public class Fee implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
+  @OnDelete(action = CASCADE)
   private User student;
 
   @Type(type = "pgsql_enum")

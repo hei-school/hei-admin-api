@@ -1,6 +1,7 @@
 package school.hei.haapi.model;
 
 import static javax.persistence.GenerationType.IDENTITY;
+import static org.hibernate.annotations.OnDeleteAction.CASCADE;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -16,6 +17,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
 
 @Entity
 @Table(name = "\"course_session\"")
@@ -32,6 +34,7 @@ public class CourseSession implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "awarded_course_id")
+  @OnDelete(action = CASCADE)
   private AwardedCourse awardedCourse;
 
   private Instant begin;

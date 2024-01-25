@@ -1,7 +1,9 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
+import static org.hibernate.annotations.OnDeleteAction.CASCADE;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -21,8 +23,12 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.Where;
 import school.hei.haapi.repository.types.PostgresEnumType;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
@@ -36,18 +42,22 @@ import school.hei.haapi.service.utils.DataFormatterUtils;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@SQLDelete(sql = "update \"group_flow\" set is_deleted = true where id=?")
+@Where(clause = "is_deleted=false")
 public class GroupFlow implements Serializable {
   // todo: to review all class
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  @ManyToOne(fetch = LAZY)
+  @ManyToOne(fetch = LAZY, cascade = REMOVE)
   @JoinColumn(name = "student_id")
+  @OnDelete(action = CASCADE)
   private User student;
 
   @ManyToOne
   @JoinColumn(name = "group_id")
+  @OnDelete(action = CASCADE)
   private Group group;
 
   @Column(name = "\"group_flow_type\"")
@@ -56,6 +66,8 @@ public class GroupFlow implements Serializable {
   private group_flow_type groupFlowType;
 
   private Instant flowDatetime;
+
+  private boolean isDeleted;
 
   public enum group_flow_type {
     JOIN,

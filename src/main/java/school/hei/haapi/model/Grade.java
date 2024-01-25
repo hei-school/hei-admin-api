@@ -16,6 +16,11 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
+
+import static javax.persistence.CascadeType.REMOVE;
+import static org.hibernate.annotations.OnDeleteAction.CASCADE;
 
 @Entity
 @Table(name = "\"grade\"")
@@ -34,10 +39,12 @@ public class Grade implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "student_id")
+  @OnDelete(action = CASCADE)
   private User student;
 
   @ManyToOne
   @JoinColumn(name = "exam_id")
+  @OnDelete(action = CASCADE)
   private Exam exam;
 
   private Integer score;
