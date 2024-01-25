@@ -1,6 +1,7 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
@@ -70,7 +71,7 @@ class FeeIT {
     assertEquals(fee1(), deletedFee);
 
     List<Fee> fees = api.getStudentFees(STUDENT1_ID, 1, 5, null);
-    assertTrue(!fees.contains(deletedFee));
+    assertFalse(fees.contains(deletedFee));
   }
 
   @Test

@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -44,8 +45,8 @@ public class Course implements Serializable {
 
   private Integer totalHours;
 
-  private boolean isDeleted = false;
+  private boolean isDeleted;
 
-  @OneToMany(mappedBy = "course", fetch = LAZY)
+  @OneToMany(mappedBy = "course", fetch = LAZY, cascade = REMOVE)
   private List<AwardedCourse> awardedCourses;
 }

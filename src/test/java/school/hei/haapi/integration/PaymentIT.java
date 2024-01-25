@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -141,7 +142,7 @@ class PaymentIT {
     assertEquals(payment1(), deletedPayment);
 
     List<Payment> payments = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, 5);
-    assertTrue(!payments.contains(deletedPayment));
+    assertFalse(payments.contains(deletedPayment));
   }
 
   @Test

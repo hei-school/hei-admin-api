@@ -93,7 +93,7 @@ class TeacherIT {
     assertEquals(teacher1(), deletedTeacher);
 
     List<Teacher> teachers = api.getTeachers(1, 20, null, null, null, null, null);
-    assertTrue(!teachers.contains(deletedTeacher));
+    assertFalse(teachers.contains(deletedTeacher));
   }
 
   @Test

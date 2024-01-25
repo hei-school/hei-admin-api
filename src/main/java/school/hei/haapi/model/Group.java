@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -7,7 +8,11 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.*;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.OneToMany;
+import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -39,13 +44,13 @@ public class Group implements Serializable {
 
   @CreationTimestamp private Instant creationDatetime;
 
-  @OneToMany(mappedBy = "group", fetch = LAZY)
+  @OneToMany(mappedBy = "group", fetch = LAZY, cascade = REMOVE)
   private List<AwardedCourse> awardedCourse;
 
-  @OneToMany(mappedBy = "group", fetch = LAZY)
+  @OneToMany(mappedBy = "group", fetch = LAZY, cascade = REMOVE)
   private List<GroupFlow> groupFlows;
 
-  private boolean isDeleted = false;
+  private boolean isDeleted;
 
   @Override
   public boolean equals(Object o) {

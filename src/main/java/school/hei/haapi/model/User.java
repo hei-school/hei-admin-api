@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.FetchType.LAZY;
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -91,16 +92,16 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Role role;
 
-  @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
+  @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher", cascade = REMOVE)
   private List<AwardedCourse> awardedCourses;
 
-  @OneToMany(mappedBy = "student", fetch = LAZY)
+  @OneToMany(mappedBy = "student", fetch = LAZY, cascade = REMOVE)
   private List<GroupFlow> groupFlows;
 
-  @OneToMany(mappedBy = "student", fetch = LAZY)
+  @OneToMany(mappedBy = "student", fetch = LAZY, cascade = REMOVE)
   private List<Grade> grades;
 
-  private boolean isDeleted = false;
+  private boolean isDeleted;
 
   @Override
   public boolean equals(Object o) {

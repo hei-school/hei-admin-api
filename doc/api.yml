@@ -1165,6 +1165,7 @@ paths:
         - Users
       summary: Delete teacher by identifier.
       operationId: deleteTeacherById
+      description: Soft delete
       parameters:
         - name: id
           in: path

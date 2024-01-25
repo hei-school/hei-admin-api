@@ -280,7 +280,7 @@ class StudentIT {
   }
 
   @Test
-  void student_delete_other_ko() throws ApiException {
+  void student_delete_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
 
@@ -297,7 +297,7 @@ class StudentIT {
     assertEquals(student1(), deletedStudent);
 
     List<Student> students = api.getStudents(1, 10, null, null, null, null, null, null);
-    assertTrue(!students.contains(deletedStudent));
+    assertFalse(students.contains(deletedStudent));
   }
 
   @Test

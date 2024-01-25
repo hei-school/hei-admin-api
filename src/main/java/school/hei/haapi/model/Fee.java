@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -28,8 +29,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
-import school.hei.haapi.endpoint.rest.model.Fee.StatusEnum;
 import org.hibernate.annotations.Where;
+import school.hei.haapi.endpoint.rest.model.Fee.StatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
@@ -75,10 +76,10 @@ public class Fee implements Serializable {
 
   private Instant dueDatetime;
 
-  @OneToMany(mappedBy = "fee")
+  @OneToMany(mappedBy = "fee", cascade = REMOVE)
   private List<Payment> payments;
 
-  private boolean isDeleted = false;
+  private boolean isDeleted;
 
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
