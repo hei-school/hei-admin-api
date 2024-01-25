@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -198,7 +199,7 @@ class FeeIT {
     ApiException exception6 =
         assertThrows(
             ApiException.class,
-            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(Fee.TypeEnum.HARDWARE))));
+            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(HARDWARE))));
     ApiException exception7 =
         assertThrows(
             ApiException.class,

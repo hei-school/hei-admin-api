@@ -1566,24 +1566,24 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
-  /fees/types:
+  /fees/templates:
     get:
       tags:
         - Paying
-      summary: Get all predefined types of fee
+      summary: Get all fee templates
       parameters:
         - name: name
           in: query
           schema:
             type: string
-        - name: total_amount
+        - name: amount
           in: query
           schema:
             type: integer
-        - name: number_of_months
+        - name: number_of_payments
           in: query
           schema:
-            type: string
+            type: integer
         - name: page
           in: query
           schema:
@@ -1592,16 +1592,16 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getFeeTypes
+      operationId: getFeeTemplates
       responses:
         '200':
-          description: List of predefined type of fee
+          description: List of templates of fee
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/FeeType'
+                  $ref: '#/components/schemas/FeeTemplate'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1612,7 +1612,36 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /fees/types/{id}:
+  /fees/templates/{id}:
+    get:
+      tags:
+        - Paying
+      summary: Get fee template by id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      description: Get fee template by `id` if `id` exists
+      operationId: getFeeTemplateById
+      responses:
+        '200':
+          description: The fee template requested
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FeeTemplate'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     put:
       tags:
         - Paying
@@ -1623,21 +1652,21 @@ paths:
           required: true
           schema:
             type: string
-      description: Update fee type when `id` exist, create it otherwise.
-      operationId: crupdateFeeType
+      description: Update fee type if `id` exist, create it otherwise.
+      operationId: crupdateFeeTemplate
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CrupdateFeeType'
+              $ref: '#/components/schemas/CrupdateFeeTemplate'
       responses:
         '200':
           description: The created or updated fee type
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FeeType'
+                $ref: '#/components/schemas/FeeTemplate'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2343,10 +2372,7 @@ components:
       type: object
       properties:
         type:
-          type: string
-          enum:
-            - TUITION
-            - HARDWARE
+          $ref: '#/components/schemas/FeeTypeEnum'
         comment:
           type: string
         total_amount:
@@ -2418,20 +2444,22 @@ components:
         creation_datetime:
           type: string
           format: date-time
-    CrupdateFeeType:
+    CrupdateFeeTemplate:
       type: object
       properties:
         id:
           type: string
         name:
           type: string
-        total_amount:
+        type:
+          $ref: '#/components/schemas/FeeTypeEnum'
+        amount:
           type: integer
-        number_of_months:
+        number_of_payments:
           type: integer
-    FeeType:
+    FeeTemplate:
       allOf:
-        - $ref: '#/components/schemas/CrupdateFeeType'
+        - $ref: '#/components/schemas/CrupdateFeeTemplate'
       type: object
       properties:
         creation_datetime:
@@ -2449,6 +2477,13 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    FeeTypeEnum:
+      type: string
+      enum:
+        - TUITION
+        - HARDWARE
+        - STUDENT_INSURANCE
+        - REMEDIAL_COSTS
     Page:
       type: integer
       description: Start at `1`

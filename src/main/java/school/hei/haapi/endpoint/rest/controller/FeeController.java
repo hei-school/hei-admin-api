@@ -13,13 +13,17 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.FeeMapper;
+import school.hei.haapi.endpoint.rest.mapper.FeeTemplateMapper;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.service.FeeService;
+import school.hei.haapi.service.FeeTemplateService;
 import school.hei.haapi.service.UserService;
 
 @RestController
@@ -29,6 +33,8 @@ public class FeeController {
   private final FeeService feeService;
   private final FeeMapper feeMapper;
   private final UpdateFeeValidator updateFeeValidator;
+  private final FeeTemplateService feeTemplateService;
+  private final FeeTemplateMapper feeTemplateMapper;
 
   @GetMapping("/students/{studentId}/fees/{feeId}")
   public Fee getFeeByStudentId(@PathVariable String studentId, @PathVariable String feeId) {
@@ -76,4 +82,30 @@ public class FeeController {
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
   }
+
+  @GetMapping("/fees/templates")
+  public List<FeeTemplate> getFeeTemplates(
+          @RequestParam(value = "name", required = false) String name,
+          @RequestParam(value = "amount", required = false) Integer amount,
+          @RequestParam(value = "number_of_payments", required = false) Integer numberOfPayments,
+          @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+          @RequestParam(value = "page_size", defaultValue = "10") BoundedPageSize pageSize) {
+    return feeTemplateService.getFeeTemplates(name, amount, numberOfPayments, page, pageSize).stream()
+            .map(feeTemplateMapper::toRest)
+            .collect(toUnmodifiableList());
+  }
+
+  @GetMapping("/fees/templates/{id}")
+  public FeeTemplate getFeeTemplateById(@PathVariable String id){
+    return feeTemplateMapper.toRest(feeTemplateService.getFeeTemplateById(id));
+  }
+
+  @PutMapping("/fees/templates/{id}")
+  public FeeTemplate createOrUpdateFeeTemplate(
+          @PathVariable String id, @RequestBody CrupdateFeeTemplate feeType) {
+    return feeTemplateMapper.toRest(
+            feeTemplateService.createOrUpdateFeeTemplate(feeTemplateMapper.toDomain(feeType)));
+  }
 }
+
+

@@ -7,8 +7,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+
 
 import java.io.IOException;
 import java.net.ServerSocket;
@@ -26,11 +27,13 @@ import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
+import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -87,6 +90,8 @@ public class TestUtils {
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
+  public static final String FEE_TEMPLATE1_ID = "fee_template1";
+  public static final String FEE_TEMPLATE2_ID = "fee_template2";
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -138,7 +143,7 @@ public class TestUtils {
 
   public static CreateFee creatableFee1() {
     return new CreateFee()
-        .type(CreateFee.TypeEnum.TUITION)
+        .type(TUITION)
         .totalAmount(5000)
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
@@ -597,6 +602,44 @@ public class TestUtils {
         .ref("STD21003")
         .email("test+student3@hei.school")
         .grade(grade7());
+  }
+
+  public static FeeTemplate feeTemplate1() {
+    return new FeeTemplate()
+        .id(FEE_TEMPLATE1_ID)
+        .name("annuel x9")
+        .numberOfPayments(9)
+        .amount(200000)
+        .type(TUITION)
+        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
+  }
+
+  public static FeeTemplate feeTemplate3() {
+    return new FeeTemplate()
+            .id("fee_template3")
+            .name("Keyboard")
+            .numberOfPayments(1)
+            .amount(1000)
+            .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"))
+            .type(HARDWARE);
+  }
+
+  public static CrupdateFeeTemplate createFeeTemplate2() {
+    return new CrupdateFeeTemplate()
+        .id(FEE_TEMPLATE2_ID)
+        .name("annuel x1")
+        .numberOfPayments(1)
+        .amount(10000)
+        .type(TUITION);
+  }
+
+  public static FeeTemplate feeTemplate2() {
+    return new FeeTemplate()
+        .id(FEE_TEMPLATE2_ID)
+        .name("annuel x1")
+        .numberOfPayments(1)
+        .amount(10000)
+        .type(TUITION);
   }
 
   public static ExamDetail examDetail1() {
