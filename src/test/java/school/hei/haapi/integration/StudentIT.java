@@ -62,9 +62,10 @@ import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.file.BucketConf;
+import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.service.aws.S3Service;
+import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
@@ -84,7 +85,9 @@ class StudentIT {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @MockBean BucketConf bucketConf;
   @MockBean
-  S3Service s3Service;
+  S3Conf s3Conf;
+  @MockBean
+  FileService fileService;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -276,7 +279,7 @@ class StudentIT {
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
-    setUpS3Service(s3Service, student1());
+    setUpS3Service(fileService, student1());
   }
 
   @Test

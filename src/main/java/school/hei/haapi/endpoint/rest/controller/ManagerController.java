@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.controller;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 
+import java.io.File;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;

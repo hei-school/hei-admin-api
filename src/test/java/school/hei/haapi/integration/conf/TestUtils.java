@@ -9,10 +9,13 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -46,7 +49,7 @@ import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.service.aws.S3Service;
+import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -98,7 +101,6 @@ public class TestUtils {
   public static final String MANAGER1_TOKEN = "manager1_token";
   public static final String FEE_TEMPLATE1_ID = "fee_template1";
   public static final String FEE_TEMPLATE2_ID = "fee_template2";
-  public static final byte[] MANAGER1_PROFILE_PNG = "manager1.png".getBytes();
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -117,21 +119,21 @@ public class TestUtils {
     when(cognitoComponent.getEmailByIdToken(MANAGER1_TOKEN)).thenReturn("test+manager1@hei.school");
   }
 
-  public static void setUpS3Service(S3Service s3Service, Student user) {
+  public static void setUpS3Service(FileService fileService, Student user) {
     String USER_REF = user.getRef();
-    when(s3Service.getPresignedUrl(USER_REF, 180L)).thenReturn(USER_REF);
-    when(s3Service.uploadObjectToS3Bucket(USER_REF, getMockedFileAsByte("img", ".png")))
+    when(fileService.getPresignedUrl(USER_REF, 180L)).thenReturn(USER_REF);
+    when(fileService.uploadObjectToS3Bucket(USER_REF, getMockedFileAsByte("img", ".png")))
         .thenReturn(USER_REF);
   }
 
-  public static void setUpS3Service(S3Service s3Service, Teacher user) {
+  public static void setUpS3Service(FileService fileService, Teacher user) {
     String USER_REF = user.getRef();
-    when(s3Service.uploadObjectToS3Bucket(USER_REF, MANAGER1_PROFILE_PNG)).thenReturn(USER_REF);
+    when(fileService.uploadObjectToS3Bucket(USER_REF, getMockedFileAsByte("img", ".png"))).thenReturn(USER_REF);
   }
 
-  public static void setUpS3Service(S3Service s3Service, Manager user) {
+  public static void setUpS3Service(FileService fileService, Manager user) {
     String USER_REF = user.getRef();
-    when(s3Service.uploadObjectToS3Bucket(USER_REF, MANAGER1_PROFILE_PNG)).thenReturn(USER_REF);
+    when(fileService.uploadObjectToS3Bucket(USER_REF, getMockedFileAsByte("img", ".png"))).thenReturn(USER_REF);
   }
 
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {
@@ -151,23 +153,23 @@ public class TestUtils {
         "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", responseBody);
   }
 
-  public static byte[] getMockedFileAsByte(String fileName, String fileType) {
+  public static File getMockedFile(String fileName, String extension) {
     try {
-      Resource resource = new ClassPathResource("mock/" + fileName + fileType);
+      Resource resource = new ClassPathResource("mock/" + fileName + extension);
       File file = resource.getFile();
-      return FileUtils.readFileToByteArray(file);
+      return file;
     } catch (IOException e) {
       throw new school.hei.haapi.model.exception.ApiException(SERVER_EXCEPTION, e.getMessage());
     }
   }
 
-  public static File getMockedFile(String fileName, String fileType) {
+  public static byte[] getMockedFileAsByte(String fileName, String extension) {
     try {
-      Resource resource = new ClassPathResource("mock/" + fileName + fileType);
-      File file = resource.getFile();
-      return file;
-    } catch (IOException e) {
-      throw new school.hei.haapi.model.exception.ApiException(SERVER_EXCEPTION, e.getMessage());
+      File file = getMockedFile(fileName, extension);
+      return FileUtils.readFileToByteArray(file);
+    }
+    catch (IOException ioException) {
+      throw new school.hei.haapi.model.exception.ApiException(SERVER_EXCEPTION, ioException.getMessage());
     }
   }
 
