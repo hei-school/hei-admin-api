@@ -12,7 +12,7 @@ on:
   workflow_call:
 
 jobs:
-  quality-check:
+  test:
     runs-on: ubuntu-latest
     timeout-minutes: 20
 
@@ -21,17 +21,28 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4.1.1
-
       - uses: hei-school/aws-credentials-setter@v1.0.3
         with:
           secrets: ${{ toJSON(secrets) }}
           region: ${{ env.AWS_REGION }}
 
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '17'
+          distribution: 'corretto'
       - run: chmod +x gradlew
+      - run: ./gradlew test
 
+  format:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4.1.1
       - uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'corretto'
 
-      - run: ./gradlew test
+      - run: chmod +x format.sh
+      - run: ./format.sh && git diff --exit-code
