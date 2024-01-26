@@ -10,7 +10,6 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 
-
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Instant;
@@ -616,12 +615,12 @@ public class TestUtils {
 
   public static FeeTemplate feeTemplate3() {
     return new FeeTemplate()
-            .id("fee_template3")
-            .name("Keyboard")
-            .numberOfPayments(1)
-            .amount(1000)
-            .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"))
-            .type(HARDWARE);
+        .id("fee_template3")
+        .name("Keyboard")
+        .numberOfPayments(1)
+        .amount(1000)
+        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"))
+        .type(HARDWARE);
   }
 
   public static CrupdateFeeTemplate createFeeTemplate2() {

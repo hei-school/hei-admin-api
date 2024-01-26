@@ -4,7 +4,6 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 
-
 import java.time.Instant;
 import java.util.List;
 import javax.transaction.Transactional;

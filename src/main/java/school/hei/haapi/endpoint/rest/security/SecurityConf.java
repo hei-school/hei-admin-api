@@ -67,8 +67,11 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                 new NegatedRequestMatcher(
                     new OrRequestMatcher(
                         new AntPathRequestMatcher("/ping"),
-                        new AntPathRequestMatcher("/dummy-table"),
                         new AntPathRequestMatcher("/uuid-created"),
+                        new AntPathRequestMatcher("/health/db"),
+                        new AntPathRequestMatcher("/health/email"),
+                        new AntPathRequestMatcher("/health/event"),
+                        new AntPathRequestMatcher("/health/bucket"),
                         new AntPathRequestMatcher("/**", OPTIONS.toString())))),
             AnonymousAuthenticationFilter.class)
         .anonymous()
@@ -76,11 +79,19 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         // authorize
         .and()
         .authorizeRequests()
-        .antMatchers("/ping")
+        .antMatchers(GET, "/ping")
+        .permitAll()
+        .antMatchers(GET, "/health/db")
+        .permitAll()
+        .antMatchers(GET, "/health/email")
+        .permitAll()
+        .antMatchers(GET, "/health/event")
+        .permitAll()
+        .antMatchers(GET, "/health/bucket")
         .permitAll()
         .antMatchers(OPTIONS, "/**")
         .permitAll()
-        .antMatchers("/whoami")
+        .antMatchers(GET, "/whoami")
         .authenticated()
         .antMatchers(GET, "/students")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
@@ -171,8 +182,8 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(MANAGER.getRole())
         .antMatchers(PUT, "/fees/templates/*")
         .hasAnyRole(MANAGER.getRole())
-            .antMatchers(GET, "/fees/templates/*")
-            .hasAnyRole(MANAGER.getRole())
+        .antMatchers(GET, "/fees/templates/*")
+        .hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/teachers")
         .hasAnyRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/teachers/*", "teachers"))
