@@ -17,6 +17,7 @@ import static school.hei.haapi.integration.conf.TestUtils.course3;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.group2;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
 import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 import static school.hei.haapi.integration.conf.TestUtils.teacher4;
@@ -49,6 +50,7 @@ import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.event.CheckAttendanceTriggeredService;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -61,6 +63,8 @@ class AttendanceIT {
   @MockBean private SentryConf sentryConf;
   @MockBean private CognitoComponent cognitoComponent;
   @Autowired CheckAttendanceTriggeredService checkAttendanceTriggeredService;
+  @MockBean
+  FileService fileService;
   @MockBean BucketConf bucketConf;
   @MockBean
   S3Conf s3Conf;
@@ -73,6 +77,7 @@ class AttendanceIT {
   void setUp() {
     setUpCognito(cognitoComponent);
     checkAttendanceTriggeredService.accept(new CheckAttendanceTriggered());
+    setUpS3Service(fileService, student1());
   }
 
   @Test

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE4_ID;
@@ -21,6 +22,8 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import java.time.Instant;
 import java.util.List;
@@ -43,6 +46,7 @@ import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.aws.FileService;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -54,6 +58,8 @@ class PaymentIT {
   @MockBean BucketConf bucketConf;
   @MockBean
   S3Conf s3Conf;
+  @MockBean
+  FileService fileService;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, PaymentIT.ContextInitializer.SERVER_PORT);
@@ -131,6 +137,7 @@ class PaymentIT {
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
+    setUpS3Service(fileService, student1());
   }
 
   @Test

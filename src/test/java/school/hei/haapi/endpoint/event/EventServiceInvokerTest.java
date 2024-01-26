@@ -9,7 +9,10 @@ import static org.mockito.Mockito.verify;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import school.hei.haapi.conf.BucketConf;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
+import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.mail.EmailConf;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.SesService;
@@ -21,6 +24,10 @@ class EventServiceInvokerTest {
   LateFeeVerifiedService lateFeeService;
   SesService sesService;
   EmailConf sesConf;
+  @MockBean
+  BucketConf bucketConf;
+  @MockBean
+  S3Conf s3Conf;
 
   static User randomStudent() {
     return User.builder()

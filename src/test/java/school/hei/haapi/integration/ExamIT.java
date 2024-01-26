@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 
@@ -25,6 +26,7 @@ import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.aws.FileService;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -37,6 +39,8 @@ class ExamIT {
   @MockBean BucketConf bucketConf;
   @MockBean
   S3Conf s3Conf;
+  @MockBean
+  FileService fileService;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ExamIT.ContextInitializer.SERVER_PORT);
@@ -45,6 +49,7 @@ class ExamIT {
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
+    setUpS3Service(fileService, student1());
   }
 
   @Test
