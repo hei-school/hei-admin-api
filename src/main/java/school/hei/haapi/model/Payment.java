@@ -1,9 +1,9 @@
 package school.hei.haapi.model;
 
 import static java.time.temporal.ChronoUnit.SECONDS;
-import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
+import static org.hibernate.annotations.OnDeleteAction.CASCADE;
 
 import java.io.Serializable;
 import java.time.Instant;
@@ -48,7 +48,7 @@ public class Payment implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "fee_id", nullable = false)
-  @OnDelete(action = OnDeleteAction.CASCADE)
+  @OnDelete(action = CASCADE)
   private Fee fee;
 
   @Type(type = "pgsql_enum")

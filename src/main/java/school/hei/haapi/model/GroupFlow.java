@@ -50,7 +50,7 @@ public class GroupFlow implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  @ManyToOne(fetch = LAZY, cascade = REMOVE)
+  @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "student_id")
   @OnDelete(action = CASCADE)
   private User student;
