@@ -1,7 +1,7 @@
 package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 
 import java.util.List;
 import lombok.AllArgsConstructor;

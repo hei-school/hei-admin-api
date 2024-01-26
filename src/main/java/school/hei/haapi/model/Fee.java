@@ -29,7 +29,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
-import school.hei.haapi.endpoint.rest.model.Fee.StatusEnum;
+import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
 @Entity
@@ -52,7 +52,7 @@ public class Fee implements Serializable {
 
   @Type(type = "pgsql_enum")
   @Enumerated(STRING)
-  private StatusEnum status;
+  private FeeStatusEnum status;
 
   @Type(type = "pgsql_enum")
   @Enumerated(STRING)

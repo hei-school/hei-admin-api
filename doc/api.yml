@@ -2395,11 +2395,7 @@ components:
         remaining_amount:
           type: integer
         status:
-          type: string
-          enum:
-            - UNPAID
-            - PAID
-            - LATE
+          $ref: '#/components/schemas/FeeStatusEnum'
         updated_at:
           type: string
           format: date-time
@@ -2477,6 +2473,12 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    FeeStatusEnum:
+      type: string
+      enum:
+        - UNPAID
+        - PAID
+        - LATE
     FeeTypeEnum:
       type: string
       enum:
