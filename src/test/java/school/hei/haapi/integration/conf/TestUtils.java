@@ -14,8 +14,6 @@ import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER
 import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
