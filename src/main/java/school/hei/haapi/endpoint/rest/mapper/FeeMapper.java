@@ -1,9 +1,9 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.REMEDIAL_COSTS;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.STUDENT_INSURANCE;
@@ -15,6 +15,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.validator.CreateFeeValidator;
 import school.hei.haapi.model.User;
@@ -43,7 +44,7 @@ public class FeeMapper {
   }
 
   public school.hei.haapi.model.Fee toDomain(Fee fee, User student) {
-    Fee.StatusEnum dueDatetimeDependantStatus =
+    FeeStatusEnum dueDatetimeDependantStatus =
         DataFormatterUtils.isLate(fee.getDueDatetime()) ? LATE : UNPAID;
     return school.hei.haapi.model.Fee.builder()
         .id(fee.getId())

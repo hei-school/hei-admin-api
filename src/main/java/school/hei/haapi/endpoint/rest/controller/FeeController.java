@@ -17,6 +17,7 @@ import school.hei.haapi.endpoint.rest.mapper.FeeTemplateMapper;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -67,7 +68,7 @@ public class FeeController {
       @PathVariable String studentId,
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize,
-      @RequestParam(required = false) Fee.StatusEnum status) {
+      @RequestParam(required = false) FeeStatusEnum status) {
     return feeService.getFeesByStudentId(studentId, page, pageSize, status).stream()
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
@@ -77,7 +78,7 @@ public class FeeController {
   public List<Fee> getFees(
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize,
-      @RequestParam(required = false) Fee.StatusEnum status) {
+      @RequestParam(required = false) FeeStatusEnum status) {
     return feeService.getFees(page, pageSize, status).stream()
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
