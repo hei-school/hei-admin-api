@@ -30,139 +30,131 @@ import school.hei.haapi.service.aws.FileService;
 @Service
 @AllArgsConstructor
 public class UserService {
-    private final UserRepository userRepository;
-    private final EventProducer eventProducer;
-    private final UserValidator userValidator;
-    private final UserManagerDao userManagerDao;
-    private final GroupRepository groupRepository;
-    private final GroupService groupService;
-    private final FileService fileService;
 
-    public String uploadUserProfilePicture(byte[] bytes, String userId) {
-        User user = findById(userId);
-        return fileService.uploadObjectToS3Bucket(user.getRef(), bytes);
-    }
+  private final UserRepository userRepository;
+  private final EventProducer eventProducer;
+  private final UserValidator userValidator;
+  private final UserManagerDao userManagerDao;
+  private final GroupRepository groupRepository;
+  private final GroupService groupService;
+  private final FileService fileService;
 
-    public User updateUser(User user, String userId) {
-        User toUpdate = findById(userId);
+  public String uploadUserProfilePicture(byte[] bytes, String userId) {
+    User user = findById(userId);
+    return fileService.uploadObjectToS3Bucket(user.getRef(), bytes);
+  }
 
-        toUpdate.setAddress(user.getAddress());
-        toUpdate.setBirthDate(user.getBirthDate());
-        toUpdate.setFirstName(user.getFirstName());
-        toUpdate.setLastName(user.getLastName());
-        toUpdate.setSex(user.getSex());
-        toUpdate.setPhone(user.getPhone());
-        toUpdate.setNic(user.getNic());
-        toUpdate.setBirthPlace(user.getBirthPlace());
+  public User updateUser(User user, String userId) {
+    User toUpdate = findById(userId);
 
-        return userRepository.save(toUpdate);
-    }
+    toUpdate.setAddress(user.getAddress());
+    toUpdate.setBirthDate(user.getBirthDate());
+    toUpdate.setFirstName(user.getFirstName());
+    toUpdate.setLastName(user.getLastName());
+    toUpdate.setSex(user.getSex());
+    toUpdate.setPhone(user.getPhone());
+    toUpdate.setNic(user.getNic());
+    toUpdate.setBirthPlace(user.getBirthPlace());
 
-    public User findById(String userId) {
-        return userRepository.findById(userId)
-                .orElseThrow(
-                        () -> new NotFoundException("User with id: " + userId + " not found"));
-    }
+    return userRepository.save(toUpdate);
+  }
 
-    public User getByEmail(String email) {
-        return userRepository.getByEmail(email);
-    }
+  public User findById(String userId) {
+    return userRepository.findById(userId)
+        .orElseThrow(
+            () -> new NotFoundException("User with id: " + userId + " not found"));
+  }
 
-    @Transactional
-    public List<User> saveAll(List<User> users) {
-        userValidator.accept(users);
-        List<User> savedUsers = userRepository.saveAll(users);
-        eventProducer.accept(
-                users.stream().map(this::toUserUpsertedEvent).collect(toUnmodifiableList()));
-        return savedUsers;
-    }
+  public User getByEmail(String email) {
+    return userRepository.getByEmail(email);
+  }
 
-    private UserUpserted toUserUpsertedEvent(User user) {
-        return new UserUpserted().userId(user.getId()).email(user.getEmail());
-    }
+  @Transactional
+  public List<User> saveAll(List<User> users) {
+    userValidator.accept(users);
+    List<User> savedUsers = userRepository.saveAll(users);
+    eventProducer.accept(
+        users.stream().map(this::toUserUpsertedEvent).collect(toUnmodifiableList()));
+    return savedUsers;
+  }
 
-    public List<User> getByRole(
-            User.Role role,
-            PageFromOne page,
-            BoundedPageSize pageSize,
-            User.Status status,
-            User.Sex sex) {
-        return getByCriteria(role, "", "", "", page, pageSize, status, sex);
-    }
+  private UserUpserted toUserUpsertedEvent(User user) {
+    return new UserUpserted().userId(user.getId()).email(user.getEmail());
+  }
 
-    public List<User> getByCriteria(
-            User.Role role,
-            String firstName,
-            String lastName,
-            String ref,
-            PageFromOne page,
-            BoundedPageSize pageSize,
-            User.Status status,
-            User.Sex sex) {
-        Pageable pageable =
-                PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-        return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
-    }
+  public List<User> getByRole(
+      User.Role role,
+      PageFromOne page,
+      BoundedPageSize pageSize,
+      User.Status status,
+      User.Sex sex) {
+    return getByCriteria(role, "", "", "", page, pageSize, status, sex);
+  }
 
-    public List<User> getByLinkedCourse(
-            User.Role role,
-            String firstName,
-            String lastName,
-            String ref,
-            String courseId,
-            PageFromOne page,
-            BoundedPageSize pageSize,
-            User.Status status,
-            User.Sex sex) {
-        Pageable pageable =
-                PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-        List<User> users =
-                userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
+  public List<User> getByCriteria(
+      User.Role role,
+      String firstName,
+      String lastName,
+      String ref,
+      PageFromOne page,
+      BoundedPageSize pageSize,
+      User.Status status,
+      User.Sex sex) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
+  }
 
-        return courseId.length() > 0
-                ? users.stream()
-                .filter(
-                        user ->
-                                groupService.getByUserId(user.getId()).stream()
-                                        .anyMatch(
-                                                group ->
-                                                        group.getAwardedCourse().stream()
-                                                                .anyMatch(
-                                                                        awardedCourse ->
-                                                                                awardedCourse.getCourse().getId().equals(courseId))))
-                .collect(toList())
-                : users;
-    }
+  public List<User> getByLinkedCourse(
+      User.Role role,
+      String firstName,
+      String lastName,
+      String ref,
+      String courseId,
+      PageFromOne page,
+      BoundedPageSize pageSize,
+      User.Status status,
+      User.Sex sex) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    List<User> users =
+        userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
 
-    public List<User> getByGroupId(String groupId) {
-        Group group = groupRepository.getById(groupId);
-        List<User> users = new ArrayList<>();
-        List<GroupFlow> groupFlows = new ArrayList<>();
-        for (GroupFlow groupFlow : group.getGroupFlows()) {
-            if (!users.contains(groupFlow.getStudent())) {
-                if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.JOIN) {
-                    users.add(groupFlow.getStudent());
-                }
-                groupFlows.add(groupFlow);
-            } else if (groupFlow
-                    .getFlowDatetime()
-                    .isAfter(
-                            groupFlows.stream()
-                                    .filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent()))
-                                    .findFirst()
-                                    .get()
-                                    .getFlowDatetime())) {
-                if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.LEAVE) {
-                    users.remove(groupFlow.getStudent());
-                }
-                groupFlows.remove(
-                        groupFlows.stream()
-                                .filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent()))
-                                .findFirst()
-                                .get());
-                groupFlows.add(groupFlow);
-            }
->>>>>>> 2e08e6f (chore: use bucket component as s3 service provider)
+    return courseId.length() > 0
+        ? users.stream()
+        .filter(
+            user ->
+                groupService.getByUserId(user.getId()).stream()
+                    .anyMatch(
+                        group ->
+                            group.getAwardedCourse().stream()
+                                .anyMatch(
+                                    awardedCourse ->
+                                        awardedCourse.getCourse().getId().equals(courseId))))
+        .collect(toList())
+        : users;
+  }
+
+  public List<User> getByGroupId(String groupId) {
+    Group group = groupRepository.getById(groupId);
+    List<User> users = new ArrayList<>();
+    List<GroupFlow> groupFlows = new ArrayList<>();
+    for (GroupFlow groupFlow : group.getGroupFlows()) {
+      if (!users.contains(groupFlow.getStudent())) {
+        if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.JOIN) {
+          users.add(groupFlow.getStudent());
+        }
+        groupFlows.add(groupFlow);
+      } else if (groupFlow
+          .getFlowDatetime()
+          .isAfter(
+              groupFlows.stream()
+                  .filter(groupFlow1 -> groupFlow1.getStudent().equals(groupFlow.getStudent()))
+                  .findFirst()
+                  .get()
+                  .getFlowDatetime())) {
+        if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.LEAVE) {
+          users.remove(groupFlow.getStudent());
         }
         groupFlows.remove(
             groupFlows.stream()

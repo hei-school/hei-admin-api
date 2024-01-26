@@ -1,7 +1,6 @@
 package school.hei.haapi.service.aws;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Duration;
@@ -33,10 +32,10 @@ public class FileService {
     return bucketComponent.upload(createTempFile(file), key).value().toString();
   }
 
-  public File createTempFile(byte[] bytes) {
+  private File createTempFile(byte[] bytes) {
     File tempFile;
     try {
-      tempFile = File.createTempFile("temp", "file");
+      tempFile = File.createTempFile("file", "temp");
       FileOutputStream outputStream = new FileOutputStream(tempFile);
       outputStream.write(bytes);
       return  tempFile;
