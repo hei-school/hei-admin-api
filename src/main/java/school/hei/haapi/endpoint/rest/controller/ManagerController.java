@@ -24,6 +24,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.UserService;
+import school.hei.haapi.service.aws.FileService;
 
 @RestController
 @AllArgsConstructor
@@ -32,11 +33,13 @@ public class ManagerController {
   private final StatusEnumMapper statusEnumMapper;
   private final UserService userService;
   private final UserMapper userMapper;
+  private final FileService fileService;
 
   @PostMapping(value = "/managers/{id}/picture/raw", consumes = IMAGE_PNG_VALUE)
   public Manager uploadTeacherProfilePicture(
       @RequestBody byte[] profilePicture, @PathVariable(name = "id") String managerId) {
-    userService.uploadUserProfilePicture(profilePicture, managerId);
+    File tempFile = fileService.createTempFile(profilePicture);
+    userService.uploadUserProfilePicture(tempFile, managerId);
     return userMapper.toRestManager(userService.findById(managerId));
   }
 

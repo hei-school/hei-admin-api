@@ -39,7 +39,7 @@ public class UserService {
   private final GroupService groupService;
   private final FileService fileService;
 
-  public String uploadUserProfilePicture(byte[] bytes, String userId) {
+  public String uploadUserProfilePicture(File bytes, String userId) {
     User user = findById(userId);
     return fileService.uploadObjectToS3Bucket(user.getRef(), bytes);
   }

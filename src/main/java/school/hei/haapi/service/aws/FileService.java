@@ -28,11 +28,11 @@ public class FileService {
     return bucketComponent.presign(key, expirationDuration).toString();
   }
 
-  public String uploadObjectToS3Bucket(String key, byte[] file) {
-    return bucketComponent.upload(createTempFile(file), key).value().toString();
+  public String uploadObjectToS3Bucket(String key, File file) {
+    return bucketComponent.upload(file, key).value().toString();
   }
 
-  private File createTempFile(byte[] bytes) {
+  public File createTempFile(byte[] bytes) {
     File tempFile;
     try {
       tempFile = File.createTempFile("file", "temp");

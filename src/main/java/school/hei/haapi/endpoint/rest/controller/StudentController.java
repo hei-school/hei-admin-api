@@ -30,6 +30,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.GroupFlowService;
 import school.hei.haapi.service.UserService;
+import school.hei.haapi.service.aws.FileService;
 
 @RestController
 @AllArgsConstructor
@@ -40,11 +41,13 @@ public class StudentController {
   private final GroupFlowMapper groupFlowMapper;
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
+  private final FileService fileService;
 
   @PostMapping(value = "/students/{id}/picture/raw", consumes = IMAGE_PNG_VALUE)
   public Student uploadStudentProfilePicture(
       @RequestBody byte[] profilePicture, @PathVariable(name = "id") String studentId) {
-    userService.uploadUserProfilePicture(profilePicture, studentId);
+    File tempFile = fileService.createTempFile(profilePicture);
+    userService.uploadUserProfilePicture(tempFile, studentId);
     return userMapper.toRestStudent(userService.findById(studentId));
   }
 
