@@ -35,11 +35,10 @@ public class ManagerController {
   private final UserMapper userMapper;
   private final FileService fileService;
 
-  @PostMapping(value = "/managers/{id}/picture/raw", consumes = IMAGE_PNG_VALUE)
+  @PostMapping(value = "/managers/{id}/picture/raw")
   public Manager uploadTeacherProfilePicture(
       @RequestBody byte[] profilePicture, @PathVariable(name = "id") String managerId) {
-    File tempFile = fileService.createTempFile(profilePicture);
-    userService.uploadUserProfilePicture(tempFile, managerId);
+    userService.uploadUserProfilePicture(profilePicture, managerId);
     return userMapper.toRestManager(userService.findById(managerId));
   }
 

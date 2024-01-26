@@ -47,6 +47,7 @@ import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -88,6 +89,7 @@ class StudentIT {
   S3Conf s3Conf;
   @MockBean
   FileService fileService;
+  @Autowired ObjectMapper mapper;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -300,7 +302,6 @@ class StudentIT {
                 .build(),
             HttpResponse.BodyHandlers.ofString());
 
-    ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JSR310Module());
     mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
     Student responseBody = mapper.readValue(response.body(), Student.class);

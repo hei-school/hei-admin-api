@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.UserUpserted;
+import school.hei.haapi.file.FileHash;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
@@ -39,9 +40,11 @@ public class UserService {
   private final GroupService groupService;
   private final FileService fileService;
 
-  public String uploadUserProfilePicture(File bytes, String userId) {
+  public FileHash uploadUserProfilePicture(byte[] bytes, String userId) {
     User user = findById(userId);
-    return fileService.uploadObjectToS3Bucket(user.getRef(), bytes);
+    File tempFile = fileService.createTempFile(bytes);
+    String basePath = user.getRef() + "/images/" + fileService.getFileExtension(tempFile);
+    return fileService.uploadObjectToS3Bucket(basePath, tempFile);
   }
 
   public User updateUser(User user, String userId) {

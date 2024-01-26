@@ -75,11 +75,10 @@ public class TeacherController {
         .collect(toUnmodifiableList());
   }
 
-  @PostMapping(value = "/teachers/{id}/picture/raw", consumes = IMAGE_PNG_VALUE)
+  @PostMapping(value = "/teachers/{id}/picture/raw")
   public Teacher uploadTeacherProfilePicture(
       @RequestBody byte[] profilePicture, @PathVariable(name = "id") String teacherId) {
-    File tempFile = fileService.createTempFile(profilePicture);
-    userService.uploadUserProfilePicture(tempFile, teacherId);
+    userService.uploadUserProfilePicture(profilePicture, teacherId);
     return userMapper.toRestTeacher(userService.findById(teacherId));
   }
 }

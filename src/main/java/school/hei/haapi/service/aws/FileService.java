@@ -6,10 +6,15 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import org.apache.tika.config.TikaConfig;
+import org.apache.tika.exception.TikaException;
+import org.apache.tika.io.TikaInputStream;
+import org.apache.tika.metadata.Metadata;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.file.BucketComponent;
-import school.hei.haapi.file.S3Conf;
+import school.hei.haapi.file.FileHash;
+import school.hei.haapi.file.FileTyper;
 import school.hei.haapi.model.exception.ApiException;
 
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
@@ -18,8 +23,8 @@ import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER
 @Service
 @AllArgsConstructor
 public class FileService {
-  private BucketComponent bucketComponent;
-  private S3Conf s3Conf;
+  private final BucketComponent bucketComponent;
+  private final FileTyper fileTyper;
 
   public String getPresignedUrl(String key, Long durationExpirationSeconds) {
     Instant now = Instant.now();
@@ -28,8 +33,12 @@ public class FileService {
     return bucketComponent.presign(key, expirationDuration).toString();
   }
 
-  public String uploadObjectToS3Bucket(String key, File file) {
-    return bucketComponent.upload(file, key).value().toString();
+  public FileHash uploadObjectToS3Bucket(String key, File file) {
+    return bucketComponent.upload(file, key);
+  }
+
+  public String getFileExtension(File file) {
+    return fileTyper.apply(file).getSubtype();
   }
 
   public File createTempFile(byte[] bytes) {

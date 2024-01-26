@@ -41,13 +41,11 @@ public class StudentController {
   private final GroupFlowMapper groupFlowMapper;
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
-  private final FileService fileService;
 
-  @PostMapping(value = "/students/{id}/picture/raw", consumes = IMAGE_PNG_VALUE)
+  @PostMapping(value = "/students/{id}/picture/raw")
   public Student uploadStudentProfilePicture(
       @RequestBody byte[] profilePicture, @PathVariable(name = "id") String studentId) {
-    File tempFile = fileService.createTempFile(profilePicture);
-    userService.uploadUserProfilePicture(tempFile, studentId);
+    userService.uploadUserProfilePicture(profilePicture, studentId);
     return userMapper.toRestStudent(userService.findById(studentId));
   }
 
