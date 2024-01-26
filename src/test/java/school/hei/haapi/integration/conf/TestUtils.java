@@ -121,18 +121,18 @@ public class TestUtils {
   public static void setUpS3Service(FileService fileService, Student user) {
     String USER_REF = user.getRef();
     when(fileService.getPresignedUrl(USER_REF, 180L)).thenReturn(USER_REF);
-    when(fileService.uploadObjectToS3Bucket(USER_REF, getMockedFileAsByte("img", ".png")))
+    when(fileService.uploadObjectToS3Bucket(USER_REF, getMockedFile("img", ".png")))
         .thenReturn(USER_REF);
   }
 
   public static void setUpS3Service(FileService fileService, Teacher user) {
     String USER_REF = user.getRef();
-    when(fileService.uploadObjectToS3Bucket(USER_REF, getMockedFileAsByte("img", ".png"))).thenReturn(USER_REF);
+    when(fileService.uploadObjectToS3Bucket(USER_REF, getMockedFile("img", ".png"))).thenReturn(USER_REF);
   }
 
   public static void setUpS3Service(FileService fileService, Manager user) {
     String USER_REF = user.getRef();
-    when(fileService.uploadObjectToS3Bucket(USER_REF, getMockedFileAsByte("img", ".png"))).thenReturn(USER_REF);
+    when(fileService.uploadObjectToS3Bucket(USER_REF, getMockedFile("img", ".png"))).thenReturn(USER_REF);
   }
 
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {
