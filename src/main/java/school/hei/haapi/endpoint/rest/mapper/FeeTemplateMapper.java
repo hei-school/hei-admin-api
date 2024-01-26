@@ -5,7 +5,6 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 
-
 @Component
 @AllArgsConstructor
 public class FeeTemplateMapper {

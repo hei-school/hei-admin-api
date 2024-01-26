@@ -656,67 +656,69 @@ class StudentIT {
     Student expectedStudent1AfterUpdate = randomizeStudentUpdatableValues(currentStudent1);
     CrupdateStudent payload = toCrupdateStudent(expectedStudent1AfterUpdate);
 
-    Student updatedStudent1 = api.updateStudent(STUDENT1_ID,payload);
+    Student updatedStudent1 = api.updateStudent(STUDENT1_ID, payload);
 
     assertEquals(expectedStudent1AfterUpdate, updatedStudent1);
-    //cleanup
+    // cleanup
     api.updateStudent(STUDENT1_ID, toCrupdateStudent(currentStudent1));
   }
 
-  private Student toStudent(CrupdateStudent crupdateStudent){
+  private Student toStudent(CrupdateStudent crupdateStudent) {
     return new Student()
-            .id(crupdateStudent.getId())
-            .birthDate(crupdateStudent.getBirthDate())
-            .id(crupdateStudent.getId())
-            .entranceDatetime(crupdateStudent.getEntranceDatetime())
-            .phone(crupdateStudent.getPhone())
-            .nic(crupdateStudent.getNic())
-            .birthPlace(crupdateStudent.getBirthPlace())
-            .email(crupdateStudent.getEmail())
-            .address(crupdateStudent.getAddress())
-            .firstName(crupdateStudent.getFirstName())
-            .lastName(crupdateStudent.getLastName())
-            .sex(crupdateStudent.getSex())
-            .ref(crupdateStudent.getRef())
-            .specializationField(crupdateStudent.getSpecializationField())
-            .status(crupdateStudent.getStatus());
-  }
-  private CrupdateStudent toCrupdateStudent(Student student){
-    return new CrupdateStudent()
-            .id(student.getId())
-            .birthDate(student.getBirthDate())
-            .id(student.getId())
-            .entranceDatetime(student.getEntranceDatetime())
-            .phone(student.getPhone())
-            .nic(student.getNic())
-            .birthPlace(student.getBirthPlace())
-            .email(student.getEmail())
-            .address(student.getAddress())
-            .firstName(student.getFirstName())
-            .lastName(student.getLastName())
-            .sex(student.getSex())
-            .ref(student.getRef())
-            .specializationField(student.getSpecializationField())
-            .status(student.getStatus());
+        .id(crupdateStudent.getId())
+        .birthDate(crupdateStudent.getBirthDate())
+        .id(crupdateStudent.getId())
+        .entranceDatetime(crupdateStudent.getEntranceDatetime())
+        .phone(crupdateStudent.getPhone())
+        .nic(crupdateStudent.getNic())
+        .birthPlace(crupdateStudent.getBirthPlace())
+        .email(crupdateStudent.getEmail())
+        .address(crupdateStudent.getAddress())
+        .firstName(crupdateStudent.getFirstName())
+        .lastName(crupdateStudent.getLastName())
+        .sex(crupdateStudent.getSex())
+        .ref(crupdateStudent.getRef())
+        .specializationField(crupdateStudent.getSpecializationField())
+        .status(crupdateStudent.getStatus());
   }
 
-  private Student randomizeStudentUpdatableValues(Student student){
-      return new Student()
-              .id(student.getId())
-              .entranceDatetime(student.getEntranceDatetime())
-              .status(student.getStatus())
-              .email(student.getEmail())
-              .ref(student.getRef())
-              .birthDate(LocalDate.parse("2000-12-05"))
-              .birthPlace(randomUUID().toString())
-              .nic(randomUUID().toString())
-              .phone(randomUUID().toString())
-              .sex(student.getSex() != null ? (student.getSex().equals(M) ? F:M) : null)
-              .address(randomUUID().toString())
-              .lastName(randomUUID().toString())
-              .firstName(randomUUID().toString())
-              .specializationField(student.getSpecializationField());
+  private CrupdateStudent toCrupdateStudent(Student student) {
+    return new CrupdateStudent()
+        .id(student.getId())
+        .birthDate(student.getBirthDate())
+        .id(student.getId())
+        .entranceDatetime(student.getEntranceDatetime())
+        .phone(student.getPhone())
+        .nic(student.getNic())
+        .birthPlace(student.getBirthPlace())
+        .email(student.getEmail())
+        .address(student.getAddress())
+        .firstName(student.getFirstName())
+        .lastName(student.getLastName())
+        .sex(student.getSex())
+        .ref(student.getRef())
+        .specializationField(student.getSpecializationField())
+        .status(student.getStatus());
   }
+
+  private Student randomizeStudentUpdatableValues(Student student) {
+    return new Student()
+        .id(student.getId())
+        .entranceDatetime(student.getEntranceDatetime())
+        .status(student.getStatus())
+        .email(student.getEmail())
+        .ref(student.getRef())
+        .birthDate(LocalDate.parse("2000-12-05"))
+        .birthPlace(randomUUID().toString())
+        .nic(randomUUID().toString())
+        .phone(randomUUID().toString())
+        .sex(student.getSex() != null ? (student.getSex().equals(M) ? F : M) : null)
+        .address(randomUUID().toString())
+        .lastName(randomUUID().toString())
+        .firstName(randomUUID().toString())
+        .specializationField(student.getSpecializationField());
+  }
+
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
 

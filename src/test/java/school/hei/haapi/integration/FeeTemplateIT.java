@@ -41,8 +41,7 @@ public class FeeTemplateIT {
   @MockBean private CognitoComponent cognitoComponentMock;
   @MockBean BucketConf bucketConf;
 
-
-    private static ApiClient anApiClient(String token) {
+  private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, FeeTemplateIT.ContextInitializer.SERVER_PORT);
   }
 
@@ -77,7 +76,7 @@ public class FeeTemplateIT {
   }
 
   @Test
-  void get_fee_template_by_id_existing() throws ApiException{
+  void get_fee_template_by_id_existing() throws ApiException {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(managerClient);
 
