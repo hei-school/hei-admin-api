@@ -61,7 +61,7 @@ class SpringSecurityIT extends MockedThirdParties {
 
   @Test
   void unauthenticated_user_is_forbidden() {
-    assertNull(cognitoComponent.getEmailByIdToken(BAD_TOKEN));
+    assertNull(cognitoComponentMock.getEmailByIdToken(BAD_TOKEN));
   }
 
   @Test
