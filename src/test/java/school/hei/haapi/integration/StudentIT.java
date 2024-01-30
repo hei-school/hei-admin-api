@@ -54,19 +54,15 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
@@ -79,6 +75,9 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 @AutoConfigureMockMvc
 class StudentIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
+
+  @Autowired ObjectMapper objectMapper;
+
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }

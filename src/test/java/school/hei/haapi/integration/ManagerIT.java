@@ -13,6 +13,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import java.io.IOException;
 import java.net.URI;
@@ -24,6 +25,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -45,6 +47,8 @@ import school.hei.haapi.integration.conf.TestUtils;
 @ContextConfiguration(initializers = ManagerIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class ManagerIT extends MockedThirdParties {
+  @Autowired
+  ObjectMapper objectMapper;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
