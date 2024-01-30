@@ -63,8 +63,8 @@ import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.file.BucketConf;
-import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -77,20 +77,8 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 @Testcontainers
 @ContextConfiguration(initializers = StudentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class StudentIT {
-
-  @MockBean private SentryConf sentryConf;
-
-  @MockBean private CognitoComponent cognitoComponentMock;
-
+class StudentIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
-  @MockBean BucketConf bucketConf;
-  @MockBean
-  S3Conf s3Conf;
-  @MockBean
-  FileService fileService;
-  @Autowired ObjectMapper mapper;
-
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
@@ -302,9 +290,9 @@ class StudentIT {
                 .build(),
             HttpResponse.BodyHandlers.ofString());
 
-    mapper.registerModule(new JSR310Module());
-    mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-    Student responseBody = mapper.readValue(response.body(), Student.class);
+    objectMapper.registerModule(new JSR310Module());
+    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Student responseBody = objectMapper.readValue(response.body(), Student.class);
 
     assertEquals("STD21001", responseBody.getRef());
   }
@@ -327,9 +315,9 @@ class StudentIT {
                 .build(),
             HttpResponse.BodyHandlers.ofString());
 
-    mapper.registerModule(new JSR310Module());
-    mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-    Student responseBody = mapper.readValue(response.body(), Student.class);
+    objectMapper.registerModule(new JSR310Module());
+    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Student responseBody = objectMapper.readValue(response.body(), Student.class);
 
     assertEquals("STD21001", responseBody.getRef());
   }

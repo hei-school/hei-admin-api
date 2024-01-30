@@ -12,7 +12,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.conf.BucketConf;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
-import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.mail.EmailConf;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.SesService;
@@ -26,8 +25,6 @@ class EventServiceInvokerTest {
   EmailConf sesConf;
   @MockBean
   BucketConf bucketConf;
-  @MockBean
-  S3Conf s3Conf;
 
   static User randomStudent() {
     return User.builder()

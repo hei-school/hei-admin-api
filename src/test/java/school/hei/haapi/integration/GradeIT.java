@@ -20,12 +20,11 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
-import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.file.BucketConf;
-import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.aws.FileService;
 
@@ -33,15 +32,7 @@ import school.hei.haapi.service.aws.FileService;
 @Testcontainers
 @ContextConfiguration(initializers = GradeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class GradeIT {
-  @MockBean private SentryConf sentryConf;
-
-  @MockBean private CognitoComponent cognitoComponentMock;
-  @MockBean BucketConf bucketConf;
-  @MockBean
-  S3Conf s3Conf;
-  @MockBean
-  FileService fileService;
+class GradeIT extends MockedThirdParties {
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, GradeIT.ContextInitializer.SERVER_PORT);

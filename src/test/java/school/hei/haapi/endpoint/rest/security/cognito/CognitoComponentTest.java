@@ -10,7 +10,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.file.BucketConf;
-import school.hei.haapi.file.S3Conf;
 import software.amazon.awssdk.services.cognitoidentityprovider.CognitoIdentityProviderClient;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserRequest;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.AdminCreateUserResponse;
@@ -22,8 +21,6 @@ class CognitoComponentTest {
   CognitoIdentityProviderClient cognitoClient;
   @MockBean
   BucketConf bucketConf;
-  @MockBean
-  S3Conf s3Conf;
 
   @BeforeEach
   void setUp() {

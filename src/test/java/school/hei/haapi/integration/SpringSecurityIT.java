@@ -9,7 +9,6 @@ import static org.springframework.http.HttpMethod.PUT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import java.io.IOException;
@@ -35,25 +34,15 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.file.BucketConf;
-import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.service.aws.FileService;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = SpringSecurityIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class SpringSecurityIT {
-
-  @MockBean private SentryConf sentryConf;
-
-  @Autowired private CognitoComponent cognitoComponent;
-  @MockBean BucketConf bucketConf;
-  @MockBean
-  S3Conf s3Conf;
-  @MockBean
-  FileService fileService;
-
+class SpringSecurityIT extends MockedThirdParties {
   @Value("${test.aws.cognito.idToken}")
   private String bearer;
 
@@ -66,7 +55,7 @@ class SpringSecurityIT {
   @Test
   void authenticated_user_has_known_email() {
     System.out.println("------------------------------test+-------------------");
-    String email = cognitoComponent.getEmailByIdToken(bearer);
+    String email = cognitoComponentMock.getEmailByIdToken(bearer);
     assertEquals("test+ryan@hei.school", email);
   }
 

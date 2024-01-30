@@ -11,14 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.conf.FacadeIT;
 import school.hei.haapi.file.BucketConf;
-import school.hei.haapi.file.S3Conf;
 
 public class ObjectMapperTest extends FacadeIT {
   @Autowired ObjectMapper injectedBean;
   @MockBean
   BucketConf bucketConf;
-  @MockBean
-  S3Conf s3Conf;
   ObjectMapper newInstance = new ObjectMapper();
 
   SomeClassWithDatetimeField someClassWithDatetimeField =

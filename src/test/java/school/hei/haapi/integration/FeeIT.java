@@ -41,8 +41,8 @@ import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.file.BucketConf;
-import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.aws.FileService;
 
@@ -50,14 +50,7 @@ import school.hei.haapi.service.aws.FileService;
 @Testcontainers
 @ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class FeeIT {
-  @MockBean private SentryConf sentryConf;
-  @MockBean private CognitoComponent cognitoComponentMock;
-  @MockBean BucketConf bucketConf;
-  @MockBean
-  S3Conf s3Conf;
-  @MockBean
-  FileService fileService;
+class FeeIT extends MockedThirdParties {
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, FeeIT.ContextInitializer.SERVER_PORT);

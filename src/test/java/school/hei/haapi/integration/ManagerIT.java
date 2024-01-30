@@ -13,7 +13,6 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import java.io.IOException;
 import java.net.URI;
@@ -25,14 +24,11 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -40,28 +36,15 @@ import school.hei.haapi.endpoint.rest.model.CrupdateManager;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
-import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.file.BucketConf;
-import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.service.aws.FileService;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = ManagerIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class ManagerIT {
-
-  @MockBean private SentryConf sentryConf;
-
-  @MockBean private CognitoComponent cognitoComponentMock;
-  @MockBean BucketConf bucketConf;
-  @MockBean
-  S3Conf s3Conf;
-  @MockBean
-  FileService fileService;
-  @Autowired ObjectMapper mapper;
+class ManagerIT extends MockedThirdParties {
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -176,9 +159,9 @@ class ManagerIT {
                 .build(),
             HttpResponse.BodyHandlers.ofString());
 
-    mapper.registerModule(new JSR310Module());
-    mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-    Manager responseBody = mapper.readValue(response.body(), Manager.class);
+    objectMapper.registerModule(new JSR310Module());
+    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Manager responseBody = objectMapper.readValue(response.body(), Manager.class);
 
     assertEquals("MGR21001", responseBody.getRef());
   }

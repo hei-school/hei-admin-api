@@ -45,10 +45,8 @@ import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
 import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.endpoint.rest.model.StudentAttendance;
 import school.hei.haapi.endpoint.rest.model.StudentAttendanceMovement;
-import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.file.BucketConf;
-import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.event.CheckAttendanceTriggeredService;
@@ -57,17 +55,10 @@ import school.hei.haapi.service.event.CheckAttendanceTriggeredService;
 @Testcontainers
 @ContextConfiguration(initializers = AttendanceIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class AttendanceIT {
+class AttendanceIT extends MockedThirdParties {
   private static final Instant DEFAULT_FROM = Instant.parse("2021-08-07T07:30:00.00Z");
   private static final Instant DEFAULT_TO = Instant.parse("2021-11-09T07:30:00.00Z");
-  @MockBean private SentryConf sentryConf;
-  @MockBean private CognitoComponent cognitoComponent;
   @Autowired CheckAttendanceTriggeredService checkAttendanceTriggeredService;
-  @MockBean
-  FileService fileService;
-  @MockBean BucketConf bucketConf;
-  @MockBean
-  S3Conf s3Conf;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -75,7 +66,7 @@ class AttendanceIT {
 
   @BeforeEach
   void setUp() {
-    setUpCognito(cognitoComponent);
+    setUpCognito(cognitoComponentMock);
     checkAttendanceTriggeredService.accept(new CheckAttendanceTriggered());
     setUpS3Service(fileService, student1());
   }

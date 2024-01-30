@@ -23,8 +23,8 @@ import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.file.BucketConf;
-import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.aws.FileService;
 
@@ -32,15 +32,7 @@ import school.hei.haapi.service.aws.FileService;
 @Testcontainers
 @ContextConfiguration(initializers = ExamIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class ExamIT {
-  @MockBean private SentryConf sentryConf;
-
-  @MockBean private CognitoComponent cognitoComponentMock;
-  @MockBean BucketConf bucketConf;
-  @MockBean
-  S3Conf s3Conf;
-  @MockBean
-  FileService fileService;
+class ExamIT extends MockedThirdParties {
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ExamIT.ContextInitializer.SERVER_PORT);

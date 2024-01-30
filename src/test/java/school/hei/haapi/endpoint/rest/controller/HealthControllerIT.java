@@ -11,7 +11,6 @@ import school.hei.haapi.conf.FacadeIT;
 import school.hei.haapi.endpoint.rest.controller.health.HealthDbController;
 import school.hei.haapi.endpoint.rest.controller.health.PingController;
 import school.hei.haapi.file.BucketConf;
-import school.hei.haapi.file.S3Conf;
 
 @PojaGenerated
 class HealthControllerIT extends FacadeIT {
@@ -20,8 +19,6 @@ class HealthControllerIT extends FacadeIT {
   @Autowired HealthDbController healthDbController;
   @MockBean
   BucketConf bucketConf;
-  @MockBean
-  S3Conf s3Conf;
 
   @Test
   void ping() {

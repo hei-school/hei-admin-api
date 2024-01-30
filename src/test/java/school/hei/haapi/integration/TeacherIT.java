@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -61,8 +60,8 @@ import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.file.BucketConf;
-import school.hei.haapi.file.S3Conf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.aws.FileService;
@@ -73,19 +72,8 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 @Testcontainers
 @ContextConfiguration(initializers = TeacherIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class TeacherIT {
-
-  @MockBean private SentryConf sentryConf;
-
-  @MockBean private CognitoComponent cognitoComponentMock;
-
+class TeacherIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
-  @MockBean BucketConf bucketConf;
-  @MockBean
-  S3Conf s3Conf;
-  @MockBean
-  FileService fileService;
-  @Autowired ObjectMapper mapper;
 
   @Autowired private UserService userService;
 
@@ -120,9 +108,9 @@ class TeacherIT {
                 .build(),
             HttpResponse.BodyHandlers.ofString());
 
-    mapper.registerModule(new JSR310Module());
-    mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-    Teacher responseBody = mapper.readValue(response.body(), Teacher.class);
+    objectMapper.registerModule(new JSR310Module());
+    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Teacher responseBody = objectMapper.readValue(response.body(), Teacher.class);
 
     assertEquals("TCR21001", responseBody.getRef());
   }
