@@ -6,17 +6,18 @@ import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
-import org.apache.tika.config.TikaConfig;
-import org.apache.tika.exception.TikaException;
-import org.apache.tika.io.TikaInputStream;
-import org.apache.tika.metadata.Metadata;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.file.BucketComponent;
 import school.hei.haapi.file.FileHash;
 import school.hei.haapi.file.FileTyper;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.model.exception.BadRequestException;
 
+import static school.hei.haapi.model.User.Role.MANAGER;
+import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Role.TEACHER;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 @Component
@@ -39,6 +40,15 @@ public class FileService {
 
   public String getFileExtension(File file) {
     return "." + fileTyper.apply(file).getSubtype();
+  }
+
+  public String getFormatedBucketKey(User user) {
+    return switch (user.getRole()) {
+      case MANAGER -> String.format("%s/%s/%s", MANAGER, user.getRef(), user.getProfilePictureKeyUrl());
+      case TEACHER -> String.format("%s/%s/%s", TEACHER, user.getRef(), user.getProfilePictureKeyUrl());
+      case STUDENT -> String.format("%s/%s/%s", STUDENT, user.getRef(), user.getProfilePictureKeyUrl());
+      default -> throw new BadRequestException("Unexpected type " + user.getRole());
+    };
   }
 
   public File createTempFile(byte[] bytes) {

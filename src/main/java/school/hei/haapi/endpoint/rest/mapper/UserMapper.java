@@ -23,7 +23,7 @@ public class UserMapper {
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
     restStudent.setId(user.getId());
-    String url = fileService.getPresignedUrl(user.getRef(), 86400L);
+    String url = fileService.getPresignedUrl(user.getProfilePictureKeyUrl(), 86400L);
 
     restStudent.setFirstName(user.getFirstName());
     restStudent.setLastName(user.getLastName());
@@ -46,7 +46,7 @@ public class UserMapper {
   public Teacher toRestTeacher(User user) {
     Teacher teacher = new Teacher();
     teacher.setId(user.getId());
-    String url = fileService.getPresignedUrl(user.getRef(), 86400L);
+    String url = fileService.getPresignedUrl(user.getProfilePictureKeyUrl(), 86400L);
 
     teacher.setFirstName(user.getFirstName());
     teacher.setLastName(user.getLastName());
@@ -68,7 +68,7 @@ public class UserMapper {
   public Manager toRestManager(User user) {
     Manager manager = new Manager();
     manager.setId(user.getId());
-    String url = fileService.getPresignedUrl(user.getRef(), 86400L);
+    String url = fileService.getPresignedUrl(user.getProfilePictureKeyUrl(), 86400L);
 
     manager.setFirstName(user.getFirstName());
     manager.setLastName(user.getLastName());
