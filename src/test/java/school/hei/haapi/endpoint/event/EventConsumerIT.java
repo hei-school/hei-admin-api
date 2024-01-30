@@ -9,12 +9,13 @@ import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.PojaGenerated;
+import school.hei.haapi.conf.FacadeIT;
 import school.hei.haapi.endpoint.event.gen.UuidCreated;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.repository.DummyUuidRepository;
 
 @PojaGenerated
-class EventConsumerIT extends MockedThirdParties {
+class EventConsumerIT extends FacadeIT {
 
   @Autowired EventConsumer subject;
   @Autowired DummyUuidRepository dummyUuidRepository;
