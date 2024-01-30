@@ -100,6 +100,7 @@ public class TestUtils {
   public static final String MANAGER1_TOKEN = "manager1_token";
   public static final String FEE_TEMPLATE1_ID = "fee_template1";
   public static final String FEE_TEMPLATE2_ID = "fee_template2";
+  public static final String FEE_TEMPLATE1_NAME = "annuel x9";
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -647,7 +648,7 @@ public class TestUtils {
   public static FeeTemplate feeTemplate1() {
     return new FeeTemplate()
         .id(FEE_TEMPLATE1_ID)
-        .name("annuel x9")
+        .name(FEE_TEMPLATE1_NAME)
         .numberOfPayments(9)
         .amount(200000)
         .type(TUITION)
@@ -671,6 +672,15 @@ public class TestUtils {
         .numberOfPayments(1)
         .amount(10000)
         .type(TUITION);
+  }
+
+  public static CrupdateFeeTemplate updateFeeTemplate1(){
+    return new CrupdateFeeTemplate()
+            .id(feeTemplate1().getId())
+            .amount(1000)
+            .numberOfPayments(1)
+            .type(feeTemplate1().getType())
+            .name(feeTemplate1().getName());
   }
 
   public static FeeTemplate feeTemplate2() {

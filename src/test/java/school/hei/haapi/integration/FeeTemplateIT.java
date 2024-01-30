@@ -5,15 +5,18 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE_TEMPLATE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE_TEMPLATE1_NAME;
 import static school.hei.haapi.integration.conf.TestUtils.FEE_TEMPLATE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
 import static school.hei.haapi.integration.conf.TestUtils.createFeeTemplate2;
 import static school.hei.haapi.integration.conf.TestUtils.feeTemplate1;
 import static school.hei.haapi.integration.conf.TestUtils.feeTemplate2;
 import static school.hei.haapi.integration.conf.TestUtils.feeTemplate3;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.updateFeeTemplate1;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -74,6 +77,18 @@ public class FeeTemplateIT extends MockedThirdParties {
     assertEquals(feeTemplate2().getName(), createdFeeTemplate.getName());
     assertEquals(feeTemplate2().getAmount(), createdFeeTemplate.getAmount());
     assertEquals(feeTemplate2().getNumberOfPayments(), createdFeeTemplate.getNumberOfPayments());
+  }
+
+  @Test
+  void manager_update_fee_template() throws ApiException{
+    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(managerClient);
+
+    FeeTemplate actual = api.crupdateFeeTemplate(FEE_TEMPLATE1_ID, updateFeeTemplate1());
+    assertEquals(1000, actual.getAmount());
+    assertEquals(1, actual.getNumberOfPayments());
+    assertEquals(FEE_TEMPLATE1_ID, actual.getId());
+    assertEquals(FEE_TEMPLATE1_NAME, actual.getName());
   }
 
   @Test
