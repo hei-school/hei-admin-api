@@ -42,11 +42,11 @@ public class FileService {
     return "." + fileTyper.apply(file).getSubtype();
   }
 
-  public String getFormatedBucketKey(User user) {
+  public static String getFormattedBucketKey(User user, String filename) {
     return switch (user.getRole()) {
-      case MANAGER -> String.format("%s/%s/%s", MANAGER, user.getRef(), user.getProfilePictureKeyUrl());
-      case TEACHER -> String.format("%s/%s/%s", TEACHER, user.getRef(), user.getProfilePictureKeyUrl());
-      case STUDENT -> String.format("%s/%s/%s", STUDENT, user.getRef(), user.getProfilePictureKeyUrl());
+      case MANAGER -> String.format("%s/%s/%s", MANAGER, user.getRef(), filename);
+      case TEACHER -> String.format("%s/%s/%s", TEACHER, user.getRef(), filename);
+      case STUDENT -> String.format("%s/%s/%s", STUDENT, user.getRef(), filename);
       default -> throw new BadRequestException("Unexpected type " + user.getRole());
     };
   }

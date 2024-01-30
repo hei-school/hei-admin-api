@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -43,7 +44,7 @@ public class UserService {
   public FileHash uploadUserProfilePicture(byte[] bytes, String userId) {
     User user = findById(userId);
     File tempFile = fileService.createTempFile(bytes);
-    String bucketKey = fileService.getFormatedBucketKey(user) + fileService.getFileExtension(tempFile);
+    String bucketKey = getFormattedBucketKey(user, tempFile.getName()) + fileService.getFileExtension(tempFile);
     user.setProfilePictureKeyUrl(bucketKey);
     userRepository.save(user);
     return fileService.uploadObjectToS3Bucket(bucketKey, tempFile);
