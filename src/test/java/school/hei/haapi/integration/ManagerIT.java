@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -60,6 +61,7 @@ class ManagerIT {
   S3Conf s3Conf;
   @MockBean
   FileService fileService;
+  @Autowired ObjectMapper mapper;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -174,7 +176,6 @@ class ManagerIT {
                 .build(),
             HttpResponse.BodyHandlers.ofString());
 
-    ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JSR310Module());
     mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
     Manager responseBody = mapper.readValue(response.body(), Manager.class);

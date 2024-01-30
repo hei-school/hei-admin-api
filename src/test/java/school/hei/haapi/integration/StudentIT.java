@@ -327,7 +327,6 @@ class StudentIT {
                 .build(),
             HttpResponse.BodyHandlers.ofString());
 
-    ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JSR310Module());
     mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
     Student responseBody = mapper.readValue(response.body(), Student.class);

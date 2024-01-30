@@ -85,6 +85,7 @@ class TeacherIT {
   S3Conf s3Conf;
   @MockBean
   FileService fileService;
+  @Autowired ObjectMapper mapper;
 
   @Autowired private UserService userService;
 
@@ -119,7 +120,6 @@ class TeacherIT {
                 .build(),
             HttpResponse.BodyHandlers.ofString());
 
-    ObjectMapper mapper = new ObjectMapper();
     mapper.registerModule(new JSR310Module());
     mapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
     Teacher responseBody = mapper.readValue(response.body(), Teacher.class);
