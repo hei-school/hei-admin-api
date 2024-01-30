@@ -38,7 +38,7 @@ public class FileService {
   }
 
   public String getFileExtension(File file) {
-    return fileTyper.apply(file).getSubtype();
+    return "." + fileTyper.apply(file).getSubtype();
   }
 
   public File createTempFile(byte[] bytes) {

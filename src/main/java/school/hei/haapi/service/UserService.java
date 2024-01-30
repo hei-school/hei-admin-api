@@ -43,8 +43,7 @@ public class UserService {
   public FileHash uploadUserProfilePicture(byte[] bytes, String userId) {
     User user = findById(userId);
     File tempFile = fileService.createTempFile(bytes);
-    String basePath = user.getRef() + "/images/" + fileService.getFileExtension(tempFile);
-    return fileService.uploadObjectToS3Bucket(basePath, tempFile);
+    return fileService.uploadObjectToS3Bucket(user.getRef(), tempFile);
   }
 
   public User updateUser(User user, String userId) {
