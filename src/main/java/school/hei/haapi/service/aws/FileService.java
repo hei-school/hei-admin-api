@@ -28,9 +28,6 @@ public class FileService {
   private final FileTyper fileTyper;
 
   public String getPresignedUrl(String key, Long durationExpirationSeconds) {
-    if (key == null) {
-      return "";
-    }
     Instant now = Instant.now();
     Instant expirationInstant = now.plusSeconds(durationExpirationSeconds);
     Duration expirationDuration = Duration.between(now, expirationInstant);
