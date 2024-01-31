@@ -44,7 +44,8 @@ public class UserService {
   public FileHash uploadUserProfilePicture(byte[] bytes, String userId) {
     User user = findById(userId);
     File tempFile = fileService.createTempFile(bytes);
-    String bucketKey = getFormattedBucketKey(user, user.getFirstName()) + fileService.getFileExtension(tempFile);
+    String bucketKey =
+        getFormattedBucketKey(user, user.getFirstName()) + fileService.getFileExtension(tempFile);
     user.setProfilePictureKeyUrl(bucketKey);
     userRepository.save(user);
     return fileService.uploadObjectToS3Bucket(bucketKey, tempFile);
@@ -66,9 +67,9 @@ public class UserService {
   }
 
   public User findById(String userId) {
-    return userRepository.findById(userId)
-        .orElseThrow(
-            () -> new NotFoundException("User with id: " + userId + " not found"));
+    return userRepository
+        .findById(userId)
+        .orElseThrow(() -> new NotFoundException("User with id: " + userId + " not found"));
   }
 
   public User getByEmail(String email) {
@@ -128,16 +129,16 @@ public class UserService {
 
     return courseId.length() > 0
         ? users.stream()
-        .filter(
-            user ->
-                groupService.getByUserId(user.getId()).stream()
-                    .anyMatch(
-                        group ->
-                            group.getAwardedCourse().stream()
-                                .anyMatch(
-                                    awardedCourse ->
-                                        awardedCourse.getCourse().getId().equals(courseId))))
-        .collect(toList())
+            .filter(
+                user ->
+                    groupService.getByUserId(user.getId()).stream()
+                        .anyMatch(
+                            group ->
+                                group.getAwardedCourse().stream()
+                                    .anyMatch(
+                                        awardedCourse ->
+                                            awardedCourse.getCourse().getId().equals(courseId))))
+            .collect(toList())
         : users;
   }
 

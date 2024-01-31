@@ -37,7 +37,6 @@ import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
@@ -162,9 +161,9 @@ public class TestUtils {
     try {
       File file = getMockedFile(fileName, extension);
       return FileUtils.readFileToByteArray(file);
-    }
-    catch (IOException ioException) {
-      throw new school.hei.haapi.model.exception.ApiException(SERVER_EXCEPTION, ioException.getMessage());
+    } catch (IOException ioException) {
+      throw new school.hei.haapi.model.exception.ApiException(
+          SERVER_EXCEPTION, ioException.getMessage());
     }
   }
 
@@ -674,13 +673,13 @@ public class TestUtils {
         .type(TUITION);
   }
 
-  public static CrupdateFeeTemplate updateFeeTemplate1(){
+  public static CrupdateFeeTemplate updateFeeTemplate1() {
     return new CrupdateFeeTemplate()
-            .id(feeTemplate1().getId())
-            .amount(1000)
-            .numberOfPayments(1)
-            .type(feeTemplate1().getType())
-            .name(feeTemplate1().getName());
+        .id(feeTemplate1().getId())
+        .amount(1000)
+        .numberOfPayments(1)
+        .type(feeTemplate1().getType())
+        .name(feeTemplate1().getName());
   }
 
   public static FeeTemplate feeTemplate2() {

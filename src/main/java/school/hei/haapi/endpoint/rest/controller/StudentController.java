@@ -1,10 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
-import static org.springframework.http.MediaType.IMAGE_PNG_VALUE;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
-import java.io.File;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -30,7 +28,6 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.GroupFlowService;
 import school.hei.haapi.service.UserService;
-import school.hei.haapi.service.aws.FileService;
 
 @RestController
 @AllArgsConstructor

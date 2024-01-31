@@ -1,5 +1,10 @@
 package school.hei.haapi.service.aws;
 
+import static school.hei.haapi.model.User.Role.MANAGER;
+import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Role.TEACHER;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -14,11 +19,6 @@ import school.hei.haapi.file.FileTyper;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.BadRequestException;
-
-import static school.hei.haapi.model.User.Role.MANAGER;
-import static school.hei.haapi.model.User.Role.STUDENT;
-import static school.hei.haapi.model.User.Role.TEACHER;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 @Component
 @Service
@@ -57,9 +57,8 @@ public class FileService {
       tempFile = File.createTempFile("file", "temp");
       FileOutputStream outputStream = new FileOutputStream(tempFile);
       outputStream.write(bytes);
-      return  tempFile;
-    }
-    catch (IOException ioException) {
+      return tempFile;
+    } catch (IOException ioException) {
       throw new ApiException(SERVER_EXCEPTION, ioException.getMessage());
     }
   }

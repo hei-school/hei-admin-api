@@ -21,8 +21,7 @@ class EventConsumerIT extends FacadeIT {
   @Autowired EventConsumer subject;
   @Autowired DummyUuidRepository dummyUuidRepository;
   @Autowired ObjectMapper om;
-  @MockBean
-  BucketConf bucketConf;
+  @MockBean BucketConf bucketConf;
 
   @Test
   void uuid_created_is_persisted() throws InterruptedException, JsonProcessingException {

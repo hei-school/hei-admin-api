@@ -23,8 +23,7 @@ class EventServiceInvokerTest {
   LateFeeVerifiedService lateFeeService;
   SesService sesService;
   EmailConf sesConf;
-  @MockBean
-  BucketConf bucketConf;
+  @MockBean BucketConf bucketConf;
 
   static User randomStudent() {
     return User.builder()
