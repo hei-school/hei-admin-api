@@ -17,8 +17,7 @@ class HealthControllerIT extends FacadeIT {
 
   @Autowired PingController pingController;
   @Autowired HealthDbController healthDbController;
-  @MockBean
-  BucketConf bucketConf;
+  @MockBean BucketConf bucketConf;
 
   @Test
   void ping() {

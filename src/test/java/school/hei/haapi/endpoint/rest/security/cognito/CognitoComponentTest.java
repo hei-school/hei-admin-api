@@ -19,8 +19,7 @@ class CognitoComponentTest {
 
   CognitoComponent cognitoComponent;
   CognitoIdentityProviderClient cognitoClient;
-  @MockBean
-  BucketConf bucketConf;
+  @MockBean BucketConf bucketConf;
 
   @BeforeEach
   void setUp() {

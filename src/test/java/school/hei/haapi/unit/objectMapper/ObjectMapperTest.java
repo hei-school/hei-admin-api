@@ -14,8 +14,7 @@ import school.hei.haapi.file.BucketConf;
 
 public class ObjectMapperTest extends FacadeIT {
   @Autowired ObjectMapper injectedBean;
-  @MockBean
-  BucketConf bucketConf;
+  @MockBean BucketConf bucketConf;
   ObjectMapper newInstance = new ObjectMapper();
 
   SomeClassWithDatetimeField someClassWithDatetimeField =

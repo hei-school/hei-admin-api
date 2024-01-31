@@ -28,8 +28,7 @@ public class SqsMessageAckTyperTest extends FacadeIT {
   @Autowired EventConsumer.SqsMessageAckTyper subject;
   @Autowired ObjectMapper om;
   @MockBean SqsClient sqsClient;
-  @MockBean
-  BucketConf bucketConf;
+  @MockBean BucketConf bucketConf;
 
   private SQSEvent.SQSMessage sqsMessageFrom(EventConsumer.TypedEvent typedEvent)
       throws JsonProcessingException {
