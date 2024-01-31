@@ -6,8 +6,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.PUT;
+import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import java.io.IOException;
 import java.net.URI;
@@ -17,6 +19,7 @@ import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -32,32 +35,33 @@ import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.service.aws.FileService;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = SpringSecurityIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class SpringSecurityIT {
-
-  @MockBean private SentryConf sentryConf;
-
-  @Autowired private CognitoComponent cognitoComponent;
-  @MockBean BucketConf bucketConf;
-
+class SpringSecurityIT extends MockedThirdParties {
   @Value("${test.aws.cognito.idToken}")
   private String bearer;
+
+  @BeforeEach
+  public void setUp() {
+    setUpS3Service(fileService, student1());
+  }
 
   @Disabled("Cognito should be mocked")
   @Test
   void authenticated_user_has_known_email() {
     System.out.println("------------------------------test+-------------------");
-    String email = cognitoComponent.getEmailByIdToken(bearer);
+    String email = cognitoComponentMock.getEmailByIdToken(bearer);
     assertEquals("test+ryan@hei.school", email);
   }
 
   @Test
   void unauthenticated_user_is_forbidden() {
-    assertNull(cognitoComponent.getEmailByIdToken(BAD_TOKEN));
+    assertNull(cognitoComponentMock.getEmailByIdToken(BAD_TOKEN));
   }
 
   @Test

@@ -17,6 +17,7 @@ import static school.hei.haapi.integration.conf.TestUtils.course3;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.group2;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
 import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 import static school.hei.haapi.integration.conf.TestUtils.teacher4;
@@ -44,23 +45,20 @@ import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
 import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.endpoint.rest.model.StudentAttendance;
 import school.hei.haapi.endpoint.rest.model.StudentAttendanceMovement;
-import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.event.CheckAttendanceTriggeredService;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = AttendanceIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class AttendanceIT {
+class AttendanceIT extends MockedThirdParties {
   private static final Instant DEFAULT_FROM = Instant.parse("2021-08-07T07:30:00.00Z");
   private static final Instant DEFAULT_TO = Instant.parse("2021-11-09T07:30:00.00Z");
-  @MockBean private SentryConf sentryConf;
-  @MockBean private CognitoComponent cognitoComponent;
   @Autowired CheckAttendanceTriggeredService checkAttendanceTriggeredService;
-  @MockBean BucketConf bucketConf;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -68,8 +66,9 @@ class AttendanceIT {
 
   @BeforeEach
   void setUp() {
-    setUpCognito(cognitoComponent);
+    setUpCognito(cognitoComponentMock);
     checkAttendanceTriggeredService.accept(new CheckAttendanceTriggered());
+    setUpS3Service(fileService, student1());
   }
 
   @Test

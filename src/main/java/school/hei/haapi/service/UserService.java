@@ -3,7 +3,9 @@ package school.hei.haapi.service;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -14,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.UserUpserted;
+import school.hei.haapi.file.FileHash;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
@@ -24,6 +27,7 @@ import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
+import school.hei.haapi.service.aws.FileService;
 
 @Service
 @AllArgsConstructor
@@ -35,6 +39,16 @@ public class UserService {
   private final UserManagerDao userManagerDao;
   private final GroupRepository groupRepository;
   private final GroupService groupService;
+  private final FileService fileService;
+
+  public FileHash uploadUserProfilePicture(byte[] bytes, String userId) {
+    User user = findById(userId);
+    File tempFile = fileService.createTempFile(bytes);
+    String bucketKey = getFormattedBucketKey(user, user.getFirstName()) + fileService.getFileExtension(tempFile);
+    user.setProfilePictureKeyUrl(bucketKey);
+    userRepository.save(user);
+    return fileService.uploadObjectToS3Bucket(bucketKey, tempFile);
+  }
 
   public User updateUser(User user, String userId) {
     User toUpdate = findById(userId);
@@ -52,9 +66,9 @@ public class UserService {
   }
 
   public User findById(String userId) {
-    return userRepository
-        .findById(userId)
-        .orElseThrow(() -> new NotFoundException("User with id: " + userId + " not found"));
+    return userRepository.findById(userId)
+        .orElseThrow(
+            () -> new NotFoundException("User with id: " + userId + " not found"));
   }
 
   public User getByEmail(String email) {
@@ -114,16 +128,16 @@ public class UserService {
 
     return courseId.length() > 0
         ? users.stream()
-            .filter(
-                user ->
-                    groupService.getByUserId(user.getId()).stream()
-                        .anyMatch(
-                            group ->
-                                group.getAwardedCourse().stream()
-                                    .anyMatch(
-                                        awardedCourse ->
-                                            awardedCourse.getCourse().getId().equals(courseId))))
-            .collect(toList())
+        .filter(
+            user ->
+                groupService.getByUserId(user.getId()).stream()
+                    .anyMatch(
+                        group ->
+                            group.getAwardedCourse().stream()
+                                .anyMatch(
+                                    awardedCourse ->
+                                        awardedCourse.getCourse().getId().equals(courseId))))
+        .collect(toList())
         : users;
   }
 
