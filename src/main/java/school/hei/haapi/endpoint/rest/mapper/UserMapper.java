@@ -23,7 +23,10 @@ public class UserMapper {
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
     restStudent.setId(user.getId());
-    String url = fileService.getPresignedUrl(user.getProfilePictureKeyUrl(), 86400L);
+    String url =
+        user.getProfilePictureKeyUrl() != null
+            ? fileService.getPresignedUrl(user.getProfilePictureKeyUrl(), 86400L)
+            : null;
 
     restStudent.setFirstName(user.getFirstName());
     restStudent.setLastName(user.getLastName());
