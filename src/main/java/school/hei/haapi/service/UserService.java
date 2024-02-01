@@ -46,7 +46,7 @@ public class UserService {
     File tempFile = fileService.createTempFile(bytes);
     String bucketKey =
         getFormattedBucketKey(user, user.getFirstName()) + fileService.getFileExtension(tempFile);
-    user.setProfilePictureKeyUrl(bucketKey);
+    user.setProfilePictureKey(bucketKey);
     userRepository.save(user);
     return fileService.uploadObjectToS3Bucket(bucketKey, tempFile);
   }

@@ -22,12 +22,13 @@ public class UserMapper {
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
-    restStudent.setId(user.getId());
+    String profilePictureKey = user.getProfilePictureKey();
     String url =
-        user.getProfilePictureKeyUrl() != null
-            ? fileService.getPresignedUrl(user.getProfilePictureKeyUrl(), 86400L)
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, 86400L)
             : null;
 
+    restStudent.setId(user.getId());
     restStudent.setFirstName(user.getFirstName());
     restStudent.setLastName(user.getLastName());
     restStudent.setEmail(user.getEmail());
@@ -48,9 +49,13 @@ public class UserMapper {
 
   public Teacher toRestTeacher(User user) {
     Teacher teacher = new Teacher();
-    teacher.setId(user.getId());
-    String url = fileService.getPresignedUrl(user.getProfilePictureKeyUrl(), 86400L);
+    String profilePictureKey = user.getProfilePictureKey();
+    String url =
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, 86400L)
+            : null;
 
+    teacher.setId(user.getId());
     teacher.setFirstName(user.getFirstName());
     teacher.setLastName(user.getLastName());
     teacher.setEmail(user.getEmail());
@@ -70,9 +75,13 @@ public class UserMapper {
 
   public Manager toRestManager(User user) {
     Manager manager = new Manager();
-    manager.setId(user.getId());
-    String url = fileService.getPresignedUrl(user.getProfilePictureKeyUrl(), 86400L);
+    String profilePictureKey = user.getProfilePictureKey();
+    String url =
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, 86400L)
+            : null;
 
+    manager.setId(user.getId());
     manager.setFirstName(user.getFirstName());
     manager.setLastName(user.getLastName());
     manager.setEmail(user.getEmail());
