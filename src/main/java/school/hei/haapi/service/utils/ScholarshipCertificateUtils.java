@@ -6,7 +6,6 @@ import static school.hei.haapi.service.utils.SchoolYearUtils.getSchoolYear;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
-import school.hei.haapi.endpoint.rest.model.SpecializationField;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
 
@@ -37,7 +36,7 @@ public class ScholarshipCertificateUtils {
 
   private static String specializationFiledString(User student) {
     String academicYear = getAcademicYear(student);
-    if (academicYear.equals("Pemière")) {
+    if ("Première".equals(academicYear)) {
       return "Tronc commun";
     }
     return "Ecosystème Logiciel";
