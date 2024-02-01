@@ -1,17 +1,18 @@
 package school.hei.haapi.service.utils;
 
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
-import static school.hei.haapi.service.utils.SchoolYearUtils.getSchoolYear;
+import static school.hei.haapi.service.utils.SchoolYearGetter.getSchoolYear;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.time.temporal.ChronoUnit;
+import school.hei.haapi.endpoint.rest.model.SpecializationField;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
 
-public class ScholarshipCertificateUtils {
+public class ScholarshipCertificateDataProvider {
 
-  private ScholarshipCertificateUtils() {}
+  private ScholarshipCertificateDataProvider() {}
 
   public static String getAcademicYearSentence(User student) {
     String academicYear = getAcademicYear(student);
@@ -35,10 +36,12 @@ public class ScholarshipCertificateUtils {
   }
 
   private static String specializationFiledString(User student) {
-    String academicYear = getAcademicYear(student);
-    if ("Première".equals(academicYear)) {
-      return "Tronc commun";
-    }
-    return "Ecosystème Logiciel";
+    SpecializationField specializationField = student.getSpecializationField();
+    return switch (specializationField) {
+      case COMMON_CORE -> "Tronc commun";
+      case TN -> "Transformation Numérique";
+      case EL -> "Écosystéme Logiciel";
+      default -> throw new ApiException(SERVER_EXCEPTION, "Invalid specialization field");
+    };
   }
 }

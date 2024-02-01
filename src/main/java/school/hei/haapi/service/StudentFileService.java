@@ -2,8 +2,8 @@ package school.hei.haapi.service;
 
 import static java.time.LocalDate.now;
 import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
-import static school.hei.haapi.service.utils.ScholarshipCertificateUtils.getAcademicYearPromotion;
-import static school.hei.haapi.service.utils.ScholarshipCertificateUtils.getAcademicYearSentence;
+import static school.hei.haapi.service.utils.ScholarshipCertificateDataProvider.getAcademicYearPromotion;
+import static school.hei.haapi.service.utils.ScholarshipCertificateDataProvider.getAcademicYearSentence;
 
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;

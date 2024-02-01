@@ -10,7 +10,7 @@ import java.util.List;
 import org.springframework.stereotype.Component;
 
 @Component
-public class SchoolYearUtils {
+public class SchoolYearGetter {
   private static List<Month> startOfSchoolYears = List.of(OCTOBER, NOVEMBER, DECEMBER);
 
   public static String getSchoolYear() {
