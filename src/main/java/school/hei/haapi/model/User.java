@@ -87,7 +87,7 @@ public class User implements Serializable {
   @Enumerated(EnumType.STRING)
   private Role role;
 
-  private String profilePictureKeyUrl;
+  private String profilePictureKey;
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
   private List<AwardedCourse> awardedCourses;
