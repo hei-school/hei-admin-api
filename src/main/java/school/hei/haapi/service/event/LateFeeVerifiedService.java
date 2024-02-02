@@ -1,24 +1,28 @@
 package school.hei.haapi.service.event;
 
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static school.hei.haapi.service.utils.DataFormatterUtils.instantToCommonDate;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
+import jakarta.mail.internet.AddressException;
+import jakarta.mail.internet.InternetAddress;
+import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
-import school.hei.haapi.mail.EmailConf;
+import school.hei.haapi.mail.Email;
+import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
-import school.hei.haapi.service.aws.SesService;
+import school.hei.haapi.model.exception.ApiException;
 
 @Service
 @AllArgsConstructor
 public class LateFeeVerifiedService implements Consumer<LateFeeVerified> {
-  private final SesService sesService;
-  private final EmailConf sesConf;
+  private final Mailer mailer;
 
   private static String emailSubject(User student, LateFeeVerified lateFee) {
     return "Retard de paiement - " + student.getRef() + " - " + lateFee.getComment();
@@ -41,11 +45,19 @@ public class LateFeeVerifiedService implements Consumer<LateFeeVerified> {
   @Override
   public void accept(LateFeeVerified lateFee) {
     User student = lateFee.getStudent();
-    String recipient = student.getEmail();
-    String sender = sesConf.getSesSource();
-    String contact = sesConf.getSesContact();
     String subject = emailSubject(student, lateFee);
     String htmlBody = htmlToString("lateFeeEmail", getMailContext(lateFee));
-    sesService.sendEmail(sender, contact, recipient, subject, htmlBody);
+    try {
+      mailer.accept(
+          new Email(
+              new InternetAddress(student.getEmail()),
+              List.of(),
+              List.of(),
+              subject,
+              htmlBody,
+              List.of()));
+    } catch (AddressException e) {
+      throw new ApiException(SERVER_EXCEPTION, e);
+    }
   }
 }

@@ -12,17 +12,15 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.conf.BucketConf;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
-import school.hei.haapi.mail.EmailConf;
+import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
-import school.hei.haapi.service.aws.SesService;
 import school.hei.haapi.service.event.LateFeeVerifiedService;
 import school.hei.haapi.service.event.UserUpsertedService;
 
 class EventServiceInvokerTest {
   UserUpsertedService userUpsertedService;
   LateFeeVerifiedService lateFeeService;
-  SesService sesService;
-  EmailConf sesConf;
+  Mailer sesService;
   @MockBean BucketConf bucketConf;
 
   static User randomStudent() {
@@ -44,15 +42,14 @@ class EventServiceInvokerTest {
   @BeforeEach
   void setUp() {
     userUpsertedService = mock(UserUpsertedService.class);
-    sesService = mock(SesService.class);
-    sesConf = mock(EmailConf.class);
-    lateFeeService = new LateFeeVerifiedService(sesService, sesConf);
+    sesService = mock(Mailer.class);
+    lateFeeService = new LateFeeVerifiedService(sesService);
   }
 
   @Test
   void lateFeeService_invokes_corresponding_service() {
     lateFeeService.accept(lateFee());
 
-    verify(sesService, times(1)).sendEmail(any(), any(), any(), any(), any());
+    verify(sesService, times(1)).accept(any());
   }
 }
