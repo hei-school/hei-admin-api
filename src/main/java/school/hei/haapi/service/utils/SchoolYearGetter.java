@@ -11,14 +11,14 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class SchoolYearGetter {
-  private static List<Month> startOfSchoolYears = List.of(OCTOBER, NOVEMBER, DECEMBER);
+  private final List<Month> schoolYearStartMonths = List.of(OCTOBER, NOVEMBER, DECEMBER);
 
-  public static String getSchoolYear() {
+  public String getSchoolYear() {
     LocalDate now = LocalDate.now();
     LocalDate nextYear = now.plusYears(1L);
     LocalDate precedentYear = now.minusYears(1L);
 
-    if (startOfSchoolYears.contains(now.getMonth())) {
+    if (schoolYearStartMonths.contains(now.getMonth())) {
       return now.getYear() + " - " + nextYear.getYear();
     }
 

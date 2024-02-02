@@ -2,8 +2,6 @@ package school.hei.haapi.service;
 
 import static java.time.LocalDate.now;
 import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
-import static school.hei.haapi.service.utils.ScholarshipCertificateDataProvider.getAcademicYearPromotion;
-import static school.hei.haapi.service.utils.ScholarshipCertificateDataProvider.getAcademicYearSentence;
 
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -14,6 +12,7 @@ import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
 import school.hei.haapi.service.utils.HtmlParser;
 import school.hei.haapi.service.utils.PdfRenderer;
+import school.hei.haapi.service.utils.ScholarshipCertificateDataProvider;
 
 @Service
 @AllArgsConstructor
@@ -23,6 +22,7 @@ public class StudentFileService {
   private final HtmlParser htmlParser;
   private final PdfRenderer pdfRenderer;
   private final UserService userService;
+  private final ScholarshipCertificateDataProvider certificateDataProvider;
 
   public byte[] generatePdf(String studentId, String template) {
     Context context = loadContext(studentId);
@@ -38,8 +38,10 @@ public class StudentFileService {
 
     context.setVariable("student", student);
     context.setVariable("now", formatLocalDate(now()));
-    context.setVariable("academic_sentence", getAcademicYearSentence(student));
-    context.setVariable("academic_promotion", getAcademicYearPromotion(student));
+    context.setVariable(
+        "academic_sentence", certificateDataProvider.getAcademicYearSentence(student));
+    context.setVariable(
+        "academic_promotion", certificateDataProvider.getAcademicYearPromotion(student));
     context.setVariable("birthday", formatLocalDate(student.getBirthDate(), "dd/MM/yyyy"));
     context.setVariable("logo", base64Converter.apply(logo));
     context.setVariable("signature", base64Converter.apply(signature));
