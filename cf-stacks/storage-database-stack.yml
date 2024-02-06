@@ -38,12 +38,10 @@ Resources:
       ServerlessV2ScalingConfiguration:
         MinCapacity: 4
         MaxCapacity: 64
-        SecondsUntilAutoPause: !If [ IsProdEnv, !Ref ProdDbClusterTimeout, 300 ]
       MasterUsername: !Sub '{{resolve:ssm:/haapi/${Env}/db/username}}'
       MasterUserPassword: !Sub '{{resolve:ssm:/haapi/${Env}/db/password}}'
       VpcSecurityGroupIds:
         - !Sub '{{resolve:ssm:/haapi/sg/id}}'
-
 
   DatabaseClusterSSM:
     Type: AWS::SSM::Parameter
