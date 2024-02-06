@@ -33,15 +33,16 @@ Resources:
       DBSubnetGroupName: !Ref DBSubnetGroup
       DeletionProtection: true
       Engine: aurora-postgresql
-      EngineMode: serverless
+      EngineMode: provisioned
       EngineVersion: 13.9 #Only postgresql version 13.9 and 11.9 supports Aurora serverless v1
+      ServerlessV2ScalingConfiguration:
+        MinCapacity: 4
+        MaxCapacity: 64
+        SecondsUntilAutoPause: !If [ IsProdEnv, !Ref ProdDbClusterTimeout, 300 ]
       MasterUsername: !Sub '{{resolve:ssm:/haapi/${Env}/db/username}}'
       MasterUserPassword: !Sub '{{resolve:ssm:/haapi/${Env}/db/password}}'
       VpcSecurityGroupIds:
         - !Sub '{{resolve:ssm:/haapi/sg/id}}'
-      ScalingConfiguration:
-        SecondsUntilAutoPause:
-          !If [ IsProdEnv,  !Ref ProdDbClusterTimeout, 300 ]
 
 
   DatabaseClusterSSM:
