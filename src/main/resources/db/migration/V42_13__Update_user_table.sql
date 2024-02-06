@@ -1,0 +1,1 @@
+alter table "user" rename column profile_picture_key_url to profile_picture_key;

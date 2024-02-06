@@ -18,14 +18,26 @@ import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.github.javafaker.Faker;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -35,22 +47,21 @@ import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -62,14 +73,10 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 @Testcontainers
 @ContextConfiguration(initializers = StudentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class StudentIT {
-
-  @MockBean private SentryConf sentryConf;
-
-  @MockBean private CognitoComponent cognitoComponentMock;
-
+class StudentIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
-  @MockBean BucketConf bucketConf;
+
+  @Autowired ObjectMapper objectMapper;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -261,6 +268,65 @@ class StudentIT {
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
+    setUpS3Service(fileService, student1());
+  }
+
+  @Test
+  void manager_upload_profile_picture() throws IOException, InterruptedException {
+    String STUDENT_ONE_PICTURE_RAW = "/students/" + STUDENT1_ID + "/picture/raw";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
+
+    HttpRequest.BodyPublisher body =
+        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
+    HttpResponse<String> response =
+        httpClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath + STUDENT_ONE_PICTURE_RAW))
+                .POST(body)
+                .setHeader("Content-Type", "image/png")
+                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
+                .build(),
+            HttpResponse.BodyHandlers.ofString());
+
+    objectMapper.registerModule(new JSR310Module());
+    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Student responseBody = objectMapper.readValue(response.body(), Student.class);
+
+    assertEquals("STD21001", responseBody.getRef());
+  }
+
+  @Test
+  void student_update_own_profile_picture() throws IOException, InterruptedException {
+    String STUDENT_ONE_PICTURE_RAW = "/students/" + STUDENT1_ID + "/picture/raw";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
+
+    HttpRequest.BodyPublisher body =
+        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
+    HttpResponse<String> response =
+        httpClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath + STUDENT_ONE_PICTURE_RAW))
+                .POST(body)
+                .setHeader("Content-Type", "image/png")
+                .header("Authorization", "Bearer " + STUDENT1_TOKEN)
+                .build(),
+            HttpResponse.BodyHandlers.ofString());
+
+    objectMapper.registerModule(new JSR310Module());
+    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Student responseBody = objectMapper.readValue(response.body(), Student.class);
+
+    assertEquals("STD21001", responseBody.getRef());
+  }
+
+  @Test
+  void student_update_other_profile_picture_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    UsersApi api = new UsersApi(student1Client);
+    assertThrowsForbiddenException(
+        () -> api.uploadStudentProfilePicture(STUDENT3_ID, getMockedFile("img", ".png")));
   }
 
   @Test
@@ -656,67 +722,69 @@ class StudentIT {
     Student expectedStudent1AfterUpdate = randomizeStudentUpdatableValues(currentStudent1);
     CrupdateStudent payload = toCrupdateStudent(expectedStudent1AfterUpdate);
 
-    Student updatedStudent1 = api.updateStudent(STUDENT1_ID,payload);
+    Student updatedStudent1 = api.updateStudent(STUDENT1_ID, payload);
 
     assertEquals(expectedStudent1AfterUpdate, updatedStudent1);
-    //cleanup
+    // cleanup
     api.updateStudent(STUDENT1_ID, toCrupdateStudent(currentStudent1));
   }
 
-  private Student toStudent(CrupdateStudent crupdateStudent){
+  private Student toStudent(CrupdateStudent crupdateStudent) {
     return new Student()
-            .id(crupdateStudent.getId())
-            .birthDate(crupdateStudent.getBirthDate())
-            .id(crupdateStudent.getId())
-            .entranceDatetime(crupdateStudent.getEntranceDatetime())
-            .phone(crupdateStudent.getPhone())
-            .nic(crupdateStudent.getNic())
-            .birthPlace(crupdateStudent.getBirthPlace())
-            .email(crupdateStudent.getEmail())
-            .address(crupdateStudent.getAddress())
-            .firstName(crupdateStudent.getFirstName())
-            .lastName(crupdateStudent.getLastName())
-            .sex(crupdateStudent.getSex())
-            .ref(crupdateStudent.getRef())
-            .specializationField(crupdateStudent.getSpecializationField())
-            .status(crupdateStudent.getStatus());
-  }
-  private CrupdateStudent toCrupdateStudent(Student student){
-    return new CrupdateStudent()
-            .id(student.getId())
-            .birthDate(student.getBirthDate())
-            .id(student.getId())
-            .entranceDatetime(student.getEntranceDatetime())
-            .phone(student.getPhone())
-            .nic(student.getNic())
-            .birthPlace(student.getBirthPlace())
-            .email(student.getEmail())
-            .address(student.getAddress())
-            .firstName(student.getFirstName())
-            .lastName(student.getLastName())
-            .sex(student.getSex())
-            .ref(student.getRef())
-            .specializationField(student.getSpecializationField())
-            .status(student.getStatus());
+        .id(crupdateStudent.getId())
+        .birthDate(crupdateStudent.getBirthDate())
+        .id(crupdateStudent.getId())
+        .entranceDatetime(crupdateStudent.getEntranceDatetime())
+        .phone(crupdateStudent.getPhone())
+        .nic(crupdateStudent.getNic())
+        .birthPlace(crupdateStudent.getBirthPlace())
+        .email(crupdateStudent.getEmail())
+        .address(crupdateStudent.getAddress())
+        .firstName(crupdateStudent.getFirstName())
+        .lastName(crupdateStudent.getLastName())
+        .sex(crupdateStudent.getSex())
+        .ref(crupdateStudent.getRef())
+        .specializationField(crupdateStudent.getSpecializationField())
+        .status(crupdateStudent.getStatus());
   }
 
-  private Student randomizeStudentUpdatableValues(Student student){
-      return new Student()
-              .id(student.getId())
-              .entranceDatetime(student.getEntranceDatetime())
-              .status(student.getStatus())
-              .email(student.getEmail())
-              .ref(student.getRef())
-              .birthDate(LocalDate.parse("2000-12-05"))
-              .birthPlace(randomUUID().toString())
-              .nic(randomUUID().toString())
-              .phone(randomUUID().toString())
-              .sex(student.getSex() != null ? (student.getSex().equals(M) ? F:M) : null)
-              .address(randomUUID().toString())
-              .lastName(randomUUID().toString())
-              .firstName(randomUUID().toString())
-              .specializationField(student.getSpecializationField());
+  private CrupdateStudent toCrupdateStudent(Student student) {
+    return new CrupdateStudent()
+        .id(student.getId())
+        .birthDate(student.getBirthDate())
+        .id(student.getId())
+        .entranceDatetime(student.getEntranceDatetime())
+        .phone(student.getPhone())
+        .nic(student.getNic())
+        .birthPlace(student.getBirthPlace())
+        .email(student.getEmail())
+        .address(student.getAddress())
+        .firstName(student.getFirstName())
+        .lastName(student.getLastName())
+        .sex(student.getSex())
+        .ref(student.getRef())
+        .specializationField(student.getSpecializationField())
+        .status(student.getStatus());
   }
+
+  private Student randomizeStudentUpdatableValues(Student student) {
+    return new Student()
+        .id(student.getId())
+        .entranceDatetime(student.getEntranceDatetime())
+        .status(student.getStatus())
+        .email(student.getEmail())
+        .ref(student.getRef())
+        .birthDate(LocalDate.parse("2000-12-05"))
+        .birthPlace(randomUUID().toString())
+        .nic(randomUUID().toString())
+        .phone(randomUUID().toString())
+        .sex(student.getSex() != null ? (student.getSex().equals(M) ? F : M) : null)
+        .address(randomUUID().toString())
+        .lastName(randomUUID().toString())
+        .firstName(randomUUID().toString())
+        .specializationField(student.getSpecializationField());
+  }
+
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
 

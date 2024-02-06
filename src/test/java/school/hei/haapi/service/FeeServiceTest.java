@@ -5,10 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.UNPAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
 
 import java.time.Instant;
@@ -46,7 +46,7 @@ class FeeServiceTest {
   static Fee createSomeFee(
       String feeId,
       int paymentAmount,
-      school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status,
+      school.hei.haapi.endpoint.rest.model.FeeStatusEnum status,
       Instant dueDatetime,
       Instant creationDatetime) {
     return Fee.builder()
@@ -74,7 +74,7 @@ class FeeServiceTest {
       String feeId,
       int paymentAmount,
       int remainingAmount,
-      school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
+      school.hei.haapi.endpoint.rest.model.FeeStatusEnum status) {
     Instant dueDatetime = Instant.parse("2022-01-02T00:00:00.00Z");
     Instant creationDatetime = Instant.parse("2022-01-01T00:00:00.00Z");
     Fee fee = createSomeFee(feeId, paymentAmount, status, dueDatetime, creationDatetime);

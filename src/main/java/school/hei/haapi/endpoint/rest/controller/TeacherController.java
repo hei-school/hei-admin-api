@@ -6,6 +6,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -21,6 +22,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.UserService;
+import school.hei.haapi.service.aws.FileService;
 
 @RestController
 @AllArgsConstructor
@@ -29,6 +31,7 @@ public class TeacherController {
   private final StatusEnumMapper statusEnumMapper;
   private final UserService userService;
   private final UserMapper userMapper;
+  private final FileService fileService;
 
   @GetMapping(value = "/teachers/{id}")
   public Teacher getTeacherById(@PathVariable String id) {
@@ -68,5 +71,12 @@ public class TeacherController {
         .stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());
+  }
+
+  @PostMapping(value = "/teachers/{id}/picture/raw")
+  public Teacher uploadTeacherProfilePicture(
+      @RequestBody byte[] profilePicture, @PathVariable(name = "id") String teacherId) {
+    userService.uploadUserProfilePicture(profilePicture, teacherId);
+    return userMapper.toRestTeacher(userService.findById(teacherId));
   }
 }

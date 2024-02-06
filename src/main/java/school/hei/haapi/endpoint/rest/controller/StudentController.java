@@ -39,6 +39,13 @@ public class StudentController {
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
 
+  @PostMapping(value = "/students/{id}/picture/raw")
+  public Student uploadStudentProfilePicture(
+      @RequestBody byte[] profilePicture, @PathVariable(name = "id") String studentId) {
+    userService.uploadUserProfilePicture(profilePicture, studentId);
+    return userMapper.toRestStudent(userService.findById(studentId));
+  }
+
   @GetMapping("/students/{id}")
   public Student getStudentById(@PathVariable String id) {
     return userMapper.toRestStudent(userService.findById(id));

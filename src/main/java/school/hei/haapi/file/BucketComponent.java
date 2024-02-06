@@ -104,4 +104,8 @@ public class BucketComponent {
                     .build());
     return presignedRequest.url();
   }
+
+  public String getBucketName() {
+    return bucketConf.getBucketName();
+  }
 }

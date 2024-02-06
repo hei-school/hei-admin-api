@@ -67,8 +67,11 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
                 new NegatedRequestMatcher(
                     new OrRequestMatcher(
                         new AntPathRequestMatcher("/ping"),
-                        new AntPathRequestMatcher("/dummy-table"),
                         new AntPathRequestMatcher("/uuid-created"),
+                        new AntPathRequestMatcher("/health/db"),
+                        new AntPathRequestMatcher("/health/email"),
+                        new AntPathRequestMatcher("/health/event"),
+                        new AntPathRequestMatcher("/health/bucket"),
                         new AntPathRequestMatcher("/**", OPTIONS.toString())))),
             AnonymousAuthenticationFilter.class)
         .anonymous()
@@ -76,12 +79,33 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         // authorize
         .and()
         .authorizeRequests()
-        .antMatchers("/ping")
+        .antMatchers(GET, "/ping")
+        .permitAll()
+        .antMatchers(GET, "/health/db")
+        .permitAll()
+        .antMatchers(GET, "/health/email")
+        .permitAll()
+        .antMatchers(GET, "/health/event")
+        .permitAll()
+        .antMatchers(GET, "/health/bucket")
         .permitAll()
         .antMatchers(OPTIONS, "/**")
         .permitAll()
-        .antMatchers("/whoami")
+        .antMatchers(GET, "/whoami")
         .authenticated()
+        //
+        // Profile picture resources
+        //
+        .requestMatchers(new SelfMatcher(POST, "/students/*/picture/raw", "students"))
+        .hasAnyRole(STUDENT.getRole())
+        .antMatchers(POST, "/students/*/picture/raw")
+        .hasRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(POST, "/teachers/*/picture/raw", "teachers"))
+        .hasRole(TEACHER.getRole())
+        .antMatchers(POST, "/teachers/*/picture/raw")
+        .hasRole(MANAGER.getRole())
+        .requestMatchers(new SelfMatcher(POST, "/managers/*/picture/raw", "managers"))
+        .hasRole(MANAGER.getRole())
         .antMatchers(GET, "/students")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         //
@@ -166,6 +190,12 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .antMatchers(GET, "/students/*/grades")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/fees")
+        .hasAnyRole(MANAGER.getRole())
+        .antMatchers(GET, "/fees/templates")
+        .hasAnyRole(MANAGER.getRole())
+        .antMatchers(PUT, "/fees/templates/*")
+        .hasAnyRole(MANAGER.getRole())
+        .antMatchers(GET, "/fees/templates/*")
         .hasAnyRole(MANAGER.getRole())
         .antMatchers(GET, "/teachers")
         .hasAnyRole(MANAGER.getRole())

@@ -1,0 +1,1 @@
+alter table "user" add column if not exists profile_picture_key_url varchar;

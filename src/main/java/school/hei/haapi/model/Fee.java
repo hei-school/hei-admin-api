@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
 
 import java.io.Serializable;
@@ -8,7 +9,6 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
 import javax.persistence.Entity;
-import javax.persistence.EnumType;
 import javax.persistence.Enumerated;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
@@ -27,6 +27,8 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
+import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.repository.types.PostgresEnumType;
 
 @Entity
@@ -48,12 +50,12 @@ public class Fee implements Serializable {
   private User student;
 
   @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
-  private school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status;
+  @Enumerated(STRING)
+  private FeeStatusEnum status;
 
   @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
-  private school.hei.haapi.endpoint.rest.model.Fee.TypeEnum type;
+  @Enumerated(STRING)
+  private FeeTypeEnum type;
 
   private Integer totalAmount;
 

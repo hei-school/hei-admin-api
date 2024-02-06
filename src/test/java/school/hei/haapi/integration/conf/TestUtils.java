@@ -5,11 +5,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.HARDWARE;
-import static school.hei.haapi.endpoint.rest.model.Fee.TypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.time.Instant;
@@ -17,7 +19,10 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
+import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
@@ -26,18 +31,23 @@ import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
+import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
+import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -87,6 +97,9 @@ public class TestUtils {
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
+  public static final String FEE_TEMPLATE1_ID = "fee_template1";
+  public static final String FEE_TEMPLATE2_ID = "fee_template2";
+  public static final String FEE_TEMPLATE1_NAME = "annuel x9";
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -103,6 +116,18 @@ public class TestUtils {
     when(cognitoComponent.getEmailByIdToken(STUDENT1_TOKEN)).thenReturn("test+ryan@hei.school");
     when(cognitoComponent.getEmailByIdToken(TEACHER1_TOKEN)).thenReturn("test+teacher1@hei.school");
     when(cognitoComponent.getEmailByIdToken(MANAGER1_TOKEN)).thenReturn("test+manager1@hei.school");
+  }
+
+  public static void setUpS3Service(FileService fileService, Student user) {
+    when(fileService.getPresignedUrl(user.getRef(), 180L)).thenReturn(user.getRef());
+  }
+
+  public static void setUpS3Service(FileService fileService, Teacher user) {
+    when(fileService.getPresignedUrl(user.getRef(), 180L)).thenReturn(user.getRef());
+  }
+
+  public static void setUpS3Service(FileService fileService, Manager user) {
+    when(fileService.getPresignedUrl(user.getRef(), 180L)).thenReturn(user.getRef());
   }
 
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {
@@ -122,6 +147,26 @@ public class TestUtils {
         "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", responseBody);
   }
 
+  public static File getMockedFile(String fileName, String extension) {
+    try {
+      Resource resource = new ClassPathResource("mock/" + fileName + extension);
+      File file = resource.getFile();
+      return file;
+    } catch (IOException e) {
+      throw new school.hei.haapi.model.exception.ApiException(SERVER_EXCEPTION, e.getMessage());
+    }
+  }
+
+  public static byte[] getMockedFileAsByte(String fileName, String extension) {
+    try {
+      File file = getMockedFile(fileName, extension);
+      return FileUtils.readFileToByteArray(file);
+    } catch (IOException ioException) {
+      throw new school.hei.haapi.model.exception.ApiException(
+          SERVER_EXCEPTION, ioException.getMessage());
+    }
+  }
+
   public static CrupdateTeacher someCreatableTeacher() {
     return new CrupdateTeacher()
         .firstName("Some")
@@ -138,7 +183,7 @@ public class TestUtils {
 
   public static CreateFee creatableFee1() {
     return new CreateFee()
-        .type(CreateFee.TypeEnum.TUITION)
+        .type(TUITION)
         .totalAmount(5000)
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
@@ -597,6 +642,53 @@ public class TestUtils {
         .ref("STD21003")
         .email("test+student3@hei.school")
         .grade(grade7());
+  }
+
+  public static FeeTemplate feeTemplate1() {
+    return new FeeTemplate()
+        .id(FEE_TEMPLATE1_ID)
+        .name(FEE_TEMPLATE1_NAME)
+        .numberOfPayments(9)
+        .amount(200000)
+        .type(TUITION)
+        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
+  }
+
+  public static FeeTemplate feeTemplate3() {
+    return new FeeTemplate()
+        .id("fee_template3")
+        .name("Keyboard")
+        .numberOfPayments(1)
+        .amount(1000)
+        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"))
+        .type(HARDWARE);
+  }
+
+  public static CrupdateFeeTemplate createFeeTemplate2() {
+    return new CrupdateFeeTemplate()
+        .id(FEE_TEMPLATE2_ID)
+        .name("annuel x1")
+        .numberOfPayments(1)
+        .amount(10000)
+        .type(TUITION);
+  }
+
+  public static CrupdateFeeTemplate updateFeeTemplate1() {
+    return new CrupdateFeeTemplate()
+        .id(feeTemplate1().getId())
+        .amount(1000)
+        .numberOfPayments(1)
+        .type(feeTemplate1().getType())
+        .name(feeTemplate1().getName());
+  }
+
+  public static FeeTemplate feeTemplate2() {
+    return new FeeTemplate()
+        .id(FEE_TEMPLATE2_ID)
+        .name("annuel x1")
+        .numberOfPayments(1)
+        .amount(10000)
+        .type(TUITION);
   }
 
   public static ExamDetail examDetail1() {

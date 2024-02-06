@@ -10,6 +10,7 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.aws.FileService;
 
 @Component
 @AllArgsConstructor
@@ -17,11 +18,15 @@ public class UserMapper {
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
   private final UserRepository repository;
+  private final FileService fileService;
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
-    restStudent.setId(user.getId());
+    String profilePictureKey = user.getProfilePictureKey();
+    String url =
+        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, 86400L) : null;
 
+    restStudent.setId(user.getId());
     restStudent.setFirstName(user.getFirstName());
     restStudent.setLastName(user.getLastName());
     restStudent.setEmail(user.getEmail());
@@ -35,14 +40,18 @@ public class UserMapper {
     restStudent.setNic(user.getNic());
     restStudent.setBirthPlace(user.getBirthPlace());
     restStudent.setSpecializationField(user.getSpecializationField());
+    restStudent.setProfilePicture(url);
 
     return restStudent;
   }
 
   public Teacher toRestTeacher(User user) {
     Teacher teacher = new Teacher();
-    teacher.setId(user.getId());
+    String profilePictureKey = user.getProfilePictureKey();
+    String url =
+        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, 86400L) : null;
 
+    teacher.setId(user.getId());
     teacher.setFirstName(user.getFirstName());
     teacher.setLastName(user.getLastName());
     teacher.setEmail(user.getEmail());
@@ -55,14 +64,18 @@ public class UserMapper {
     teacher.setAddress(user.getAddress());
     teacher.setBirthPlace(user.getBirthPlace());
     teacher.setNic(user.getNic());
+    teacher.setProfilePicture(url);
 
     return teacher;
   }
 
   public Manager toRestManager(User user) {
     Manager manager = new Manager();
-    manager.setId(user.getId());
+    String profilePictureKey = user.getProfilePictureKey();
+    String url =
+        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, 86400L) : null;
 
+    manager.setId(user.getId());
     manager.setFirstName(user.getFirstName());
     manager.setLastName(user.getLastName());
     manager.setEmail(user.getEmail());
@@ -75,6 +88,7 @@ public class UserMapper {
     manager.setAddress(user.getAddress());
     manager.setBirthPlace(user.getBirthPlace());
     manager.setNic(user.getNic());
+    manager.setProfilePicture(url);
 
     return manager;
   }

@@ -1,8 +1,8 @@
 package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.Fee.StatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 
 import java.time.Instant;
 import java.util.List;
@@ -27,7 +27,7 @@ import school.hei.haapi.repository.FeeRepository;
 @Slf4j
 public class FeeService {
 
-  private static final school.hei.haapi.endpoint.rest.model.Fee.StatusEnum DEFAULT_STATUS = LATE;
+  private static final school.hei.haapi.endpoint.rest.model.FeeStatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
   private final UpdateFeeValidator updateFeeValidator;
@@ -56,7 +56,7 @@ public class FeeService {
   public List<Fee> getFees(
       PageFromOne page,
       BoundedPageSize pageSize,
-      school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
+      school.hei.haapi.endpoint.rest.model.FeeStatusEnum status) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
     if (status != null) {
@@ -69,7 +69,7 @@ public class FeeService {
       String studentId,
       PageFromOne page,
       BoundedPageSize pageSize,
-      school.hei.haapi.endpoint.rest.model.Fee.StatusEnum status) {
+      school.hei.haapi.endpoint.rest.model.FeeStatusEnum status) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
     if (status != null) {

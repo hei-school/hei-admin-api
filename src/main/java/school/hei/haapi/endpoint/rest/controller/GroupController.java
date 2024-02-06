@@ -10,14 +10,12 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
 import school.hei.haapi.endpoint.rest.mapper.GroupMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGroup;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.GroupService;
-import school.hei.haapi.service.UserService;
 
 @RestController
 @AllArgsConstructor
@@ -25,8 +23,6 @@ public class GroupController {
 
   private final GroupService groupService;
   private final GroupMapper groupMapper;
-  private final GroupFlowMapper groupFlowMapper;
-  private final UserService userService;
 
   @GetMapping(value = "/groups/{id}")
   public Group getGroupById(@PathVariable String id) {

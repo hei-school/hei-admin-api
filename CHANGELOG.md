@@ -1,3 +1,17 @@
+## [1.2.1](https://github.com/hei-school/hei-admin-api/compare/v1.2.0...v1.2.1) (2024-01-26)
+
+
+### Bug Fixes
+
+* default user specialization field to common core ([042c9c1](https://github.com/hei-school/hei-admin-api/commit/042c9c11c0046c8202a6dea328c08478b0cfb85c))
+* encode images to base64 before injecting in thymeleaf ([35da8aa](https://github.com/hei-school/hei-admin-api/commit/35da8aa8e01ecaf95acb59c40e6ddf29836c9c1e))
+* implement fee template ([64c1439](https://github.com/hei-school/hei-admin-api/commit/64c143994fbbae819703aa1652e38ddf11371686))
+* load css when generating pdf  ([4de3445](https://github.com/hei-school/hei-admin-api/commit/4de3445f0815087c6de93e9e7e197ba4cf7fffe2))
+* payment validator ignores seconds when creating payment ([3bfa397](https://github.com/hei-school/hei-admin-api/commit/3bfa397939972a19ed7ded03af786c3a4a15a315))
+* some user fields (nic, birthdate, birthplace) were not updated correctly ([1729d71](https://github.com/hei-school/hei-admin-api/commit/1729d712d46b33da6ef82714786fb8bc12c03123))
+
+
+
 # [1.2.0](https://github.com/hei-school/hei-admin-api/compare/v1.1.0...v1.2.0) (2024-01-05)
 
 
@@ -159,15 +173,6 @@
 * event-stack syntax ([#97](https://github.com/hei-school/hei-admin-api/issues/97)) ([7b78f83](https://github.com/hei-school/hei-admin-api/commit/7b78f8341c137b9eada7cdb391a8634e13e2af1e))
 * security group for database ([47362f4](https://github.com/hei-school/hei-admin-api/commit/47362f4e6dd5df608e40465d9ebcc23439958e13))
 * stack name ([#91](https://github.com/hei-school/hei-admin-api/issues/91)) ([6c73dbe](https://github.com/hei-school/hei-admin-api/commit/6c73dbe419292714ae9335d09669c55b4cc011f1))
-
-
-
-# [0.7.0](https://github.com/hei-school/hei-admin-api/compare/v0.6.0...v0.7.0) (2022-07-26)
-
-
-### Features
-
-* filter fees by status without cache ([2c27555](https://github.com/hei-school/hei-admin-api/commit/2c27555f7fe06284f9a70e144a7399f2a5ae2524))
 
 
 

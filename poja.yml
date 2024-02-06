@@ -1,10 +1,11 @@
 app_name: haapi
-cli_version: 10.5.1
+cli_version: 10.7.0
 custom_java_deps: poja-custom-java-deps.txt
 custom_java_env_vars: poja-custom-java-env-vars.txt
 custom_java_repositories: poja-custom-java-repositories.txt
 frontal_memory: 2048
 jacoco_min_coverage: '0.8'
+java_facade_it: FacadeIT
 package_full_name: school.hei.haapi
 region: eu-west-3
 ses_source: contact@hei.school

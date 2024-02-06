@@ -18,14 +18,24 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacher;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacherList;
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
 import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -39,7 +49,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.SentryConf;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -48,9 +57,8 @@ import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.file.BucketConf;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -60,18 +68,14 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 @Testcontainers
 @ContextConfiguration(initializers = TeacherIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class TeacherIT {
-
-  @MockBean private SentryConf sentryConf;
-
-  @MockBean private CognitoComponent cognitoComponentMock;
-
+class TeacherIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
-  @MockBean BucketConf bucketConf;
 
   @Autowired private UserService userService;
 
   @Autowired private UserMapper userMapper;
+
+  @Autowired private ObjectMapper objectMapper;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
@@ -81,6 +85,32 @@ class TeacherIT {
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
+    setUpS3Service(fileService, teacher1());
+  }
+
+  @Test
+  void teacher_update_own_profile_picture() throws IOException, InterruptedException {
+    String TEACHER_ONE_PICTURE_RAW = "/teachers/" + TEACHER1_ID + "/picture/raw";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + TeacherIT.ContextInitializer.SERVER_PORT;
+
+    HttpRequest.BodyPublisher body =
+        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
+    HttpResponse<String> response =
+        httpClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath + TEACHER_ONE_PICTURE_RAW))
+                .POST(body)
+                .setHeader("Content-Type", "image/png")
+                .header("Authorization", "Bearer " + TEACHER1_TOKEN)
+                .build(),
+            HttpResponse.BodyHandlers.ofString());
+
+    objectMapper.registerModule(new JSR310Module());
+    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Teacher responseBody = objectMapper.readValue(response.body(), Teacher.class);
+
+    assertEquals("TCR21001", responseBody.getRef());
   }
 
   @Test
