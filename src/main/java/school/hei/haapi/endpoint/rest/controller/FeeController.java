@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -40,6 +41,13 @@ public class FeeController {
   @GetMapping("/students/{studentId}/fees/{feeId}")
   public Fee getFeeByStudentId(@PathVariable String studentId, @PathVariable String feeId) {
     return feeMapper.toRestFee(feeService.getByStudentIdAndFeeId(studentId, feeId));
+  }
+
+  @DeleteMapping("/students/{studentId}/fees/{feeId}")
+  public Fee deleteStudentFeeById(
+      @PathVariable(name = "studentId") String studentId,
+      @PathVariable(name = "feeId") String feeId) {
+    return feeMapper.toRestFee(feeService.deleteFeeByStudentIdAndFeeId(studentId, feeId));
   }
 
   @PostMapping("/students/{studentId}/fees")

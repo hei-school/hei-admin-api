@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -55,6 +56,19 @@ class FeeIT extends MockedThirdParties {
   void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
+  }
+
+  @Test
+  @DirtiesContext
+  void manager_delete_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    Fee deletedFee = api.deleteStudentFeeById(FEE1_ID, STUDENT1_ID);
+    assertEquals(fee1(), deletedFee);
+
+    List<Fee> fees = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    assertFalse(fees.contains(deletedFee));
   }
 
   @Test

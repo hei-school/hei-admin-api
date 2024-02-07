@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -30,6 +31,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
@@ -147,6 +149,19 @@ class PaymentIT extends MockedThirdParties {
 
     assertTrue(actual.contains(payment1()));
     assertTrue(actual.contains(payment2()));
+  }
+
+  @Test
+  @DirtiesContext
+  void manager_delete_payment_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    Payment deletedPayment = api.deleteStudentFeePaymentById(STUDENT1_ID, FEE1_ID, PAYMENT1_ID);
+    assertEquals(payment1(), deletedPayment);
+
+    List<Payment> payments = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, 5);
+    assertFalse(payments.contains(deletedPayment));
   }
 
   @Test

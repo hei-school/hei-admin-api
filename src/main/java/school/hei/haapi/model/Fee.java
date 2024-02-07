@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import static javax.persistence.CascadeType.REMOVE;
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
 
@@ -25,8 +26,10 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Type;
 import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.Where;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.repository.types.PostgresEnumType;
@@ -40,6 +43,8 @@ import school.hei.haapi.repository.types.PostgresEnumType;
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "update \"fee\" set is_deleted = true where id = ?")
+@Where(clause = "is_deleted = false")
 public class Fee implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -65,13 +70,15 @@ public class Fee implements Serializable {
 
   private String comment;
 
+  private boolean isDeleted;
+
   @CreationTimestamp
   @Getter(AccessLevel.NONE)
   private Instant creationDatetime;
 
   private Instant dueDatetime;
 
-  @OneToMany(mappedBy = "fee")
+  @OneToMany(mappedBy = "fee", cascade = REMOVE)
   private List<Payment> payments;
 
   public Instant getCreationDatetime() {

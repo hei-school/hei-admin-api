@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.security;
 
+import static org.springframework.http.HttpMethod.DELETE;
 import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.POST;
@@ -113,12 +114,16 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         //
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*", "students"))
         .hasAnyRole(STUDENT.getRole())
+        .antMatchers(DELETE, "/students/*/fees/*")
+        .hasRole(MANAGER.getRole())
         .antMatchers(GET, "/students/*/fees/*")
         .hasAnyRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees", "students"))
         .hasAnyRole(STUDENT.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/payments", "students"))
         .hasAnyRole(STUDENT.getRole())
+        .antMatchers(DELETE, "/students/*/fees/*/payments/*")
+        .hasRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*", "students"))
         .hasAnyRole(STUDENT.getRole())
         .antMatchers(GET, "/students/*/fees/*")
