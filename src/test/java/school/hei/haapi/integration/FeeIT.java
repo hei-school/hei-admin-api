@@ -26,8 +26,11 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import java.time.Instant;
 import java.util.List;
+import javax.persistence.EntityManager;
+import javax.persistence.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -47,6 +50,24 @@ import school.hei.haapi.integration.conf.TestUtils;
 @ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class FeeIT extends MockedThirdParties {
+  @Autowired EntityManager entityManager;
+
+  /***
+   * Get fee by id without jpa, avoiding FILTER isDeleted = true | false
+   * @param feeId
+   * @return Fee data by id
+   */
+  private school.hei.haapi.model.Fee getFeeByIdWithoutJpaFiltering(String feeId) {
+    try {
+      Query q =
+          entityManager.createNativeQuery(
+              "SELECT * FROM \"fee\" where id = ?", school.hei.haapi.model.Fee.class);
+      q.setParameter(1, feeId);
+      return (school.hei.haapi.model.Fee) q.getSingleResult();
+    } catch (NullPointerException e) {
+      throw new RuntimeException(e.getMessage());
+    }
+  }
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, FeeIT.ContextInitializer.SERVER_PORT);
@@ -69,6 +90,10 @@ class FeeIT extends MockedThirdParties {
 
     List<Fee> fees = api.getStudentFees(STUDENT1_ID, 1, 5, null);
     assertFalse(fees.contains(deletedFee));
+
+    // test: check if the payment is not deleted but has been flagged as deleted.
+    school.hei.haapi.model.Fee actualFeeData = getFeeByIdWithoutJpaFiltering(FEE1_ID);
+    assertTrue(actualFeeData.isDeleted());
   }
 
   @Test
