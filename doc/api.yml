@@ -1677,6 +1677,52 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{student_id}/fees/{fee_id}/transfer_receipt:
+    post:
+      tags:
+        - Paying
+      summary: Upload a transfer receipt
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: type
+          in: query
+          required: false
+          schema:
+            $ref: "#/components/schemas/FeeTypeEnum"
+      operationId: uploadTransferReceipt
+      requestBody:
+        required: true
+        content:
+          image/*:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Meta data about the transfer receipt
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TransferReceipt'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
   /students/{student_id}/fees/{fee_id}/payments:
     get:
@@ -2473,6 +2519,19 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    TransferReceipt:
+      type: object
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        fee_id:
+          type: string
+        type:
+          $ref: '#/components/schemas/FeeTypeEnum'
+        image_url:
+          type: string
     FeeStatusEnum:
       type: string
       enum:
