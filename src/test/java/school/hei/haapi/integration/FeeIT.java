@@ -11,7 +11,6 @@ import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.PAYMENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
@@ -45,15 +44,13 @@ import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.Payment;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class FeeIT extends MockedThirdParties {
-  @Autowired
-  EntityManager entityManager;
+  @Autowired EntityManager entityManager;
 
   /***
    * Get fee by id without jpa, avoiding FILTER isDeleted = true | false
@@ -67,19 +64,6 @@ class FeeIT extends MockedThirdParties {
               "SELECT * FROM \"fee\" where id = ?", school.hei.haapi.model.Fee.class);
       q.setParameter(1, feeId);
       return (school.hei.haapi.model.Fee) q.getSingleResult();
-    } catch (NullPointerException e) {
-      throw new RuntimeException(e.getMessage());
-    }
-  }
-
-  private Payment getPaymentByFeeIdWithoutJpaFiltering(String feeId) {
-    try {
-      Query q =
-          entityManager.createNativeQuery(
-              "SELECT * FROM \"payment\" where id = ?", Payment.class
-          );
-      q.setParameter(1, feeId);
-      return (Payment) q.getSingleResult();
     } catch (NullPointerException e) {
       throw new RuntimeException(e.getMessage());
     }
@@ -110,9 +94,6 @@ class FeeIT extends MockedThirdParties {
     // test: check if the payment is not deleted but has been flagged as deleted.
     school.hei.haapi.model.Fee actualFeeData = getFeeByIdWithoutJpaFiltering(FEE1_ID);
     assertTrue(actualFeeData.isDeleted());
-
-    // TODO: assert the payment is not deleted after deleting fee
-    //Payment actualPayment = getPaymentByFeeIdWithoutJpaFiltering(PAYMENT1_ID);
   }
 
   @Test
