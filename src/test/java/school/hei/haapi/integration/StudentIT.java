@@ -297,32 +297,7 @@ class StudentIT extends MockedThirdParties {
   }
 
   @Test
-  void student_update_own_profile_picture() throws IOException, InterruptedException {
-    String STUDENT_ONE_PICTURE_RAW = "/students/" + STUDENT1_ID + "/picture/raw";
-    HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
-
-    HttpRequest.BodyPublisher body =
-        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
-    HttpResponse<String> response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath + STUDENT_ONE_PICTURE_RAW))
-                .POST(body)
-                .setHeader("Content-Type", "image/png")
-                .header("Authorization", "Bearer " + STUDENT1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofString());
-
-    objectMapper.registerModule(new JSR310Module());
-    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-    Student responseBody = objectMapper.readValue(response.body(), Student.class);
-
-    assertEquals("STD21001", responseBody.getRef());
-  }
-
-  @Test
-  void student_update_other_profile_picture_ok() throws ApiException {
+  void student_update_other_profile_picture_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
     assertThrowsForbiddenException(
@@ -331,17 +306,11 @@ class StudentIT extends MockedThirdParties {
 
   @Test
   @DirtiesContext
-  void student_update_own_ok() throws ApiException {
+  void student_update_own_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
-    UsersApi managerApi = new UsersApi(manager1Client);
-    api.getStudentById(STUDENT1_ID);
-    Student actual = api.updateStudent(STUDENT1_ID, someUpdatableStudent());
-    List<Student> actualStudents =
-        managerApi.getStudents(1, 10, null, null, null, null, null, null);
-
-    assertTrue(actualStudents.contains(actual));
+    assertThrowsForbiddenException(
+        () -> api.uploadStudentProfilePicture(STUDENT3_ID, getMockedFile("img", ".png")));
   }
 
   @Test
@@ -715,18 +684,14 @@ class StudentIT extends MockedThirdParties {
   }
 
   @Test
-  void student_update_self_ok() throws ApiException {
+  void student_update_self_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
     Student currentStudent1 = api.getStudentById(STUDENT1_ID);
     Student expectedStudent1AfterUpdate = randomizeStudentUpdatableValues(currentStudent1);
     CrupdateStudent payload = toCrupdateStudent(expectedStudent1AfterUpdate);
 
-    Student updatedStudent1 = api.updateStudent(STUDENT1_ID, payload);
-
-    assertEquals(expectedStudent1AfterUpdate, updatedStudent1);
-    // cleanup
-    api.updateStudent(STUDENT1_ID, toCrupdateStudent(currentStudent1));
+    assertThrowsForbiddenException(() -> api.updateStudent(STUDENT1_ID, payload));
   }
 
   private Student toStudent(CrupdateStudent crupdateStudent) {
