@@ -684,18 +684,14 @@ class StudentIT extends MockedThirdParties {
   }
 
   @Test
-  void student_update_self_ok() throws ApiException {
+  void student_update_self_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
     Student currentStudent1 = api.getStudentById(STUDENT1_ID);
     Student expectedStudent1AfterUpdate = randomizeStudentUpdatableValues(currentStudent1);
     CrupdateStudent payload = toCrupdateStudent(expectedStudent1AfterUpdate);
 
-    Student updatedStudent1 = api.updateStudent(STUDENT1_ID, payload);
-
-    assertEquals(expectedStudent1AfterUpdate, updatedStudent1);
-    // cleanup
-    api.updateStudent(STUDENT1_ID, toCrupdateStudent(currentStudent1));
+    assertThrowsForbiddenException(() -> api.updateStudent(STUDENT1_ID, payload));
   }
 
   private Student toStudent(CrupdateStudent crupdateStudent) {
