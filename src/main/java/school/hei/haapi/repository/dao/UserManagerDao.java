@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
+import javax.persistence.criteria.Expression;
 import javax.persistence.criteria.Join;
 import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
@@ -32,29 +33,24 @@ public class UserManagerDao {
     Join<GroupFlow, User> userJoin = groupFlowRoot.join("student", JoinType.LEFT);
     Join<GroupFlow, Group> groupJoin = groupFlowRoot.join("group", JoinType.LEFT);
 
-    query.select(userJoin);
-
-    Predicate groupIdPredicate = builder.equal(groupJoin.get("id"), groupId);
-    Predicate joinFlowTypePredicate = builder.equal(groupFlowRoot.get("groupFlowType"), GroupFlow.group_flow_type.JOIN);
-    Predicate leaveFlowTypePredicate = builder.equal(groupFlowRoot.get("groupFlowType"), GroupFlow.group_flow_type.LEAVE);
-
     Subquery<Instant> maxFlowDatetimeSubquery = query.subquery(Instant.class);
     Root<GroupFlow> maxFlowDatetimeRoot = maxFlowDatetimeSubquery.from(GroupFlow.class);
 
-    maxFlowDatetimeSubquery.select(builder.max(maxFlowDatetimeRoot.get("flowDatetime")));
+    maxFlowDatetimeSubquery.select(builder.greatest(maxFlowDatetimeRoot.get("flowDatetime")));
     maxFlowDatetimeSubquery.where(
         builder.equal(maxFlowDatetimeRoot.get("student"), userJoin),
         builder.equal(maxFlowDatetimeRoot.get("groupFlowType"), GroupFlow.group_flow_type.JOIN)
     );
 
-    Predicate maxFlowDatetimePredicate = builder.or(
-        builder.isNull(maxFlowDatetimeSubquery),
-        builder.lessThan(groupFlowRoot.get("flowDatetime"), maxFlowDatetimeSubquery)
-    );
+    Predicate groupIdPredicate = builder.equal(groupJoin.get("id"), groupId);
+    Predicate joinFlowTypePredicate = builder.equal(groupFlowRoot.get("groupFlowType"), GroupFlow.group_flow_type.JOIN);
 
-    query.where(builder.and(groupIdPredicate, joinFlowTypePredicate, maxFlowDatetimePredicate));
+    query.select(userJoin);
+    query.where(builder.and(groupIdPredicate, joinFlowTypePredicate));
 
-    // Execute the query
+// Order by the result of the subquery in descending order
+    query.orderBy(builder.desc(maxFlowDatetimeSubquery.getSelection()));
+
     return entityManager.createQuery(query).getResultList();
   }
 
