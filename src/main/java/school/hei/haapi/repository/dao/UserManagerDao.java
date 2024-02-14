@@ -1,24 +1,62 @@
 package school.hei.haapi.repository.dao;
 
+import java.time.Instant;
 import java.util.List;
 import javax.persistence.EntityManager;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
 import javax.persistence.criteria.Join;
+import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
+import javax.persistence.criteria.Subquery;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.User;
 
 @Repository
 @AllArgsConstructor
 public class UserManagerDao {
   private EntityManager entityManager;
+
+  public List<User> findByGroupId(String groupId) {
+    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<User> query = builder.createQuery(User.class);
+    Root<GroupFlow> groupFlowRoot = query.from(GroupFlow.class);
+    Join<GroupFlow, User> userJoin = groupFlowRoot.join("student", JoinType.LEFT);
+    Join<GroupFlow, Group> groupJoin = groupFlowRoot.join("group", JoinType.LEFT);
+
+    query.select(userJoin);
+
+    Predicate groupIdPredicate = builder.equal(groupJoin.get("id"), groupId);
+    Predicate joinFlowTypePredicate = builder.equal(groupFlowRoot.get("groupFlowType"), GroupFlow.group_flow_type.JOIN);
+    Predicate leaveFlowTypePredicate = builder.equal(groupFlowRoot.get("groupFlowType"), GroupFlow.group_flow_type.LEAVE);
+
+    Subquery<Instant> maxFlowDatetimeSubquery = query.subquery(Instant.class);
+    Root<GroupFlow> maxFlowDatetimeRoot = maxFlowDatetimeSubquery.from(GroupFlow.class);
+
+    maxFlowDatetimeSubquery.select(builder.max(maxFlowDatetimeRoot.get("flowDatetime")));
+    maxFlowDatetimeSubquery.where(
+        builder.equal(maxFlowDatetimeRoot.get("student"), userJoin),
+        builder.equal(maxFlowDatetimeRoot.get("groupFlowType"), GroupFlow.group_flow_type.JOIN)
+    );
+
+    Predicate maxFlowDatetimePredicate = builder.or(
+        builder.isNull(maxFlowDatetimeSubquery),
+        builder.lessThan(groupFlowRoot.get("flowDatetime"), maxFlowDatetimeSubquery)
+    );
+
+    query.where(builder.and(groupIdPredicate, joinFlowTypePredicate, maxFlowDatetimePredicate));
+
+    // Execute the query
+    return entityManager.createQuery(query).getResultList();
+  }
 
   public List<User> findByCriteria(
       User.Role role,
