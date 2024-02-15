@@ -22,6 +22,7 @@ security:
   - BearerAuth: [ ]
 
 paths:
+  ## Security Tags
   '/whoami':
     get:
       tags:
@@ -69,312 +70,8 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/groups/{id}':
-    get:
-      tags:
-        - Teaching
-      summary: Get group by identifier
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: getGroupById
-      responses:
-        '200':
-          description: The identified group
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Group'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /groups:
-    get:
-      tags:
-        - Teaching
-      summary: Get all groups
-      operationId: getGroups
-      parameters:
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
-      responses:
-        '200':
-          description: List of groups
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Group'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    put:
-      tags:
-        - Teaching
-      summary: Create new groups or update existing groups
-      description: Update groups when `id` are provided, create them otherwise.
-      operationId: createOrUpdateGroups
-      requestBody:
-        description: Groups to update
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateGroup'
-      responses:
-        '200':
-          description: The created or updated groups
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Group'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /students/{id}:
-    get:
-      tags:
-        - Users
-      summary: Get student by identifier
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: getStudentById
-      responses:
-        '200':
-          description: The identified student
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Student'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    put:
-      tags:
-        - Users
-      summary: Update student
-      operationId: updateStudent
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Student to update
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/CrupdateStudent'
-      responses:
-        '200':
-          description: student updated.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Student'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /students/{student_id}/grades:
-    get:
-      tags:
-        - Teaching
-      summary: Get student grades.
-      operationId: getStudentGrades
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
-      responses:
-        '200':
-          description: List of a student's grades, showing the exam and the course of these grades.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AwardedCourseExam'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /students:
-    get:
-      tags:
-        - Users
-      summary: Get all students
-      operationId: getStudents
-      parameters:
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-        - name: page_size
-          in: query
-          schema:
-            $ref: '#/components/schemas/PageSize'
-        - name: ref
-          in: query
-          description: "Filter students by ref, case is ignored"
-          schema:
-            type: string
-        - name: first_name
-          in: query
-          description: "Filter students by first name, case is ignored"
-          schema:
-            type: string
-        - name: last_name
-          in: query
-          description: "Filter students by last name, case is ignored"
-          schema:
-            type: string
-        - name: course_id
-          in: query
-          description: "Filter students by course they are linked to"
-          schema:
-            type: string
-        - name: status
-          required: false
-          in: query
-          description: Filter students by status value return all by default
-          schema:
-            $ref: '#/components/schemas/EnableStatus'
-        - name: sex
-          required: false
-          in: query
-          description: Filter students by sex value return all by default
-          schema:
-            $ref: '#/components/schemas/Sex'
-      responses:
-        '200':
-          description: List of students, ordered by ref.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Student'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    put:
-      tags:
-        - Users
-      summary: Create new students or update existing students
-      description: Update students when `id` are provided, create them otherwise.
-      operationId: createOrUpdateStudents
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CrupdateStudent'
-      responses:
-        '200':
-          description: The created or updated students
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  allOf:
-                    - $ref: '#/components/schemas/Student'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
+
+  ## Teaching tags
   '/courses/{id}':
     get:
       tags:
@@ -508,53 +205,18 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
-  /groups/{group_id}/awarded_courses/{awarded_course_id}:
+  /groups/{group_id}/events/{event_id}/exams:
     get:
       tags:
         - Teaching
-      summary: Get a specific group awarded_course
+      summary: Get all exam infos of a specified event.
       parameters:
         - name: group_id
           in: path
           required: true
           schema:
             type: string
-        - name: awarded_course_id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: getAwardedCoursesByIdAndGroupId
-      responses:
-        '200':
-          description: A spesific awarded_courses from a courses
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/AwardedCourse'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams:
-    get:
-      tags:
-        - Teaching
-      summary: Get all exam infos of a specified awarded_course.
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: awarded_course_id
+        - name: event_id
           in: path
           required: true
           schema:
@@ -570,7 +232,7 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getExamsByGroupIdAndAwardedCourse
+      operationId: getExamsByGroupIdAndEvent
       responses:
         '200':
           description: List of exam infos without the participants of the specified course
@@ -601,7 +263,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: awarded_course_id
+        - name: event_id
           in: path
           required: true
           schema:
@@ -635,11 +297,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}:
+  /groups/{group_id}/events/{event_id}/exams/{exam_id}:
     get:
       tags:
         - Teaching
-      summary: Get a awarded_course exam.
+      summary: Get exam by identifier.
       operationId: getExamById
       parameters:
         - name: group_id
@@ -647,7 +309,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: awarded_course_id
+        - name: event_id
           in: path
           required: true
           schema:
@@ -659,7 +321,7 @@ paths:
             type: string
       responses:
         '200':
-          description: A specific exam
+          description: Identified exam.
           content:
             application/json:
               schema:
@@ -674,11 +336,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/grades:
+  /groups/{group_id}/events/{event_id}/exams/{exam_id}/grades:
     get:
       tags:
         - Teaching
-      summary: Get exam details with the participants and their grades in a specified awarded_course.
+      summary: Get exam details with the participants and their grades in a specified event.
       operationId: getExamGrades
       parameters:
         - name: group_id
@@ -691,7 +353,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: awarded_course_id
+        - name: event_id
           in: path
           required: true
           schema:
@@ -723,7 +385,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: awarded_course_id
+        - name: event_id
           in: path
           required: true
           schema:
@@ -762,13 +424,14 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{id}/awarded_courses:
+  /students/{student_id}/grades:
     get:
       tags:
         - Teaching
-      summary: Get all group awarded_courses
+      summary: Get student grades.
+      operationId: getStudentGrades
       parameters:
-        - name: id
+        - name: student_id
           in: path
           required: true
           schema:
@@ -784,16 +447,81 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getAllAwardedCourseByGroup
       responses:
         '200':
-          description: List of all awarded_courses in specific group
+          description: List of a student's grades, showing the exam and the course of these grades.
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AwardedCourse'
+                  $ref: '#/components/schemas/EventExam'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/groups/{id}':
+    get:
+      tags:
+        - Teaching
+      summary: Get group by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getGroupById
+      responses:
+        '200':
+          description: The identified group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Group'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /groups:
+    get:
+      tags:
+        - Teaching
+      summary: Get all groups
+      operationId: getGroups
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: List of groups
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -807,84 +535,27 @@ paths:
     put:
       tags:
         - Teaching
-      summary: Create new awarded_courses or update existing awarded_courses
-      description: Update awarded_courses when `id` are provided, create them otherwise.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: CreateOrUpdateAwardedCourses
+      summary: Create new groups or update existing groups
+      description: Update groups when `id` are provided, create them otherwise.
+      operationId: createOrUpdateGroups
       requestBody:
+        description: Groups to update
         required: true
-        description: Awarded_courses to update
         content:
           application/json:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/CreateAwardedCourse'
+                $ref: '#/components/schemas/CreateGroup'
       responses:
         '200':
-          description: Exams infos without the students participated
+          description: The created or updated groups
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AwardedCourse'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /groups/{id}/students:
-    get:
-      tags:
-        - Teaching
-      summary: Get all students who follow a group
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-        - name: page_size
-          in: query
-          schema:
-            $ref: '#/components/schemas/PageSize'
-        - name: status
-          required: false
-          in: query
-          description: Filter students by status value return all by default
-          schema:
-            $ref: '#/components/schemas/EnableStatus'
-        - name: sex
-          required: false
-          in: query
-          description: Filter students by sex value return all by default
-          schema:
-            $ref: '#/components/schemas/Sex'
-      operationId: getAllStudentByGroup
-      responses:
-        '200':
-          description: List of all student in specific awarded_course and group
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Student'
+                  $ref: '#/components/schemas/Group'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -896,148 +567,7 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
-  /students/{id}/group_flows:
-    post:
-      tags:
-        - Teaching
-      summary: Moving or removing a student from a group.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
-      operationId: moveOrDeleteStudentInGroup
-      requestBody:
-        description: Movement of a student towards a group to create.
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateGroupFlow'
-      responses:
-        '200':
-          description: Detail of student flow in a group
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/GroupFlow'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /awarded_courses:
-    get:
-      tags:
-        - Teaching
-      summary: Get all awarded_courses
-      parameters:
-        - name: teacher_id
-          in: query
-          schema:
-            type: string
-          required: false
-        - name: course_id
-          in: query
-          schema:
-            type: string
-          required: false
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
-          required: false
-      operationId: getAllAwardedCourseByCriteria
-      responses:
-        '200':
-          description: List of all awarded_courses
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/AwardedCourse'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/students/{student_id}/grade:
-    get:
-      tags:
-        - Teaching
-      summary: Return a participant with his exam grades
-      operationId: getParticipantGrade
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: exam_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: awarded_course_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: The specified participant with his grade
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StudentGrade'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-
+   ## Users tags
   '/teachers/{id}':
     get:
       tags:
@@ -1296,6 +826,498 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Manager'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{id}:
+    get:
+      tags:
+        - Users
+      summary: Get student by identifier
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getStudentById
+      responses:
+        '200':
+          description: The identified student
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Update student
+      operationId: updateStudent
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Student to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrupdateStudent'
+      responses:
+        '200':
+          description: student updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students:
+    get:
+      tags:
+        - Users
+      summary: Get all students
+      operationId: getStudents
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: ref
+          in: query
+          description: "Filter students by ref, case is ignored"
+          schema:
+            type: string
+        - name: first_name
+          in: query
+          description: "Filter students by first name, case is ignored"
+          schema:
+            type: string
+        - name: last_name
+          in: query
+          description: "Filter students by last name, case is ignored"
+          schema:
+            type: string
+        - name: course_id
+          in: query
+          description: "Filter students by course they are linked to"
+          schema:
+            type: string
+        - name: status
+          required: false
+          in: query
+          description: Filter students by status value return all by default
+          schema:
+            $ref: '#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter students by sex value return all by default
+          schema:
+            $ref: '#/components/schemas/Sex'
+      responses:
+        '200':
+          description: List of students, ordered by ref.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Create new students or update existing students
+      description: Update students when `id` are provided, create them otherwise.
+      operationId: createOrUpdateStudents
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateStudent'
+      responses:
+        '200':
+          description: The created or updated students
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
+  ## Events tags
+  /events/{id}/pariticipants/attend:
+    post:
+      tags:
+        - Events
+      summary: Users attend for given avent
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: Participants attend for given event
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserIdentifier'
+      responses:
+        '200':
+          description: Participants attended for given event
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events/{id}/pariticipants:
+    get:
+      tags:
+        - Events
+      summary: Get event participants
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getEventParticipant
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events/{id}:
+    get:
+      tags:
+        - Events
+      summary: Get event by identifier
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: getEventById
+      responses:
+        '200':
+          description: Event by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events:
+    get:
+      tags:
+        - Events
+      summary: Get all events.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getEvents
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Events
+      summary: Create or update events
+      description: Create or update event if `id` is provided, create them otherwise.
+      operationId: crupdateEvents
+      requestBody:
+        required: true
+        description: Event to create or update
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateEvent'
+      responses:
+        '200':
+          description: Exams infos without the students participated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /groups/{id}/students:
+    get:
+      tags:
+        - Teaching
+      summary: Get all students who follow a group
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: status
+          required: false
+          in: query
+          description: Filter students by status value return all by default
+          schema:
+            $ref: '#/components/schemas/EnableStatus'
+        - name: sex
+          required: false
+          in: query
+          description: Filter students by sex value return all by default
+          schema:
+            $ref: '#/components/schemas/Sex'
+      operationId: getAllStudentByGroup
+      responses:
+        '200':
+          description: List of all student in specific awarded_course and group
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
+  /students/{id}/group_flows:
+    post:
+      tags:
+        - Teaching
+      summary: Moving or removing a student from a group.
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: moveOrDeleteStudentInGroup
+      requestBody:
+        description: Movement of a student towards a group to create.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateGroupFlow'
+      responses:
+        '200':
+          description: Detail of student flow in a group
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupFlow'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/students/{student_id}/grade:
+    get:
+      tags:
+        - Teaching
+      summary: Return a participant with his exam grades
+      operationId: getParticipantGrade
+      parameters:
+        - name: group_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: awarded_course_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The specified participant with his grade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentGrade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2128,68 +2150,7 @@ components:
           schema:
             $ref: '#/components/schemas/InternalServerException'
   schemas:
-    Whoami:
-      properties:
-        id:
-          type: string
-        role:
-          type: string
-          enum:
-            - STUDENT
-            - TEACHER
-            - MANAGER
-        bearer:
-          type: string
-    UserIdentifier:
-      type: object
-      properties:
-        id:
-          type: string
-        ref:
-          type: string
-          example: STD000001
-        first_name:
-          type: string
-        last_name:
-          type: string
-        email:
-          type: string
-        nic:
-          type: string
-    StudentAttendanceMovement:
-      properties:
-        id:
-          type: string
-        attendance_movement_type:
-          $ref: '#/components/schemas/AttendanceMovementType'
-        created_at:
-          type: string
-          format: date-time
-        place:
-          $ref: '#/components/schemas/PlaceEnum'
-        student:
-          $ref: '#/components/schemas/Student'
-    CrupdateUser:
-      allOf:
-        - $ref: '#/components/schemas/UserIdentifier'
-        - type: object
-          properties:
-            sex:
-              $ref: '#/components/schemas/Sex'
-            birth_date:
-              type: string
-              format: date
-            birth_place:
-              type: string
-            address:
-              type: string
-            phone:
-              type: string
-            entrance_datetime:
-              type: string
-              format: date-time
-            status:
-              $ref: '#/components/schemas/EnableStatus'
+    ## Common enums
     SpecializationField:
       type: string
       enum:
@@ -2207,345 +2168,19 @@ components:
         - ENABLED
         - DISABLED
         - SUSPENDED
-    StudentAttendance:
-      type: object
-      properties:
-        id:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        late_of:
-          type: integer
-          description: if the student is late, that defines how late he or she is
-        place:
-          $ref: '#/components/schemas/PlaceEnum'
-        is_late:
-          type: boolean
-        course_session:
-          $ref: '#/components/schemas/CourseSession'
-        student:
-          $ref: '#/components/schemas/Student'
-    CourseSession:
-      type: object
-      properties:
-        id:
-          type: string
-        awareded_course:
-          $ref: '#/components/schemas/AwardedCourse'
-        begin:
-          type: string
-          format: date-time
-        end:
-          type: string
-          format: date-time
-    CrupdateStudent:
-      allOf:
-        - $ref: '#/components/schemas/CrupdateUser'
-      properties:
-        specialization_field:
-          $ref: '#/components/schemas/SpecializationField'
-    CrupdateTeacher:
-      allOf:
-        - $ref: '#/components/schemas/CrupdateUser'
-    CrupdateManager:
-      allOf:
-        - $ref: '#/components/schemas/CrupdateUser'
-    Student:
-      allOf:
-        - $ref: '#/components/schemas/CrupdateUser'
-      properties:
-        specialization_field:
-          $ref: '#/components/schemas/SpecializationField'
-        profile_picture:
-          type: string
-    Teacher:
-      allOf:
-        - $ref: '#/components/schemas/CrupdateUser'
-      properties:
-        profile_picture:
-          type: string
-    Manager:
-      allOf:
-        - $ref: '#/components/schemas/CrupdateUser'
-      properties:
-        profile_picture:
-          type: string
-    Group:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-          example: The group number one
-        ref:
-          type: string
-          example: G1
-        creation_datetime:
-          type: string
-          format: date-time
-    CreateGroup:
-      type: object
-      properties:
-        studentsToAdd:
-          type: array
-          items:
-            type: string
-      allOf:
-        - $ref: '#/components/schemas/Group'
-    GroupFlow:
-      type: object
-      properties:
-        id:
-          type: string
-        flowdDateTime:
-          type: string
-          format: date-time
-      allOf:
-        - $ref: '#/components/schemas/CreateGroupFlow'
-    CreateGroupFlow:
-      type: object
-      properties:
-        MoveType:
-          type: string
-          enum:
-            - JOIN
-            - LEAVE
-        groupId:
-          type: string
-        studentId:
-          type: string
-    CourseTemplate:
-      type: object
-      properties:
-        id:
-          type: string
-        code:
-          type: string
-          example: PROG1
-        name:
-          type: string
-          example: Algorithmics
-        credits:
-          type: integer
-        total_hours:
-          type: integer
-    Course:
-      allOf:
-        - $ref: '#/components/schemas/CourseTemplate'
-    CreateAwardedCourse:
-      type: object
-      properties:
-        id:
-          type: string
-        main_teacher_id:
-          type: string
-        course_id:
-          type: string
-        group_id:
-          type: string
-    AwardedCourse:
-      type: object
-      properties:
-        id:
-          type: string
-        main_teacher:
-          $ref: '#/components/schemas/Teacher'
-        course:
-          $ref: '#/components/schemas/Course'
-        group:
-          $ref: '#/components/schemas/Group'
-    ExamInfo:
-      type: object
-      properties:
-        id:
-          type: string
-        coefficient:
-          type: integer
-        title:
-          type: string
-        examination_date:
-          type: string
-          format: date-time
-        awarded_course_id:
-          type: string
-    ExamDetail:
-      allOf:
-        - $ref: '#/components/schemas/ExamInfo'
-      properties:
-        participants:
-          type: array
-          items:
-            $ref: '#/components/schemas/StudentGrade'
-    Grade:
-      type: object
-      properties:
-        id:
-          type: string
-        score:
-          type: number
-          format: double
-          example: 12.5
-        created_at:
-          type: string
-          format: date-time
-    CreateGrade:
-      type: object
-      properties:
-        score:
-          type: number
-          format: double
-          example: 12.5
-        student_id:
-          type: string
-        exam_id:
-          type: string
-        awarded_course_id:
-          type: string
-    StudentGrade:
-      allOf:
-        - $ref: '#/components/schemas/UserIdentifier'
-      type: object
-      properties:
-        grade:
-          $ref: '#/components/schemas/Grade'
-    StudentExamGrade:
-      allOf:
-        - $ref: '#/components/schemas/ExamInfo'
-      properties:
-        grade:
-          $ref: '#/components/schemas/Grade'
-    AwardedCourseExam:
-      allOf:
-        - $ref: '#/components/schemas/AwardedCourse'
-      properties:
-        exams:
-          type: array
-          items:
-            $ref: '#/components/schemas/StudentExamGrade'
-    CreateAttendanceMovement:
-      type: object
-      properties:
-        student_id:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        attendance_movement_type:
-          $ref: '#/components/schemas/AttendanceMovementType'
-        place:
-          $ref: '#/components/schemas/PlaceEnum'
+    EventType:
+      type: string
+      enum:
+        - COURSE
+        - INTEGRATION
+        - SEMINAR
+        - SUPPORT_SESSION
+        - ELSE
     PlaceEnum:
       type: string
       enum:
         - IVANDRY
         - ANDRAHARO
-    CreateFee:
-      type: object
-      properties:
-        type:
-          $ref: '#/components/schemas/FeeTypeEnum'
-        comment:
-          type: string
-        total_amount:
-          type: integer
-        creation_datetime:
-          type: string
-          format: date-time
-        due_datetime:
-          type: string
-          format: date-time
-    Fee:
-      allOf:
-        - $ref: '#/components/schemas/CreateFee'
-      type: object
-      properties:
-        id:
-          type: string
-        student_id:
-          type: string
-        remaining_amount:
-          type: integer
-        status:
-          $ref: '#/components/schemas/FeeStatusEnum'
-        updated_at:
-          type: string
-          format: date-time
-    CreateDelayPenaltyChange:
-      type: object
-      properties:
-        interest_percent:
-          type: integer
-        interest_timerate:
-          type: string
-          enum:
-            - DAILY
-        grace_delay:
-          type: integer
-        applicability_delay_after_grace:
-          type: integer
-    DelayPenalty:
-      allOf:
-        - $ref: '#/components/schemas/CreateDelayPenaltyChange'
-      type: object
-      properties:
-        id:
-          type: string
-        creation_datetime:
-          type: string
-          format: date-time
-    CreatePayment:
-      type: object
-      properties:
-        type:
-          type: string
-          enum:
-            - BANK_TRANSFER
-            - CASH
-            - MOBILE_MONEY
-            - SCHOLARSHIP
-            - FIX
-        amount:
-          type: integer
-        comment:
-          type: string
-        creation_datetime:
-          type: string
-          format: date-time
-    CrupdateFeeTemplate:
-      type: object
-      properties:
-        id:
-          type: string
-        name:
-          type: string
-        type:
-          $ref: '#/components/schemas/FeeTypeEnum'
-        amount:
-          type: integer
-        number_of_payments:
-          type: integer
-    FeeTemplate:
-      allOf:
-        - $ref: '#/components/schemas/CrupdateFeeTemplate'
-      type: object
-      properties:
-        creation_datetime:
-          type: string
-          format: date-time
-    Payment:
-      allOf:
-        - $ref: '#/components/schemas/CreatePayment'
-      type: object
-      properties:
-        id:
-          type: string
-        fee_id:
-          type: string
-        creation_datetime:
-          type: string
-          format: date-time
     FeeStatusEnum:
       type: string
       enum:
@@ -2581,6 +2216,459 @@ components:
       enum:
         - ASC
         - DESC
+
+    ## Identifier body
+    UserIdentifier:
+      type: object
+      properties:
+        id:
+          type: string
+        ref:
+          type: string
+          example: STD000001
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+        nic:
+          type: string
+
+    CourseIdentifier:
+      type: object
+      properties:
+        id:
+          type: string
+        code:
+          type: string
+          example: PROG1
+        name:
+          type: string
+          example: Algorithmics
+
+    EventIdentifier:
+      type: object
+      properties:
+        id:
+          type: string
+
+    ## Creation bodies
+    CrupdateUser:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+        - type: object
+          properties:
+            sex:
+              $ref: '#/components/schemas/Sex'
+            birth_date:
+              type: string
+              format: date
+            birth_place:
+              type: string
+            address:
+              type: string
+            phone:
+              type: string
+            entrance_datetime:
+              type: string
+              format: date-time
+            status:
+              $ref: '#/components/schemas/EnableStatus'
+
+    CrupdateStudent:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        specialization_field:
+          $ref: '#/components/schemas/SpecializationField'
+
+    CrupdateTeacher:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+
+    CrupdateManager:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+
+    CreateGroup:
+      type: object
+      properties:
+        students:
+          type: array
+          items:
+            type: string
+      allOf:
+        - $ref: '#/components/schemas/Group'
+
+    CreateGroupFlow:
+      type: object
+      properties:
+        MoveType:
+          type: string
+          enum:
+            - JOIN
+            - LEAVE
+        groupId:
+          type: string
+        studentId:
+          type: string
+
+    CreateEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        planner_id:
+          description: user id
+          type: string
+        course_id:
+          type: string
+        group_ids:
+          type: array
+          items:
+            type: string
+
+    CreateGrade:
+      type: object
+      properties:
+        score:
+          type: number
+          format: double
+          example: 12.5
+        student_id:
+          type: string
+        exam_id:
+          type: string
+        awarded_course_id:
+          type: string
+
+    CreateAttendanceMovement:
+      type: object
+      properties:
+        student_id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        attendance_movement_type:
+          $ref: '#/components/schemas/AttendanceMovementType'
+        place:
+          $ref: '#/components/schemas/PlaceEnum'
+
+    CreateFee:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/FeeTypeEnum'
+        comment:
+          type: string
+        total_amount:
+          type: integer
+        creation_datetime:
+          type: string
+          format: date-time
+        due_datetime:
+          type: string
+          format: date-time
+
+    CreateDelayPenaltyChange:
+      type: object
+      properties:
+        interest_percent:
+          type: integer
+        interest_timerate:
+          type: string
+          enum:
+            - DAILY
+        grace_delay:
+          type: integer
+        applicability_delay_after_grace:
+          type: integer
+
+    CreatePayment:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - BANK_TRANSFER
+            - CASH
+            - MOBILE_MONEY
+            - SCHOLARSHIP
+            - FIX
+        amount:
+          type: integer
+        comment:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+
+    CrupdateFeeTemplate:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          $ref: '#/components/schemas/FeeTypeEnum'
+        amount:
+          type: integer
+        number_of_payments:
+          type: integer
+
+
+    ## Payload bodies
+    Whoami:
+      properties:
+        id:
+          type: string
+        role:
+          type: string
+          enum:
+            - STUDENT
+            - TEACHER
+            - MANAGER
+        bearer:
+          type: string
+
+    StudentAttendanceMovement:
+      properties:
+        id:
+          type: string
+        attendance_movement_type:
+          $ref: '#/components/schemas/AttendanceMovementType'
+        created_at:
+          type: string
+          format: date-time
+        place:
+          $ref: '#/components/schemas/PlaceEnum'
+        student:
+          $ref: '#/components/schemas/Student'
+
+    StudentAttendance:
+      type: object
+      properties:
+        id:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        late_of:
+          type: integer
+          description: if the student is late, that defines how late he or she is
+        place:
+          $ref: '#/components/schemas/PlaceEnum'
+        is_late:
+          type: boolean
+        event:
+          $ref: '#/components/schemas/Event'
+        student:
+          $ref: '#/components/schemas/Student'
+
+    Student:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        specialization_field:
+          $ref: '#/components/schemas/SpecializationField'
+        profile_picture:
+          type: string
+
+    Teacher:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        profile_picture:
+          type: string
+
+    Manager:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        profile_picture:
+          type: string
+
+    Group:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: The group number one
+        ref:
+          type: string
+          example: G1
+        creation_datetime:
+          type: string
+          format: date-time
+
+    GroupFlow:
+      type: object
+      properties:
+        id:
+          type: string
+        flowdDateTime:
+          type: string
+          format: date-time
+      allOf:
+        - $ref: '#/components/schemas/CreateGroupFlow'
+
+    Course:
+      type: object
+      properties:
+        credits:
+          type: integer
+        total_hours:
+          type: integer
+      allOf:
+        - $ref: '#/components/schemas/CourseIdentifier'
+
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/EventType'
+        description:
+          type: string
+        planner:
+          $ref: '#/components/schemas/UserIdentifier'
+        course:
+          $ref: '#/components/schemas/CourseIdentifier'
+
+    EventParticipant:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: The group number one
+        ref:
+          type: string
+          example: G1
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserIdentifier'
+
+    ExamInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        coefficient:
+          type: integer
+        title:
+          type: string
+        examination_date:
+          type: string
+          format: date-time
+        awarded_course_id:
+          type: string
+
+    ExamDetail:
+      allOf:
+        - $ref: '#/components/schemas/ExamInfo'
+      properties:
+        participants:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentGrade'
+
+    Grade:
+      type: object
+      properties:
+        id:
+          type: string
+        score:
+          type: number
+          format: double
+          example: 12.5
+        created_at:
+          type: string
+          format: date-time
+
+    StudentGrade:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+      type: object
+      properties:
+        grade:
+          $ref: '#/components/schemas/Grade'
+
+    StudentExamGrade:
+      allOf:
+        - $ref: '#/components/schemas/ExamInfo'
+      properties:
+        grade:
+          $ref: '#/components/schemas/Grade'
+
+    EventExam:
+      allOf:
+        - $ref: '#/components/schemas/Event'
+      properties:
+        exams:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentExamGrade'
+
+    Fee:
+      allOf:
+        - $ref: '#/components/schemas/CreateFee'
+      type: object
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        remaining_amount:
+          type: integer
+        status:
+          $ref: '#/components/schemas/FeeStatusEnum'
+        updated_at:
+          type: string
+          format: date-time
+
+    DelayPenalty:
+      allOf:
+        - $ref: '#/components/schemas/CreateDelayPenaltyChange'
+      type: object
+      properties:
+        id:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+
+    FeeTemplate:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateFeeTemplate'
+      type: object
+      properties:
+        creation_datetime:
+          type: string
+          format: date-time
+
+    Payment:
+      allOf:
+        - $ref: '#/components/schemas/CreatePayment'
+      type: object
+      properties:
+        id:
+          type: string
+        fee_id:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+
+    ## Exception body
     Exception:
       type: object
       properties:
@@ -2588,30 +2676,35 @@ components:
           type: string
         message:
           type: string
+
     BadRequestException:
       allOf:
         - $ref: '#/components/schemas/Exception'
       example:
         type: BadRequestException
         message: Bad request
+
     NotAuthorizedException:
       allOf:
         - $ref: '#/components/schemas/Exception'
       example:
         type: NotAuthorizedException
         message: Not authorized
+
     ResourceNotFoundException:
       allOf:
         - $ref: '#/components/schemas/Exception'
       example:
         type: ResourceNotFoundException
         message: Resource of type <T> identified by <I> not found
+
     TooManyRequestsException:
       allOf:
         - $ref: '#/components/schemas/Exception'
       example:
         type: TooManyRequestsException
         message: Too many requests
+
     InternalServerException:
       allOf:
         - $ref: '#/components/schemas/Exception'
