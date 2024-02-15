@@ -18,6 +18,7 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -328,7 +329,8 @@ class TeacherIT extends MockedThirdParties {
         .sex(Sex.M)
         .birthDate(LocalDate.parse("2000-01-01"))
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .address("Adr X");
+        .address("Adr X")
+        .coordinates(coordinatesWithNullValues());
   }
 
   public static Teacher disabledTeacher1() {
@@ -345,7 +347,8 @@ class TeacherIT extends MockedThirdParties {
         .phone("0322411123")
         .nic("")
         .birthPlace("")
-        .address("Adr 1");
+        .address("Adr 1")
+        .coordinates(coordinatesWithNullValues());
   }
 
   public static Teacher suspendedTeacher1() {
@@ -362,7 +365,8 @@ class TeacherIT extends MockedThirdParties {
         .phone("0322411124")
         .nic("")
         .birthPlace("")
-        .address("Adr 2");
+        .address("Adr 2")
+        .coordinates(coordinatesWithNullValues());
   }
 
   public static CrupdateTeacher someUpdatableTeacher1() {
@@ -380,7 +384,8 @@ class TeacherIT extends MockedThirdParties {
         .sex(Sex.F)
         .lastName("Other last")
         .firstName("Other first")
-        .birthDate(LocalDate.parse("2000-01-03"));
+        .birthDate(LocalDate.parse("2000-01-03"))
+        .coordinates(coordinatesWithNullValues());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

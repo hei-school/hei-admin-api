@@ -23,6 +23,7 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -57,6 +58,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Student;
@@ -127,6 +129,7 @@ class StudentIT extends MockedThirdParties {
     student.setEntranceDatetime(birthday.plusSeconds(ageOfEntrance * 365L * 24L * 60L * 60L));
     student.setAddress(faker.address().fullAddress());
     student.specializationField(COMMON_CORE);
+    student.setCoordinates(coordinatesWithNullValues());
 
     return student;
   }
@@ -155,6 +158,8 @@ class StudentIT extends MockedThirdParties {
     student.setNic("");
     student.setSpecializationField(COMMON_CORE);
     student.setBirthPlace("");
+    student.setCoordinates(new Coordinates().longitude(-123.123).latitude(123.0));
+
     return student;
   }
 
@@ -174,6 +179,7 @@ class StudentIT extends MockedThirdParties {
     student.setBirthPlace("");
     student.setNic("");
     student.setSpecializationField(COMMON_CORE);
+    student.setCoordinates(new Coordinates().longitude(255.255).latitude(-255.255));
     return student;
   }
 
@@ -192,6 +198,7 @@ class StudentIT extends MockedThirdParties {
     student.setAddress("Adr 2");
     student.setBirthPlace("");
     student.setNic("");
+    student.setCoordinates(coordinatesWithNullValues());
     return student;
   }
 
@@ -211,6 +218,7 @@ class StudentIT extends MockedThirdParties {
     student.setBirthPlace("Befelatanana");
     student.setNic("0000000000");
     student.setSpecializationField(COMMON_CORE);
+    student.setCoordinates(coordinatesWithNullValues());
     return student;
   }
 
@@ -229,6 +237,7 @@ class StudentIT extends MockedThirdParties {
         .specializationField(COMMON_CORE)
         .nic("")
         .birthPlace("")
+        .coordinates(coordinatesWithNullValues())
         .address("Adr 1");
   }
 
@@ -243,7 +252,8 @@ class StudentIT extends MockedThirdParties {
         .birthDate(LocalDate.parse("2000-12-02"))
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
         .phone("0322411124")
-        .address("Adr 3");
+        .address("Adr 3")
+        .coordinates(coordinatesWithNullValues());
   }
 
   public static Student suspendedStudent1() {
@@ -261,7 +271,8 @@ class StudentIT extends MockedThirdParties {
         .nic("")
         .specializationField(COMMON_CORE)
         .birthPlace("")
-        .address("Adr 2");
+        .address("Adr 2")
+        .coordinates(coordinatesWithNullValues());
   }
 
   @BeforeEach
@@ -523,6 +534,7 @@ class StudentIT extends MockedThirdParties {
             .lastName(created0.getLastName())
             .sex(created0.getSex())
             .ref(created0.getRef())
+            .coordinates(coordinatesWithNullValues())
             .specializationField(created0.getSpecializationField())
             .status(created0.getStatus());
     toUpdate0.setLastName("A new name zero");
@@ -542,6 +554,7 @@ class StudentIT extends MockedThirdParties {
             .lastName(created1.getLastName())
             .sex(created1.getSex())
             .ref(created1.getRef())
+            .coordinates(coordinatesWithNullValues())
             .specializationField(created1.getSpecializationField())
             .status(created1.getStatus());
     toUpdate1.setLastName("A new name one");
@@ -560,6 +573,7 @@ class StudentIT extends MockedThirdParties {
             .lastName("A new name zero")
             .sex(toUpdate0.getSex())
             .ref(toUpdate0.getRef())
+            .coordinates(coordinatesWithNullValues())
             .specializationField(toUpdate0.getSpecializationField())
             .status(toUpdate0.getStatus());
 
@@ -578,6 +592,7 @@ class StudentIT extends MockedThirdParties {
             .sex(toUpdate1.getSex())
             .ref(toUpdate1.getRef())
             .specializationField(toUpdate1.getSpecializationField())
+            .coordinates(coordinatesWithNullValues())
             .status(toUpdate1.getStatus());
 
     List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1));
@@ -619,6 +634,36 @@ class StudentIT extends MockedThirdParties {
     List<Student> actual = api.getStudents(1, 100, null, null, null, null, null, null);
     assertFalse(
         actual.stream().anyMatch(s -> Objects.equals(studentToCreate.getEmail(), s.getEmail())));
+  }
+
+  @Test
+  void manager_write_with_longitude_null_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Longitude is null, it must go hand in hand"
+            + " with latitude\"}",
+        () ->
+            api.createOrUpdateStudents(
+                List.of(
+                    someCreatableStudent()
+                        .coordinates(new Coordinates().longitude(null).latitude(12.0)))));
+  }
+
+  @Test
+  void manager_write_with_latitude_null_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Latitude is null, it must go hand in hand with"
+            + " longitude\"}",
+        () ->
+            api.createOrUpdateStudents(
+                List.of(
+                    someCreatableStudent()
+                        .coordinates(new Coordinates().longitude(12.0).latitude(null)))));
   }
 
   @Test

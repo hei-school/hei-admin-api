@@ -23,6 +23,7 @@ import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.GroupFlow;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.validator.CoordinatesValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
@@ -38,6 +39,7 @@ public class StudentController {
   private final GroupFlowMapper groupFlowMapper;
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
+  private final CoordinatesValidator validator;
 
   @PostMapping(value = "/students/{id}/picture/raw")
   public Student uploadStudentProfilePicture(
@@ -81,6 +83,7 @@ public class StudentController {
 
   @PutMapping("/students")
   public List<Student> saveAll(@RequestBody List<CrupdateStudent> toWrite) {
+    toWrite.forEach(student -> validator.accept(student.getCoordinates()));
     return userService
         .saveAll(toWrite.stream().map(userMapper::toDomain).collect(toUnmodifiableList()))
         .stream()
@@ -91,6 +94,7 @@ public class StudentController {
   @PutMapping("/students/{id}")
   public Student updateStudent(
       @PathVariable(name = "id") String studentId, @RequestBody CrupdateStudent toUpdate) {
+    validator.accept(toUpdate.getCoordinates());
     return userMapper.toRestStudent(
         userService.updateUser(userMapper.toDomain(toUpdate), studentId));
   }

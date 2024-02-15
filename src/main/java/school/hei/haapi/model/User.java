@@ -98,6 +98,9 @@ public class User implements Serializable {
   @OneToMany(mappedBy = "student", fetch = LAZY)
   private List<Grade> grades;
 
+  private Double longitude;
+  private Double latitude;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

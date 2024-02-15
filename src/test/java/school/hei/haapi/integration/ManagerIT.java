@@ -8,6 +8,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -34,6 +35,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.CrupdateManager;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
@@ -68,6 +70,7 @@ class ManagerIT extends MockedThirdParties {
     manager.setAddress("Adr 5");
     manager.setBirthPlace("");
     manager.setNic("");
+    manager.setCoordinates(new Coordinates().longitude(55.555).latitude(-55.555));
     return manager;
   }
 
@@ -120,6 +123,7 @@ class ManagerIT extends MockedThirdParties {
     manager.setAddress("Adr 5");
     manager.setBirthPlace("");
     manager.setNic("");
+    manager.setCoordinates(coordinatesWithNullValues());
     return manager
         .address("Adr 999")
         .sex(Sex.F)
