@@ -25,9 +25,7 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.AwardedCourse;
 import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
@@ -193,21 +191,6 @@ public class TestUtils {
     return new Course().code(code).name("Collaborative work like GWSP").credits(12).totalHours(5);
   }
 
-  public static CreateAwardedCourse updateAwardedCourse1() {
-    return new CreateAwardedCourse()
-        .id(AWARDED_COURSE1_ID)
-        .courseId("course1_id")
-        .groupId("group1_id")
-        .mainTeacherId("teacher1_id");
-  }
-
-  public static CreateAwardedCourse createAwardedCourse() {
-    return new CreateAwardedCourse()
-        .courseId("course2_id")
-        .groupId("group2_id")
-        .mainTeacherId("teacher2_id");
-  }
-
   public static List<CrupdateTeacher> someCreatableTeacherList(int nbOfTeacher) {
     List<CrupdateTeacher> teacherList = new ArrayList<>();
     for (int i = 0; i < nbOfTeacher; i++) {
@@ -230,15 +213,6 @@ public class TestUtils {
       courseList.add(createCourse("ToAdd" + i));
     }
     return courseList;
-  }
-
-  public static List<CreateAwardedCourse> someCreatableCreateAwardedCourseList(
-      int nbOfCreateAwardedCourse) {
-    List<CreateAwardedCourse> createAwardedCourseList = new ArrayList<>();
-    for (int i = 0; i < nbOfCreateAwardedCourse; i++) {
-      createAwardedCourseList.add(createAwardedCourse());
-    }
-    return createAwardedCourseList;
   }
 
   public static Group group1() {
@@ -391,38 +365,6 @@ public class TestUtils {
         .credits(4)
         .totalHours(30)
         .name("relational data base");
-  }
-
-  public static AwardedCourse awardedCourse1() {
-    return new AwardedCourse()
-        .id(AWARDED_COURSE1_ID)
-        .course(course1())
-        .group(group1())
-        .mainTeacher(teacher1());
-  }
-
-  public static AwardedCourse awardedCourse2() {
-    return new AwardedCourse()
-        .id(AWARDED_COURSE2_ID)
-        .course(course1())
-        .group(group1())
-        .mainTeacher(teacher2());
-  }
-
-  public static AwardedCourse awardedCourse3() {
-    return new AwardedCourse()
-        .id(AWARDED_COURSE3_ID)
-        .course(course1())
-        .group(group2())
-        .mainTeacher(teacher2());
-  }
-
-  public static AwardedCourse awardedCourse4() {
-    return new AwardedCourse()
-        .id(AWARDED_COURSE4_ID)
-        .course(course2())
-        .group(group1())
-        .mainTeacher(teacher4());
   }
 
   public static FeeTemplate feeTemplate1() {

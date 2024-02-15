@@ -306,7 +306,7 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
-   ## Users tags
+    ## Users tags
   '/teachers/{id}':
     get:
       tags:
@@ -742,6 +742,35 @@ paths:
 
   ## Events tags
   /events/{id}/pariticipants/attend:
+    get:
+      tags:
+        - Events
+      summary: Users attended for given event
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Participants attended for given event
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     post:
       tags:
         - Events
@@ -868,6 +897,20 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: from
+          in: query
+          description: Take events from a given date, current week by default
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: to
+          in: query
+          description: Take events after a given date, current week by default
+          schema:
+            type: string
+            format: date-time
+          required: false
       operationId: getEvents
       responses:
         '200':
@@ -1556,40 +1599,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/attendance/movement':
-    post:
-      tags:
-        - Attendance
-      summary: Create attendance movement of one student
-      operationId: createAttendanceMovement
-      requestBody:
-        description: Attendance movement to create
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateAttendanceMovement'
-      responses:
-        '200':
-          description: Created student attendance movement
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StudentAttendanceMovement'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
   '/teachers/{teacher_id}/picture/raw':
     post:
       tags:
@@ -1688,84 +1697,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Student'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  '/attendance':
-    get:
-      tags:
-        - Attendance
-      summary: Get all attendances by courses ids or student key word
-      operationId: getStudentsAttendance
-      parameters:
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-        - name: page_size
-          in: query
-          schema:
-            $ref: '#/components/schemas/PageSize'
-        - name: courses_ids
-          required: false
-          in: query
-          description: Filter attendance by courses ids
-          schema:
-            type: array
-            items:
-              example: 'course1_id'
-        - name: teachers_ids
-          required: false
-          in: query
-          description: Filter attendance by teachers ids
-          schema:
-            type: array
-            items:
-              example: 'teacher1_id'
-        - name: student_key_word
-          in: query
-          required: false
-          description: Filter attendance by student `ref, lastname, firstname`
-          schema:
-            type: string
-        - name: from
-          in: query
-          required: false
-          description: Filter attendance from a date, return attendances of the current week by default
-          schema:
-            type: string
-            format: date-time
-        - name: to
-          required: false
-          in: query
-          description: Filter attendance before a date, return attendances of the current week by default
-          schema:
-            type: string
-            format: date-time
-        - name: attendance_statuses
-          required: false
-          in: query
-          description: Filter attendance by attendance status value
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/AttendanceStatus'
-      responses:
-        '200':
-          description: List of attendance by courses ids or student key word
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/StudentAttendance'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1895,11 +1826,10 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
-    AttendanceStatus:
+    ParticipantStatus:
       type: string
       enum:
         - MISSING
-        - LATE
         - PRESENT
     AttendanceMovementType:
       type: string
@@ -1913,6 +1843,13 @@ components:
         - DESC
 
     ## Identifier body
+    EventParticipantStatus:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+      type: object
+      properties:
+        event_status:
+          $ref: '#/components/schemas/ParticipantStatus'
     UserIdentifier:
       type: object
       properties:
@@ -2123,40 +2060,6 @@ components:
         bearer:
           type: string
 
-    StudentAttendanceMovement:
-      properties:
-        id:
-          type: string
-        attendance_movement_type:
-          $ref: '#/components/schemas/AttendanceMovementType'
-        created_at:
-          type: string
-          format: date-time
-        place:
-          $ref: '#/components/schemas/PlaceEnum'
-        student:
-          $ref: '#/components/schemas/Student'
-
-    StudentAttendance:
-      type: object
-      properties:
-        id:
-          type: string
-        created_at:
-          type: string
-          format: date-time
-        late_of:
-          type: integer
-          description: if the student is late, that defines how late he or she is
-        place:
-          $ref: '#/components/schemas/PlaceEnum'
-        is_late:
-          type: boolean
-        event:
-          $ref: '#/components/schemas/Event'
-        student:
-          $ref: '#/components/schemas/Student'
-
     Student:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
@@ -2231,20 +2134,14 @@ components:
           $ref: '#/components/schemas/CourseIdentifier'
 
     EventParticipant:
+      allOf:
+        - $ref: '#/components/schemas/Group'
       type: object
       properties:
-        id:
-          type: string
-        name:
-          type: string
-          example: The group number one
-        ref:
-          type: string
-          example: G1
         students:
           type: array
           items:
-            $ref: '#/components/schemas/UserIdentifier'
+            $ref: '#/components/schemas/EventParticipantStatus'
 
     ExamEvent:
       allOf:
@@ -2299,44 +2196,6 @@ components:
         creation_datetime:
           type: string
           format: date-time
-
-    CourseSession:
-      type: object
-      properties:
-        id:
-          type: string
-        awareded_course:
-          $ref: '#/components/schemas/AwardedCourse'
-        begin:
-          type: string
-          format: date-time
-        end:
-          type: string
-          format: date-time
-
-    CreateAwardedCourse:
-      type: object
-      properties:
-        id:
-          type: string
-        main_teacher_id:
-          type: string
-        course_id:
-          type: string
-        group_id:
-          type: string
-
-    AwardedCourse:
-      type: object
-      properties:
-        id:
-          type: string
-        main_teacher:
-          $ref: '#/components/schemas/Teacher'
-        course:
-          $ref: '#/components/schemas/Course'
-        group:
-          $ref: '#/components/schemas/Group'
 
     ## Exception body
     Exception:
