@@ -27,6 +27,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
@@ -178,6 +179,7 @@ public class TestUtils {
         .sex(Sex.M)
         .birthDate(LocalDate.parse("2000-01-01"))
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .coordinates(coordinatesWithNullValues())
         .address("Adr X");
   }
 
@@ -302,6 +304,7 @@ public class TestUtils {
         .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
         .nic("")
         .birthPlace("")
+        .coordinates(new Coordinates().longitude(999.999).latitude(999.999))
         .address("Adr 3");
   }
 
@@ -319,7 +322,8 @@ public class TestUtils {
         .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
         .nic("")
         .birthPlace("")
-        .address("Adr 4");
+        .address("Adr 4")
+        .coordinates(coordinatesWithNullValues());
   }
 
   public static Teacher teacher3() {
@@ -353,7 +357,8 @@ public class TestUtils {
         .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
         .nic("")
         .birthPlace("")
-        .address("Adr 5");
+        .address("Adr 5")
+        .coordinates(coordinatesWithNullValues());
   }
 
   public static Fee fee1() {
@@ -734,6 +739,10 @@ public class TestUtils {
         .course(awardedCourse4().getCourse())
         .group(awardedCourse4().getGroup())
         .exams(List.of(studentExamGrade5()));
+  }
+
+  public static Coordinates coordinatesWithNullValues() {
+    return new Coordinates().latitude(null).longitude(null);
   }
 
   public static boolean isBefore(String a, String b) {

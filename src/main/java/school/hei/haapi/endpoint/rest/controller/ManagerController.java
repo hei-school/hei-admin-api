@@ -18,6 +18,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateManager;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
+import school.hei.haapi.endpoint.rest.validator.CoordinatesValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
@@ -32,6 +33,7 @@ public class ManagerController {
   private final UserService userService;
   private final UserMapper userMapper;
   private final FileService fileService;
+  private final CoordinatesValidator validator;
 
   @PostMapping(value = "/managers/{id}/picture/raw")
   public Manager uploadTeacherProfilePicture(
@@ -48,6 +50,7 @@ public class ManagerController {
   @PutMapping("/managers/{id}")
   public Manager updateManager(
       @PathVariable(name = "id") String managerId, @RequestBody CrupdateManager toUpdate) {
+    validator.accept(toUpdate.getCoordinates());
     return userMapper.toRestManager(
         userService.updateUser(userMapper.toDomain(toUpdate), managerId));
   }

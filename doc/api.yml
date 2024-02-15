@@ -2188,6 +2188,8 @@ components:
             entrance_datetime:
               type: string
               format: date-time
+            coordinates:
+              $ref: '#/components/schemas/Coordinates'
             status:
               $ref: '#/components/schemas/EnableStatus'
     SpecializationField:
@@ -2513,6 +2515,15 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    Coordinates:
+      type: object
+      properties:
+        longitude:
+          type: number
+          format: double
+        latitude:
+          type: number
+          format: double
     CrupdateFeeTemplate:
       type: object
       properties:
