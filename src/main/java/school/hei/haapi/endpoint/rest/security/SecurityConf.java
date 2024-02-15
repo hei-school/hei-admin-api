@@ -22,7 +22,6 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
-import school.hei.haapi.service.AwardedCourseService;
 
 @Configuration
 @Slf4j
@@ -30,18 +29,15 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String STUDENT_COURSE = "/students/*/courses";
-  private final AwardedCourseService awardedCourseService;
   private final AuthProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
 
   public SecurityConf(
       AuthProvider authProvider,
       // InternalToExternalErrorHandler behind
-      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
-      AwardedCourseService awardedCourseService) {
+      @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
-    this.awardedCourseService = awardedCourseService;
   }
 
   @Override
@@ -222,10 +218,6 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(PUT, "/groups/*/awarded_courses")
         .hasAnyRole(MANAGER.getRole())
-        .requestMatchers(
-            new AwardedCourseOfTeacherMatcher(
-                awardedCourseService, PUT, "/groups/*/awarded_courses/*/exams"))
-        .hasAnyRole(TEACHER.getRole())
         .antMatchers(GET, "/groups/*/awarded_courses/*/exams")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*")
@@ -240,10 +232,6 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/awarded_courses")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-        .requestMatchers(
-            new AwardedCourseOfTeacherMatcher(
-                awardedCourseService, PUT, "/groups/*" + "/awarded_courses/*/exams"))
-        .hasAnyRole(TEACHER.getRole())
         .antMatchers(GET, "/groups/*/awarded_courses/*/exams")
         .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
         .antMatchers(GET, "/groups/*/awarded_courses/*/exams/*")

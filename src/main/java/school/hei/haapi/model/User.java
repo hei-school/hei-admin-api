@@ -95,9 +95,6 @@ public class User implements Serializable {
   @OneToMany(mappedBy = "student", fetch = LAZY)
   private List<GroupFlow> groupFlows;
 
-  @OneToMany(mappedBy = "student", fetch = LAZY)
-  private List<Grade> grades;
-
   @Override
   public boolean equals(Object o) {
     if (this == o) {

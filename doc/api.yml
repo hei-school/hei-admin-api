@@ -205,267 +205,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/events/{event_id}/exams:
-    get:
-      tags:
-        - Teaching
-      summary: Get all exam infos of a specified event.
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: event_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
-      operationId: getExamsByGroupIdAndEvent
-      responses:
-        '200':
-          description: List of exam infos without the participants of the specified course
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExamInfo'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    put:
-      tags:
-        - Teaching
-      summary: Create new exams or update existing exams
-      description: Update exams when `id` are provided, create them otherwise.
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: event_id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: CreateOrUpdateExams
-      requestBody:
-        required: true
-        description: Exams to update
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/ExamInfo'
-      responses:
-        '200':
-          description: Exams infos without the students participated
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExamInfo'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /groups/{group_id}/events/{event_id}/exams/{exam_id}:
-    get:
-      tags:
-        - Teaching
-      summary: Get exam by identifier.
-      operationId: getExamById
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: event_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: exam_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Identified exam.
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ExamInfo'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /groups/{group_id}/events/{event_id}/exams/{exam_id}/grades:
-    get:
-      tags:
-        - Teaching
-      summary: Get exam details with the participants and their grades in a specified event.
-      operationId: getExamGrades
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: exam_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: event_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Exam infos with the students participated and their grades
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ExamDetail'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    post:
-      tags:
-        - Teaching
-      summary: Create exam grades
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: event_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: exam_id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: createStudentExamGrade
-      requestBody:
-        description: Examination with its participants with their note to create.
-        required: true
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateGrade'
-      responses:
-        '200':
-          description: Exam with participants and grade
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExamDetail'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /students/{student_id}/grades:
-    get:
-      tags:
-        - Teaching
-      summary: Get student grades.
-      operationId: getStudentGrades
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
-      responses:
-        '200':
-          description: List of a student's grades, showing the exam and the course of these grades.
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExamEvent'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
   '/groups/{id}':
     get:
       tags:
@@ -1166,7 +905,7 @@ paths:
                 $ref: '#/components/schemas/CreateEvent'
       responses:
         '200':
-          description: Exams infos without the students participated
+          description: Event created
           content:
             application/json:
               schema:
@@ -1274,50 +1013,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/GroupFlow'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/students/{student_id}/grade:
-    get:
-      tags:
-        - Teaching
-      summary: Return a participant with his exam grades
-      operationId: getParticipantGrade
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: exam_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: awarded_course_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: The specified participant with his grade
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/StudentGrade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2337,20 +2032,6 @@ components:
           items:
             type: string
 
-    CreateGrade:
-      type: object
-      properties:
-        score:
-          type: number
-          format: double
-          example: 12.5
-        student_id:
-          type: string
-        exam_id:
-          type: string
-        awarded_course_id:
-          type: string
-
     CreateAttendanceMovement:
       type: object
       properties:
@@ -2565,66 +2246,9 @@ components:
           items:
             $ref: '#/components/schemas/UserIdentifier'
 
-    ExamInfo:
-      type: object
-      properties:
-        id:
-          type: string
-        coefficient:
-          type: integer
-        title:
-          type: string
-        examination_date:
-          type: string
-          format: date-time
-        awarded_course_id:
-          type: string
-
-    ExamDetail:
-      allOf:
-        - $ref: '#/components/schemas/ExamInfo'
-      properties:
-        participants:
-          type: array
-          items:
-            $ref: '#/components/schemas/StudentGrade'
-
-    Grade:
-      type: object
-      properties:
-        id:
-          type: string
-        score:
-          type: number
-          format: double
-          example: 12.5
-        created_at:
-          type: string
-          format: date-time
-
-    StudentGrade:
-      allOf:
-        - $ref: '#/components/schemas/UserIdentifier'
-      type: object
-      properties:
-        grade:
-          $ref: '#/components/schemas/Grade'
-
-    StudentExamGrade:
-      allOf:
-        - $ref: '#/components/schemas/ExamInfo'
-      properties:
-        grade:
-          $ref: '#/components/schemas/Grade'
-
     ExamEvent:
       allOf:
         - $ref: '#/components/schemas/Event'
-      properties:
-        exams:
-          type: array
-          items:
-            $ref: '#/components/schemas/StudentExamGrade'
 
     Fee:
       allOf:
@@ -2713,15 +2337,6 @@ components:
           $ref: '#/components/schemas/Course'
         group:
           $ref: '#/components/schemas/Group'
-
-    AwardedCourseExam:
-      allOf:
-        - $ref: '#/components/schemas/AwardedCourse'
-      properties:
-        exams:
-          type: array
-          items:
-            $ref: '#/components/schemas/StudentExamGrade'
 
     ## Exception body
     Exception:
