@@ -455,7 +455,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/EventExam'
+                  $ref: '#/components/schemas/ExamEvent'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2319,6 +2319,14 @@ components:
       properties:
         id:
           type: string
+        description:
+          type: string
+        begin:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
         planner_id:
           description: user id
           type: string
@@ -2609,7 +2617,7 @@ components:
         grade:
           $ref: '#/components/schemas/Grade'
 
-    EventExam:
+    ExamEvent:
       allOf:
         - $ref: '#/components/schemas/Event'
       properties:
@@ -2667,6 +2675,53 @@ components:
         creation_datetime:
           type: string
           format: date-time
+
+    CourseSession:
+      type: object
+      properties:
+        id:
+          type: string
+        awareded_course:
+          $ref: '#/components/schemas/AwardedCourse'
+        begin:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+
+    CreateAwardedCourse:
+      type: object
+      properties:
+        id:
+          type: string
+        main_teacher_id:
+          type: string
+        course_id:
+          type: string
+        group_id:
+          type: string
+
+    AwardedCourse:
+      type: object
+      properties:
+        id:
+          type: string
+        main_teacher:
+          $ref: '#/components/schemas/Teacher'
+        course:
+          $ref: '#/components/schemas/Course'
+        group:
+          $ref: '#/components/schemas/Group'
+
+    AwardedCourseExam:
+      allOf:
+        - $ref: '#/components/schemas/AwardedCourse'
+      properties:
+        exams:
+          type: array
+          items:
+            $ref: '#/components/schemas/StudentExamGrade'
 
     ## Exception body
     Exception:
