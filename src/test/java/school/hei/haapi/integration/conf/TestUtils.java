@@ -26,25 +26,18 @@ import org.springframework.core.io.Resource;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.ExamDetail;
-import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
-import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.service.aws.FileService;
@@ -215,22 +208,6 @@ public class TestUtils {
         .mainTeacherId("teacher2_id");
   }
 
-  public static ExamInfo createExam() {
-    return new ExamInfo()
-        .coefficient(10)
-        .title("createExam")
-        .examinationDate(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .awardedCourseId(AWARDED_COURSE1_ID);
-  }
-
-  public static CreateGrade createGrade(String studentId, String examId, String awardedCourseId) {
-    return new CreateGrade()
-        .score(20.0)
-        .studentId(studentId)
-        .examId(examId)
-        .awardedCourseId(awardedCourseId);
-  }
-
   public static List<CrupdateTeacher> someCreatableTeacherList(int nbOfTeacher) {
     List<CrupdateTeacher> teacherList = new ArrayList<>();
     for (int i = 0; i < nbOfTeacher; i++) {
@@ -262,14 +239,6 @@ public class TestUtils {
       createAwardedCourseList.add(createAwardedCourse());
     }
     return createAwardedCourseList;
-  }
-
-  public static List<ExamInfo> someCreatableExamInfoList(int nbOfExamInfo) {
-    List<ExamInfo> examInfoList = new ArrayList<>();
-    for (int i = 0; i < nbOfExamInfo; i++) {
-      examInfoList.add(createExam());
-    }
-    return examInfoList;
   }
 
   public static Group group1() {
@@ -456,194 +425,6 @@ public class TestUtils {
         .mainTeacher(teacher4());
   }
 
-  public static ExamInfo exam1() {
-    return new ExamInfo()
-        .id(EXAM1_ID)
-        .coefficient(2)
-        .title("Algorithmics")
-        .awardedCourseId("awarded_course1_id")
-        .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
-  }
-
-  public static ExamInfo exam2() {
-    return new ExamInfo()
-        .id(EXAM2_ID)
-        .coefficient(3)
-        .title("Algorithmics final")
-        .awardedCourseId("awarded_course1_id")
-        .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
-  }
-
-  public static ExamInfo exam3() {
-    return new ExamInfo()
-        .id(EXAM3_ID)
-        .coefficient(2)
-        .title("Algorithmics")
-        .awardedCourseId("awarded_course3_id")
-        .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
-  }
-
-  public static ExamInfo exam4() {
-    return new ExamInfo()
-        .id(EXAM4_ID)
-        .coefficient(3)
-        .title("Algorithmics2")
-        .awardedCourseId("awarded_course2_id")
-        .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
-  }
-
-  public static ExamInfo exam5() {
-    return new ExamInfo()
-        .id(EXAM5_ID)
-        .coefficient(1)
-        .title("Prog2 final")
-        .awardedCourseId("awarded_course4_id")
-        .examinationDate(Instant.parse("2022-12-09T08:25:24Z"));
-  }
-
-  public static Grade grade1() {
-    return new Grade().id(GRADE1_ID).score(8.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
-  }
-
-  public static Grade grade2() {
-    return new Grade().id(GRADE2_ID).score(5.0).createdAt(Instant.parse("2022-11-09T08:25:24Z"));
-  }
-
-  public static Grade grade3() {
-    return new Grade().id(GRADE3_ID).score(11.0).createdAt(Instant.parse("2022-11-09T08:25:24Z"));
-  }
-
-  public static Grade grade4() {
-    return new Grade().id(GRADE4_ID).score(15.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
-  }
-
-  public static Grade grade5() {
-    return new Grade().id(GRADE5_ID).score(12.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
-  }
-
-  public static Grade grade6() {
-    return new Grade().id(GRADE6_ID).score(18.0).createdAt(Instant.parse("2022-11-09T08:25:24Z"));
-  }
-
-  public static Grade grade7() {
-    return new Grade().id(GRADE7_ID).score(20.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
-  }
-
-  public static StudentExamGrade studentExamGrade1() {
-    return new StudentExamGrade()
-        .id(exam1().getId())
-        .coefficient(exam1().getCoefficient())
-        .title(exam1().getTitle())
-        .examinationDate(exam1().getExaminationDate())
-        .grade(grade1());
-  }
-
-  public static StudentExamGrade studentExamGrade2() {
-    return new StudentExamGrade()
-        .id(exam2().getId())
-        .coefficient(exam2().getCoefficient())
-        .title(exam2().getTitle())
-        .examinationDate(exam2().getExaminationDate())
-        .grade(grade2());
-  }
-
-  public static StudentExamGrade studentExamGrade3() {
-    return new StudentExamGrade()
-        .id(exam3().getId())
-        .coefficient(exam3().getCoefficient())
-        .title(exam3().getTitle())
-        .examinationDate(exam3().getExaminationDate())
-        .grade(grade3());
-  }
-
-  public static StudentExamGrade studentExamGrade4() {
-    return new StudentExamGrade()
-        .id(exam4().getId())
-        .coefficient(exam4().getCoefficient())
-        .title(exam4().getTitle())
-        .examinationDate(exam4().getExaminationDate())
-        .grade(grade4());
-  }
-
-  public static StudentExamGrade studentExamGrade5() {
-    return new StudentExamGrade()
-        .id(exam5().getId())
-        .coefficient(exam5().getCoefficient())
-        .title(exam5().getTitle())
-        .examinationDate(exam5().getExaminationDate())
-        .grade(grade5());
-  }
-
-  public static StudentGrade studentGrade1() {
-    return new StudentGrade()
-        .id(STUDENT1_ID)
-        .firstName("Ryan")
-        .lastName("Andria")
-        .ref("STD21001")
-        .email("test+ryan@hei.school")
-        .grade(grade1());
-  }
-
-  public static StudentGrade studentGrade2() {
-    return new StudentGrade()
-        .id(STUDENT1_ID)
-        .firstName("Ryan")
-        .lastName("Andria")
-        .ref("STD21001")
-        .email("test+ryan@hei.school")
-        .grade(grade2());
-  }
-
-  public static StudentGrade studentGrade3() {
-    return new StudentGrade()
-        .id(STUDENT1_ID)
-        .firstName("Ryan")
-        .lastName("Andria")
-        .ref("STD21001")
-        .email("test+ryan@hei.school")
-        .grade(grade3());
-  }
-
-  public static StudentGrade studentGrade4() {
-    return new StudentGrade()
-        .id(STUDENT1_ID)
-        .firstName("Ryan")
-        .lastName("Andria")
-        .ref("STD21001")
-        .email("test+ryan@hei.school")
-        .grade(grade4());
-  }
-
-  public static StudentGrade studentGrade5() {
-    return new StudentGrade()
-        .id(STUDENT1_ID)
-        .firstName("Ryan")
-        .lastName("Andria")
-        .ref("STD21001")
-        .email("test+ryan@hei.school")
-        .grade(grade5());
-  }
-
-  public static StudentGrade studentGrade6() {
-    return new StudentGrade()
-        .id(STUDENT2_ID)
-        .firstName("Two")
-        .lastName("Student")
-        .ref("STD21002")
-        .email("test+student2@hei.school")
-        .grade(grade6());
-  }
-
-  public static StudentGrade studentGrade7() {
-    return new StudentGrade()
-        .id(STUDENT3_ID)
-        .firstName("Three")
-        .lastName("Student")
-        .ref("STD21003")
-        .email("test+student3@hei.school")
-        .grade(grade7());
-  }
-
   public static FeeTemplate feeTemplate1() {
     return new FeeTemplate()
         .id(FEE_TEMPLATE1_ID)
@@ -689,51 +470,6 @@ public class TestUtils {
         .numberOfPayments(1)
         .amount(10000)
         .type(TUITION);
-  }
-
-  public static ExamDetail examDetail1() {
-    return new ExamDetail()
-        .id(exam1().getId())
-        .title(exam1().getTitle())
-        .examinationDate(exam1().getExaminationDate())
-        .coefficient(exam1().getCoefficient())
-        .participants(List.of(studentGrade1(), studentGrade7()));
-  }
-
-  public static AwardedCourseExam awardedCourseExam1() {
-    return new AwardedCourseExam()
-        .id(AWARDED_COURSE1_ID)
-        .mainTeacher(awardedCourse1().getMainTeacher())
-        .course(awardedCourse1().getCourse())
-        .group(awardedCourse1().getGroup())
-        .exams(List.of(studentExamGrade1(), studentExamGrade2()));
-  }
-
-  public static AwardedCourseExam awardedCourseExam2() {
-    return new AwardedCourseExam()
-        .id(AWARDED_COURSE2_ID)
-        .mainTeacher(awardedCourse2().getMainTeacher())
-        .course(awardedCourse2().getCourse())
-        .group(awardedCourse2().getGroup())
-        .exams(List.of(studentExamGrade4()));
-  }
-
-  public static AwardedCourseExam awardedCourseExam3() {
-    return new AwardedCourseExam()
-        .id(AWARDED_COURSE3_ID)
-        .mainTeacher(awardedCourse3().getMainTeacher())
-        .course(awardedCourse3().getCourse())
-        .group(awardedCourse3().getGroup())
-        .exams(List.of(studentExamGrade3()));
-  }
-
-  public static AwardedCourseExam awardedCourseExam4() {
-    return new AwardedCourseExam()
-        .id(AWARDED_COURSE4_ID)
-        .mainTeacher(awardedCourse4().getMainTeacher())
-        .course(awardedCourse4().getCourse())
-        .group(awardedCourse4().getGroup())
-        .exams(List.of(studentExamGrade5()));
   }
 
   public static boolean isBefore(String a, String b) {

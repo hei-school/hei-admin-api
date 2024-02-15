@@ -53,9 +53,6 @@ public class AwardedCourse implements Serializable {
   @JoinColumn(name = "group_id")
   private Group group;
 
-  @OneToMany(mappedBy = "awardedCourse", fetch = LAZY)
-  private List<Exam> exams;
-
   @CreationTimestamp
   @Getter(AccessLevel.NONE)
   private Instant creationDatetime;
