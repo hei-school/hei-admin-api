@@ -1,3 +1,20 @@
+# [1.3.0](https://github.com/hei-school/hei-admin-api/compare/v1.2.1...v1.3.0) (2024-02-15)
+
+
+### Bug Fixes
+
+* fee template crupdate endpoint supports both update and create ([e10e25f](https://github.com/hei-school/hei-admin-api/commit/e10e25f41a0a3918af6b8fdd169c15f92ebc22ff))
+* missing school year in scholarship certificate  ([c04187f](https://github.com/hei-school/hei-admin-api/commit/c04187f9d5fe30c2bd7f24eb80fa2ea615ac9299))
+* unauthorize student update profile  ([5838db1](https://github.com/hei-school/hei-admin-api/commit/5838db1c283e7915ee661e9eb954856f20ceca5a))
+
+
+### Features
+
+* enable soft delete for payment and fee ([1f1df9e](https://github.com/hei-school/hei-admin-api/commit/1f1df9ec8bc210334e595ea0b282b679f383005b))
+* user upload profile picture  ([fc75db9](https://github.com/hei-school/hei-admin-api/commit/fc75db9b0798877dc71c3b54290c2acdb7520674))
+
+
+
 ## [1.2.1](https://github.com/hei-school/hei-admin-api/compare/v1.2.0...v1.2.1) (2024-01-26)
 
 
@@ -160,19 +177,6 @@
 ### Reverts
 
 * Revert "debug: disable snapstart" ([06fab90](https://github.com/hei-school/hei-admin-api/commit/06fab90a56c12762ddff6f744b164bbd1cc68d48))
-
-
-
-## [0.7.1](https://github.com/hei-school/hei-admin-api/compare/v0.7.0...v0.7.1) (2023-03-17)
-
-
-### Bug Fixes
-
-* calling cd-compute workflow in Sched-Depl-Compute ([5ccba39](https://github.com/hei-school/hei-admin-api/commit/5ccba39cb1daa9f95bb102b7d9eba9c38635b799))
-* database security group ([069df1f](https://github.com/hei-school/hei-admin-api/commit/069df1fe35c46d182242a52588f29b6f3ef4876a))
-* event-stack syntax ([#97](https://github.com/hei-school/hei-admin-api/issues/97)) ([7b78f83](https://github.com/hei-school/hei-admin-api/commit/7b78f8341c137b9eada7cdb391a8634e13e2af1e))
-* security group for database ([47362f4](https://github.com/hei-school/hei-admin-api/commit/47362f4e6dd5df608e40465d9ebcc23439958e13))
-* stack name ([#91](https://github.com/hei-school/hei-admin-api/issues/91)) ([6c73dbe](https://github.com/hei-school/hei-admin-api/commit/6c73dbe419292714ae9335d09669c55b4cc011f1))
 
 
 
