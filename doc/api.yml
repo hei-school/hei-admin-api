@@ -2270,6 +2270,230 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /events/{id}/pariticipants/attend:
+    get:
+      tags:
+        - Events
+      summary: Users attended for given event
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Participants attended for given event
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Events
+      summary: Users attend for given avent
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      requestBody:
+        description: Participants attend for given event
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserIdentifier'
+      responses:
+        '200':
+          description: Participants attended for given event
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events/{id}/pariticipants:
+     get:
+       tags:
+         - Events
+       summary: Get event participants
+       parameters:
+         - name: id
+           required: true
+           schema:
+             type: string
+           in: path
+         - name: page
+           in: query
+           schema:
+             $ref: '#/components/schemas/Page'
+           description: Set value to 1 by default if null is provided
+           required: false
+         - name: page_size
+           in: query
+           description: Set value to 15 by default if null is provided
+           schema:
+             $ref: '#/components/schemas/PageSize'
+       operationId: getEventParticipant
+       responses:
+         '200':
+           description: List of events
+           content:
+             application/json:
+               schema:
+                 type: array
+                 items:
+                   $ref: '#/components/schemas/EventParticipant'
+         '400':
+           $ref: '#/components/responses/400'
+         '403':
+           $ref: '#/components/responses/403'
+         '404':
+           $ref: '#/components/responses/404'
+         '429':
+           $ref: '#/components/responses/429'
+         '500':
+           $ref: '#/components/responses/500'
+  /events/{id}:
+    get:
+      tags:
+        - Events
+      summary: Get event by identifier
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: getEventById
+      responses:
+        '200':
+          description: Event by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events:
+    get:
+      tags:
+        - Events
+      summary: Get all events.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: from
+          in: query
+          description: Take events from a given date, current week by default
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: to
+          in: query
+          description: Take events after a given date, current week by default
+          schema:
+            type: string
+            format: date-time
+          required: false
+      operationId: getEvents
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+             schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Events
+      summary: Create or update events
+      description: Create or update event if `id` is provided, create them otherwise.
+      operationId: crupdateEvents
+      requestBody:
+        required: true
+        description: Event to create or update
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateEvent'
+      responses:
+        '200':
+          description: Event created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
@@ -2757,6 +2981,70 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    CreateEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        begin:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        planner_id:
+          description: user id
+          type: string
+        course_id:
+          type: string
+        group_ids:
+          type: array
+          items:
+            type: string
+    ParticipantStatus:
+      type: string
+      enum:
+        - MISSING
+        - PRESENT
+    EventType:
+      type: string
+      enum:
+        - COURSE
+        - INTEGRATION
+        - SEMINAR
+        - SUPPORT_SESSION
+        - ELSE
+    EventParticipantStatus:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+      type: object
+      properties:
+        event_status:
+          $ref: '#/components/schemas/ParticipantStatus'
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/EventType'
+        description:
+          type: string
+        planner:
+          $ref: '#/components/schemas/UserIdentifier'
+        course:
+          $ref: '#/components/schemas/Course'
+    EventParticipant:
+       allOf:
+         - $ref: '#/components/schemas/Group'
+       type: object
+       properties:
+         students:
+           type: array
+           items:
+             $ref: '#/components/schemas/EventParticipantStatus'
     FeeStatusEnum:
       type: string
       enum:
