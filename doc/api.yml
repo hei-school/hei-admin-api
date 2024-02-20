@@ -2274,7 +2274,7 @@ paths:
     get:
       tags:
         - Events
-      summary: Users attended for given event
+      summary: Users taking parts to event
       parameters:
         - name: id
           in: path
@@ -2283,7 +2283,7 @@ paths:
           required: true
       responses:
         '200':
-          description: Participants attended for given event
+          description: Participants of the event
           content:
             application/json:
               schema:
@@ -2303,7 +2303,7 @@ paths:
     put:
       tags:
         - Events
-      summary: Users attend for given avent
+      summary: Update event participants status
       parameters:
         - name: id
           in: path
@@ -2386,14 +2386,14 @@ paths:
             $ref: '#/components/schemas/PageSize'
         - name: from
           in: query
-          description: Take events from a given date, current week by default
+          description: Take events from a given date, return events of current week by default
           schema:
             type: string
             format: date-time
           required: false
         - name: to
           in: query
-          description: Take events after a given date, current week by default
+          description: Take events after a given date, return events of current week by default
           schema:
             type: string
             format: date-time
@@ -2424,8 +2424,6 @@ paths:
           $ref: '#/components/responses/400'
         '403':
           $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
         '429':
           $ref: '#/components/responses/429'
         '500':
@@ -2596,7 +2594,7 @@ components:
         - INTEGRATION
         - SEMINAR
         - SUPPORT_SESSION
-        - ELSE
+        - OTHER
     StudentAttendance:
       type: object
       properties:
@@ -2673,10 +2671,16 @@ components:
           type: string
           example: G1
     Group:
-      allOf:
-        - $ref: '#/components/schemas/GroupIdentifier'
       type: object
       properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: The group number one
+        ref:
+          type: string
+          example: G1
         creation_datetime:
           type: string
           format: date-time
@@ -2988,18 +2992,18 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GroupIdentifier'
-    ParticipantStatus:
+    EventParticipantStatus:
       type: string
       enum:
         - MISSING
         - PRESENT
-    EventParticipantStatus:
+    EventParticipantUser:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
       type: object
       properties:
         event_status:
-          $ref: '#/components/schemas/ParticipantStatus'
+          $ref: '#/components/schemas/EventParticipantStatus'
     Event:
       type: object
       properties:
@@ -3021,7 +3025,7 @@ components:
          students:
            type: array
            items:
-             $ref: '#/components/schemas/EventParticipantStatus'
+             $ref: '#/components/schemas/EventParticipantUser'
     FeeStatusEnum:
       type: string
       enum:
