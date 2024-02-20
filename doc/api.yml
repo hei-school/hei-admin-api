@@ -2270,7 +2270,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /events/{id}/pariticipants/attend:
+  /events/{id}/participants:
     get:
       tags:
         - Events
@@ -2300,7 +2300,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    post:
+    put:
       tags:
         - Events
       summary: Users attend for given avent
@@ -2318,7 +2318,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/UserIdentifier'
+                $ref: '#/components/schemas/EventParticipantStatus'
       responses:
         '200':
           description: Participants attended for given event
@@ -2338,48 +2338,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /events/{id}/pariticipants:
-     get:
-       tags:
-         - Events
-       summary: Get event participants
-       parameters:
-         - name: id
-           required: true
-           schema:
-             type: string
-           in: path
-         - name: page
-           in: query
-           schema:
-             $ref: '#/components/schemas/Page'
-           description: Set value to 1 by default if null is provided
-           required: false
-         - name: page_size
-           in: query
-           description: Set value to 15 by default if null is provided
-           schema:
-             $ref: '#/components/schemas/PageSize'
-       operationId: getEventParticipant
-       responses:
-         '200':
-           description: List of events
-           content:
-             application/json:
-               schema:
-                 type: array
-                 items:
-                   $ref: '#/components/schemas/EventParticipant'
-         '400':
-           $ref: '#/components/responses/400'
-         '403':
-           $ref: '#/components/responses/403'
-         '404':
-           $ref: '#/components/responses/404'
-         '429':
-           $ref: '#/components/responses/429'
-         '500':
-           $ref: '#/components/responses/500'
   /events/{id}:
     get:
       tags:
@@ -2440,6 +2398,18 @@ paths:
             type: string
             format: date-time
           required: false
+        - name: planner_name
+          in: query
+          required: false
+          description: Take events by planner key name
+          schema:
+            type: string
+        - name: group
+          in: query
+          description: Take events by group identifier
+          required: false
+          schema:
+            type: string
       operationId: getEvents
       responses:
         '200':
@@ -2619,6 +2589,14 @@ components:
         - TRANSCRIPT
         - DOCUMENT
         - OTHER
+    EventType:
+      type: string
+      enum:
+        - COURSE
+        - INTEGRATION
+        - SEMINAR
+        - SUPPORT_SESSION
+        - ELSE
     StudentAttendance:
       type: object
       properties:
@@ -2683,7 +2661,7 @@ components:
       properties:
         profile_picture:
           type: string
-    Group:
+    GroupIdentifier:
       type: object
       properties:
         id:
@@ -2694,6 +2672,11 @@ components:
         ref:
           type: string
           example: G1
+    Group:
+      allOf:
+        - $ref: '#/components/schemas/GroupIdentifier'
+      type: object
+      properties:
         creation_datetime:
           type: string
           format: date-time
@@ -2994,28 +2977,22 @@ components:
         end:
           type: string
           format: date-time
+        event_type:
+          $ref: '#/components/schemas/EventType'
         planner_id:
           description: user id
           type: string
         course_id:
           type: string
-        group_ids:
+        groups:
           type: array
           items:
-            type: string
+            $ref: '#/components/schemas/GroupIdentifier'
     ParticipantStatus:
       type: string
       enum:
         - MISSING
         - PRESENT
-    EventType:
-      type: string
-      enum:
-        - COURSE
-        - INTEGRATION
-        - SEMINAR
-        - SUPPORT_SESSION
-        - ELSE
     EventParticipantStatus:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
@@ -3037,10 +3014,10 @@ components:
         course:
           $ref: '#/components/schemas/Course'
     EventParticipant:
-       allOf:
-         - $ref: '#/components/schemas/Group'
        type: object
        properties:
+         group:
+           $ref: '#/components/schemas/GroupIdentifier'
          students:
            type: array
            items:
