@@ -2059,10 +2059,176 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/hei/files':
+    get:
+      tags:
+        - Files
+      summary: Get hei documents
+      operationId: getRegulations
+      responses:
+        '200':
+          description: List of hei documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/File'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Files
+      summary: Upload hei documents
+      parameters:
+        - name: file_type
+          required: true
+          schema:
+            $ref: '#/components/schemas/FileType'
+          in: query
+        - name: file_name
+          required: true
+          schema:
+            type: string
+          in: query
+      operationId: uploadHeiFiles
+      requestBody:
+        required: true
+        content:
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/files/{id}':
+    get:
+      tags:
+        - Files
+      summary: Get student documents
+      operationId: getStudentFilesById
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: document id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Document by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/files':
+    post:
+      tags:
+        - Files
+      summary: Upload student documents
+      parameters:
+        - name: student_id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: uploadStudentFiles
+      requestBody:
+        required: true
+        content:
+          application/pdf:
+            schema:
+              type: string
+              format: binary
+      responses:
+        '200':
+          description: Document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/File'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    get:
+      tags:
+        - Files
+      summary: Get student documents
+      operationId: getStudentFiles
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of documents of given student
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/File'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/students/{id}/scholarship_certificate/raw':
     get:
       tags:
-        - StudentsFile
+        - Files
       summary: Get scholarship certificate of a student.
       operationId: getStudentScholarshipCertificate
       parameters:
@@ -2209,6 +2375,12 @@ components:
         - ENABLED
         - DISABLED
         - SUSPENDED
+    FileType:
+      type: string
+      enum:
+        - TRANSCRIPT
+        - DOCUMENT
+        - OTHER
     StudentAttendance:
       type: object
       properties:
@@ -2346,6 +2518,20 @@ components:
         course_id:
           type: string
         group_id:
+          type: string
+    File:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+        file_type:
+          $ref: '#/components/schemas/FileType'
+        file_url:
           type: string
     AwardedCourse:
       type: object
