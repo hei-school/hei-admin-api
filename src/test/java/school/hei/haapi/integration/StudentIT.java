@@ -1,5 +1,53 @@
 package school.hei.haapi.integration;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.javafaker.Faker;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentCaptor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
+import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.shaded.com.google.common.primitives.Bytes;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.TestUtils;
+import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
+import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
+import java.net.URL;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -25,51 +73,10 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiExcepti
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-
-import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
-import com.github.javafaker.Faker;
-import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.mockito.ArgumentCaptor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.UsersApi;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
-import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
-import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
-import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
-import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
-import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
-import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
+import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -82,6 +89,11 @@ class StudentIT extends MockedThirdParties {
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+  }
+
+  File getFileFromResource(String resourceName) {
+    URL resource = this.getClass().getClassLoader().getResource(resourceName);
+    return new File(resource.getFile());
   }
 
   public static CrupdateStudent createStudent1() {
@@ -284,27 +296,50 @@ class StudentIT extends MockedThirdParties {
 
   @Test
   void manager_upload_profile_picture() throws IOException, InterruptedException {
-    String STUDENT_ONE_PICTURE_RAW = "/students/" + STUDENT1_ID + "/picture/raw";
-    HttpClient httpClient = HttpClient.newBuilder().build();
+
+    HttpClient client = HttpClient.newHttpClient();
     String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
+    String boundary = "---------------------------" + System.currentTimeMillis();
+    String contentTypeHeader = "multipart/form-data; boundary=" + boundary;
 
-    HttpRequest.BodyPublisher body =
-        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
-    HttpResponse<String> response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath + STUDENT_ONE_PICTURE_RAW))
-                .POST(body)
-                .setHeader("Content-Type", "image/png")
-                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofString());
+    File file = getMockedFile("img", ".png");
 
-    objectMapper.registerModule(new JSR310Module());
-    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-    Student responseBody = objectMapper.readValue(response.body(), Student.class);
+    String requestBodyPrefix =
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"picture\"; filename=\""
+            + file.getName()
+            + "\""
+            + CRLF
+            + "Content-Type: application/octet-stream"
+            + CRLF
+            + CRLF;
+    byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
+    String requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
 
-    assertEquals("STD21001", responseBody.getRef());
+    byte[] requestBody =
+        Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
+    UriComponentsBuilder uriComponentsBuilder =
+        UriComponentsBuilder.fromUri(
+            URI.create(basePath + "/students/" + STUDENT1_ID + "/picture/raw"));
+
+    InputStream requestBodyStream = new ByteArrayInputStream(requestBody);
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(uriComponentsBuilder.build().toUri())
+            .header("Content-Type", contentTypeHeader)
+            .header("Authorization", "Bearer " + MANAGER1_TOKEN)
+            .POST(HttpRequest.BodyPublishers.ofInputStream(() -> requestBodyStream))
+            .build();
+
+    HttpResponse<InputStream> response =
+        client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+
+    Student student = objectMapper.readValue(response.body(), Student.class);
+
+    assertEquals(200, response.statusCode());
+    assertEquals("STD21001", student.getRef());
   }
 
   @Test

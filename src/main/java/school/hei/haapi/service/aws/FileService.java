@@ -1,18 +1,19 @@
 package school.hei.haapi.service.aws;
 
+import static java.io.File.createTempFile;
 import static school.hei.haapi.model.User.Role.MANAGER;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Role.TEACHER;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.file.BucketComponent;
 import school.hei.haapi.file.FileHash;
 import school.hei.haapi.file.FileTyper;
@@ -51,15 +52,13 @@ public class FileService {
     };
   }
 
-  public File createTempFile(byte[] bytes) {
-    File tempFile;
+  public File getFileFromMultipartFile(MultipartFile multipartFile) {
     try {
-      tempFile = File.createTempFile("file", "temp");
-      FileOutputStream outputStream = new FileOutputStream(tempFile);
-      outputStream.write(bytes);
+      File tempFile = createTempFile(multipartFile.getName(), null);
+      multipartFile.transferTo(tempFile);
       return tempFile;
-    } catch (IOException ioException) {
-      throw new ApiException(SERVER_EXCEPTION, ioException.getMessage());
+    } catch (IOException e) {
+      throw new ApiException(SERVER_EXCEPTION, e.getMessage());
     }
   }
 }

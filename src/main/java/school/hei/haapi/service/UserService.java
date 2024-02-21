@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.UserUpserted;
 import school.hei.haapi.file.FileHash;
@@ -41,14 +42,18 @@ public class UserService {
   private final GroupService groupService;
   private final FileService fileService;
 
-  public FileHash uploadUserProfilePicture(byte[] bytes, String userId) {
+  public FileHash uploadUserProfilePicture(
+      MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = findById(userId);
-    File tempFile = fileService.createTempFile(bytes);
+
+    File savedProfilePicture = fileService.getFileFromMultipartFile(profilePictureAsMultipartFile);
+
     String bucketKey =
-        getFormattedBucketKey(user, user.getFirstName()) + fileService.getFileExtension(tempFile);
+        getFormattedBucketKey(user, user.getFirstName())
+            + fileService.getFileExtension(savedProfilePicture);
     user.setProfilePictureKey(bucketKey);
     userRepository.save(user);
-    return fileService.uploadObjectToS3Bucket(bucketKey, tempFile);
+    return fileService.uploadObjectToS3Bucket(bucketKey, savedProfilePicture);
   }
 
   public User updateUser(User user, String userId) {

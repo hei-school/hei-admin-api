@@ -1,8 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,17 +7,27 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Sex;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.validator.CoordinatesValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.aws.FileService;
+
+import java.util.List;
+
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 @RestController
 @AllArgsConstructor
@@ -74,10 +81,11 @@ public class TeacherController {
         .collect(toUnmodifiableList());
   }
 
-  @PostMapping(value = "/teachers/{id}/picture/raw")
+  @PostMapping(value = "/teachers/{id}/picture/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public Teacher uploadTeacherProfilePicture(
-      @RequestBody byte[] profilePicture, @PathVariable(name = "id") String teacherId) {
-    userService.uploadUserProfilePicture(profilePicture, teacherId);
+      @RequestPart("picture") MultipartFile profilePictureAsMultipartFile,
+      @PathVariable(name = "id") String teacherId) {
+    userService.uploadUserProfilePicture(profilePictureAsMultipartFile, teacherId);
     return userMapper.toRestTeacher(userService.findById(teacherId));
   }
 }

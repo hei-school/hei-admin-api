@@ -9,18 +9,22 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import java.io.ByteArrayInputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -31,7 +35,9 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -150,27 +156,49 @@ class ManagerIT extends MockedThirdParties {
 
   @Test
   void manager_update_own_profile_picture() throws IOException, InterruptedException {
-    String MANAGER_ONE_PICTURE_RAW = "/managers/" + MANAGER_ID + "/picture/raw";
-    HttpClient httpClient = HttpClient.newBuilder().build();
+    HttpClient client = HttpClient.newHttpClient();
     String basePath = "http://localhost:" + ManagerIT.ContextInitializer.SERVER_PORT;
+    String boundary = "---------------------------" + System.currentTimeMillis();
+    String contentTypeHeader = "multipart/form-data; boundary=" + boundary;
 
-    HttpRequest.BodyPublisher body =
-        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
-    HttpResponse<String> response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath + MANAGER_ONE_PICTURE_RAW))
-                .POST(body)
-                .setHeader("Content-Type", "image/png")
-                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofString());
+    File file = getMockedFile("img", ".png");
 
-    objectMapper.registerModule(new JSR310Module());
-    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-    Manager responseBody = objectMapper.readValue(response.body(), Manager.class);
+    String requestBodyPrefix =
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"picture\"; filename=\""
+            + file.getName()
+            + "\""
+            + CRLF
+            + "Content-Type: application/octet-stream"
+            + CRLF
+            + CRLF;
+    byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
+    String requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
 
-    assertEquals("MGR21001", responseBody.getRef());
+    byte[] requestBody =
+        Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
+    UriComponentsBuilder uriComponentsBuilder =
+        UriComponentsBuilder.fromUri(
+            URI.create(basePath + "/managers/" + MANAGER_ID + "/picture/raw"));
+
+    InputStream requestBodyStream = new ByteArrayInputStream(requestBody);
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(uriComponentsBuilder.build().toUri())
+            .header("Content-Type", contentTypeHeader)
+            .header("Authorization", "Bearer " + MANAGER1_TOKEN)
+            .POST(HttpRequest.BodyPublishers.ofInputStream(() -> requestBodyStream))
+            .build();
+
+    HttpResponse<InputStream> response =
+        client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+
+    Manager manager = objectMapper.readValue(response.body(), Manager.class);
+
+    assertEquals(200, response.statusCode());
+    assertEquals("MGR21001", manager.getRef());
   }
 
   @Test
