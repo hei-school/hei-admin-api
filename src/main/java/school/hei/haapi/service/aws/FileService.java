@@ -58,7 +58,7 @@ public class FileService {
       multipartFile.transferTo(tempFile);
       return tempFile;
     } catch (IOException e) {
-      throw new ApiException(SERVER_EXCEPTION, e.getMessage());
+      throw new ApiException(SERVER_EXCEPTION, e);
     }
   }
 }
