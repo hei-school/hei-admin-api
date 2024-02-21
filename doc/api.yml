@@ -2059,15 +2059,15 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/hei/files':
+  '/schools/files':
     get:
       tags:
         - Files
       summary: Get hei documents
-      operationId: getRegulations
+      operationId: getSchoolRegulations
       responses:
         '200':
-          description: List of hei documents
+          description: List of school documents
           content:
             application/json:
               schema:
@@ -2087,7 +2087,7 @@ paths:
     post:
       tags:
         - Files
-      summary: Upload hei documents
+      summary: Upload schools documents
       parameters:
         - name: file_type
           required: true
@@ -2099,7 +2099,7 @@ paths:
           schema:
             type: string
           in: query
-      operationId: uploadHeiFiles
+      operationId: uploadSchoolFile
       requestBody:
         required: true
         content:
