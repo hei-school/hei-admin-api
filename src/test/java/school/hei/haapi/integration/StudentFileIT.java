@@ -28,7 +28,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.StudentsFileApi;
+import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -53,7 +53,7 @@ public class StudentFileIT extends MockedThirdParties {
   @Test
   void student_load_other_certificate_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    StudentsFileApi api = new StudentsFileApi(student1Client);
+    FilesApi api = new FilesApi(student1Client);
 
     assertThrowsForbiddenException(() -> api.getStudentScholarshipCertificate(STUDENT2_ID));
   }
