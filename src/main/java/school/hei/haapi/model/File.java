@@ -18,6 +18,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.Type;
+import school.hei.haapi.endpoint.rest.model.FileType;
 
 import static javax.persistence.EnumType.STRING;
 import static javax.persistence.GenerationType.IDENTITY;
@@ -45,5 +46,7 @@ public class File implements Serializable {
 
   @Type(type = "pgsql_enum")
   @Enumerated(STRING)
+  private FileType fileType;
 
+  private String fileKeyUrl;
 }

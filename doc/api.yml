@@ -2070,7 +2070,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/File'
+                  $ref: '#/components/schemas/Document'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2111,7 +2111,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/File'
+                $ref: '#/components/schemas/Document'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2146,7 +2146,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/File'
+                $ref: '#/components/schemas/Document'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2192,7 +2192,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/File'
+                $ref: '#/components/schemas/Document'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2223,7 +2223,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/File'
+                  $ref: '#/components/schemas/Document'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2528,7 +2528,7 @@ components:
           type: string
         group_id:
           type: string
-    File:
+    Document:
       type: object
       properties:
         id:
