@@ -1,13 +1,10 @@
 package school.hei.haapi.service.aws;
 
-import static java.io.File.createTempFile;
 import static school.hei.haapi.model.User.Role.MANAGER;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Role.TEACHER;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import java.io.File;
-import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Objects;
@@ -19,7 +16,6 @@ import school.hei.haapi.file.BucketComponent;
 import school.hei.haapi.file.FileHash;
 import school.hei.haapi.file.FileTyper;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.BadRequestException;
 
 @Component
@@ -51,15 +47,5 @@ public class FileService {
       case STUDENT -> String.format("%s/%s/%s_%s", STUDENT, user.getRef(), fileType, user.getRef());
       default -> throw new BadRequestException("Unexpected type " + user.getRole());
     };
-  }
-
-  public File getFileFromMultipartFile(MultipartFile multipartFile) {
-    try {
-      File tempFile = createTempFile(multipartFile.getOriginalFilename(), null);
-      multipartFile.transferTo(tempFile);
-      return tempFile;
-    } catch (IOException e) {
-      throw new ApiException(SERVER_EXCEPTION, e);
-    }
   }
 }

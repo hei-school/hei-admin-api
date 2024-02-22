@@ -40,10 +40,11 @@ public class UserService {
   private final GroupRepository groupRepository;
   private final GroupService groupService;
   private final FileService fileService;
+  private final MultipartFileConverter fileConverter;
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = findById(userId);
-    File savedProfilePicture = fileService.getFileFromMultipartFile(profilePictureAsMultipartFile);
+    File savedProfilePicture = fileConverter.apply(profilePictureAsMultipartFile);
     String bucketKey =
         getFormattedBucketKey(user, "PROFILE_PICTURE")
             + fileService.getFileExtension(profilePictureAsMultipartFile);
