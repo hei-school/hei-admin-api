@@ -132,6 +132,7 @@ public class TestUtils {
 
   public static void setUpS3Service(FileService fileService, Student user) {
     when(fileService.getPresignedUrl(user.getRef(), 180L)).thenReturn(user.getRef());
+    when(fileService.getFileExtension(any())).thenCallRealMethod();
   }
 
   public static void setUpS3Service(FileService fileService, Teacher user) {
@@ -772,7 +773,7 @@ public class TestUtils {
             + file.getName()
             + "\""
             + CRLF
-            + "Content-Type: application/octet-stream"
+            + "Content-Type: image/png"
             + CRLF
             + CRLF;
     byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));

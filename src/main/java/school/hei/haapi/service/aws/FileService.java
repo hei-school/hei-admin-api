@@ -10,6 +10,7 @@ import java.io.File;
 import java.io.IOException;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -39,22 +40,22 @@ public class FileService {
     return bucketComponent.upload(file, key);
   }
 
-  public String getFileExtension(File file) {
-    return "." + fileTyper.apply(file).getSubtype();
+  public String getFileExtension(MultipartFile file) {
+    return "." + Objects.requireNonNull(file.getContentType()).split("/")[1];
   }
 
-  public static String getFormattedBucketKey(User user, String filename) {
+  public static String getFormattedBucketKey(User user, String fileType) {
     return switch (user.getRole()) {
-      case MANAGER -> String.format("%s/%s/%s", MANAGER, user.getRef(), filename);
-      case TEACHER -> String.format("%s/%s/%s", TEACHER, user.getRef(), filename);
-      case STUDENT -> String.format("%s/%s/%s", STUDENT, user.getRef(), filename);
+      case MANAGER -> String.format("%s/%s/%s_%s", MANAGER, user.getRef(), fileType, user.getRef());
+      case TEACHER -> String.format("%s/%s/%s_%s", TEACHER, user.getRef(), fileType, user.getRef());
+      case STUDENT -> String.format("%s/%s/%s_%s", STUDENT, user.getRef(), fileType, user.getRef());
       default -> throw new BadRequestException("Unexpected type " + user.getRole());
     };
   }
 
   public File getFileFromMultipartFile(MultipartFile multipartFile) {
     try {
-      File tempFile = createTempFile(multipartFile.getName(), null);
+      File tempFile = createTempFile(multipartFile.getOriginalFilename(), null);
       multipartFile.transferTo(tempFile);
       return tempFile;
     } catch (IOException e) {

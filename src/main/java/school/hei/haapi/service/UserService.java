@@ -45,8 +45,8 @@ public class UserService {
     User user = findById(userId);
     File savedProfilePicture = fileService.getFileFromMultipartFile(profilePictureAsMultipartFile);
     String bucketKey =
-        getFormattedBucketKey(user, profilePictureAsMultipartFile.getOriginalFilename())
-            + fileService.getFileExtension(savedProfilePicture);
+        getFormattedBucketKey(user, "PROFILE_PICTURE")
+            + fileService.getFileExtension(profilePictureAsMultipartFile);
     user.setProfilePictureKey(bucketKey);
     userRepository.save(user);
     fileService.uploadObjectToS3Bucket(bucketKey, savedProfilePicture);
