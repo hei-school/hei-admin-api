@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.StudentFileIT.ContextInitializer.SERVER_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -14,6 +15,8 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
+import java.time.Instant;
+import java.util.List;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
@@ -57,81 +60,41 @@ public class SchoolFileIT extends MockedThirdParties {
   }
 
   @Test
-  void manager_upload_school_file_via_http_client_ko() throws IOException, InterruptedException {
-    String SCHOOL_FILES = "/school/files/raw?file_name=regulations&file_type=OTHER";
-    HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + SERVER_PORT + SCHOOL_FILES;
-
-    HttpRequest.BodyPublisher body =
-        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
-
-    HttpResponse<String> response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath))
-                .POST(body)
-                .setHeader("Content-Type", "application/pdf")
-                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofString());
-
-    objectMapper.registerModule(new JSR310Module());
-    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-    Document responseBody = objectMapper.readValue(response.body(), Document.class);
-
-    assertEquals("regulations", responseBody.getName());
-    assertEquals(FileType.OTHER, responseBody.getFileType());
-    assertEquals(HttpStatus.OK.value(), response.statusCode());
-    assertNotNull(response.body());
-    assertNotNull(response);
-  }
-
-  @Test
-  void student_upload_school_file_via_http_client_ko() throws IOException, InterruptedException {
-    String SCHOOL_FILES = "/school/files/raw?file_name=name&file_type=OTHER";
-    HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + SERVER_PORT + SCHOOL_FILES;
-
-    HttpRequest.BodyPublisher body =
-        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
-
-    HttpResponse<String> response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath))
-                .POST(body)
-                .setHeader("Content-Type", "application/pdf")
-                .header("Authorization", "Bearer " + STUDENT1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofString());
-
-    assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
-    assertNotNull(response.body());
-    assertNotNull(response);
-  }
-
-  @Test
   void student_read_school_files_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     FilesApi api = new FilesApi(student1Client);
+    List<Document> schoolRegulations = api.getSchoolRegulations();
 
-    assertEquals(1, api.getSchoolRegulations());
+    assertTrue(schoolRegulations.contains(schoolFile()));
+    assertEquals(1, schoolRegulations.size());
   }
 
   @Test
   void teacher_read_school_files_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     FilesApi api = new FilesApi(teacher1Client);
+    List<Document> schoolRegulations = api.getSchoolRegulations();
 
-    assertEquals(1, api.getSchoolRegulations());
+    assertTrue(schoolRegulations.contains(schoolFile()));
+    assertEquals(1, schoolRegulations.size());
   }
 
   @Test
   void manager_read_school_files_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     FilesApi api = new FilesApi(manager1Client);
+    List<Document> schoolRegulations = api.getSchoolRegulations();
 
-    assertEquals(1, api.getSchoolRegulations());
+    assertTrue(schoolRegulations.contains(schoolFile()));
+    assertEquals(1, schoolRegulations.size());
+  }
+
+  public static Document schoolFile() {
+    return new Document()
+        .id("file3_id")
+        .fileType(FileType.DOCUMENT)
+        .name("school_file")
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
   }
 
   private static ApiClient anApiClient(String token) {

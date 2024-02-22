@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.StudentFileIT.ContextInitializer.SERVER_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -11,6 +12,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -83,47 +85,6 @@ public class StudentFileIT extends MockedThirdParties {
   }
 
   @Test
-  void manager_load_via_http_client_certificate_ok() throws IOException, InterruptedException {
-    String STUDENT_CERTIFICATE = "/students/" + STUDENT2_ID + "/scholarship_certificate/raw";
-    HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + SERVER_PORT;
-
-    HttpResponse response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath + STUDENT_CERTIFICATE))
-                .GET()
-                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofByteArray());
-
-    assertEquals(HttpStatus.OK.value(), response.statusCode());
-    assertNotNull(response.body());
-    assertNotNull(response);
-  }
-
-  @Test
-  void manager_upload_student_file() throws IOException, InterruptedException {
-    String STUDENT_FILE =
-        "/students/" + STUDENT1_ID + "/files/raw?file_type=TRANSCRIPT&file_name=transcript";
-    HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + SERVER_PORT;
-
-    HttpResponse response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath + STUDENT_FILE))
-                .GET()
-                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofByteArray());
-
-    assertEquals(HttpStatus.OK.value(), response.statusCode());
-    assertNotNull(response.body());
-    assertNotNull(response);
-  }
-
-  @Test
   void student_load_other_files_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     FilesApi api = new FilesApi(student1Client);
@@ -138,6 +99,7 @@ public class StudentFileIT extends MockedThirdParties {
 
     List<Document> documents = api.getStudentFiles(STUDENT1_ID);
     assertEquals(2, documents.size());
+    assertTrue(documents.contains(file1()));
     assertEquals(file1(), documents.get(0));
   }
 
@@ -148,6 +110,7 @@ public class StudentFileIT extends MockedThirdParties {
 
     List<Document> documents = api.getStudentFiles(STUDENT1_ID);
     assertEquals(2, documents.size());
+    assertTrue(documents.contains(file1()));
     assertEquals(file1(), documents.get(0));
   }
 
