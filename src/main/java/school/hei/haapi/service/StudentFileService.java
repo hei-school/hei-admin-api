@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static java.time.LocalDate.now;
 import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,6 @@ import school.hei.haapi.service.utils.ClassPathResourceResolver;
 import school.hei.haapi.service.utils.HtmlParser;
 import school.hei.haapi.service.utils.PdfRenderer;
 import school.hei.haapi.service.utils.ScholarshipCertificateDataProvider;
-import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -30,7 +30,8 @@ public class StudentFileService {
   private final FileRepository fileRepository;
   private final FileService fileService;
 
-  public File uploadStudentFile(String fileName, FileType fileType, String studentId, byte[] fileToUpload) {
+  public File uploadStudentFile(
+      String fileName, FileType fileType, String studentId, byte[] fileToUpload) {
     return fileService.uploadFile(fileName, fileType, studentId, fileToUpload);
   }
 

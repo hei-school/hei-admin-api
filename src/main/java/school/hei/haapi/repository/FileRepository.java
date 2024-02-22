@@ -9,5 +9,6 @@ import school.hei.haapi.model.User;
 @Repository
 public interface FileRepository extends JpaRepository<File, String> {
   List<File> findAllByUser(User user);
+
   File getByUserIdAndId(String userId, String id);
 }

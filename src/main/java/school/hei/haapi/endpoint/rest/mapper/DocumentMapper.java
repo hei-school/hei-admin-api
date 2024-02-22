@@ -8,15 +8,18 @@ import school.hei.haapi.service.aws.FileService;
 
 @Component
 @AllArgsConstructor
-public class StudentFileMapper {
+public class DocumentMapper {
   private final FileService fileService;
 
   public Document toRest(File file) {
+    String fileKeyUrl = file.getFileKeyUrl();
+    String accessibleFileUrl =
+        fileKeyUrl != null ? fileService.getPresignedUrl(file.getFileKeyUrl(), 86400L) : null;
     return new Document()
         .id(file.getId())
         .fileType(file.getFileType())
         .name(file.getName())
-        .fileUrl(fileService.getPresignedUrl(file.getFileKeyUrl(), 86400L))
+        .fileUrl(accessibleFileUrl)
         .creationDatetime(file.getCreationDatetime());
   }
 }
