@@ -11,4 +11,6 @@ public interface FileInfoRepository extends JpaRepository<FileInfo, String> {
   List<FileInfo> findAllByUser(User user);
 
   FileInfo getByUserIdAndId(String userId, String id);
+
+  List<FileInfo> findAllByUserIsNull();
 }

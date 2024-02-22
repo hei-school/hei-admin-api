@@ -7,6 +7,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.model.FileInfo;
@@ -31,7 +32,7 @@ public class StudentFileService {
   private final FileInfoService fileInfoService;
 
   public FileInfo uploadStudentFile(
-      String fileName, FileType fileType, String studentId, byte[] fileToUpload) {
+      String fileName, FileType fileType, String studentId, MultipartFile fileToUpload) {
     return fileInfoService.uploadFile(fileName, fileType, studentId, fileToUpload);
   }
 

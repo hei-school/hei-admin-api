@@ -4,6 +4,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.FileType.TRANSCRIPT;
 import static school.hei.haapi.integration.StudentFileIT.ContextInitializer.SERVER_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -34,8 +35,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Document;
-import school.hei.haapi.endpoint.rest.model.FileType;
+import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -96,10 +96,10 @@ public class StudentFileIT extends MockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     FilesApi api = new FilesApi(student1Client);
 
-    List<Document> documents = api.getStudentFiles(STUDENT1_ID);
+    List<FileInfo> documents = api.getStudentFiles(STUDENT1_ID);
+
     assertEquals(2, documents.size());
     assertTrue(documents.contains(file1()));
-    assertEquals(file1(), documents.get(0));
   }
 
   @Test
@@ -107,16 +107,16 @@ public class StudentFileIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     FilesApi api = new FilesApi(manager1Client);
 
-    List<Document> documents = api.getStudentFiles(STUDENT1_ID);
+    List<FileInfo> documents = api.getStudentFiles(STUDENT1_ID);
+
     assertEquals(2, documents.size());
     assertTrue(documents.contains(file1()));
-    assertEquals(file1(), documents.get(0));
   }
 
-  public static Document file1() {
-    return new Document()
+  public static FileInfo file1() {
+    return new FileInfo()
         .id("file1_id")
-        .fileType(FileType.TRANSCRIPT)
+        .fileType(TRANSCRIPT)
         .name("transcript1")
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
   }

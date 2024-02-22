@@ -97,11 +97,11 @@ public class SecurityConf extends WebSecurityConfigurerAdapter {
         //
         // Profile picture resources
         //
+        .antMatchers(POST, "/school/files/raw")
+        .hasRole(MANAGER.getRole())
         .antMatchers(POST, "/students/*/picture/raw")
         .hasRole(MANAGER.getRole())
         .antMatchers(POST, "/students/*/files/raw")
-        .hasRole(MANAGER.getRole())
-        .antMatchers(POST, "/school/files/raw")
         .hasRole(MANAGER.getRole())
         .requestMatchers(new SelfMatcher(GET, "/students/*/files", "students"))
         .hasRole(STUDENT.getRole())

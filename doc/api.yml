@@ -2070,7 +2070,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Document'
+                  $ref: '#/components/schemas/FileInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2101,7 +2101,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/pdf:
+          multipart/form-data:
             schema:
               type: string
               format: binary
@@ -2111,7 +2111,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Document'
+                $ref: '#/components/schemas/FileInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2146,7 +2146,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Document'
+                $ref: '#/components/schemas/FileInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2182,7 +2182,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/pdf:
+          multipart/form-data:
             schema:
               type: string
               format: binary
@@ -2192,7 +2192,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Document'
+                $ref: '#/components/schemas/FileInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2223,7 +2223,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Document'
+                  $ref: '#/components/schemas/FileInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2528,7 +2528,7 @@ components:
           type: string
         group_id:
           type: string
-    Document:
+    FileInfo:
       type: object
       properties:
         id:

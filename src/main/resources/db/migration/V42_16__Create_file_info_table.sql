@@ -11,7 +11,7 @@ create table if not exists "file_info"
 (
     id                varchar
     constraint file_pk primary key default uuid_generate_v4(),
-    user_id           varchar                  not null
+    user_id           varchar
     constraint file_user_id_fk references "user"(id),
     name              varchar,
     creation_datetime timestamp with time zone not null default now(),

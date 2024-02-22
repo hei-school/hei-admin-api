@@ -2,9 +2,9 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.mapper.constant.PresignedUrlDurationConstant;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.User;
-import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.aws.FileService;
 
 @Component
@@ -12,14 +12,14 @@ import school.hei.haapi.service.aws.FileService;
 public class UserMapper {
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
-  private final UserRepository repository;
   private final FileService fileService;
+  private final PresignedUrlDurationConstant constant;
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
     String profilePictureKey = user.getProfilePictureKey();
     String url =
-        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, 86400L) : null;
+        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, constant.presignedUrlDurationConstant) : null;
 
     restStudent.setId(user.getId());
     restStudent.setFirstName(user.getFirstName());
@@ -46,7 +46,7 @@ public class UserMapper {
     Teacher teacher = new Teacher();
     String profilePictureKey = user.getProfilePictureKey();
     String url =
-        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, 86400L) : null;
+        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, constant.presignedUrlDurationConstant) : null;
 
     teacher.setId(user.getId());
     teacher.setFirstName(user.getFirstName());
@@ -72,7 +72,7 @@ public class UserMapper {
     Manager manager = new Manager();
     String profilePictureKey = user.getProfilePictureKey();
     String url =
-        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, 86400L) : null;
+        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, constant.presignedUrlDurationConstant) : null;
 
     manager.setId(user.getId());
     manager.setFirstName(user.getFirstName());

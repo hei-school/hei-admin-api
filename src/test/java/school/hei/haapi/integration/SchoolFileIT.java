@@ -3,7 +3,7 @@ package school.hei.haapi.integration;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.integration.StudentFileIT.ContextInitializer.SERVER_PORT;
+import static school.hei.haapi.endpoint.rest.model.FileType.DOCUMENT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -27,8 +27,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Document;
-import school.hei.haapi.endpoint.rest.model.FileType;
+import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -53,7 +52,8 @@ public class SchoolFileIT extends MockedThirdParties {
   void student_read_school_files_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     FilesApi api = new FilesApi(student1Client);
-    List<Document> schoolRegulations = api.getSchoolRegulations();
+
+    List<FileInfo> schoolRegulations = api.getSchoolRegulations();
 
     assertTrue(schoolRegulations.contains(schoolFile()));
     assertEquals(1, schoolRegulations.size());
@@ -63,7 +63,8 @@ public class SchoolFileIT extends MockedThirdParties {
   void teacher_read_school_files_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     FilesApi api = new FilesApi(teacher1Client);
-    List<Document> schoolRegulations = api.getSchoolRegulations();
+
+    List<FileInfo> schoolRegulations = api.getSchoolRegulations();
 
     assertTrue(schoolRegulations.contains(schoolFile()));
     assertEquals(1, schoolRegulations.size());
@@ -73,16 +74,17 @@ public class SchoolFileIT extends MockedThirdParties {
   void manager_read_school_files_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     FilesApi api = new FilesApi(manager1Client);
-    List<Document> schoolRegulations = api.getSchoolRegulations();
+
+    List<FileInfo> schoolRegulations = api.getSchoolRegulations();
 
     assertTrue(schoolRegulations.contains(schoolFile()));
     assertEquals(1, schoolRegulations.size());
   }
 
-  public static Document schoolFile() {
-    return new Document()
+  public static FileInfo schoolFile() {
+    return new FileInfo()
         .id("file3_id")
-        .fileType(FileType.DOCUMENT)
+        .fileType(DOCUMENT)
         .name("school_file")
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
   }

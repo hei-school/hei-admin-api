@@ -2,7 +2,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.Document;
+import school.hei.haapi.endpoint.rest.mapper.constant.PresignedUrlDurationConstant;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.service.aws.FileService;
 
@@ -10,12 +10,13 @@ import school.hei.haapi.service.aws.FileService;
 @AllArgsConstructor
 public class DocumentMapper {
   private final FileService fileService;
+  private final PresignedUrlDurationConstant constant;
 
-  public Document toRest(FileInfo fileInfo) {
-    String fileKeyUrl = fileInfo.getFileKeyUrl();
+  public school.hei.haapi.endpoint.rest.model.FileInfo toRest(FileInfo fileInfo) {
+    String presignedUrl = fileInfo.getFileKeyUrl();
     String accessibleFileUrl =
-        fileKeyUrl != null ? fileService.getPresignedUrl(fileInfo.getFileKeyUrl(), 86400L) : null;
-    return new Document()
+        presignedUrl != null ? fileService.getPresignedUrl(fileInfo.getFileKeyUrl(), constant.presignedUrlDurationConstant) : null;
+    return new school.hei.haapi.endpoint.rest.model.FileInfo()
         .id(fileInfo.getId())
         .fileType(fileInfo.getFileType())
         .name(fileInfo.getName())

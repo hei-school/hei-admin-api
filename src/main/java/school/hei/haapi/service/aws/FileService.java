@@ -48,4 +48,28 @@ public class FileService {
       default -> throw new BadRequestException("Unexpected type " + user.getRole());
     };
   }
+
+  public File createTempFile(byte[] bytes) {
+    File tempFile;
+    try {
+      tempFile = File.createTempFile("file", "temp");
+      FileOutputStream outputStream = new FileOutputStream(tempFile);
+      outputStream.write(bytes);
+      return tempFile;
+    } catch (IOException ioException) {
+      throw new ApiException(SERVER_EXCEPTION, ioException.getMessage());
+    }
+  }
+
+  public File createTempFile(MultipartFile file) {
+    File tempFile;
+    try {
+      tempFile = File.createTempFile("file", "temp");
+      FileOutputStream outputStream = new FileOutputStream(tempFile);
+      outputStream.write(file.getBytes());
+      return tempFile;
+    } catch (IOException ioException) {
+      throw new ApiException(SERVER_EXCEPTION, ioException.getMessage());
+    }
+  }
 }
