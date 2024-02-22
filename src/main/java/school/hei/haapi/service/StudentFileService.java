@@ -28,11 +28,11 @@ public class StudentFileService {
   private final UserService userService;
   private final ScholarshipCertificateDataProvider certificateDataProvider;
   private final FileInfoRepository fileInfoRepository;
-  private final FileEntityService fileEntityService;
+  private final FileInfoService fileInfoService;
 
   public FileInfo uploadStudentFile(
       String fileName, FileType fileType, String studentId, byte[] fileToUpload) {
-    return fileEntityService.uploadFile(fileName, fileType, studentId, fileToUpload);
+    return fileInfoService.uploadFile(fileName, fileType, studentId, fileToUpload);
   }
 
   public List<FileInfo> getStudentFiles(String userId) {

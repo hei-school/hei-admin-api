@@ -191,8 +191,8 @@ class ManagerIT extends MockedThirdParties {
     UsersApi api = new UsersApi(manager1Client);
     List<Manager> managers = api.getManagers(1, 20, null, null);
 
-    assertEquals(3, managers.size());
-    assertEquals(manager1(), managers.get(0));
+    assertEquals(4, managers.size());
+    assertEquals(manager1(), managers.get(1));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

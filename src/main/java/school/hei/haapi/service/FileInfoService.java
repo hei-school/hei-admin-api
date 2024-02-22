@@ -12,7 +12,7 @@ import school.hei.haapi.repository.FileInfoRepository;
 
 @Service
 @AllArgsConstructor
-public class FileEntityService {
+public class FileInfoService {
   private final String pathSeparator = "/";
   private final FileInfoRepository fileInfoRepository;
   private final UserService userService;
