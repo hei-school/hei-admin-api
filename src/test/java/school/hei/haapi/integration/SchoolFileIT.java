@@ -1,0 +1,149 @@
+package school.hei.haapi.integration;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.StudentFileIT.ContextInitializer.SERVER_PORT;
+import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.HttpStatus;
+import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.FilesApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Document;
+import school.hei.haapi.endpoint.rest.model.FileType;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.TestUtils;
+import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
+
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+@Testcontainers
+@ContextConfiguration(initializers = SchoolFileIT.ContextInitializer.class)
+@AutoConfigureMockMvc
+public class SchoolFileIT extends MockedThirdParties {
+  @MockBean EventBridgeClient eventBridgeClientMock;
+  @Autowired ObjectMapper objectMapper;
+
+  @BeforeEach
+  public void setUp() {
+    setUpCognito(cognitoComponentMock);
+    setUpEventBridge(eventBridgeClientMock);
+    setUpS3Service(fileService, student1());
+  }
+
+  @Test
+  void manager_upload_school_file_via_http_client_ko() throws IOException, InterruptedException {
+    String SCHOOL_FILES = "/school/files/raw?file_name=regulations&file_type=OTHER";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + SERVER_PORT + SCHOOL_FILES;
+
+    HttpRequest.BodyPublisher body =
+        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
+
+    HttpResponse<String> response =
+        httpClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath))
+                .POST(body)
+                .setHeader("Content-Type", "application/pdf")
+                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
+                .build(),
+            HttpResponse.BodyHandlers.ofString());
+
+    objectMapper.registerModule(new JSR310Module());
+    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
+    Document responseBody = objectMapper.readValue(response.body(), Document.class);
+
+    assertEquals("regulations", responseBody.getName());
+    assertEquals(FileType.OTHER, responseBody.getFileType());
+    assertEquals(HttpStatus.OK.value(), response.statusCode());
+    assertNotNull(response.body());
+    assertNotNull(response);
+  }
+
+  @Test
+  void student_upload_school_file_via_http_client_ko() throws IOException, InterruptedException {
+    String SCHOOL_FILES = "/school/files/raw?file_name=name&file_type=OTHER";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + SERVER_PORT + SCHOOL_FILES;
+
+    HttpRequest.BodyPublisher body =
+        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
+
+    HttpResponse<String> response =
+        httpClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath))
+                .POST(body)
+                .setHeader("Content-Type", "application/pdf")
+                .header("Authorization", "Bearer " + STUDENT1_TOKEN)
+                .build(),
+            HttpResponse.BodyHandlers.ofString());
+
+    assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
+    assertNotNull(response.body());
+    assertNotNull(response);
+  }
+
+  @Test
+  void student_read_school_files_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    FilesApi api = new FilesApi(student1Client);
+
+    assertEquals(1, api.getSchoolRegulations());
+  }
+
+  @Test
+  void teacher_read_school_files_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    FilesApi api = new FilesApi(teacher1Client);
+
+    assertEquals(1, api.getSchoolRegulations());
+  }
+
+  @Test
+  void manager_read_school_files_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    FilesApi api = new FilesApi(manager1Client);
+
+    assertEquals(1, api.getSchoolRegulations());
+  }
+
+  private static ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, SchoolFileIT.ContextInitializer.SERVER_PORT);
+  }
+
+  static class ContextInitializer extends AbstractContextInitializer {
+    public static int SERVER_PORT = anAvailableRandomPort();
+
+    @Override
+    public int getServerPort() {
+      return SERVER_PORT;
+    }
+  }
+}

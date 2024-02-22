@@ -7,7 +7,7 @@ end if;
 end
 $$;
 
-create table if not exists "file"
+create table if not exists "file_info"
 (
     id                varchar
     constraint file_pk primary key default uuid_generate_v4(),

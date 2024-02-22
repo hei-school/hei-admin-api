@@ -6,26 +6,26 @@ import java.time.Instant;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.FileType;
-import school.hei.haapi.model.File;
+import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.User;
-import school.hei.haapi.repository.FileRepository;
+import school.hei.haapi.repository.FileInfoRepository;
 
 @Service
 @AllArgsConstructor
-public class FileService {
+public class FileEntityService {
   private final String pathSeparator = "/";
-  private final FileRepository fileRepository;
+  private final FileInfoRepository fileInfoRepository;
   private final UserService userService;
   private final school.hei.haapi.service.aws.FileService fileService;
 
-  public File uploadFile(
+  public FileInfo uploadFile(
       String fileName, FileType fileType, String studentId, byte[] fileToUpload) {
     User student = userService.findById(studentId);
     String endPath = fileType + pathSeparator + fileName;
     // STUDENT/ref/TRANSCRIPT | DOCUMENT | OTHER/fileName
     String fileKeyUrl = getFormattedBucketKey(student, endPath);
-    File savingFile =
-        File.builder()
+    FileInfo savingFileInfo =
+        FileInfo.builder()
             .fileType(fileType)
             .name(fileName)
             .user(student)
@@ -34,6 +34,6 @@ public class FileService {
             .build();
     java.io.File uploadingFile = fileService.createTempFile(fileToUpload);
     fileService.uploadObjectToS3Bucket(fileKeyUrl, uploadingFile);
-    return fileRepository.save(savingFile);
+    return fileInfoRepository.save(savingFileInfo);
   }
 }

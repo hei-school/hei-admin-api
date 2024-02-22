@@ -22,14 +22,14 @@ import org.hibernate.annotations.Type;
 import school.hei.haapi.endpoint.rest.model.FileType;
 
 @Entity
-@Table(name = "\file\"")
+@Table(name = "\"file_info\"")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
 @ToString
 @Builder(toBuilder = true)
-public class File implements Serializable {
+public class FileInfo implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
