@@ -12,7 +12,6 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
