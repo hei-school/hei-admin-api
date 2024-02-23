@@ -42,6 +42,7 @@ Resources:
       ScalingConfiguration:
         SecondsUntilAutoPause:
           !If [ IsProdEnv,  !Ref ProdDbClusterTimeout, 300 ]
+        
 
 
   DatabaseClusterSSM:

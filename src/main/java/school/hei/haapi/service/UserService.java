@@ -148,7 +148,7 @@ public class UserService {
     List<GroupFlow> groupFlows = new ArrayList<>();
     for (GroupFlow groupFlow : group.getGroupFlows()) {
       if (!users.contains(groupFlow.getStudent())) {
-        if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.JOIN) {
+        if (groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.JOIN) {
           users.add(groupFlow.getStudent());
         }
         groupFlows.add(groupFlow);
@@ -160,7 +160,7 @@ public class UserService {
                   .findFirst()
                   .get()
                   .getFlowDatetime())) {
-        if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.LEAVE) {
+        if (groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.LEAVE) {
           users.remove(groupFlow.getStudent());
         }
         groupFlows.remove(
