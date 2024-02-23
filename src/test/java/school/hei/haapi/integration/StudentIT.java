@@ -25,19 +25,17 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiExcepti
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import com.github.javafaker.Faker;
+import java.io.File;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
+import java.io.InputStream;
+import java.net.URL;
 import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -82,6 +80,11 @@ class StudentIT extends MockedThirdParties {
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+  }
+
+  File getFileFromResource(String resourceName) {
+    URL resource = this.getClass().getClassLoader().getResource(resourceName);
+    return new File(resource.getFile());
   }
 
   public static CrupdateStudent createStudent1() {
@@ -284,27 +287,15 @@ class StudentIT extends MockedThirdParties {
 
   @Test
   void manager_upload_profile_picture() throws IOException, InterruptedException {
-    String STUDENT_ONE_PICTURE_RAW = "/students/" + STUDENT1_ID + "/picture/raw";
-    HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
 
-    HttpRequest.BodyPublisher body =
-        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
-    HttpResponse<String> response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath + STUDENT_ONE_PICTURE_RAW))
-                .POST(body)
-                .setHeader("Content-Type", "image/png")
-                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofString());
+    HttpResponse<InputStream> response =
+        uploadProfilePicture(
+            ContextInitializer.SERVER_PORT, MANAGER1_TOKEN, STUDENT1_ID, "students");
 
-    objectMapper.registerModule(new JSR310Module());
-    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-    Student responseBody = objectMapper.readValue(response.body(), Student.class);
+    Student student = objectMapper.readValue(response.body(), Student.class);
 
-    assertEquals("STD21001", responseBody.getRef());
+    assertEquals(200, response.statusCode());
+    assertEquals("STD21001", student.getRef());
   }
 
   @Test

@@ -10,10 +10,19 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,6 +32,8 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
@@ -121,6 +132,7 @@ public class TestUtils {
 
   public static void setUpS3Service(FileService fileService, Student user) {
     when(fileService.getPresignedUrl(user.getRef(), 180L)).thenReturn(user.getRef());
+    when(fileService.getFileExtension(any())).thenCallRealMethod();
   }
 
   public static void setUpS3Service(FileService fileService, Teacher user) {
@@ -739,6 +751,49 @@ public class TestUtils {
         .course(awardedCourse4().getCourse())
         .group(awardedCourse4().getGroup())
         .exams(List.of(studentExamGrade5()));
+  }
+
+  public static HttpResponse<InputStream> uploadProfilePicture(
+      Integer serverPort, String token, String subjectId, String resource)
+      throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+
+    String basePath = "http://localhost:" + serverPort;
+
+    String boundary = "---------------------------" + System.currentTimeMillis();
+    String contentTypeHeader = "multipart/form-data; boundary=" + boundary;
+
+    File file = getMockedFile("img", ".png");
+
+    String requestBodyPrefix =
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"picture\"; filename=\""
+            + file.getName()
+            + "\""
+            + CRLF
+            + "Content-Type: image/png"
+            + CRLF
+            + CRLF;
+    byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
+    String requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
+
+    byte[] requestBody =
+        Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
+    UriComponentsBuilder uriComponentsBuilder =
+        UriComponentsBuilder.fromUri(
+            URI.create(basePath + String.format("/%s/%s/picture/raw", resource, subjectId)));
+    InputStream requestBodyStream = new ByteArrayInputStream(requestBody);
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(uriComponentsBuilder.build().toUri())
+            .header("Content-Type", contentTypeHeader)
+            .header("Authorization", "Bearer " + token)
+            .POST(HttpRequest.BodyPublishers.ofInputStream(() -> requestBodyStream))
+            .build();
+
+    return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
   }
 
   public static Coordinates coordinatesWithNullValues() {

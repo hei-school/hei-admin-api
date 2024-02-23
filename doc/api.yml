@@ -1888,10 +1888,9 @@ paths:
       requestBody:
         required: true
         content:
-          image/png:
+          multipart/form-data:
             schema:
-              type: string
-              format: binary
+              $ref: "#/components/schemas/UploadPicture"
       responses:
         '200':
           description: Teacher updated
@@ -1924,10 +1923,9 @@ paths:
       requestBody:
         required: true
         content:
-          image/png:
+          multipart/form-data:
             schema:
-              type: string
-              format: binary
+              $ref: "#/components/schemas/UploadPicture"
       responses:
         '200':
           description: Manager updated
@@ -1960,10 +1958,9 @@ paths:
       requestBody:
         required: true
         content:
-          image/png:
+          multipart/form-data:
             schema:
-              type: string
-              format: binary
+              $ref: "#/components/schemas/UploadPicture"
       responses:
         '200':
           description: Student updated
@@ -2768,6 +2765,13 @@ components:
         - HARDWARE
         - STUDENT_INSURANCE
         - REMEDIAL_COSTS
+    UploadPicture:
+      type: object
+      properties:
+        picture:
+          type: string
+          format: binary
+          description: User profile picture
     Page:
       type: integer
       description: Start at `1`
