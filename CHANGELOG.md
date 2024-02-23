@@ -1,3 +1,12 @@
+## [1.4.1](https://github.com/hei-school/hei-admin-api/compare/v1.4.0...v1.4.1) (2024-02-23)
+
+
+### Bug Fixes
+
+* handle file uploads with MultipartFile ([7c9eaea](https://github.com/hei-school/hei-admin-api/commit/7c9eaea0434e46e329f7fee0a7356f19ed41d11c))
+
+
+
 # [1.4.0](https://github.com/hei-school/hei-admin-api/compare/v1.3.0...v1.4.0) (2024-02-21)
 
 
@@ -105,23 +114,6 @@
 ### Features
 
 * upgrade poja to v4.0.0 ([9a55b49](https://github.com/hei-school/hei-admin-api/commit/9a55b495d6579d70d4988c581866679a05e7f17d))
-
-
-
-# [0.10.0](https://github.com/hei-school/hei-admin-api/compare/v0.9.0...v0.10.0) (2023-11-30)
-
-
-### Bug Fixes
-
-* status in creation fees ([525c5b3](https://github.com/hei-school/hei-admin-api/commit/525c5b3070e60fd5e620f12ef6cf95c869625206))
-
-
-### Features
-
-* add update fees in spec ([b031fbe](https://github.com/hei-school/hei-admin-api/commit/b031fbef56684348f15cf888c6d30559f4253e7e))
-* **doc/api:** filter users by sex (not-implemented) ([2511c10](https://github.com/hei-school/hei-admin-api/commit/2511c1041168bf88607cec3d0f1a97e7f7ff237b))
-* **doc/api:** filter users by status with new Suspended status (not-implemented) ([357059d](https://github.com/hei-school/hei-admin-api/commit/357059dbb4cd469bdabf7019d635bdeda13fd7d9))
-* implement update fees in the code ([296412c](https://github.com/hei-school/hei-admin-api/commit/296412c27e0f1d0c1cca72812cadae974b3e9d09))
 
 
 
