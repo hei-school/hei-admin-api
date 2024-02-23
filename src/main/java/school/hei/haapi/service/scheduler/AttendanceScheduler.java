@@ -107,7 +107,7 @@ public class AttendanceScheduler {
 
     if (predicate.isPresent()) {
       StudentAttendance attendance = predicate.get();
-      attendance.setLate(attendance.isLateFrom(courseSession.getBegin()));
+      attendance.setLate(attendance.isAfter(courseSession.getBegin()));
       attendance.setCourseSession(courseSession);
       attendanceRepository.save(attendance);
     }

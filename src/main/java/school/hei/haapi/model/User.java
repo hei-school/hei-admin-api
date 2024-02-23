@@ -1,24 +1,25 @@
 package school.hei.haapi.model;
 
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
+import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
+import jakarta.validation.constraints.Email;
+import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.FetchType;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import javax.validation.constraints.Email;
-import javax.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -26,15 +27,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
-import school.hei.haapi.repository.types.PostgresEnumType;
-import school.hei.haapi.service.utils.DataFormatterUtils;
 
 @Entity
 @Table(name = "\"user\"")
-@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 @Getter
 @Setter
 @ToString
@@ -60,8 +57,8 @@ public class User implements Serializable {
 
   private String nic;
 
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
   private Status status;
 
   private String phone;
@@ -72,19 +69,19 @@ public class User implements Serializable {
 
   private Instant entranceDatetime;
 
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
   private SpecializationField specializationField;
 
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
   private Sex sex;
 
   private String address;
 
   @Column(name = "\"role\"")
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
   private Role role;
 
   private String profilePictureKey;
@@ -121,29 +118,17 @@ public class User implements Serializable {
   public enum Sex {
     M,
     F;
-
-    public static Sex fromValue(String value) {
-      return DataFormatterUtils.fromValue(Sex.class, value);
-    }
   }
 
   public enum Status {
     ENABLED,
     DISABLED,
     SUSPENDED;
-
-    public static Status fromValue(String value) {
-      return DataFormatterUtils.fromValue(Status.class, value);
-    }
   }
 
   public enum Role {
     STUDENT,
     TEACHER,
     MANAGER;
-
-    public static Role fromValue(String value) {
-      return DataFormatterUtils.fromValue(Role.class, value);
-    }
   }
 }

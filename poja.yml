@@ -1,8 +1,12 @@
 app_name: haapi
-cli_version: 10.7.0
+aurora_max_capacity: null
+aurora_min_capacity: null
+cli_version: 11.4.1
 custom_java_deps: poja-custom-java-deps.txt
 custom_java_env_vars: poja-custom-java-env-vars.txt
 custom_java_repositories: poja-custom-java-repositories.txt
+database_non_root_password: null
+database_non_root_username: null
 frontal_memory: 2048
 jacoco_min_coverage: '0.8'
 java_facade_it: FacadeIT

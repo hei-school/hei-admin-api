@@ -33,7 +33,7 @@ public class GroupFlowService {
             .flowDatetime(Instant.now())
             .student(student)
             .groupFlowType(
-                GroupFlow.group_flow_type.fromValue(createGroupFlow.getMoveType().getValue()))
+                GroupFlow.GroupFlowType.fromValue(createGroupFlow.getMoveType().getValue()))
             .build();
     validator.accept(groupFlow);
     return repository.save(groupFlow);
@@ -51,7 +51,7 @@ public class GroupFlowService {
               .flowDatetime(Instant.now())
               .student(student)
               .groupFlowType(
-                  GroupFlow.group_flow_type.fromValue(createGroupFlow.getMoveType().getValue()))
+                  GroupFlow.GroupFlowType.fromValue(createGroupFlow.getMoveType().getValue()))
               .build());
     }
     validator.accept(groupFlows);

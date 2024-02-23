@@ -18,7 +18,6 @@ import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.conf.FacadeIT;
 import school.hei.haapi.endpoint.event.EventConsumer;
 import school.hei.haapi.endpoint.event.gen.UuidCreated;
-import school.hei.haapi.file.BucketConf;
 import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
 
@@ -28,7 +27,6 @@ public class SqsMessageAckTyperTest extends FacadeIT {
   @Autowired EventConsumer.SqsMessageAckTyper subject;
   @Autowired ObjectMapper om;
   @MockBean SqsClient sqsClient;
-  @MockBean BucketConf bucketConf;
 
   private SQSEvent.SQSMessage sqsMessageFrom(EventConsumer.TypedEvent typedEvent)
       throws JsonProcessingException {

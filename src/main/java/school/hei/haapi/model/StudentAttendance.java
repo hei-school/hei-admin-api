@@ -1,18 +1,19 @@
 package school.hei.haapi.model;
 
-import static javax.persistence.GenerationType.IDENTITY;
+import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Duration;
 import java.time.Instant;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -20,17 +21,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.AttendanceMovementType;
 import school.hei.haapi.endpoint.rest.model.PlaceEnum;
-import school.hei.haapi.repository.types.PostgresEnumType;
 
 @Entity
 @Table(name = "\"attendance\"")
 @Getter
 @Setter
-@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 @AllArgsConstructor
 @NoArgsConstructor
 @Builder(toBuilder = true)
@@ -45,12 +43,12 @@ public class StudentAttendance implements Serializable {
 
   private boolean isLate;
 
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
   private AttendanceMovementType attendanceMovementType;
 
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
   private PlaceEnum place;
 
   @ManyToOne
@@ -61,7 +59,7 @@ public class StudentAttendance implements Serializable {
   @JoinColumn(name = "student_id")
   private User student;
 
-  public boolean isLateFrom(Instant toCompare) {
+  public boolean isAfter(Instant toCompare) {
     return this.createdAt.isAfter(toCompare);
   }
 
