@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.file.BucketComponent;
 import school.hei.haapi.file.FileHash;
 import school.hei.haapi.file.FileTyper;
@@ -45,6 +46,15 @@ public class FileService {
       case MANAGER -> String.format("%s/%s/%s_%s", MANAGER, user.getRef(), fileType, user.getRef());
       case TEACHER -> String.format("%s/%s/%s_%s", TEACHER, user.getRef(), fileType, user.getRef());
       case STUDENT -> String.format("%s/%s/%s_%s", STUDENT, user.getRef(), fileType, user.getRef());
+      default -> throw new BadRequestException("Unexpected type " + user.getRole());
+    };
+  }
+
+  public static String getFormattedBucketKey(User user, FileType fileType, String fileName) {
+    return switch (user.getRole()) {
+      case MANAGER -> String.format("%s/%s/%s/%s", MANAGER, user.getRef(), fileType, fileName);
+      case TEACHER -> String.format("%s/%s/%s/%s", TEACHER, user.getRef(), fileType, fileName);
+      case STUDENT -> String.format("%s/%s/%s/%s", STUDENT, user.getRef(), fileType, fileName);
       default -> throw new BadRequestException("Unexpected type " + user.getRole());
     };
   }

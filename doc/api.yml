@@ -2070,7 +2070,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/File'
+                  $ref: '#/components/schemas/FileInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2092,7 +2092,7 @@ paths:
           schema:
             $ref: '#/components/schemas/FileType'
           in: query
-        - name: file_name
+        - name: filename
           required: true
           schema:
             type: string
@@ -2101,7 +2101,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/pdf:
+          multipart/form-data:
             schema:
               type: string
               format: binary
@@ -2111,7 +2111,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/File'
+                $ref: '#/components/schemas/FileInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2146,7 +2146,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/File'
+                $ref: '#/components/schemas/FileInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2173,7 +2173,7 @@ paths:
           schema:
             $ref: '#/components/schemas/FileType'
           in: query
-        - name: file_name
+        - name: filename
           required: true
           schema:
             type: string
@@ -2182,7 +2182,7 @@ paths:
       requestBody:
         required: true
         content:
-          application/pdf:
+          multipart/form-data:
             schema:
               type: string
               format: binary
@@ -2192,7 +2192,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/File'
+                $ref: '#/components/schemas/FileInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2215,6 +2215,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: file_type
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/FileType'
       responses:
         '200':
           description: List of student files
@@ -2223,7 +2228,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/File'
+                  $ref: '#/components/schemas/FileInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2528,7 +2533,7 @@ components:
           type: string
         group_id:
           type: string
-    File:
+    FileInfo:
       type: object
       properties:
         id:
