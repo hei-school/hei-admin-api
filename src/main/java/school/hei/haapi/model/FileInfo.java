@@ -44,5 +44,5 @@ public class FileInfo implements Serializable {
   @Enumerated(STRING)
   private FileType fileType;
 
-  private String fileKeyUrl;
+  private String filePath;
 }

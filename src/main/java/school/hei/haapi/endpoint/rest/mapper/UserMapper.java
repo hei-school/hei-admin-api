@@ -19,7 +19,9 @@ public class UserMapper {
     Student restStudent = new Student();
     String profilePictureKey = user.getProfilePictureKey();
     String url =
-        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, constant.presignedUrlDurationConstant) : null;
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, constant.presignedUrlDuration)
+            : null;
 
     restStudent.setId(user.getId());
     restStudent.setFirstName(user.getFirstName());
@@ -46,7 +48,9 @@ public class UserMapper {
     Teacher teacher = new Teacher();
     String profilePictureKey = user.getProfilePictureKey();
     String url =
-        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, constant.presignedUrlDurationConstant) : null;
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, constant.presignedUrlDuration)
+            : null;
 
     teacher.setId(user.getId());
     teacher.setFirstName(user.getFirstName());
@@ -72,7 +76,9 @@ public class UserMapper {
     Manager manager = new Manager();
     String profilePictureKey = user.getProfilePictureKey();
     String url =
-        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, constant.presignedUrlDurationConstant) : null;
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, constant.presignedUrlDuration)
+            : null;
 
     manager.setId(user.getId());
     manager.setFirstName(user.getFirstName());

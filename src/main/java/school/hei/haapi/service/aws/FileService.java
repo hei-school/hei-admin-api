@@ -12,6 +12,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.file.BucketComponent;
 import school.hei.haapi.file.FileHash;
 import school.hei.haapi.file.FileTyper;
@@ -49,27 +50,12 @@ public class FileService {
     };
   }
 
-  public File createTempFile(byte[] bytes) {
-    File tempFile;
-    try {
-      tempFile = File.createTempFile("file", "temp");
-      FileOutputStream outputStream = new FileOutputStream(tempFile);
-      outputStream.write(bytes);
-      return tempFile;
-    } catch (IOException ioException) {
-      throw new ApiException(SERVER_EXCEPTION, ioException.getMessage());
-    }
-  }
-
-  public File createTempFile(MultipartFile file) {
-    File tempFile;
-    try {
-      tempFile = File.createTempFile("file", "temp");
-      FileOutputStream outputStream = new FileOutputStream(tempFile);
-      outputStream.write(file.getBytes());
-      return tempFile;
-    } catch (IOException ioException) {
-      throw new ApiException(SERVER_EXCEPTION, ioException.getMessage());
-    }
+  public static String getFormattedBucketKey(User user, FileType fileType, String fileName) {
+    return switch (user.getRole()) {
+      case MANAGER -> String.format("%s/%s/%s/%s", MANAGER, user.getRef(), fileType, fileName);
+      case TEACHER -> String.format("%s/%s/%s/%s", TEACHER, user.getRef(), fileType, fileName);
+      case STUDENT -> String.format("%s/%s/%s/%s", STUDENT, user.getRef(), fileType, fileName);
+      default -> throw new BadRequestException("Unexpected type " + user.getRole());
+    };
   }
 }

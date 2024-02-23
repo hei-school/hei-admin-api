@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import school.hei.haapi.endpoint.rest.mapper.DocumentMapper;
+import school.hei.haapi.endpoint.rest.mapper.FileInfoMapper;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.service.StudentFileService;
@@ -22,7 +22,7 @@ import school.hei.haapi.service.StudentFileService;
 @AllArgsConstructor
 public class StudentFileController {
   private final StudentFileService fileService;
-  private final DocumentMapper documentMapper;
+  private final FileInfoMapper fileInfoMapper;
 
   @GetMapping(
       value = "/students/{id}/scholarship_certificate/raw",
@@ -37,14 +37,14 @@ public class StudentFileController {
       @RequestParam(name = "file_name") String fileName,
       @RequestParam(name = "file_type") FileType fileType,
       @RequestPart(name = "file") MultipartFile fileToUpload) {
-    return documentMapper.toRest(
+    return fileInfoMapper.toRest(
         fileService.uploadStudentFile(fileName, fileType, studentId, fileToUpload));
   }
 
   @GetMapping(value = "/students/{student_id}/files")
   public List<FileInfo> getStudentFiles(@PathVariable(name = "student_id") String studentId) {
     return fileService.getStudentFiles(studentId).stream()
-        .map(documentMapper::toRest)
+        .map(fileInfoMapper::toRest)
         .collect(toUnmodifiableList());
   }
 
@@ -52,6 +52,6 @@ public class StudentFileController {
   public FileInfo getStudentFilesById(
       @PathVariable(name = "student_id") String studentId,
       @PathVariable(name = "id") String fileId) {
-    return documentMapper.toRest(fileService.getStudentFileById(studentId, fileId));
+    return fileInfoMapper.toRest(fileService.getStudentFileById(studentId, fileId));
   }
 }

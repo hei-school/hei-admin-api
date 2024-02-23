@@ -20,22 +20,22 @@ public class FileInfoService {
   private final FileInfoRepository fileInfoRepository;
   private final UserService userService;
   private final FileService fileService;
+  private final MultipartFileConverter multipartFileConverter;
 
   public FileInfo uploadFile(
       String fileName, FileType fileType, String userId, MultipartFile fileToUpload) {
     User student = userService.findById(userId);
-    String endPath = fileType + pathSeparator + fileName;
-    // STUDENT/ref/TRANSCRIPT | DOCUMENT | OTHER/fileName
-    String fileKeyUrl = getFormattedBucketKey(student, endPath);
+    // STUDENT/STUDENT_ref/<TRANSCRIPT|DOCUMENT|OTHER>/fileName
+    String fileKeyUrl = getFormattedBucketKey(student, fileType, fileName);
     FileInfo savedFileInfo =
         FileInfo.builder()
             .fileType(fileType)
             .name(fileName)
             .user(student)
-            .fileKeyUrl(fileKeyUrl)
+            .filePath(fileKeyUrl)
             .creationDatetime(Instant.now())
             .build();
-    var uploadedFile = fileService.createTempFile(fileToUpload);
+    File uploadedFile = multipartFileConverter.apply(fileToUpload);
     fileService.uploadObjectToS3Bucket(fileKeyUrl, uploadedFile);
     return fileInfoRepository.save(savedFileInfo);
   }

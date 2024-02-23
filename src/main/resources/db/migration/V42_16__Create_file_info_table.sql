@@ -16,5 +16,5 @@ create table if not exists "file_info"
     name              varchar,
     creation_datetime timestamp with time zone not null default now(),
     file_type         file_type                not null,
-    file_key_url      varchar
+    file_path      varchar
 );

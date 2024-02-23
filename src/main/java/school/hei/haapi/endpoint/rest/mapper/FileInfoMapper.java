@@ -8,14 +8,16 @@ import school.hei.haapi.service.aws.FileService;
 
 @Component
 @AllArgsConstructor
-public class DocumentMapper {
+public class FileInfoMapper {
   private final FileService fileService;
   private final PresignedUrlDurationConstant constant;
 
   public school.hei.haapi.endpoint.rest.model.FileInfo toRest(FileInfo fileInfo) {
-    String presignedUrl = fileInfo.getFileKeyUrl();
+    String presignedUrl = fileInfo.getFilePath();
     String accessibleFileUrl =
-        presignedUrl != null ? fileService.getPresignedUrl(fileInfo.getFileKeyUrl(), constant.presignedUrlDurationConstant) : null;
+        presignedUrl != null
+            ? fileService.getPresignedUrl(fileInfo.getFilePath(), constant.presignedUrlDuration)
+            : null;
     return new school.hei.haapi.endpoint.rest.model.FileInfo()
         .id(fileInfo.getId())
         .fileType(fileInfo.getFileType())

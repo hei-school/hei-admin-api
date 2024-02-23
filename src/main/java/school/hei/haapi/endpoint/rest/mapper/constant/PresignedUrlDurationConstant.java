@@ -4,5 +4,5 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class PresignedUrlDurationConstant {
-  public final long presignedUrlDurationConstant = 86400L;
+  public final long presignedUrlDuration = 86400L;
 }

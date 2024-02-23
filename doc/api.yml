@@ -2215,6 +2215,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: file_type
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/FileType'
       responses:
         '200':
           description: List of student files
