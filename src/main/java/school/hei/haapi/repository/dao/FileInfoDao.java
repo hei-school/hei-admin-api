@@ -1,16 +1,16 @@
 package school.hei.haapi.repository.dao;
 
-import static javax.persistence.criteria.JoinType.LEFT;
+import static jakarta.persistence.criteria.JoinType.LEFT;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import java.util.ArrayList;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.criteria.CriteriaBuilder;
-import javax.persistence.criteria.CriteriaQuery;
-import javax.persistence.criteria.Expression;
-import javax.persistence.criteria.Join;
-import javax.persistence.criteria.Predicate;
-import javax.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.FileType;
@@ -24,7 +24,7 @@ public class FileInfoDao {
 
   public List<FileInfo> findAllByCriteria(String userId, FileType fileType) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    CriteriaQuery query = builder.createQuery(FileInfo.class);
+    CriteriaQuery<FileInfo> query = builder.createQuery(FileInfo.class);
     Root<FileInfo> root = query.from(FileInfo.class);
     Join<FileInfo, User> userJoin = root.join("user", LEFT);
     List<Predicate> predicates = new ArrayList<>();

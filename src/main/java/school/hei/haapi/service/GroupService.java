@@ -77,7 +77,7 @@ public class GroupService {
                       .findFirst()
                       .get()
                       .getFlowDatetime())) {
-            if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.JOIN) {
+            if (groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.JOIN) {
               groups.add(groupFlow.getGroup());
             }
             groupFlows.remove(
@@ -88,7 +88,7 @@ public class GroupService {
             groupFlows.add(groupFlow);
           }
         } else {
-          if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.JOIN) {
+          if (groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.JOIN) {
             groups.add(groupFlow.getGroup());
           }
           groupFlows.add(groupFlow);
@@ -101,7 +101,7 @@ public class GroupService {
                   .findFirst()
                   .get()
                   .getFlowDatetime())) {
-        if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.LEAVE) {
+        if (groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.LEAVE) {
           groups.remove(groupFlow.getGroup());
         }
         groupFlows.remove(

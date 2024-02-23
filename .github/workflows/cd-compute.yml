@@ -7,6 +7,15 @@ on:
       - 'preprod'
 
   workflow_dispatch:
+    inputs:
+      run_tests:
+        type: choice
+        required: false
+        default: 'yes'
+        description: Run tests ?
+        options:
+          - 'yes'
+          - 'no'
 
   workflow_call:
 
@@ -31,6 +40,11 @@ jobs:
         with:
           secrets: ${{ toJSON(secrets) }}
           region: ${{ env.AWS_REGION }}
+
+      - name: Disable tests
+        if: ${{ github.event.inputs.run_tests == 'no' }}
+        run: |
+          printf "tasks.named('test').configure {\n    enabled = false\n}" >> build.gradle
 
       - run: sam build
 

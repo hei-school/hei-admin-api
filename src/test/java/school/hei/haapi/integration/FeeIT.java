@@ -24,10 +24,10 @@ import static school.hei.haapi.integration.conf.TestUtils.fee3;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import java.time.Instant;
 import java.util.List;
-import javax.persistence.EntityManager;
-import javax.persistence.Query;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
