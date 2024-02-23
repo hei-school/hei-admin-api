@@ -88,7 +88,7 @@ public class StudentFileIT extends MockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     FilesApi api = new FilesApi(student1Client);
 
-    assertThrowsForbiddenException(() -> api.getStudentFiles(STUDENT2_ID));
+    assertThrowsForbiddenException(() -> api.getStudentFiles(STUDENT2_ID, null));
   }
 
   @Test
@@ -96,9 +96,20 @@ public class StudentFileIT extends MockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     FilesApi api = new FilesApi(student1Client);
 
-    List<FileInfo> documents = api.getStudentFiles(STUDENT1_ID);
+    List<FileInfo> documents = api.getStudentFiles(STUDENT1_ID, null);
 
     assertEquals(2, documents.size());
+    assertTrue(documents.contains(file1()));
+  }
+
+  @Test
+  void student_read_own_transcripts_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    FilesApi api = new FilesApi(student1Client);
+
+    List<FileInfo> documents = api.getStudentFiles(STUDENT1_ID, TRANSCRIPT);
+
+    assertEquals(1, documents.size());
     assertTrue(documents.contains(file1()));
   }
 
@@ -107,7 +118,7 @@ public class StudentFileIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     FilesApi api = new FilesApi(manager1Client);
 
-    List<FileInfo> documents = api.getStudentFiles(STUDENT1_ID);
+    List<FileInfo> documents = api.getStudentFiles(STUDENT1_ID, null);
 
     assertEquals(2, documents.size());
     assertTrue(documents.contains(file1()));

@@ -1,8 +1,9 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.mapper.constant.PresignedUrlDurationConstant;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.FileService;
@@ -13,14 +14,13 @@ public class UserMapper {
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
   private final FileService fileService;
-  private final PresignedUrlDurationConstant constant;
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
     String profilePictureKey = user.getProfilePictureKey();
     String url =
         profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, constant.presignedUrlDuration)
+            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
             : null;
 
     restStudent.setId(user.getId());
@@ -49,7 +49,7 @@ public class UserMapper {
     String profilePictureKey = user.getProfilePictureKey();
     String url =
         profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, constant.presignedUrlDuration)
+            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
             : null;
 
     teacher.setId(user.getId());
@@ -77,7 +77,7 @@ public class UserMapper {
     String profilePictureKey = user.getProfilePictureKey();
     String url =
         profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, constant.presignedUrlDuration)
+            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
             : null;
 
     manager.setId(user.getId());

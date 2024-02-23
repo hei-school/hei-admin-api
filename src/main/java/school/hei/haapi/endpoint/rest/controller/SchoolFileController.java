@@ -24,7 +24,7 @@ public class SchoolFileController {
 
   @PostMapping(value = "/school/files/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public FileInfo uploadSchoolFile(
-      @RequestParam(name = "file_name") String fileName,
+      @RequestParam(name = "filename") String fileName,
       @RequestParam(name = "file_type") FileType fileType,
       @RequestPart(name = "file") MultipartFile fileToUpload) {
     return fileInfoMapper.toRest(

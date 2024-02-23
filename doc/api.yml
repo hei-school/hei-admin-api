@@ -2092,7 +2092,7 @@ paths:
           schema:
             $ref: '#/components/schemas/FileType'
           in: query
-        - name: file_name
+        - name: filename
           required: true
           schema:
             type: string
@@ -2173,7 +2173,7 @@ paths:
           schema:
             $ref: '#/components/schemas/FileType'
           in: query
-        - name: file_name
+        - name: filename
           required: true
           schema:
             type: string

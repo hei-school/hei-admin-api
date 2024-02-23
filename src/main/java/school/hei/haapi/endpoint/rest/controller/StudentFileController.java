@@ -34,7 +34,7 @@ public class StudentFileController {
   @PostMapping(value = "/students/{student_id}/files/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public FileInfo uploadStudentFile(
       @PathVariable(name = "student_id") String studentId,
-      @RequestParam(name = "file_name") String fileName,
+      @RequestParam(name = "filename") String fileName,
       @RequestParam(name = "file_type") FileType fileType,
       @RequestPart(name = "file") MultipartFile fileToUpload) {
     return fileInfoMapper.toRest(
@@ -42,8 +42,10 @@ public class StudentFileController {
   }
 
   @GetMapping(value = "/students/{student_id}/files")
-  public List<FileInfo> getStudentFiles(@PathVariable(name = "student_id") String studentId) {
-    return fileService.getStudentFiles(studentId).stream()
+  public List<FileInfo> getStudentFiles(
+      @PathVariable(name = "student_id") String studentId,
+      @RequestParam(name = "file_type", required = false) FileType fileType) {
+    return fileService.getStudentFiles(studentId, fileType).stream()
         .map(fileInfoMapper::toRest)
         .collect(toUnmodifiableList());
   }

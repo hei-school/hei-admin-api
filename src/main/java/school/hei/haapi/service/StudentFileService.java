@@ -13,6 +13,7 @@ import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.FileInfoRepository;
+import school.hei.haapi.repository.dao.FileInfoDao;
 import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
 import school.hei.haapi.service.utils.HtmlParser;
@@ -30,15 +31,15 @@ public class StudentFileService {
   private final ScholarshipCertificateDataProvider certificateDataProvider;
   private final FileInfoRepository fileInfoRepository;
   private final FileInfoService fileInfoService;
+  private final FileInfoDao fileInfoDao;
 
   public FileInfo uploadStudentFile(
       String fileName, FileType fileType, String studentId, MultipartFile fileToUpload) {
     return fileInfoService.uploadFile(fileName, fileType, studentId, fileToUpload);
   }
 
-  public List<FileInfo> getStudentFiles(String userId) {
-    User user = userService.findById(userId);
-    return fileInfoRepository.findAllByUser(user);
+  public List<FileInfo> getStudentFiles(String userId, FileType fileType) {
+    return fileInfoDao.findAllByCriteria(userId, fileType);
   }
 
   public FileInfo getStudentFileById(String studentId, String id) {

@@ -16,7 +16,6 @@ import school.hei.haapi.service.aws.FileService;
 @Service
 @AllArgsConstructor
 public class FileInfoService {
-  private final String pathSeparator = File.pathSeparator;
   private final FileInfoRepository fileInfoRepository;
   private final UserService userService;
   private final FileService fileService;
@@ -26,17 +25,17 @@ public class FileInfoService {
       String fileName, FileType fileType, String userId, MultipartFile fileToUpload) {
     User student = userService.findById(userId);
     // STUDENT/STUDENT_ref/<TRANSCRIPT|DOCUMENT|OTHER>/fileName
-    String fileKeyUrl = getFormattedBucketKey(student, fileType, fileName);
-    FileInfo savedFileInfo =
+    String filePath = getFormattedBucketKey(student, fileType, fileName);
+    FileInfo fileInfo =
         FileInfo.builder()
             .fileType(fileType)
             .name(fileName)
             .user(student)
-            .filePath(fileKeyUrl)
+            .filePath(filePath)
             .creationDatetime(Instant.now())
             .build();
-    File uploadedFile = multipartFileConverter.apply(fileToUpload);
-    fileService.uploadObjectToS3Bucket(fileKeyUrl, uploadedFile);
-    return fileInfoRepository.save(savedFileInfo);
+    File file = multipartFileConverter.apply(fileToUpload);
+    fileService.uploadObjectToS3Bucket(filePath, file);
+    return fileInfoRepository.save(fileInfo);
   }
 }
