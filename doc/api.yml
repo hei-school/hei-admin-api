@@ -2270,6 +2270,200 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /events:
+    get:
+      tags:
+        - Events
+      summary: Get all events.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: from
+          in: query
+          description: Filter events from a given date, return events of current week by default
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: to
+          in: query
+          description: Filter events after a given date, return events of current week by default
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: planner_name
+          in: query
+          required: false
+          description: Filter events by planner key name
+          schema:
+            type: string
+        - name: group_ref
+          in: query
+          description: Filter events by group reference
+          required: false
+          schema:
+            type: string
+      operationId: getEvents
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Events
+      summary: Create or update events
+      description: Update if id is provided, create otherwise.
+      operationId: crupdateEvents
+      requestBody:
+        required: true
+        description: Event to create or update
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateEvent'
+      responses:
+        '200':
+          description: Event created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events/{id}:
+    get:
+      tags:
+        - Events
+      summary: Get event by identifier
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: getEventById
+      responses:
+        '200':
+          description: Event by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events/{id}/participants:
+    get:
+      tags:
+        - Events
+      summary: Users taking parts to event
+      operationId: getEventParticipants
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Participants of the event
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupedEventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Events
+      summary: Update event participants status
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      operationId: updateEventParticipantsStatus
+      requestBody:
+        description: Participants attend for given event
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/GroupedEventParticipant'
+      responses:
+        '200':
+          description: Participants attended for given event
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupedEventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
@@ -2395,6 +2589,14 @@ components:
         - TRANSCRIPT
         - DOCUMENT
         - OTHER
+    EventType:
+      type: string
+      enum:
+        - COURSE
+        - INTEGRATION
+        - SEMINAR
+        - SUPPORT_SESSION
+        - OTHER
     StudentAttendance:
       type: object
       properties:
@@ -2459,6 +2661,17 @@ components:
       properties:
         profile_picture:
           type: string
+    GroupIdentifier:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: The group number one
+        ref:
+          type: string
+          example: G1
     Group:
       type: object
       properties:
@@ -2757,6 +2970,65 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    CreateEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        begin:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        event_type:
+          $ref: '#/components/schemas/EventType'
+        planner_id:
+          description: user id
+          type: string
+        course_id:
+          type: string
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupIdentifier'
+    AttendanceStatus:
+      type: string
+      enum:
+        - MISSING
+        - LATE
+        - PRESENT
+    GroupedEventParticipant:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+      type: object
+      properties:
+        event_status:
+          $ref: '#/components/schemas/AttendanceStatus'
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/EventType'
+        description:
+          type: string
+        planner:
+          $ref: '#/components/schemas/UserIdentifier'
+        course:
+          $ref: '#/components/schemas/Course'
+    EventParticipant:
+       type: object
+       properties:
+         group:
+           $ref: '#/components/schemas/GroupIdentifier'
+         students:
+           type: array
+           items:
+             $ref: '#/components/schemas/GroupedEventParticipant'
     FeeStatusEnum:
       type: string
       enum:
@@ -2783,12 +3055,6 @@ components:
     PageSize:
       type: integer
       description: Cannot exceed `500`
-    AttendanceStatus:
-      type: string
-      enum:
-        - MISSING
-        - LATE
-        - PRESENT
     AttendanceMovementType:
       type: string
       enum:
