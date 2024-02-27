@@ -19,6 +19,7 @@ import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
+import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithValues;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -368,7 +369,7 @@ class TeacherIT extends MockedThirdParties {
         .lastName("Other last")
         .firstName("Other first")
         .birthDate(LocalDate.parse("2000-01-03"))
-        .coordinates(coordinatesWithNullValues());
+        .coordinates(coordinatesWithValues());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

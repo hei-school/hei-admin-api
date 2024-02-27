@@ -800,6 +800,10 @@ public class TestUtils {
     return new Coordinates().latitude(null).longitude(null);
   }
 
+  public static Coordinates coordinatesWithValues() {
+    return new Coordinates().longitude(10.0).latitude(10.0);
+  }
+
   public static boolean isBefore(String a, String b) {
     return a.compareTo(b) < 0;
   }

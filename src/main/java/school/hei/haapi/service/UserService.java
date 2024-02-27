@@ -64,6 +64,8 @@ public class UserService {
     toUpdate.setPhone(user.getPhone());
     toUpdate.setNic(user.getNic());
     toUpdate.setBirthPlace(user.getBirthPlace());
+    toUpdate.setLongitude(user.getLongitude());
+    toUpdate.setLatitude(user.getLatitude());
 
     return userRepository.save(toUpdate);
   }
