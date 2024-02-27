@@ -8,7 +8,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
+import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithValues;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
@@ -20,6 +20,7 @@ import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -44,6 +45,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 @Testcontainers
 @ContextConfiguration(initializers = ManagerIT.ContextInitializer.class)
 @AutoConfigureMockMvc
+@Slf4j
 class ManagerIT extends MockedThirdParties {
   @Autowired ObjectMapper objectMapper;
 
@@ -119,12 +121,12 @@ class ManagerIT extends MockedThirdParties {
     manager.setAddress("Adr 5");
     manager.setBirthPlace("");
     manager.setNic("");
-    manager.setCoordinates(coordinatesWithNullValues());
     return manager
         .address("Adr 999")
         .sex(Sex.F)
         .lastName("Other last")
         .firstName("Other first")
+        .coordinates(coordinatesWithValues())
         .birthDate(LocalDate.parse("2000-01-03"));
   }
 
