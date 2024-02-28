@@ -2081,6 +2081,36 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/school/files/{id}':
+    get:
+      tags:
+        - Files
+      summary: Get school documents by identifier.
+      operationId: getSchoolRegulationById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: file id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/school/files/raw':
     post:
       tags:

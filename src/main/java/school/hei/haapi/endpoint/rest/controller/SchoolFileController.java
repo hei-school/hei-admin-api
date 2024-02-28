@@ -6,6 +6,7 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
@@ -36,5 +37,10 @@ public class SchoolFileController {
     return schoolFileService.getSchoolFiles().stream()
         .map(fileInfoMapper::toRest)
         .collect(toUnmodifiableList());
+  }
+
+  @GetMapping("/school/files/{id}")
+  public FileInfo getSchoolRegulationById(@PathVariable(name = "id") String schoolFileId) {
+    return fileInfoMapper.toRest(schoolFileService.getSchoolFileById(schoolFileId));
   }
 }

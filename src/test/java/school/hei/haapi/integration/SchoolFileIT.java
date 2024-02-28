@@ -81,6 +81,16 @@ public class SchoolFileIT extends MockedThirdParties {
     assertEquals(1, schoolRegulations.size());
   }
 
+  @Test
+  void manager_read_school_file_by_id_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    FilesApi api = new FilesApi(manager1Client);
+
+    FileInfo schoolRegulation = api.getSchoolRegulationById("file3_id");
+
+    assertEquals(schoolFile(), schoolRegulation);
+  }
+
   public static FileInfo schoolFile() {
     return new FileInfo()
         .id("file3_id")
