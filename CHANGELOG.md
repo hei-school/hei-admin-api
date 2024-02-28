@@ -1,3 +1,19 @@
+# [1.5.0](https://github.com/hei-school/hei-admin-api/compare/v1.4.1...v1.5.0) (2024-02-28)
+
+
+### Bug Fixes
+
+* manager can now update own ([c05698e](https://github.com/hei-school/hei-admin-api/commit/c05698e5b8a33ef4f51afbef7c0cfeaafbeb5f6b))
+
+
+### Features
+
+* event resources for attendance (not-implemented) ([c5f4d03](https://github.com/hei-school/hei-admin-api/commit/c5f4d033321e9902b5834f4a017a74f25d8cea36))
+* get school file by id  ([83213b1](https://github.com/hei-school/hei-admin-api/commit/83213b118c53e4ca5e70f00ccc37397251926813))
+* users have files stored on S3 ([94368fe](https://github.com/hei-school/hei-admin-api/commit/94368fe50593f3e6a87bd529ec28af3a9dd910d7))
+
+
+
 ## [1.4.1](https://github.com/hei-school/hei-admin-api/compare/v1.4.0...v1.4.1) (2024-02-23)
 
 
@@ -105,15 +121,6 @@
 
 * **docs/api:** permit student, manager, teacher update ([6d3e009](https://github.com/hei-school/hei-admin-api/commit/6d3e009e56dd4464cd62759588c0b6761c558163))
 * filter users by status and sex ([0c3b713](https://github.com/hei-school/hei-admin-api/commit/0c3b71368eb94b123910f3fc876152c3d81177f3))
-
-
-
-# [0.11.0](https://github.com/hei-school/hei-admin-api/compare/v0.10.0...v0.11.0) (2023-12-01)
-
-
-### Features
-
-* upgrade poja to v4.0.0 ([9a55b49](https://github.com/hei-school/hei-admin-api/commit/9a55b495d6579d70d4988c581866679a05e7f17d))
 
 
 
