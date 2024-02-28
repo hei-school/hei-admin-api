@@ -38,4 +38,8 @@ public class SchoolFileService {
   public List<FileInfo> getSchoolFiles() {
     return fileInfoRepository.findAllByUserIsNull();
   }
+
+  public FileInfo getSchoolFileById(String id) {
+    return fileInfoRepository.findByUserIsNullAndId(id);
+  }
 }
