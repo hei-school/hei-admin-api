@@ -3224,6 +3224,12 @@ components:
           $ref: '#/components/schemas/EventType'
         description:
           type: string
+        begin:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
         planner:
           $ref: '#/components/schemas/UserIdentifier'
         course:
