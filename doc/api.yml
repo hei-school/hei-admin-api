@@ -2133,8 +2133,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: string
-              format: binary
+              $ref: "#/components/schemas/UploadPicture"
       responses:
         '200':
           description: Document uploaded
@@ -2214,8 +2213,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              type: string
-              format: binary
+              $ref: "#/components/schemas/UploadPicture"
       responses:
         '200':
           description: File uploaded
