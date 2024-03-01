@@ -10,6 +10,7 @@ import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
 import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -328,6 +329,16 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))
                     .hasAnyRole(STUDENT.getRole())
+                        //
+                        //Comments resources
+                        //
+                        .requestMatchers(new SelfMatcher(GET, "/students/*/comments", "students"))
+                        .hasAnyRole(STUDENT.getRole())
+                        .requestMatchers(GET, "/students/*/comments")
+                        .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+
+                        .requestMatchers(POST, "/students/*/comments")
+                        .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     //
                     // Attendances resources
                     //
@@ -361,6 +372,7 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers("/**")
                     .denyAll())
+
 
         // disable superfluous protections
         // Eg if all clients are non-browser then no csrf
