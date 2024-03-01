@@ -1,3 +1,12 @@
+# [1.6.0](https://github.com/hei-school/hei-admin-api/compare/v1.5.0...v1.6.0) (2024-03-01)
+
+
+### Features
+
+* validate filename to disable file extension when given it ([7336974](https://github.com/hei-school/hei-admin-api/commit/733697466134a871514c83158204df5f3c8928ef))
+
+
+
 # [1.5.0](https://github.com/hei-school/hei-admin-api/compare/v1.4.1...v1.5.0) (2024-02-28)
 
 
@@ -111,16 +120,6 @@
 
 * add birth place and nic to user attributes ([0ba9ac2](https://github.com/hei-school/hei-admin-api/commit/0ba9ac24cc0549eb541aa3b03b38a7d7cee28f63))
 * permit teacher, manager, student update ([4eec73b](https://github.com/hei-school/hei-admin-api/commit/4eec73b586b739e921a27b192051c3887031f5b0))
-
-
-
-# [0.12.0](https://github.com/hei-school/hei-admin-api/compare/v0.11.0...v0.12.0) (2023-12-01)
-
-
-### Features
-
-* **docs/api:** permit student, manager, teacher update ([6d3e009](https://github.com/hei-school/hei-admin-api/commit/6d3e009e56dd4464cd62759588c0b6761c558163))
-* filter users by status and sex ([0c3b713](https://github.com/hei-school/hei-admin-api/commit/0c3b71368eb94b123910f3fc876152c3d81177f3))
 
 
 
