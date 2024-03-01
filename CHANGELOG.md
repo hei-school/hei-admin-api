@@ -1,3 +1,12 @@
+# [1.7.0](https://github.com/hei-school/hei-admin-api/compare/v1.6.0...v1.7.0) (2024-03-01)
+
+
+### Features
+
+* manager and teacher can comment about student ([d293f43](https://github.com/hei-school/hei-admin-api/commit/d293f43e0f2b5e5ddff2d68ccae8507059eb0362))
+
+
+
 # [1.6.0](https://github.com/hei-school/hei-admin-api/compare/v1.5.0...v1.6.0) (2024-03-01)
 
 
@@ -104,22 +113,6 @@
 ### BREAKING CHANGES
 
 * separate crupdate payload from response components
-
-
-
-# [0.13.0](https://github.com/hei-school/hei-admin-api/compare/v0.12.0...v0.13.0) (2023-12-21)
-
-
-### Bug Fixes
-
-* map fee status to paid if remaining amount is 0 ([d0abc2b](https://github.com/hei-school/hei-admin-api/commit/d0abc2b1179ce01a2f8d9369696705b40f50394b))
-* missing update adding migration to update paid fee status ([135ea1a](https://github.com/hei-school/hei-admin-api/commit/135ea1ad6ef06ed239712cfeb6acad0237a3af57))
-
-
-### Features
-
-* add birth place and nic to user attributes ([0ba9ac2](https://github.com/hei-school/hei-admin-api/commit/0ba9ac24cc0549eb541aa3b03b38a7d7cee28f63))
-* permit teacher, manager, student update ([4eec73b](https://github.com/hei-school/hei-admin-api/commit/4eec73b586b739e921a27b192051c3887031f5b0))
 
 
 
