@@ -46,7 +46,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 @ContextConfiguration(initializers = ManagerIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 @Slf4j
-class ManagerIT extends MockedThirdParties {
+public class ManagerIT extends MockedThirdParties {
   @Autowired ObjectMapper objectMapper;
 
   private static ApiClient anApiClient(String token) {

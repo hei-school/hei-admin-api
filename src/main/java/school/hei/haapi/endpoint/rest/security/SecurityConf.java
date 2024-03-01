@@ -329,6 +329,15 @@ public class SecurityConf {
                     .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))
                     .hasAnyRole(STUDENT.getRole())
                     //
+                    // Comments resources
+                    //
+                    .requestMatchers(new SelfMatcher(GET, "/students/*/comments", "students"))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(GET, "/students/*/comments")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+                    .requestMatchers(POST, "/students/*/comments")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+                    //
                     // Attendances resources
                     //
                     .requestMatchers(GET, "/attendance")

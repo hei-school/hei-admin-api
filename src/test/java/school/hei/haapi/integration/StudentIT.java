@@ -73,7 +73,7 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 @Testcontainers
 @ContextConfiguration(initializers = StudentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class StudentIT extends MockedThirdParties {
+public class StudentIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
 
   @Autowired ObjectMapper objectMapper;
