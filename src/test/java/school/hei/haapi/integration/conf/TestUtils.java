@@ -1,5 +1,38 @@
 package school.hei.haapi.integration.conf;
 
+import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
+import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
+import static school.hei.haapi.integration.ManagerIT.manager1;
+import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.StudentIT.student2;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.core.io.ClassPathResource;
@@ -38,40 +71,6 @@ import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
-import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
-import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
-import static school.hei.haapi.integration.ManagerIT.manager1;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.StudentIT.student2;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
-import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
 public class TestUtils {
 
@@ -812,73 +811,74 @@ public class TestUtils {
   public static Coordinates coordinatesWithValues() {
     return new Coordinates().longitude(10.0).latitude(10.0);
   }
-  public static Comment comment1(){
+
+  public static Comment comment1() {
     return new Comment()
-            .id("comment1_id")
-            .content("Good student")
-            .subject(student1())
-            .observer(observerTeacher1())
-            .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+        .id("comment1_id")
+        .content("Good student")
+        .subject(student1())
+        .observer(observerTeacher1())
+        .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
   }
 
-  public static Comment comment2(){
+  public static Comment comment2() {
     return new Comment()
-            .id("comment2_id")
-            .content("Disruptive student")
-            .subject(student1())
-            .observer(observerManager1())
-            .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+        .id("comment2_id")
+        .content("Disruptive student")
+        .subject(student1())
+        .observer(observerManager1())
+        .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
   }
 
-  public static Comment comment3(){
+  public static Comment comment3() {
     return new Comment()
-            .id("comment3_id")
-            .content("Nothing to say here")
-            .subject(student2())
-            .observer(observerTeacher1())
-            .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+        .id("comment3_id")
+        .content("Nothing to say here")
+        .subject(student2())
+        .observer(observerTeacher1())
+        .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
   }
 
-  public static CreateComment createCommentByManager(){
+  public static CreateComment createCommentByManager() {
     return new CreateComment()
-            .id("comment4_id")
-            .content("Comment about student 1")
-            .studentId(STUDENT1_ID)
-            .observerId(MANAGER_ID);
+        .id("comment4_id")
+        .content("Comment about student 1")
+        .studentId(STUDENT1_ID)
+        .observerId(MANAGER_ID);
   }
 
-  public static CreateComment createCommentByTeacher(){
+  public static CreateComment createCommentByTeacher() {
     return createCommentByManager().observerId(TEACHER1_ID);
   }
 
-  public static Comment commentCreatedByManager(){
+  public static Comment commentCreatedByManager() {
     return new Comment()
-            .id("comment4_id")
-            .content("Comment about student 1")
-            .observer(observerManager1())
-            .subject(student1());
+        .id("comment4_id")
+        .content("Comment about student 1")
+        .observer(observerManager1())
+        .subject(student1());
   }
 
-  public static Comment commentCreatedByTeacher(){
+  public static Comment commentCreatedByTeacher() {
     return commentCreatedByManager().observer(observerTeacher1());
   }
 
-  public static Observer observerTeacher1(){
+  public static Observer observerTeacher1() {
     return new Observer()
-            .id(TEACHER1_ID)
-            .firstName(teacher1().getFirstName())
-            .lastName(teacher1().getLastName())
-            .ref(teacher1().getRef())
-            .role(TEACHER);
+        .id(TEACHER1_ID)
+        .firstName(teacher1().getFirstName())
+        .lastName(teacher1().getLastName())
+        .ref(teacher1().getRef())
+        .role(TEACHER);
   }
 
-  public static Observer observerManager1(){
+  public static Observer observerManager1() {
     return new Observer()
-            .id(MANAGER_ID)
-            .ref(manager1().getRef())
-            .role(MANAGER)
-            .firstName(manager1().getFirstName())
-            .lastName(manager1().getLastName());
+        .id(MANAGER_ID)
+        .ref(manager1().getRef())
+        .role(MANAGER)
+        .firstName(manager1().getFirstName())
+        .lastName(manager1().getLastName());
   }
 
   public static boolean isBefore(String a, String b) {
