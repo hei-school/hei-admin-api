@@ -1,13 +1,20 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -16,12 +23,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.EventType;
-
-import java.time.Instant;
-
-import static jakarta.persistence.EnumType.STRING;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 @Entity
 @Table(name = "\"event\"")
@@ -33,26 +34,32 @@ import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 @NoArgsConstructor
 public class Event {
 
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    private String id;
+  @Id
+  @GeneratedValue(strategy = IDENTITY)
+  private String id;
 
-    @JdbcTypeCode(NAMED_ENUM)
-    @Enumerated(STRING)
-    private EventType type;
+  @JdbcTypeCode(NAMED_ENUM)
+  @Enumerated(STRING)
+  private EventType type;
 
-    private String description;
+  private String description;
 
-    private Instant begin;
+  private Instant begin;
 
-    private Instant end;
+  private Instant end;
 
-    @ManyToOne
-    @JoinColumn(name = "planner_id", referencedColumnName = "id")
-    private User planner;
+  @ManyToOne
+  @JoinColumn(name = "planner_id", referencedColumnName = "id")
+  private User planner;
 
-    @ManyToOne
-    @JoinColumn(name = "course_id", referencedColumnName = "id")
-    private Course course;
+  @ManyToOne
+  @JoinColumn(name = "course_id", referencedColumnName = "id")
+  private Course course;
 
+  @ManyToMany
+  @JoinTable(
+      name = "event_group_participate",
+      joinColumns = @JoinColumn(name = "group_id"),
+      inverseJoinColumns = @JoinColumn(name = "event_id"))
+  private List<Group> groups;
 }

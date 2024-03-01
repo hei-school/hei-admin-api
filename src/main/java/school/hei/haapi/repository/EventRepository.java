@@ -5,5 +5,4 @@ import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Event;
 
 @Repository
-public interface EventRepository extends JpaRepository<Event, String> {
-}
+public interface EventRepository extends JpaRepository<Event, String> {}

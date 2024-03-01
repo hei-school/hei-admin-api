@@ -16,6 +16,7 @@ import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 
@@ -30,6 +31,14 @@ public class GroupService {
 
   public Group getById(String groupId) {
     return repository.getById(groupId);
+  }
+
+  public List<Group> getAllById(List<String> groupsId) {
+    try {
+      return repository.findAllById(groupsId);
+    } catch (Exception e) {
+      throw new NotFoundException(e.getMessage());
+    }
   }
 
   public List<Group> getAll(PageFromOne page, BoundedPageSize pageSize) {

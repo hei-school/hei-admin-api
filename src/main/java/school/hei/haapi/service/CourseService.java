@@ -13,9 +13,9 @@ import school.hei.haapi.endpoint.rest.model.CourseDirection;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.CourseValidator;
 import school.hei.haapi.repository.CourseRepository;
-import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.CourseDao;
 
 @Service
@@ -24,8 +24,6 @@ public class CourseService {
   private final CourseDao courseDao;
   private final CourseRepository courseRepository;
   private final CourseValidator courseValidator;
-  private final UserRepository userRepository;
-  private final GroupService groupService;
 
   public List<Course> getCourses(
       String code,
@@ -91,6 +89,11 @@ public class CourseService {
   //  }
 
   public Course getById(String id) {
-    return courseRepository.getCourseById(id);
+    return courseRepository
+        .findById(id)
+        .orElseThrow(
+            () -> {
+              throw new NotFoundException("Course with id #" + id + " not found");
+            });
   }
 }

@@ -11,7 +11,7 @@ create table if not exists "event"(
     id varchar constraint event_pk primary key default uuid_generate_v4(),
     type event_type not null,
     description varchar,
-    "begin" timestamp with time zone not null,
+    "begin" timestamp with time zone not null default now(),
     "end" timestamp with time zone not null,
     planner_id varchar constraint planner_id_fk references "user"(id),
     course_id varchar constraint event_course_id_fk references "course"(id)

@@ -15,6 +15,16 @@ public class UserMapper {
   private final SexEnumMapper sexEnumMapper;
   private final FileService fileService;
 
+  public UserIdentifier toIdentifier(User user) {
+    return new UserIdentifier()
+        .id(user.getId())
+        .ref(user.getRef())
+        .nic(user.getNic())
+        .lastName(user.getLastName())
+        .firstName(user.getFirstName())
+        .email(user.getEmail());
+  }
+
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
     String profilePictureKey = user.getProfilePictureKey();
