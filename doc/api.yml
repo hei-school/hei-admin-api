@@ -1037,6 +1037,100 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/students/{student_id}/comments':
+    get:
+      tags:
+        - Comments
+      summary: Get all comments with filter criteria if provided
+      operationId: getComments
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: observer_id
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+          required: false
+      responses:
+        '200':
+          description: The
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
+    post:
+      tags:
+        - Comments
+      summary: Teacher or manager comments about a student
+      operationId: postComment
+      parameters:
+        - name: student_id
+          in : path
+          required: true
+          schema:
+            type: string
+        - name: observer_id
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The content of the comment
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                student_id:
+                  type: string
+                observer_id:
+                  type: string
+                content:
+                  type: string
+      responses:
+        '200':
+          description: The
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
   '/teachers/{id}':
     get:
@@ -2473,6 +2567,36 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+        subject:
+          $ref: '#/components/schemas/Student'
+        observer:
+          $ref: '#/components/schemas/Observer'
+        content:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+    Observer:
+      type: object
+      properties:
+        id:
+          type: string
+        ref:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        role:
+          type: string
+          enum:
+            - MANAGER
+            - TEACHER
     FeeStatusEnum:
       type: string
       enum:
