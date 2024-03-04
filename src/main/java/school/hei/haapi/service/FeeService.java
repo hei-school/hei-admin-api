@@ -39,11 +39,6 @@ public class FeeService {
     return deletedFee;
   }
 
-  public List<Fee> getLateFees() {
-    Instant now = Instant.now();
-    return feeRepository.getUnpaidFees(now);
-  }
-
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
   }
