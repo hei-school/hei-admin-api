@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateComment;
@@ -8,6 +10,7 @@ import school.hei.haapi.model.Comment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.UserService;
+import school.hei.haapi.service.aws.FileService;
 
 @Component
 @AllArgsConstructor
@@ -15,6 +18,7 @@ public class CommentMapper {
 
   private final UserService userService;
   private final UserMapper userMapper;
+  private final FileService fileService;
 
   public Comment toDomain(CreateComment rest) {
     User subject = userService.findById(rest.getStudentId());
@@ -38,13 +42,20 @@ public class CommentMapper {
   }
 
   public Observer toRest(User domain) {
+    String profilePictureKey = domain.getProfilePictureKey();
+
+    String pictureUrl =
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
+            : null;
+
     return new Observer()
         .id(domain.getId())
         .ref(domain.getRef())
         .firstName(domain.getFirstName())
         .lastName(domain.getLastName())
         .role(toRestRoleEnum(domain.getRole()))
-        .profilePicture(domain.getProfilePictureKey());
+        .profilePicture(pictureUrl);
   }
 
   public Observer.RoleEnum toRestRoleEnum(User.Role role) {
