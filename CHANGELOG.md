@@ -1,3 +1,17 @@
+# [1.8.0](https://github.com/hei-school/hei-admin-api/compare/v1.7.0...v1.8.0) (2024-03-04)
+
+
+### Bug Fixes
+
+* observer has profile picture ([4f25dd9](https://github.com/hei-school/hei-admin-api/commit/4f25dd949337579d89b49e0878a777d1044782d0))
+
+
+### Features
+
+* refactor request body documentation for uploading file ([5f6666c](https://github.com/hei-school/hei-admin-api/commit/5f6666c86c517a76a98998ba1b440e0cca9ec699))
+
+
+
 # [1.7.0](https://github.com/hei-school/hei-admin-api/compare/v1.6.0...v1.7.0) (2024-03-01)
 
 
@@ -101,18 +115,6 @@
 ### Features
 
 * handle scholarship certificate gen for a Student ([62f83e7](https://github.com/hei-school/hei-admin-api/commit/62f83e7856aa9274593ee1afdf729549cbda1f14))
-
-
-
-# [1.0.0](https://github.com/hei-school/hei-admin-api/compare/v0.13.0...v1.0.0) (2024-01-05)
-
-
-* feat!: add profile picture to user attributes, also separate crupdate payload from response payload for Users (Student, Manager, Teacher) ([0536cdf](https://github.com/hei-school/hei-admin-api/commit/0536cdf1b7b3d22fef6e7e5645fb8fef1d0cd023))
-
-
-### BREAKING CHANGES
-
-* separate crupdate payload from response components
 
 
 
