@@ -1,3 +1,12 @@
+# [1.9.0](https://github.com/hei-school/hei-admin-api/compare/v1.8.0...v1.9.0) (2024-03-05)
+
+
+### Features
+
+* inject event gen class dependency with all args  ([49ef0b4](https://github.com/hei-school/hei-admin-api/commit/49ef0b485083c28248db48ca201cb70be09e803e))
+
+
+
 # [1.8.0](https://github.com/hei-school/hei-admin-api/compare/v1.7.0...v1.8.0) (2024-03-04)
 
 
@@ -106,15 +115,6 @@
 ### Features
 
 * **api:** add fee types endpoint(not-implemented) ([10e9608](https://github.com/hei-school/hei-admin-api/commit/10e9608e714f1bda39551df7b134cf1e1b44db4a))
-
-
-
-# [1.1.0](https://github.com/hei-school/hei-admin-api/compare/v1.0.0...v1.1.0) (2024-01-05)
-
-
-### Features
-
-* handle scholarship certificate gen for a Student ([62f83e7](https://github.com/hei-school/hei-admin-api/commit/62f83e7856aa9274593ee1afdf729549cbda1f14))
 
 
 
