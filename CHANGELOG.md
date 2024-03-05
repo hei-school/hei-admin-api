@@ -1,3 +1,12 @@
+# [1.10.0](https://github.com/hei-school/hei-admin-api/compare/v1.9.0...v1.10.0) (2024-03-05)
+
+
+### Features
+
+* document health database check endpoint  ([7b06e02](https://github.com/hei-school/hei-admin-api/commit/7b06e022ef641cbe9131cf644ce31d015877804f))
+
+
+
 # [1.9.0](https://github.com/hei-school/hei-admin-api/compare/v1.8.0...v1.9.0) (2024-03-05)
 
 
@@ -101,20 +110,6 @@
 * load css when generating pdf  ([4de3445](https://github.com/hei-school/hei-admin-api/commit/4de3445f0815087c6de93e9e7e197ba4cf7fffe2))
 * payment validator ignores seconds when creating payment ([3bfa397](https://github.com/hei-school/hei-admin-api/commit/3bfa397939972a19ed7ded03af786c3a4a15a315))
 * some user fields (nic, birthdate, birthplace) were not updated correctly ([1729d71](https://github.com/hei-school/hei-admin-api/commit/1729d712d46b33da6ef82714786fb8bc12c03123))
-
-
-
-# [1.2.0](https://github.com/hei-school/hei-admin-api/compare/v1.1.0...v1.2.0) (2024-01-05)
-
-
-### Bug Fixes
-
-* use common core as default value for student ([ddff084](https://github.com/hei-school/hei-admin-api/commit/ddff08470b7393a192109fe6de728be51d68b8d9))
-
-
-### Features
-
-* **api:** add fee types endpoint(not-implemented) ([10e9608](https://github.com/hei-school/hei-admin-api/commit/10e9608e714f1bda39551df7b134cf1e1b44db4a))
 
 
 
