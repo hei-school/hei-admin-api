@@ -27,7 +27,7 @@ public class SchoolFileController {
   public FileInfo uploadSchoolFile(
       @RequestParam(name = "filename") String fileName,
       @RequestParam(name = "file_type") FileType fileType,
-      @RequestPart(name = "file") MultipartFile fileToUpload) {
+      @RequestPart(name = "file_to_upload") MultipartFile fileToUpload) {
     return fileInfoMapper.toRest(
         schoolFileService.uploadSchoolFile(fileName, fileType, fileToUpload));
   }

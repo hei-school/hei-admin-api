@@ -82,7 +82,7 @@ public class TeacherController {
 
   @PostMapping(value = "/teachers/{id}/picture/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public Teacher uploadTeacherProfilePicture(
-      @RequestPart("picture") MultipartFile profilePictureAsMultipartFile,
+      @RequestPart("file_to_upload") MultipartFile profilePictureAsMultipartFile,
       @PathVariable String id) {
     userService.uploadUserProfilePicture(profilePictureAsMultipartFile, id);
     return userMapper.toRestTeacher(userService.findById(id));

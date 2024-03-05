@@ -777,7 +777,7 @@ public class TestUtils {
         "--"
             + boundary
             + CRLF
-            + "Content-Disposition: form-data; name=\"picture\"; filename=\""
+            + "Content-Disposition: form-data; name=\"file_to_upload\"; filename=\""
             + file.getName()
             + "\""
             + CRLF

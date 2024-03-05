@@ -36,7 +36,7 @@ public class StudentFileController {
       @PathVariable(name = "student_id") String studentId,
       @RequestParam(name = "filename") String fileName,
       @RequestParam(name = "file_type") FileType fileType,
-      @RequestPart(name = "file") MultipartFile fileToUpload) {
+      @RequestPart(name = "file_to_upload") MultipartFile fileToUpload) {
     return fileInfoMapper.toRest(
         fileService.uploadStudentFile(fileName, fileType, studentId, fileToUpload));
   }
