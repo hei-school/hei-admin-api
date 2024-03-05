@@ -38,18 +38,6 @@ public class FeeController {
   private final FeeTemplateService feeTemplateService;
   private final FeeTemplateMapper feeTemplateMapper;
 
-  @GetMapping("/fees/late")
-  public List<Fee> getLateFee() {
-    return feeService.getLateFees().stream()
-        .map(feeMapper::toRestFee)
-        .collect(toUnmodifiableList());
-  }
-
-  @PutMapping("/fees/late")
-  public void updateFeeStatus() {
-    feeService.updateFeesStatusToLate();
-  }
-
   @GetMapping("/students/{studentId}/fees/{feeId}")
   public Fee getFeeByStudentId(@PathVariable String studentId, @PathVariable String feeId) {
     return feeMapper.toRestFee(feeService.getByStudentIdAndFeeId(studentId, feeId));
