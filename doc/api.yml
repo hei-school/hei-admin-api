@@ -1890,7 +1890,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: "#/components/schemas/UploadPicture"
+              $ref: "#/components/schemas/UploadFile"
       responses:
         '200':
           description: Teacher updated
@@ -1925,7 +1925,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: "#/components/schemas/UploadPicture"
+              $ref: "#/components/schemas/UploadFile"
       responses:
         '200':
           description: Manager updated
@@ -1960,7 +1960,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: "#/components/schemas/UploadPicture"
+              $ref: "#/components/schemas/UploadFile"
       responses:
         '200':
           description: Student updated
@@ -2133,7 +2133,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: "#/components/schemas/UploadPicture"
+              $ref: '#/components/schemas/UploadFile'
       responses:
         '200':
           description: Document uploaded
@@ -2213,7 +2213,7 @@ paths:
         content:
           multipart/form-data:
             schema:
-              $ref: "#/components/schemas/UploadPicture"
+              $ref: '#/components/schemas/UploadFile'
       responses:
         '200':
           description: File uploaded
@@ -3160,10 +3160,10 @@ components:
         - HARDWARE
         - STUDENT_INSURANCE
         - REMEDIAL_COSTS
-    UploadPicture:
+    UploadFile:
       type: object
       properties:
-        picture:
+        file_to_upload:
           type: string
           format: binary
           description: User profile picture
