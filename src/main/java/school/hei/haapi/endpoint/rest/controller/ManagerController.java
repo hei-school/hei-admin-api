@@ -40,7 +40,7 @@ public class ManagerController {
 
   @PostMapping(value = "/managers/{id}/picture/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public Manager uploadTeacherProfilePicture(
-      @RequestPart("picture") MultipartFile profilePictureAsMultipartFile,
+      @RequestPart("file_to_upload") MultipartFile profilePictureAsMultipartFile,
       @PathVariable String id) {
     userService.uploadUserProfilePicture(profilePictureAsMultipartFile, id);
     return userMapper.toRestManager(userService.findById(id));
