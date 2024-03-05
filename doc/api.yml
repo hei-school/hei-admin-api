@@ -22,6 +22,24 @@ security:
   - BearerAuth: [ ]
 
 paths:
+  '/health/db':
+    get:
+      tags:
+        - Health
+      summary: Check database health.
+      operationId: dummyTable_should_not_be_empty
+      responses:
+        '200':
+          description: Return OK if database is ready else KO
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
   '/whoami':
     get:
       tags:
