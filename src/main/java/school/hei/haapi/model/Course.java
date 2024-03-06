@@ -1,16 +1,22 @@
 package school.hei.haapi.model;
 
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
+import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.util.List;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
 
 @Entity
 @Table(name = "\"course\"")

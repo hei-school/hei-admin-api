@@ -14,9 +14,9 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.UserUpserted;
-import school.hei.haapi.file.FileHash;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
@@ -40,15 +40,17 @@ public class UserService {
   private final GroupRepository groupRepository;
   private final GroupService groupService;
   private final FileService fileService;
+  private final MultipartFileConverter fileConverter;
 
-  public FileHash uploadUserProfilePicture(byte[] bytes, String userId) {
+  public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = findById(userId);
-    File tempFile = fileService.createTempFile(bytes);
+    File savedProfilePicture = fileConverter.apply(profilePictureAsMultipartFile);
     String bucketKey =
-        getFormattedBucketKey(user, user.getFirstName()) + fileService.getFileExtension(tempFile);
+        getFormattedBucketKey(user, "PROFILE_PICTURE")
+            + fileService.getFileExtension(profilePictureAsMultipartFile);
     user.setProfilePictureKey(bucketKey);
     userRepository.save(user);
-    return fileService.uploadObjectToS3Bucket(bucketKey, tempFile);
+    fileService.uploadObjectToS3Bucket(bucketKey, savedProfilePicture);
   }
 
   public User updateUser(User user, String userId) {
@@ -62,6 +64,8 @@ public class UserService {
     toUpdate.setPhone(user.getPhone());
     toUpdate.setNic(user.getNic());
     toUpdate.setBirthPlace(user.getBirthPlace());
+    toUpdate.setLongitude(user.getLongitude());
+    toUpdate.setLatitude(user.getLatitude());
 
     return userRepository.save(toUpdate);
   }
@@ -148,7 +152,7 @@ public class UserService {
     List<GroupFlow> groupFlows = new ArrayList<>();
     for (GroupFlow groupFlow : group.getGroupFlows()) {
       if (!users.contains(groupFlow.getStudent())) {
-        if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.JOIN) {
+        if (groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.JOIN) {
           users.add(groupFlow.getStudent());
         }
         groupFlows.add(groupFlow);
@@ -160,7 +164,7 @@ public class UserService {
                   .findFirst()
                   .get()
                   .getFlowDatetime())) {
-        if (groupFlow.getGroupFlowType() == GroupFlow.group_flow_type.LEAVE) {
+        if (groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.LEAVE) {
           users.remove(groupFlow.getStudent());
         }
         groupFlows.remove(

@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -10,7 +11,9 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
@@ -18,6 +21,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.validator.CoordinatesValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
@@ -32,6 +36,7 @@ public class TeacherController {
   private final UserService userService;
   private final UserMapper userMapper;
   private final FileService fileService;
+  private final CoordinatesValidator validator;
 
   @GetMapping(value = "/teachers/{id}")
   public Teacher getTeacherById(@PathVariable String id) {
@@ -41,6 +46,7 @@ public class TeacherController {
   @PutMapping("/teachers/{id}")
   public Teacher updateTeacher(
       @PathVariable(name = "id") String teacherId, @RequestBody CrupdateTeacher toUpdate) {
+    validator.accept(toUpdate.getCoordinates());
     return userMapper.toRestTeacher(
         userService.updateUser(userMapper.toDomain(toUpdate), teacherId));
   }
@@ -66,6 +72,7 @@ public class TeacherController {
 
   @PutMapping(value = "/teachers")
   public List<Teacher> createOrUpdateTeachers(@RequestBody List<CrupdateTeacher> toWrite) {
+    toWrite.forEach(teacher -> validator.accept(teacher.getCoordinates()));
     return userService
         .saveAll(toWrite.stream().map(userMapper::toDomain).collect(toUnmodifiableList()))
         .stream()
@@ -73,10 +80,11 @@ public class TeacherController {
         .collect(toUnmodifiableList());
   }
 
-  @PostMapping(value = "/teachers/{id}/picture/raw")
+  @PostMapping(value = "/teachers/{id}/picture/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public Teacher uploadTeacherProfilePicture(
-      @RequestBody byte[] profilePicture, @PathVariable(name = "id") String teacherId) {
-    userService.uploadUserProfilePicture(profilePicture, teacherId);
-    return userMapper.toRestTeacher(userService.findById(teacherId));
+      @RequestPart("file_to_upload") MultipartFile profilePictureAsMultipartFile,
+      @PathVariable String id) {
+    userService.uploadUserProfilePicture(profilePictureAsMultipartFile, id);
+    return userMapper.toRestTeacher(userService.findById(id));
   }
 }

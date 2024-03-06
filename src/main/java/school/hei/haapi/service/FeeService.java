@@ -4,9 +4,9 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 
+import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.List;
-import javax.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -32,6 +32,12 @@ public class FeeService {
   private final FeeValidator feeValidator;
   private final UpdateFeeValidator updateFeeValidator;
   private final EventProducer eventProducer;
+
+  public Fee deleteFeeByStudentIdAndFeeId(String studentId, String feeId) {
+    Fee deletedFee = getByStudentIdAndFeeId(studentId, feeId);
+    feeRepository.deleteById(feeId);
+    return deletedFee;
+  }
 
   public Fee getById(String id) {
     return updateFeeStatus(feeRepository.getById(id));
@@ -88,7 +94,8 @@ public class FeeService {
   }
 
   public void updateFeesStatusToLate() {
-    List<Fee> unpaidFees = feeRepository.getUnpaidFees();
+    Instant now = Instant.now();
+    List<Fee> unpaidFees = feeRepository.getUnpaidFees(now);
     unpaidFees.forEach(
         fee -> {
           updateFeeStatus(fee);

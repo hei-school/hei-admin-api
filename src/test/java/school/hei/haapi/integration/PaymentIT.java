@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -23,13 +24,18 @@ import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
@@ -47,9 +53,27 @@ import school.hei.haapi.integration.conf.TestUtils;
 @ContextConfiguration(initializers = PaymentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class PaymentIT extends MockedThirdParties {
+  @Autowired EntityManager entityManager;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, PaymentIT.ContextInitializer.SERVER_PORT);
+  }
+
+  /***
+   * Get payment by id without jpa, avoiding FILTER isDeleted = true | false
+   * @param paymentId
+   * @return Payment data by id
+   */
+  private school.hei.haapi.model.Payment getPaymentByIdWithoutJpaFiltering(String paymentId) {
+    try {
+      Query q =
+          entityManager.createNativeQuery(
+              "SELECT * FROM \"payment\" where id = ?", school.hei.haapi.model.Payment.class);
+      q.setParameter(1, paymentId);
+      return (school.hei.haapi.model.Payment) q.getSingleResult();
+    } catch (NullPointerException e) {
+      throw new school.hei.haapi.model.exception.ApiException(SERVER_EXCEPTION, e.getMessage());
+    }
   }
 
   static Payment payment1() {
@@ -147,6 +171,24 @@ class PaymentIT extends MockedThirdParties {
 
     assertTrue(actual.contains(payment1()));
     assertTrue(actual.contains(payment2()));
+  }
+
+  @Test
+  @DirtiesContext
+  void manager_delete_payment_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    Payment deletedPayment = api.deleteStudentFeePaymentById(STUDENT1_ID, FEE1_ID, PAYMENT1_ID);
+    assertEquals(payment1(), deletedPayment);
+
+    List<Payment> payments = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, 5);
+    assertFalse(payments.contains(deletedPayment));
+
+    // test: check if the payment is not deleted but has been flagged as deleted.
+    school.hei.haapi.model.Payment actualPaymentData =
+        getPaymentByIdWithoutJpaFiltering(PAYMENT1_ID);
+    assertTrue(actualPaymentData.isDeleted());
   }
 
   @Test

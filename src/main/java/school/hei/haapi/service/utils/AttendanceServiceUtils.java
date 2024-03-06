@@ -1,6 +1,6 @@
 package school.hei.haapi.service.utils;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 
 import java.time.Instant;
 import java.time.LocalDateTime;
@@ -41,7 +41,7 @@ public class AttendanceServiceUtils {
       attendance.setAttendanceMovementType(toSave.getAttendanceMovementType());
       attendance.setPlace(toSave.getPlace());
       attendance.setCreatedAt(toSave.getCreatedAt());
-      attendance.setLate(attendance.isLateFrom(attendance.getCourseSession().getBegin()));
+      attendance.setLate(attendance.isAfter(attendance.getCourseSession().getBegin()));
       toCreateMapped.add(attendanceRepository.save(attendance));
     } else {
       toCreateMapped.add(attendanceRepository.save(toSave));

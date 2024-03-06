@@ -1,21 +1,23 @@
 package school.hei.haapi.model;
 
-import static javax.persistence.EnumType.STRING;
-import static javax.persistence.GenerationType.IDENTITY;
+import static jakarta.persistence.CascadeType.REMOVE;
+import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
-import javax.persistence.Entity;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.OneToMany;
-import javax.persistence.Table;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,21 +27,22 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
+import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
-import school.hei.haapi.repository.types.PostgresEnumType;
 
 @Entity
 @Table(name = "\"fee\"")
 @Getter
 @Setter
-@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 @ToString
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "update \"fee\" set is_deleted = true where id = ?")
+@Where(clause = "is_deleted = false")
 public class Fee implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -49,11 +52,11 @@ public class Fee implements Serializable {
   @JoinColumn(name = "user_id", nullable = false)
   private User student;
 
-  @Type(type = "pgsql_enum")
+  @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
   private FeeStatusEnum status;
 
-  @Type(type = "pgsql_enum")
+  @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
   private FeeTypeEnum type;
 
@@ -65,13 +68,15 @@ public class Fee implements Serializable {
 
   private String comment;
 
+  private boolean isDeleted;
+
   @CreationTimestamp
   @Getter(AccessLevel.NONE)
   private Instant creationDatetime;
 
   private Instant dueDatetime;
 
-  @OneToMany(mappedBy = "fee")
+  @OneToMany(mappedBy = "fee", cascade = REMOVE)
   private List<Payment> payments;
 
   public Instant getCreationDatetime() {

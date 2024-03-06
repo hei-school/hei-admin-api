@@ -1,6 +1,6 @@
 package school.hei.haapi.repository.dao;
 
-import javax.persistence.EntityManager;
+import jakarta.persistence.EntityManager;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 

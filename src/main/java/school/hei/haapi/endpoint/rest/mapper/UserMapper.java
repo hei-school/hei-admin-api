@@ -1,15 +1,11 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.CrupdateManager;
-import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
-import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
-import school.hei.haapi.endpoint.rest.model.Manager;
-import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.User;
-import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.aws.FileService;
 
 @Component
@@ -17,14 +13,15 @@ import school.hei.haapi.service.aws.FileService;
 public class UserMapper {
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
-  private final UserRepository repository;
   private final FileService fileService;
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
     String profilePictureKey = user.getProfilePictureKey();
     String url =
-        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, 86400L) : null;
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
+            : null;
 
     restStudent.setId(user.getId());
     restStudent.setFirstName(user.getFirstName());
@@ -41,6 +38,8 @@ public class UserMapper {
     restStudent.setBirthPlace(user.getBirthPlace());
     restStudent.setSpecializationField(user.getSpecializationField());
     restStudent.setProfilePicture(url);
+    restStudent.setCoordinates(
+        new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
 
     return restStudent;
   }
@@ -49,7 +48,9 @@ public class UserMapper {
     Teacher teacher = new Teacher();
     String profilePictureKey = user.getProfilePictureKey();
     String url =
-        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, 86400L) : null;
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
+            : null;
 
     teacher.setId(user.getId());
     teacher.setFirstName(user.getFirstName());
@@ -65,6 +66,8 @@ public class UserMapper {
     teacher.setBirthPlace(user.getBirthPlace());
     teacher.setNic(user.getNic());
     teacher.setProfilePicture(url);
+    teacher.setCoordinates(
+        new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
 
     return teacher;
   }
@@ -73,7 +76,9 @@ public class UserMapper {
     Manager manager = new Manager();
     String profilePictureKey = user.getProfilePictureKey();
     String url =
-        profilePictureKey != null ? fileService.getPresignedUrl(profilePictureKey, 86400L) : null;
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
+            : null;
 
     manager.setId(user.getId());
     manager.setFirstName(user.getFirstName());
@@ -89,6 +94,8 @@ public class UserMapper {
     manager.setBirthPlace(user.getBirthPlace());
     manager.setNic(user.getNic());
     manager.setProfilePicture(url);
+    manager.setCoordinates(
+        new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
 
     return manager;
   }
@@ -109,6 +116,8 @@ public class UserMapper {
         .address(manager.getAddress())
         .nic(manager.getNic())
         .birthPlace(manager.getBirthPlace())
+        .longitude(manager.getCoordinates().getLongitude())
+        .latitude(manager.getCoordinates().getLatitude())
         .build();
   }
 
@@ -128,6 +137,8 @@ public class UserMapper {
         .address(teacher.getAddress())
         .nic(teacher.getNic())
         .birthPlace(teacher.getBirthPlace())
+        .longitude(teacher.getCoordinates().getLongitude())
+        .latitude(teacher.getCoordinates().getLatitude())
         .build();
   }
 
@@ -148,6 +159,8 @@ public class UserMapper {
         .birthPlace(student.getBirthPlace())
         .nic(student.getNic())
         .specializationField(student.getSpecializationField())
+        .longitude(student.getCoordinates().getLongitude())
+        .latitude(student.getCoordinates().getLatitude())
         .build();
   }
 }

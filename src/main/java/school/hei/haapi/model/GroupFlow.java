@@ -1,19 +1,20 @@
 package school.hei.haapi.model;
 
-import static javax.persistence.FetchType.LAZY;
-import static javax.persistence.GenerationType.IDENTITY;
+import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.EnumType;
-import javax.persistence.Enumerated;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
-import javax.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,16 +22,13 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Type;
-import org.hibernate.annotations.TypeDef;
-import school.hei.haapi.repository.types.PostgresEnumType;
+import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
 @Entity
 @Table(name = "\"group_flow\"")
 @Getter
 @Setter
-@TypeDef(name = "pgsql_enum", typeClass = PostgresEnumType.class)
 @ToString
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -51,18 +49,18 @@ public class GroupFlow implements Serializable {
   private Group group;
 
   @Column(name = "\"group_flow_type\"")
-  @Type(type = "pgsql_enum")
-  @Enumerated(EnumType.STRING)
-  private group_flow_type groupFlowType;
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
+  private GroupFlowType groupFlowType;
 
   private Instant flowDatetime;
 
-  public enum group_flow_type {
+  public enum GroupFlowType {
     JOIN,
     LEAVE;
 
-    public static group_flow_type fromValue(String value) {
-      return DataFormatterUtils.fromValue(group_flow_type.class, value);
+    public static GroupFlowType fromValue(String value) {
+      return DataFormatterUtils.fromValue(GroupFlowType.class, value);
     }
   }
 }

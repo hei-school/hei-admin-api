@@ -9,11 +9,25 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
+import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
+import static school.hei.haapi.integration.ManagerIT.manager1;
+import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.StudentIT.student2;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.ServerSocket;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -23,12 +37,17 @@ import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.web.util.UriComponentsBuilder;
+import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.Comment;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
+import school.hei.haapi.endpoint.rest.model.CreateComment;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
@@ -41,6 +60,7 @@ import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Manager;
+import school.hei.haapi.endpoint.rest.model.Observer;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
@@ -120,6 +140,7 @@ public class TestUtils {
 
   public static void setUpS3Service(FileService fileService, Student user) {
     when(fileService.getPresignedUrl(user.getRef(), 180L)).thenReturn(user.getRef());
+    when(fileService.getFileExtension(any())).thenCallRealMethod();
   }
 
   public static void setUpS3Service(FileService fileService, Teacher user) {
@@ -178,6 +199,7 @@ public class TestUtils {
         .sex(Sex.M)
         .birthDate(LocalDate.parse("2000-01-01"))
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .coordinates(coordinatesWithNullValues())
         .address("Adr X");
   }
 
@@ -302,6 +324,7 @@ public class TestUtils {
         .entranceDatetime(Instant.parse("2021-10-08T08:27:24.00Z"))
         .nic("")
         .birthPlace("")
+        .coordinates(new Coordinates().longitude(999.999).latitude(999.999))
         .address("Adr 3");
   }
 
@@ -319,7 +342,8 @@ public class TestUtils {
         .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
         .nic("")
         .birthPlace("")
-        .address("Adr 4");
+        .address("Adr 4")
+        .coordinates(coordinatesWithNullValues());
   }
 
   public static Teacher teacher3() {
@@ -353,7 +377,8 @@ public class TestUtils {
         .entranceDatetime(Instant.parse("2021-10-09T08:28:24Z"))
         .nic("")
         .birthPlace("")
-        .address("Adr 5");
+        .address("Adr 5")
+        .coordinates(coordinatesWithNullValues());
   }
 
   public static Fee fee1() {
@@ -734,6 +759,126 @@ public class TestUtils {
         .course(awardedCourse4().getCourse())
         .group(awardedCourse4().getGroup())
         .exams(List.of(studentExamGrade5()));
+  }
+
+  public static HttpResponse<InputStream> uploadProfilePicture(
+      Integer serverPort, String token, String subjectId, String resource)
+      throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+
+    String basePath = "http://localhost:" + serverPort;
+
+    String boundary = "---------------------------" + System.currentTimeMillis();
+    String contentTypeHeader = "multipart/form-data; boundary=" + boundary;
+
+    File file = getMockedFile("img", ".png");
+
+    String requestBodyPrefix =
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"file_to_upload\"; filename=\""
+            + file.getName()
+            + "\""
+            + CRLF
+            + "Content-Type: image/png"
+            + CRLF
+            + CRLF;
+    byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
+    String requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
+
+    byte[] requestBody =
+        Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
+    UriComponentsBuilder uriComponentsBuilder =
+        UriComponentsBuilder.fromUri(
+            URI.create(basePath + String.format("/%s/%s/picture/raw", resource, subjectId)));
+    InputStream requestBodyStream = new ByteArrayInputStream(requestBody);
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(uriComponentsBuilder.build().toUri())
+            .header("Content-Type", contentTypeHeader)
+            .header("Authorization", "Bearer " + token)
+            .POST(HttpRequest.BodyPublishers.ofInputStream(() -> requestBodyStream))
+            .build();
+
+    return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+  }
+
+  public static Coordinates coordinatesWithNullValues() {
+    return new Coordinates().latitude(null).longitude(null);
+  }
+
+  public static Coordinates coordinatesWithValues() {
+    return new Coordinates().longitude(10.0).latitude(10.0);
+  }
+
+  public static Comment comment1() {
+    return new Comment()
+        .id("comment1_id")
+        .content("Good student")
+        .subject(student1())
+        .observer(observerTeacher1())
+        .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+  }
+
+  public static Comment comment2() {
+    return new Comment()
+        .id("comment2_id")
+        .content("Disruptive student")
+        .subject(student1())
+        .observer(observerManager1())
+        .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+  }
+
+  public static Comment comment3() {
+    return new Comment()
+        .id("comment3_id")
+        .content("Nothing to say here")
+        .subject(student2())
+        .observer(observerTeacher1())
+        .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+  }
+
+  public static CreateComment createCommentByManager() {
+    return new CreateComment()
+        .id("comment4_id")
+        .content("Comment about student 1")
+        .studentId(STUDENT1_ID)
+        .observerId(MANAGER_ID);
+  }
+
+  public static CreateComment createCommentByTeacher() {
+    return createCommentByManager().observerId(TEACHER1_ID);
+  }
+
+  public static Comment commentCreatedByManager() {
+    return new Comment()
+        .id("comment4_id")
+        .content("Comment about student 1")
+        .observer(observerManager1())
+        .subject(student1());
+  }
+
+  public static Comment commentCreatedByTeacher() {
+    return commentCreatedByManager().observer(observerTeacher1());
+  }
+
+  public static Observer observerTeacher1() {
+    return new Observer()
+        .id(TEACHER1_ID)
+        .firstName(teacher1().getFirstName())
+        .lastName(teacher1().getLastName())
+        .ref(teacher1().getRef())
+        .role(TEACHER);
+  }
+
+  public static Observer observerManager1() {
+    return new Observer()
+        .id(MANAGER_ID)
+        .ref(manager1().getRef())
+        .role(MANAGER)
+        .firstName(manager1().getFirstName())
+        .lastName(manager1().getLastName());
   }
 
   public static boolean isBefore(String a, String b) {

@@ -22,6 +22,24 @@ security:
   - BearerAuth: [ ]
 
 paths:
+  '/health/db':
+    get:
+      tags:
+        - Health
+      summary: Check database health.
+      operationId: dummyTable_should_not_be_empty
+      responses:
+        '200':
+          description: Return OK if database is ready else KO
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: OK
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
   '/whoami':
     get:
       tags:
@@ -1395,6 +1413,40 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Paying
+      summary: Delete student fee by identifier.
+      description: Soft delete
+      operationId: deleteStudentFeeById
+      parameters:
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: student fee deleted by identifier.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees:
     get:
       tags:
@@ -1677,7 +1729,46 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  /students/{student_id}/fees/{fee_id}/payments/{payment_id}:
+    delete:
+      tags:
+        - Paying
+      summary: Delete student payment on a fee.
+      description: Soft delete
+      operationId: deleteStudentFeePaymentById
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: deleted payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees/{fee_id}/payments:
     get:
       tags:
@@ -1815,10 +1906,9 @@ paths:
       requestBody:
         required: true
         content:
-          image/png:
+          multipart/form-data:
             schema:
-              type: string
-              format: binary
+              $ref: "#/components/schemas/UploadFile"
       responses:
         '200':
           description: Teacher updated
@@ -1851,10 +1941,9 @@ paths:
       requestBody:
         required: true
         content:
-          image/png:
+          multipart/form-data:
             schema:
-              type: string
-              format: binary
+              $ref: "#/components/schemas/UploadFile"
       responses:
         '200':
           description: Manager updated
@@ -1887,10 +1976,9 @@ paths:
       requestBody:
         required: true
         content:
-          image/png:
+          multipart/form-data:
             schema:
-              type: string
-              format: binary
+              $ref: "#/components/schemas/UploadFile"
       responses:
         '200':
           description: Student updated
@@ -1986,10 +2074,221 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/school/files':
+    get:
+      tags:
+        - Files
+      summary: Get school documents
+      operationId: getSchoolRegulations
+      responses:
+        '200':
+          description: List of school documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/school/files/{id}':
+    get:
+      tags:
+        - Files
+      summary: Get school documents by identifier.
+      operationId: getSchoolRegulationById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: file id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/school/files/raw':
+    post:
+      tags:
+        - Files
+      summary: Upload school documents
+      parameters:
+        - name: file_type
+          required: true
+          schema:
+            $ref: '#/components/schemas/FileType'
+          in: query
+        - name: filename
+          required: true
+          schema:
+            type: string
+          in: query
+      operationId: uploadSchoolFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadFile'
+      responses:
+        '200':
+          description: Document uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/files/{id}':
+    get:
+      tags:
+        - Files
+      summary: Get student files
+      operationId: getStudentFilesById
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: file id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: File by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/files/raw':
+    post:
+      tags:
+        - Files
+      summary: Upload student file
+      parameters:
+        - name: student_id
+          required: true
+          schema:
+            type: string
+          in: path
+        - name: file_type
+          required: true
+          schema:
+            $ref: '#/components/schemas/FileType'
+          in: query
+        - name: filename
+          required: true
+          schema:
+            type: string
+          in: query
+      operationId: uploadStudentFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadFile'
+      responses:
+        '200':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/files':
+    get:
+      tags:
+        - Files
+      summary: Get student files
+      operationId: getStudentFiles
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: file_type
+          in: query
+          required: false
+          schema:
+            $ref: '#/components/schemas/FileType'
+      responses:
+        '200':
+          description: List of student files
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/students/{id}/scholarship_certificate/raw':
     get:
       tags:
-        - StudentsFile
+        - Files
       summary: Get scholarship certificate of a student.
       operationId: getStudentScholarshipCertificate
       parameters:
@@ -2007,6 +2306,290 @@ paths:
                 type: string
                 format: byte
                 example: PDF VERSION
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events:
+    get:
+      tags:
+        - Events
+      summary: Get all events.
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: from
+          in: query
+          description: Filter events from a given date, return events of current week by default
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: to
+          in: query
+          description: Filter events after a given date, return events of current week by default
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: planner_name
+          in: query
+          required: false
+          description: Filter events by planner key name
+          schema:
+            type: string
+        - name: group_ref
+          in: query
+          description: Filter events by group reference
+          required: false
+          schema:
+            type: string
+      operationId: getEvents
+      responses:
+        '200':
+          description: List of events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Events
+      summary: Create or update events
+      description: Update if id is provided, create otherwise.
+      operationId: crupdateEvents
+      requestBody:
+        required: true
+        description: Event to create or update
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateEvent'
+      responses:
+        '200':
+          description: Event created
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events/{id}:
+    get:
+      tags:
+        - Events
+      summary: Get event by identifier
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: getEventById
+      responses:
+        '200':
+          description: Event by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Event'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /events/{id}/participants:
+    get:
+      tags:
+        - Events
+      summary: Users taking parts to event
+      operationId: getEventParticipants
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      responses:
+        '200':
+          description: Participants of the event
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupedEventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Events
+      summary: Update event participants status
+      parameters:
+        - name: id
+          in: path
+          schema:
+            type: string
+          required: true
+      operationId: updateEventParticipantsStatus
+      requestBody:
+        description: Participants attend for given event
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/GroupedEventParticipant'
+      responses:
+        '200':
+          description: Participants attended for given event
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupedEventParticipant'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/comments':
+    get:
+      tags:
+        - Comments
+      summary: Get all comments with filter criteria if provided
+      operationId: getComments
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: observer_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+          required: false
+      responses:
+        '200':
+          description: Comments filtered with criteria if provided
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Comment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
+    post:
+      tags:
+        - Comments
+      summary: Teacher or manager comments about a student
+      operationId: postComment
+      parameters:
+        - name: student_id
+          in : path
+          required: true
+          schema:
+            type: string
+        - name: observer_id
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The content of the comment
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateComment'
+
+      responses:
+        '200':
+          description: The
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2115,6 +2698,8 @@ components:
             entrance_datetime:
               type: string
               format: date-time
+            coordinates:
+              $ref: '#/components/schemas/Coordinates'
             status:
               $ref: '#/components/schemas/EnableStatus'
     SpecializationField:
@@ -2134,6 +2719,20 @@ components:
         - ENABLED
         - DISABLED
         - SUSPENDED
+    FileType:
+      type: string
+      enum:
+        - TRANSCRIPT
+        - DOCUMENT
+        - OTHER
+    EventType:
+      type: string
+      enum:
+        - COURSE
+        - INTEGRATION
+        - SEMINAR
+        - SUPPORT_SESSION
+        - OTHER
     StudentAttendance:
       type: object
       properties:
@@ -2198,6 +2797,17 @@ components:
       properties:
         profile_picture:
           type: string
+    GroupIdentifier:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+          example: The group number one
+        ref:
+          type: string
+          example: G1
     Group:
       type: object
       properties:
@@ -2271,6 +2881,20 @@ components:
         course_id:
           type: string
         group_id:
+          type: string
+    FileInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+        file_type:
+          $ref: '#/components/schemas/FileType'
+        file_url:
           type: string
     AwardedCourse:
       type: object
@@ -2440,6 +3064,15 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    Coordinates:
+      type: object
+      properties:
+        longitude:
+          type: number
+          format: double
+        latitude:
+          type: number
+          format: double
     CrupdateFeeTemplate:
       type: object
       properties:
@@ -2473,6 +3106,65 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    CreateEvent:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        begin:
+          type: string
+          format: date-time
+        end:
+          type: string
+          format: date-time
+        event_type:
+          $ref: '#/components/schemas/EventType'
+        planner_id:
+          description: user id
+          type: string
+        course_id:
+          type: string
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupIdentifier'
+    AttendanceStatus:
+      type: string
+      enum:
+        - MISSING
+        - LATE
+        - PRESENT
+    GroupedEventParticipant:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+      type: object
+      properties:
+        event_status:
+          $ref: '#/components/schemas/AttendanceStatus'
+    Event:
+      type: object
+      properties:
+        id:
+          type: string
+        type:
+          $ref: '#/components/schemas/EventType'
+        description:
+          type: string
+        planner:
+          $ref: '#/components/schemas/UserIdentifier'
+        course:
+          $ref: '#/components/schemas/Course'
+    EventParticipant:
+      type: object
+      properties:
+        group:
+          $ref: '#/components/schemas/GroupIdentifier'
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupedEventParticipant'
     FeeStatusEnum:
       type: string
       enum:
@@ -2486,18 +3178,19 @@ components:
         - HARDWARE
         - STUDENT_INSURANCE
         - REMEDIAL_COSTS
+    UploadFile:
+      type: object
+      properties:
+        file_to_upload:
+          type: string
+          format: binary
+          description: User profile picture
     Page:
       type: integer
       description: Start at `1`
     PageSize:
       type: integer
       description: Cannot exceed `500`
-    AttendanceStatus:
-      type: string
-      enum:
-        - MISSING
-        - LATE
-        - PRESENT
     AttendanceMovementType:
       type: string
       enum:
@@ -2508,6 +3201,49 @@ components:
       enum:
         - ASC
         - DESC
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+        subject:
+          $ref: '#/components/schemas/Student'
+        observer:
+          $ref: '#/components/schemas/Observer'
+        content:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+    CreateComment:
+      type: object
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        observer_id:
+          type: string
+        content:
+          type: string
+    Observer:
+      type: object
+      properties:
+        id:
+          type: string
+        ref:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        profile_picture:
+          type: string
+        role:
+          type: string
+          enum:
+            - MANAGER
+            - TEACHER
     Exception:
       type: object
       properties:

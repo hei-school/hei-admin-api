@@ -18,7 +18,8 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFileAsByte;
+import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
+import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithValues;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -27,14 +28,11 @@ import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacher;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacherList;
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
 import static school.hei.haapi.integration.conf.TestUtils.teacher2;
+import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
 
-import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JSR310Module;
 import java.io.IOException;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
+import java.io.InputStream;
 import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
@@ -90,27 +88,14 @@ class TeacherIT extends MockedThirdParties {
 
   @Test
   void teacher_update_own_profile_picture() throws IOException, InterruptedException {
-    String TEACHER_ONE_PICTURE_RAW = "/teachers/" + TEACHER1_ID + "/picture/raw";
-    HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + TeacherIT.ContextInitializer.SERVER_PORT;
+    HttpResponse<InputStream> response =
+        uploadProfilePicture(
+            TeacherIT.ContextInitializer.SERVER_PORT, TEACHER1_TOKEN, TEACHER1_ID, "teachers");
 
-    HttpRequest.BodyPublisher body =
-        HttpRequest.BodyPublishers.ofByteArray(getMockedFileAsByte("img", ".png"));
-    HttpResponse<String> response =
-        httpClient.send(
-            HttpRequest.newBuilder()
-                .uri(URI.create(basePath + TEACHER_ONE_PICTURE_RAW))
-                .POST(body)
-                .setHeader("Content-Type", "image/png")
-                .header("Authorization", "Bearer " + TEACHER1_TOKEN)
-                .build(),
-            HttpResponse.BodyHandlers.ofString());
+    Teacher teacher = objectMapper.readValue(response.body(), Teacher.class);
 
-    objectMapper.registerModule(new JSR310Module());
-    objectMapper.configure(DeserializationFeature.READ_DATE_TIMESTAMPS_AS_NANOSECONDS, false);
-    Teacher responseBody = objectMapper.readValue(response.body(), Teacher.class);
-
-    assertEquals("TCR21001", responseBody.getRef());
+    assertEquals(200, response.statusCode());
+    assertEquals("TCR21001", teacher.getRef());
   }
 
   @Test
@@ -328,7 +313,8 @@ class TeacherIT extends MockedThirdParties {
         .sex(Sex.M)
         .birthDate(LocalDate.parse("2000-01-01"))
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .address("Adr X");
+        .address("Adr X")
+        .coordinates(coordinatesWithNullValues());
   }
 
   public static Teacher disabledTeacher1() {
@@ -345,7 +331,8 @@ class TeacherIT extends MockedThirdParties {
         .phone("0322411123")
         .nic("")
         .birthPlace("")
-        .address("Adr 1");
+        .address("Adr 1")
+        .coordinates(coordinatesWithNullValues());
   }
 
   public static Teacher suspendedTeacher1() {
@@ -362,7 +349,8 @@ class TeacherIT extends MockedThirdParties {
         .phone("0322411124")
         .nic("")
         .birthPlace("")
-        .address("Adr 2");
+        .address("Adr 2")
+        .coordinates(coordinatesWithNullValues());
   }
 
   public static CrupdateTeacher someUpdatableTeacher1() {
@@ -380,7 +368,8 @@ class TeacherIT extends MockedThirdParties {
         .sex(Sex.F)
         .lastName("Other last")
         .firstName("Other first")
-        .birthDate(LocalDate.parse("2000-01-03"));
+        .birthDate(LocalDate.parse("2000-01-03"))
+        .coordinates(coordinatesWithValues());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
