@@ -1,3 +1,12 @@
+## [1.10.1](https://github.com/hei-school/hei-admin-api/compare/v1.10.0...v1.10.1) (2024-03-07)
+
+
+### Bug Fixes
+
+* school files pagination ([06fad4a](https://github.com/hei-school/hei-admin-api/commit/06fad4a3c977506de663c7b0d30fffec1e56b2a4))
+
+
+
 # [1.10.0](https://github.com/hei-school/hei-admin-api/compare/v1.9.0...v1.10.0) (2024-03-05)
 
 
@@ -96,20 +105,6 @@
 
 * enable soft delete for payment and fee ([1f1df9e](https://github.com/hei-school/hei-admin-api/commit/1f1df9ec8bc210334e595ea0b282b679f383005b))
 * user upload profile picture  ([fc75db9](https://github.com/hei-school/hei-admin-api/commit/fc75db9b0798877dc71c3b54290c2acdb7520674))
-
-
-
-## [1.2.1](https://github.com/hei-school/hei-admin-api/compare/v1.2.0...v1.2.1) (2024-01-26)
-
-
-### Bug Fixes
-
-* default user specialization field to common core ([042c9c1](https://github.com/hei-school/hei-admin-api/commit/042c9c11c0046c8202a6dea328c08478b0cfb85c))
-* encode images to base64 before injecting in thymeleaf ([35da8aa](https://github.com/hei-school/hei-admin-api/commit/35da8aa8e01ecaf95acb59c40e6ddf29836c9c1e))
-* implement fee template ([64c1439](https://github.com/hei-school/hei-admin-api/commit/64c143994fbbae819703aa1652e38ddf11371686))
-* load css when generating pdf  ([4de3445](https://github.com/hei-school/hei-admin-api/commit/4de3445f0815087c6de93e9e7e197ba4cf7fffe2))
-* payment validator ignores seconds when creating payment ([3bfa397](https://github.com/hei-school/hei-admin-api/commit/3bfa397939972a19ed7ded03af786c3a4a15a315))
-* some user fields (nic, birthdate, birthplace) were not updated correctly ([1729d71](https://github.com/hei-school/hei-admin-api/commit/1729d712d46b33da6ef82714786fb8bc12c03123))
 
 
 
