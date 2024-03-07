@@ -1,3 +1,12 @@
+## [1.10.2](https://github.com/hei-school/hei-admin-api/compare/v1.10.1...v1.10.2) (2024-03-07)
+
+
+### Bug Fixes
+
+* make files resources pagination to required  ([a5b144c](https://github.com/hei-school/hei-admin-api/commit/a5b144c3d261e049fc454c962e0361af79d88d75))
+
+
+
 ## [1.10.1](https://github.com/hei-school/hei-admin-api/compare/v1.10.0...v1.10.1) (2024-03-07)
 
 
@@ -88,23 +97,6 @@
 ### Features
 
 * users have now longitude and latitude attributes as coordinates ([8d7e157](https://github.com/hei-school/hei-admin-api/commit/8d7e157a438cf34f6f22faa2b3311157aaada5d8))
-
-
-
-# [1.3.0](https://github.com/hei-school/hei-admin-api/compare/v1.2.1...v1.3.0) (2024-02-15)
-
-
-### Bug Fixes
-
-* fee template crupdate endpoint supports both update and create ([e10e25f](https://github.com/hei-school/hei-admin-api/commit/e10e25f41a0a3918af6b8fdd169c15f92ebc22ff))
-* missing school year in scholarship certificate  ([c04187f](https://github.com/hei-school/hei-admin-api/commit/c04187f9d5fe30c2bd7f24eb80fa2ea615ac9299))
-* unauthorize student update profile  ([5838db1](https://github.com/hei-school/hei-admin-api/commit/5838db1c283e7915ee661e9eb954856f20ceca5a))
-
-
-### Features
-
-* enable soft delete for payment and fee ([1f1df9e](https://github.com/hei-school/hei-admin-api/commit/1f1df9ec8bc210334e595ea0b282b679f383005b))
-* user upload profile picture  ([fc75db9](https://github.com/hei-school/hei-admin-api/commit/fc75db9b0798877dc71c3b54290c2acdb7520674))
 
 
 
