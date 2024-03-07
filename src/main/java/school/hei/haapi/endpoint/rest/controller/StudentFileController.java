@@ -16,6 +16,8 @@ import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.FileInfoMapper;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.FileType;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.StudentFileService;
 
 @RestController
@@ -44,8 +46,10 @@ public class StudentFileController {
   @GetMapping(value = "/students/{student_id}/files")
   public List<FileInfo> getStudentFiles(
       @PathVariable(name = "student_id") String studentId,
-      @RequestParam(name = "file_type", required = false) FileType fileType) {
-    return fileService.getStudentFiles(studentId, fileType).stream()
+      @RequestParam(name = "file_type", required = false) FileType fileType,
+      @RequestParam PageFromOne page,
+      @RequestParam("page_size") BoundedPageSize pageSize) {
+    return fileService.getStudentFiles(studentId, fileType, page, pageSize).stream()
         .map(fileInfoMapper::toRest)
         .collect(toUnmodifiableList());
   }
