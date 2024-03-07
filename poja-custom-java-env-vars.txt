@@ -1,3 +1,2 @@
 AWS_COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/haapi/${Env}/cognito/userpool-id}}'
 AWS_SES_CONTACT: !Sub '{{resolve:ssm:/haapi/${Env}/ses/contact}}'
-SENTRY_DSN: !Sub '{{resolve:ssm:/haapi/sentry/dsn}}'

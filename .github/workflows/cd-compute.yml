@@ -12,7 +12,7 @@ on:
         type: choice
         required: false
         default: 'yes'
-        description: Run tests ?
+        description: Run tests?
         options:
           - 'yes'
           - 'no'
