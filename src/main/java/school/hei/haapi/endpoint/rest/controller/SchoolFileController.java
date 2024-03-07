@@ -36,7 +36,8 @@ public class SchoolFileController {
 
   @GetMapping("/school/files")
   public List<FileInfo> getSchoolRegulations(
-      @RequestParam PageFromOne page, @RequestParam("page_size") BoundedPageSize pageSize) {
+      @RequestParam(name = "page") PageFromOne page,
+      @RequestParam("page_size") BoundedPageSize pageSize) {
     return schoolFileService.getSchoolFiles(page, pageSize).stream()
         .map(fileInfoMapper::toRest)
         .collect(toUnmodifiableList());

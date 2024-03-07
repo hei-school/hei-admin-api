@@ -47,8 +47,8 @@ public class StudentFileController {
   public List<FileInfo> getStudentFiles(
       @PathVariable(name = "student_id") String studentId,
       @RequestParam(name = "file_type", required = false) FileType fileType,
-      @RequestParam PageFromOne page,
-      @RequestParam("page_size") BoundedPageSize pageSize) {
+      @RequestParam(name = "page") PageFromOne page,
+      @RequestParam(name = "page_size") BoundedPageSize pageSize) {
     return fileService.getStudentFiles(studentId, fileType, page, pageSize).stream()
         .map(fileInfoMapper::toRest)
         .collect(toUnmodifiableList());

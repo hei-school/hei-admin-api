@@ -2086,10 +2086,11 @@ paths:
           schema:
             $ref: '#/components/schemas/Page'
           description: Set value to 1 by default if null is provided
-          required: false
+          required: true
         - name: page_size
           in: query
           description: Set value to 15 by default if null is provided
+          required: true
           schema:
             $ref: '#/components/schemas/PageSize'
       responses:
@@ -2283,9 +2284,10 @@ paths:
           schema:
             $ref: '#/components/schemas/Page'
           description: Set value to 1 by default if null is provided
-          required: false
+          required: true
         - name: page_size
           in: query
+          required: true
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
