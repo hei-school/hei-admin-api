@@ -1,3 +1,12 @@
+## [1.10.3](https://github.com/hei-school/hei-admin-api/compare/v1.10.2...v1.10.3) (2024-03-08)
+
+
+### Bug Fixes
+
+* picture url removed after updating user  ([cf4bc70](https://github.com/hei-school/hei-admin-api/commit/cf4bc706ca684b7a7b6b826d1db2db22eb2051b6))
+
+
+
 ## [1.10.2](https://github.com/hei-school/hei-admin-api/compare/v1.10.1...v1.10.2) (2024-03-07)
 
 
@@ -88,15 +97,6 @@
 ### Bug Fixes
 
 * handle file uploads with MultipartFile ([7c9eaea](https://github.com/hei-school/hei-admin-api/commit/7c9eaea0434e46e329f7fee0a7356f19ed41d11c))
-
-
-
-# [1.4.0](https://github.com/hei-school/hei-admin-api/compare/v1.3.0...v1.4.0) (2024-02-21)
-
-
-### Features
-
-* users have now longitude and latitude attributes as coordinates ([8d7e157](https://github.com/hei-school/hei-admin-api/commit/8d7e157a438cf34f6f22faa2b3311157aaada5d8))
 
 
 
