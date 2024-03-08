@@ -2723,8 +2723,6 @@ components:
             entrance_datetime:
               type: string
               format: date-time
-            specialization_field:
-              $ref: '#/components/schemas/SpecializationField'
             coordinates:
               $ref: '#/components/schemas/Coordinates'
             status:

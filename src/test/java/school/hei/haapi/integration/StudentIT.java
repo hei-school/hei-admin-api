@@ -10,20 +10,25 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
+import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
+import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
+import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithValues;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -95,7 +100,7 @@ public class StudentIT extends MockedThirdParties {
     student.setEmail("test+ryan@hei.school");
     student.setRef("STD21001");
     student.setPhone("0322411123");
-    student.setStatus(EnableStatus.ENABLED);
+    student.setStatus(ENABLED);
     student.setSex(M);
     student.setBirthDate(LocalDate.parse("2000-01-01"));
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
@@ -124,7 +129,7 @@ public class StudentIT extends MockedThirdParties {
     student.setEmail("test+" + randomUUID() + "@hei.school");
     student.setRef("STD21" + (int) (Math.random() * 1_000_000));
     student.setPhone("03" + (int) (Math.random() * 1_000_000_000));
-    student.setStatus(EnableStatus.ENABLED);
+    student.setStatus(ENABLED);
     student.setSex(Math.random() < 0.3 ? F : M);
     Instant birthday = Instant.parse("1993-11-30T18:35:24.00Z");
     int ageOfEntrance = 14 + (int) (Math.random() * 20);
@@ -153,7 +158,7 @@ public class StudentIT extends MockedThirdParties {
     student.setEmail("test+ryan@hei.school");
     student.setRef("STD21001");
     student.setPhone("0322411123");
-    student.setStatus(EnableStatus.ENABLED);
+    student.setStatus(ENABLED);
     student.setSex(M);
     student.setBirthDate(LocalDate.parse("2000-01-01"));
     student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
@@ -174,7 +179,7 @@ public class StudentIT extends MockedThirdParties {
     student.setEmail("test+student2@hei.school");
     student.setRef("STD21002");
     student.setPhone("0322411124");
-    student.setStatus(EnableStatus.ENABLED);
+    student.setStatus(ENABLED);
     student.setSex(F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
@@ -194,7 +199,7 @@ public class StudentIT extends MockedThirdParties {
     student.setEmail("test+student2@hei.school");
     student.setRef("STD21002");
     student.setPhone("0322411124");
-    student.setStatus(EnableStatus.ENABLED);
+    student.setStatus(ENABLED);
     student.setSex(F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
@@ -213,7 +218,7 @@ public class StudentIT extends MockedThirdParties {
     student.setEmail("test+student3@hei.school");
     student.setRef("STD21003");
     student.setPhone("0322411124");
-    student.setStatus(EnableStatus.ENABLED);
+    student.setStatus(ENABLED);
     student.setSex(F);
     student.setBirthDate(LocalDate.parse("2000-01-02"));
     student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
@@ -250,7 +255,7 @@ public class StudentIT extends MockedThirdParties {
         .lastName("Two")
         .email("test+suspended2@hei.school")
         .ref("STD29004")
-        .status(EnableStatus.SUSPENDED)
+        .status(SUSPENDED)
         .sex(F)
         .birthDate(LocalDate.parse("2000-12-02"))
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
@@ -266,7 +271,7 @@ public class StudentIT extends MockedThirdParties {
         .lastName("One")
         .email("test+suspended@hei.school")
         .ref("STD29003")
-        .status(EnableStatus.SUSPENDED)
+        .status(SUSPENDED)
         .sex(F)
         .birthDate(LocalDate.parse("2000-12-02"))
         .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
@@ -371,8 +376,7 @@ public class StudentIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents =
-        api.getStudents(1, 10, null, null, null, null, EnableStatus.SUSPENDED, null);
+    List<Student> actualStudents = api.getStudents(1, 10, null, null, null, null, SUSPENDED, null);
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(suspendedStudent1()));
   }
@@ -690,6 +694,31 @@ public class StudentIT extends MockedThirdParties {
 
   @Test
   @DirtiesContext
+  void manager_update_student_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    CrupdateStudent student2ToUpdate = createStudent2();
+    student2ToUpdate.setAddress("updated address");
+    student2ToUpdate.setNic("updated nic");
+    student2ToUpdate.setBirthPlace("updated birthplace");
+    student2ToUpdate.setCoordinates(coordinatesWithValues());
+    student2ToUpdate.setSpecializationField(EL);
+
+    Student updatedStudent2 = student2();
+    updatedStudent2.setBirthPlace("updated birthplace");
+    updatedStudent2.setNic("updated nic");
+    updatedStudent2.setSpecializationField(EL);
+    updatedStudent2.setAddress("updated address");
+    updatedStudent2.setCoordinates(coordinatesWithValues());
+
+    Student actualUpdated = api.updateStudent(STUDENT2_ID, student2ToUpdate);
+
+    assertEquals(updatedStudent2, actualUpdated);
+  }
+
+  @Test
+  @DirtiesContext
   void manager_write_suspended_student() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -697,7 +726,7 @@ public class StudentIT extends MockedThirdParties {
     List<Student> actual = api.createOrUpdateStudents(List.of(creatableSuspendedStudent()));
     Student created = actual.get(0);
     List<Student> suspended =
-        api.getStudents(1, 10, null, "Suspended", null, null, EnableStatus.SUSPENDED, null);
+        api.getStudents(1, 10, null, "Suspended", null, null, SUSPENDED, null);
 
     assertTrue(suspended.contains(created));
     assertEquals(1, actual.size());
@@ -709,11 +738,9 @@ public class StudentIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actual =
-        api.createOrUpdateStudents(List.of(createStudent2().status(EnableStatus.SUSPENDED)));
+    List<Student> actual = api.createOrUpdateStudents(List.of(createStudent2().status(SUSPENDED)));
     Student updated = actual.get(0);
-    List<Student> suspended =
-        api.getStudents(1, 10, null, null, null, null, EnableStatus.SUSPENDED, null);
+    List<Student> suspended = api.getStudents(1, 10, null, null, null, null, SUSPENDED, null);
 
     assertTrue(suspended.contains(updated));
     assertEquals(1, actual.size());

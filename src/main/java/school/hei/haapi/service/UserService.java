@@ -54,23 +54,28 @@ public class UserService {
   }
 
   public User updateUser(User user, String userId) {
-    User toUpdate = findById(userId);
-
-    toUpdate.setAddress(user.getAddress());
-    toUpdate.setBirthDate(user.getBirthDate());
-    toUpdate.setFirstName(user.getFirstName());
-    toUpdate.setLastName(user.getLastName());
-    toUpdate.setSex(user.getSex());
-    toUpdate.setPhone(user.getPhone());
-    toUpdate.setNic(user.getNic());
-    toUpdate.setBirthPlace(user.getBirthPlace());
-    toUpdate.setLongitude(user.getLongitude());
-    toUpdate.setLatitude(user.getLatitude());
-    toUpdate.setEntranceDatetime(user.getEntranceDatetime());
-    toUpdate.setStatus(user.getStatus());
-    toUpdate.setSpecializationField(user.getSpecializationField());
-
+    User toUpdate = refreshUserById(userId, user);
     return userRepository.save(toUpdate);
+  }
+
+  private User refreshUserById(String userId, User refreshedUser) {
+    User userToRefresh = findById(userId);
+
+    userToRefresh.setAddress(refreshedUser.getAddress());
+    userToRefresh.setBirthDate(refreshedUser.getBirthDate());
+    userToRefresh.setFirstName(refreshedUser.getFirstName());
+    userToRefresh.setLastName(refreshedUser.getLastName());
+    userToRefresh.setSex(refreshedUser.getSex());
+    userToRefresh.setPhone(refreshedUser.getPhone());
+    userToRefresh.setNic(refreshedUser.getNic());
+    userToRefresh.setBirthPlace(refreshedUser.getBirthPlace());
+    userToRefresh.setLongitude(refreshedUser.getLongitude());
+    userToRefresh.setLatitude(refreshedUser.getLatitude());
+    userToRefresh.setEntranceDatetime(refreshedUser.getEntranceDatetime());
+    userToRefresh.setStatus(refreshedUser.getStatus());
+    userToRefresh.setSpecializationField(refreshedUser.getSpecializationField());
+
+    return userToRefresh;
   }
 
   public User findById(String userId) {
@@ -86,6 +91,7 @@ public class UserService {
   @Transactional
   public List<User> saveAll(List<User> users) {
     userValidator.accept(users);
+    // TODO: do not nullify profile picture here
     List<User> savedUsers = userRepository.saveAll(users);
     eventProducer.accept(
         users.stream().map(this::toUserUpsertedEvent).collect(toUnmodifiableList()));
