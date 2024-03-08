@@ -66,6 +66,9 @@ public class UserService {
     toUpdate.setBirthPlace(user.getBirthPlace());
     toUpdate.setLongitude(user.getLongitude());
     toUpdate.setLatitude(user.getLatitude());
+    toUpdate.setEntranceDatetime(user.getEntranceDatetime());
+    toUpdate.setStatus(user.getStatus());
+    toUpdate.setSpecializationField(user.getSpecializationField());
 
     return userRepository.save(toUpdate);
   }
