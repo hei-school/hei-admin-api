@@ -53,7 +53,7 @@ public class SchoolFileIT extends MockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     FilesApi api = new FilesApi(student1Client);
 
-    List<FileInfo> schoolRegulations = api.getSchoolRegulations();
+    List<FileInfo> schoolRegulations = api.getSchoolRegulations(1, 15);
 
     assertTrue(schoolRegulations.contains(schoolFile()));
     assertEquals(1, schoolRegulations.size());
@@ -64,7 +64,7 @@ public class SchoolFileIT extends MockedThirdParties {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     FilesApi api = new FilesApi(teacher1Client);
 
-    List<FileInfo> schoolRegulations = api.getSchoolRegulations();
+    List<FileInfo> schoolRegulations = api.getSchoolRegulations(1, 15);
 
     assertTrue(schoolRegulations.contains(schoolFile()));
     assertEquals(1, schoolRegulations.size());
@@ -75,7 +75,7 @@ public class SchoolFileIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     FilesApi api = new FilesApi(manager1Client);
 
-    List<FileInfo> schoolRegulations = api.getSchoolRegulations();
+    List<FileInfo> schoolRegulations = api.getSchoolRegulations(1, 15);
 
     assertTrue(schoolRegulations.contains(schoolFile()));
     assertEquals(1, schoolRegulations.size());

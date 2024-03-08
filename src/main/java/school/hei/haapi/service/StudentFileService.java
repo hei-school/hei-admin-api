@@ -1,16 +1,22 @@
 package school.hei.haapi.service;
 
 import static java.time.LocalDate.now;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.rest.model.FileType;
+import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.FileInfo;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.FileInfoRepository;
 import school.hei.haapi.repository.dao.FileInfoDao;
@@ -38,8 +44,11 @@ public class StudentFileService {
     return fileInfoService.uploadFile(fileName, fileType, studentId, fileToUpload);
   }
 
-  public List<FileInfo> getStudentFiles(String userId, FileType fileType) {
-    return fileInfoDao.findAllByCriteria(userId, fileType);
+  public List<FileInfo> getStudentFiles(
+      String userId, FileType fileType, PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
+    return fileInfoDao.findAllByCriteria(userId, fileType, pageable);
   }
 
   public FileInfo getStudentFileById(String studentId, String id) {

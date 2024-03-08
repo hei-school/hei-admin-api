@@ -2080,6 +2080,19 @@ paths:
         - Files
       summary: Get school documents
       operationId: getSchoolRegulations
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: true
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          required: true
+          schema:
+            $ref: '#/components/schemas/PageSize'
       responses:
         '200':
           description: List of school documents
@@ -2266,6 +2279,18 @@ paths:
           required: false
           schema:
             $ref: '#/components/schemas/FileType'
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: true
+        - name: page_size
+          in: query
+          required: true
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
       responses:
         '200':
           description: List of student files
