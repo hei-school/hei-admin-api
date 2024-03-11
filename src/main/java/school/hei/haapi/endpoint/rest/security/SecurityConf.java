@@ -335,6 +335,13 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     .requestMatchers(POST, "/students/*/comments")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+                        //
+                        // Event resources
+                        //
+                        .requestMatchers(GET, "/events")
+                        .hasAnyRole(MANAGER.getRole())
+                        .requestMatchers(PUT, "/events")
+                        .hasAnyRole(MANAGER.getRole())
                     //
                     // Attendances resources
                     //

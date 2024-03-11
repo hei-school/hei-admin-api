@@ -23,7 +23,7 @@ public class EventMapper {
         .begin(createEvent.getBegin())
         .end(createEvent.getEnd())
         .description(createEvent.getDescription())
-        .course(courseService.getById(createEvent.getId()))
+        .course(courseService.getById(createEvent.getCourseId()))
         .groups(
             groupService.getAllById(
                 createEvent.getGroups().stream().map(group -> group.getId()).toList()))
