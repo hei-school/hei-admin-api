@@ -1,4 +1,4 @@
-name: Heath check poja
+name: Health check poja
 # Fails if poja is not latest or generation is not idempotent
 
 on:
@@ -22,7 +22,7 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'corretto'
       - run: chmod +x gradlew
       - uses: actions/setup-python@v4

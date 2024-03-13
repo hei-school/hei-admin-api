@@ -40,9 +40,7 @@ Resources:
       VpcSecurityGroupIds:
         - !Sub '{{resolve:ssm:/haapi/sg/id}}'
       ScalingConfiguration:
-        SecondsUntilAutoPause:
-          !If [ IsProdEnv,  !Ref ProdDbClusterTimeout, 300 ]
-        
+        SecondsUntilAutoPause: !If [ IsProdEnv, 300, !Ref ProdDbClusterTimeout]
 
 
   DatabaseClusterSSM:

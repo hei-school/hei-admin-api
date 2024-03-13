@@ -12,7 +12,7 @@ on:
         type: choice
         required: false
         default: 'yes'
-        description: Run tests ?
+        description: Run tests?
         options:
           - 'yes'
           - 'no'
@@ -33,7 +33,7 @@ jobs:
 
       - uses: actions/setup-java@v3
         with:
-          java-version: '17'
+          java-version: '21'
           distribution: 'corretto'
 
       - uses: hei-school/aws-credentials-setter@v1.0.3
@@ -49,7 +49,7 @@ jobs:
       - run: sam build
 
       - name: Deploy application
-        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ github.ref_name }}-compute-haapi --capabilities CAPABILITY_IAM --parameter-overrides Env=${{ github.ref_name }} --resolve-s3
+        run: sam deploy --no-confirm-changeset --no-fail-on-empty-changeset --stack-name ${{ github.ref_name }}-compute-haapi --capabilities CAPABILITY_IAM --parameter-overrides Env=${{ github.ref_name }} --resolve-s3 --tags app=haapi env=${{ github.ref_name }} user:poja=haapi
 
   health-check-infra:
     needs: [deploy-api]

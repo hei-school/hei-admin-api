@@ -12,7 +12,7 @@ public abstract class AbstractContextInitializer
   @Override
   public void initialize(ConfigurableApplicationContext applicationContext) {
     PostgreSQLContainer<?> postgresContainer =
-        new PostgreSQLContainer<>("postgres:13.2")
+        new PostgreSQLContainer<>("postgres:13.9")
             .withDatabaseName("it-db")
             .withUsername("sa")
             .withPassword("sa");
