@@ -7,8 +7,14 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Group;
 
+import java.util.List;
+
 @Repository
 public interface GroupRepository extends JpaRepository<Group, String> {
   @Query("select g from Group g")
   Page<Group> getGroups(Pageable pageable);
+
+  List<Group> findAllById(String id);
+
+
 }

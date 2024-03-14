@@ -2378,12 +2378,6 @@ paths:
           description: Filter events by planner key name
           schema:
             type: string
-        - name: group_ref
-          in: query
-          description: Filter events by group reference
-          required: false
-          schema:
-            type: string
       operationId: getEvents
       responses:
         '200':
@@ -2477,6 +2471,23 @@ paths:
           schema:
             type: string
           required: true
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: group_id
+          in: query
+          description: Group of the participant
+          schema:
+            type: string
+          required: false
       responses:
         '200':
           description: Participants of the event
@@ -2485,7 +2496,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GroupedEventParticipant'
+                  $ref: '#/components/schemas/EventParticipant'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2506,7 +2517,7 @@ paths:
           schema:
             type: string
           required: true
-      operationId: updateEventParticipantsStatus
+      operationId: crupdateEventParticipants
       requestBody:
         description: Participants attend for given event
         required: true
@@ -2515,7 +2526,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/GroupedEventParticipant'
+                $ref: '#/components/schemas/EventParticipant'
       responses:
         '200':
           description: Participants attended for given event
@@ -2524,7 +2535,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GroupedEventParticipant'
+                  $ref: '#/components/schemas/EventParticipant'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3208,7 +3219,7 @@ components:
         - MISSING
         - LATE
         - PRESENT
-    GroupedEventParticipant:
+    EventParticipant:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
       type: object
@@ -3234,15 +3245,6 @@ components:
           $ref: '#/components/schemas/UserIdentifier'
         course:
           $ref: '#/components/schemas/Course'
-    EventParticipant:
-      type: object
-      properties:
-        group:
-          $ref: '#/components/schemas/GroupIdentifier'
-        students:
-          type: array
-          items:
-            $ref: '#/components/schemas/GroupedEventParticipant'
     FeeStatusEnum:
       type: string
       enum:

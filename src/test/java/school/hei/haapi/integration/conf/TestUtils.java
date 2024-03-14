@@ -23,6 +23,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
@@ -30,7 +31,6 @@ import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
-import school.hei.haapi.endpoint.rest.model.GroupedEventParticipant;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Observer;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -71,6 +71,7 @@ import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
+import static school.hei.haapi.endpoint.rest.model.EventType.SEMINAR;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
@@ -911,13 +912,23 @@ public class TestUtils {
             .email(manager1().getEmail());
   }
 
+  public static UserIdentifier planner2(){
+    return new UserIdentifier()
+            .id(manager1().getId())
+            .ref(manager1().getRef())
+            .nic(manager1().getNic())
+            .firstName(manager1().getFirstName())
+            .lastName(manager1().getLastName())
+            .email(manager1().getEmail());
+  }
+
   public static Event event1(){
     return new Event()
             .id(EVENT1_ID)
             .type(COURSE)
             .course(course1())
-            .begin(Instant.parse("2022-12-08T08:00:00.00Z"))
-            .end(Instant.parse("2022-12-08T10:00:00.00Z"))
+            .begin(Instant.parse("2022-12-20T08:00:00.00Z"))
+            .end(Instant.parse("2022-12-20T10:00:00.00Z"))
             .description("Prog1 course")
             .planner(planner1());
   }
@@ -933,8 +944,27 @@ public class TestUtils {
             .description("HEI students integration day");
   }
 
-  public static GroupedEventParticipant createParticipant(Student student, AttendanceStatus status){
-    return new GroupedEventParticipant()
+  public static Event event3(){
+    return new Event()
+            .id("event3_id")
+            .type(SEMINAR)
+            .planner(
+                    new UserIdentifier()
+                            .id("manager10_id")
+                            .email("test+manager2@hei.school")
+                            .ref("MGR21002")
+                            .nic("")
+                            .firstName("Two")
+                            .lastName("Manager")
+            )
+            .description("Seminar about Python programming language")
+            .begin(Instant.parse("2022-12-09T08:00:00.00Z"))
+            .end(Instant.parse("2022-12-09T12:00:00.00Z"))
+            .course(null);
+  }
+
+  public static EventParticipant createParticipant(Student student, AttendanceStatus status){
+    return new EventParticipant()
             .id(student.getId())
             .firstName(student.getFirstName())
             .lastName(student.getLastName())
@@ -951,23 +981,23 @@ public class TestUtils {
             .id(group.getId());
   }
 
-  public static GroupedEventParticipant student1MissEvent1(){
+  public static EventParticipant student1MissEvent1(){
     return createParticipant(student1(), MISSING);
   }
 
-  public static GroupedEventParticipant student3AttendEvent1(){
+  public static EventParticipant student3AttendEvent1(){
     return createParticipant(student3(), PRESENT);
   }
 
-  public static GroupedEventParticipant student1AttendEvent2(){
+  public static EventParticipant student1AttendEvent2(){
     return createParticipant(student1(), PRESENT);
   }
 
-  public static GroupedEventParticipant student2AttendEvent2(){
+  public static EventParticipant student2AttendEvent2(){
     return createParticipant(student2(), PRESENT);
   }
 
-  public static GroupedEventParticipant student3MissEvent2(){
+  public static EventParticipant student3MissEvent2(){
     return createParticipant(student3(), MISSING);
   }
 

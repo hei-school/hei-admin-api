@@ -3,10 +3,13 @@ package school.hei.haapi.endpoint.rest.mapper;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
+import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.service.CourseService;
 import school.hei.haapi.service.GroupService;
 import school.hei.haapi.service.UserService;
+
+import java.util.Objects;
 
 @Component
 @AllArgsConstructor
@@ -26,7 +29,7 @@ public class EventMapper {
         .course(courseService.getById(createEvent.getCourseId()))
         .groups(
             groupService.getAllById(
-                createEvent.getGroups().stream().map(group -> group.getId()).toList()))
+                Objects.requireNonNull(createEvent.getGroups()).stream().map(GroupIdentifier::getId).toList()))
         .planner(userService.findById(createEvent.getPlannerId()))
         .type(createEvent.getEventType())
         .build();
@@ -39,7 +42,7 @@ public class EventMapper {
         .begin(domain.getBegin())
         .description(domain.getDescription())
         .type(domain.getType())
-        .course(courseMapper.toRest(domain.getCourse()))
+        .course(Objects.isNull(domain.getCourse()) ? null : courseMapper.toRest(domain.getCourse()))
         .planner(userMapper.toIdentifier(domain.getPlanner()));
   }
 }
