@@ -6,16 +6,18 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.*;
 import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -50,7 +52,7 @@ class GroupIT extends MockedThirdParties {
   public static Group group1() {
     Group group = new Group();
     group.setId("group1_id");
-    group.setName("Name of group one");
+    group.setName("G1");
     group.setRef("GRP21001");
     group.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     return group;
@@ -59,7 +61,7 @@ class GroupIT extends MockedThirdParties {
   public static Group group2() {
     Group group = new Group();
     group.setId("group2_id");
-    group.setName("Name of group two");
+    group.setName("G2");
     group.setRef("GRP21002");
     group.setCreationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
     return group;

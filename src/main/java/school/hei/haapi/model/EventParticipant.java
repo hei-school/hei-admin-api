@@ -45,4 +45,8 @@ public class EventParticipant {
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
   private AttendanceStatus status;
+
+  @ManyToOne
+  @JoinColumn(name = "actual_group_id", referencedColumnName = "id")
+  private Group group;
 }

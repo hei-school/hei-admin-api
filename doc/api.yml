@@ -2526,7 +2526,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/EventParticipant'
+                $ref: '#/components/schemas/CrupdateEventParticipant'
       responses:
         '200':
           description: Participants attended for given event
@@ -3219,11 +3219,22 @@ components:
         - MISSING
         - LATE
         - PRESENT
+    CrupdateEventParticipant:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+      type: object
+      properties:
+        event_status:
+          $ref: '#/components/schemas/AttendanceStatus'
+        group_id:
+          type: string
     EventParticipant:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
       type: object
       properties:
+        group:
+          type: string
         event_status:
           $ref: '#/components/schemas/AttendanceStatus'
     Event:
