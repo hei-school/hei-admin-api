@@ -17,7 +17,7 @@ public class EventParticipantMapper {
 
     public EventParticipant toDomain(school.hei.haapi.endpoint.rest.model.EventParticipant rest, String eventId){
 
-        User user = userService.findById(rest.getId());
+        User user = userService.getByEmail(rest.getEmail());
         Event event = eventService.findEventById(eventId);
 
         return EventParticipant.builder()

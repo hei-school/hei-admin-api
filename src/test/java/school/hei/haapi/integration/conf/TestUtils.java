@@ -963,9 +963,9 @@ public class TestUtils {
             .course(null);
   }
 
-  public static EventParticipant createParticipant(Student student, AttendanceStatus status){
+  public static EventParticipant createParticipant(Student student, AttendanceStatus status, String id){
     return new EventParticipant()
-            .id(student.getId())
+            .id(id)
             .firstName(student.getFirstName())
             .lastName(student.getLastName())
             .ref(student.getRef())
@@ -982,23 +982,23 @@ public class TestUtils {
   }
 
   public static EventParticipant student1MissEvent1(){
-    return createParticipant(student1(), MISSING);
+    return createParticipant(student1(), MISSING, "event_participant1_id");
   }
 
   public static EventParticipant student3AttendEvent1(){
-    return createParticipant(student3(), PRESENT);
+    return createParticipant(student3(), PRESENT, "event_participant2_id");
   }
 
   public static EventParticipant student1AttendEvent2(){
-    return createParticipant(student1(), PRESENT);
+    return createParticipant(student1(), PRESENT, "event_participant3_id");
   }
 
   public static EventParticipant student2AttendEvent2(){
-    return createParticipant(student2(), PRESENT);
+    return createParticipant(student2(), PRESENT, "event_participant4_id");
   }
 
   public static EventParticipant student3MissEvent2(){
-    return createParticipant(student3(), MISSING);
+    return createParticipant(student3(), MISSING, "event_participant5_id");
   }
 
   public static CreateEvent createEventCourse1(){

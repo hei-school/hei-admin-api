@@ -1,4 +1,4 @@
-do
+    do
 $$
     begin
         if not exists(select from pg_type where typname = 'role') then

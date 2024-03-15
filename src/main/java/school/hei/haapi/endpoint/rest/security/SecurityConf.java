@@ -339,11 +339,15 @@ public class SecurityConf {
                         // Event resources
                         //
                         .requestMatchers(GET, "/events")
-                        .hasAnyRole(MANAGER.getRole())
+                        .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
                         .requestMatchers(PUT, "/events")
                         .hasAnyRole(MANAGER.getRole())
                         .requestMatchers(GET, "/events/*")
-                        .hasAnyRole(MANAGER.getRole())
+                        .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
+                        .requestMatchers(GET, "/events/*/participants")
+                        .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
+                        .requestMatchers(PUT, "/events/*/participants")
+                        .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     //
                     // Attendances resources
                     //
