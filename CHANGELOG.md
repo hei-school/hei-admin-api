@@ -1,3 +1,12 @@
+# [1.11.0](https://github.com/hei-school/hei-admin-api/compare/v1.10.3...v1.11.0) (2024-03-19)
+
+
+### Features
+
+* **not-implemented:** latest grouped comments  ([41d567a](https://github.com/hei-school/hei-admin-api/commit/41d567a72db40d2c569527181f613aaa9c6d771e))
+
+
+
 ## [1.10.3](https://github.com/hei-school/hei-admin-api/compare/v1.10.2...v1.10.3) (2024-03-08)
 
 
@@ -88,15 +97,6 @@
 * event resources for attendance (not-implemented) ([c5f4d03](https://github.com/hei-school/hei-admin-api/commit/c5f4d033321e9902b5834f4a017a74f25d8cea36))
 * get school file by id  ([83213b1](https://github.com/hei-school/hei-admin-api/commit/83213b118c53e4ca5e70f00ccc37397251926813))
 * users have files stored on S3 ([94368fe](https://github.com/hei-school/hei-admin-api/commit/94368fe50593f3e6a87bd529ec28af3a9dd910d7))
-
-
-
-## [1.4.1](https://github.com/hei-school/hei-admin-api/compare/v1.4.0...v1.4.1) (2024-02-23)
-
-
-### Bug Fixes
-
-* handle file uploads with MultipartFile ([7c9eaea](https://github.com/hei-school/hei-admin-api/commit/7c9eaea0434e46e329f7fee0a7356f19ed41d11c))
 
 
 
