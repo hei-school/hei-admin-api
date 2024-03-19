@@ -22,7 +22,13 @@ public class CommentService {
   private final CommentRepository commentRepository;
   private final UserService userService;
 
-  public List<Comment> getComments(
+  public List<Comment> getComments(PageFromOne page, BoundedPageSize pageSize, Sort.Direction timestampDirection) {
+    Pageable pageable =
+            PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(timestampDirection, "creationDatetime"));
+    return commentRepository.findAll(pageable).toList();
+  }
+
+  public List<Comment> getStudentComments(
       String subjectId, String observerId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));

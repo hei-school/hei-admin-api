@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.controller;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,13 +26,23 @@ public class CommentController {
   private final CommentMapper commentMapper;
   private final CommentValidator commentValidator;
 
+  @GetMapping("/comments")
+  public List<Comment> getComments(
+          @RequestParam(name = "page")PageFromOne page,
+          @RequestParam(name = "page_size")BoundedPageSize pageSize,
+          @RequestParam(name = "timestamp_direction")Sort.Direction timestampDirection) {
+    return commentService.getComments(page, pageSize, timestampDirection).stream()
+            .map(commentMapper::toRest)
+            .collect(Collectors.toUnmodifiableList());
+  }
+
   @GetMapping("/students/{studentId}/comments")
   public List<Comment> getStudentComments(
       @PathVariable String studentId,
       @RequestParam(value = "observer_id", required = false) String observerId,
       @RequestParam PageFromOne page,
       @RequestParam(value = "page_size") BoundedPageSize pageSize) {
-    return commentService.getComments(studentId, observerId, page, pageSize).stream()
+    return commentService.getStudentComments(studentId, observerId, page, pageSize).stream()
         .map(commentMapper::toRest)
         .collect(Collectors.toUnmodifiableList());
   }
