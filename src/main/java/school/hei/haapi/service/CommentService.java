@@ -14,6 +14,7 @@ import school.hei.haapi.model.Comment;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.CommentRepository;
+import school.hei.haapi.repository.dao.CommentDao;
 
 @Service
 @AllArgsConstructor
@@ -21,15 +22,19 @@ public class CommentService {
 
   private final CommentRepository commentRepository;
   private final UserService userService;
+  private final CommentDao commentDao;
 
   public List<Comment> getComments(
-      PageFromOne page, BoundedPageSize pageSize, Sort.Direction timestampDirection) {
+      PageFromOne page,
+      BoundedPageSize pageSize,
+      Sort.Direction timestampDirection,
+      String studentRef) {
     Pageable pageable =
         PageRequest.of(
             page.getValue() - 1,
             pageSize.getValue(),
             Sort.by(timestampDirection, "creationDatetime"));
-    return commentRepository.findAll(pageable).toList();
+    return commentDao.filterCommentsByCriteria(studentRef, pageable);
   }
 
   public List<Comment> getStudentComments(

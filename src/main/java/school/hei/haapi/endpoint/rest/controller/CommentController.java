@@ -32,10 +32,12 @@ public class CommentController {
   public List<Comment> getComments(
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize,
+      @RequestParam(name = "student_ref", required = false) String studentRef,
       @RequestParam(name = "timestamp_direction", required = false, defaultValue = "DESC")
           OrderDirection timestampDirection) {
     return commentService
-        .getComments(page, pageSize, Sort.Direction.valueOf(timestampDirection.toString()))
+        .getComments(
+            page, pageSize, Sort.Direction.fromString(timestampDirection.toString()), studentRef)
         .stream()
         .map(commentMapper::toRest)
         .collect(toUnmodifiableList());
@@ -43,7 +45,7 @@ public class CommentController {
 
   @GetMapping("/students/{student_id}/comments")
   public List<Comment> getStudentComments(
-      @PathVariable String studentId,
+      @PathVariable(name = "student_id") String studentId,
       @RequestParam(value = "observer_id", required = false) String observerId,
       @RequestParam PageFromOne page,
       @RequestParam(value = "page_size") BoundedPageSize pageSize) {
@@ -54,7 +56,8 @@ public class CommentController {
 
   @PostMapping("/students/{student_id}/comments")
   public Comment postComments(
-      @PathVariable String studentId, @RequestBody CreateComment createComment) {
+      @PathVariable(name = "student_id") String studentId,
+      @RequestBody CreateComment createComment) {
     commentValidator.accept(createComment);
     return commentMapper.toRest(commentService.postComment(commentMapper.toDomain(createComment)));
   }

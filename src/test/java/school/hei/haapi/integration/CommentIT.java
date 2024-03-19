@@ -28,6 +28,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 @AutoConfigureMockMvc
 @Slf4j
 class CommentIT extends MockedThirdParties {
+  public static String STUDENT1_REF = "STD21001";
 
   @BeforeEach
   void setUp() {
@@ -36,23 +37,35 @@ class CommentIT extends MockedThirdParties {
   }
 
   @Test
-  void manager_read_comments_without_filter_ok() throws ApiException {
+  void manager_read_comments_by_student_ref_ok() throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     CommentsApi api = new CommentsApi(apiClient);
 
-    List<Comment> actual = api.getComments(1, 10, null);
+    List<Comment> actual = api.getComments(1, 10, null, STUDENT1_REF);
 
-    assertEquals(comment3(), actual.get(0));
+    assertEquals(3, actual.size());
+    assertTrue(actual.contains(comment1()));
   }
 
   @Test
-  void teacher_read_comments_with_ascendant_filter_ok() throws ApiException {
+  void teacher_read_comments_ok() throws ApiException {
     ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
     CommentsApi api = new CommentsApi(apiClient);
 
-    List<Comment> actual = api.getComments(1, 10, ASC);
+    List<Comment> actualTimestampDescendant = api.getComments(1, 10, null, null);
+    List<Comment> actualTimestampAscendant = api.getComments(1, 10, ASC, null);
 
-    assertEquals(comment1(), actual.get(0));
+    // Verify Comments are filter by timestamp Ascendant
+    assertEquals(comment1().getContent(), actualTimestampAscendant.get(0).getContent());
+    assertEquals(
+        comment1().getCreationDatetime(), actualTimestampAscendant.get(0).getCreationDatetime());
+
+    // Verify Comments are filter by timestamp Descendant (by default)
+    assertEquals(
+        createCommentByTeacher().getContent(), actualTimestampDescendant.get(0).getContent());
+    assertEquals(
+        createCommentByTeacher().getStudentId(),
+        actualTimestampDescendant.get(0).getSubject().getId());
   }
 
   @Test
