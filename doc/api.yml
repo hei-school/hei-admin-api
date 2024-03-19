@@ -2372,12 +2372,12 @@ paths:
             type: string
             format: date-time
           required: false
-        - name: planner_name
+        - name: event_type
           in: query
           required: false
-          description: Filter events by planner key name
+          description: Filter events by event type
           schema:
-            type: string
+            $ref: '#/components/schemas/EventType'
       operationId: getEvents
       responses:
         '200':
@@ -2482,9 +2482,9 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-        - name: group_id
+        - name: group_ref
           in: query
-          description: Group of the participant
+          description: Group ref of the participant
           schema:
             type: string
           required: false
@@ -2510,7 +2510,7 @@ paths:
     put:
       tags:
         - Events
-      summary: Update event participants status
+      summary: Create or pdate event participants
       parameters:
         - name: id
           in: path
@@ -3233,7 +3233,7 @@ components:
         - $ref: '#/components/schemas/UserIdentifier'
       type: object
       properties:
-        group:
+        group_name:
           type: string
         event_status:
           $ref: '#/components/schemas/AttendanceStatus'

@@ -3,7 +3,7 @@ values('event1_id', 'COURSE', 'Prog1 course', '2022-12-20T08:00:00.00Z', '2022-1
       ('event2_id', 'INTEGRATION', 'HEI students integration day', '2022-12-08T08:00:00.00Z', '2022-12-08T12:00:00.00Z', 'manager1_id', null),
       ('event3_id', 'SEMINAR', 'Seminar about Python programming language', '2022-12-09T08:00:00.00Z', '2022-12-09T12:00:00.00Z', 'manager10_id', null);
 
-insert into "event_participant"(id, event_id, participant_id, status, actual_group_id)
+insert into "event_participant"(id, event_id, participant_id, status, group_id)
 values ('event_participant1_id', 'event1_id', 'student1_id', 'MISSING', 'group1_id'),
        ('event_participant2_id', 'event1_id', 'student3_id', 'PRESENT', 'group1_id'),
        ('event_participant3_id', 'event2_id', 'student1_id', 'PRESENT', 'group1_id'),

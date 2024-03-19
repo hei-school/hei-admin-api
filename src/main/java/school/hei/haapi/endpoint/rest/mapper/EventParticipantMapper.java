@@ -45,6 +45,6 @@ public class EventParticipantMapper {
         .ref(participant.getRef())
         .firstName(participant.getFirstName())
         .lastName(participant.getLastName())
-        .group(domain.getGroup().getName());
+        .groupName(domain.getGroup().getName());
   }
 }

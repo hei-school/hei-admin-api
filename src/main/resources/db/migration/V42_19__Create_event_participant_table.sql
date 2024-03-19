@@ -12,5 +12,5 @@ create table if not exists "event_participant"(
     event_id varchar constraint event_id_fk references "event"(id),
     participant_id varchar constraint participant_id_fk references "user"(id),
     status attendance_status default 'MISSING',
-    actual_group_id varchar constraint event_participant_group_id_fk references "group"(id)
+    group_id varchar constraint event_participant_group_id_fk references "group"(id)
 );
