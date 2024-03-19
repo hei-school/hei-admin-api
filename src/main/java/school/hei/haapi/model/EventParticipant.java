@@ -1,5 +1,9 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static org.hibernate.type.SqlTypes.NAMED_ENUM;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
@@ -15,10 +19,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
-
-import static jakarta.persistence.EnumType.STRING;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 @Entity
 @Table(name = "\"event_participant\"")

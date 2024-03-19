@@ -1,24 +1,5 @@
 package school.hei.haapi.integration;
 
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.EventsApi;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
-import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CrupdateEventParticipant;
-import school.hei.haapi.endpoint.rest.model.Event;
-import school.hei.haapi.endpoint.rest.model.EventParticipant;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
-
-import java.time.Instant;
-import java.util.List;
-
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -47,6 +28,24 @@ import static school.hei.haapi.integration.conf.TestUtils.student1MissEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student2AttendEvent2;
 import static school.hei.haapi.integration.conf.TestUtils.student3AttendEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student3MissEvent2;
+
+import java.time.Instant;
+import java.util.List;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.EventsApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CrupdateEventParticipant;
+import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventParticipant;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.TestUtils;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -118,8 +117,6 @@ public class EventIT extends MockedThirdParties {
     assertTrue(eventsFilterByType.contains(event1()));
     assertFalse(eventsFilterByType.contains(event3()));
     assertFalse(eventsFilterByType.contains(event2()));
-
-
   }
 
   @Test

@@ -1,5 +1,44 @@
 package school.hei.haapi.integration.conf;
 
+import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
+import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
+import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
+import static school.hei.haapi.endpoint.rest.model.EventType.SEMINAR;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
+import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
+import static school.hei.haapi.integration.ManagerIT.manager1;
+import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.StudentIT.student2;
+import static school.hei.haapi.integration.StudentIT.student3;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.core.io.ClassPathResource;
@@ -44,46 +83,6 @@ import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
-
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
-import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
-import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
-import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
-import static school.hei.haapi.endpoint.rest.model.EventType.SEMINAR;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
-import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
-import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
-import static school.hei.haapi.integration.ManagerIT.manager1;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.StudentIT.student2;
-import static school.hei.haapi.integration.StudentIT.student3;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
-import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
 public class TestUtils {
 
@@ -143,7 +142,7 @@ public class TestUtils {
   public static final String EVENT_PARTICIPANT4_ID = "event_participant4_id";
   public static final String EVENT_PARTICIPANT5_ID = "event_participant5_id";
 
-    public static ApiClient anApiClient(String token, int serverPort) {
+  public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
     client.setScheme("http");
     client.setHost("localhost");

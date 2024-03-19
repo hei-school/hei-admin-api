@@ -1,5 +1,9 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+
+import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -18,11 +22,6 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.EventParticipantService;
 import school.hei.haapi.service.EventService;
-
-import java.time.Instant;
-import java.util.List;
-
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 @AllArgsConstructor
 @RestController
