@@ -1,8 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import java.time.Instant;
-import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -16,10 +13,16 @@ import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.CrupdateEventParticipant;
 import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
+import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.EventParticipantService;
 import school.hei.haapi.service.EventService;
+
+import java.time.Instant;
+import java.util.List;
+
+import static java.util.stream.Collectors.toUnmodifiableList;
 
 @AllArgsConstructor
 @RestController
@@ -35,7 +38,7 @@ public class EventController {
         .createOrUpdateEvent(eventsToSave.stream().map(mapper::toDomain).toList())
         .stream()
         .map(mapper::toRest)
-        .collect(Collectors.toUnmodifiableList());
+        .collect(toUnmodifiableList());
   }
 
   @GetMapping("/events/{event_id}")
@@ -47,12 +50,12 @@ public class EventController {
   public List<Event> getEvents(
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize,
-      @RequestParam(name = "planner_name", required = false) String plannerName,
+      @RequestParam(name = "event_type", required = false) EventType eventType,
       @RequestParam(required = false) Instant from,
       @RequestParam(required = false) Instant to) {
-    return eventService.getEvents(plannerName, from, to, page, pageSize).stream()
+    return eventService.getEvents(from, to, eventType, page, pageSize).stream()
         .map(mapper::toRest)
-        .collect(Collectors.toUnmodifiableList());
+        .collect(toUnmodifiableList());
   }
 
   @GetMapping("/events/{event_id}/participants")
@@ -60,10 +63,10 @@ public class EventController {
       @PathVariable(name = "event_id") String eventId,
       @RequestParam(name = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(name = "page_size", defaultValue = "15") BoundedPageSize pageSize,
-      @RequestParam(name = "group_id", required = false) String groupId) {
-    return eventParticipantService.getEventParticipants(eventId, page, pageSize, groupId).stream()
+      @RequestParam(name = "group_ref", required = false) String groupRef) {
+    return eventParticipantService.getEventParticipants(eventId, page, pageSize, groupRef).stream()
         .map(eventParticipantMapper::toRest)
-        .collect(Collectors.toUnmodifiableList());
+        .collect(toUnmodifiableList());
   }
 
   @PutMapping("/events/{event_id}/participants")
@@ -74,9 +77,9 @@ public class EventController {
         .crupdateEventParticipants(
             eventParticipantsToSave.stream()
                 .map(eventParticipant -> eventParticipantMapper.toDomain(eventParticipant, eventId))
-                .collect(Collectors.toUnmodifiableList()))
+                .collect(toUnmodifiableList()))
         .stream()
         .map(eventParticipantMapper::toRest)
-        .collect(Collectors.toUnmodifiableList());
+        .collect(toUnmodifiableList());
   }
 }

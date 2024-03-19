@@ -1,25 +1,22 @@
 package school.hei.haapi.service;
 
-import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
-
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Event;
-import school.hei.haapi.model.EventParticipant;
-import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.EventRepository;
 import school.hei.haapi.repository.dao.EventDao;
+
+import java.time.Instant;
+import java.util.List;
+
+import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @AllArgsConstructor
@@ -35,26 +32,11 @@ public class EventService {
     for (Event event : eventsCrupdated) {
       event
           .getGroups()
-          .forEach(
-              group -> {
-                List<User> users = userService.getByGroupId(group.getId());
-                List<EventParticipant> eventParticipants = new ArrayList<>();
-                Group actualGroup = groupService.getById(group.getId());
-                users.forEach(
-                    user -> {
-                      eventParticipants.add(
-                          EventParticipant.builder()
-                              .event(event)
-                              .participant(user)
-                              .status(MISSING)
-                              .group(actualGroup)
-                              .build());
-                    });
-                eventParticipantService.crupdateEventParticipants(eventParticipants);
-              });
+              .forEach(group -> eventParticipantService.crupdateEventParticipantsForAGroup(group, event));
     }
     return eventsCrupdated;
   }
+
 
   public Event findEventById(String eventId) {
     return eventRepository
@@ -66,9 +48,9 @@ public class EventService {
   }
 
   public List<Event> getEvents(
-      String plannerName, Instant from, Instant to, PageFromOne page, BoundedPageSize pageSize) {
+          Instant from, Instant to, EventType eventType, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "begin"));
-    return eventDao.findByCriteria(plannerName, from, to, pageable);
+    return eventDao.findByCriteria(from, to, eventType, pageable);
   }
 }

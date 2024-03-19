@@ -1,16 +1,36 @@
 package school.hei.haapi.integration;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.EventsApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.CrupdateEventParticipant;
+import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventParticipant;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.TestUtils;
+
+import java.time.Instant;
+import java.util.List;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
+import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.GROUP2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.GROUP2_REF;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -27,24 +47,6 @@ import static school.hei.haapi.integration.conf.TestUtils.student1MissEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student2AttendEvent2;
 import static school.hei.haapi.integration.conf.TestUtils.student3AttendEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student3MissEvent2;
-
-import java.time.Instant;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.EventsApi;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
-import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CrupdateEventParticipant;
-import school.hei.haapi.endpoint.rest.model.Event;
-import school.hei.haapi.endpoint.rest.model.EventParticipant;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -112,11 +114,12 @@ public class EventIT extends MockedThirdParties {
     assertTrue(eventsBeginBeforeAnInstant.contains(event2()));
     assertFalse(eventsBeginBeforeAnInstant.containsAll(List.of(event1(), event3())));
 
-    // TODO: Get events filtered by planner name
-    //        List<Event> eventsPlannedByManagerOne = api.getEvents(1, 15, null, null, "One");
-    //
-    //        assertTrue(eventsPlannedByManagerOne.containsAll(List.of(event1(), event2())));
-    //        assertFalse(eventsPlannedByManagerOne.contains(event3()));
+    List<Event> eventsFilterByType = api.getEvents(1, 15, null, null, COURSE);
+    assertTrue(eventsFilterByType.contains(event1()));
+    assertFalse(eventsFilterByType.contains(event3()));
+    assertFalse(eventsFilterByType.contains(event2()));
+
+
   }
 
   @Test
@@ -141,16 +144,16 @@ public class EventIT extends MockedThirdParties {
     assertTrue(actual.contains(student3AttendEvent1()));
     assertFalse(actual.contains(student1AttendEvent2()));
 
-    List<EventParticipant> participantsFilteredByGroupId =
-        api.getEventParticipants(EVENT2_ID, 1, 15, GROUP2_ID);
+    List<EventParticipant> participantsFilteredByGroupRef =
+        api.getEventParticipants(EVENT2_ID, 1, 15, GROUP2_REF);
 
     // Notice :
     // Student 1 and Student 3 are in GROUP 1
     // Student 2 is in GROUP 2
 
-    assertTrue(participantsFilteredByGroupId.contains(student2AttendEvent2()));
-    assertFalse(participantsFilteredByGroupId.contains(student1AttendEvent2()));
-    assertFalse(participantsFilteredByGroupId.contains(student3MissEvent2()));
+    assertTrue(participantsFilteredByGroupRef.contains(student2AttendEvent2()));
+    assertFalse(participantsFilteredByGroupRef.contains(student1AttendEvent2()));
+    assertFalse(participantsFilteredByGroupRef.contains(student3MissEvent2()));
   }
 
   @Test
