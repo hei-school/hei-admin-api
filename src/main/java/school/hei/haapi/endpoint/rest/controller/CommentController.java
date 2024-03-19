@@ -26,7 +26,7 @@ public class CommentController {
   private final CommentValidator commentValidator;
 
   @GetMapping("/students/{studentId}/comments")
-  public List<Comment> getComments(
+  public List<Comment> getStudentController(
       @PathVariable String studentId,
       @RequestParam(value = "observer_id", required = false) String observerId,
       @RequestParam PageFromOne page,

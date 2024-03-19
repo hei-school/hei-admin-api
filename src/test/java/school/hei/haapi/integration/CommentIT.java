@@ -56,7 +56,7 @@ class CommentIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     CommentsApi api = new CommentsApi(apiClient);
 
-    List<Comment> actual = api.getComments(STUDENT1_ID, null, 1, 15);
+    List<Comment> actual = api.getStudentComments(STUDENT1_ID, null, 1, 15);
 
     log.info(actual.toString());
 
@@ -69,7 +69,7 @@ class CommentIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
     CommentsApi api = new CommentsApi(apiClient);
 
-    List<Comment> actual = api.getComments(STUDENT1_ID, null, 1, 15);
+    List<Comment> actual = api.getStudentComments(STUDENT1_ID, null, 1, 15);
 
     log.info(actual.toString());
 
@@ -82,7 +82,7 @@ class CommentIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     CommentsApi api = new CommentsApi(apiClient);
 
-    List<Comment> actual = api.getComments(STUDENT1_ID, null, 1, 15);
+    List<Comment> actual = api.getStudentComments(STUDENT1_ID, null, 1, 15);
 
     assertTrue(actual.contains(comment1()));
     assertTrue(actual.contains(comment2()));
@@ -93,7 +93,7 @@ class CommentIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     CommentsApi api = new CommentsApi(apiClient);
 
-    assertThrowsForbiddenException(() -> api.getComments(STUDENT2_ID, null, 1, 15));
+    assertThrowsForbiddenException(() -> api.getStudentComments(STUDENT2_ID, null, 1, 15));
   }
 
   @Test
