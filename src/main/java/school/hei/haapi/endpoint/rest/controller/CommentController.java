@@ -1,7 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.CommentMapper;
 import school.hei.haapi.endpoint.rest.model.Comment;
 import school.hei.haapi.endpoint.rest.model.CreateComment;
+import school.hei.haapi.endpoint.rest.model.OrderDirection;
 import school.hei.haapi.endpoint.rest.validator.CommentValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -28,15 +30,18 @@ public class CommentController {
 
   @GetMapping("/comments")
   public List<Comment> getComments(
-          @RequestParam(name = "page")PageFromOne page,
-          @RequestParam(name = "page_size")BoundedPageSize pageSize,
-          @RequestParam(name = "timestamp_direction")Sort.Direction timestampDirection) {
-    return commentService.getComments(page, pageSize, timestampDirection).stream()
-            .map(commentMapper::toRest)
-            .collect(Collectors.toUnmodifiableList());
+      @RequestParam(name = "page") PageFromOne page,
+      @RequestParam(name = "page_size") BoundedPageSize pageSize,
+      @RequestParam(name = "timestamp_direction", required = false, defaultValue = "DESC")
+          OrderDirection timestampDirection) {
+    return commentService
+        .getComments(page, pageSize, Sort.Direction.valueOf(timestampDirection.toString()))
+        .stream()
+        .map(commentMapper::toRest)
+        .collect(toUnmodifiableList());
   }
 
-  @GetMapping("/students/{studentId}/comments")
+  @GetMapping("/students/{student_id}/comments")
   public List<Comment> getStudentComments(
       @PathVariable String studentId,
       @RequestParam(value = "observer_id", required = false) String observerId,
@@ -44,10 +49,10 @@ public class CommentController {
       @RequestParam(value = "page_size") BoundedPageSize pageSize) {
     return commentService.getStudentComments(studentId, observerId, page, pageSize).stream()
         .map(commentMapper::toRest)
-        .collect(Collectors.toUnmodifiableList());
+        .collect(toUnmodifiableList());
   }
 
-  @PostMapping("/students/{studentId}/comments")
+  @PostMapping("/students/{student_id}/comments")
   public Comment postComments(
       @PathVariable String studentId, @RequestBody CreateComment createComment) {
     commentValidator.accept(createComment);

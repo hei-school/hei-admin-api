@@ -327,6 +327,8 @@ public class SecurityConf {
                     //
                     // Comments resources
                     //
+                    .requestMatchers(GET, "/comments")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/comments", "students"))
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*/comments")
