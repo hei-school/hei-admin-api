@@ -2484,7 +2484,7 @@ paths:
             $ref: '#/components/schemas/PageSize'
         - name: group_ref
           in: query
-          description: Group ref of the participant
+          description: Filter by group ref
           schema:
             type: string
           required: false
@@ -2510,7 +2510,7 @@ paths:
     put:
       tags:
         - Events
-      summary: Create or pdate event participants
+      summary: Create or update event participants
       parameters:
         - name: id
           in: path

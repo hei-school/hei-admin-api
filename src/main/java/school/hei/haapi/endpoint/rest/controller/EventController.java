@@ -40,11 +40,6 @@ public class EventController {
         .collect(toUnmodifiableList());
   }
 
-  @GetMapping("/events/{event_id}")
-  public Event getEventById(@PathVariable(name = "event_id") String eventId) {
-    return mapper.toRest(eventService.findEventById(eventId));
-  }
-
   @GetMapping("/events")
   public List<Event> getEvents(
       @RequestParam(name = "page") PageFromOne page,
@@ -55,6 +50,11 @@ public class EventController {
     return eventService.getEvents(from, to, eventType, page, pageSize).stream()
         .map(mapper::toRest)
         .collect(toUnmodifiableList());
+  }
+
+  @GetMapping("/events/{event_id}")
+  public Event getEventById(@PathVariable(name = "event_id") String eventId) {
+    return mapper.toRest(eventService.findEventById(eventId));
   }
 
   @GetMapping("/events/{event_id}/participants")
