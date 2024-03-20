@@ -24,4 +24,8 @@ values ('student1_id', 'Ryan', 'Andria', 'test+ryan@hei.school', 'STD21001', 'EN
         '2021-10-09T08:28:24.00Z', '0322411426', 'Adr 5', 'TEACHER', '', '', null, null),
        ('manager1_id', 'One', 'Manager', 'test+manager1@hei.school', 'MGR21001', 'ENABLED', 'M',
         '1890-01-01',
-        '2021-09-08T08:25:29.00Z', '0322411127', 'Adr 5', 'MANAGER', '', '', 55.555, -55.555);
+        '2021-09-08T08:25:29.00Z', '0322411127', 'Adr 5', 'MANAGER', '', '', 55.555, -55.555),
+        ('manager10_id', 'Two', 'Manager', 'test+manager2@hei.school', 'MGR21002', 'ENABLED', 'M',
+         '1890-01-01',
+         '2021-09-08T08:25:29.00Z', '0322411128', 'Adr 5', 'MANAGER', '', '', 55.555, -55.555)
+    ;

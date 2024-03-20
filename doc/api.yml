@@ -2372,18 +2372,12 @@ paths:
             type: string
             format: date-time
           required: false
-        - name: planner_name
+        - name: event_type
           in: query
           required: false
-          description: Filter events by planner key name
+          description: Filter events by event type
           schema:
-            type: string
-        - name: group_ref
-          in: query
-          description: Filter events by group reference
-          required: false
-          schema:
-            type: string
+            $ref: '#/components/schemas/EventType'
       operationId: getEvents
       responses:
         '200':
@@ -2477,6 +2471,23 @@ paths:
           schema:
             type: string
           required: true
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: group_ref
+          in: query
+          description: Filter by group ref
+          schema:
+            type: string
+          required: false
       responses:
         '200':
           description: Participants of the event
@@ -2485,7 +2496,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GroupedEventParticipant'
+                  $ref: '#/components/schemas/EventParticipant'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2515,7 +2526,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/GroupedEventParticipant'
+                $ref: '#/components/schemas/UpdateEventParticipant'
       responses:
         '200':
           description: Participants attended for given event
@@ -2524,7 +2535,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GroupedEventParticipant'
+                  $ref: '#/components/schemas/EventParticipant'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3185,10 +3196,10 @@ components:
           type: string
         description:
           type: string
-        begin:
+        begin_datetime:
           type: string
           format: date-time
-        end:
+        end_datetime:
           type: string
           format: date-time
         event_type:
@@ -3208,11 +3219,22 @@ components:
         - MISSING
         - LATE
         - PRESENT
-    GroupedEventParticipant:
+    UpdateEventParticipant:
+      type: object
+      properties:
+        id:
+          type: string
+        event_status:
+          $ref: '#/components/schemas/AttendanceStatus'
+        group_id:
+          type: string
+    EventParticipant:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
       type: object
       properties:
+        group_name:
+          type: string
         event_status:
           $ref: '#/components/schemas/AttendanceStatus'
     Event:
@@ -3224,19 +3246,16 @@ components:
           $ref: '#/components/schemas/EventType'
         description:
           type: string
+        begin_datetime:
+          type: string
+          format: date-time
+        end_datetime:
+          type: string
+          format: date-time
         planner:
           $ref: '#/components/schemas/UserIdentifier'
         course:
           $ref: '#/components/schemas/Course'
-    EventParticipant:
-      type: object
-      properties:
-        group:
-          $ref: '#/components/schemas/GroupIdentifier'
-        students:
-          type: array
-          items:
-            $ref: '#/components/schemas/GroupedEventParticipant'
     FeeStatusEnum:
       type: string
       enum:
