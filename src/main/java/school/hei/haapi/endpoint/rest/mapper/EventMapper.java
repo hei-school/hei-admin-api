@@ -22,8 +22,8 @@ public class EventMapper {
   public school.hei.haapi.model.Event toDomain(CreateEvent createEvent) {
     return Event.builder()
         .id(createEvent.getId())
-        .begin(createEvent.getBegin())
-        .end(createEvent.getEnd())
+        .beginDatetime(createEvent.getBeginDatetime())
+        .endDatetime(createEvent.getEndDatetime())
         .description(createEvent.getDescription())
         .course(courseService.getById(createEvent.getCourseId()))
         .groups(
@@ -39,8 +39,8 @@ public class EventMapper {
   public school.hei.haapi.endpoint.rest.model.Event toRest(Event domain) {
     return new school.hei.haapi.endpoint.rest.model.Event()
         .id(domain.getId())
-        .end(domain.getEnd())
-        .begin(domain.getBegin())
+        .endDatetime(domain.getEndDatetime())
+        .beginDatetime(domain.getBeginDatetime())
         .description(domain.getDescription())
         .type(domain.getType())
         .course(Objects.isNull(domain.getCourse()) ? null : courseMapper.toRest(domain.getCourse()))

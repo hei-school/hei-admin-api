@@ -927,8 +927,8 @@ public class TestUtils {
         .id(EVENT1_ID)
         .type(COURSE)
         .course(course1())
-        .begin(Instant.parse("2022-12-20T08:00:00.00Z"))
-        .end(Instant.parse("2022-12-20T10:00:00.00Z"))
+        .beginDatetime(Instant.parse("2022-12-20T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2022-12-20T10:00:00.00Z"))
         .description("Prog1 course")
         .planner(planner1());
   }
@@ -938,8 +938,8 @@ public class TestUtils {
         .id(EVENT2_ID)
         .type(INTEGRATION)
         .planner(planner1())
-        .begin(Instant.parse("2022-12-08T08:00:00.00Z"))
-        .end(Instant.parse("2022-12-08T12:00:00.00Z"))
+        .beginDatetime(Instant.parse("2022-12-08T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2022-12-08T12:00:00.00Z"))
         .course(null)
         .description("HEI students integration day");
   }
@@ -957,8 +957,8 @@ public class TestUtils {
                 .firstName("Two")
                 .lastName("Manager"))
         .description("Seminar about Python programming language")
-        .begin(Instant.parse("2022-12-09T08:00:00.00Z"))
-        .end(Instant.parse("2022-12-09T12:00:00.00Z"))
+        .beginDatetime(Instant.parse("2022-12-09T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2022-12-09T12:00:00.00Z"))
         .course(null);
   }
 
@@ -1003,8 +1003,8 @@ public class TestUtils {
     return new CreateEvent()
         .id("event4_id")
         .courseId(COURSE1_ID)
-        .begin(Instant.parse("2023-12-08T08:00:00.00Z"))
-        .end(Instant.parse("2023-12-08T10:00:00.00Z"))
+        .beginDatetime(Instant.parse("2023-12-08T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2023-12-08T10:00:00.00Z"))
         .description("Another Prog1 course")
         .eventType(COURSE)
         .plannerId(MANAGER_ID)
@@ -1015,8 +1015,8 @@ public class TestUtils {
     return new CreateEvent()
         .id("event5_id")
         .courseId(null)
-        .begin(Instant.parse("2023-11-08T08:00:00.00Z"))
-        .end(Instant.parse("2023-11-08T10:00:00.00Z"))
+        .beginDatetime(Instant.parse("2023-11-08T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2023-11-08T10:00:00.00Z"))
         .description("Another Prog1 course")
         .eventType(INTEGRATION)
         .plannerId(MANAGER_ID)
@@ -1026,8 +1026,8 @@ public class TestUtils {
   public static Event expectedCourseEventCreated() {
     return new Event()
         .type(COURSE)
-        .begin(createEventCourse1().getBegin())
-        .end(createEventCourse1().getEnd())
+        .beginDatetime(createEventCourse1().getBeginDatetime())
+        .endDatetime(createEventCourse1().getEndDatetime())
         .planner(planner1())
         .course(course1())
         .description(createEventCourse1().getDescription())
@@ -1040,8 +1040,8 @@ public class TestUtils {
         .planner(planner1())
         .course(null)
         .description(createIntegrationEvent().getDescription())
-        .begin(createIntegrationEvent().getBegin())
-        .end(createIntegrationEvent().getEnd());
+        .beginDatetime(createIntegrationEvent().getBeginDatetime())
+        .endDatetime(createIntegrationEvent().getEndDatetime());
   }
 
   public static boolean isBefore(String a, String b) {

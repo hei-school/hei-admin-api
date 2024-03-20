@@ -17,6 +17,7 @@ import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.EventParticipantRepository;
 
 @Service
@@ -38,12 +39,16 @@ public class EventParticipantService {
         : eventParticipantRepository.findAllByEventIdAndGroupRef(eventId, groupRef, pageable);
   }
 
-  public List<EventParticipant> crupdateEventParticipants(
-      List<EventParticipant> eventParticipants) {
+  public List<EventParticipant> updateEventParticipants(List<EventParticipant> eventParticipants) {
+
+    eventParticipants.forEach(
+        (eventParticipant -> {
+          eventParticipant.setStatus(eventParticipant.getStatus());
+        }));
     return eventParticipantRepository.saveAll(eventParticipants);
   }
 
-  public void crupdateEventParticipantsForAGroup(Group group, Event event) {
+  public void createEventParticipantsForAGroup(Group group, Event event) {
     List<User> users = userService.getByGroupId(group.getId());
     List<EventParticipant> eventParticipants = new ArrayList<>();
     Group actualGroup = groupService.getById(group.getId());
@@ -57,6 +62,13 @@ public class EventParticipantService {
                   .group(actualGroup)
                   .build());
         });
-    crupdateEventParticipants(eventParticipants);
+    updateEventParticipants(eventParticipants);
+  }
+
+  public EventParticipant findById(String id) {
+    return eventParticipantRepository
+        .findById(id)
+        .orElseThrow(
+            () -> new NotFoundException("Event participant with id #" + id + "does not exist"));
   }
 }

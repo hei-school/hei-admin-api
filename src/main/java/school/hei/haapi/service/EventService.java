@@ -27,14 +27,13 @@ public class EventService {
   private final GroupService groupService;
 
   public List<Event> createOrUpdateEvent(List<Event> eventToCrupdate) {
-    List<Event> eventsCrupdated = eventRepository.saveAll(eventToCrupdate);
-    for (Event event : eventsCrupdated) {
+    List<Event> eventsCreated = eventRepository.saveAll(eventToCrupdate);
+    for (Event event : eventsCreated) {
       event
           .getGroups()
-          .forEach(
-              group -> eventParticipantService.crupdateEventParticipantsForAGroup(group, event));
+          .forEach(group -> eventParticipantService.createEventParticipantsForAGroup(group, event));
     }
-    return eventsCrupdated;
+    return eventsCreated;
   }
 
   public Event findEventById(String eventId) {
@@ -49,7 +48,7 @@ public class EventService {
   public List<Event> getEvents(
       Instant from, Instant to, EventType eventType, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "begin"));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "beginDatetime"));
     return eventDao.findByCriteria(from, to, eventType, pageable);
   }
 }

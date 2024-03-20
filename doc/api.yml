@@ -2510,14 +2510,14 @@ paths:
     put:
       tags:
         - Events
-      summary: Create or update event participants
+      summary: Update event participants status
       parameters:
         - name: id
           in: path
           schema:
             type: string
           required: true
-      operationId: crupdateEventParticipants
+      operationId: updateEventParticipants
       requestBody:
         description: Participants attend for given event
         required: true
@@ -3196,10 +3196,10 @@ components:
           type: string
         description:
           type: string
-        begin:
+        begin_datetime:
           type: string
           format: date-time
-        end:
+        end_datetime:
           type: string
           format: date-time
         event_type:
@@ -3246,10 +3246,10 @@ components:
           $ref: '#/components/schemas/EventType'
         description:
           type: string
-        begin:
+        begin_datetime:
           type: string
           format: date-time
-        end:
+        end_datetime:
           type: string
           format: date-time
         planner:

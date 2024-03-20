@@ -46,10 +46,10 @@ public class Event {
   private String description;
 
   @Column(name = "begin_datetime")
-  private Instant begin;
+  private Instant beginDatetime;
 
   @Column(name = "end_datetime")
-  private Instant end;
+  private Instant endDatetime;
 
   @ManyToOne
   @JoinColumn(name = "planner_id", referencedColumnName = "id")

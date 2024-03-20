@@ -30,11 +30,11 @@ public class EventDao {
     List<Predicate> predicates = new ArrayList<>();
 
     if (from != null) {
-      predicates.add(builder.greaterThanOrEqualTo(root.get("begin"), from));
+      predicates.add(builder.greaterThanOrEqualTo(root.get("beginDatetime"), from));
     }
 
     if (to != null) {
-      predicates.add(builder.lessThanOrEqualTo(root.get("begin"), to));
+      predicates.add(builder.lessThanOrEqualTo(root.get("beginDatetime"), to));
     }
 
     if (eventType != null) {

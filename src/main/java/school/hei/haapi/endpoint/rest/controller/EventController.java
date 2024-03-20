@@ -18,6 +18,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateEventParticipant;
 import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.EventType;
+import school.hei.haapi.endpoint.rest.validator.UpdateEventParticipantValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.EventParticipantService;
@@ -30,6 +31,7 @@ public class EventController {
   private final EventParticipantMapper eventParticipantMapper;
   private final EventService eventService;
   private final EventParticipantService eventParticipantService;
+  private final UpdateEventParticipantValidator updateEventParticipantValidator;
 
   @PutMapping("/events")
   public List<Event> crupdateEvents(@RequestBody List<CreateEvent> eventsToSave) {
@@ -71,10 +73,11 @@ public class EventController {
   @PutMapping("/events/{event_id}/participants")
   public List<EventParticipant> crupdateEventParticipantsToAnEvent(
       @PathVariable(name = "event_id") String eventId,
-      @RequestBody List<CrupdateEventParticipant> eventParticipantsToSave) {
+      @RequestBody List<CrupdateEventParticipant> eventParticipantsToUpdate) {
+    updateEventParticipantValidator.acceptAll(eventParticipantsToUpdate);
     return eventParticipantService
-        .crupdateEventParticipants(
-            eventParticipantsToSave.stream()
+        .updateEventParticipants(
+            eventParticipantsToUpdate.stream()
                 .map(eventParticipant -> eventParticipantMapper.toDomain(eventParticipant, eventId))
                 .collect(toUnmodifiableList()))
         .stream()
