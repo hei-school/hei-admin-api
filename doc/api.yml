@@ -2517,7 +2517,7 @@ paths:
           schema:
             type: string
           required: true
-      operationId: updateEventParticipants
+      operationId: updateEventParticipantsStatus
       requestBody:
         description: Participants attend for given event
         required: true
@@ -2526,7 +2526,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/CrupdateEventParticipant'
+                $ref: '#/components/schemas/UpdateEventParticipant'
       responses:
         '200':
           description: Participants attended for given event
@@ -3219,11 +3219,11 @@ components:
         - MISSING
         - LATE
         - PRESENT
-    CrupdateEventParticipant:
-      allOf:
-        - $ref: '#/components/schemas/UserIdentifier'
+    UpdateEventParticipant:
       type: object
       properties:
+        id:
+          type: string
         event_status:
           $ref: '#/components/schemas/AttendanceStatus'
         group_id:

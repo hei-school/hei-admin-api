@@ -5,17 +5,17 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT_PARTICIPANT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.EVENT_PARTICIPANT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.GROUP2_REF;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.createEventCourse1;
 import static school.hei.haapi.integration.conf.TestUtils.event1;
@@ -32,19 +32,19 @@ import static school.hei.haapi.integration.conf.TestUtils.student3MissEvent2;
 
 import java.time.Instant;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CrupdateEventParticipant;
 import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
+import school.hei.haapi.endpoint.rest.model.UpdateEventParticipant;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -53,7 +53,6 @@ import school.hei.haapi.integration.conf.TestUtils;
 @Testcontainers
 @ContextConfiguration(initializers = EventIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-@Slf4j
 public class EventIT extends MockedThirdParties {
 
   private static ApiClient anApiClient(String token) {
@@ -70,8 +69,6 @@ public class EventIT extends MockedThirdParties {
   void manager_create_event_ok() throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
-
-    log.info(createEventCourse1().toString());
 
     List<Event> actual = api.crupdateEvents(List.of(createEventCourse1()));
 
@@ -155,25 +152,25 @@ public class EventIT extends MockedThirdParties {
   }
 
   @Test
-  void manager_update_event_participant_info_except_status_ko() throws ApiException {
+  @DirtiesContext
+  void manager_update_event_participant_ok() throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
 
-    CrupdateEventParticipant updateEventParticipant =
-        new CrupdateEventParticipant()
-            .eventStatus(MISSING)
-            .email("test@gmail.com")
-            .ref(student1().getRef())
-            .nic(student1().getNic())
-            .firstName(student1().getFirstName())
-            .lastName(student1().getLastName())
-            .groupId(GROUP1_ID)
-            .id(EVENT_PARTICIPANT1_ID);
+    UpdateEventParticipant updateStudent1StatusEvent1 =
+        new UpdateEventParticipant().id(EVENT_PARTICIPANT1_ID).eventStatus(PRESENT);
 
-    assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Event participant information cannot be"
-            + " modified except the status\"}",
-        () -> api.updateEventParticipants(EVENT1_ID, List.of(updateEventParticipant)));
+    UpdateEventParticipant updateStudent3StatusInEvent1 =
+        new UpdateEventParticipant().id(EVENT_PARTICIPANT2_ID).eventStatus(MISSING);
+
+    EventParticipant student1IsPresentInEvent1 = student1MissEvent1().eventStatus(PRESENT);
+    EventParticipant student3MissEvent1 = student3AttendEvent1().eventStatus(MISSING);
+
+    List<EventParticipant> actual =
+        api.updateEventParticipantsStatus(
+            EVENT1_ID, List.of(updateStudent1StatusEvent1, updateStudent3StatusInEvent1));
+
+    assertTrue(actual.containsAll(List.of(student1IsPresentInEvent1, student3MissEvent1)));
   }
 
   @Test
@@ -183,7 +180,7 @@ public class EventIT extends MockedThirdParties {
 
     assertThrowsForbiddenException(() -> api.crupdateEvents(List.of(createEventCourse1())));
     assertThrowsForbiddenException(
-        () -> api.updateEventParticipants(EVENT1_ID, List.of(new CrupdateEventParticipant())));
+        () -> api.updateEventParticipantsStatus(EVENT1_ID, List.of(new UpdateEventParticipant())));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

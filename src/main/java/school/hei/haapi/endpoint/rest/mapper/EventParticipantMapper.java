@@ -2,37 +2,23 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
-import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
-import school.hei.haapi.service.EventService;
-import school.hei.haapi.service.GroupService;
-import school.hei.haapi.service.UserService;
+import school.hei.haapi.service.EventParticipantService;
 
 @Component
 @AllArgsConstructor
 public class EventParticipantMapper {
 
-  private final UserService userService;
-  private final EventService eventService;
-  private final GroupService groupService;
+  private final EventParticipantService eventParticipantService;
 
   public EventParticipant toDomain(
-      school.hei.haapi.endpoint.rest.model.CrupdateEventParticipant crupdateEventParticipant,
-      String eventId) {
+      school.hei.haapi.endpoint.rest.model.UpdateEventParticipant updateEventParticipant) {
 
-    User user = userService.getByEmail(crupdateEventParticipant.getEmail());
-    Event event = eventService.findEventById(eventId);
-    Group group = groupService.getById(crupdateEventParticipant.getGroupId());
-
-    return EventParticipant.builder()
-        .id(crupdateEventParticipant.getId())
-        .status(crupdateEventParticipant.getEventStatus())
-        .participant(user)
-        .event(event)
-        .group(group)
-        .build();
+    EventParticipant eventParticipant =
+        eventParticipantService.findById(updateEventParticipant.getId());
+    eventParticipant.setStatus(updateEventParticipant.getEventStatus());
+    return eventParticipant;
   }
 
   public school.hei.haapi.endpoint.rest.model.EventParticipant toRest(EventParticipant domain) {
