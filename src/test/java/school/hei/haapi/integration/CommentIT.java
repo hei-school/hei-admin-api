@@ -1,26 +1,10 @@
 package school.hei.haapi.integration;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.OrderDirection.ASC;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.comment1;
-import static school.hei.haapi.integration.conf.TestUtils.comment2;
-import static school.hei.haapi.integration.conf.TestUtils.commentCreatedByManager;
-import static school.hei.haapi.integration.conf.TestUtils.commentCreatedByTeacher;
-import static school.hei.haapi.integration.conf.TestUtils.createCommentByManager;
-import static school.hei.haapi.integration.conf.TestUtils.createCommentByTeacher;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -44,11 +28,44 @@ import school.hei.haapi.integration.conf.TestUtils;
 @AutoConfigureMockMvc
 @Slf4j
 class CommentIT extends MockedThirdParties {
+  public static String STUDENT1_REF = "STD21001";
 
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
+  }
+
+  @Test
+  void manager_read_comments_by_student_ref_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+    CommentsApi api = new CommentsApi(apiClient);
+
+    List<Comment> actual = api.getComments(1, 10, null, STUDENT1_REF);
+
+    assertEquals(3, actual.size());
+    assertTrue(actual.contains(comment1()));
+  }
+
+  @Test
+  void teacher_read_comments_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
+    CommentsApi api = new CommentsApi(apiClient);
+
+    List<Comment> actualTimestampDescendant = api.getComments(1, 10, null, null);
+    List<Comment> actualTimestampAscendant = api.getComments(1, 10, ASC, null);
+
+    // Verify Comments are filter by timestamp Ascendant
+    assertEquals(comment1().getContent(), actualTimestampAscendant.get(0).getContent());
+    assertEquals(
+        comment1().getCreationDatetime(), actualTimestampAscendant.get(0).getCreationDatetime());
+
+    // Verify Comments are filter by timestamp Descendant (by default)
+    assertEquals(
+        createCommentByTeacher().getContent(), actualTimestampDescendant.get(0).getContent());
+    assertEquals(
+        createCommentByTeacher().getStudentId(),
+        actualTimestampDescendant.get(0).getSubject().getId());
   }
 
   @Test

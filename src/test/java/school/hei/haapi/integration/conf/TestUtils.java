@@ -827,7 +827,7 @@ public class TestUtils {
         .content("Disruptive student")
         .subject(student1())
         .observer(observerManager1())
-        .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+        .creationDatetime(Instant.parse("2021-11-09T09:26:24.00Z"));
   }
 
   public static Comment comment3() {
@@ -836,7 +836,7 @@ public class TestUtils {
         .content("Nothing to say here")
         .subject(student2())
         .observer(observerTeacher1())
-        .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+        .creationDatetime(Instant.parse("2021-11-09T10:26:24.00Z"));
   }
 
   public static CreateComment createCommentByManager() {
