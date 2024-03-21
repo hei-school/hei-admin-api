@@ -21,14 +21,16 @@ public class ScholarshipCertificateDataProvider {
     return academicYear + " année d'informatique - parcours " + specializationFiledString(student);
   }
 
-  private String getAcademicYear(User student) {
+  public String getAcademicYear(User student) {
     ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC+3"));
     ZonedDateTime entranceDatetime = student.getEntranceDatetime().atZone(ZoneId.of("UTC+3"));
     int year = (int) ChronoUnit.YEARS.between(entranceDatetime, now);
+
     return switch (year) {
       case 0 -> "Première";
       case 1 -> "Deuxième";
       case 2 -> "Troisième";
+      case 3 -> "Troisième";
       default -> throw new ApiException(SERVER_EXCEPTION, "Invalid year");
     };
   }
