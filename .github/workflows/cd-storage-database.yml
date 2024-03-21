@@ -33,7 +33,7 @@ jobs:
           # TODO: -storage- --> -database-. But it will BREAK backward compatibility.
           name: ${{ github.ref_name }}-storage-haapi
           template: cf-stacks/storage-database-stack.yml
-          tags: "[ { \"Key\": \"app\", \"Value\": \"haapi\" }, { \"Key\": \"env\", \"Value\": \"${{ github.ref_name }}\" } ]"
+          tags: "[ { \"Key\": \"app\", \"Value\": \"haapi\" }, { \"Key\": \"env\", \"Value\": \"${{ github.ref_name }}\" }, { \"Key\": \"user:poja\", \"Value\": \"haapi\" } ]"
           capabilities: CAPABILITY_NAMED_IAM
           no-fail-on-empty-changeset: "1"
           parameter-overrides:

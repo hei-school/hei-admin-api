@@ -5,6 +5,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
+import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
+import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
+import static school.hei.haapi.endpoint.rest.model.EventType.SEMINAR;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
@@ -14,6 +19,7 @@ import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.StudentIT.student2;
+import static school.hei.haapi.integration.StudentIT.student3;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
@@ -41,6 +47,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.Comment;
@@ -48,17 +55,21 @@ import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateComment;
+import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Observer;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -66,6 +77,7 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -113,6 +125,7 @@ public class TestUtils {
   public static final String GRADE5_ID = "grade5_id";
   public static final String GRADE6_ID = "grade6_id";
   public static final String GRADE7_ID = "grade7_id";
+  public static final String GROUP2_REF = "GRP21002";
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
@@ -120,6 +133,14 @@ public class TestUtils {
   public static final String FEE_TEMPLATE1_ID = "fee_template1";
   public static final String FEE_TEMPLATE2_ID = "fee_template2";
   public static final String FEE_TEMPLATE1_NAME = "annuel x9";
+
+  public static final String EVENT1_ID = "event1_id";
+  public static final String EVENT2_ID = "event2_id";
+  public static final String EVENT_PARTICIPANT1_ID = "event_participant1_id";
+  public static final String EVENT_PARTICIPANT2_ID = "event_participant2_id";
+  public static final String EVENT_PARTICIPANT3_ID = "event_participant3_id";
+  public static final String EVENT_PARTICIPANT4_ID = "event_participant4_id";
+  public static final String EVENT_PARTICIPANT5_ID = "event_participant5_id";
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -297,7 +318,7 @@ public class TestUtils {
   public static Group group1() {
     return new Group()
         .id(GROUP1_ID)
-        .name("Name of group one")
+        .name("G1")
         .ref("GRP21001")
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
   }
@@ -305,7 +326,7 @@ public class TestUtils {
   public static Group group2() {
     return new Group()
         .id(GROUP2_ID)
-        .name("Name of group two")
+        .name("G2")
         .ref("GRP21002")
         .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
   }
@@ -827,7 +848,7 @@ public class TestUtils {
         .content("Disruptive student")
         .subject(student1())
         .observer(observerManager1())
-        .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+        .creationDatetime(Instant.parse("2021-11-09T09:26:24.00Z"));
   }
 
   public static Comment comment3() {
@@ -836,7 +857,7 @@ public class TestUtils {
         .content("Nothing to say here")
         .subject(student2())
         .observer(observerTeacher1())
-        .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+        .creationDatetime(Instant.parse("2021-11-09T10:26:24.00Z"));
   }
 
   public static CreateComment createCommentByManager() {
@@ -879,6 +900,148 @@ public class TestUtils {
         .role(MANAGER)
         .firstName(manager1().getFirstName())
         .lastName(manager1().getLastName());
+  }
+
+  public static UserIdentifier planner1() {
+    return new UserIdentifier()
+        .id(manager1().getId())
+        .ref(manager1().getRef())
+        .nic(manager1().getNic())
+        .firstName(manager1().getFirstName())
+        .lastName(manager1().getLastName())
+        .email(manager1().getEmail());
+  }
+
+  public static UserIdentifier planner2() {
+    return new UserIdentifier()
+        .id(manager1().getId())
+        .ref(manager1().getRef())
+        .nic(manager1().getNic())
+        .firstName(manager1().getFirstName())
+        .lastName(manager1().getLastName())
+        .email(manager1().getEmail());
+  }
+
+  public static Event event1() {
+    return new Event()
+        .id(EVENT1_ID)
+        .type(COURSE)
+        .course(course1())
+        .beginDatetime(Instant.parse("2022-12-20T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2022-12-20T10:00:00.00Z"))
+        .description("Prog1 course")
+        .planner(planner1());
+  }
+
+  public static Event event2() {
+    return new Event()
+        .id(EVENT2_ID)
+        .type(INTEGRATION)
+        .planner(planner1())
+        .beginDatetime(Instant.parse("2022-12-08T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2022-12-08T12:00:00.00Z"))
+        .course(null)
+        .description("HEI students integration day");
+  }
+
+  public static Event event3() {
+    return new Event()
+        .id("event3_id")
+        .type(SEMINAR)
+        .planner(
+            new UserIdentifier()
+                .id("manager10_id")
+                .email("test+manager2@hei.school")
+                .ref("MGR21002")
+                .nic("")
+                .firstName("Two")
+                .lastName("Manager"))
+        .description("Seminar about Python programming language")
+        .beginDatetime(Instant.parse("2022-12-09T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2022-12-09T12:00:00.00Z"))
+        .course(null);
+  }
+
+  public static EventParticipant createParticipant(
+      Student student, AttendanceStatus status, String id, String groupName) {
+    return new EventParticipant()
+        .id(id)
+        .firstName(student.getFirstName())
+        .lastName(student.getLastName())
+        .ref(student.getRef())
+        .nic(student.getNic())
+        .email(student.getEmail())
+        .groupName(groupName)
+        .eventStatus(status);
+  }
+
+  public static GroupIdentifier createGroupIdentifier(Group group) {
+    return new GroupIdentifier().ref(group.getRef()).name(group.getName()).id(group.getId());
+  }
+
+  public static EventParticipant student1MissEvent1() {
+    return createParticipant(student1(), MISSING, "event_participant1_id", "G1");
+  }
+
+  public static EventParticipant student3AttendEvent1() {
+    return createParticipant(student3(), PRESENT, "event_participant2_id", "G1");
+  }
+
+  public static EventParticipant student1AttendEvent2() {
+    return createParticipant(student1(), PRESENT, "event_participant3_id", "G1");
+  }
+
+  public static EventParticipant student2AttendEvent2() {
+    return createParticipant(student2(), PRESENT, "event_participant4_id", "G2");
+  }
+
+  public static EventParticipant student3MissEvent2() {
+    return createParticipant(student3(), MISSING, "event_participant5_id", "G1");
+  }
+
+  public static CreateEvent createEventCourse1() {
+    return new CreateEvent()
+        .id("event4_id")
+        .courseId(COURSE1_ID)
+        .beginDatetime(Instant.parse("2023-12-08T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2023-12-08T10:00:00.00Z"))
+        .description("Another Prog1 course")
+        .eventType(COURSE)
+        .plannerId(MANAGER_ID)
+        .groups(List.of(createGroupIdentifier(group1())));
+  }
+
+  public static CreateEvent createIntegrationEvent() {
+    return new CreateEvent()
+        .id("event5_id")
+        .courseId(null)
+        .beginDatetime(Instant.parse("2023-11-08T08:00:00.00Z"))
+        .endDatetime(Instant.parse("2023-11-08T10:00:00.00Z"))
+        .description("Another Prog1 course")
+        .eventType(INTEGRATION)
+        .plannerId(MANAGER_ID)
+        .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
+  }
+
+  public static Event expectedCourseEventCreated() {
+    return new Event()
+        .type(COURSE)
+        .beginDatetime(createEventCourse1().getBeginDatetime())
+        .endDatetime(createEventCourse1().getEndDatetime())
+        .planner(planner1())
+        .course(course1())
+        .description(createEventCourse1().getDescription())
+        .course(null);
+  }
+
+  public static Event expectedIntegrationEventCreated() {
+    return new Event()
+        .type(INTEGRATION)
+        .planner(planner1())
+        .course(null)
+        .description(createIntegrationEvent().getDescription())
+        .beginDatetime(createIntegrationEvent().getBeginDatetime())
+        .endDatetime(createIntegrationEvent().getEndDatetime());
   }
 
   public static boolean isBefore(String a, String b) {

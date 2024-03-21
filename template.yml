@@ -5,11 +5,13 @@ Description: haapi - Computation and API
 Globals:
   Function:
     CodeUri: .
-    Runtime: java17
+    Runtime: java21
     Tracing: Active
     Architectures:
       - x86_64
     Timeout: 600
+    EventInvokeConfig:
+      MaximumRetryAttempts: 0
     AutoPublishAlias: live
     SnapStart:
       ApplyOn: PublishedVersions
@@ -27,12 +29,16 @@ Globals:
         AWS_S3_BUCKET: !Sub '{{resolve:ssm:/haapi/${Env}/s3/bucket-name}}'
         AWS_SES_SOURCE: contact@hei.school
         
-        DATABASE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/db/url}}'
-        DATABASE_USERNAME: !Sub '{{resolve:ssm:/haapi/${Env}/db/username}}'
-        DATABASE_PASSWORD: !Sub '{{resolve:ssm:/haapi/${Env}/db/password}}'
+        SPRING_DATASOURCE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/db/url}}'
+        SPRING_DATASOURCE_USERNAME: !Sub '{{resolve:ssm:/haapi/${Env}/db/username}}'
+        SPRING_DATASOURCE_PASSWORD: !Sub '{{resolve:ssm:/haapi/${Env}/db/password}}'
+        
+        SENTRY_DSN: !Sub '{{resolve:ssm:/haapi/sentry/dsn}}'
+        SENTRY_ENVIRONMENT: !Ref Env
         AWS_COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/haapi/${Env}/cognito/userpool-id}}'
         AWS_SES_CONTACT: !Sub '{{resolve:ssm:/haapi/${Env}/ses/contact}}'
-        SENTRY_DSN: !Sub '{{resolve:ssm:/haapi/sentry/dsn}}'
+
+    
         
 
 Parameters:

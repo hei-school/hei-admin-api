@@ -327,11 +327,26 @@ public class SecurityConf {
                     //
                     // Comments resources
                     //
+                    .requestMatchers(GET, "/comments")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/comments", "students"))
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*/comments")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     .requestMatchers(POST, "/students/*/comments")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+                    //
+                    // Event resources
+                    //
+                    .requestMatchers(GET, "/events")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
+                    .requestMatchers(PUT, "/events")
+                    .hasAnyRole(MANAGER.getRole())
+                    .requestMatchers(GET, "/events/*")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
+                    .requestMatchers(GET, "/events/*/participants")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
+                    .requestMatchers(PUT, "/events/*/participants")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     //
                     // Attendances resources
