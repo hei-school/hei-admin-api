@@ -2783,6 +2783,8 @@ components:
               format: date-time
             coordinates:
               $ref: '#/components/schemas/Coordinates'
+            high_school_origin:
+              type: string
             status:
               $ref: '#/components/schemas/EnableStatus'
     SpecializationField:

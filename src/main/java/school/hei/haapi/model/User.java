@@ -98,6 +98,8 @@ public class User implements Serializable {
   private Double longitude;
   private Double latitude;
 
+  private String highSchoolOrigin;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

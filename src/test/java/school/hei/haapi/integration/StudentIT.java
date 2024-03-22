@@ -167,7 +167,7 @@ public class StudentIT extends MockedThirdParties {
     student.setSpecializationField(COMMON_CORE);
     student.setBirthPlace("");
     student.setCoordinates(new Coordinates().longitude(-123.123).latitude(123.0));
-
+    student.setHighSchoolOrigin("Lycée Andohalo");
     return student;
   }
 
@@ -188,6 +188,7 @@ public class StudentIT extends MockedThirdParties {
     student.setNic("");
     student.setSpecializationField(COMMON_CORE);
     student.setCoordinates(new Coordinates().longitude(255.255).latitude(-255.255));
+    student.setHighSchoolOrigin("Lycée Andohalo");
     return student;
   }
 
@@ -207,6 +208,7 @@ public class StudentIT extends MockedThirdParties {
     student.setBirthPlace("");
     student.setNic("");
     student.setCoordinates(coordinatesWithNullValues());
+
     return student;
   }
 
@@ -227,6 +229,7 @@ public class StudentIT extends MockedThirdParties {
     student.setNic("0000000000");
     student.setSpecializationField(COMMON_CORE);
     student.setCoordinates(coordinatesWithNullValues());
+    student.setHighSchoolOrigin("Lycée Analamahitsy");
     return student;
   }
 
@@ -704,6 +707,7 @@ public class StudentIT extends MockedThirdParties {
     student2ToUpdate.setBirthPlace("updated birthplace");
     student2ToUpdate.setCoordinates(coordinatesWithValues());
     student2ToUpdate.setSpecializationField(EL);
+    student2ToUpdate.setHighSchoolOrigin("Lycée Saint Gabriel Mahajanga");
 
     Student updatedStudent2 = student2();
     updatedStudent2.setBirthPlace("updated birthplace");
@@ -711,6 +715,7 @@ public class StudentIT extends MockedThirdParties {
     updatedStudent2.setSpecializationField(EL);
     updatedStudent2.setAddress("updated address");
     updatedStudent2.setCoordinates(coordinatesWithValues());
+    updatedStudent2.setHighSchoolOrigin("Lycée Saint Gabriel Mahajanga");
 
     Student actualUpdated = api.updateStudent(STUDENT2_ID, student2ToUpdate);
 

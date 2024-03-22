@@ -74,7 +74,7 @@ public class UserService {
     userToRefresh.setEntranceDatetime(refreshedUser.getEntranceDatetime());
     userToRefresh.setStatus(refreshedUser.getStatus());
     userToRefresh.setSpecializationField(refreshedUser.getSpecializationField());
-
+    userToRefresh.setHighSchoolOrigin(refreshedUser.getHighSchoolOrigin());
     return userToRefresh;
   }
 
