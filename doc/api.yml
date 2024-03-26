@@ -187,6 +187,75 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{id}/work_info:
+    get:
+      tags:
+        - Users
+      summary: Get student work info.
+      parameters:
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      operationId: getStudentWorkInfo
+      responses:
+        '200':
+          description: List of Student work info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WorkStudyStudent'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Create or update work study info of Student.
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: createOrUpdateStudentWorkStudyInfo
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateWorkStudyStudent'
+      responses:
+        '200':
+          description: List of Student work info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/WorkStudyStudent'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{id}:
     get:
       tags:
@@ -340,6 +409,14 @@ paths:
           description: Filter students by sex value return all by default
           schema:
             $ref: '#/components/schemas/Sex'
+        - name: work_study_status
+          required: false
+          in: query
+          description: Filter students by work study status
+          schema:
+            type: array
+            items:
+              $ref: '#/components/schemas/WorkStudyStatus'
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -2787,6 +2864,11 @@ components:
               type: string
             status:
               $ref: '#/components/schemas/EnableStatus'
+    WorkStudyStatus:
+      type: string
+      enum:
+        - TAKEN
+        - WORKING
     SpecializationField:
       type: string
       enum:
@@ -2862,12 +2944,54 @@ components:
     CrupdateManager:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
+    CrupdateWorkStudyStudent:
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        commitment_begin_date:
+          type: string
+          format: date-time
+        commitment_end_date:
+          type: string
+          format: date-time
+        business:
+          type: string
+        company:
+          type: string
+    WorkStudyInfo:
+      properties:
+        id:
+          type: string
+        commitment_begin_date:
+          type: string
+          format: date-time
+        commitment_end_date:
+          type: string
+          format: date-time
+        business:
+          type: string
+        company:
+          type: string
+    WorkStudyStudent:
+      allOf:
+        - $ref: '#/components/schemas/UserIdentifier'
+      properties:
+        work_study_info:
+          type: array
+          items:
+            $ref: '#/components/schemas/WorkStudyInfo'
     Student:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
       properties:
         specialization_field:
           $ref: '#/components/schemas/SpecializationField'
+        is_working_study:
+          type: boolean
+        taken_working_study:
+          type: boolean
         profile_picture:
           type: string
     Teacher:
