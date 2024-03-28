@@ -86,6 +86,10 @@ public class User implements Serializable {
 
   private String profilePictureKey;
 
+  private boolean isWorkingStudy;
+
+  private boolean takenWorkingStudy;
+
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
   private List<AwardedCourse> awardedCourses;
 
