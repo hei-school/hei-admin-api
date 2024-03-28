@@ -3,12 +3,7 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
@@ -51,6 +46,15 @@ public class WorkInfoIT extends MockedThirdParties {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
+  }
+
+  @Test
+  void student_read_other_work_info_ko() throws ApiException {
+      ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+      UsersApi api = new UsersApi(student1Client);
+
+      assertThrowsForbiddenException(
+              () -> api.getStudentWorkInfo(STUDENT2_ID));
   }
 
   @Test
