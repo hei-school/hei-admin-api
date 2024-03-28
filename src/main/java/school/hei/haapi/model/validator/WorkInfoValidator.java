@@ -29,9 +29,10 @@ public class WorkInfoValidator implements Consumer<WorkInfo> {
         && workInfo.getBusiness().isBlank()) {
       violationMessages.add("Student business is mandatory");
     }
-
-    String formatedViolationMessages =
-        violationMessages.stream().map(String::toString).collect(Collectors.joining(". "));
-    throw new BadRequestException(formatedViolationMessages);
+    if (!violationMessages.isEmpty()) {
+      String formatedViolationMessages =
+          violationMessages.stream().map(String::toString).collect(Collectors.joining(". "));
+      throw new BadRequestException(formatedViolationMessages);
+    }
   }
 }
