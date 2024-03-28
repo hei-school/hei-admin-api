@@ -11,25 +11,25 @@ public class FileValidator implements Consumer<String> {
   private List<String> allowedFileType() {
     return List.of(
         // documents allowed
-        "pdf",
-        "doc",
-        "docx",
-        "xls",
-        "xlsx",
-        "gsheet",
-        "gdoc",
+        ".pdf",
+        ".doc",
+        ".docx",
+        ".xls",
+        ".xlsx",
+        ".gsheet",
+        ".gdoc",
         // pictures allowed
-        "png",
-        "jpg",
-        "jpeg",
-        "svg",
-        "MOV");
+        ".png",
+        ".jpg",
+        ".jpeg",
+        ".svg",
+        ".MOV");
   }
 
   @Override
   public void accept(String fileType) {
     if (!allowedFileType().contains(fileType)) {
-      throw new BadRequestException("File not supported");
+      throw new BadRequestException("File not supported: #" + fileType);
     }
   }
 }
