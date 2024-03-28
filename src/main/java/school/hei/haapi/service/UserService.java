@@ -28,6 +28,7 @@ import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.service.aws.FileService;
+import school.hei.haapi.service.utils.FileValidator;
 
 @Service
 @AllArgsConstructor
@@ -40,6 +41,7 @@ public class UserService {
   private final GroupRepository groupRepository;
   private final GroupService groupService;
   private final FileService fileService;
+  private final FileValidator fileValidator;
   private final MultipartFileConverter fileConverter;
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
@@ -48,6 +50,8 @@ public class UserService {
     String bucketKey =
         getFormattedBucketKey(user, "PROFILE_PICTURE")
             + fileService.getFileExtension(profilePictureAsMultipartFile);
+
+    fileValidator.accept(fileService.getFileExtension(profilePictureAsMultipartFile));
     user.setProfilePictureKey(bucketKey);
     userRepository.save(user);
     fileService.uploadObjectToS3Bucket(bucketKey, savedProfilePicture);
