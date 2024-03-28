@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -17,11 +18,25 @@ public class WorkInfoService {
 
   public List<WorkInfo> saveAll(List<WorkInfo> toSave) {
     workInfoValidator.accept(toSave);
+    User student = toSave.get(0).getStudent();
+    Instant now = Instant.now();
+
+    toSave.forEach(
+        workInfo -> {
+          if (workInfo.getCommitmentEndDate().isBefore(now)) {
+            student.setTakenWorkingStudy(true);
+            student.setWorkingStudy(false);
+          }
+          student.setWorkingStudy(true);
+          student.setTakenWorkingStudy(false);
+        });
+
     return workInfoRepository.saveAll(toSave);
   }
 
   public List<WorkInfo> getWorkInfo(String studentId) {
     User student = userService.findById(studentId);
+
     return workInfoRepository.findWorkInfosByStudent(student);
   }
 }

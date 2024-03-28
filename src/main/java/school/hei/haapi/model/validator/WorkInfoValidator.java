@@ -12,6 +12,9 @@ import school.hei.haapi.model.exception.BadRequestException;
 @Component
 public class WorkInfoValidator implements Consumer<WorkInfo> {
   public void accept(List<WorkInfo> workInfoToValidate) {
+    if (workInfoToValidate.isEmpty()) {
+      throw new BadRequestException("Empty data");
+    }
     workInfoToValidate.forEach(this::accept);
   }
 

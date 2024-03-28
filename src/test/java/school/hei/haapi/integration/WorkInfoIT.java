@@ -50,11 +50,10 @@ public class WorkInfoIT extends MockedThirdParties {
 
   @Test
   void student_read_other_work_info_ko() throws ApiException {
-      ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-      UsersApi api = new UsersApi(student1Client);
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    UsersApi api = new UsersApi(student1Client);
 
-      assertThrowsForbiddenException(
-              () -> api.getStudentWorkInfo(STUDENT2_ID));
+    assertThrowsForbiddenException(() -> api.getStudentWorkInfo(STUDENT2_ID));
   }
 
   @Test
