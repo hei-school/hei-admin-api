@@ -1,6 +1,8 @@
 package school.hei.haapi;
 
 import static java.lang.Runtime.getRuntime;
+import static java.lang.Thread.currentThread;
+import static school.hei.haapi.concurrency.ThreadRenamer.renameWorkerThread;
 
 import com.amazonaws.services.lambda.runtime.Context;
 import com.amazonaws.services.lambda.runtime.RequestHandler;
@@ -21,6 +23,7 @@ public class MailboxEventHandler implements RequestHandler<SQSEvent, String> {
 
   @Override
   public String handleRequest(SQSEvent event, Context context) {
+    renameWorkerThread(currentThread());
     log.info("Received: event={}, awsReqId={}", event, context.getAwsRequestId());
     List<SQSEvent.SQSMessage> messages = event.getRecords();
     log.info("SQS messages: {}", messages);

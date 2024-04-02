@@ -15,7 +15,9 @@ import org.springframework.lang.Nullable;
 import org.springframework.web.servlet.HandlerInterceptor;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
+import school.hei.haapi.PojaGenerated;
 
+@PojaGenerated
 @Configuration
 @AllArgsConstructor
 public class RequestLoggerConfigurer implements WebMvcConfigurer {
@@ -24,6 +26,7 @@ public class RequestLoggerConfigurer implements WebMvcConfigurer {
     registry.addInterceptor(new RequestLogger());
   }
 
+  @PojaGenerated
   @AllArgsConstructor
   @Slf4j
   private static class RequestLogger implements HandlerInterceptor {
