@@ -5,5 +5,4 @@ import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Announcement;
 
 @Repository
-public interface AnnouncementRepository extends JpaRepository<Announcement, String> {
-}
+public interface AnnouncementRepository extends JpaRepository<Announcement, String> {}
