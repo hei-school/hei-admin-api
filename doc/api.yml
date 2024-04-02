@@ -2760,6 +2760,183 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+
+  '/announcements':
+    get:
+      tags:
+        - Announcements
+      summary: All announcements
+      operationId: getAnnouncements
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+          required: false
+        - name: from
+          in: query
+          description: Filter announcements from a given date
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: to
+          in: query
+          description: Filter events before a given date
+          schema:
+            type: string
+            format: date-time
+        - name: author_ref
+          in: query
+          description: Filter announcements by author ref
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Announcements filtered with criteria if provided
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Announcement'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
+    post:
+      tags:
+        - Announcements
+      summary: Create an announcement
+      operationId: createAnnouncement
+      requestBody:
+        description: Infos about the announcement to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateAnnouncement'
+
+      responses:
+        '200':
+          description: The announcement created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+
+  '/students/announcements' :
+    get:
+      tags:
+        - Announcements
+      operationId: getStudentsAnnouncements
+      summary: Get all announcements for students
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+          required: false
+        - name: from
+          in: query
+          description: Filter announcements from a given date
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: to
+          in: query
+          description: Filter events before a given date
+          schema:
+            type: string
+            format: date-time
+        - name: author_ref
+          in: query
+          description: Filter announcements by author ref
+          schema:
+            type: string
+        - name: group_ref
+          in: query
+          description: Filter announcements by group ref of the target
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Announcements filtered with criteria if provided
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Announcement'
+
+  '/teachers/announcements' :
+    get:
+      tags:
+        - Announcements
+      operationId: getTeachersAnnouncements
+      summary: Get all announcements for teachers
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+          required: false
+        - name: from
+          in: query
+          description: Filter announcements from a given date
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: to
+          in: query
+          description: Filter events before a given date
+          schema:
+            type: string
+            format: date-time
+        - name: author_ref
+          in: query
+          description: Filter announcements by author ref
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Announcements filtered with criteria if provided
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Announcement'
 components:
   securitySchemes:
     BearerAuth:
@@ -3466,6 +3643,61 @@ components:
           enum:
             - MANAGER
             - TEACHER
+    CreateAnnouncement:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        creation_datetime:
+          format: date-time
+          type: string
+        author_id:
+          type: string
+        scope:
+          $ref: '#/components/schemas/Scope'
+        target_group_list:
+          type: array
+          items:
+            type: string
+          example: ["G1", "G2"]
+    Scope:
+      type: string
+      enum:
+        - GLOBAL
+        - TEACHER
+        - STUDENT
+        - MANAGER
+    Announcement:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        author:
+          type: object
+          properties:
+            id:
+              type: string
+            first_name:
+              type: string
+            last_name:
+              type: string
+            email:
+              type: string
+            profile_picture:
+              type: string
+        creation_datetime:
+          type: string
+          format: date-time
+        scope:
+          $ref: '#/components/schemas/Scope'
     Exception:
       type: object
       properties:
