@@ -24,9 +24,6 @@ public class WorkInfoValidator implements Consumer<WorkInfo> {
     if (workInfo.getStudent() == null) {
       violationMessages.add("Student is mandatory");
     }
-    if (workInfo.getCommitmentBeginDate() == null) {
-      violationMessages.add("Commitment begin date is mandatory");
-    }
     if (workInfo.getBusiness() == null
         && workInfo.getBusiness().isEmpty()
         && workInfo.getBusiness().isBlank()) {

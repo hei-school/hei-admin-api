@@ -1,11 +1,7 @@
 package school.hei.haapi.repository.dao;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -27,7 +23,8 @@ public class UserManagerDao {
       String lastName,
       Pageable pageable,
       User.Status status,
-      User.Sex sex) {
+      User.Sex sex,
+      int workStudyCase) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
@@ -49,6 +46,28 @@ public class UserManagerDao {
             builder.like(root.get("lastName"), "%" + lastName + "%"));
 
     Predicate hasUserRole = builder.equal(root.get("role"), role);
+
+    if (workStudyCase == 1) {
+      Expression<Boolean> takenWorkingStudyExpression = root.get("takenWorkingStudy");
+      predicate = builder.and(predicate, builder.equal(takenWorkingStudyExpression, true));
+    }
+
+    if (workStudyCase == 2) {
+      Expression<Boolean> isWorkingStudyExpression = root.get("isWorkingStudy");
+      predicate = builder.and(predicate, builder.equal(isWorkingStudyExpression, true));
+    }
+
+    if (workStudyCase == 3) {
+      Expression<Boolean> takenWorkingStudyExpression = root.get("takenWorkingStudy");
+      Expression<Boolean> isWorkingStudyExpression = root.get("isWorkingStudy");
+
+      predicate =
+          builder.and(
+              predicate,
+              builder.or(
+                  builder.equal(isWorkingStudyExpression, true),
+                  builder.equal(takenWorkingStudyExpression, true)));
+    }
 
     if (firstName != null && !firstName.isEmpty()) {
       predicate = builder.and(predicate, hasUserFirstName);

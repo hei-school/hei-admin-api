@@ -17,6 +17,8 @@ import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.TAKEN;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -168,6 +170,8 @@ public class StudentIT extends MockedThirdParties {
     student.setBirthPlace("");
     student.setCoordinates(new Coordinates().longitude(-123.123).latitude(123.0));
     student.setHighSchoolOrigin("Lycée Andohalo");
+    student.setTakenWorkingStudy(false);
+    student.isWorkingStudy(false);
     return student;
   }
 
@@ -189,6 +193,8 @@ public class StudentIT extends MockedThirdParties {
     student.setSpecializationField(COMMON_CORE);
     student.setCoordinates(new Coordinates().longitude(255.255).latitude(-255.255));
     student.setHighSchoolOrigin("Lycée Andohalo");
+    student.setTakenWorkingStudy(false);
+    student.isWorkingStudy(false);
     return student;
   }
 
@@ -230,6 +236,8 @@ public class StudentIT extends MockedThirdParties {
     student.setSpecializationField(COMMON_CORE);
     student.setCoordinates(coordinatesWithNullValues());
     student.setHighSchoolOrigin("Lycée Analamahitsy");
+    student.isWorkingStudy(false);
+    student.setTakenWorkingStudy(false);
     return student;
   }
 
@@ -249,7 +257,9 @@ public class StudentIT extends MockedThirdParties {
         .nic("")
         .birthPlace("")
         .coordinates(coordinatesWithNullValues())
-        .address("Adr 1");
+        .address("Adr 1")
+        .takenWorkingStudy(false)
+        .isWorkingStudy(false);
   }
 
   public static CrupdateStudent creatableSuspendedStudent() {
@@ -283,7 +293,51 @@ public class StudentIT extends MockedThirdParties {
         .specializationField(COMMON_CORE)
         .birthPlace("")
         .address("Adr 2")
-        .coordinates(coordinatesWithNullValues());
+        .coordinates(coordinatesWithNullValues())
+        .isWorkingStudy(false)
+        .takenWorkingStudy(false);
+  }
+
+  public static Student studentWorkingStudy() {
+    return new Student()
+        .id("student7_id")
+        .firstName("Working")
+        .lastName("One")
+        .email("test+working1@hei.school")
+        .ref("STD29005")
+        .status(ENABLED)
+        .sex(M)
+        .birthDate(LocalDate.parse("2000-12-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .phone("0322411123")
+        .nic("")
+        .specializationField(COMMON_CORE)
+        .birthPlace("")
+        .address("Adr 1")
+        .coordinates(coordinatesWithNullValues())
+        .takenWorkingStudy(false)
+        .isWorkingStudy(true);
+  }
+
+  public static Student studentTakenWorkingStudy() {
+    return new Student()
+        .id("student8_id")
+        .firstName("Taken")
+        .lastName("Two")
+        .email("test+taken@hei.school")
+        .ref("STD29006")
+        .status(ENABLED)
+        .sex(F)
+        .birthDate(LocalDate.parse("2000-12-02"))
+        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
+        .phone("0322411124")
+        .nic("")
+        .specializationField(COMMON_CORE)
+        .birthPlace("")
+        .address("Adr 2")
+        .coordinates(coordinatesWithNullValues())
+        .takenWorkingStudy(true)
+        .isWorkingStudy(false);
   }
 
   @BeforeEach
@@ -393,6 +447,30 @@ public class StudentIT extends MockedThirdParties {
     List<Student> actualStudents =
         api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, F, null);
     assertEquals(1, actualStudents.size());
+  }
+
+  @Test
+  void manager_read_by_work_study_statuses_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actual0 =
+        api.getStudents(1, 10, null, null, null, null, null, null, List.of(WORKING));
+
+    assertEquals(1, actual0.size());
+    assertEquals(studentWorkingStudy(), actual0.get(0));
+
+    List<Student> actual1 =
+        api.getStudents(1, 10, null, null, null, null, null, null, List.of(TAKEN));
+
+    assertEquals(1, actual1.size());
+    assertEquals(studentTakenWorkingStudy(), actual1.get(0));
+
+    List<Student> actual2 =
+        api.getStudents(1, 10, null, null, null, null, null, null, List.of(TAKEN, WORKING));
+
+    assertEquals(2, actual2.size());
+    assertTrue(actual2.containsAll(List.of(studentWorkingStudy(), studentTakenWorkingStudy())));
   }
 
   @Test

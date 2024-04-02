@@ -16,16 +16,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
-import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
-import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
-import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
-import school.hei.haapi.endpoint.rest.mapper.UserMapper;
-import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
-import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.GroupFlow;
-import school.hei.haapi.endpoint.rest.model.Sex;
-import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.mapper.*;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.validator.CoordinatesValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -43,6 +35,7 @@ public class StudentController {
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
   private final CoordinatesValidator validator;
+  private final WorkStudyStatusCase workStudyStatusCase;
 
   @PostMapping(value = "/students/{id}/picture/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public Student uploadStudentProfilePicture(
@@ -74,12 +67,29 @@ public class StudentController {
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
       @RequestParam(value = "course_id", required = false, defaultValue = "") String courseId,
       @RequestParam(name = "status", required = false) EnableStatus status,
-      @RequestParam(name = "sex", required = false) Sex sex) {
+      @RequestParam(name = "sex", required = false) Sex sex,
+      @RequestParam(name = "work_study_status", required = false)
+          List<WorkStudyStatus> workStudyStatuses) {
     User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
     User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
+    /*** WORK_STUDY_STATUS case
+     * case 1: filter students taken work study
+     * case 2: filter students working study
+     * case 3: filter both of them
+     */
+    int workStudyCase = workStudyStatusCase.apply(workStudyStatuses);
     return userService
         .getByLinkedCourse(
-            STUDENT, firstName, lastName, ref, courseId, page, pageSize, domainStatus, domainSex)
+            STUDENT,
+            firstName,
+            lastName,
+            ref,
+            courseId,
+            page,
+            pageSize,
+            domainStatus,
+            domainSex,
+            workStudyCase)
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());

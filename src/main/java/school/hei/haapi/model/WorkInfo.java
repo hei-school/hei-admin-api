@@ -10,6 +10,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Table(name = "\"work_info\"")
 @Entity
@@ -27,7 +28,7 @@ public class WorkInfo implements Serializable {
   @JoinColumn(name = "student_id", referencedColumnName = "id")
   private User student;
 
-  private Instant commitmentBeginDate;
+  @CreationTimestamp private Instant commitmentBeginDate;
 
   private Instant commitmentEndDate;
 

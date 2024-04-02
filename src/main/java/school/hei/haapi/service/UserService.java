@@ -123,7 +123,7 @@ public class UserService {
       User.Sex sex) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-    return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
+    return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex, 0);
   }
 
   public List<User> getByLinkedCourse(
@@ -135,11 +135,13 @@ public class UserService {
       PageFromOne page,
       BoundedPageSize pageSize,
       User.Status status,
-      User.Sex sex) {
+      User.Sex sex,
+      int workStudyCase) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     List<User> users =
-        userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
+        userManagerDao.findByCriteria(
+            role, ref, firstName, lastName, pageable, status, sex, workStudyCase);
 
     return courseId.length() > 0
         ? users.stream()

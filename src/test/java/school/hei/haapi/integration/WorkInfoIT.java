@@ -37,6 +37,8 @@ public class WorkInfoIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired ObjectMapper objectMapper;
 
+  public static String STUDENT1_REF = "STD21001";
+
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
   }
@@ -86,6 +88,11 @@ public class WorkInfoIT extends MockedThirdParties {
     assertEquals(
         expected.get(0).getWorkStudyInfo().get(1).getBusiness(),
         actual1.get(0).getWorkStudyInfo().get(1).getBusiness());
+
+    List<Student> actualStudents =
+        api.getStudents(1, 10, STUDENT1_REF, null, null, null, null, null, null);
+
+    assertEquals(true, actualStudents.get(0).getIsWorkingStudy());
   }
 
   public static WorkStudyInfo createdWorkInfo() {
@@ -100,8 +107,7 @@ public class WorkInfoIT extends MockedThirdParties {
         .id("work_info2_id")
         .business("business 2")
         .company("company")
-        .studentId(STUDENT1_ID)
-        .commitmentBeginDate(Instant.parse("2024-10-28T12:03:56.651Z"));
+        .studentId(STUDENT1_ID);
   }
 
   public static WorkStudyInfo workInfo1() {

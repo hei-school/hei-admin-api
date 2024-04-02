@@ -58,6 +58,8 @@ public class UserMapper {
     restStudent.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     restStudent.setHighSchoolOrigin(user.getHighSchoolOrigin());
+    restStudent.setTakenWorkingStudy(user.isTakenWorkingStudy());
+    restStudent.setIsWorkingStudy(user.isWorkingStudy());
     return restStudent;
   }
 

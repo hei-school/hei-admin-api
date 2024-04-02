@@ -22,6 +22,7 @@ public class WorkInfoService {
     workInfoValidator.accept(toSave);
     User student = toSave.get(0).getStudent();
     Instant now = Instant.now();
+
     toSave.forEach(
         workInfo -> {
           if (workInfo.getCommitmentEndDate() != null
@@ -31,8 +32,9 @@ public class WorkInfoService {
           }
           student.setWorkingStudy(true);
           student.setTakenWorkingStudy(false);
+
+          userRepository.save(student);
         });
-    userRepository.save(student);
 
     return workInfoRepository.saveAll(toSave);
   }
