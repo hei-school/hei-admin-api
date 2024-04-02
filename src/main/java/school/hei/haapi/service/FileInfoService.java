@@ -14,14 +14,12 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.FilenameValidator;
 import school.hei.haapi.repository.FileInfoRepository;
 import school.hei.haapi.service.aws.FileService;
-import school.hei.haapi.service.utils.FileValidator;
 
 @Service
 @AllArgsConstructor
 public class FileInfoService {
   private final FileInfoRepository fileInfoRepository;
   private final UserService userService;
-  private final FileValidator fileValidator;
   private final FileService fileService;
   private final MultipartFileConverter multipartFileConverter;
   private final FilenameValidator filenameValidator;
@@ -29,7 +27,6 @@ public class FileInfoService {
   public FileInfo uploadFile(
       String fileName, FileType fileType, String userId, MultipartFile fileToUpload) {
     filenameValidator.accept(fileName);
-    fileValidator.accept(fileService.getFileExtension(fileToUpload));
     User student = userService.findById(userId);
     // STUDENT/STUDENT_ref/<TRANSCRIPT|DOCUMENT|OTHER>/fileName.extension
     String filePath =

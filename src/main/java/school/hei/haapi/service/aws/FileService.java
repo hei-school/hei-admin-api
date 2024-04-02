@@ -15,10 +15,8 @@ import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.file.BucketComponent;
 import school.hei.haapi.file.FileHash;
-import school.hei.haapi.file.FileTyper;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
-import school.hei.haapi.service.utils.FileValidator;
 
 @Component
 @Service
