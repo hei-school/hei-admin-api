@@ -654,7 +654,9 @@ public class StudentIT extends MockedThirdParties {
             .ref(toUpdate0.getRef())
             .coordinates(coordinatesWithNullValues())
             .specializationField(toUpdate0.getSpecializationField())
-            .status(toUpdate0.getStatus());
+            .status(toUpdate0.getStatus())
+            .isWorkingStudy(false)
+            .takenWorkingStudy(false);
 
     Student updated1 =
         new Student()
@@ -672,7 +674,9 @@ public class StudentIT extends MockedThirdParties {
             .ref(toUpdate1.getRef())
             .specializationField(toUpdate1.getSpecializationField())
             .coordinates(coordinatesWithNullValues())
-            .status(toUpdate1.getStatus());
+            .status(toUpdate1.getStatus())
+            .isWorkingStudy(false)
+            .takenWorkingStudy(false);
 
     List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1));
 
