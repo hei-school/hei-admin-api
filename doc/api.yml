@@ -4097,9 +4097,6 @@ components:
           type: string
         content:
           type: string
-        creation_datetime:
-          format: date-time
-          type: string
         author_id:
           type: string
         scope:
@@ -4108,7 +4105,8 @@ components:
           type: array
           items:
             type: string
-          example: [ "G1", "G2" ]
+            example: [ "G1", "G2" ]
+            $ref: '#/components/schemas/GroupIdentifier'
     Scope:
       type: string
       enum:
