@@ -29,15 +29,15 @@ Globals:
         AWS_S3_BUCKET: !Sub '{{resolve:ssm:/haapi/${Env}/s3/bucket-name}}'
         AWS_SES_SOURCE: contact@hei.school
         
-        SPRING_DATASOURCE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/db/url}}'
-        SPRING_DATASOURCE_USERNAME: !Sub '{{resolve:ssm:/haapi/${Env}/db/username}}'
-        SPRING_DATASOURCE_PASSWORD: !Sub '{{resolve:ssm:/haapi/${Env}/db/password}}'
+        
         
         SENTRY_DSN: !Sub '{{resolve:ssm:/haapi/sentry/dsn}}'
         SENTRY_ENVIRONMENT: !Ref Env
         AWS_COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/haapi/${Env}/cognito/userpool-id}}'
         AWS_SES_CONTACT: !Sub '{{resolve:ssm:/haapi/${Env}/ses/contact}}'
-
+        SPRING_DATASOURCE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/db/url}}'
+        SPRING_DATASOURCE_USERNAME: !Sub '{{resolve:ssm:/haapi/${Env}/db/username}}'
+        SPRING_DATASOURCE_PASSWORD: !Sub '{{resolve:ssm:/haapi/${Env}/db/password}}'
     
         
 
