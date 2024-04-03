@@ -1,16 +1,13 @@
 package school.hei.haapi.repository.dao;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.*;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
+import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.User;
@@ -27,7 +24,8 @@ public class UserManagerDao {
       String lastName,
       Pageable pageable,
       User.Status status,
-      User.Sex sex) {
+      User.Sex sex,
+      WorkStudyStatus workStatus) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
@@ -49,6 +47,11 @@ public class UserManagerDao {
             builder.like(root.get("lastName"), "%" + lastName + "%"));
 
     Predicate hasUserRole = builder.equal(root.get("role"), role);
+
+    if (workStatus != null) {
+      Expression<WorkStudyStatus> workStatusExpression = root.get("workStatus");
+      predicate = builder.and(predicate, builder.equal(workStatusExpression, workStatus));
+    }
 
     if (firstName != null && !firstName.isEmpty()) {
       predicate = builder.and(predicate, hasUserFirstName);

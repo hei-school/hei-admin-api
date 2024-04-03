@@ -4,6 +4,7 @@ import static java.time.LocalDate.now;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
 
+import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
@@ -14,10 +15,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.rest.model.FileType;
-import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.FileInfo;
-import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
+import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
+import school.hei.haapi.model.*;
 import school.hei.haapi.repository.FileInfoRepository;
 import school.hei.haapi.repository.dao.FileInfoDao;
 import school.hei.haapi.service.utils.Base64Converter;
@@ -37,7 +36,36 @@ public class StudentFileService {
   private final ScholarshipCertificateDataProvider certificateDataProvider;
   private final FileInfoRepository fileInfoRepository;
   private final FileInfoService fileInfoService;
+  private final WorkFileService workFileService;
   private final FileInfoDao fileInfoDao;
+
+  public WorkFile uploadStudentWorkFile(
+      String studentId,
+      String filename,
+      Instant creationDatetime,
+      Instant commitmentBegin,
+      Instant commitmentEnd,
+      WorkStudyStatus studentWorkStatus,
+      MultipartFile workFile) {
+    return workFileService.uploadStudentWorkFile(
+        studentId,
+        filename,
+        creationDatetime,
+        commitmentBegin,
+        commitmentEnd,
+        studentWorkStatus,
+        workFile);
+  }
+
+  public List<WorkFile> getStudentWorkFiles(
+      String studentId, PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
+    return workFileService.getStudentWorkFiles(studentId, pageable);
+  }
+
+  public WorkFile getStudentWorkFileById(String workFileId) {
+    return workFileService.getStudentWorkFileById(workFileId);
+  }
 
   public FileInfo uploadStudentFile(
       String fileName, FileType fileType, String studentId, MultipartFile fileToUpload) {

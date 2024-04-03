@@ -20,12 +20,7 @@ import school.hei.haapi.endpoint.rest.mapper.GroupFlowMapper;
 import school.hei.haapi.endpoint.rest.mapper.SexEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.StatusEnumMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
-import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
-import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.GroupFlow;
-import school.hei.haapi.endpoint.rest.model.Sex;
-import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.validator.CoordinatesValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -74,12 +69,22 @@ public class StudentController {
       @RequestParam(value = "last_name", required = false, defaultValue = "") String lastName,
       @RequestParam(value = "course_id", required = false, defaultValue = "") String courseId,
       @RequestParam(name = "status", required = false) EnableStatus status,
-      @RequestParam(name = "sex", required = false) Sex sex) {
+      @RequestParam(name = "sex", required = false) Sex sex,
+      @RequestParam(name = "work_study_status", required = false) WorkStudyStatus workStatus) {
     User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
     User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
     return userService
         .getByLinkedCourse(
-            STUDENT, firstName, lastName, ref, courseId, page, pageSize, domainStatus, domainSex)
+            STUDENT,
+            firstName,
+            lastName,
+            ref,
+            courseId,
+            page,
+            pageSize,
+            domainStatus,
+            domainSex,
+            workStatus)
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
