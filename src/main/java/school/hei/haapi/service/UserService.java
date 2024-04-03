@@ -17,6 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.UserUpserted;
+import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
@@ -74,7 +75,7 @@ public class UserService {
     userToRefresh.setEntranceDatetime(refreshedUser.getEntranceDatetime());
     userToRefresh.setStatus(refreshedUser.getStatus());
     userToRefresh.setSpecializationField(refreshedUser.getSpecializationField());
-
+    userToRefresh.setHighSchoolOrigin(refreshedUser.getHighSchoolOrigin());
     return userToRefresh;
   }
 
@@ -122,7 +123,8 @@ public class UserService {
       User.Sex sex) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-    return userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
+    return userManagerDao.findByCriteria(
+        role, ref, firstName, lastName, pageable, status, sex, null);
   }
 
   public List<User> getByLinkedCourse(
@@ -134,11 +136,13 @@ public class UserService {
       PageFromOne page,
       BoundedPageSize pageSize,
       User.Status status,
-      User.Sex sex) {
+      User.Sex sex,
+      WorkStudyStatus workStatus) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     List<User> users =
-        userManagerDao.findByCriteria(role, ref, firstName, lastName, pageable, status, sex);
+        userManagerDao.findByCriteria(
+            role, ref, firstName, lastName, pageable, status, sex, workStatus);
 
     return courseId.length() > 0
         ? users.stream()

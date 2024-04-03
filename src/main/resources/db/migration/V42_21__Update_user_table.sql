@@ -1,0 +1,1 @@
+alter table "user" add column if not exists high_school_origin varchar;

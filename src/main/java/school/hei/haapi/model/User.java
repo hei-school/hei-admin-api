@@ -29,6 +29,7 @@ import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
+import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 
 @Entity
 @Table(name = "\"user\"")
@@ -97,6 +98,12 @@ public class User implements Serializable {
 
   private Double longitude;
   private Double latitude;
+
+  private String highSchoolOrigin;
+
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
+  private WorkStudyStatus workStatus;
 
   @Override
   public boolean equals(Object o) {

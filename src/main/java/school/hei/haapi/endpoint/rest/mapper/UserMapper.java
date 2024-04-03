@@ -4,7 +4,14 @@ import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURAT
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
+import school.hei.haapi.endpoint.rest.model.CrupdateManager;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
+import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
+import school.hei.haapi.endpoint.rest.model.Manager;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.FileService;
 
@@ -50,7 +57,8 @@ public class UserMapper {
     restStudent.setProfilePicture(url);
     restStudent.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
-
+    restStudent.setHighSchoolOrigin(user.getHighSchoolOrigin());
+    restStudent.workStudyStatus(user.getWorkStatus());
     return restStudent;
   }
 
@@ -78,7 +86,7 @@ public class UserMapper {
     teacher.setProfilePicture(url);
     teacher.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
-
+    teacher.setHighSchoolOrigin(user.getHighSchoolOrigin());
     return teacher;
   }
 
@@ -106,7 +114,7 @@ public class UserMapper {
     manager.setProfilePicture(url);
     manager.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
-
+    manager.setHighSchoolOrigin(user.getHighSchoolOrigin());
     return manager;
   }
 
@@ -128,6 +136,7 @@ public class UserMapper {
         .birthPlace(manager.getBirthPlace())
         .longitude(manager.getCoordinates().getLongitude())
         .latitude(manager.getCoordinates().getLatitude())
+        .highSchoolOrigin(manager.getHighSchoolOrigin())
         .build();
   }
 
@@ -149,6 +158,7 @@ public class UserMapper {
         .birthPlace(teacher.getBirthPlace())
         .longitude(teacher.getCoordinates().getLongitude())
         .latitude(teacher.getCoordinates().getLatitude())
+        .highSchoolOrigin(teacher.getHighSchoolOrigin())
         .build();
   }
 
@@ -171,6 +181,7 @@ public class UserMapper {
         .specializationField(student.getSpecializationField())
         .longitude(student.getCoordinates().getLongitude())
         .latitude(student.getCoordinates().getLatitude())
+        .highSchoolOrigin(student.getHighSchoolOrigin())
         .build();
   }
 }
