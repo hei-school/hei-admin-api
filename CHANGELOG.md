@@ -1,3 +1,23 @@
+# [1.12.0](https://github.com/hei-school/hei-admin-api/compare/v1.11.0...v1.12.0) (2024-04-03)
+
+
+### Bug Fixes
+
+* handle hibernate dialect in aws  ([6bc0ebb](https://github.com/hei-school/hei-admin-api/commit/6bc0ebb0901ff337bf92f39c12d36f48a29e6f33))
+* handle year if it's higher than 2  ([a6f1e69](https://github.com/hei-school/hei-admin-api/commit/a6f1e695c94cc2e9d7c090117cef3aaf5802bc82))
+
+
+### Features
+
+* add high school origin attribute for user ([24da263](https://github.com/hei-school/hei-admin-api/commit/24da26313d1c9b888e00553a7d9e57ab86dae9dd))
+* event and event participants resources ([745eb33](https://github.com/hei-school/hei-admin-api/commit/745eb33a79718ab730afe80b12d1ddfd54d9a6a9))
+* get latest grouped comments   ([b77030f](https://github.com/hei-school/hei-admin-api/commit/b77030fb7416bfbf4692e2970847640df6a0cf67))
+* migrate db to neon ([cfdedae](https://github.com/hei-school/hei-admin-api/commit/cfdedae29079ab3783ecd967d6e44a854f89e2ca))
+* **not-implemented:** alternants resources  ([b4b33a5](https://github.com/hei-school/hei-admin-api/commit/b4b33a54f7adbad98a77ada866c95ed267c5b020))
+* **not-implemented:** document student work file  ([4235b01](https://github.com/hei-school/hei-admin-api/commit/4235b019d9fd60f0f14834d69dfeaa05ef953c11))
+
+
+
 # [1.11.0](https://github.com/hei-school/hei-admin-api/compare/v1.10.3...v1.11.0) (2024-03-19)
 
 
@@ -81,22 +101,6 @@
 ### Features
 
 * validate filename to disable file extension when given it ([7336974](https://github.com/hei-school/hei-admin-api/commit/733697466134a871514c83158204df5f3c8928ef))
-
-
-
-# [1.5.0](https://github.com/hei-school/hei-admin-api/compare/v1.4.1...v1.5.0) (2024-02-28)
-
-
-### Bug Fixes
-
-* manager can now update own ([c05698e](https://github.com/hei-school/hei-admin-api/commit/c05698e5b8a33ef4f51afbef7c0cfeaafbeb5f6b))
-
-
-### Features
-
-* event resources for attendance (not-implemented) ([c5f4d03](https://github.com/hei-school/hei-admin-api/commit/c5f4d033321e9902b5834f4a017a74f25d8cea36))
-* get school file by id  ([83213b1](https://github.com/hei-school/hei-admin-api/commit/83213b118c53e4ca5e70f00ccc37397251926813))
-* users have files stored on S3 ([94368fe](https://github.com/hei-school/hei-admin-api/commit/94368fe50593f3e6a87bd529ec28af3a9dd910d7))
 
 
 
