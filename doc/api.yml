@@ -2385,20 +2385,25 @@ paths:
           schema:
             type: string
           in: query
-        - name: commitment_begin
+        - name: work_study_status
           required: true
+          in: query
+          schema:
+            $ref: '#/components/schemas/WorkStudyStatus'
+        - name: commitment_begin
+          required: false
           in: query
           schema:
             type: string
             format: date-time
         - name: commitment_end
-          required: true
+          required: false
           in: query
           schema:
             type: string
             format: date-time
         - name: creation_datetime
-          required: true
+          required: false
           in: query
           schema:
             type: string
