@@ -1,13 +1,4 @@
-# [1.13.0](https://github.com/hei-school/hei-admin-api/compare/v1.12.0...v1.13.0) (2024-04-03)
-
-
-### Features
-
-* **not-implemented:** document student work file  ([106c166](https://github.com/hei-school/hei-admin-api/commit/106c166f9ae9993a6432218fbbb0101d7bdb74c7))
-
-
-
-# [1.12.0](https://github.com/hei-school/hei-admin-api/compare/v1.11.0...v1.12.0) (2024-04-03)
+# [1.14.0](https://github.com/hei-school/hei-admin-api/compare/v1.11.0...v1.14.0) (2024-04-03)
 
 
 ### Bug Fixes
@@ -21,9 +12,11 @@
 * add high school origin attribute for user ([24da263](https://github.com/hei-school/hei-admin-api/commit/24da26313d1c9b888e00553a7d9e57ab86dae9dd))
 * event and event participants resources ([745eb33](https://github.com/hei-school/hei-admin-api/commit/745eb33a79718ab730afe80b12d1ddfd54d9a6a9))
 * get latest grouped comments   ([b77030f](https://github.com/hei-school/hei-admin-api/commit/b77030fb7416bfbf4692e2970847640df6a0cf67))
-* migrate db to neon ([cfdedae](https://github.com/hei-school/hei-admin-api/commit/cfdedae29079ab3783ecd967d6e44a854f89e2ca))
+* migrate db to neon ([108ae8e](https://github.com/hei-school/hei-admin-api/commit/108ae8e4f7247bc96b3566780abdbeb5b5d795d4))
 * **not-implemented:** alternants resources  ([b4b33a5](https://github.com/hei-school/hei-admin-api/commit/b4b33a54f7adbad98a77ada866c95ed267c5b020))
-* **not-implemented:** document student work file  ([4235b01](https://github.com/hei-school/hei-admin-api/commit/4235b019d9fd60f0f14834d69dfeaa05ef953c11))
+* **not-implemented:** document student work file  ([1afca4e](https://github.com/hei-school/hei-admin-api/commit/1afca4e7b910e03971c3220151082e5324c22b7e))
+* **not-implemented:** document student work file  ([b90255f](https://github.com/hei-school/hei-admin-api/commit/b90255f329a2b69cf6a93c833abb17d49a4fc8c8))
+* **not-implemented:** document student work file  ([0540e4f](https://github.com/hei-school/hei-admin-api/commit/0540e4f7a99890394d025db919483620b591c8dc))
 
 
 
@@ -101,6 +94,15 @@
 ### Features
 
 * manager and teacher can comment about student ([d293f43](https://github.com/hei-school/hei-admin-api/commit/d293f43e0f2b5e5ddff2d68ccae8507059eb0362))
+
+
+
+# [1.6.0](https://github.com/hei-school/hei-admin-api/compare/v1.5.0...v1.6.0) (2024-03-01)
+
+
+### Features
+
+* validate filename to disable file extension when given it ([7336974](https://github.com/hei-school/hei-admin-api/commit/733697466134a871514c83158204df5f3c8928ef))
 
 
 
