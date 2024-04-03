@@ -3207,6 +3207,7 @@ components:
       enum:
         - TRANSCRIPT
         - DOCUMENT
+        - WORK_DOCUMENT
         - OTHER
     EventType:
       type: string
