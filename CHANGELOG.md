@@ -1,3 +1,12 @@
+# [1.16.0](https://github.com/hei-school/hei-admin-api/compare/v1.15.0...v1.16.0) (2024-04-03)
+
+
+### Features
+
+* student has work documents  ([805403a](https://github.com/hei-school/hei-admin-api/commit/805403af70f80da7a7f72de62da7e05616ce5bb1))
+
+
+
 # [1.15.0](https://github.com/hei-school/hei-admin-api/compare/v1.14.0...v1.15.0) (2024-04-03)
 
 
@@ -94,15 +103,6 @@
 ### Features
 
 * refactor request body documentation for uploading file ([5f6666c](https://github.com/hei-school/hei-admin-api/commit/5f6666c86c517a76a98998ba1b440e0cca9ec699))
-
-
-
-# [1.7.0](https://github.com/hei-school/hei-admin-api/compare/v1.6.0...v1.7.0) (2024-03-01)
-
-
-### Features
-
-* manager and teacher can comment about student ([d293f43](https://github.com/hei-school/hei-admin-api/commit/d293f43e0f2b5e5ddff2d68ccae8507059eb0362))
 
 
 
