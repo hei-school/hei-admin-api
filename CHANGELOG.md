@@ -1,3 +1,12 @@
+# [1.13.0](https://github.com/hei-school/hei-admin-api/compare/v1.12.0...v1.13.0) (2024-04-03)
+
+
+### Features
+
+* **not-implemented:** document student work file  ([106c166](https://github.com/hei-school/hei-admin-api/commit/106c166f9ae9993a6432218fbbb0101d7bdb74c7))
+
+
+
 # [1.12.0](https://github.com/hei-school/hei-admin-api/compare/v1.11.0...v1.12.0) (2024-04-03)
 
 
@@ -92,15 +101,6 @@
 ### Features
 
 * manager and teacher can comment about student ([d293f43](https://github.com/hei-school/hei-admin-api/commit/d293f43e0f2b5e5ddff2d68ccae8507059eb0362))
-
-
-
-# [1.6.0](https://github.com/hei-school/hei-admin-api/compare/v1.5.0...v1.6.0) (2024-03-01)
-
-
-### Features
-
-* validate filename to disable file extension when given it ([7336974](https://github.com/hei-school/hei-admin-api/commit/733697466134a871514c83158204df5f3c8928ef))
 
 
 
