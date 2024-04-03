@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.RequestPart;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.FileInfoMapper;
-import school.hei.haapi.endpoint.rest.mapper.WorkFileMapper;
+import school.hei.haapi.endpoint.rest.mapper.WorkDocumentMapper;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
@@ -28,7 +28,7 @@ import school.hei.haapi.service.StudentFileService;
 public class StudentFileController {
   private final StudentFileService fileService;
   private final FileInfoMapper fileInfoMapper;
-  private final WorkFileMapper workFileMapper;
+  private final WorkDocumentMapper workDocumentMapper;
 
   @GetMapping(
       value = "/students/{id}/scholarship_certificate/raw",
@@ -58,7 +58,7 @@ public class StudentFileController {
       @RequestParam(name = "commitment_end", required = false) Instant commitmentEnd,
       @RequestParam(name = "creation_datetime", required = false) Instant creationDatetime,
       @RequestPart(name = "file_to_upload") MultipartFile fileToUpload) {
-    return workFileMapper.toRest(
+    return workDocumentMapper.toRest(
         fileService.uploadStudentWorkFile(
             studentId,
             filename,
@@ -75,7 +75,7 @@ public class StudentFileController {
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize) {
     return fileService.getStudentWorkFiles(studentId, page, pageSize).stream()
-        .map(workFileMapper::toRest)
+        .map(workDocumentMapper::toRest)
         .collect(toUnmodifiableList());
   }
 
@@ -93,7 +93,7 @@ public class StudentFileController {
   @GetMapping(value = "/students/{student_id}/work_files/{id}")
   public FileInfo getStudentWorkDocumentsById(
       @PathVariable(name = "student_id") String studentId, @PathVariable(name = "id") String id) {
-    return workFileMapper.toRest(fileService.getStudentWorkFileById(id));
+    return workDocumentMapper.toRest(fileService.getStudentWorkFileById(id));
   }
 
   @GetMapping(value = "/students/{student_id}/files/{id}")

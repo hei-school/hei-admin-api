@@ -36,10 +36,10 @@ public class StudentFileService {
   private final ScholarshipCertificateDataProvider certificateDataProvider;
   private final FileInfoRepository fileInfoRepository;
   private final FileInfoService fileInfoService;
-  private final WorkFileService workFileService;
+  private final WorkDocumentService workDocumentService;
   private final FileInfoDao fileInfoDao;
 
-  public WorkFile uploadStudentWorkFile(
+  public WorkDocument uploadStudentWorkFile(
       String studentId,
       String filename,
       Instant creationDatetime,
@@ -47,7 +47,7 @@ public class StudentFileService {
       Instant commitmentEnd,
       WorkStudyStatus studentWorkStatus,
       MultipartFile workFile) {
-    return workFileService.uploadStudentWorkFile(
+    return workDocumentService.uploadStudentWorkFile(
         studentId,
         filename,
         creationDatetime,
@@ -57,14 +57,15 @@ public class StudentFileService {
         workFile);
   }
 
-  public List<WorkFile> getStudentWorkFiles(
+  public List<WorkDocument> getStudentWorkFiles(
       String studentId, PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return workFileService.getStudentWorkFiles(studentId, pageable);
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
+    return workDocumentService.getStudentWorkFiles(studentId, pageable);
   }
 
-  public WorkFile getStudentWorkFileById(String workFileId) {
-    return workFileService.getStudentWorkFileById(workFileId);
+  public WorkDocument getStudentWorkFileById(String workFileId) {
+    return workDocumentService.getStudentWorkFileById(workFileId);
   }
 
   public FileInfo uploadStudentFile(

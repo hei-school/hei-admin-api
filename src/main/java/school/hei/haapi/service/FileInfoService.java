@@ -11,23 +11,23 @@ import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.WorkFile;
+import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.model.validator.FilenameValidator;
 import school.hei.haapi.repository.FileInfoRepository;
-import school.hei.haapi.repository.WorkFileRepository;
+import school.hei.haapi.repository.WorkDocumentRepository;
 import school.hei.haapi.service.aws.FileService;
 
 @Service
 @AllArgsConstructor
 public class FileInfoService {
-  private final WorkFileRepository workFileRepository;
+  private final WorkDocumentRepository workFileRepository;
   private final FileInfoRepository fileInfoRepository;
   private final UserService userService;
   private final FileService fileService;
   private final MultipartFileConverter multipartFileConverter;
   private final FilenameValidator filenameValidator;
 
-  public WorkFile uploadFile(
+  public WorkDocument uploadFile(
       User student,
       String filename,
       Instant creationDatetime,
@@ -35,12 +35,13 @@ public class FileInfoService {
       Instant commitmentEnd,
       MultipartFile workFile) {
     filenameValidator.accept(filename);
-    // STUDENT/REF/WORK_DOCUMENT_REF
+    // STUDENT/REF/WORK_DOCUMENT/filename
     String filePath =
-        getFormattedBucketKey(student, "WORK_DOCUMENT") + fileService.getFileExtension(workFile);
+        getFormattedBucketKey(student, "WORK_DOCUMENT", filename)
+            + fileService.getFileExtension(workFile);
 
-    WorkFile workFileToSave =
-        WorkFile.builder()
+    WorkDocument workDocumentToSave =
+        WorkDocument.builder()
             .commitmentBegin(commitmentBegin)
             .commitmentEnd(commitmentEnd)
             .creationDatetime(creationDatetime)
@@ -51,7 +52,7 @@ public class FileInfoService {
     File file = multipartFileConverter.apply(workFile);
     fileService.uploadObjectToS3Bucket(filePath, file);
 
-    return workFileRepository.save(workFileToSave);
+    return workFileRepository.save(workDocumentToSave);
   }
 
   public FileInfo uploadFile(

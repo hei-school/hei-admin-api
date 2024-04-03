@@ -10,21 +10,21 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.WorkFile;
+import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.UserRepository;
-import school.hei.haapi.repository.WorkFileRepository;
+import school.hei.haapi.repository.WorkDocumentRepository;
 
 @Service
 @AllArgsConstructor
-public class WorkFileService {
+public class WorkDocumentService {
   private final FileInfoService fileInfoService;
   private final UserService userService;
-  private final WorkFileRepository workFileRepository;
+  private final WorkDocumentRepository workDocumentRepository;
   private final UserRepository userRepository;
 
-  public WorkFile getStudentWorkFileById(String workFileId) {
-    return workFileRepository
+  public WorkDocument getStudentWorkFileById(String workFileId) {
+    return workDocumentRepository
         .findById(workFileId)
         .orElseThrow(
             () -> {
@@ -33,11 +33,11 @@ public class WorkFileService {
             });
   }
 
-  public List<WorkFile> getStudentWorkFiles(String studentId, Pageable pageable) {
-    return workFileRepository.findAllByStudentId(studentId, pageable);
+  public List<WorkDocument> getStudentWorkFiles(String studentId, Pageable pageable) {
+    return workDocumentRepository.findAllByStudentId(studentId, pageable);
   }
 
-  public WorkFile uploadStudentWorkFile(
+  public WorkDocument uploadStudentWorkFile(
       String studentId,
       String filename,
       Instant creationDatetime,

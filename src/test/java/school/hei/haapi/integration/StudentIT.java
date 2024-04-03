@@ -17,6 +17,7 @@ import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -61,10 +62,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -252,6 +250,26 @@ public class StudentIT extends MockedThirdParties {
         .address("Adr 1");
   }
 
+  public static Student studentWorker() {
+    return new Student()
+        .id("student7_id")
+        .firstName("Worker")
+        .lastName("One")
+        .email("test+worker@hei.school")
+        .ref("STD29009")
+        .status(ENABLED)
+        .sex(M)
+        .birthDate(LocalDate.parse("2000-12-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .phone("0322411123")
+        .specializationField(COMMON_CORE)
+        .nic("")
+        .birthPlace("")
+        .coordinates(coordinatesWithNullValues())
+        .address("Adr 1")
+        .workStudyStatus(WORKING);
+  }
+
   public static CrupdateStudent creatableSuspendedStudent() {
     return new CrupdateStudent()
         .firstName("Suspended")
@@ -383,6 +401,18 @@ public class StudentIT extends MockedThirdParties {
         api.getStudents(1, 10, null, null, null, null, SUSPENDED, null, null);
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(suspendedStudent1()));
+  }
+
+  @Test
+  void manager_read_by_work_status_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents =
+        api.getStudents(1, 10, null, null, null, null, null, null, WORKING);
+
+    assertEquals(1, actualStudents.size());
+    assertEquals(studentWorker(), actualStudents.get(0));
   }
 
   @Test

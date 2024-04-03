@@ -6,15 +6,15 @@ import static school.hei.haapi.endpoint.rest.model.FileType.WORK_DOCUMENT;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
-import school.hei.haapi.model.WorkFile;
+import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.service.aws.FileService;
 
 @Component
 @AllArgsConstructor
-public class WorkFileMapper {
+public class WorkDocumentMapper {
   private final FileService fileService;
 
-  public FileInfo toRest(WorkFile domain) {
+  public FileInfo toRest(WorkDocument domain) {
     String filePath = domain.getFilePath();
     String presignedUrl =
         filePath != null

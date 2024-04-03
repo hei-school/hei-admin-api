@@ -14,7 +14,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
-@Table(name = "\"work_file\"")
+@Table(name = "\"work_document\"")
 @Entity
 @Getter
 @Setter
@@ -23,7 +23,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @Builder
 @EqualsAndHashCode
 @ToString
-public class WorkFile implements Serializable {
+public class WorkDocument implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
