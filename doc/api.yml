@@ -414,7 +414,7 @@ paths:
           in: query
           description: Filter students by work study status
           schema:
-              $ref: '#/components/schemas/WorkStudyStatus'
+            $ref: '#/components/schemas/WorkStudyStatus'
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -2278,6 +2278,83 @@ paths:
       responses:
         '200':
           description: File by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/work_files':
+    get:
+      tags:
+        - Files
+      summary: Get student work documents
+      operationId: getStudentWorkDocuments
+      parameters:
+        - name: student_id
+          required: true
+          schema:
+            type: string
+          in: path
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: true
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          required: true
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: List of student work documents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/work_files/{id}':
+    get:
+      tags:
+        - Files
+      summary: Get student work documents
+      operationId: getStudentWorkDocumentsById
+      parameters:
+        - name: student_id
+          required: true
+          schema:
+            type: string
+          in: path
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Student work documents
           content:
             application/json:
               schema:
