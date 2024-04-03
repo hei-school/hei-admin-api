@@ -414,8 +414,6 @@ paths:
           in: query
           description: Filter students by work study status
           schema:
-            type: array
-            items:
               $ref: '#/components/schemas/WorkStudyStatus'
       responses:
         '200':
@@ -2294,6 +2292,64 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/students/{student_id}/work_files/raw':
+    post:
+      tags:
+        - Files
+      summary: Upload student work file
+      parameters:
+        - name: student_id
+          required: true
+          schema:
+            type: string
+          in: path
+        - name: filename
+          required: true
+          schema:
+            type: string
+          in: query
+        - name: commitment_begin
+          required: true
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: commitment_end
+          required: true
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: creation_datetime
+          required: true
+          in: query
+          schema:
+            type: string
+            format: date-time
+      operationId: uploadStudentWorkFile
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/UploadFile'
+      responses:
+        '200':
+          description: File uploaded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/students/{student_id}/files/raw':
     post:
       tags:
@@ -3044,7 +3100,8 @@ components:
     WorkStudyStatus:
       type: string
       enum:
-        - TAKEN
+        - HAVE_BEEN_WORKING
+        - WILL_BE_WORKING
         - WORKING
     SpecializationField:
       type: string
