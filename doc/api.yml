@@ -3305,10 +3305,8 @@ components:
       properties:
         specialization_field:
           $ref: '#/components/schemas/SpecializationField'
-        is_working_study:
-          type: boolean
-        taken_working_study:
-          type: boolean
+        work_study_status:
+          $ref: '#/components/schemas/WorkStudyStatus'
         profile_picture:
           type: string
     Teacher:

@@ -50,6 +50,15 @@ public class FileService {
     };
   }
 
+  public static String getFormattedBucketKey(User user, String fileType, String fileName) {
+    return switch (user.getRole()) {
+      case MANAGER -> String.format("%s/%s/%s/%s", MANAGER, user.getRef(), fileType, fileName);
+      case TEACHER -> String.format("%s/%s/%s/%s", TEACHER, user.getRef(), fileType, fileName);
+      case STUDENT -> String.format("%s/%s/%s/%s", STUDENT, user.getRef(), fileType, fileName);
+      default -> throw new BadRequestException("Unexpected type " + user.getRole());
+    };
+  }
+
   public static String getFormattedBucketKey(User user, FileType fileType, String fileName) {
     return switch (user.getRole()) {
       case MANAGER -> String.format("%s/%s/%s/%s", MANAGER, user.getRef(), fileType, fileName);

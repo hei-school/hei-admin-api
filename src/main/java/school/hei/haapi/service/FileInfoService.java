@@ -11,18 +11,49 @@ import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.model.validator.FilenameValidator;
 import school.hei.haapi.repository.FileInfoRepository;
+import school.hei.haapi.repository.WorkDocumentRepository;
 import school.hei.haapi.service.aws.FileService;
 
 @Service
 @AllArgsConstructor
 public class FileInfoService {
+  private final WorkDocumentRepository workFileRepository;
   private final FileInfoRepository fileInfoRepository;
   private final UserService userService;
   private final FileService fileService;
   private final MultipartFileConverter multipartFileConverter;
   private final FilenameValidator filenameValidator;
+
+  public WorkDocument uploadFile(
+      User student,
+      String filename,
+      Instant creationDatetime,
+      Instant commitmentBegin,
+      Instant commitmentEnd,
+      MultipartFile workFile) {
+    filenameValidator.accept(filename);
+    // STUDENT/REF/WORK_DOCUMENT/filename
+    String filePath =
+        getFormattedBucketKey(student, "WORK_DOCUMENT", filename)
+            + fileService.getFileExtension(workFile);
+
+    WorkDocument workDocumentToSave =
+        WorkDocument.builder()
+            .commitmentBegin(commitmentBegin)
+            .commitmentEnd(commitmentEnd)
+            .creationDatetime(creationDatetime)
+            .filePath(filePath)
+            .filename(filename)
+            .student(student)
+            .build();
+    File file = multipartFileConverter.apply(workFile);
+    fileService.uploadObjectToS3Bucket(filePath, file);
+
+    return workFileRepository.save(workDocumentToSave);
+  }
 
   public FileInfo uploadFile(
       String fileName, FileType fileType, String userId, MultipartFile fileToUpload) {
