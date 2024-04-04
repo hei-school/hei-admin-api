@@ -1,10 +1,5 @@
 package school.hei.haapi.model;
 
-import static jakarta.persistence.EnumType.STRING;
-import static jakarta.persistence.FetchType.LAZY;
-import static jakarta.persistence.GenerationType.IDENTITY;
-import static org.hibernate.type.SqlTypes.NAMED_ENUM;
-
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -13,8 +8,6 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
-import java.io.Serializable;
-import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -24,6 +17,14 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.service.utils.DataFormatterUtils;
+
+import java.io.Serializable;
+import java.time.Instant;
+
+import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.LAZY;
+import static jakarta.persistence.GenerationType.IDENTITY;
+import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 @Entity
 @Table(name = "\"group_flow\"")
@@ -42,10 +43,12 @@ public class GroupFlow implements Serializable {
 
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "student_id")
+  @ToString.Exclude
   private User student;
 
   @ManyToOne
   @JoinColumn(name = "group_id")
+  @ToString.Exclude
   private Group group;
 
   @Column(name = "\"group_flow_type\"")

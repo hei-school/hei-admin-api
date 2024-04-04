@@ -12,6 +12,6 @@ create table if not exists announcement(
     title varchar not null,
     content text not null,
     author_id varchar constraint author_id_fk references "user"(id),
-    creation_datetime date default now(),
+    creation_datetime timestamp with time zone default now(),
     "scope" scope not null
 );

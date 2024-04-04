@@ -6,9 +6,6 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
-import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
@@ -18,28 +15,34 @@ import school.hei.haapi.model.Announcement;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
 
+import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+
+import static jakarta.persistence.criteria.JoinType.LEFT;
+
 @Repository
 @AllArgsConstructor
 public class AnnouncementDao {
   private final EntityManager entityManager;
 
   public List<Announcement> findByCriteria(
-      Instant from, Instant to, String authorRef, Scope scope, String groupRef, Pageable pageable) {
+      Instant from, Instant to, String authorRef, List<Scope> scopes, String groupRef, Pageable pageable) {
 
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Announcement> query = builder.createQuery(Announcement.class);
     Root<Announcement> root = query.from(Announcement.class);
     Join<Announcement, User> joinUser = root.join("author");
-    Join<Announcement, Group> joinGroup = root.join("groups");
+    Join<Announcement, Group> joinGroup = root.join("groups", LEFT);
 
     List<Predicate> predicates = new ArrayList<>();
 
     if (from != null) {
-      predicates.add(builder.greaterThanOrEqualTo(root.get("beginDatetime"), from));
+      predicates.add(builder.greaterThanOrEqualTo(root.get("creationDatetime"), from));
     }
 
     if (to != null) {
-      predicates.add(builder.lessThanOrEqualTo(root.get("beginDatetime"), to));
+      predicates.add(builder.lessThanOrEqualTo(root.get("creationDatetime"), to));
     }
 
     if (authorRef != null) {
@@ -49,8 +52,8 @@ public class AnnouncementDao {
               builder.like(joinUser.get("ref"), "%" + authorRef + "%")));
     }
 
-    if (scope != null) {
-      predicates.add(builder.equal(root.get("scope"), scope));
+    if (scopes != null) {
+      predicates.add(root.get("scope").in(scopes));
     }
 
     if (groupRef != null) {
@@ -63,7 +66,6 @@ public class AnnouncementDao {
     if (!predicates.isEmpty()) {
       query.where(predicates.toArray(new Predicate[0])).distinct(true);
     }
-
     query.orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
     return entityManager

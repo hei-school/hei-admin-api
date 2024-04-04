@@ -371,22 +371,25 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     .requestMatchers(POST, "/students/*/comments")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-                    //
-                    // Event resources
-                    //
 
                     //
                     // Announcements resources
                     //
+
                     .requestMatchers(GET, "/announcements")
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(POST, "/announcements")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     .requestMatchers(GET, "/teachers/announcements")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-                    .requestMatchers(GET, "/students/announcements")
-                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
-                    .requestMatchers(GET, "/events")
+                        .requestMatchers(GET, "/students/announcements")
+                        .hasAnyRole(STUDENT.getRole(), TEACHER.getRole(), MANAGER.getRole())
+
+                        //
+                        // Event resources
+                        //
+
+                      .requestMatchers(GET, "/events")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
                     .requestMatchers(PUT, "/events")
                     .hasAnyRole(MANAGER.getRole())
@@ -401,8 +404,8 @@ public class SecurityConf {
                     //
                     .requestMatchers(GET, "/attendance")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-                    .requestMatchers(new SelfMatcher(GET, "/attendance", "students"))
-                    .hasAnyRole(STUDENT.getRole())
+                    //.requestMatchers(new SelfMatcher(GET, "/attendance", "students"))
+                    //.hasAnyRole(STUDENT.getRole())
                     .requestMatchers(POST, "/attendance/movement")
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))

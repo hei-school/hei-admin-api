@@ -1,8 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
-
-import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Announcement;
@@ -13,6 +10,10 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.service.GroupService;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.aws.FileService;
+
+import java.util.Objects;
+
+import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
 
 @Component
 @AllArgsConstructor
@@ -44,7 +45,8 @@ public class AnnouncementMapper {
                     .map(GroupIdentifier::getId)
                     .toList()))
         .author(author)
-        .scope(rest.getScope())
+        .scope(rest.getScope()).title(rest.getTitle())
+            .content(rest.getContent())
         .build();
   }
 

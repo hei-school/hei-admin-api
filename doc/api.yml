@@ -3039,6 +3039,11 @@ paths:
           description: Filter announcements by author ref
           schema:
             type: string
+        - name: scope
+          in: query
+          description: Filter by scope
+          schema:
+            $ref: '#/components/schemas/Scope'
       responses:
         '200':
           description: Announcements filtered with criteria if provided

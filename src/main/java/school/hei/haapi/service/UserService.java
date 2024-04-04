@@ -11,6 +11,7 @@ import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +32,15 @@ import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.service.aws.FileService;
+
+import java.io.File;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.util.stream.Collectors.toList;
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
 @Service
 @AllArgsConstructor
@@ -113,6 +123,12 @@ public class UserService {
     return getByCriteria(role, "", "", "", page, pageSize, status, sex);
   }
 
+  public List<User> getAll(){
+    return userRepository.findAll();
+  }
+  public List<User> getByRoleAndStatus(User.Role role, User.Status status){
+    return userRepository.findAllByRoleAndStatus(role, status);
+  }
   public List<User> getByCriteria(
       User.Role role,
       String firstName,

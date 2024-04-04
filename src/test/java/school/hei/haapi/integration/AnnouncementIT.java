@@ -1,0 +1,137 @@
+package school.hei.haapi.integration;
+
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.rest.api.AnnouncementsApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.Announcement;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.TestUtils;
+
+import java.time.Instant;
+import java.util.List;
+
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
+import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.Scope.TEACHER;
+import static school.hei.haapi.integration.ManagerIT.manager1;
+import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.announcementEspeciallyForG1;
+import static school.hei.haapi.integration.conf.TestUtils.announcementForAll;
+import static school.hei.haapi.integration.conf.TestUtils.announcementForManager;
+import static school.hei.haapi.integration.conf.TestUtils.announcementForTeacher;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.createAnnouncementWithGroupTarget;
+import static school.hei.haapi.integration.conf.TestUtils.expectedAnnouncementCreated1;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+
+@SpringBootTest(webEnvironment = RANDOM_PORT)
+@Testcontainers
+@ContextConfiguration(initializers = AnnouncementIT.ContextInitializer.class)
+@AutoConfigureMockMvc
+public class AnnouncementIT extends MockedThirdParties {
+
+    private static ApiClient anApiClient(String token) {
+        return TestUtils.anApiClient(token, AnnouncementIT.ContextInitializer.SERVER_PORT);
+    }
+    @MockBean
+    EventProducer producer;
+    //TODO: fix access denied
+    @Test
+    void manager_read_announcements_ok() throws ApiException {
+        ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+        AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+        //Get all announcements
+        List<Announcement> allAnnouncement = api.getAnnouncements(1,15, null,null, null, null);
+        assertTrue(allAnnouncement.containsAll(List.of(announcementForAll(), announcementEspeciallyForG1(), announcementForManager(), announcementForTeacher())));
+
+        //Get all announcements filtered by author ref
+        List<Announcement> announcementsFilteredByAuthorRef = api.getAnnouncements(1,15, null, null, manager1().getRef(), null);
+        assertTrue(announcementsFilteredByAuthorRef.contains(announcementForAll()));
+        assertTrue(announcementsFilteredByAuthorRef.contains(announcementForTeacher()));
+        assertFalse(announcementsFilteredByAuthorRef.contains(announcementEspeciallyForG1()));
+
+        //Get all announcements filtered by date
+        List<Announcement> announcementsFilteredByCreationDatetime = api.getAnnouncements(1, 15, Instant.parse("2022-12-21T08:00:00.00Z"),Instant.parse("2022-12-22T08:00:00.00Z"), null, null);
+        assertFalse(announcementsFilteredByCreationDatetime.contains(announcementForAll()));
+        assertTrue(announcementsFilteredByCreationDatetime.contains(announcementForTeacher()));
+        assertTrue(announcementsFilteredByCreationDatetime.contains(announcementEspeciallyForG1()));
+
+        //Get all announcements filtered by scope
+        List<Announcement> announcementsFilteredByScope = api.getAnnouncements(1, 15, null, null, null, TEACHER);
+        assertTrue(announcementsFilteredByScope.contains(announcementForTeacher()));
+        assertFalse(announcementsFilteredByScope.contains(announcementEspeciallyForG1()));
+        assertFalse(announcementsFilteredByScope.contains(announcementForManager()));
+    }
+
+    @Test
+    void manager_create_announcement_ok() throws ApiException{
+        ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+        AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+        Announcement announcementWithTargetCreated = api.createAnnouncement(createAnnouncementWithGroupTarget());
+        assertEquals(expectedAnnouncementCreated1().getScope(),createAnnouncementWithGroupTarget().getScope());
+        assertEquals(expectedAnnouncementCreated1().getAuthor(), announcementWithTargetCreated.getAuthor());
+        assertEquals(expectedAnnouncementCreated1().getTitle(), announcementWithTargetCreated.getTitle());
+    }
+
+    @Test
+    void student_read_only_announcement_for_student_ok() throws ApiException{
+        ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
+        AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+        List<Announcement> actual = api.getStudentsAnnouncements(1, 15, null, null, null, null);
+        assertTrue(actual.contains(announcementForAll()));
+        assertTrue(actual.contains(announcementEspeciallyForG1()));
+        assertFalse(actual.contains(announcementForTeacher()));
+    }
+
+    @Test
+    void student_read_all_announcement_or_for_teacher_ko() throws ApiException{
+        ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
+        AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+        assertThrowsForbiddenException(() -> api.getAnnouncements(1, 15, null, null, null, null     ));
+        assertThrowsForbiddenException(() -> api.getTeachersAnnouncements(1, 15, null, null, null));
+    }
+
+    @Test
+    void teacher_read_announcements_ok() throws ApiException{
+        ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
+        AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+        List<Announcement> actual = api.getTeachersAnnouncements(1, 15, null,null,null);
+        assertTrue(actual.containsAll(List.of(announcementForAll(), announcementForTeacher(), announcementEspeciallyForG1())));
+        assertFalse(actual.contains(announcementForManager()));
+    }
+
+    @BeforeEach
+    void setUp() {
+        setUpCognito(cognitoComponentMock);
+        setUpS3Service(fileService, student1());
+    }
+    static class ContextInitializer extends AbstractContextInitializer {
+        public static final int SERVER_PORT = anAvailableRandomPort();
+
+        @Override
+        public int getServerPort() {
+            return SERVER_PORT;
+        }
+    }
+}
