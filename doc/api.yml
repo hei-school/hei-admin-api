@@ -1025,9 +1025,7 @@ paths:
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateGroupFlow'
+              $ref: '#/components/schemas/CreateGroupFlow'
       responses:
         '200':
           description: Detail of student flow in a group
@@ -3465,7 +3463,7 @@ components:
     CreateGroup:
       type: object
       properties:
-        studentsToAdd:
+        students:
           type: array
           items:
             type: string
@@ -3476,7 +3474,7 @@ components:
       properties:
         id:
           type: string
-        flowdDateTime:
+        flow_datetime:
           type: string
           format: date-time
       allOf:
@@ -3484,14 +3482,14 @@ components:
     CreateGroupFlow:
       type: object
       properties:
-        MoveType:
+        move_type:
           type: string
           enum:
             - JOIN
             - LEAVE
-        groupId:
+        group_id:
           type: string
-        studentId:
+        student_id:
           type: string
     CourseTemplate:
       type: object

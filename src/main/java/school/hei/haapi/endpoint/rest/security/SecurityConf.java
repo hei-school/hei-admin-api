@@ -122,6 +122,8 @@ public class SecurityConf {
                     .hasRole(STUDENT.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/work_files/*", "students"))
                     .hasRole(STUDENT.getRole())
+                    .requestMatchers(POST, "/students/*/group_flows")
+                    .hasRole(MANAGER.getRole())
                     .requestMatchers(GET, "/students/*/work_files")
                     .hasRole(MANAGER.getRole())
                     .requestMatchers(GET, "/students/*/work_files/*")

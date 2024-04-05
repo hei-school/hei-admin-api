@@ -71,7 +71,7 @@ class GroupIT extends MockedThirdParties {
     CreateGroup createGroup = new CreateGroup();
     createGroup.setName("Some name");
     createGroup.setRef("GRP21-" + randomUUID());
-    createGroup.setStudentsToAdd(students);
+    createGroup.setStudents(students);
     return createGroup;
   }
 

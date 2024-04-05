@@ -40,7 +40,6 @@ public class UserService {
   private final UserValidator userValidator;
   private final UserManagerDao userManagerDao;
   private final GroupRepository groupRepository;
-  private final GroupService groupService;
   private final FileService fileService;
   private final MultipartFileConverter fileConverter;
 
@@ -142,23 +141,8 @@ public class UserService {
       Instant commitmentBeginDate) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-    List<User> users =
-        userManagerDao.findByCriteria(
+    return userManagerDao.findByCriteria(
             role, ref, firstName, lastName, pageable, status, sex, workStatus, commitmentBeginDate);
-
-    return courseId.length() > 0
-        ? users.stream()
-            .filter(
-                user ->
-                    groupService.getByUserId(user.getId()).stream()
-                        .anyMatch(
-                            group ->
-                                group.getAwardedCourse().stream()
-                                    .anyMatch(
-                                        awardedCourse ->
-                                            awardedCourse.getCourse().getId().equals(courseId))))
-            .collect(toList())
-        : users;
   }
 
   public List<User> getByGroupId(String groupId) {
