@@ -99,9 +99,13 @@ public class FeeService {
     unpaidFees.forEach(
         fee -> {
           updateFeeStatus(fee);
-          log.info("Fee with id." + fee.getId() + " is going to be updated from UNPAID to " + fee.getStatus());
+          feeRepository.updateFeeStatusById(fee.getStatus(), fee.getId());
+          log.info(
+              "Fee with id."
+                  + fee.getId()
+                  + " is going to be updated from UNPAID to "
+                  + fee.getStatus());
         });
-    feeRepository.saveAll(unpaidFees);
   }
 
   private LateFeeVerified toLateFeeEvent(Fee fee) {

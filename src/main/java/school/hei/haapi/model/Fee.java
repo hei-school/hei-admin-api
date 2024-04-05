@@ -77,7 +77,6 @@ public class Fee implements Serializable {
   private Instant dueDatetime;
 
   @OneToMany(mappedBy = "fee", cascade = REMOVE)
-  @JoinColumn(updatable = false)
   private List<Payment> payments;
 
   public Instant getCreationDatetime() {
