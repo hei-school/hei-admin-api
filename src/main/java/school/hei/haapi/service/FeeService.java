@@ -99,7 +99,7 @@ public class FeeService {
     unpaidFees.forEach(
         fee -> {
           updateFeeStatus(fee);
-          log.info("Fee with id." + fee.getId() + " is going to be updated from UNPAID to LATE");
+          log.info("Fee with id." + fee.getId() + " is going to be updated from UNPAID to " + fee.getStatus());
         });
     feeRepository.saveAll(unpaidFees);
   }
