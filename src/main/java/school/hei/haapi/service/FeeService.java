@@ -18,6 +18,7 @@ import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
@@ -93,19 +94,28 @@ public class FeeService {
     return initialFee;
   }
 
-  public void updateFeesStatusToLate() {
+  @Transactional
+  public List<Fee> updateFeesStatusToLate() {
     Instant now = Instant.now();
     List<Fee> unpaidFees = feeRepository.getUnpaidFees(now);
     unpaidFees.forEach(
         fee -> {
           updateFeeStatus(fee);
-          feeRepository.updateFeeStatusById(fee.getStatus(), fee.getId());
           log.info(
               "Fee with id."
                   + fee.getId()
                   + " is going to be updated from UNPAID to "
                   + fee.getStatus());
         });
+    log.info("fees = {}", unpaidFees.stream().map(Fee::getId).toList());
+    var resp = feeRepository.saveAll(unpaidFees);
+    log.info(
+        "payments = {}",
+        resp.stream()
+            .map(Fee::getPayments)
+            .map(payments -> payments.stream().map(Payment::getId).toList())
+            .toList());
+    return resp;
   }
 
   private LateFeeVerified toLateFeeEvent(Fee fee) {

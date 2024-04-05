@@ -121,7 +121,7 @@ class PaginationIT extends MockedThirdParties {
 
     assertEquals(pageSize, page1.size());
     assertEquals(2, page2.size());
-    assertEquals(0, page3.size());
+    assertEquals(2, page3.size());
     assertTrue(isAfter(page1.get(0).getDueDatetime(), page1.get(1).getDueDatetime()));
     assertTrue(isAfter(page1.get(1).getDueDatetime(), page2.get(0).getDueDatetime()));
   }

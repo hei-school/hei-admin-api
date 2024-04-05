@@ -3531,6 +3531,14 @@ components:
         due_datetime:
           type: string
           format: date-time
+    ModelFee:
+      allOf:
+        - $ref: '#/components/schemas/Fee'
+      properties:
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
     Fee:
       allOf:
         - $ref: '#/components/schemas/CreateFee'
