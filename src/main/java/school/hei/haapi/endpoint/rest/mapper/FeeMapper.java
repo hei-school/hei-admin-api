@@ -13,10 +13,7 @@ import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
-import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.validator.CreateFeeValidator;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -28,6 +25,24 @@ import school.hei.haapi.service.utils.DataFormatterUtils;
 public class FeeMapper {
 
   private final CreateFeeValidator createFeeValidator;
+  private PaymentMapper paymentMapper;
+
+  public ModelFee toRestModelFee(school.hei.haapi.model.Fee fee) {
+    return new ModelFee()
+        .studentId(fee.getStudent().getId())
+        .status(fee.getStatus())
+        .type(fee.getType())
+        .totalAmount(fee.getTotalAmount())
+        .remainingAmount(fee.getRemainingAmount())
+        .comment(fee.getComment())
+        .creationDatetime(fee.getCreationDatetime())
+        .updatedAt(fee.getUpdatedAt())
+        .dueDatetime(fee.getDueDatetime())
+        .payments(
+            fee.getPayments().stream()
+                .map(paymentMapper::toRestPayment)
+                .collect(toUnmodifiableList()));
+  }
 
   public Fee toRestFee(school.hei.haapi.model.Fee fee) {
     return new Fee()
