@@ -1,14 +1,5 @@
 package school.hei.haapi.endpoint.rest.security;
 
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.OPTIONS;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
-import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
-import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
-import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
-
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -28,6 +19,15 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.AwardedCourseService;
+
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.OPTIONS;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
+import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
+import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
+import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 
 @Configuration
 @Slf4j
@@ -405,7 +405,15 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
                     .requestMatchers(PUT, "/events/*/participants")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-                    //
+                        .requestMatchers(GET, "/promotions")
+                        .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
+            .requestMatchers(PUT, "/promotions")
+                        .hasAnyRole(MANAGER.getRole())
+                        .requestMatchers("/promotions/*")
+                        .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
+                        .requestMatchers(PUT, "/promotions/*/groups")
+                        .hasAnyRole(MANAGER.getRole())
+                        //
                     // Attendances resources
                     //
                     .requestMatchers(GET, "/attendance")
@@ -436,6 +444,7 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
                     .requestMatchers(PUT, STUDENT_COURSE)
                     .hasAnyRole(MANAGER.getRole())
+
                     .requestMatchers("/**")
                     .denyAll())
 
