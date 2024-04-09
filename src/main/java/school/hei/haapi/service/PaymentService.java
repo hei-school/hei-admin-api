@@ -39,7 +39,6 @@ public class PaymentService {
 
     resetRemainingAmountBetweenDelete(associatedFee, deletedPayment.getAmount());
     paymentRepository.deleteById(paymentId);
-
     return deletedPayment;
   }
 
