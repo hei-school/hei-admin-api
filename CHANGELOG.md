@@ -1,3 +1,18 @@
+# [1.17.0](https://github.com/hei-school/hei-admin-api/compare/v1.16.0...v1.17.0) (2024-04-09)
+
+
+### Bug Fixes
+
+* fees remove payment after updating status  ([142c7c5](https://github.com/hei-school/hei-admin-api/commit/142c7c5f76bcd0716c4857e4e919a257cc27a4e0))
+* reset remaining amount after deleting payment  ([487c65c](https://github.com/hei-school/hei-admin-api/commit/487c65c6a22f195fd09de564b7b0799f74b2d342))
+
+
+### Features
+
+* **not-implemented:** promotion endpoint ([034997d](https://github.com/hei-school/hei-admin-api/commit/034997d82801502e490a8b31f76e80eaef1fa849))
+
+
+
 # [1.16.0](https://github.com/hei-school/hei-admin-api/compare/v1.15.0...v1.16.0) (2024-04-03)
 
 
@@ -89,20 +104,6 @@
 ### Features
 
 * inject event gen class dependency with all args  ([49ef0b4](https://github.com/hei-school/hei-admin-api/commit/49ef0b485083c28248db48ca201cb70be09e803e))
-
-
-
-# [1.8.0](https://github.com/hei-school/hei-admin-api/compare/v1.7.0...v1.8.0) (2024-03-04)
-
-
-### Bug Fixes
-
-* observer has profile picture ([4f25dd9](https://github.com/hei-school/hei-admin-api/commit/4f25dd949337579d89b49e0878a777d1044782d0))
-
-
-### Features
-
-* refactor request body documentation for uploading file ([5f6666c](https://github.com/hei-school/hei-admin-api/commit/5f6666c86c517a76a98998ba1b440e0cca9ec699))
 
 
 
