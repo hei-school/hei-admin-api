@@ -415,6 +415,13 @@ paths:
           description: Filter students by work study status
           schema:
             $ref: '#/components/schemas/WorkStudyStatus'
+        - name: commitment_begin_date
+          required: false
+          in: query
+          description: Filter students by commitment begin date
+          schema:
+            type: string
+            format: date-time
       responses:
         '200':
           description: List of students, ordered by ref.

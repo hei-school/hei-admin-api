@@ -64,7 +64,15 @@ public class TeacherController {
     User.Status domainStatus = status != null ? statusEnumMapper.toDomainStatus(status) : null;
     return userService
         .getByCriteria(
-            User.Role.TEACHER, firstName, lastName, ref, page, pageSize, domainStatus, domainSex)
+            User.Role.TEACHER,
+            firstName,
+            lastName,
+            ref,
+            page,
+            pageSize,
+            domainStatus,
+            domainSex,
+            null)
         .stream()
         .map(userMapper::toRestTeacher)
         .collect(toUnmodifiableList());

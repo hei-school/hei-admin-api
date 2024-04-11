@@ -96,6 +96,9 @@ public class User implements Serializable {
   @OneToMany(mappedBy = "student", fetch = LAZY)
   private List<Grade> grades;
 
+  @OneToMany(mappedBy = "student", fetch = LAZY)
+  private List<WorkDocument> workDocuments;
+
   private Double longitude;
   private Double latitude;
 
