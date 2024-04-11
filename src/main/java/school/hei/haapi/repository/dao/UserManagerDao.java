@@ -1,5 +1,7 @@
 package school.hei.haapi.repository.dao;
 
+import static jakarta.persistence.criteria.JoinType.LEFT;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
 import java.time.Instant;
@@ -32,7 +34,7 @@ public class UserManagerDao {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
-    Join<User, WorkDocument> workDocumentJoin = root.join("workDocuments");
+    Join<User, WorkDocument> workDocumentJoin = root.join("workDocuments", LEFT);
     Predicate predicate = builder.conjunction();
 
     Predicate hasUserRef =

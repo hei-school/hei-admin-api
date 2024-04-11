@@ -110,7 +110,7 @@ public class UserService {
       BoundedPageSize pageSize,
       User.Status status,
       User.Sex sex) {
-    return getByCriteria(role, "", "", "", page, pageSize, status, sex, null);
+    return getByCriteria(role, "", "", "", page, pageSize, status, sex);
   }
 
   public List<User> getByCriteria(
@@ -121,8 +121,7 @@ public class UserService {
       PageFromOne page,
       BoundedPageSize pageSize,
       User.Status status,
-      User.Sex sex,
-      Instant commitmentBeginDate) {
+      User.Sex sex) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
