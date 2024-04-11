@@ -6,6 +6,7 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
 import java.io.File;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -124,7 +125,7 @@ public class UserService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
-        role, ref, firstName, lastName, pageable, status, sex, null);
+        role, ref, firstName, lastName, pageable, status, sex, null, null);
   }
 
   public List<User> getByLinkedCourse(
@@ -137,12 +138,13 @@ public class UserService {
       BoundedPageSize pageSize,
       User.Status status,
       User.Sex sex,
-      WorkStudyStatus workStatus) {
+      WorkStudyStatus workStatus,
+      Instant commitmentBeginDate) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     List<User> users =
         userManagerDao.findByCriteria(
-            role, ref, firstName, lastName, pageable, status, sex, workStatus);
+            role, ref, firstName, lastName, pageable, status, sex, workStatus, commitmentBeginDate);
 
     return courseId.length() > 0
         ? users.stream()

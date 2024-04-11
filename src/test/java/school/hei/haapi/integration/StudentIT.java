@@ -359,7 +359,7 @@ public class StudentIT extends MockedThirdParties {
     assertThrowsForbiddenException(() -> api.getStudentById(TestUtils.STUDENT2_ID));
 
     assertThrowsForbiddenException(
-        () -> api.getStudents(1, 20, null, null, null, null, null, null, null));
+        () -> api.getStudents(1, 20, null, null, null, null, null, null, null, null));
   }
 
   @Test
@@ -368,14 +368,15 @@ public class StudentIT extends MockedThirdParties {
     UsersApi api = new UsersApi(teacher1Client);
     Student actualStudent1 = api.getStudentById(STUDENT1_ID);
 
-    List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null, null, null, null);
+    List<Student> actualStudents =
+        api.getStudents(1, 20, null, null, null, null, null, null, null, null);
 
     assertEquals(student1(), actualStudent1);
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
 
     List<Student> actualStudents2 =
-        api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null, null);
+        api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null, null, null);
 
     assertEquals(student1(), actualStudents2.get(0));
     assertEquals(2, actualStudents2.size());
@@ -387,7 +388,7 @@ public class StudentIT extends MockedThirdParties {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, null, null);
+        api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, null, null, null);
     assertEquals(2, actualStudents.size());
     assertTrue(actualStudents.contains(disabledStudent1()));
   }
@@ -398,7 +399,7 @@ public class StudentIT extends MockedThirdParties {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 10, null, null, null, null, SUSPENDED, null, null);
+        api.getStudents(1, 10, null, null, null, null, SUSPENDED, null, null, null);
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(suspendedStudent1()));
   }
@@ -409,7 +410,7 @@ public class StudentIT extends MockedThirdParties {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 10, null, null, null, null, null, null, WORKING);
+        api.getStudents(1, 10, null, null, null, null, null, null, WORKING, null);
 
     assertEquals(1, actualStudents.size());
     assertEquals(studentWorker(), actualStudents.get(0));
@@ -421,7 +422,7 @@ public class StudentIT extends MockedThirdParties {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, F, null);
+        api.getStudents(1, 10, null, null, null, null, EnableStatus.DISABLED, F, null, null);
     assertEquals(1, actualStudents.size());
   }
 
@@ -446,9 +447,10 @@ public class StudentIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actualStudents = api.getStudents(1, 20, null, null, null, null, null, null, null);
+    List<Student> actualStudents =
+        api.getStudents(1, 20, null, null, null, null, null, null, null, null);
     List<Student> actualStudents2 =
-        api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null, null);
+        api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null, null, null);
 
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
@@ -473,6 +475,7 @@ public class StudentIT extends MockedThirdParties {
             null,
             null,
             null,
+            null,
             null);
 
     assertEquals(1, actualStudents.size());
@@ -485,7 +488,7 @@ public class StudentIT extends MockedThirdParties {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 20, "std21001", null, null, null, null, null, null);
+        api.getStudents(1, 20, "std21001", null, null, null, null, null, null, null);
 
     assertEquals("STD21001", student1().getRef());
     assertEquals(1, actualStudents.size());
@@ -498,7 +501,7 @@ public class StudentIT extends MockedThirdParties {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 20, student1().getRef(), null, null, null, null, null, null);
+        api.getStudents(1, 20, student1().getRef(), null, null, null, null, null, null, null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student1()));
@@ -510,7 +513,7 @@ public class StudentIT extends MockedThirdParties {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 20, null, null, student2().getLastName(), null, null, null, null);
+        api.getStudents(1, 20, null, null, student2().getLastName(), null, null, null, null, null);
 
     assertEquals(2, actualStudents.size());
     assertTrue(actualStudents.contains(student2()));
@@ -524,7 +527,16 @@ public class StudentIT extends MockedThirdParties {
 
     List<Student> actualStudents =
         api.getStudents(
-            1, 20, student2().getRef(), null, student2().getLastName(), null, null, null, null);
+            1,
+            20,
+            student2().getRef(),
+            null,
+            student2().getLastName(),
+            null,
+            null,
+            null,
+            null,
+            null);
 
     assertEquals(1, actualStudents.size());
     assertTrue(actualStudents.contains(student2()));
@@ -537,7 +549,16 @@ public class StudentIT extends MockedThirdParties {
 
     List<Student> actualStudents =
         api.getStudents(
-            1, 20, student2().getRef(), null, student1().getLastName(), null, null, null, null);
+            1,
+            20,
+            student2().getRef(),
+            null,
+            student1().getLastName(),
+            null,
+            null,
+            null,
+            null,
+            null);
 
     assertEquals(0, actualStudents.size());
     assertFalse(actualStudents.contains(student1()));
@@ -646,7 +667,7 @@ public class StudentIT extends MockedThirdParties {
         "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
         () -> api.createOrUpdateStudents(List.of(toCreate)));
 
-    List<Student> actual = api.getStudents(1, 100, null, null, null, null, null, null, null);
+    List<Student> actual = api.getStudents(1, 100, null, null, null, null, null, null, null, null);
     assertFalse(actual.stream().anyMatch(s -> Objects.equals(toCreate.getEmail(), s.getEmail())));
   }
 
@@ -662,7 +683,7 @@ public class StudentIT extends MockedThirdParties {
         "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":\"Request entries must be <= 10\"}",
         () -> api.createOrUpdateStudents(listToCreate));
 
-    List<Student> actual = api.getStudents(1, 100, null, null, null, null, null, null, null);
+    List<Student> actual = api.getStudents(1, 100, null, null, null, null, null, null, null, null);
     assertFalse(
         actual.stream().anyMatch(s -> Objects.equals(studentToCreate.getEmail(), s.getEmail())));
   }
@@ -756,6 +777,28 @@ public class StudentIT extends MockedThirdParties {
   }
 
   @Test
+  void manager_read_students_by_commitment_begin() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actual =
+        api.getStudents(
+            1,
+            10,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            null,
+            Instant.parse("2021-11-08T08:25:24.00Z"));
+
+    assertEquals(2, actual.size());
+    assertTrue(actual.containsAll(List.of(student1(), student2())));
+  }
+
+  @Test
   @DirtiesContext
   void manager_write_suspended_student() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -764,7 +807,7 @@ public class StudentIT extends MockedThirdParties {
     List<Student> actual = api.createOrUpdateStudents(List.of(creatableSuspendedStudent()));
     Student created = actual.get(0);
     List<Student> suspended =
-        api.getStudents(1, 10, null, "Suspended", null, null, SUSPENDED, null, null);
+        api.getStudents(1, 10, null, "Suspended", null, null, SUSPENDED, null, null, null);
 
     assertTrue(suspended.contains(created));
     assertEquals(1, actual.size());
@@ -778,7 +821,8 @@ public class StudentIT extends MockedThirdParties {
 
     List<Student> actual = api.createOrUpdateStudents(List.of(createStudent2().status(SUSPENDED)));
     Student updated = actual.get(0);
-    List<Student> suspended = api.getStudents(1, 10, null, null, null, null, SUSPENDED, null, null);
+    List<Student> suspended =
+        api.getStudents(1, 10, null, null, null, null, SUSPENDED, null, null, null);
 
     assertTrue(suspended.contains(updated));
     assertEquals(1, actual.size());
