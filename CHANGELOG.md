@@ -1,3 +1,12 @@
+# [1.19.0](https://github.com/hei-school/hei-admin-api/compare/v1.18.0...v1.19.0) (2024-04-12)
+
+
+### Features
+
+* insert multiple group flows for a student  ([6c166bb](https://github.com/hei-school/hei-admin-api/commit/6c166bb7d8512af81f286e99435295f3e9270636))
+
+
+
 # [1.18.0](https://github.com/hei-school/hei-admin-api/compare/v1.17.0...v1.18.0) (2024-04-12)
 
 
@@ -95,15 +104,6 @@
 ### Bug Fixes
 
 * school files pagination ([06fad4a](https://github.com/hei-school/hei-admin-api/commit/06fad4a3c977506de663c7b0d30fffec1e56b2a4))
-
-
-
-# [1.10.0](https://github.com/hei-school/hei-admin-api/compare/v1.9.0...v1.10.0) (2024-03-05)
-
-
-### Features
-
-* document health database check endpoint  ([7b06e02](https://github.com/hei-school/hei-admin-api/commit/7b06e022ef641cbe9131cf644ce31d015877804f))
 
 
 
