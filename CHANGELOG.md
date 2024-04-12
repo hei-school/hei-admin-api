@@ -1,3 +1,12 @@
+# [1.18.0](https://github.com/hei-school/hei-admin-api/compare/v1.17.0...v1.18.0) (2024-04-12)
+
+
+### Features
+
+* filter students by commitment begin date  ([cf7ebb9](https://github.com/hei-school/hei-admin-api/commit/cf7ebb947bc0e33628bdefebda01ff744d05a012))
+
+
+
 # [1.17.0](https://github.com/hei-school/hei-admin-api/compare/v1.16.0...v1.17.0) (2024-04-09)
 
 
@@ -95,15 +104,6 @@
 ### Features
 
 * document health database check endpoint  ([7b06e02](https://github.com/hei-school/hei-admin-api/commit/7b06e022ef641cbe9131cf644ce31d015877804f))
-
-
-
-# [1.9.0](https://github.com/hei-school/hei-admin-api/compare/v1.8.0...v1.9.0) (2024-03-05)
-
-
-### Features
-
-* inject event gen class dependency with all args  ([49ef0b4](https://github.com/hei-school/hei-admin-api/commit/49ef0b485083c28248db48ca201cb70be09e803e))
 
 
 
