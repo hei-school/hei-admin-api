@@ -112,8 +112,10 @@ public class StudentController {
   }
 
   @PostMapping("/students/{id}/group_flows")
-  public GroupFlow saveStudentGroup(
-      @PathVariable(name = "id") String id, @RequestBody CreateGroupFlow createGroupFlow) {
-    return groupFlowMapper.toRest(groupFlowService.save(createGroupFlow));
+  public List<GroupFlow> saveStudentGroup(
+      @PathVariable(name = "id") String id, @RequestBody List<CreateGroupFlow> createGroupFlow) {
+    return groupFlowService.saveAll(createGroupFlow).stream()
+        .map(groupFlowMapper::toRest)
+        .collect(toUnmodifiableList());
   }
 }

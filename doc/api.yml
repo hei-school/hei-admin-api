@@ -1025,14 +1025,18 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateGroupFlow'
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateGroupFlow'
       responses:
         '200':
           description: Detail of student flow in a group
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupFlow'
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupFlow'
         '400':
           $ref: '#/components/responses/400'
         '403':
