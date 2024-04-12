@@ -142,7 +142,7 @@ public class UserService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
-            role, ref, firstName, lastName, pageable, status, sex, workStatus, commitmentBeginDate);
+        role, ref, firstName, lastName, pageable, status, sex, workStatus, commitmentBeginDate);
   }
 
   public List<User> getByGroupId(String groupId) {

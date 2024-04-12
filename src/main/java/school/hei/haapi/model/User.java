@@ -5,7 +5,14 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
@@ -18,7 +25,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
@@ -28,7 +34,6 @@ import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 @Table(name = "\"user\"")
 @Getter
 @Setter
-@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -116,6 +121,63 @@ public class User implements Serializable {
   @Override
   public int hashCode() {
     return getClass().hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return "User{"
+        + "id='"
+        + id
+        + '\''
+        + ", firstName='"
+        + firstName
+        + '\''
+        + ", lastName='"
+        + lastName
+        + '\''
+        + ", email='"
+        + email
+        + '\''
+        + ", ref='"
+        + ref
+        + '\''
+        + ", nic='"
+        + nic
+        + '\''
+        + ", status="
+        + status
+        + ", phone='"
+        + phone
+        + '\''
+        + ", birthDate="
+        + birthDate
+        + ", birthPlace='"
+        + birthPlace
+        + '\''
+        + ", entranceDatetime="
+        + entranceDatetime
+        + ", specializationField="
+        + specializationField
+        + ", sex="
+        + sex
+        + ", address='"
+        + address
+        + '\''
+        + ", role="
+        + role
+        + ", profilePictureKey='"
+        + profilePictureKey
+        + '\''
+        + ", longitude="
+        + longitude
+        + ", latitude="
+        + latitude
+        + ", highSchoolOrigin='"
+        + highSchoolOrigin
+        + '\''
+        + ", workStatus="
+        + workStatus
+        + '}';
   }
 
   public enum Sex {

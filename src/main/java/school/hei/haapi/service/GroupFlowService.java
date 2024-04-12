@@ -26,8 +26,8 @@ public class GroupFlowService {
 
   private Group findGroupById(String groupId) {
     return groupRepository
-            .findById(groupId)
-            .orElseThrow(() -> new NotFoundException("Group with id." + groupId + " not found"));
+        .findById(groupId)
+        .orElseThrow(() -> new NotFoundException("Group with id." + groupId + " not found"));
   }
 
   public GroupFlow save(CreateGroupFlow createGroupFlow) {
