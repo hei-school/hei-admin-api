@@ -26,7 +26,7 @@ public class GroupController {
 
   @GetMapping(value = "/groups/{id}")
   public Group getGroupById(@PathVariable String id) {
-    return groupMapper.toRest(groupService.getById(id));
+    return groupMapper.toRest(groupService.findById(id));
   }
 
   @GetMapping(value = "/groups")

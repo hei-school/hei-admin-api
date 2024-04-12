@@ -113,7 +113,7 @@ public class StudentController {
 
   @PostMapping("/students/{id}/group_flows")
   public GroupFlow saveStudentGroup(
-      @PathVariable String id, @RequestBody CreateGroupFlow createGroupFlow) {
+      @PathVariable(name = "id") String id, @RequestBody CreateGroupFlow createGroupFlow) {
     return groupFlowMapper.toRest(groupFlowService.save(createGroupFlow));
   }
 }

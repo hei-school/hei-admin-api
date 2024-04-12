@@ -51,7 +51,7 @@ public class EventParticipantService {
   public void createEventParticipantsForAGroup(Group group, Event event) {
     List<User> users = userService.getByGroupId(group.getId());
     List<EventParticipant> eventParticipants = new ArrayList<>();
-    Group actualGroup = groupService.getById(group.getId());
+    Group actualGroup = groupService.findById(group.getId());
     users.forEach(
         user -> {
           eventParticipants.add(

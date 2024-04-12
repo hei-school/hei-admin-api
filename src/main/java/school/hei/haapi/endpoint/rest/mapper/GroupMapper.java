@@ -41,7 +41,7 @@ public class GroupMapper {
         .CreateGroup
         .builder()
         .group(group)
-        .studentsToAdd(restGroup.getStudentsToAdd())
+        .students(restGroup.getStudents())
         .build();
   }
 }

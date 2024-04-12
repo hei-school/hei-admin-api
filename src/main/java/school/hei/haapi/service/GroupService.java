@@ -29,8 +29,10 @@ public class GroupService {
   private final UserRepository userRepository;
   private final GroupFlowService groupFlowService;
 
-  public Group getById(String groupId) {
-    return repository.getById(groupId);
+  public Group findById(String groupId) {
+    return repository
+        .findById(groupId)
+        .orElseThrow(() -> new NotFoundException("Group with id." + groupId + " not found"));
   }
 
   public List<Group> getAllById(List<String> groupsId) {
@@ -51,11 +53,13 @@ public class GroupService {
   public List<Group> saveAll(List<school.hei.haapi.model.notEntity.CreateGroup> createGroups) {
     List<school.hei.haapi.model.Group> groups = new ArrayList<>();
     List<CreateGroupFlow> createGroupFlows = new ArrayList<>();
+
     for (school.hei.haapi.model.notEntity.CreateGroup createGroup : createGroups) {
       Group group = repository.save(createGroup.getGroup());
       groups.add(group);
-      if (createGroup.getStudentsToAdd() != null) {
-        for (String studentId : createGroup.getStudentsToAdd()) {
+
+      if (createGroup.getStudents() != null) {
+        for (String studentId : createGroup.getStudents()) {
           createGroupFlows.add(
               new CreateGroupFlow()
                   .moveType(CreateGroupFlow.MoveTypeEnum.JOIN)

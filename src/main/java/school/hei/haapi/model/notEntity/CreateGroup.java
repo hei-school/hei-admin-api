@@ -13,5 +13,5 @@ import school.hei.haapi.model.Group;
 @NoArgsConstructor
 public class CreateGroup implements Serializable {
   private Group group;
-  private List<String> studentsToAdd;
+  private List<String> students;
 }

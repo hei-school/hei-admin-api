@@ -17,7 +17,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -25,7 +24,6 @@ import org.hibernate.annotations.CreationTimestamp;
 @Table(name = "\"group\"")
 @Getter
 @Setter
-@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -44,6 +42,23 @@ public class Group implements Serializable {
 
   @OneToMany(mappedBy = "group", fetch = LAZY)
   private List<GroupFlow> groupFlows;
+
+  @Override
+  public String toString() {
+    return "Group{"
+        + "id='"
+        + id
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", ref='"
+        + ref
+        + '\''
+        + ", creationDatetime="
+        + creationDatetime
+        + '}';
+  }
 
   @Override
   public boolean equals(Object o) {

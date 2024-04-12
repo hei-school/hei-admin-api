@@ -29,9 +29,6 @@ public class GroupFlowValidator implements Consumer<GroupFlow> {
     if (groupFlow.getStudent() == null) {
       throw new BadRequestException("Student is mandatory");
     }
-    if (groupFlow.getFlowDatetime() == null) {
-      throw new BadRequestException("Flow datetime datetime is mandatory");
-    }
     if (!violations.isEmpty()) {
       String constraintMessages =
           violations.stream()
