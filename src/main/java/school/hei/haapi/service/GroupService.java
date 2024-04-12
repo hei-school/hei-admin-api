@@ -1,5 +1,9 @@
 package school.hei.haapi.service;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
+import java.util.ArrayList;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -16,11 +20,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
-
-import java.util.ArrayList;
-import java.util.List;
-
-import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @AllArgsConstructor
@@ -130,8 +129,8 @@ public class GroupService {
     return groups;
   }
 
-  public void updateGroups(Promotion promotion, String groupId){
-    Group group = getById(groupId);
+  public void updateGroups(Promotion promotion, String groupId) {
+    Group group = findById(groupId);
     group.setPromotion(promotion);
     repository.save(group);
   }

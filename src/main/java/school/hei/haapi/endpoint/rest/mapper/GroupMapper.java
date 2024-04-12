@@ -46,10 +46,7 @@ public class GroupMapper {
         .build();
   }
 
-  public GroupIdentifier toRestGroupIdentifier(school.hei.haapi.model.Group domain){
-    return new GroupIdentifier()
-            .id(domain.getId())
-            .name(domain.getName())
-            .ref(domain.getRef());
+  public GroupIdentifier toRestGroupIdentifier(school.hei.haapi.model.Group domain) {
+    return new GroupIdentifier().id(domain.getId()).name(domain.getName()).ref(domain.getRef());
   }
 }

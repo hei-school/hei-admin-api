@@ -1,10 +1,14 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.GenerationType.IDENTITY;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -12,11 +16,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
-
-import java.time.Instant;
-import java.util.List;
-
-import static jakarta.persistence.GenerationType.IDENTITY;
 
 @Entity
 @Table(name = "\"promotion\"")
@@ -27,16 +26,15 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 @AllArgsConstructor
 @NoArgsConstructor
 public class Promotion {
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    private String id;
+  @Id
+  @GeneratedValue(strategy = IDENTITY)
+  private String id;
 
-    @CreationTimestamp
-    private Instant creationDatetime;
+  @CreationTimestamp private Instant creationDatetime;
 
-    private String ref;
-    private String name;
+  private String ref;
+  private String name;
 
-    @OneToMany(mappedBy = "promotion")
-    private List<Group> groups;
+  @OneToMany(mappedBy = "promotion")
+  private List<Group> groups;
 }

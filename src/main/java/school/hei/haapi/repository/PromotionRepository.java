@@ -5,5 +5,4 @@ import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.Promotion;
 
 @Repository
-public interface PromotionRepository extends JpaRepository<Promotion, String> {
-}
+public interface PromotionRepository extends JpaRepository<Promotion, String> {}

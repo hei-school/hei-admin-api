@@ -18,6 +18,8 @@ import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
 import static school.hei.haapi.endpoint.rest.model.Scope.GLOBAL;
 import static school.hei.haapi.endpoint.rest.model.Scope.STUDENT;
+import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.ADD;
+import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.REMOVE;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -42,7 +44,6 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.core.io.ClassPathResource;
@@ -80,8 +81,8 @@ import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Observer;
-import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.endpoint.rest.model.Promotion;
+import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
@@ -90,15 +91,10 @@ import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
-import school.hei.haapi.model.User;
-import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
-import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.ADD;
-import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.REMOVE;
-
 
 public class TestUtils {
 
@@ -162,7 +158,6 @@ public class TestUtils {
   public static final String PROMOTION1_ID = "promotion1_id";
   public static final String PROMOTION2_ID = "promotion2_id";
   public static final String PROMOTION3_ID = "promotion3_id";
-
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -355,26 +350,26 @@ public class TestUtils {
 
   public static Group group3() {
     return new Group()
-            .id("group3_id")
-            .name("H1")
-            .ref("GRP22001")
-            .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
+        .id("group3_id")
+        .name("H1")
+        .ref("GRP22001")
+        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
   }
 
   public static Group group4() {
     return new Group()
-            .id("group4_id")
-            .name("H2")
-            .ref("GRP22002")
-            .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
+        .id("group4_id")
+        .name("H2")
+        .ref("GRP22002")
+        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
   }
 
   public static Group group5() {
     return new Group()
-            .id("group5_id")
-            .name("J1")
-            .ref("GRP23001")
-            .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
+        .id("group5_id")
+        .name("J1")
+        .ref("GRP23001")
+        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
   }
 
   public static Teacher teacher1() {
@@ -1180,50 +1175,43 @@ public class TestUtils {
         .author(author1());
   }
 
-
-  public static Promotion promotion21(){
+  public static Promotion promotion21() {
     return new Promotion()
-            .id(PROMOTION1_ID)
-            .ref("PROM21")
-            .name("Promotion 21-22")
-            .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
-            .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
+        .id(PROMOTION1_ID)
+        .ref("PROM21")
+        .name("Promotion 21-22")
+        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
+        .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
   }
 
-  public static Promotion promotion22(){
+  public static Promotion promotion22() {
     return new Promotion()
-            .id(PROMOTION2_ID)
-            .ref("PROM22")
-            .name("Promotion 22-23")
-            .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
-            .groups(List.of(createGroupIdentifier(group3()), createGroupIdentifier(group4())));
+        .id(PROMOTION2_ID)
+        .ref("PROM22")
+        .name("Promotion 22-23")
+        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
+        .groups(List.of(createGroupIdentifier(group3()), createGroupIdentifier(group4())));
   }
 
-  public static Promotion promotion23(){
+  public static Promotion promotion23() {
     return new Promotion()
-            .id(PROMOTION3_ID)
-            .ref("PROM23")
-            .name("Promotion 23-24")
-            .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
-            .groups(List.of());
+        .id(PROMOTION3_ID)
+        .ref("PROM23")
+        .name("Promotion 23-24")
+        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
+        .groups(List.of());
   }
 
-  public static UpdatePromotionSGroup addGroupToPromotion3(){
-    return new UpdatePromotionSGroup()
-            .type(ADD)
-            .groupIds(List.of(group5().getId()));
-  }
-  public static UpdatePromotionSGroup removeGroupToPromotion3(){
-    return new UpdatePromotionSGroup()
-            .type(REMOVE)
-            .groupIds(List.of(group5().getId()));
+  public static UpdatePromotionSGroup addGroupToPromotion3() {
+    return new UpdatePromotionSGroup().type(ADD).groupIds(List.of(group5().getId()));
   }
 
-  public static CrupdatePromotion createPromotion4(){
-    return new CrupdatePromotion()
-            .id("promotion4_id")
-            .name("Promotion 24")
-            .ref("PROM24");
+  public static UpdatePromotionSGroup removeGroupToPromotion3() {
+    return new UpdatePromotionSGroup().type(REMOVE).groupIds(List.of(group5().getId()));
+  }
+
+  public static CrupdatePromotion createPromotion4() {
+    return new CrupdatePromotion().id("promotion4_id").name("Promotion 24").ref("PROM24");
   }
 
   public static boolean isBefore(String a, String b) {
