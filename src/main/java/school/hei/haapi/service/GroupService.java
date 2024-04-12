@@ -53,8 +53,9 @@ public class GroupService {
   public List<Group> saveAll(List<school.hei.haapi.model.notEntity.CreateGroup> createGroups) {
     List<school.hei.haapi.model.Group> groups = new ArrayList<>();
     List<CreateGroupFlow> createGroupFlows = new ArrayList<>();
+
     for (school.hei.haapi.model.notEntity.CreateGroup createGroup : createGroups) {
-      Group group = createGroup.getGroup();
+      Group group = repository.save(createGroup.getGroup());
       groups.add(group);
 
       if (createGroup.getStudents() != null) {
@@ -68,7 +69,7 @@ public class GroupService {
       }
     }
     groupFlowService.saveAll(createGroupFlows);
-    return repository.saveAll(groups);
+    return groups;
   }
 
   public List<Group> getByUserId(String studentId) {

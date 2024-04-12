@@ -57,7 +57,6 @@ public class Group implements Serializable {
         + '\''
         + ", creationDatetime="
         + creationDatetime
-        + ", awardedCourse="
         + '}';
   }
 

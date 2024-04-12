@@ -1,8 +1,8 @@
 package school.hei.haapi.service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -14,6 +14,7 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.GroupFlowValidator;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
+import school.hei.haapi.repository.UserRepository;
 
 @Service
 @AllArgsConstructor
@@ -21,8 +22,14 @@ public class GroupFlowService {
 
   private final GroupFlowRepository repository;
   private final GroupRepository groupRepository;
-  private final UserService userService;
+  private final UserRepository userRepository;
   private final GroupFlowValidator validator;
+
+  private User findUserById(String userId) {
+    return userRepository
+        .findById(userId)
+        .orElseThrow(() -> new NotFoundException("User with id." + userId + " not found"));
+  }
 
   private Group findGroupById(String groupId) {
     return groupRepository
@@ -31,39 +38,25 @@ public class GroupFlowService {
   }
 
   public GroupFlow save(CreateGroupFlow createGroupFlow) {
-    Group group = findGroupById(createGroupFlow.getStudentId());
-    User student = userService.findById(createGroupFlow.getStudentId());
-
-    GroupFlow toSave =
-        GroupFlow.builder()
-            .group(group)
-            .flowDatetime(Instant.now())
-            .student(student)
-            .groupFlowType(
-                GroupFlow.GroupFlowType.fromValue(createGroupFlow.getMoveType().getValue()))
-            .build();
-    validator.accept(toSave);
-    return repository.save(toSave);
+    GroupFlow groupFlowToSave = fromCreateGroupFlowsToGroupFlows(createGroupFlow);
+    return repository.save(groupFlowToSave);
   }
 
   @Transactional
   public List<GroupFlow> saveAll(List<CreateGroupFlow> createGroupFlows) {
-    List<GroupFlow> groupFlows = new ArrayList<>();
+    List<GroupFlow> groupFlowsToSave =
+        createGroupFlows.stream()
+            .map(this::fromCreateGroupFlowsToGroupFlows)
+            .collect(Collectors.toList());
+    return repository.saveAll(groupFlowsToSave);
+  }
 
-    for (CreateGroupFlow createGroupFlow : createGroupFlows) {
-      Group group = findGroupById(createGroupFlow.getStudentId());
-      User student = userService.findById(createGroupFlow.getStudentId());
-
-      groupFlows.add(
-          GroupFlow.builder()
-              .group(group)
-              .flowDatetime(Instant.now())
-              .student(student)
-              .groupFlowType(
-                  GroupFlow.GroupFlowType.fromValue(createGroupFlow.getMoveType().getValue()))
-              .build());
-    }
-    validator.accept(groupFlows);
-    return repository.saveAll(groupFlows);
+  private GroupFlow fromCreateGroupFlowsToGroupFlows(CreateGroupFlow toMap) {
+    return GroupFlow.builder()
+        .student(findUserById(toMap.getStudentId()))
+        .group(findGroupById(toMap.getGroupId()))
+        .flowDatetime(Instant.now())
+        .groupFlowType(GroupFlow.GroupFlowType.fromValue(toMap.getMoveType().getValue()))
+        .build();
   }
 }
