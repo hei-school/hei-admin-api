@@ -55,7 +55,7 @@ public class StudentController {
 
   // todo: to review
   @GetMapping("/groups/{groupId}/students")
-  public List<Student> getStudentByGroupId(@PathVariable String groupId) {
+  public List<Student> getStudentsByGroupId(@PathVariable String groupId) {
     return userService.getByGroupId(groupId).stream()
         .map(userMapper::toRestStudent)
         .collect(Collectors.toUnmodifiableList());
@@ -112,7 +112,7 @@ public class StudentController {
   }
 
   @PostMapping("/students/{id}/group_flows")
-  public List<GroupFlow> saveStudentGroup(
+  public List<GroupFlow> moveOrDeleteStudentInGroup(
       @PathVariable(name = "id") String id, @RequestBody List<CreateGroupFlow> createGroupFlow) {
     return groupFlowService.saveAll(createGroupFlow).stream()
         .map(groupFlowMapper::toRest)

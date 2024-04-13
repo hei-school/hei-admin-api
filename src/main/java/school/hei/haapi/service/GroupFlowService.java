@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
@@ -16,6 +17,7 @@ import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class GroupFlowService {
@@ -24,6 +26,16 @@ public class GroupFlowService {
   private final GroupRepository groupRepository;
   private final UserRepository userRepository;
   private final GroupFlowValidator validator;
+
+  private void logger(GroupFlow studentGroupFlow) {
+    log.info(
+        "student = "
+            + studentGroupFlow.getStudent().toString()
+            + " "
+            + studentGroupFlow.getGroupFlowType()
+            + " group = "
+            + studentGroupFlow.getGroup().toString());
+  }
 
   private User findUserById(String userId) {
     return userRepository
@@ -39,6 +51,9 @@ public class GroupFlowService {
 
   public GroupFlow save(CreateGroupFlow createGroupFlow) {
     GroupFlow groupFlowToSave = fromCreateGroupFlowsToGroupFlows(createGroupFlow);
+
+    validator.accept(groupFlowToSave);
+    logger(groupFlowToSave);
     return repository.save(groupFlowToSave);
   }
 
@@ -48,6 +63,9 @@ public class GroupFlowService {
         createGroupFlows.stream()
             .map(this::fromCreateGroupFlowsToGroupFlows)
             .collect(Collectors.toList());
+
+    validator.accept(groupFlowsToSave);
+    groupFlowsToSave.forEach(this::logger);
     return repository.saveAll(groupFlowsToSave);
   }
 

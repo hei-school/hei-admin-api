@@ -955,27 +955,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-        - name: page_size
-          in: query
-          schema:
-            $ref: '#/components/schemas/PageSize'
-        - name: status
-          required: false
-          in: query
-          description: Filter students by status value return all by default
-          schema:
-            $ref: '#/components/schemas/EnableStatus'
-        - name: sex
-          required: false
-          in: query
-          description: Filter students by sex value return all by default
-          schema:
-            $ref: '#/components/schemas/Sex'
-      operationId: getAllStudentByGroup
+      operationId: getStudentsByGroupId
       responses:
         '200':
           description: List of all student in specific awarded_course and group
@@ -1007,17 +987,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
       operationId: moveOrDeleteStudentInGroup
       requestBody:
         description: Movement of a student towards a group to create.
