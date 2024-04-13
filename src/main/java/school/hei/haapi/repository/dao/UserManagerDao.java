@@ -30,11 +30,14 @@ public class UserManagerDao {
       User.Status status,
       User.Sex sex,
       WorkStudyStatus workStatus,
-      Instant commitmentBeginDate) {
+      Instant commitmentBeginDate,
+      String courseId) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
     Join<User, WorkDocument> workDocumentJoin = root.join("workDocuments", LEFT);
+    Join<User, AwardedCourse> awardedCourseJoin = root.join("awardedCourses", LEFT);
+    Join<AwardedCourse, Course> courseJoin = awardedCourseJoin.join("course", LEFT);
     Predicate predicate = builder.conjunction();
 
     Predicate hasUserRef =
@@ -53,6 +56,11 @@ public class UserManagerDao {
             builder.like(root.get("lastName"), "%" + lastName + "%"));
 
     Predicate hasUserRole = builder.equal(root.get("role"), role);
+
+    if (courseId != null && !courseId.isEmpty() && !courseId.isBlank()) {
+      Expression<String> courseIdExpression = courseJoin.get("id");
+      predicate = builder.and(predicate, builder.equal(courseIdExpression, courseId));
+    }
 
     if (commitmentBeginDate != null) {
       Expression<Instant> commitmentBeginExpression = workDocumentJoin.get("commitmentBegin");
