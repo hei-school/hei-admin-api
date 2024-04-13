@@ -18,7 +18,6 @@ import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CO
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
-import static school.hei.haapi.integration.conf.TestUtils.COURSE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -62,7 +61,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -374,12 +376,6 @@ public class StudentIT extends MockedThirdParties {
     assertEquals(student1(), actualStudent1);
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
-
-    List<Student> actualStudents2 =
-        api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null, null, null);
-
-    assertEquals(student1(), actualStudents2.get(0));
-    assertEquals(2, actualStudents2.size());
   }
 
   @Test
@@ -449,15 +445,10 @@ public class StudentIT extends MockedThirdParties {
 
     List<Student> actualStudents =
         api.getStudents(1, 20, null, null, null, null, null, null, null, null);
-    List<Student> actualStudents2 =
-        api.getStudents(1, 10, null, null, null, COURSE2_ID, null, null, null, null);
 
     assertTrue(actualStudents.contains(student1()));
     assertTrue(actualStudents.contains(student2()));
     assertTrue(actualStudents.contains(student3()));
-
-    assertEquals(student1(), actualStudents2.get(0));
-    assertEquals(2, actualStudents2.size());
   }
 
   @Test

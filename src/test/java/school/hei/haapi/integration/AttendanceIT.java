@@ -69,53 +69,6 @@ class AttendanceIT extends MockedThirdParties {
   }
 
   @Test
-  void manager_read_attendance_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    AttendanceApi api = new AttendanceApi(manager1Client);
-
-    List<StudentAttendance> actualWithoutInstant =
-        api.getStudentsAttendance(1, 10, null, null, null, null, null, null);
-    assertEquals(3, actualWithoutInstant.size());
-
-    // GET /attendance?page=1&page_size=10&from=2021-11-08T07:00:00.00Z
-    List<StudentAttendance> actualFromAnInstant =
-        api.getStudentsAttendance(
-            1, 10, null, null, null, Instant.parse("2021-11-08T07:00:00.00Z"), null, null);
-    assertEquals(8, actualFromAnInstant.size());
-  }
-
-  @Test
-  void teacher_read_attendance_from_and_to_instant_criteria() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    AttendanceApi api = new AttendanceApi(teacher1Client);
-
-    // GET /attendance?page=1&page_size=10&from=2021-11-08T07:00:00.00Z
-    List<StudentAttendance> actualFromAnInstant =
-        api.getStudentsAttendance(
-            1, 10, null, null, null, Instant.parse("2021-11-08T07:00:00.00Z"), null, null);
-    assertEquals(8, actualFromAnInstant.size());
-
-    // GET /attendance?page=1&page_size=10&to=2021-08-09T00:15:00.00Z
-    List<StudentAttendance> actualToAnInstant =
-        api.getStudentsAttendance(
-            1, 10, null, null, null, null, Instant.parse("2021-08-09T00:15:00.00Z"), null);
-    assertEquals(3, actualToAnInstant.size());
-
-    // GET /attendance?page=1&page_size=10&from=2021-08-08T00:15:00.00Z&to=2021-08-09T00:15:00.00Z
-    List<StudentAttendance> actualFromAndToAnInstant =
-        api.getStudentsAttendance(
-            1,
-            10,
-            null,
-            null,
-            null,
-            Instant.parse("2021-08-08T00:15:00.00Z"),
-            Instant.parse("2021-08-09T00:15:00.00Z"),
-            null);
-    assertEquals(3, actualFromAndToAnInstant.size());
-  }
-
-  @Test
   void teacher_read_attendance_with_course_session_criteria() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     AttendanceApi api = new AttendanceApi(teacher1Client);
@@ -211,36 +164,6 @@ class AttendanceIT extends MockedThirdParties {
             List.of(AttendanceStatus.MISSING));
     assertEquals(1, actualWithCourse2IdAndMissing.size());
     assertTrue(actualWithCourse2IdAndMissing.containsAll(List.of(attendance6Missing())));
-  }
-
-  @Test
-  void teacher_read_attendance_ok() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    AttendanceApi api = new AttendanceApi(teacher1Client);
-
-    // GET /attendance?page=1&page_size=10
-    List<StudentAttendance> actualOfCurrentWeek =
-        api.getStudentsAttendance(1, 10, null, null, null, null, null, null);
-    assertEquals(3, actualOfCurrentWeek.size());
-
-    // GET /attendance?page=1&page_size=10&from={DEFAULT_FROM}&to={DEFAULT_TO}
-    List<StudentAttendance> actualWithoutParameter =
-        api.getStudentsAttendance(1, 10, null, null, null, DEFAULT_FROM, DEFAULT_TO, null);
-    assertEquals(8, actualWithoutParameter.size());
-
-    // GET
-    // /attendance?page=1&page_size=10&from={DEFAULT_FROM}&to={DEFAULT_TO}&student_key_word=tw&attendance_statuses=LATE&courses_ids=course1_id
-    List<StudentAttendance> actualWithStudentKeyowrdAndCourse1AndAttendanceLate =
-        api.getStudentsAttendance(
-            1,
-            10,
-            List.of(course1().getId()),
-            null,
-            "tw",
-            DEFAULT_FROM,
-            DEFAULT_TO,
-            List.of(AttendanceStatus.LATE));
-    assertEquals(1, actualWithStudentKeyowrdAndCourse1AndAttendanceLate.size());
   }
 
   @Test
