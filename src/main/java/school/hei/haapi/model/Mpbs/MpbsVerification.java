@@ -21,8 +21,8 @@ import school.hei.haapi.model.User;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode
+@ToString(callSuper = true)
+@EqualsAndHashCode(callSuper = true)
 public class MpbsVerification extends SuperEntity implements Serializable {
   private Integer amountOfFeeRemainingPayment;
 

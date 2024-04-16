@@ -16,4 +16,4 @@ create table if not exists "mpbs" (
     successfully_verified_on timestamp with time zone,
     student_id varchar not null constraint mpbs_student_id_fk references "user"(id),
     fee_id varchar not null constraint mpbs_fee_id_fk references "fee"(id)
-);
+    );

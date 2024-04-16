@@ -20,24 +20,6 @@ import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 @Getter
 @Setter
 public class SuperEntity {
-<<<<<<< HEAD
-    @Id
-    @GeneratedValue(strategy = IDENTITY)
-    private String id;
-
-    @JoinColumn(name = "psp_id")
-    private String pspId;
-
-    @JdbcTypeCode(NAMED_ENUM)
-    @Enumerated(STRING)
-    @JoinColumn(name = "mobile_money_type")
-    private MobileMoneyType mobileMoneyType;
-
-    @JoinColumn(name = "creation_datetime")
-    @CreationTimestamp
-    private Instant creationDatetime;
-}
-=======
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
@@ -54,4 +36,3 @@ public class SuperEntity {
   @CreationTimestamp
   private Instant creationDatetime;
 }
->>>>>>> 12d9e30 (feat: crupdate and get mbps)
