@@ -1,3 +1,12 @@
+# [1.20.0](https://github.com/hei-school/hei-admin-api/compare/v1.19.0...v1.20.0) (2024-04-16)
+
+
+### Features
+
+* **not-implemented:** mobile payment by student  ([e0d0a41](https://github.com/hei-school/hei-admin-api/commit/e0d0a41257af7da7bb716d5dae7c4b9875a40757))
+
+
+
 # [1.19.0](https://github.com/hei-school/hei-admin-api/compare/v1.18.0...v1.19.0) (2024-04-12)
 
 
@@ -95,15 +104,6 @@
 ### Bug Fixes
 
 * make files resources pagination to required  ([a5b144c](https://github.com/hei-school/hei-admin-api/commit/a5b144c3d261e049fc454c962e0361af79d88d75))
-
-
-
-## [1.10.1](https://github.com/hei-school/hei-admin-api/compare/v1.10.0...v1.10.1) (2024-03-07)
-
-
-### Bug Fixes
-
-* school files pagination ([06fad4a](https://github.com/hei-school/hei-admin-api/commit/06fad4a3c977506de663c7b0d30fffec1e56b2a4))
 
 
 
