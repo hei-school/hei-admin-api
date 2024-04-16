@@ -12,6 +12,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
 
@@ -21,17 +22,18 @@ import school.hei.haapi.model.User;
 @NoArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = true)
+@ToString(callSuper = true)
 public class Mpbs extends SuperEntity implements Serializable {
-  private Integer amount;
+    private Integer amount;
 
-  private Instant successfullyVerifiedOn;
+    private Instant successfullyVerifiedOn;
 
-  @ManyToOne
-  @JoinColumn(name = "student_id")
-  private User student;
+    @ManyToOne
+    @JoinColumn(name = "student_id")
+    private User student;
 
-  @OneToOne
-  @JoinColumn(name = "fee_id")
-  private Fee fee;
+    @OneToOne
+    @JoinColumn(name = "fee_id")
+    private Fee fee;
 }

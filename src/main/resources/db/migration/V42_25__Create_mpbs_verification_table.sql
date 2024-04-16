@@ -1,5 +1,5 @@
 create table if not exists "mpbs_verification" (
-    id varchar constraint mpbs_verification_pk primary key default uuid_generate_v4(),
+                                                   id varchar constraint mpbs_verification_pk primary key default uuid_generate_v4(),
     mobile_money_type mobile_money_type not null,
     psp_id varchar not null,
     amount_of_fee_remaining_payment integer,
@@ -10,4 +10,4 @@ create table if not exists "mpbs_verification" (
     comment varchar,
     student_id varchar not null constraint mpbs_student_id_fk references "user"(id),
     fee_id varchar not null constraint mpbs_fee_id_fk references "fee"(id)
-);
+    );
