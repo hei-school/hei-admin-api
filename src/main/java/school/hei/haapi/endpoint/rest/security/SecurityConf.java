@@ -177,6 +177,17 @@ public class SecurityConf {
                     .requestMatchers(
                         new SelfMatcher(GET, "/students/*/fees/*/payments", "students"))
                     .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/mpbs", "students"))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(GET, "/students/*/fees/*/mpbs")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+                    .requestMatchers(new SelfMatcher(PUT, "/students/*/fees/*/mpbs", "students"))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new SelfMatcher(GET, "/students/*/fees/*/mpbs/verifications", "students"))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(GET, "/students/*/fees/*/mpbs_verifications")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
                     .requestMatchers(GET, "/students/*/fees/*/payments")
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(POST, "/students/*/fees/*/payments")
