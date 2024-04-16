@@ -155,6 +155,19 @@ public class SecurityConf {
                     //
                     // Fees resources
                     //
+                    .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/mpbs", "students"))
+                    .hasRole(STUDENT.getRole())
+                    .requestMatchers(new SelfMatcher(PUT, "/students/*/fees/*/mpbs", "students"))
+                    .hasRole(STUDENT.getRole())
+                    .requestMatchers(GET, "/students/*/fees/*/mpbs")
+                    .hasRole(MANAGER.getRole())
+                    .requestMatchers(PUT, "/students/*/fees/*/mpbs")
+                    .hasRole(MANAGER.getRole())
+                    .requestMatchers(
+                        new SelfMatcher(GET, "/students/*/fees/*/mpbs/verifications", "students"))
+                    .hasRole(STUDENT.getRole())
+                    .requestMatchers(GET, "/students/*/fees/*/mpbs/verifications")
+                    .hasRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*", "students"))
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(DELETE, "/students/*/fees/*")

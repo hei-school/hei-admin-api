@@ -3,7 +3,6 @@ package school.hei.haapi.model.Mpbs;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
@@ -12,26 +11,34 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
 
 @Entity
-@Table(name = "\"mpbs\"")
-@AllArgsConstructor
-@NoArgsConstructor
+@Table(name = "mpbs_verification")
 @Getter
 @Setter
+@AllArgsConstructor
+@NoArgsConstructor
+@ToString
 @EqualsAndHashCode
-public class Mpbs extends SuperEntity implements Serializable {
-  private Integer amount;
+public class MpbsVerification extends SuperEntity implements Serializable {
+  private Integer amountOfFeeRemainingPayment;
 
-  private Instant successfullyVerifiedOn;
+  private Integer amountInPsp;
+
+  private Instant creationDatetimeOfPaymentInPsp;
+
+  private Instant creationDatetimeOfMpbs;
+
+  private String comment;
+
+  @ManyToOne
+  @JoinColumn(name = "fee_id")
+  private Fee fee;
 
   @ManyToOne
   @JoinColumn(name = "student_id")
   private User student;
-
-  @OneToOne
-  @JoinColumn(name = "fee_id")
-  private Fee fee;
 }
