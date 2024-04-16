@@ -22,13 +22,18 @@ import school.hei.haapi.model.User;
 @NoArgsConstructor
 @Getter
 @Setter
+<<<<<<< HEAD
 @EqualsAndHashCode(callSuper = true)
 @ToString(callSuper = true)
+=======
+@EqualsAndHashCode
+>>>>>>> 12d9e30 (feat: crupdate and get mbps)
 public class Mpbs extends SuperEntity implements Serializable {
-    private Integer amount;
+  private Integer amount;
 
-    private Instant successfullyVerifiedOn;
+  private Instant successfullyVerifiedOn;
 
+<<<<<<< HEAD
     @ManyToOne
     @JoinColumn(name = "student_id")
     private User student;
@@ -37,3 +42,13 @@ public class Mpbs extends SuperEntity implements Serializable {
     @JoinColumn(name = "fee_id")
     private Fee fee;
 }
+=======
+  @ManyToOne
+  @JoinColumn(name = "student_id")
+  private User student;
+
+  @OneToOne
+  @JoinColumn(name = "fee_id")
+  private Fee fee;
+}
+>>>>>>> 12d9e30 (feat: crupdate and get mbps)

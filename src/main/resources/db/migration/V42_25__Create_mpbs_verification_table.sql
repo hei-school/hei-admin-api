@@ -10,4 +10,8 @@ create table if not exists "mpbs_verification" (
     comment varchar,
     student_id varchar not null constraint mpbs_student_id_fk references "user"(id),
     fee_id varchar not null constraint mpbs_fee_id_fk references "fee"(id)
+<<<<<<< HEAD
     );
+=======
+);
+>>>>>>> 12d9e30 (feat: crupdate and get mbps)
