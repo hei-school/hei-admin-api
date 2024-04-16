@@ -1787,7 +1787,7 @@ paths:
     get:
       tags:
         - Paying
-      summary: Get, if exists, the Mobile Payment By Student (MPBS) associated to the fee.
+      summary: Get, if exists, the Mobile Payment By Student - (MPBS) associated to the fee.
       operationId: getMpbs
       parameters:
         - name: student_id
