@@ -109,9 +109,22 @@ public class SecurityConf {
                     .permitAll()
                     .requestMatchers(GET, "/whoami")
                     .authenticated()
+
+                        //
+                        // Announcements resources
+                        //
+                        .requestMatchers(GET, "/teachers/announcements")
+                        .hasAnyRole(TEACHER.getRole())
+                        .requestMatchers(GET, "/students/announcements")
+                        .hasAnyRole(STUDENT.getRole())
+                        .requestMatchers(GET, "/announcements")
+                        .hasAnyRole(MANAGER.getRole())
+                        .requestMatchers(POST, "/announcements")
+                        .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     //
                     // Student files resources
                     //
+
                     .requestMatchers(POST, "/school/files/raw")
                     .hasRole(MANAGER.getRole())
                     .requestMatchers(GET, "/school/files")
@@ -372,18 +385,7 @@ public class SecurityConf {
                     .requestMatchers(POST, "/students/*/comments")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
 
-                    //
-                    // Announcements resources
-                    //
 
-                    .requestMatchers(GET, "/announcements")
-                    .hasAnyRole(MANAGER.getRole())
-                    .requestMatchers(POST, "/announcements")
-                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-                    .requestMatchers(GET, "/teachers/announcements")
-                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-                        .requestMatchers(GET, "/students/announcements")
-                        .hasAnyRole(STUDENT.getRole(), TEACHER.getRole(), MANAGER.getRole())
 
                         //
                         // Event resources
