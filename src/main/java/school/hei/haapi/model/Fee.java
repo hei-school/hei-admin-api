@@ -12,6 +12,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
@@ -32,6 +33,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
+import school.hei.haapi.model.Mpbs.Mpbs;
 
 @Entity
 @Table(name = "\"fee\"")
@@ -78,6 +80,9 @@ public class Fee implements Serializable {
 
   @OneToMany(mappedBy = "fee", cascade = REMOVE)
   private List<Payment> payments;
+
+  @OneToOne(mappedBy = "fee")
+  private Mpbs mpbs;
 
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);

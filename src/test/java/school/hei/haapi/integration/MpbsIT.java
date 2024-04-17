@@ -23,7 +23,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
@@ -79,12 +78,11 @@ public class MpbsIT extends MockedThirdParties {
   }
 
   @Test
-  @DirtiesContext
   void student_create_mobile_payment_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
-    Mpbs actual = api.createMpbs(STUDENT1_ID, FEE1_ID, createableMpbs1());
+    Mpbs actual = api.createMpbs(STUDENT1_ID, FEE2_ID, createableMpbs1());
 
     assertEquals(createableMpbs1().getStudentId(), actual.getStudentId());
     assertEquals(createableMpbs1().getPspId(), actual.getPspId());
@@ -104,7 +102,7 @@ public class MpbsIT extends MockedThirdParties {
   }
 
   public static CreateMpbs createableMpbs1() {
-    return new CreateMpbs().studentId(STUDENT1_ID).feeId(FEE1_ID).pspType(MVOLA).pspId("psp1_id");
+    return new CreateMpbs().studentId(STUDENT1_ID).feeId(FEE2_ID).pspType(MVOLA).pspId("psp1_id");
   }
 
   private static ApiClient anApiClient(String token) {
