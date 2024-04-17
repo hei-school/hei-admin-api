@@ -21,8 +21,8 @@ import school.hei.haapi.model.User;
 @NoArgsConstructor
 @Getter
 @Setter
-@EqualsAndHashCode
-public class Mpbs extends SuperEntity implements Serializable {
+@EqualsAndHashCode(callSuper = true)
+public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   private Integer amount;
 
   private Instant successfullyVerifiedOn;

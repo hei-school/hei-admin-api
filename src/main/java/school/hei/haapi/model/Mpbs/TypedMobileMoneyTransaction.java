@@ -7,7 +7,6 @@ import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
 import jakarta.persistence.MappedSuperclass;
 import java.time.Instant;
 import lombok.Getter;
@@ -19,20 +18,16 @@ import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 @MappedSuperclass
 @Getter
 @Setter
-public class SuperEntity {
+public class TypedMobileMoneyTransaction {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  @JoinColumn(name = "psp_id")
   private String pspId;
 
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
-  @JoinColumn(name = "mobile_money_type")
   private MobileMoneyType mobileMoneyType;
 
-  @JoinColumn(name = "creation_datetime")
-  @CreationTimestamp
-  private Instant creationDatetime;
+  @CreationTimestamp private Instant creationDatetime;
 }

@@ -26,6 +26,7 @@ public class FeeMapper {
 
   private final CreateFeeValidator createFeeValidator;
   private PaymentMapper paymentMapper;
+  private final MpbsMapper mpbsMapper;
 
   public ModelFee toRestModelFee(school.hei.haapi.model.Fee fee) {
     return new ModelFee()
@@ -45,6 +46,7 @@ public class FeeMapper {
   }
 
   public Fee toRestFee(school.hei.haapi.model.Fee fee) {
+    Mpbs feeMpbs = fee.getMpbs() != null ? mpbsMapper.toRest(fee.getMpbs()) : null;
     return new Fee()
         .id(fee.getId())
         .studentId(fee.getStudent().getId())
@@ -53,6 +55,7 @@ public class FeeMapper {
         .totalAmount(fee.getTotalAmount())
         .remainingAmount(fee.getRemainingAmount())
         .comment(fee.getComment())
+        .mpbs(feeMpbs)
         .creationDatetime(fee.getCreationDatetime())
         .updatedAt(fee.getUpdatedAt())
         .dueDatetime(fee.getDueDatetime());

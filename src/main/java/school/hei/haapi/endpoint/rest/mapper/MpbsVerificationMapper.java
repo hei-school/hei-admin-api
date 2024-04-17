@@ -15,6 +15,7 @@ public class MpbsVerificationMapper {
         .comment(domain.getComment())
         .amountOfFeeRemainingPayment(domain.getAmountOfFeeRemainingPayment())
         .creationDatetimeOfMpbs(domain.getCreationDatetimeOfMpbs())
+        .creationDatetimeOfPaymentInPsp(domain.getCreationDatetimeOfPaymentInPsp())
         .pspId(domain.getPspId())
         .studentId(domain.getStudent().getId());
   }

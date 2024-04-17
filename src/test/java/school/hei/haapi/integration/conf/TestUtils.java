@@ -17,6 +17,7 @@ import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
 import static school.hei.haapi.integration.ManagerIT.manager1;
+import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.StudentIT.student2;
 import static school.hei.haapi.integration.StudentIT.student3;
@@ -411,6 +412,7 @@ public class TestUtils {
         .totalAmount(5000)
         .remainingAmount(0)
         .comment("Comment")
+        .mpbs(expectedMpbs1())
         .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));

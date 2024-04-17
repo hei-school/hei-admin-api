@@ -11,7 +11,6 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
 
@@ -21,9 +20,8 @@ import school.hei.haapi.model.User;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@ToString
-@EqualsAndHashCode
-public class MpbsVerification extends SuperEntity implements Serializable {
+@EqualsAndHashCode(callSuper = true)
+public class MpbsVerification extends TypedMobileMoneyTransaction implements Serializable {
   private Integer amountOfFeeRemainingPayment;
 
   private Integer amountInPsp;

@@ -3767,6 +3767,8 @@ components:
         updated_at:
           type: string
           format: date-time
+        mpbs:
+          $ref: '#/components/schemas/Mpbs'
     CreateDelayPenaltyChange:
       type: object
       properties:
