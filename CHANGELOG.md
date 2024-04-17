@@ -1,3 +1,13 @@
+# [1.21.0](https://github.com/hei-school/hei-admin-api/compare/v1.20.0...v1.21.0) (2024-04-17)
+
+
+### Features
+
+* get mpbs verifications ([a097964](https://github.com/hei-school/hei-admin-api/commit/a0979649e38667e31b0f27eb0cb6fc13658d3e19))
+* mobile payment by student reources  ([a219a8b](https://github.com/hei-school/hei-admin-api/commit/a219a8bc8f52665f90f470fdb74a88cb57284a2d))
+
+
+
 # [1.20.0](https://github.com/hei-school/hei-admin-api/compare/v1.19.0...v1.20.0) (2024-04-16)
 
 
@@ -95,15 +105,6 @@
 ### Bug Fixes
 
 * picture url removed after updating user  ([cf4bc70](https://github.com/hei-school/hei-admin-api/commit/cf4bc706ca684b7a7b6b826d1db2db22eb2051b6))
-
-
-
-## [1.10.2](https://github.com/hei-school/hei-admin-api/compare/v1.10.1...v1.10.2) (2024-03-07)
-
-
-### Bug Fixes
-
-* make files resources pagination to required  ([a5b144c](https://github.com/hei-school/hei-admin-api/commit/a5b144c3d261e049fc454c962e0361af79d88d75))
 
 
 
