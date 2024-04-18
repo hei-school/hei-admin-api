@@ -1,5 +1,14 @@
 package school.hei.haapi.endpoint.rest.security;
 
+import static org.springframework.http.HttpMethod.DELETE;
+import static org.springframework.http.HttpMethod.GET;
+import static org.springframework.http.HttpMethod.OPTIONS;
+import static org.springframework.http.HttpMethod.POST;
+import static org.springframework.http.HttpMethod.PUT;
+import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
+import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
+import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
+
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Qualifier;
@@ -19,15 +28,6 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.AwardedCourseService;
-
-import static org.springframework.http.HttpMethod.DELETE;
-import static org.springframework.http.HttpMethod.GET;
-import static org.springframework.http.HttpMethod.OPTIONS;
-import static org.springframework.http.HttpMethod.POST;
-import static org.springframework.http.HttpMethod.PUT;
-import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
-import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
-import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 
 @Configuration
 @Slf4j
@@ -110,17 +110,17 @@ public class SecurityConf {
                     .requestMatchers(GET, "/whoami")
                     .authenticated()
 
-                        //
-                        // Announcements resources
-                        //
-                        .requestMatchers(GET, "/teachers/announcements")
-                        .hasAnyRole(TEACHER.getRole())
-                        .requestMatchers(GET, "/students/announcements")
-                        .hasAnyRole(STUDENT.getRole())
-                        .requestMatchers(GET, "/announcements")
-                        .hasAnyRole(MANAGER.getRole())
-                        .requestMatchers(POST, "/announcements")
-                        .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+                    //
+                    // Announcements resources
+                    //
+                    .requestMatchers(GET, "/teachers/announcements")
+                    .hasAnyRole(TEACHER.getRole())
+                    .requestMatchers(GET, "/students/announcements")
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(GET, "/announcements")
+                    .hasAnyRole(MANAGER.getRole())
+                    .requestMatchers(POST, "/announcements")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     //
                     // Student files resources
                     //
@@ -385,13 +385,11 @@ public class SecurityConf {
                     .requestMatchers(POST, "/students/*/comments")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
 
+                    //
+                    // Event resources
+                    //
 
-
-                        //
-                        // Event resources
-                        //
-
-                      .requestMatchers(GET, "/events")
+                    .requestMatchers(GET, "/events")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
                     .requestMatchers(PUT, "/events")
                     .hasAnyRole(MANAGER.getRole())
@@ -406,8 +404,8 @@ public class SecurityConf {
                     //
                     .requestMatchers(GET, "/attendance")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-                    //.requestMatchers(new SelfMatcher(GET, "/attendance", "students"))
-                    //.hasAnyRole(STUDENT.getRole())
+                    // .requestMatchers(new SelfMatcher(GET, "/attendance", "students"))
+                    // .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(POST, "/attendance/movement")
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))

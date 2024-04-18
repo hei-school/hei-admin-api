@@ -1,5 +1,12 @@
 package school.hei.haapi.endpoint.event;
 
+import static java.util.UUID.randomUUID;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+
+import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -9,14 +16,6 @@ import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.event.LateFeeVerifiedService;
 import school.hei.haapi.service.event.UserUpsertedService;
-
-import java.time.Instant;
-
-import static java.util.UUID.randomUUID;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 
 class EventServiceInvokerTest {
   UserUpsertedService userUpsertedService;

@@ -1,5 +1,9 @@
 package school.hei.haapi.service;
 
+import static org.springframework.data.domain.Sort.Direction.DESC;
+
+import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -14,11 +18,6 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.AnnouncementRepository;
 import school.hei.haapi.repository.dao.AnnouncementDao;
-
-import java.time.Instant;
-import java.util.List;
-
-import static org.springframework.data.domain.Sort.Direction.DESC;
 
 @Service
 @AllArgsConstructor
@@ -52,12 +51,13 @@ public class AnnouncementService {
 
   public Announcement postAnnouncement(Announcement announcementToCreate) {
     var saved = announcementRepository.save(announcementToCreate);
-    eventProducer.accept(List.of(AnnouncementSendInit.builder()
-                    .title(announcementToCreate.getTitle())
-                    .content(announcementToCreate.getContent())
-                    .scope(announcementToCreate.getScope())
-            .build()));
+    eventProducer.accept(
+        List.of(
+            AnnouncementSendInit.builder()
+                .title(announcementToCreate.getTitle())
+                .content(announcementToCreate.getContent())
+                .scope(announcementToCreate.getScope())
+                .build()));
     return saved;
   }
-
 }

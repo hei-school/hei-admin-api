@@ -1,5 +1,47 @@
 package school.hei.haapi.integration.conf;
 
+import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
+import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
+import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
+import static school.hei.haapi.endpoint.rest.model.EventType.SEMINAR;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
+import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
+import static school.hei.haapi.endpoint.rest.model.Scope.GLOBAL;
+import static school.hei.haapi.endpoint.rest.model.Scope.STUDENT;
+import static school.hei.haapi.integration.ManagerIT.manager1;
+import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
+import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.StudentIT.student2;
+import static school.hei.haapi.integration.StudentIT.student3;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
+
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.ServerSocket;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
@@ -52,50 +94,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.ServerSocket;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
-
-import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.when;
-import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
-import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
-import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
-import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
-import static school.hei.haapi.endpoint.rest.model.EventType.SEMINAR;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
-import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
-import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
-import static school.hei.haapi.endpoint.rest.model.Scope.GLOBAL;
-import static school.hei.haapi.endpoint.rest.model.Scope.STUDENT;
-import static school.hei.haapi.integration.ManagerIT.manager1;
-import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.StudentIT.student2;
-import static school.hei.haapi.integration.StudentIT.student3;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
-import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
-
- @AllArgsConstructor
+@AllArgsConstructor
 public class TestUtils {
 
   public static final String STUDENT1_ID = "student1_id";
@@ -156,9 +155,6 @@ public class TestUtils {
   public static final String ANNOUNCEMENT3_ID = "announcement3_id";
   public static final String ANNOUNCEMENT4_ID = "announcement4_id";
   private final UserService userService;
-
-
-
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -1063,98 +1059,99 @@ public class TestUtils {
         .endDatetime(createIntegrationEvent().getEndDatetime());
   }
 
-  public static AnnouncementAuthor author1(){
+  public static AnnouncementAuthor author1() {
     return new AnnouncementAuthor()
-            .id(MANAGER_ID)
-            .firstName(manager1().getFirstName())
-            .lastName(manager1().getLastName())
-            .email(manager1().getEmail())
-            .profilePicture(null);
+        .id(MANAGER_ID)
+        .firstName(manager1().getFirstName())
+        .lastName(manager1().getLastName())
+        .email(manager1().getEmail())
+        .profilePicture(null);
   }
 
-  public static Announcement announcementForAll(){
+  public static Announcement announcementForAll() {
     return new Announcement()
-            .id(ANNOUNCEMENT1_ID)
-            .title("Fermeture du bureau")
-            .content("Le bureau est fermé pour ce weekend")
-            .author(author1())
-            .scope(GLOBAL)
-            .creationDatetime(Instant.parse("2022-12-20T08:00:00.00Z"));
+        .id(ANNOUNCEMENT1_ID)
+        .title("Fermeture du bureau")
+        .content("Le bureau est fermé pour ce weekend")
+        .author(author1())
+        .scope(GLOBAL)
+        .creationDatetime(Instant.parse("2022-12-20T08:00:00.00Z"));
   }
 
-  public static Announcement announcementForTeacher(){
+  public static Announcement announcementForTeacher() {
     return new Announcement()
-            .id(ANNOUNCEMENT2_ID)
-            .title("Congé autorisé")
-            .content("A tous les enseignants, vous êtes disposés à prendre des congés")
-            .author(author1())
-            .creationDatetime(Instant.parse("2022-12-21T08:00:00.00Z"))
-            .scope(Scope.TEACHER);
+        .id(ANNOUNCEMENT2_ID)
+        .title("Congé autorisé")
+        .content("A tous les enseignants, vous êtes disposés à prendre des congés")
+        .author(author1())
+        .creationDatetime(Instant.parse("2022-12-21T08:00:00.00Z"))
+        .scope(Scope.TEACHER);
   }
 
-  public static Announcement announcementEspeciallyForG1(){
+  public static Announcement announcementEspeciallyForG1() {
     return new Announcement()
-            .id(ANNOUNCEMENT3_ID)
-            .title("Cours annulé pour G1")
-            .content("Les cours des G1 sont annulés pour demain")
-            .author(new AnnouncementAuthor()
-                    .id(TEACHER1_ID)
-                    .firstName(teacher1().getFirstName())
-                    .lastName(teacher1().getLastName())
-                    .email(teacher1().getEmail())
-                    .profilePicture(null)
-            ).creationDatetime(Instant.parse("2022-12-22T08:00:00.00Z"))
-            .scope(STUDENT);
+        .id(ANNOUNCEMENT3_ID)
+        .title("Cours annulé pour G1")
+        .content("Les cours des G1 sont annulés pour demain")
+        .author(
+            new AnnouncementAuthor()
+                .id(TEACHER1_ID)
+                .firstName(teacher1().getFirstName())
+                .lastName(teacher1().getLastName())
+                .email(teacher1().getEmail())
+                .profilePicture(null))
+        .creationDatetime(Instant.parse("2022-12-22T08:00:00.00Z"))
+        .scope(STUDENT);
   }
 
-  public static Announcement announcementForManager(){
-    //'Comptabilité', 'Veuillez vérifier nos comptes', 'manager1_id', '2022-12-15T08:00:00.00Z', 'MANAGER'
+  public static Announcement announcementForManager() {
+    // 'Comptabilité', 'Veuillez vérifier nos comptes', 'manager1_id', '2022-12-15T08:00:00.00Z',
+    // 'MANAGER'
     return new Announcement()
-            .id(ANNOUNCEMENT4_ID)
-            .author(author1())
-            .scope(Scope.MANAGER)
-            .content("Veuillez vérifier nos comptes")
-            .title("Comptabilité")
-            .creationDatetime(Instant.parse("2022-12-15T08:00:00.00Z"));
-
+        .id(ANNOUNCEMENT4_ID)
+        .author(author1())
+        .scope(Scope.MANAGER)
+        .content("Veuillez vérifier nos comptes")
+        .title("Comptabilité")
+        .creationDatetime(Instant.parse("2022-12-15T08:00:00.00Z"));
   }
 
-  public static CreateAnnouncement createAnnouncementWithGroupTarget(){
+  public static CreateAnnouncement createAnnouncementWithGroupTarget() {
     return new CreateAnnouncement()
-            .scope(STUDENT)
-            .title("Cours de PROG1")
-            .authorId(MANAGER_ID)
-            .content("Cours prévu pour la semaine prochaine")
-            .targetGroupList(List.of(createGroupIdentifier(group1())));
+        .scope(STUDENT)
+        .title("Cours de PROG1")
+        .authorId(MANAGER_ID)
+        .content("Cours prévu pour la semaine prochaine")
+        .targetGroupList(List.of(createGroupIdentifier(group1())));
   }
 
- public static CreateAnnouncement teacherCreateAnnouncementForManager(){
+  public static CreateAnnouncement teacherCreateAnnouncementForManager() {
     return new CreateAnnouncement()
-            .scope(Scope.MANAGER)
-            .title("Vacances de Pâques")
-            .content("Plus de cours à partir de la semaine prochaine")
-            .authorId(TEACHER1_ID)
-            .targetGroupList(List.of());
- }
-
- public static Announcement expectedAnnouncementCreated1(){
-    return new Announcement()
-            .scope(STUDENT)
-            .title("Cours de PROG1")
-            .content("Cours prévu pour la semaine prochaine")
-            .author(author1());
- }
-
-  public static Announcement expectedAnnouncementCreated2(){
-    return new Announcement()
-            .scope(GLOBAL)
-            .title("Vacances de Pâques")
-            .content("Plus de cours à partir de la semaine prochaine")
-            .author(author1());
+        .scope(Scope.MANAGER)
+        .title("Vacances de Pâques")
+        .content("Plus de cours à partir de la semaine prochaine")
+        .authorId(TEACHER1_ID)
+        .targetGroupList(List.of());
   }
 
-  public User author(){
-   return userService.findById(author1().getId());
+  public static Announcement expectedAnnouncementCreated1() {
+    return new Announcement()
+        .scope(STUDENT)
+        .title("Cours de PROG1")
+        .content("Cours prévu pour la semaine prochaine")
+        .author(author1());
+  }
+
+  public static Announcement expectedAnnouncementCreated2() {
+    return new Announcement()
+        .scope(GLOBAL)
+        .title("Vacances de Pâques")
+        .content("Plus de cours à partir de la semaine prochaine")
+        .author(author1());
+  }
+
+  public User author() {
+    return userService.findById(author1().getId());
   }
 
   public static boolean isBefore(String a, String b) {
