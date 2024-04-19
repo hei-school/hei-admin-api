@@ -41,9 +41,11 @@ public class Exam implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "awarded_course_id")
+  @ToString.Exclude
   private AwardedCourse awardedCourse;
 
   @OneToMany(mappedBy = "exam")
+  @ToString.Exclude
   private List<Grade> grades;
 
   @Column(name = "examination_date", nullable = false)

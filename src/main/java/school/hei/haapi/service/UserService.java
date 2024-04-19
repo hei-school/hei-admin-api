@@ -113,6 +113,14 @@ public class UserService {
     return getByCriteria(role, "", "", "", page, pageSize, status, sex);
   }
 
+  public List<User> getAll() {
+    return userRepository.findAll();
+  }
+
+  public List<User> getByRoleAndStatus(User.Role role, User.Status status) {
+    return userRepository.findAllByRoleAndStatus(role, status);
+  }
+
   public List<User> getByCriteria(
       User.Role role,
       String firstName,

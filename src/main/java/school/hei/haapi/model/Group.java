@@ -17,6 +17,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 
@@ -38,9 +39,11 @@ public class Group implements Serializable {
   @CreationTimestamp private Instant creationDatetime;
 
   @OneToMany(mappedBy = "group", fetch = LAZY)
+  @ToString.Exclude
   private List<AwardedCourse> awardedCourse;
 
   @OneToMany(mappedBy = "group", fetch = LAZY)
+  @ToString.Exclude
   private List<GroupFlow> groupFlows;
 
   @Override

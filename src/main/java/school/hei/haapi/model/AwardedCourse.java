@@ -3,6 +3,7 @@ package school.hei.haapi.model;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -40,17 +41,22 @@ public class AwardedCourse implements Serializable {
 
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "teacher_id")
+  @JsonIgnoreProperties("awardedCourses")
+  @ToString.Exclude
   private User mainTeacher;
 
   @ManyToOne
   @JoinColumn(name = "course_id")
+  @ToString.Exclude
   private Course course;
 
   @ManyToOne
   @JoinColumn(name = "group_id")
+  @ToString.Exclude
   private Group group;
 
   @OneToMany(mappedBy = "awardedCourse", fetch = LAZY)
+  @ToString.Exclude
   private List<Exam> exams;
 
   @CreationTimestamp

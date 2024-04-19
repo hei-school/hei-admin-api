@@ -3039,6 +3039,11 @@ paths:
           description: Filter announcements by author ref
           schema:
             type: string
+        - name: scope
+          in: query
+          description: Filter by scope
+          schema:
+            $ref: '#/components/schemas/Scope'
       responses:
         '200':
           description: Announcements filtered with criteria if provided
@@ -4097,9 +4102,6 @@ components:
           type: string
         content:
           type: string
-        creation_datetime:
-          format: date-time
-          type: string
         author_id:
           type: string
         scope:
@@ -4108,7 +4110,8 @@ components:
           type: array
           items:
             type: string
-          example: [ "G1", "G2" ]
+            example: [ "G1", "G2" ]
+            $ref: '#/components/schemas/GroupIdentifier'
     Scope:
       type: string
       enum:

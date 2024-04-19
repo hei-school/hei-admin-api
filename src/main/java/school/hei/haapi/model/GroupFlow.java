@@ -42,10 +42,12 @@ public class GroupFlow implements Serializable {
 
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "student_id")
+  @ToString.Exclude
   private User student;
 
   @ManyToOne
   @JoinColumn(name = "group_id")
+  @ToString.Exclude
   private Group group;
 
   @Column(name = "\"group_flow_type\"")

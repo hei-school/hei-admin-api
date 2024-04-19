@@ -25,6 +25,7 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
@@ -86,12 +87,15 @@ public class User implements Serializable {
   private String profilePictureKey;
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
+  @ToString.Exclude
   private List<AwardedCourse> awardedCourses;
 
   @OneToMany(mappedBy = "student", fetch = LAZY)
+  @ToString.Exclude
   private List<GroupFlow> groupFlows;
 
   @OneToMany(mappedBy = "student", fetch = LAZY)
+  @ToString.Exclude
   private List<Grade> grades;
 
   @OneToMany(mappedBy = "student", fetch = LAZY)
