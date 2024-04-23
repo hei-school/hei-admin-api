@@ -78,6 +78,7 @@ public class SecurityConf {
 
         // authenticate
         .authenticationProvider(authProvider)
+            /*
         .addFilterBefore(
             bearerFilter(
                 new NegatedRequestMatcher(
@@ -90,11 +91,15 @@ public class SecurityConf {
                         new AntPathRequestMatcher("/health/bucket", GET.name()),
                         new AntPathRequestMatcher("/**", OPTIONS.toString())))),
             AnonymousAuthenticationFilter.class)
+             */
 
         // authorize
         .authorizeHttpRequests(
             request ->
                 request
+                    .requestMatchers(
+                        new OrRequestMatcher(new AntPathRequestMatcher("/ping", GET.name())))
+                    .permitAll()
                     .requestMatchers(GET, "/ping")
                     .permitAll()
                     .requestMatchers(GET, "/health/db")
