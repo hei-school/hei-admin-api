@@ -21,7 +21,7 @@ public class EventDao {
   private final EntityManager entityManager;
 
   public List<Event> findByCriteria(
-      Instant from, Instant to, EventType eventType, Pageable pageable) {
+      String title, Instant from, Instant to, EventType eventType, Pageable pageable) {
 
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Event> query = builder.createQuery(Event.class);
@@ -29,6 +29,12 @@ public class EventDao {
 
     List<Predicate> predicates = new ArrayList<>();
 
+    if (title != null) {
+      predicates.add(
+          builder.or(
+              builder.like(builder.lower(root.get("title")), "%" + title + "%"),
+              builder.like(root.get("title"), "%" + title + "%")));
+    }
     if (from != null) {
       predicates.add(builder.greaterThanOrEqualTo(root.get("beginDatetime"), from));
     }

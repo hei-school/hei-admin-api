@@ -972,6 +972,7 @@ public class TestUtils {
         .beginDatetime(Instant.parse("2022-12-20T08:00:00.00Z"))
         .endDatetime(Instant.parse("2022-12-20T10:00:00.00Z"))
         .description("Prog1 course")
+        .title("PROG1")
         .planner(planner1());
   }
 
@@ -983,6 +984,7 @@ public class TestUtils {
         .beginDatetime(Instant.parse("2022-12-08T08:00:00.00Z"))
         .endDatetime(Instant.parse("2022-12-08T12:00:00.00Z"))
         .course(null)
+        .title("Integration Day")
         .description("HEI students integration day");
   }
 
@@ -1001,6 +1003,7 @@ public class TestUtils {
         .description("Seminar about Python programming language")
         .beginDatetime(Instant.parse("2022-12-09T08:00:00.00Z"))
         .endDatetime(Instant.parse("2022-12-09T12:00:00.00Z"))
+        .title("December Seminar")
         .course(null);
   }
 
