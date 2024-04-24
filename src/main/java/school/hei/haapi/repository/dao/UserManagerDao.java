@@ -1,7 +1,10 @@
 package school.hei.haapi.repository.dao;
 
+import static jakarta.persistence.criteria.JoinType.LEFT;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
+import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +14,7 @@ import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.WorkDocument;
 
 @Repository
 @AllArgsConstructor
@@ -25,10 +29,15 @@ public class UserManagerDao {
       Pageable pageable,
       User.Status status,
       User.Sex sex,
-      WorkStudyStatus workStatus) {
+      WorkStudyStatus workStatus,
+      Instant commitmentBeginDate,
+      String courseId) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
+    Join<User, WorkDocument> workDocumentJoin = root.join("workDocuments", LEFT);
+    Join<User, AwardedCourse> awardedCourseJoin = root.join("awardedCourses", LEFT);
+    Join<AwardedCourse, Course> courseJoin = awardedCourseJoin.join("course", LEFT);
     Predicate predicate = builder.conjunction();
 
     Predicate hasUserRef =
@@ -47,6 +56,19 @@ public class UserManagerDao {
             builder.like(root.get("lastName"), "%" + lastName + "%"));
 
     Predicate hasUserRole = builder.equal(root.get("role"), role);
+
+    if (courseId != null && !courseId.isEmpty() && !courseId.isBlank()) {
+      Expression<String> courseIdExpression = courseJoin.get("id");
+      predicate = builder.and(predicate, builder.equal(courseIdExpression, courseId));
+    }
+
+    if (commitmentBeginDate != null) {
+      Expression<Instant> commitmentBeginExpression = workDocumentJoin.get("commitmentBegin");
+      predicate =
+          builder.and(
+              predicate,
+              builder.greaterThanOrEqualTo(commitmentBeginExpression, commitmentBeginDate));
+    }
 
     if (workStatus != null) {
       Expression<WorkStudyStatus> workStatusExpression = root.get("workStatus");

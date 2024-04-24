@@ -24,6 +24,7 @@ import static school.hei.haapi.integration.conf.TestUtils.fee3;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.time.Instant;
@@ -36,6 +37,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.event.EventConsumer;
+import school.hei.haapi.endpoint.event.gen.UpdateFeesStatusToLateTriggered;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -50,6 +53,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 @ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class FeeIT extends MockedThirdParties {
+  @Autowired EventConsumer subject;
   @Autowired EntityManager entityManager;
 
   /***
@@ -77,6 +81,21 @@ class FeeIT extends MockedThirdParties {
   void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
+  }
+
+  @Test
+  void update_fee_status_payment_is_persisted()
+      throws InterruptedException, JsonProcessingException {
+    UpdateFeesStatusToLateTriggered feesStatusToLateTriggered =
+        UpdateFeesStatusToLateTriggered.builder().build();
+
+    subject.accept(
+        List.of(
+            new EventConsumer.AcknowledgeableTypedEvent(
+                new EventConsumer.TypedEvent(
+                    "school.hei.haapi.endpoint.event.gen.UpdateFeesStatusToLateTriggered",
+                    feesStatusToLateTriggered),
+                () -> {})));
   }
 
   @Test
@@ -172,7 +191,7 @@ class FeeIT extends MockedThirdParties {
 
     List<Fee> actualUpdated = api.updateStudentFees(STUDENT1_ID, List.of(updatedFee));
 
-    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 10, null);
     assertTrue(expected.containsAll(actual));
 
     assertEquals(1, actualUpdated.size());

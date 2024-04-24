@@ -2,7 +2,6 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
 import school.hei.haapi.endpoint.rest.model.GroupFlow;
@@ -10,14 +9,12 @@ import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
 
 @Component
-@AllArgsConstructor
 public class GroupFlowMapper {
-  private final UserMapper userMapper;
 
   public GroupFlow toRest(school.hei.haapi.model.GroupFlow domain) {
     return new GroupFlow()
         .id(domain.getId())
-        .flowdDateTime(domain.getFlowDatetime())
+        .flowDatetime(domain.getFlowDatetime())
         .groupId(domain.getGroup().getId())
         .studentId(domain.getStudent().getId())
         .moveType(GroupFlow.MoveTypeEnum.fromValue(domain.getGroupFlowType().toString()));

@@ -25,7 +25,6 @@ import org.hibernate.annotations.CreationTimestamp;
 @Table(name = "\"group\"")
 @Getter
 @Setter
-@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,10 +39,29 @@ public class Group implements Serializable {
   @CreationTimestamp private Instant creationDatetime;
 
   @OneToMany(mappedBy = "group", fetch = LAZY)
+  @ToString.Exclude
   private List<AwardedCourse> awardedCourse;
 
   @OneToMany(mappedBy = "group", fetch = LAZY)
+  @ToString.Exclude
   private List<GroupFlow> groupFlows;
+
+  @Override
+  public String toString() {
+    return "Group{"
+        + "id='"
+        + id
+        + '\''
+        + ", name='"
+        + name
+        + '\''
+        + ", ref='"
+        + ref
+        + '\''
+        + ", creationDatetime="
+        + creationDatetime
+        + '}';
+  }
 
   @Override
   public boolean equals(Object o) {

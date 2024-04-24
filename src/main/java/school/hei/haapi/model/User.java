@@ -35,7 +35,6 @@ import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 @Table(name = "\"user\"")
 @Getter
 @Setter
-@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -88,13 +87,19 @@ public class User implements Serializable {
   private String profilePictureKey;
 
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
+  @ToString.Exclude
   private List<AwardedCourse> awardedCourses;
 
   @OneToMany(mappedBy = "student", fetch = LAZY)
+  @ToString.Exclude
   private List<GroupFlow> groupFlows;
 
   @OneToMany(mappedBy = "student", fetch = LAZY)
+  @ToString.Exclude
   private List<Grade> grades;
+
+  @OneToMany(mappedBy = "student", fetch = LAZY)
+  private List<WorkDocument> workDocuments;
 
   private Double longitude;
   private Double latitude;
@@ -120,6 +125,63 @@ public class User implements Serializable {
   @Override
   public int hashCode() {
     return getClass().hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return "User{"
+        + "id='"
+        + id
+        + '\''
+        + ", firstName='"
+        + firstName
+        + '\''
+        + ", lastName='"
+        + lastName
+        + '\''
+        + ", email='"
+        + email
+        + '\''
+        + ", ref='"
+        + ref
+        + '\''
+        + ", nic='"
+        + nic
+        + '\''
+        + ", status="
+        + status
+        + ", phone='"
+        + phone
+        + '\''
+        + ", birthDate="
+        + birthDate
+        + ", birthPlace='"
+        + birthPlace
+        + '\''
+        + ", entranceDatetime="
+        + entranceDatetime
+        + ", specializationField="
+        + specializationField
+        + ", sex="
+        + sex
+        + ", address='"
+        + address
+        + '\''
+        + ", role="
+        + role
+        + ", profilePictureKey='"
+        + profilePictureKey
+        + '\''
+        + ", longitude="
+        + longitude
+        + ", latitude="
+        + latitude
+        + ", highSchoolOrigin='"
+        + highSchoolOrigin
+        + '\''
+        + ", workStatus="
+        + workStatus
+        + '}';
   }
 
   public enum Sex {

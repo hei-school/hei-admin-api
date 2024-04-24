@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
@@ -54,7 +55,7 @@ public class StudentController {
 
   // todo: to review
   @GetMapping("/groups/{groupId}/students")
-  public List<Student> getStudentByGroupId(@PathVariable String groupId) {
+  public List<Student> getStudentsByGroupId(@PathVariable String groupId) {
     return userService.getByGroupId(groupId).stream()
         .map(userMapper::toRestStudent)
         .collect(Collectors.toUnmodifiableList());
@@ -70,7 +71,8 @@ public class StudentController {
       @RequestParam(value = "course_id", required = false, defaultValue = "") String courseId,
       @RequestParam(name = "status", required = false) EnableStatus status,
       @RequestParam(name = "sex", required = false) Sex sex,
-      @RequestParam(name = "work_study_status", required = false) WorkStudyStatus workStatus) {
+      @RequestParam(name = "work_study_status", required = false) WorkStudyStatus workStatus,
+      @RequestParam(name = "commitment_begin_date", required = false) Instant commitmentBeginDate) {
     User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
     User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
     return userService
@@ -84,7 +86,8 @@ public class StudentController {
             pageSize,
             domainStatus,
             domainSex,
-            workStatus)
+            workStatus,
+            commitmentBeginDate)
         .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
@@ -109,8 +112,10 @@ public class StudentController {
   }
 
   @PostMapping("/students/{id}/group_flows")
-  public GroupFlow saveStudentGroup(
-      @PathVariable String id, @RequestBody CreateGroupFlow createGroupFlow) {
-    return groupFlowMapper.toRest(groupFlowService.save(createGroupFlow));
+  public List<GroupFlow> moveOrDeleteStudentInGroup(
+      @PathVariable(name = "id") String id, @RequestBody List<CreateGroupFlow> createGroupFlow) {
+    return groupFlowService.saveAll(createGroupFlow).stream()
+        .map(groupFlowMapper::toRest)
+        .collect(toUnmodifiableList());
   }
 }

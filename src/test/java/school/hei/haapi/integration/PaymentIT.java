@@ -181,6 +181,8 @@ class PaymentIT extends MockedThirdParties {
 
     Payment deletedPayment = api.deleteStudentFeePaymentById(STUDENT1_ID, FEE1_ID, PAYMENT1_ID);
     assertEquals(payment1(), deletedPayment);
+    Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
+    assertEquals(2000, actualFee.getRemainingAmount());
 
     List<Payment> payments = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, 5);
     assertFalse(payments.contains(deletedPayment));

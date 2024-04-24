@@ -1,3 +1,55 @@
+# [1.21.0](https://github.com/hei-school/hei-admin-api/compare/v1.20.0...v1.21.0) (2024-04-17)
+
+
+### Features
+
+* get mpbs verifications ([a097964](https://github.com/hei-school/hei-admin-api/commit/a0979649e38667e31b0f27eb0cb6fc13658d3e19))
+* mobile payment by student reources  ([a219a8b](https://github.com/hei-school/hei-admin-api/commit/a219a8bc8f52665f90f470fdb74a88cb57284a2d))
+
+
+
+# [1.20.0](https://github.com/hei-school/hei-admin-api/compare/v1.19.0...v1.20.0) (2024-04-16)
+
+
+### Features
+
+* **not-implemented:** mobile payment by student  ([e0d0a41](https://github.com/hei-school/hei-admin-api/commit/e0d0a41257af7da7bb716d5dae7c4b9875a40757))
+
+
+
+# [1.19.0](https://github.com/hei-school/hei-admin-api/compare/v1.18.0...v1.19.0) (2024-04-12)
+
+
+### Features
+
+* insert multiple group flows for a student  ([6c166bb](https://github.com/hei-school/hei-admin-api/commit/6c166bb7d8512af81f286e99435295f3e9270636))
+
+
+
+# [1.18.0](https://github.com/hei-school/hei-admin-api/compare/v1.17.0...v1.18.0) (2024-04-12)
+
+
+### Features
+
+* filter students by commitment begin date  ([cf7ebb9](https://github.com/hei-school/hei-admin-api/commit/cf7ebb947bc0e33628bdefebda01ff744d05a012))
+
+
+
+# [1.17.0](https://github.com/hei-school/hei-admin-api/compare/v1.16.0...v1.17.0) (2024-04-09)
+
+
+### Bug Fixes
+
+* fees remove payment after updating status  ([142c7c5](https://github.com/hei-school/hei-admin-api/commit/142c7c5f76bcd0716c4857e4e919a257cc27a4e0))
+* reset remaining amount after deleting payment  ([487c65c](https://github.com/hei-school/hei-admin-api/commit/487c65c6a22f195fd09de564b7b0799f74b2d342))
+
+
+### Features
+
+* **not-implemented:** promotion endpoint ([034997d](https://github.com/hei-school/hei-admin-api/commit/034997d82801502e490a8b31f76e80eaef1fa849))
+
+
+
 # [1.16.0](https://github.com/hei-school/hei-admin-api/compare/v1.15.0...v1.16.0) (2024-04-03)
 
 
@@ -53,56 +105,6 @@
 ### Bug Fixes
 
 * picture url removed after updating user  ([cf4bc70](https://github.com/hei-school/hei-admin-api/commit/cf4bc706ca684b7a7b6b826d1db2db22eb2051b6))
-
-
-
-## [1.10.2](https://github.com/hei-school/hei-admin-api/compare/v1.10.1...v1.10.2) (2024-03-07)
-
-
-### Bug Fixes
-
-* make files resources pagination to required  ([a5b144c](https://github.com/hei-school/hei-admin-api/commit/a5b144c3d261e049fc454c962e0361af79d88d75))
-
-
-
-## [1.10.1](https://github.com/hei-school/hei-admin-api/compare/v1.10.0...v1.10.1) (2024-03-07)
-
-
-### Bug Fixes
-
-* school files pagination ([06fad4a](https://github.com/hei-school/hei-admin-api/commit/06fad4a3c977506de663c7b0d30fffec1e56b2a4))
-
-
-
-# [1.10.0](https://github.com/hei-school/hei-admin-api/compare/v1.9.0...v1.10.0) (2024-03-05)
-
-
-### Features
-
-* document health database check endpoint  ([7b06e02](https://github.com/hei-school/hei-admin-api/commit/7b06e022ef641cbe9131cf644ce31d015877804f))
-
-
-
-# [1.9.0](https://github.com/hei-school/hei-admin-api/compare/v1.8.0...v1.9.0) (2024-03-05)
-
-
-### Features
-
-* inject event gen class dependency with all args  ([49ef0b4](https://github.com/hei-school/hei-admin-api/commit/49ef0b485083c28248db48ca201cb70be09e803e))
-
-
-
-# [1.8.0](https://github.com/hei-school/hei-admin-api/compare/v1.7.0...v1.8.0) (2024-03-04)
-
-
-### Bug Fixes
-
-* observer has profile picture ([4f25dd9](https://github.com/hei-school/hei-admin-api/commit/4f25dd949337579d89b49e0878a777d1044782d0))
-
-
-### Features
-
-* refactor request body documentation for uploading file ([5f6666c](https://github.com/hei-school/hei-admin-api/commit/5f6666c86c517a76a98998ba1b440e0cca9ec699))
 
 
 

@@ -88,15 +88,15 @@ class PaginationIT extends MockedThirdParties {
     UsersApi api = new UsersApi(teacher1Client);
 
     final List<Student> page1 =
-        api.getStudents(1, pageSize, null, null, null, null, null, null, null);
+        api.getStudents(1, pageSize, null, null, null, null, null, null, null, null);
     final List<Student> page2 =
-        api.getStudents(2, pageSize, null, null, null, null, null, null, null);
+        api.getStudents(2, pageSize, null, null, null, null, null, null, null, null);
     final List<Student> page3 =
-        api.getStudents(3, pageSize, null, null, null, null, null, null, null);
+        api.getStudents(3, pageSize, null, null, null, null, null, null, null, null);
     final List<Student> page4 =
-        api.getStudents(4, pageSize, null, null, null, null, null, null, null);
+        api.getStudents(4, pageSize, null, null, null, null, null, null, null, null);
     final List<Student> page100 =
-        api.getStudents(100, pageSize, null, null, null, null, null, null, null);
+        api.getStudents(100, pageSize, null, null, null, null, null, null, null, null);
 
     assertEquals(pageSize, page1.size());
     assertEquals(pageSize, page2.size());
@@ -121,7 +121,7 @@ class PaginationIT extends MockedThirdParties {
 
     assertEquals(pageSize, page1.size());
     assertEquals(2, page2.size());
-    assertEquals(0, page3.size());
+    assertEquals(2, page3.size());
     assertTrue(isAfter(page1.get(0).getDueDatetime(), page1.get(1).getDueDatetime()));
     assertTrue(isAfter(page1.get(1).getDueDatetime(), page2.get(0).getDueDatetime()));
   }
@@ -158,10 +158,10 @@ class PaginationIT extends MockedThirdParties {
     UsersApi api = new UsersApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page value must be >= 1\"}",
-        () -> api.getStudents(0, 20, null, null, null, null, null, null, null));
+        () -> api.getStudents(0, 20, null, null, null, null, null, null, null, null));
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",
-        () -> api.getStudents(1, 1000, null, null, null, null, null, null, null));
+        () -> api.getStudents(1, 1000, null, null, null, null, null, null, null, null));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

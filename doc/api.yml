@@ -415,6 +415,13 @@ paths:
           description: Filter students by work study status
           schema:
             $ref: '#/components/schemas/WorkStudyStatus'
+        - name: commitment_begin_date
+          required: false
+          in: query
+          description: Filter students by commitment begin date
+          schema:
+            type: string
+            format: date-time
       responses:
         '200':
           description: List of students, ordered by ref.
@@ -948,27 +955,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-        - name: page_size
-          in: query
-          schema:
-            $ref: '#/components/schemas/PageSize'
-        - name: status
-          required: false
-          in: query
-          description: Filter students by status value return all by default
-          schema:
-            $ref: '#/components/schemas/EnableStatus'
-        - name: sex
-          required: false
-          in: query
-          description: Filter students by sex value return all by default
-          schema:
-            $ref: '#/components/schemas/Sex'
-      operationId: getAllStudentByGroup
+      operationId: getStudentsByGroupId
       responses:
         '200':
           description: List of all student in specific awarded_course and group
@@ -1000,17 +987,6 @@ paths:
           required: true
           schema:
             type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
       operationId: moveOrDeleteStudentInGroup
       requestBody:
         description: Movement of a student towards a group to create.
@@ -1027,7 +1003,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupFlow'
+                type: array
+                items:
+                  $ref: '#/components/schemas/GroupFlow'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1804,13 +1782,13 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{student_id}/fees/{fee_id}/payments/{payment_id}:
-    delete:
+
+  /students/{student_id}/fees/{fee_id}/mpbs:
+    get:
       tags:
         - Paying
-      summary: Delete student payment on a fee.
-      description: Soft delete
-      operationId: deleteStudentFeePaymentById
+      summary: Get, if exists, the Mobile Payment By Student - (MPBS) associated to the fee.
+      operationId: getMpbs
       parameters:
         - name: student_id
           in: path
@@ -1822,18 +1800,103 @@ paths:
           required: true
           schema:
             type: string
-        - name: payment_id
+      responses:
+        '200':
+          description: The MPBS
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mpbs'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Paying
+      summary: |
+        Create a MPBS.
+        Only the student that owns the fee can do it.
+        No manager nor teacher can.
+      description: |
+        The payload has no `amount` field
+        since a MPBS implicitly pays the remaining unpaid amount of the fee.
+        
+        In case the amount paid by the student differs,
+        then the (scheduled) verifications will fail and manual fix from a manager is required.
+        
+        When the verification succeeds, and only then,
+        a `Fee.Payment` object is automatically created to reflect the `Fee.Mbps`.
+      operationId: createMpbs
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: The MPBS to create
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateMpbs'
+      responses:
+        '200':
+          description: The created MPBS
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mpbs'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/fees/{fee_id}/mpbs/verifications:
+    get:
+      tags:
+        - Paying
+      summary: |
+        Get list of MpbsVerification associated to the Mpbs.
+        Verifications are scheduled 4 times a day.
+      operationId: getMpbsVerifications
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
           in: path
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: deleted payment
+          description: The list of MbpsVerification
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Payment'
+                type: array
+                items:
+                  $ref: '#/components/schemas/MpbsVerification'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1922,6 +1985,46 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Payment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/fees/{fee_id}/payments/{payment_id}:
+    delete:
+      tags:
+        - Paying
+      summary: Delete student payment on a fee.
+      description: Soft delete
+      operationId: deleteStudentFeePaymentById
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: payment_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: deleted payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Payment'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2864,7 +2967,7 @@ paths:
       operationId: postComment
       parameters:
         - name: student_id
-          in : path
+          in: path
           required: true
           schema:
             type: string
@@ -2936,6 +3039,11 @@ paths:
           description: Filter announcements by author ref
           schema:
             type: string
+        - name: scope
+          in: query
+          description: Filter by scope
+          schema:
+            $ref: '#/components/schemas/Scope'
       responses:
         '200':
           description: Announcements filtered with criteria if provided
@@ -2977,7 +3085,7 @@ paths:
               schema:
                 $ref: '#/components/schemas/Announcement'
 
-  '/students/announcements' :
+  '/students/announcements':
     get:
       tags:
         - Announcements
@@ -3029,7 +3137,7 @@ paths:
                 items:
                   $ref: '#/components/schemas/Announcement'
 
-  '/teachers/announcements' :
+  '/teachers/announcements':
     get:
       tags:
         - Announcements
@@ -3075,6 +3183,115 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Announcement'
+  '/promotions':
+    get:
+      tags:
+        - Promotions
+      operationId: getPromotions
+      summary: Get all promotions
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+          required: false
+        - name: name
+          in: query
+          description: Filter promotion by name
+          schema:
+            type: string
+          required: false
+        - name: ref
+          in: query
+          description: Filter promotion by ref
+          schema:
+            type: string
+        - name: group_ref
+          in: query
+          description: Filter promotion by group ref
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Promotions filtered with criteria if provided
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Promotion'
+    put:
+      tags:
+        - Promotions
+      operationId: crupdatePromotion
+      summary: Update promotion if `id` provided, create otherwise
+      requestBody:
+        description: Create or update promotion
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrupdatePromotion'
+
+      responses:
+        '200':
+          description: The promotion created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+  '/promotions/{id}':
+    get:
+      tags:
+        - Promotions
+      operationId: getPromotionById
+      summary: Get promotion by the given id
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The promotion queried
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
+
+  '/promotions/{id}/groups':
+    put:
+      tags:
+        - Promotions
+      operationId: updatePromotionGroups
+      summary: Add or remove promotion's groups
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: List of group ids to add
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePromotionSGroup'
+      responses:
+        '200':
+          description: The promotion created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Promotion'
 components:
   securitySchemes:
     BearerAuth:
@@ -3349,7 +3566,7 @@ components:
     CreateGroup:
       type: object
       properties:
-        studentsToAdd:
+        students:
           type: array
           items:
             type: string
@@ -3360,7 +3577,7 @@ components:
       properties:
         id:
           type: string
-        flowdDateTime:
+        flow_datetime:
           type: string
           format: date-time
       allOf:
@@ -3368,14 +3585,14 @@ components:
     CreateGroupFlow:
       type: object
       properties:
-        MoveType:
+        move_type:
           type: string
           enum:
             - JOIN
             - LEAVE
-        groupId:
+        group_id:
           type: string
-        studentId:
+        student_id:
           type: string
     CourseTemplate:
       type: object
@@ -3531,6 +3748,14 @@ components:
         due_datetime:
           type: string
           format: date-time
+    ModelFee:
+      allOf:
+        - $ref: '#/components/schemas/Fee'
+      properties:
+        payments:
+          type: array
+          items:
+            $ref: '#/components/schemas/Payment'
     Fee:
       allOf:
         - $ref: '#/components/schemas/CreateFee'
@@ -3547,6 +3772,8 @@ components:
         updated_at:
           type: string
           format: date-time
+        mpbs:
+          $ref: '#/components/schemas/Mpbs'
     CreateDelayPenaltyChange:
       type: object
       properties:
@@ -3570,6 +3797,12 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    MobileMoneyType:
+      type: string
+      enum:
+        - MVOLA
+        - ORANGE_MONEY
+        - AIRTEL_MONEY
     CreatePayment:
       type: object
       properties:
@@ -3630,6 +3863,52 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    CreateMpbs:
+      type: object
+      properties:
+        student_id:
+          type: string
+        fee_id:
+          type: string
+        psp_id:
+          type: string
+          description: The couple `(fee_id, psp_id)` MUST be unique
+        psp_type:
+          $ref: '#/components/schemas/MobileMoneyType'
+    Mpbs:
+      allOf:
+        - $ref: '#/components/schemas/CreateMpbs'
+      type: object
+      properties:
+        amount:
+          type: integer
+        creation_datetime:
+          type: string
+          format: date-time
+        successfully_verified_on:
+          type: string
+          format: date-time
+    MpbsVerification:
+      allOf:
+        - $ref: '#/components/schemas/CreateMpbs'
+      type: object
+      properties:
+        amount_of_fee_remaining_payment:
+          type: integer
+        amount_in_psp:
+          type: integer
+        creation_datetime_of_payment_in_psp:
+          type: string
+          format: date-time
+        creation_datetime_of_mpbs:
+          type: string
+          format: date-time
+        creation_datetime:
+          type: string
+          format: date-time
+        comment:
+          type: string
+          description: In particular, PSP error messages go here
     CreateEvent:
       type: object
       properties:
@@ -3697,6 +3976,39 @@ components:
           $ref: '#/components/schemas/UserIdentifier'
         course:
           $ref: '#/components/schemas/Course'
+    CrupdatePromotion:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        ref:
+          type: string
+    UpdatePromotionSGroup:
+      type: object
+      properties:
+        type:
+          type: string
+          enum:
+            - ADD
+            - REMOVE
+        group_ids:
+          type: array
+          items:
+            type: string
+    Promotion:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/CrupdatePromotion'
+      properties:
+        creation_datetime:
+          type: string
+          format: date-time
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupIdentifier'
     FeeStatusEnum:
       type: string
       enum:
@@ -3790,9 +4102,6 @@ components:
           type: string
         content:
           type: string
-        creation_datetime:
-          format: date-time
-          type: string
         author_id:
           type: string
         scope:
@@ -3801,7 +4110,8 @@ components:
           type: array
           items:
             type: string
-          example: ["G1", "G2"]
+            example: [ "G1", "G2" ]
+            $ref: '#/components/schemas/GroupIdentifier'
     Scope:
       type: string
       enum:
