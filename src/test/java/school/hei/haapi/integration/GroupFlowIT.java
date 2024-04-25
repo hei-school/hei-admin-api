@@ -56,7 +56,7 @@ public class GroupFlowIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID);
+    List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID, 1, 10);
 
     assertEquals(2, group1Students.size());
   }
@@ -70,8 +70,8 @@ public class GroupFlowIT extends MockedThirdParties {
     List<GroupFlow> student2move =
         api.moveOrDeleteStudentInGroup(
             STUDENT2_ID, List.of(createStudent2LeavesGroup1(), createStudent2JoinGroup2()));
-    List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID);
-    List<Student> group2Students = api.getStudentsByGroupId(GROUP2_ID);
+    List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID, 1, 10);
+    List<Student> group2Students = api.getStudentsByGroupId(GROUP2_ID, 1, 10);
 
     assertEquals(1, group1Students.size());
     assertEquals(2, group2Students.size());
