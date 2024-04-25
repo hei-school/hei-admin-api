@@ -29,6 +29,7 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.repository.dao.GroupFlowDao;
 import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.service.aws.FileService;
 
@@ -41,6 +42,7 @@ public class UserService {
   private final UserValidator userValidator;
   private final UserManagerDao userManagerDao;
   private final GroupFlowRepository groupFlowRepository;
+  private final GroupFlowDao groupFlowDao;
   private final FileService fileService;
   private final MultipartFileConverter fileConverter;
 
@@ -170,6 +172,25 @@ public class UserService {
     List<User> groupedStudentsLeave = new ArrayList<>();
 
     studentsGroupFlow.forEach(
+            groupFlow -> {
+              if (groupFlow.getGroupFlowType().equals(LEAVE)) {
+                groupedStudentsLeave.add(groupFlow.getStudent());
+              }
+              if (!groupedStudentsLeave.stream().distinct().toList().contains(groupFlow.getStudent())) {
+                groupedStudentsJoin.add(groupFlow.getStudent());
+              }
+            });
+
+    return groupedStudentsJoin.stream().distinct().collect(toList());
+  }
+
+  public List<User> getByGroupId(String groupId, PageFromOne page, BoundedPageSize pageSize) {
+    Sort sortable = Sort.by(DESC, "flowDatetime");
+    List<GroupFlow> studentsGroupFlow = groupFlowRepository.findAllByGroupId(groupId, sortable);
+    List<User> groupedStudentsJoin = new ArrayList<>();
+    List<User> groupedStudentsLeave = new ArrayList<>();
+
+    studentsGroupFlow.forEach(
         groupFlow -> {
           if (groupFlow.getGroupFlowType().equals(LEAVE)) {
             groupedStudentsLeave.add(groupFlow.getStudent());
@@ -178,6 +199,10 @@ public class UserService {
             groupedStudentsJoin.add(groupFlow.getStudent());
           }
         });
-    return groupedStudentsJoin.stream().distinct().collect(toList());
+    // Calculate start and end index for pagination
+    int startIndex = (page.getValue() - 1) * pageSize.getValue();
+    int endIndex = Math.min(startIndex + pageSize.getValue(), groupedStudentsJoin.size());
+
+    return groupedStudentsJoin.subList(startIndex, endIndex);
   }
 }
