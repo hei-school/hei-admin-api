@@ -15,10 +15,9 @@ public class SentryConf {
 
   private static final double TRACES_SAMPLE_RATE = 1.0;
 
-  public SentryConf(
-      @Value("${sentry.dsn}") String sentryDsn, @Value("${sentry.environment}") String env) {
+  public SentryConf(@Value("${sentry.dsn}") String sentryDsn) {
     this.sentryDsn = sentryDsn;
-    this.env = env;
+    this.env = "env";
   }
 
   @Bean

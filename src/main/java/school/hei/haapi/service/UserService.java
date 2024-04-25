@@ -172,25 +172,6 @@ public class UserService {
     List<User> groupedStudentsLeave = new ArrayList<>();
 
     studentsGroupFlow.forEach(
-            groupFlow -> {
-              if (groupFlow.getGroupFlowType().equals(LEAVE)) {
-                groupedStudentsLeave.add(groupFlow.getStudent());
-              }
-              if (!groupedStudentsLeave.stream().distinct().toList().contains(groupFlow.getStudent())) {
-                groupedStudentsJoin.add(groupFlow.getStudent());
-              }
-            });
-
-    return groupedStudentsJoin.stream().distinct().collect(toList());
-  }
-
-  public List<User> getByGroupId(String groupId, PageFromOne page, BoundedPageSize pageSize) {
-    Sort sortable = Sort.by(DESC, "flowDatetime");
-    List<GroupFlow> studentsGroupFlow = groupFlowRepository.findAllByGroupId(groupId, sortable);
-    List<User> groupedStudentsJoin = new ArrayList<>();
-    List<User> groupedStudentsLeave = new ArrayList<>();
-
-    studentsGroupFlow.forEach(
         groupFlow -> {
           if (groupFlow.getGroupFlowType().equals(LEAVE)) {
             groupedStudentsLeave.add(groupFlow.getStudent());
@@ -199,10 +180,16 @@ public class UserService {
             groupedStudentsJoin.add(groupFlow.getStudent());
           }
         });
+
+    return groupedStudentsJoin.stream().distinct().collect(toList());
+  }
+
+  public List<User> getByGroupId(String groupId, PageFromOne page, BoundedPageSize pageSize) {
+    var returnedStudent = getByGroupId(groupId);
     // Calculate start and end index for pagination
     int startIndex = (page.getValue() - 1) * pageSize.getValue();
-    int endIndex = Math.min(startIndex + pageSize.getValue(), groupedStudentsJoin.size());
+    int endIndex = Math.min(startIndex + pageSize.getValue(), returnedStudent.size());
 
-    return groupedStudentsJoin.subList(startIndex, endIndex);
+    return returnedStudent.subList(startIndex, endIndex);
   }
 }
