@@ -13,6 +13,7 @@ import static school.hei.haapi.integration.conf.TestUtils.GROUP2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -62,6 +63,36 @@ public class GroupFlowIT extends MockedThirdParties {
   }
 
   @Test
+  void student_leaves_same_group_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+    String expectedBody =
+        "{"
+            + "\"type\":\"400 BAD_REQUEST\","
+            + "\"message\":\"Student is already leave this group\"}";
+
+    api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2LeavesGroup2()));
+
+    assertThrowsApiException(
+        expectedBody,
+        () -> api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2LeavesGroup2())));
+  }
+
+  @Test
+  void insert_two_student_in_same_group_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+    String expectedBody =
+        "{" + "\"type\":\"400 BAD_REQUEST\"," + "\"message\":\"Student is already in group\"}";
+
+    api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2JoinsGroup2()));
+
+    assertThrowsApiException(
+        expectedBody,
+        () -> api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2JoinsGroup2())));
+  }
+
+  @Test
   @DirtiesContext
   void manager_moves_student2_to_group2_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -69,7 +100,7 @@ public class GroupFlowIT extends MockedThirdParties {
 
     List<GroupFlow> student2move =
         api.moveOrDeleteStudentInGroup(
-            STUDENT2_ID, List.of(createStudent2LeavesGroup1(), createStudent2JoinGroup2()));
+            STUDENT2_ID, List.of(createStudent2LeavesGroup1(), createStudent2JoinsGroup2()));
     List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID, 1, 10);
     List<Student> group2Students = api.getStudentsByGroupId(GROUP2_ID, 1, 10);
 
@@ -85,7 +116,11 @@ public class GroupFlowIT extends MockedThirdParties {
         .moveType(GroupFlow.MoveTypeEnum.LEAVE);
   }
 
-  public CreateGroupFlow createStudent2JoinGroup2() {
+  public CreateGroupFlow createStudent2LeavesGroup2() {
+    return new CreateGroupFlow().groupId(GROUP2_ID).studentId(STUDENT2_ID).moveType(LEAVE);
+  }
+
+  public CreateGroupFlow createStudent2JoinsGroup2() {
     return new CreateGroupFlow().groupId(GROUP2_ID).studentId(STUDENT2_ID).moveType(JOIN);
   }
 

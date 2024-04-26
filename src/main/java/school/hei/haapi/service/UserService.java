@@ -29,7 +29,6 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.UserRepository;
-import school.hei.haapi.repository.dao.GroupFlowDao;
 import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.service.aws.FileService;
 
@@ -42,7 +41,6 @@ public class UserService {
   private final UserValidator userValidator;
   private final UserManagerDao userManagerDao;
   private final GroupFlowRepository groupFlowRepository;
-  private final GroupFlowDao groupFlowDao;
   private final FileService fileService;
   private final MultipartFileConverter fileConverter;
 
