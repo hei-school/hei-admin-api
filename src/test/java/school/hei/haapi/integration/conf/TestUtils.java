@@ -1105,8 +1105,6 @@ public class TestUtils {
   }
 
   public static Announcement announcementForManager() {
-    // 'Comptabilité', 'Veuillez vérifier nos comptes', 'manager1_id', '2022-12-15T08:00:00.00Z',
-    // 'MANAGER'
     return new Announcement()
         .id(ANNOUNCEMENT4_ID)
         .author(author1())

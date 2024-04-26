@@ -3084,6 +3084,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Announcement'
+  /announcements/{id}:
+    get:
+      tags:
+        - Announcements
+      summary: Get announcement by identifier
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: getAnnouncementById
+      responses:
+        '200':
+          description: Announcement by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
   '/students/announcements':
     get:
@@ -3137,6 +3166,36 @@ paths:
                 items:
                   $ref: '#/components/schemas/Announcement'
 
+  /students/announcements/{id}:
+    get:
+      tags:
+        - Announcements
+      summary: Get announcement for student by identifier
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: getStudentsAnnouncementById
+      responses:
+        '200':
+          description: Announcement by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
   '/teachers/announcements':
     get:
       tags:
@@ -3183,6 +3242,35 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Announcement'
+  /teachers/announcements/{id}:
+    get:
+      tags:
+      - Announcements
+      summary: Get teacher announcement by identifier
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: getTeacherAnnouncementById
+      responses:
+        '200':
+          description: Announcement by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/promotions':
     get:
       tags:

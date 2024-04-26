@@ -7,6 +7,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static school.hei.haapi.endpoint.rest.model.Scope.TEACHER;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT3_ID;
+import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
@@ -51,7 +55,6 @@ public class AnnouncementIT extends MockedThirdParties {
 
   @MockBean EventProducer producer;
 
-  // TODO: fix access denied
   @Test
   void manager_read_announcements_ok() throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
@@ -93,6 +96,45 @@ public class AnnouncementIT extends MockedThirdParties {
     assertTrue(announcementsFilteredByScope.contains(announcementForTeacher()));
     assertFalse(announcementsFilteredByScope.contains(announcementEspeciallyForG1()));
     assertFalse(announcementsFilteredByScope.contains(announcementForManager()));
+  }
+
+  @Test
+  void manager_read_by_id_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+    AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+    Announcement actual = api.getAnnouncementById(ANNOUNCEMENT1_ID);
+    assertEquals(announcementForAll(), actual);
+  }
+
+  @Test
+  void teacher_read_by_id_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
+    AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+    Announcement actual = api.getTeacherAnnouncementById(ANNOUNCEMENT2_ID);
+    assertEquals(announcementForTeacher(), actual);
+  }
+
+  @Test
+  void student_read_by_id_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
+    AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+    Announcement actual = api.getStudentsAnnouncementById(ANNOUNCEMENT3_ID);
+    assertEquals(announcementEspeciallyForG1(), actual);
+  }
+
+  @Test
+  void read_by_id_ko() {
+    ApiClient studentApiClient = anApiClient(STUDENT1_TOKEN);
+    AnnouncementsApi apiStudent = new AnnouncementsApi(studentApiClient);
+
+    ApiClient teacherApiClient = anApiClient(TEACHER1_TOKEN);
+    AnnouncementsApi apiTeacher = new AnnouncementsApi(teacherApiClient);
+
+    assertThrowsForbiddenException(() -> apiStudent.getTeacherAnnouncementById(ANNOUNCEMENT2_ID));
+    assertThrowsForbiddenException(() -> apiTeacher.getAnnouncementById(ANNOUNCEMENT4_ID));
   }
 
   @Test

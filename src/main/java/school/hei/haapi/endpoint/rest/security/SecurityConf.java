@@ -114,11 +114,17 @@ public class SecurityConf {
                     // Announcements resources
                     //
                     .requestMatchers(GET, "/teachers/announcements")
-                    .hasAnyRole(TEACHER.getRole())
+                    .hasRole(TEACHER.getRole())
+                    .requestMatchers(GET, "/teachers/announcements/*")
+                    .hasRole(TEACHER.getRole())
                     .requestMatchers(GET, "/students/announcements")
-                    .hasAnyRole(STUDENT.getRole())
+                    .hasRole(STUDENT.getRole())
+                    .requestMatchers(GET, "/students/announcements/*")
+                    .hasRole(STUDENT.getRole())
                     .requestMatchers(GET, "/announcements")
-                    .hasAnyRole(MANAGER.getRole())
+                    .hasRole(MANAGER.getRole())
+                    .requestMatchers(GET, "/announcements/*")
+                    .hasRole(MANAGER.getRole())
                     .requestMatchers(POST, "/announcements")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     //
