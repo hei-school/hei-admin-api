@@ -10,6 +10,7 @@ import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -57,6 +58,11 @@ public class AnnouncementController {
         .collect(toUnmodifiableList());
   }
 
+  @GetMapping("/announcements/{id}")
+  public Announcement getAnnouncementById(@PathVariable String id) {
+    return announcementMapper.toRest(announcementService.getById(id, MANAGER_READABLE_SCOPES));
+  }
+
   @PostMapping("/announcements")
   private Announcement postAnnouncement(@RequestBody CreateAnnouncement announcement) {
     announcementValidator.accept(announcement);
@@ -80,6 +86,11 @@ public class AnnouncementController {
         .collect(toUnmodifiableList());
   }
 
+  @GetMapping("/students/announcements/{id}")
+  public Announcement getStudentsAnnouncementById(@PathVariable String id) {
+    return announcementMapper.toRest(announcementService.getById(id, STUDENT_READABLE_SCOPES));
+  }
+
   @GetMapping("/teachers/announcements")
   private List<Announcement> getTeacherAnnouncements(
       @RequestParam(name = "page") PageFromOne page,
@@ -92,5 +103,10 @@ public class AnnouncementController {
         .stream()
         .map(announcementMapper::toRest)
         .collect(toUnmodifiableList());
+  }
+
+  @GetMapping("/teachers/announcements/{id}")
+  public Announcement getTeachersAnnouncementById(@PathVariable String id) {
+    return announcementMapper.toRest(announcementService.getById(id, TEACHER_READABLE_SCOPES));
   }
 }

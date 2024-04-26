@@ -15,6 +15,8 @@ import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.model.Announcement;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.AnnouncementRepository;
 import school.hei.haapi.repository.dao.AnnouncementDao;
@@ -59,5 +61,16 @@ public class AnnouncementService {
                 .scope(announcementToCreate.getScope())
                 .build()));
     return saved;
+  }
+
+  public Announcement getById(String id, List<Scope> readableScope) {
+    Announcement announcement =
+        announcementRepository
+            .findById(id)
+            .orElseThrow(() -> new BadRequestException("Announcement not found"));
+    if (!readableScope.contains(announcement.getScope())) {
+      throw new ForbiddenException("You are not allowed to check this announcement");
+    }
+    return announcement;
   }
 }
