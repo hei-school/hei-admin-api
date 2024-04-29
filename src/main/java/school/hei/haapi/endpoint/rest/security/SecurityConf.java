@@ -405,6 +405,14 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
                     .requestMatchers(PUT, "/events/*/participants")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+                    .requestMatchers(GET, "/promotions")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
+                    .requestMatchers(PUT, "/promotions")
+                    .hasAnyRole(MANAGER.getRole())
+                    .requestMatchers("/promotions/*")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
+                    .requestMatchers(PUT, "/promotions/*/groups")
+                    .hasAnyRole(MANAGER.getRole())
                     //
                     // Attendances resources
                     //

@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateGroup;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
 
 @Component
 public class GroupMapper {
@@ -43,5 +44,9 @@ public class GroupMapper {
         .group(group)
         .students(restGroup.getStudents())
         .build();
+  }
+
+  public GroupIdentifier toRestGroupIdentifier(school.hei.haapi.model.Group domain) {
+    return new GroupIdentifier().id(domain.getId()).name(domain.getName()).ref(domain.getRef());
   }
 }

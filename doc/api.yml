@@ -3301,11 +3301,13 @@ paths:
           description: Filter promotion by ref
           schema:
             type: string
+          required: false
         - name: group_ref
           in: query
           description: Filter promotion by group ref
           schema:
             type: string
+          required: false
       responses:
         '200':
           description: Promotions filtered with criteria if provided
