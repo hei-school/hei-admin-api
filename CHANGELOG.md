@@ -1,3 +1,12 @@
+# [1.23.0](https://github.com/hei-school/hei-admin-api/compare/v1.22.0...v1.23.0) (2024-04-30)
+
+
+### Features
+
+* add pagination when fetching students group  ([1107816](https://github.com/hei-school/hei-admin-api/commit/1107816ce4d196a70982cc6c579f9c1b3a119e8d))
+
+
+
 # [1.22.0](https://github.com/hei-school/hei-admin-api/compare/v1.21.0...v1.22.0) (2024-04-30)
 
 
@@ -98,15 +107,6 @@
 * **not-implemented:** document student work file  ([1afca4e](https://github.com/hei-school/hei-admin-api/commit/1afca4e7b910e03971c3220151082e5324c22b7e))
 * **not-implemented:** document student work file  ([b90255f](https://github.com/hei-school/hei-admin-api/commit/b90255f329a2b69cf6a93c833abb17d49a4fc8c8))
 * **not-implemented:** document student work file  ([0540e4f](https://github.com/hei-school/hei-admin-api/commit/0540e4f7a99890394d025db919483620b591c8dc))
-
-
-
-# [1.11.0](https://github.com/hei-school/hei-admin-api/compare/v1.10.3...v1.11.0) (2024-03-19)
-
-
-### Features
-
-* **not-implemented:** latest grouped comments  ([41d567a](https://github.com/hei-school/hei-admin-api/commit/41d567a72db40d2c569527181f613aaa9c6d771e))
 
 
 
