@@ -1,3 +1,14 @@
+# [1.22.0](https://github.com/hei-school/hei-admin-api/compare/v1.21.0...v1.22.0) (2024-04-30)
+
+
+### Features
+
+* get announcement by id ([01ea24b](https://github.com/hei-school/hei-admin-api/commit/01ea24bffafbc6019fa5ef5b98dda9a43f34e3b3))
+* implement promotion resources ([de6a706](https://github.com/hei-school/hei-admin-api/commit/de6a706098b70f1031ca82e8c66bc5747e2db43f))
+* implements announcements resources ([46ddaba](https://github.com/hei-school/hei-admin-api/commit/46ddaba53ae599096c2c6601b696bb37de1705d2))
+
+
+
 # [1.21.0](https://github.com/hei-school/hei-admin-api/compare/v1.20.0...v1.21.0) (2024-04-17)
 
 
@@ -96,15 +107,6 @@
 ### Features
 
 * **not-implemented:** latest grouped comments  ([41d567a](https://github.com/hei-school/hei-admin-api/commit/41d567a72db40d2c569527181f613aaa9c6d771e))
-
-
-
-## [1.10.3](https://github.com/hei-school/hei-admin-api/compare/v1.10.2...v1.10.3) (2024-03-08)
-
-
-### Bug Fixes
-
-* picture url removed after updating user  ([cf4bc70](https://github.com/hei-school/hei-admin-api/commit/cf4bc706ca684b7a7b6b826d1db2db22eb2051b6))
 
 
 
