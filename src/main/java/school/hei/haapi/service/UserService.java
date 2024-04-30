@@ -188,6 +188,9 @@ public class UserService {
     int startIndex = (page.getValue() - 1) * pageSize.getValue();
     int endIndex = Math.min(startIndex + pageSize.getValue(), returnedStudent.size());
 
+    if (startIndex >= returnedStudent.size()) {
+      return List.of();
+    }
     return returnedStudent.subList(startIndex, endIndex);
   }
 }

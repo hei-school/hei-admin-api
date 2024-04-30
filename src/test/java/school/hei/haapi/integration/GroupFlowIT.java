@@ -1,6 +1,7 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.CreateGroupFlow.MoveTypeEnum.JOIN;
@@ -71,11 +72,17 @@ public class GroupFlowIT extends MockedThirdParties {
             + "\"type\":\"400 BAD_REQUEST\","
             + "\"message\":\"Student has already left this group\"}";
 
-    api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2LeavesGroup2()));
+    List<Student> actualStudentsGroup = api.getStudentsByGroupId(GROUP2_ID, 1, 20);
 
+    // Assert that specified student is really in actual group ...
+    assertTrue(actualStudentsGroup.contains(student2()));
+    // ... before handling duplicated leaves for this group
     assertThrowsApiException(
         expectedBody,
-        () -> api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2LeavesGroup2())));
+        () -> {
+          api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2LeavesGroup2()));
+          api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2LeavesGroup2()));
+        });
   }
 
   @Test
@@ -85,11 +92,17 @@ public class GroupFlowIT extends MockedThirdParties {
     String expectedBody =
         "{" + "\"type\":\"400 BAD_REQUEST\"," + "\"message\":\"Student is already in group\"}";
 
-    api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2JoinsGroup2()));
+    List<Student> actualStudentsGroup = api.getStudentsByGroupId(GROUP2_ID, 1, 20);
 
+    // Assert that specified student is not in actual group ...
+    assertFalse(actualStudentsGroup.contains(student2()));
+    // ... before handling duplicated joins for this group
     assertThrowsApiException(
         expectedBody,
-        () -> api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2JoinsGroup2())));
+        () -> {
+          api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2JoinsGroup2()));
+          api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2JoinsGroup2()));
+        });
   }
 
   @Test

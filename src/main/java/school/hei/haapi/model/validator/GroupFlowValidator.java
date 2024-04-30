@@ -27,6 +27,8 @@ public class GroupFlowValidator implements Consumer<GroupFlow> {
 
   @Override
   public void accept(GroupFlow groupFlow) {
+    var studentsGroup = userService.getByGroupId(groupFlow.getGroup().getId());
+
     Set<ConstraintViolation<GroupFlow>> violations = validator.validate(groupFlow);
     if (groupFlow.getGroup() == null) {
       throw new BadRequestException("Group is mandatory");
@@ -34,11 +36,11 @@ public class GroupFlowValidator implements Consumer<GroupFlow> {
     if (groupFlow.getStudent() == null) {
       throw new BadRequestException("Student is mandatory");
     }
-    if (userService.getByGroupId(groupFlow.getGroup().getId()).contains(groupFlow.getStudent())
+    if (studentsGroup.contains(groupFlow.getStudent())
         && groupFlow.getGroupFlowType().equals(JOIN)) {
       throw new BadRequestException("Student is already in group");
     }
-    if (!userService.getByGroupId(groupFlow.getGroup().getId()).contains(groupFlow.getStudent())
+    if (!studentsGroup.contains(groupFlow.getStudent())
         && groupFlow.getGroupFlowType().equals(LEAVE)) {
       throw new BadRequestException("Student has already left this group");
     }
