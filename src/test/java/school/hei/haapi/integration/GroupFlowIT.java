@@ -1,6 +1,7 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.CreateGroupFlow.MoveTypeEnum.JOIN;
@@ -13,6 +14,7 @@ import static school.hei.haapi.integration.conf.TestUtils.GROUP2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -56,9 +58,51 @@ public class GroupFlowIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID);
+    List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID, 1, 10);
 
     assertEquals(2, group1Students.size());
+  }
+
+  @Test
+  void student_leaves_same_group_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+    String expectedBody =
+        "{"
+            + "\"type\":\"400 BAD_REQUEST\","
+            + "\"message\":\"Student has already left this group\"}";
+
+    List<Student> actualStudentsGroup = api.getStudentsByGroupId(GROUP2_ID, 1, 20);
+
+    // Assert that specified student is really in actual group ...
+    assertTrue(actualStudentsGroup.contains(student2()));
+    // ... before handling duplicated leaves for this group
+    assertThrowsApiException(
+        expectedBody,
+        () -> {
+          api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2LeavesGroup2()));
+          api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2LeavesGroup2()));
+        });
+  }
+
+  @Test
+  void insert_two_student_in_same_group_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+    String expectedBody =
+        "{" + "\"type\":\"400 BAD_REQUEST\"," + "\"message\":\"Student is already in group\"}";
+
+    List<Student> actualStudentsGroup = api.getStudentsByGroupId(GROUP2_ID, 1, 20);
+
+    // Assert that specified student is not in actual group ...
+    assertFalse(actualStudentsGroup.contains(student2()));
+    // ... before handling duplicated joins for this group
+    assertThrowsApiException(
+        expectedBody,
+        () -> {
+          api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2JoinsGroup2()));
+          api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2JoinsGroup2()));
+        });
   }
 
   @Test
@@ -69,9 +113,9 @@ public class GroupFlowIT extends MockedThirdParties {
 
     List<GroupFlow> student2move =
         api.moveOrDeleteStudentInGroup(
-            STUDENT2_ID, List.of(createStudent2LeavesGroup1(), createStudent2JoinGroup2()));
-    List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID);
-    List<Student> group2Students = api.getStudentsByGroupId(GROUP2_ID);
+            STUDENT2_ID, List.of(createStudent2LeavesGroup1(), createStudent2JoinsGroup2()));
+    List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID, 1, 10);
+    List<Student> group2Students = api.getStudentsByGroupId(GROUP2_ID, 1, 10);
 
     assertEquals(1, group1Students.size());
     assertEquals(2, group2Students.size());
@@ -85,7 +129,11 @@ public class GroupFlowIT extends MockedThirdParties {
         .moveType(GroupFlow.MoveTypeEnum.LEAVE);
   }
 
-  public CreateGroupFlow createStudent2JoinGroup2() {
+  public CreateGroupFlow createStudent2LeavesGroup2() {
+    return new CreateGroupFlow().groupId(GROUP2_ID).studentId(STUDENT2_ID).moveType(LEAVE);
+  }
+
+  public CreateGroupFlow createStudent2JoinsGroup2() {
     return new CreateGroupFlow().groupId(GROUP2_ID).studentId(STUDENT2_ID).moveType(JOIN);
   }
 

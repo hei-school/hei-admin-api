@@ -178,6 +178,19 @@ public class UserService {
             groupedStudentsJoin.add(groupFlow.getStudent());
           }
         });
+
     return groupedStudentsJoin.stream().distinct().collect(toList());
+  }
+
+  public List<User> getByGroupId(String groupId, PageFromOne page, BoundedPageSize pageSize) {
+    var returnedStudent = getByGroupId(groupId);
+    // Calculate start and end index for pagination
+    int startIndex = (page.getValue() - 1) * pageSize.getValue();
+    int endIndex = Math.min(startIndex + pageSize.getValue(), returnedStudent.size());
+
+    if (startIndex >= returnedStudent.size()) {
+      return List.of();
+    }
+    return returnedStudent.subList(startIndex, endIndex);
   }
 }
