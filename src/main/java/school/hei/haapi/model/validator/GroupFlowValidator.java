@@ -40,7 +40,7 @@ public class GroupFlowValidator implements Consumer<GroupFlow> {
     }
     if (!userService.getByGroupId(groupFlow.getGroup().getId()).contains(groupFlow.getStudent())
         && groupFlow.getGroupFlowType().equals(LEAVE)) {
-      throw new BadRequestException("Student is already leave this group");
+      throw new BadRequestException("Student has already left this group");
     }
     if (!violations.isEmpty()) {
       String constraintMessages =

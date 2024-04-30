@@ -69,7 +69,7 @@ public class GroupFlowIT extends MockedThirdParties {
     String expectedBody =
         "{"
             + "\"type\":\"400 BAD_REQUEST\","
-            + "\"message\":\"Student is already leave this group\"}";
+            + "\"message\":\"Student has already left this group\"}";
 
     api.moveOrDeleteStudentInGroup(STUDENT2_ID, List.of(createStudent2LeavesGroup2()));
 
