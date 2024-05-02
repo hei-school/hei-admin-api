@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
@@ -121,6 +122,8 @@ class FeeServiceTest {
   @Test
   void fee_status_is_paid() {
     Fee initial = fee(remainingAmount());
+    when(feeRepository.save(any(Fee.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
     when(feeRepository.getById(TestUtils.FEE1_ID))
         .thenReturn(initial.toBuilder().remainingAmount(0).status(PAID).build());
 
@@ -137,6 +140,8 @@ class FeeServiceTest {
     int rest = 1000;
     int paymentAmount = remainingAmount() - rest;
     Fee initial = fee(paymentAmount);
+    when(feeRepository.save(any(Fee.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
     when(feeRepository.getById(TestUtils.FEE1_ID))
         .thenReturn(
             initial.toBuilder()
@@ -158,6 +163,8 @@ class FeeServiceTest {
     Fee initial = fee(paymentAmount);
     Instant yesterday = Instant.now().minus(1L, ChronoUnit.DAYS);
     initial.setDueDatetime(yesterday);
+    when(feeRepository.save(any(Fee.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
     when(feeRepository.getById(TestUtils.FEE1_ID))
         .thenReturn(
             initial.toBuilder()

@@ -174,6 +174,8 @@ public class SecurityConf {
                     //
                     // Fees resources
                     //
+                    .requestMatchers(GET, "/fees/*")
+                    .hasRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/mpbs", "students"))
                     .hasRole(STUDENT.getRole())
                     .requestMatchers(new SelfMatcher(PUT, "/students/*/fees/*/mpbs", "students"))

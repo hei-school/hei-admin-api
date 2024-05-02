@@ -41,7 +41,10 @@ public class FeeService {
   }
 
   public Fee getById(String id) {
-    return updateFeeStatus(feeRepository.getById(id));
+    var loggedFee = updateFeeStatus(feeRepository.getById(id));
+    log.info("fee: ------------########## {}", loggedFee.toString());
+    log.info("now: ---------------#########" + Instant.now());
+    return loggedFee;
   }
 
   public Fee getByStudentIdAndFeeId(String studentId, String feeId) {
@@ -91,7 +94,7 @@ public class FeeService {
     } else if (Instant.now().isAfter(initialFee.getDueDatetime())) {
       initialFee.setStatus(LATE);
     }
-    return initialFee;
+    return feeRepository.save(initialFee);
   }
 
   @Transactional

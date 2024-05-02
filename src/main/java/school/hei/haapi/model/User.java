@@ -172,10 +172,6 @@ public class User implements Serializable {
         + ", profilePictureKey='"
         + profilePictureKey
         + '\''
-        + ", longitude="
-        + longitude
-        + ", latitude="
-        + latitude
         + ", highSchoolOrigin='"
         + highSchoolOrigin
         + '\''

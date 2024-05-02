@@ -20,7 +20,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
@@ -30,7 +29,6 @@ import org.hibernate.annotations.Where;
 @Table(name = "\"payment\"")
 @Getter
 @Setter
-@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -74,6 +72,26 @@ public class Payment implements Serializable {
         && Objects.equals(fee.getId(), payment.getFee().getId())
         && type == payment.type
         && getCreationDatetime().compareTo(payment.getCreationDatetime()) == 0;
+  }
+
+  @Override
+  public String toString() {
+    return "Payment{"
+        + "id='"
+        + id
+        + '\''
+        + ", type="
+        + type
+        + ", amount="
+        + amount
+        + ", comment='"
+        + comment
+        + '\''
+        + ", creationDatetime="
+        + creationDatetime
+        + ", isDeleted="
+        + isDeleted
+        + '}';
   }
 
   @Override
