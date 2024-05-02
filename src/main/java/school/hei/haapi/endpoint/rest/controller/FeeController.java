@@ -34,6 +34,11 @@ public class FeeController {
   private final FeeTemplateService feeTemplateService;
   private final FeeTemplateMapper feeTemplateMapper;
 
+  @GetMapping("/fees/{fee_id}")
+  public Fee getFeeById(@PathVariable(name = "fee_id") String id) {
+    return feeMapper.toRestFee(feeService.getById(id));
+  }
+
   @GetMapping("/students/{studentId}/fees/{feeId}")
   public Fee getFeeByStudentId(@PathVariable String studentId, @PathVariable String feeId) {
     return feeMapper.toRestFee(feeService.getByStudentIdAndFeeId(studentId, feeId));
