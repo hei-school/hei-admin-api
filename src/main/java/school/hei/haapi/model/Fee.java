@@ -105,6 +105,13 @@ public class Fee implements Serializable {
         && Objects.equals(dueDatetime, fee.dueDatetime);
   }
 
+  public String describe() {
+    return """
+Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime" : "%s", "actualStatus" : "%s"}
+"""
+        .formatted(getId(), getRemainingAmount(), getTotalAmount(), getDueDatetime(), getStatus());
+  }
+
   @Override
   public String toString() {
     return "Fee{"

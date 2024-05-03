@@ -6,6 +6,7 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 
 import jakarta.transaction.Transactional;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,7 +19,6 @@ import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
@@ -101,24 +101,31 @@ public class FeeService {
   public List<Fee> updateFeesStatusToLate() {
     Instant now = Instant.now();
     List<Fee> unpaidFees = feeRepository.getUnpaidFees(now);
+    var lateFees = new ArrayList<Fee>();
+    // TODO: rename Event Class to RefreshUnpaidFees if we wish to handle unpaid -> paid status
+    // change
+    // var paidFees = new ArrayList<Fee>();
     unpaidFees.forEach(
         fee -> {
-          updateFeeStatus(fee);
+          var modifiedFee = updateFeeStatus(fee);
           log.info(
-              "Fee with id."
+              "Fee "
+                  + modifiedFee.describe()
+                  + "with id."
                   + fee.getId()
                   + " is going to be updated from UNPAID to "
                   + fee.getStatus());
+          /*if (PAID.equals(modifiedFee.getStatus())) {
+            paidFees.add(modifiedFee);
+          } else*/
+          if (LATE.equals(modifiedFee.getStatus())) {
+            lateFees.add(modifiedFee);
+          }
         });
-    log.info("fees = {}", unpaidFees.stream().map(Fee::getId).toList());
-    var resp = feeRepository.saveAll(unpaidFees);
-    log.info(
-        "payments = {}",
-        resp.stream()
-            .map(Fee::getPayments)
-            .map(payments -> payments.stream().map(Payment::getId).toList())
-            .toList());
-    return resp;
+    lateFees.forEach(lf -> feeRepository.updateFeeStatusById(LATE, lf.getId()));
+    log.info("lateFees = {}", lateFees.stream().map(Fee::describe).toList());
+    // paidFees.forEach(lf -> feeRepository.updateFeeStatusById(PAID, lf.getId()));
+    return lateFees;
   }
 
   private LateFeeVerified toLateFeeEvent(Fee fee) {
