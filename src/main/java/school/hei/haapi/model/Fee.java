@@ -25,7 +25,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -39,7 +38,6 @@ import school.hei.haapi.model.Mpbs.Mpbs;
 @Table(name = "\"fee\"")
 @Getter
 @Setter
-@ToString
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -52,7 +50,6 @@ public class Fee implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
-  @ToString.Exclude
   private User student;
 
   @JdbcTypeCode(NAMED_ENUM)
@@ -80,7 +77,6 @@ public class Fee implements Serializable {
   private Instant dueDatetime;
 
   @OneToMany(mappedBy = "fee", cascade = REMOVE)
-  @ToString.Exclude
   private List<Payment> payments;
 
   @OneToOne(mappedBy = "fee")
@@ -119,5 +115,41 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   @Override
   public int hashCode() {
     return getClass().hashCode();
+  }
+
+  @Override
+  public String toString() {
+    return getClass().getSimpleName()
+        + "("
+        + "id = "
+        + id
+        + ", "
+        + "status = "
+        + status
+        + ", "
+        + "type = "
+        + type
+        + ", "
+        + "totalAmount = "
+        + totalAmount
+        + ", "
+        + "updatedAt = "
+        + updatedAt
+        + ", "
+        + "remainingAmount = "
+        + remainingAmount
+        + ", "
+        + "comment = "
+        + comment
+        + ", "
+        + "isDeleted = "
+        + isDeleted
+        + ", "
+        + "creationDatetime = "
+        + creationDatetime
+        + ", "
+        + "dueDatetime = "
+        + dueDatetime
+        + ")";
   }
 }
