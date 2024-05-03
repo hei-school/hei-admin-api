@@ -52,6 +52,7 @@ public class Fee implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "user_id", nullable = false)
+  @ToString.Exclude
   private User student;
 
   @JdbcTypeCode(NAMED_ENUM)
@@ -79,6 +80,7 @@ public class Fee implements Serializable {
   private Instant dueDatetime;
 
   @OneToMany(mappedBy = "fee", cascade = REMOVE)
+  @ToString.Exclude
   private List<Payment> payments;
 
   @OneToOne(mappedBy = "fee")
@@ -105,6 +107,13 @@ public class Fee implements Serializable {
         && type == fee.type
         && Objects.equals(creationDatetime, fee.creationDatetime)
         && Objects.equals(dueDatetime, fee.dueDatetime);
+  }
+
+  public String describe() {
+    return """
+Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime" : "%s", "actualStatus" : "%s"}
+"""
+        .formatted(getId(), getRemainingAmount(), getTotalAmount(), getDueDatetime(), getStatus());
   }
 
   @Override
