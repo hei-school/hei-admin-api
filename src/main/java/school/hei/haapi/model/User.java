@@ -110,6 +110,8 @@ public class User implements Serializable {
   @JdbcTypeCode(NAMED_ENUM)
   private WorkStudyStatus workStatus;
 
+  private Instant commitmentBeginDate;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

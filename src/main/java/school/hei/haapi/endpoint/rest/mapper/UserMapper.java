@@ -59,6 +59,7 @@ public class UserMapper {
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     restStudent.setHighSchoolOrigin(user.getHighSchoolOrigin());
     restStudent.workStudyStatus(user.getWorkStatus());
+    restStudent.setCommitmentBeginDate(user.getCommitmentBeginDate());
     return restStudent;
   }
 
