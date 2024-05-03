@@ -89,12 +89,15 @@ public class FeeService {
   }
 
   private Fee updateFeeStatus(Fee initialFee) {
+    var status = initialFee.getStatus();
     if (initialFee.getRemainingAmount() == 0) {
-      initialFee.setStatus(PAID);
+      status = PAID;
     } else if (Instant.now().isAfter(initialFee.getDueDatetime())) {
-      initialFee.setStatus(LATE);
+      status = LATE;
     }
-    return feeRepository.save(initialFee);
+    feeRepository.updateFeeStatusById(status, initialFee.getId());
+    initialFee.setStatus(status);
+    return initialFee;
   }
 
   @Transactional
