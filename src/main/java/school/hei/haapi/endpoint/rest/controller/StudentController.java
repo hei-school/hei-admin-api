@@ -53,10 +53,12 @@ public class StudentController {
     return userMapper.toRestStudent(userService.findById(id));
   }
 
-  // todo: to review
   @GetMapping("/groups/{groupId}/students")
-  public List<Student> getStudentsByGroupId(@PathVariable String groupId) {
-    return userService.getByGroupId(groupId).stream()
+  public List<Student> getStudentsByGroupId(
+      @PathVariable String groupId,
+      @RequestParam(name = "page") PageFromOne page,
+      @RequestParam(name = "page_size") BoundedPageSize pageSize) {
+    return userService.getByGroupId(groupId, page, pageSize).stream()
         .map(userMapper::toRestStudent)
         .collect(Collectors.toUnmodifiableList());
   }

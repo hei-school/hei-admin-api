@@ -25,7 +25,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
@@ -39,7 +38,6 @@ import school.hei.haapi.model.Mpbs.Mpbs;
 @Table(name = "\"fee\"")
 @Getter
 @Setter
-@ToString
 @Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
@@ -105,6 +103,41 @@ public class Fee implements Serializable {
         && type == fee.type
         && Objects.equals(creationDatetime, fee.creationDatetime)
         && Objects.equals(dueDatetime, fee.dueDatetime);
+  }
+
+  public String describe() {
+    return """
+Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime" : "%s", "actualStatus" : "%s"}
+"""
+        .formatted(getId(), getRemainingAmount(), getTotalAmount(), getDueDatetime(), getStatus());
+  }
+
+  @Override
+  public String toString() {
+    return "Fee{"
+        + "id='"
+        + id
+        + '\''
+        + ", status="
+        + status
+        + ", type="
+        + type
+        + ", totalAmount="
+        + totalAmount
+        + ", updatedAt="
+        + updatedAt
+        + ", remainingAmount="
+        + remainingAmount
+        + ", comment='"
+        + comment
+        + '\''
+        + ", isDeleted="
+        + isDeleted
+        + ", creationDatetime="
+        + creationDatetime
+        + ", dueDatetime="
+        + dueDatetime
+        + '}';
   }
 
   @Override

@@ -955,6 +955,17 @@ paths:
           required: true
           schema:
             type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
       operationId: getStudentsByGroupId
       responses:
         '200':
@@ -3084,6 +3095,35 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Announcement'
+  /announcements/{id}:
+    get:
+      tags:
+        - Announcements
+      summary: Get announcement by identifier
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: getAnnouncementById
+      responses:
+        '200':
+          description: Announcement by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
   '/students/announcements':
     get:
@@ -3137,6 +3177,36 @@ paths:
                 items:
                   $ref: '#/components/schemas/Announcement'
 
+  /students/announcements/{id}:
+    get:
+      tags:
+        - Announcements
+      summary: Get announcement for student by identifier
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: getStudentsAnnouncementById
+      responses:
+        '200':
+          description: Announcement by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
   '/teachers/announcements':
     get:
       tags:
@@ -3183,6 +3253,35 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Announcement'
+  /teachers/announcements/{id}:
+    get:
+      tags:
+      - Announcements
+      summary: Get teacher announcement by identifier
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: getTeacherAnnouncementById
+      responses:
+        '200':
+          description: Announcement by identifier
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/promotions':
     get:
       tags:
@@ -3213,11 +3312,13 @@ paths:
           description: Filter promotion by ref
           schema:
             type: string
+          required: false
         - name: group_ref
           in: query
           description: Filter promotion by group ref
           schema:
             type: string
+          required: false
       responses:
         '200':
           description: Promotions filtered with criteria if provided

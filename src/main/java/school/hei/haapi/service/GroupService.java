@@ -15,6 +15,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.GroupRepository;
@@ -126,5 +127,11 @@ public class GroupService {
       }
     }
     return groups;
+  }
+
+  public void updateGroups(Promotion promotion, String groupId) {
+    Group group = findById(groupId);
+    group.setPromotion(promotion);
+    repository.save(group);
   }
 }
