@@ -3625,6 +3625,9 @@ components:
           $ref: '#/components/schemas/SpecializationField'
         work_study_status:
           $ref: '#/components/schemas/WorkStudyStatus'
+        commitment_begin_date:
+          type: string
+          format: date-time
         profile_picture:
           type: string
     Teacher:
