@@ -101,7 +101,7 @@ class PaginationIT extends MockedThirdParties {
     assertEquals(pageSize, page1.size());
     assertEquals(pageSize, page2.size());
     assertEquals(4, page3.size());
-    assertEquals(2, page4.size());
+    assertEquals(3, page4.size());
     assertEquals(0, page100.size());
     // students are ordered by ref
     assertTrue(isBefore(page1.get(0).getRef(), page1.get(2).getRef()));
