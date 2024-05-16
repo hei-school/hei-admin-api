@@ -56,7 +56,7 @@ import school.hei.haapi.endpoint.rest.model.Announcement;
 import school.hei.haapi.endpoint.rest.model.AnnouncementAuthor;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.AwardedExamAndGrades;
 import school.hei.haapi.endpoint.rest.model.Comment;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.Course;
@@ -72,7 +72,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
-import school.hei.haapi.endpoint.rest.model.ExamDetail;
+import school.hei.haapi.endpoint.rest.model.ExamGrade;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
@@ -85,7 +85,7 @@ import school.hei.haapi.endpoint.rest.model.Promotion;
 import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
+import school.hei.haapi.endpoint.rest.model.StudentCoursesGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
@@ -617,8 +617,8 @@ public class TestUtils {
     return new Grade().id(GRADE7_ID).score(20.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
-  public static StudentExamGrade studentExamGrade1() {
-    return new StudentExamGrade()
+  public static ExamGrade studentExamGrade1() {
+    return new ExamGrade()
         .id(exam1().getId())
         .coefficient(exam1().getCoefficient())
         .title(exam1().getTitle())
@@ -626,8 +626,8 @@ public class TestUtils {
         .grade(grade1());
   }
 
-  public static StudentExamGrade studentExamGrade2() {
-    return new StudentExamGrade()
+  public static ExamGrade studentExamGrade2() {
+    return new ExamGrade()
         .id(exam2().getId())
         .coefficient(exam2().getCoefficient())
         .title(exam2().getTitle())
@@ -635,8 +635,8 @@ public class TestUtils {
         .grade(grade2());
   }
 
-  public static StudentExamGrade studentExamGrade3() {
-    return new StudentExamGrade()
+  public static ExamGrade studentExamGrade3() {
+    return new ExamGrade()
         .id(exam3().getId())
         .coefficient(exam3().getCoefficient())
         .title(exam3().getTitle())
@@ -644,8 +644,8 @@ public class TestUtils {
         .grade(grade3());
   }
 
-  public static StudentExamGrade studentExamGrade4() {
-    return new StudentExamGrade()
+  public static ExamGrade studentExamGrade4() {
+    return new ExamGrade()
         .id(exam4().getId())
         .coefficient(exam4().getCoefficient())
         .title(exam4().getTitle())
@@ -653,8 +653,8 @@ public class TestUtils {
         .grade(grade4());
   }
 
-  public static StudentExamGrade studentExamGrade5() {
-    return new StudentExamGrade()
+  public static ExamGrade studentExamGrade5() {
+    return new ExamGrade()
         .id(exam5().getId())
         .coefficient(exam5().getCoefficient())
         .title(exam5().getTitle())
@@ -779,8 +779,8 @@ public class TestUtils {
         .type(TUITION);
   }
 
-  public static ExamDetail examDetail1() {
-    return new ExamDetail()
+  public static AwardedExamAndGrades examDetail1() {
+    return new AwardedExamAndGrades()
         .id(exam1().getId())
         .title(exam1().getTitle())
         .examinationDate(exam1().getExaminationDate())
@@ -788,8 +788,8 @@ public class TestUtils {
         .participants(List.of(studentGrade1(), studentGrade7()));
   }
 
-  public static AwardedCourseExam awardedCourseExam1() {
-    return new AwardedCourseExam()
+  public static StudentCoursesGrade awardedCourseExam1() {
+    return new StudentCoursesGrade()
         .id(AWARDED_COURSE1_ID)
         .mainTeacher(awardedCourse1().getMainTeacher())
         .course(awardedCourse1().getCourse())
@@ -797,8 +797,8 @@ public class TestUtils {
         .exams(List.of(studentExamGrade1(), studentExamGrade2()));
   }
 
-  public static AwardedCourseExam awardedCourseExam2() {
-    return new AwardedCourseExam()
+  public static StudentCoursesGrade awardedCourseExam2() {
+    return new StudentCoursesGrade()
         .id(AWARDED_COURSE2_ID)
         .mainTeacher(awardedCourse2().getMainTeacher())
         .course(awardedCourse2().getCourse())
@@ -806,8 +806,8 @@ public class TestUtils {
         .exams(List.of(studentExamGrade4()));
   }
 
-  public static AwardedCourseExam awardedCourseExam3() {
-    return new AwardedCourseExam()
+  public static StudentCoursesGrade awardedCourseExam3() {
+    return new StudentCoursesGrade()
         .id(AWARDED_COURSE3_ID)
         .mainTeacher(awardedCourse3().getMainTeacher())
         .course(awardedCourse3().getCourse())
@@ -815,8 +815,8 @@ public class TestUtils {
         .exams(List.of(studentExamGrade3()));
   }
 
-  public static AwardedCourseExam awardedCourseExam4() {
-    return new AwardedCourseExam()
+  public static StudentCoursesGrade awardedCourseExam4() {
+    return new StudentCoursesGrade()
         .id(AWARDED_COURSE4_ID)
         .mainTeacher(awardedCourse4().getMainTeacher())
         .course(awardedCourse4().getCourse())

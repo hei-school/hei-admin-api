@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
-import school.hei.haapi.endpoint.rest.model.ExamDetail;
+import school.hei.haapi.endpoint.rest.model.AwardedExamAndGrades;
+import school.hei.haapi.endpoint.rest.model.StudentCoursesGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Exam;
@@ -31,7 +31,7 @@ public class GradeController {
 
   // todo: to review all class
   @GetMapping("/students/{student_id}/grades")
-  public List<AwardedCourseExam> getAllGradesOfStudent(
+  public List<StudentCoursesGrade> getAllGradesOfStudent(
       @PathVariable("student_id") String studentId) {
     List<AwardedCourse> awardedCourses = awardedCourseService.getByStudentId(studentId);
     User student = userService.findById(studentId);
@@ -40,7 +40,7 @@ public class GradeController {
 
   @GetMapping(
       value = "/groups/{group_id}/awarded_courses/" + "{awarded_course_id}/exams/{exam_id}/grades")
-  public ExamDetail getExamGrades(
+  public AwardedExamAndGrades getExamGrades(
       @PathVariable("group_id") String groupId,
       @PathVariable("awarded_course_id") String awardedCourseId,
       @PathVariable("exam_id") String examId) {

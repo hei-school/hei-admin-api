@@ -7,9 +7,9 @@ import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.ExamDetail;
+import school.hei.haapi.endpoint.rest.model.AwardedExamAndGrades;
+import school.hei.haapi.endpoint.rest.model.ExamGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
-import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
@@ -45,13 +45,13 @@ public class GradeMapper {
         .grade(toRest(grade));
   }
 
-  public StudentExamGrade toRestStudentExamGrade(User student, Exam exam) {
+  public ExamGrade toRestStudentExamGrade(User student, Exam exam) {
     Optional<school.hei.haapi.model.Grade> optionalGrade =
         exam.getGrades().stream()
             .filter(grade -> grade.getStudent().getId().equals(student.getId()))
             .findFirst();
     school.hei.haapi.model.Grade grade = optionalGrade.get();
-    return new StudentExamGrade()
+    return new ExamGrade()
         .id(grade.getExam().getId())
         .coefficient(grade.getExam().getCoefficient())
         .examinationDate(grade.getExam().getExaminationDate())
@@ -59,8 +59,9 @@ public class GradeMapper {
         .grade(toRest(grade));
   }
 
-  public ExamDetail toRestExamDetail(Exam exam, List<school.hei.haapi.model.Grade> grades) {
-    return new ExamDetail()
+  public AwardedExamAndGrades toRestExamDetail(
+      Exam exam, List<school.hei.haapi.model.Grade> grades) {
+    return new AwardedExamAndGrades()
         .id(exam.getId())
         .coefficient(exam.getCoefficient())
         .title(exam.getTitle())

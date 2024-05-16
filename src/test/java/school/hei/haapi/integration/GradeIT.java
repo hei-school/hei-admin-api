@@ -16,8 +16,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
-import school.hei.haapi.endpoint.rest.model.ExamDetail;
+import school.hei.haapi.endpoint.rest.model.AwardedExamAndGrades;
+import school.hei.haapi.endpoint.rest.model.StudentCoursesGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
@@ -44,7 +44,7 @@ class GradeIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<AwardedCourseExam> actualAwardedCourseExamGrades =
+    List<StudentCoursesGrade> actualAwardedCourseExamGrades =
         api.getStudentGrades(STUDENT1_ID, 1, 10);
 
     assertEquals(5, actualAwardedCourseExamGrades.size());
@@ -53,7 +53,8 @@ class GradeIT extends MockedThirdParties {
     assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam3()));
     assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam4()));
 
-    ExamDetail actualExamDetail = api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID);
+    AwardedExamAndGrades actualExamDetail =
+        api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID);
     assertEquals(examDetail1(), actualExamDetail);
 
     StudentGrade actuslStudentGrade =
@@ -66,7 +67,7 @@ class GradeIT extends MockedThirdParties {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
 
-    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
+    List<StudentCoursesGrade> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
 
     assertEquals(5, actual.size());
     assertTrue(actual.contains(awardedCourseExam1()));
@@ -74,7 +75,8 @@ class GradeIT extends MockedThirdParties {
     assertTrue(actual.contains(awardedCourseExam3()));
     assertTrue(actual.contains(awardedCourseExam4()));
 
-    ExamDetail actualExamDetail = api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID);
+    AwardedExamAndGrades actualExamDetail =
+        api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID);
     assertEquals(examDetail1(), actualExamDetail);
 
     StudentGrade actuslStudentGrade =
@@ -87,7 +89,7 @@ class GradeIT extends MockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
 
-    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
+    List<StudentCoursesGrade> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
 
     assertEquals(5, actual.size());
     assertTrue(actual.contains(awardedCourseExam1()));
@@ -120,7 +122,7 @@ class GradeIT extends MockedThirdParties {
   void manager_create_grades_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    List<ExamDetail> actual =
+    List<AwardedExamAndGrades> actual =
         api.createStudentExamGrade(
             GROUP1_ID,
             AWARDED_COURSE1_ID,
@@ -132,7 +134,7 @@ class GradeIT extends MockedThirdParties {
   void teacher_create_his_exam_grades_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    List<ExamDetail> actual =
+    List<AwardedExamAndGrades> actual =
         api.createStudentExamGrade(
             GROUP1_ID,
             AWARDED_COURSE1_ID,

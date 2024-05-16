@@ -7,8 +7,8 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
-import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
+import school.hei.haapi.endpoint.rest.model.ExamGrade;
+import school.hei.haapi.endpoint.rest.model.StudentCoursesGrade;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
 
@@ -29,10 +29,9 @@ public class AwardedCourseMapper {
         .mainTeacher(userMapper.toRestTeacher(awardedCourse.getMainTeacher()));
   }
 
-  public AwardedCourseExam toRest(
-      school.hei.haapi.model.AwardedCourse awardedCourse,
-      List<StudentExamGrade> studentExamGrades) {
-    return new AwardedCourseExam()
+  public StudentCoursesGrade toRest(
+      school.hei.haapi.model.AwardedCourse awardedCourse, List<ExamGrade> studentExamGrades) {
+    return new StudentCoursesGrade()
         .id(awardedCourse.getId())
         .exams(studentExamGrades)
         .mainTeacher(userMapper.toRestTeacher(awardedCourse.getMainTeacher()))
@@ -40,11 +39,11 @@ public class AwardedCourseMapper {
         .group(groupMapper.toRest(awardedCourse.getGroup()));
   }
 
-  public List<AwardedCourseExam> toRest(
+  public List<StudentCoursesGrade> toRest(
       List<school.hei.haapi.model.AwardedCourse> awardedCourses, User student) {
-    List<AwardedCourseExam> awardedCourseExams = new ArrayList<>();
+    List<StudentCoursesGrade> awardedCourseExams = new ArrayList<>();
     for (school.hei.haapi.model.AwardedCourse awardedCourse : awardedCourses) {
-      List<StudentExamGrade> studentExamGrades =
+      List<ExamGrade> studentExamGrades =
           awardedCourse.getExams().stream()
               .map(exam -> gradeMapper.toRestStudentExamGrade(student, exam))
               .collect(toList());

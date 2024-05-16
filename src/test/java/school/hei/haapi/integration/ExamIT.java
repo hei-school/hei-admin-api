@@ -17,7 +17,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.ExamDetail;
+import school.hei.haapi.endpoint.rest.model.AwardedExamAndGrades;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
@@ -45,7 +45,7 @@ class ExamIT extends MockedThirdParties {
     TeachingApi api = new TeachingApi(manager1Client);
 
     List<ExamInfo> actual =
-        api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
+        api.getExamsByGroupIdAndAwardedCourseId(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
 
     ExamInfo oneActualExam = api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
 
@@ -61,7 +61,7 @@ class ExamIT extends MockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsForbiddenException(
-        () -> api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10));
+        () -> api.getExamsByGroupIdAndAwardedCourseId(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10));
   }
 
   @Test
@@ -69,7 +69,7 @@ class ExamIT extends MockedThirdParties {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
     List<ExamInfo> actual =
-        api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
+        api.getExamsByGroupIdAndAwardedCourseId(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
     ExamInfo oneActualExam = api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
 
     assertEquals(2, actual.size());
@@ -91,7 +91,7 @@ class ExamIT extends MockedThirdParties {
   void manager_read_exam_details_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    ExamDetail actual = api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID);
+    AwardedExamAndGrades actual = api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID);
     assertEquals(examDetail1(), actual);
   }
 
