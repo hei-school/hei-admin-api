@@ -351,7 +351,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AwardedCourseExam'
+                  $ref: '#/components/schemas/StudentCoursesGrade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -670,7 +670,7 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getExamsByGroupIdAndAwardedCourse
+      operationId: getExamsByGroupIdAndAwardedCourseId
       responses:
         '200':
           description: List of exam infos without the participants of the specified course
@@ -802,7 +802,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExamDetail'
+                $ref: '#/components/schemas/AwardedExamAndGrades'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -851,7 +851,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ExamDetail'
+                  $ref: '#/components/schemas/AwardedExamAndGrades'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3766,7 +3766,7 @@ components:
           format: date-time
         awarded_course_id:
           type: string
-    ExamDetail:
+    AwardedExamAndGrades:
       allOf:
         - $ref: '#/components/schemas/ExamInfo'
       properties:
@@ -3806,20 +3806,20 @@ components:
       properties:
         grade:
           $ref: '#/components/schemas/Grade'
-    StudentExamGrade:
+    ExamGrade:
       allOf:
         - $ref: '#/components/schemas/ExamInfo'
       properties:
         grade:
           $ref: '#/components/schemas/Grade'
-    AwardedCourseExam:
+    StudentCoursesGrade:
       allOf:
         - $ref: '#/components/schemas/AwardedCourse'
       properties:
         exams:
           type: array
           items:
-            $ref: '#/components/schemas/StudentExamGrade'
+            $ref: '#/components/schemas/ExamGrade'
     CreateAttendanceMovement:
       type: object
       properties:
