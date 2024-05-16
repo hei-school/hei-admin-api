@@ -55,7 +55,7 @@ public class AwardedCourseService {
   }
 
   public AwardedCourse getById(String id, String groupId) {
-    return awardedCourseRepository.getByIdAndGroupId(id, groupId);
+    return awardedCourseRepository.findByIdAndGroupId(id, groupId);
   }
 
   public AwardedCourse createOrUpdateAwardedCourse(CreateAwardedCourse createAwardedCourse) {

@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 
@@ -45,7 +46,7 @@ public class AwardedCourse implements Serializable {
   @ToString.Exclude
   private User mainTeacher;
 
-  @ManyToOne
+  @ManyToOne(fetch = EAGER)
   @JoinColumn(name = "course_id")
   @ToString.Exclude
   private Course course;
