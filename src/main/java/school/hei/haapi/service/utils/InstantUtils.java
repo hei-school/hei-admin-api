@@ -19,7 +19,7 @@ public class InstantUtils {
     return LocalDate.now()
         .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         .atStartOfDay()
-        .atZone(ZoneId.of("UTC+3"))
+        .atZone(ZoneId.of("UTC+0"))
         .toInstant();
   }
 
@@ -27,7 +27,7 @@ public class InstantUtils {
     return LocalDate.now()
         .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
         .atStartOfDay()
-        .atZone(ZoneId.of("UTC+3"))
+        .atZone(ZoneId.of("UTC+0"))
         .toInstant();
   }
 
