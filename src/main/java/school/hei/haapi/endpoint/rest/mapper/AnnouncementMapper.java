@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
 
+import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -39,10 +40,10 @@ public class AnnouncementMapper {
     return school.hei.haapi.model.Announcement.builder()
         .id(rest.getId())
         .groups(
-            groupService.getAllById(
-                Objects.requireNonNull(rest.getTargetGroupList()).stream()
-                    .map(GroupIdentifier::getId)
-                    .toList()))
+            Objects.isNull(rest.getTargetGroupList())
+                ? List.of()
+                : groupService.getAllById(
+                    rest.getTargetGroupList().stream().map(GroupIdentifier::getId).toList()))
         .author(author)
         .scope(rest.getScope())
         .title(rest.getTitle())
