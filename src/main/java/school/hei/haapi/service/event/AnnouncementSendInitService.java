@@ -45,23 +45,15 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
           case STUDENT -> getStudents(domain);
           case MANAGER -> userService.getByRoleAndStatus(User.Role.MANAGER, ENABLED);
         };
+    log.info("users {}", users.stream().map(User::getEmail).toList());
+    // InternetAddress firstAddress = targetListAddress.getFirst();
 
-    log.info("---------------users---");
-    log.info(String.valueOf(users.size()));
-    log.info("---------------");
-    log.info(users.toString());
-
-    log.info("-----------------Internet target adress----------");
-    List<InternetAddress> targetListAddress =
-        users.stream().map(this::getInternetAddressFromUser).toList();
-    log.info(targetListAddress.toString());
-
-    InternetAddress firstAddress = targetListAddress.getFirst();
-
+    InternetAddress internetAddress = new InternetAddress("hei.mahefa@gmail.com");
+    InternetAddress internetAddressCC = new InternetAddress("hei.mahefa+cc@gmail.com");
     Email email =
         new Email(
-            firstAddress,
-            targetListAddress.subList(1, targetListAddress.size()),
+            internetAddress,
+            List.of(internetAddressCC),
             List.of(),
             domain.getTitle(),
             htmlBody,
