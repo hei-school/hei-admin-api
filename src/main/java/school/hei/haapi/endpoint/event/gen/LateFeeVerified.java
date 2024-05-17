@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.event.gen;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.time.Instant;
+import javax.annotation.processing.Generated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,6 +19,7 @@ import school.hei.haapi.model.User;
 @Builder
 @ToString
 @Data
+@Generated("EventBridge")
 public class LateFeeVerified implements Serializable {
   private static final long serialVersionUID = 1L;
 
