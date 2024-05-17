@@ -13,10 +13,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.gen.AnnouncementSendInit;
-import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.notEntity.Group;
 import school.hei.haapi.service.UserService;
 
 @Service
@@ -39,7 +39,7 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
     String htmlBody = htmlToString("announcementEmail", getMailContext(domain));
     List<User> users =
         switch (domain.getScope()) {
-          case GLOBAL -> userService.getAll();
+          case GLOBAL -> userService.getAllEnabledUsers();
           case TEACHER -> userService.getByRoleAndStatus(User.Role.TEACHER, ENABLED);
           case STUDENT -> getStudents(domain);
           case MANAGER -> userService.getByRoleAndStatus(User.Role.MANAGER, ENABLED);
