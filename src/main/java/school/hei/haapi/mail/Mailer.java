@@ -1,9 +1,5 @@
 package school.hei.haapi.mail;
 
-import static jakarta.mail.Message.RecipientType.BCC;
-import static jakarta.mail.Message.RecipientType.CC;
-import static jakarta.mail.Message.RecipientType.TO;
-
 import jakarta.activation.DataHandler;
 import jakarta.activation.DataSource;
 import jakarta.mail.MessagingException;
@@ -13,15 +9,8 @@ import jakarta.mail.internet.MimeBodyPart;
 import jakarta.mail.internet.MimeMessage;
 import jakarta.mail.internet.MimeMultipart;
 import jakarta.mail.util.ByteArrayDataSource;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.IOException;
-import java.nio.ByteBuffer;
-import java.nio.file.Files;
-import java.util.List;
-import java.util.Properties;
-import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.file.FileTyper;
@@ -29,18 +18,35 @@ import software.amazon.awssdk.core.SdkBytes;
 import software.amazon.awssdk.services.ses.model.RawMessage;
 import software.amazon.awssdk.services.ses.model.SendRawEmailRequest;
 
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.util.List;
+import java.util.Properties;
+import java.util.UUID;
+import java.util.function.Consumer;
+
+import static jakarta.mail.Message.RecipientType.*;
+
 @PojaGenerated
 @Component
 @AllArgsConstructor
+@Slf4j
 public class Mailer implements Consumer<Email> {
   private final EmailConf emailConf;
   private final FileTyper fileTyper;
 
   @Override
   public void accept(Email email) {
+    var uuid = UUID.randomUUID();
     try {
+      log.info("Sending email {}, {}, {}", uuid, email.to(), email.cc().size());
       send(email);
+      log.info("mail sent email {}, {}, {}", uuid, email.to(), email.cc().size());
     } catch (MessagingException | IOException e) {
+      log.info("exception for {}, {}, {}, {}", uuid, email.to(), email.cc().size(), e.getMessage());
       throw new RuntimeException(e);
     }
   }
