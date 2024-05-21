@@ -24,9 +24,12 @@ public class OrangeApi {
       "/api/eWallet/v1/transactions?transactionId=%s";
   private final ObjectMapper objectMapper;
 
+  //TODO:
   private String signinThenGenerateToken() {
     try (HttpClient httpClient = HttpClient.newHttpClient(); ) {
-      HttpRequest request = HttpRequest.newBuilder().uri(URI.create(baseUrl + OAUTH_PATH)).build();
+      HttpRequest request = HttpRequest.newBuilder().uri(URI.create(baseUrl + OAUTH_PATH))
+              .POST(HttpRequest.BodyPublishers.noBody())
+              .build();
       HttpResponse<String> response =
           httpClient.send(request, HttpResponse.BodyHandlers.ofString());
       return response.body();
@@ -43,6 +46,7 @@ public class OrangeApi {
           HttpRequest.newBuilder()
               .setHeader("Authorization", token)
               .uri(URI.create(baseUrl + path))
+              .GET()
               .build();
 
       HttpResponse<String> response =
