@@ -4,5 +4,5 @@ import lombok.Getter;
 
 @Getter
 public class FeeTyped {
-    private Integer feeAmount;
+  private Integer feeAmount;
 }

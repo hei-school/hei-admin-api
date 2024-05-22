@@ -5,7 +5,7 @@ import java.time.Instant;
 import lombok.Getter;
 
 @Getter
-public class MpReturnedType {
+public class OrangeTransactionDetails {
   @JsonProperty("transaction_amount")
   Integer transactionAmount;
 

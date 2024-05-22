@@ -1,19 +1,17 @@
 package school.hei.haapi.service;
 
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.http.model.MpReturnedType;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.repository.dao.MpbsDao;
-import school.hei.haapi.service.orange.OrangeApi;
-
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 @Service
 @AllArgsConstructor
@@ -21,7 +19,7 @@ import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER
 public class MpbsVerificationService {
   private final MpbsVerificationRepository repository;
   private final MpbsDao mpbsDao;
-  private final OrangeApi orangeApi;
+  private final MobilePaymentService mobilePaymentService;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
@@ -29,14 +27,16 @@ public class MpbsVerificationService {
 
   public MpbsVerification isMobilePaymentThenSaveVerification(Mpbs mpbs) {
     try {
-      MpReturnedType orangeMobilePaymentData = orangeApi.checkTransactionByRef(mpbs.getPspId());
+      var transactionDetails = mobilePaymentService.findTransactionByMpbs(mpbs);
       Fee fee = mpbs.getFee();
-      MpbsVerification verifiedPayment = MpbsVerification.builder()
-              .amountInPsp(orangeMobilePaymentData.getTransactionAmount())
+      MpbsVerification verifiedPayment =
+          MpbsVerification.builder()
+              .amountInPsp(transactionDetails.getPspTransactionAmount())
               .fee(fee)
               .amountOfFeeRemainingPayment(fee.getRemainingAmount())
               .creationDatetimeOfMpbs(mpbs.getCreationDatetime())
-              .creationDatetimeOfPaymentInPsp(orangeMobilePaymentData.getTransactionCreation())
+              .creationDatetimeOfPaymentInPsp(
+                  transactionDetails.getPspDatetimeTransactionCreation())
               .student(mpbs.getStudent())
               .build();
 
@@ -47,8 +47,8 @@ public class MpbsVerificationService {
     }
   }
 
-    public void checkMobilePaymentThenSaveVerification() {
-      List<Mpbs> mpbsOfTheWeek = mpbsDao.findMpbsOfTheWeek();
-      mpbsOfTheWeek.forEach(this::isMobilePaymentThenSaveVerification);
-    }
+  public void checkMobilePaymentThenSaveVerification() {
+    List<Mpbs> mpbsOfTheWeek = mpbsDao.findMpbsOfTheWeek();
+    mpbsOfTheWeek.forEach(this::isMobilePaymentThenSaveVerification);
+  }
 }
