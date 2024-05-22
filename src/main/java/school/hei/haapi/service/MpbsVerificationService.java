@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
+import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +11,7 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.repository.dao.MpbsDao;
 
@@ -19,6 +21,7 @@ import school.hei.haapi.repository.dao.MpbsDao;
 public class MpbsVerificationService {
   private final MpbsVerificationRepository repository;
   private final MpbsDao mpbsDao;
+  private final MpbsRepository mpbsRepository;
   private final MobilePaymentService mobilePaymentService;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
@@ -41,6 +44,8 @@ public class MpbsVerificationService {
               .build();
 
       log.info("Mpbs has successfully verified = {}", mpbs);
+      mpbs.setSuccessfullyVerifiedOn(Instant.now());
+      mpbsRepository.save(mpbs);
       return repository.save(verifiedPayment);
     } catch (ApiException e) {
       throw new ApiException(SERVER_EXCEPTION, e);

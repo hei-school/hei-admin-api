@@ -30,7 +30,6 @@ class OrangeApi implements MobileMoneyApi {
   public static final String API_WALLET_TRANSACTION_PATH =
       "/api/eWallet/v1/transactions?transactionId=%s";
 
-  // TODO:
   private String signinThenGenerateToken() {
     try (HttpClient httpClient = HttpClient.newHttpClient(); ) {
       HttpRequest request =

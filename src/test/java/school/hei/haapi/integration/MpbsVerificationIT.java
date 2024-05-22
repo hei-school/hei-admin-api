@@ -16,17 +16,22 @@ import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.TestUtils.setUpMobilePaymentApi;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.event.EventConsumer;
+import school.hei.haapi.endpoint.event.gen.CheckMobilePaymentTriggered;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -34,6 +39,7 @@ import school.hei.haapi.endpoint.rest.model.MpbsVerification;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -41,13 +47,29 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @ContextConfiguration(initializers = MpbsVerificationIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class MpbsVerificationIT extends MockedThirdParties {
+  @Autowired EventConsumer subject;
   @MockBean private EventBridgeClient eventBridgeClientMock;
+  @MockBean private MobileMoneyApiFacade mobileMoneyApiFacade;
 
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
+    setUpMobilePaymentApi(mobileMoneyApiFacade);
+  }
+
+  @Test
+  void mobile_money_successfully_verified() throws InterruptedException, JsonProcessingException {
+    CheckMobilePaymentTriggered checkMobilePaymentTriggered =
+        CheckMobilePaymentTriggered.builder().build();
+    subject.accept(
+        List.of(
+            new EventConsumer.AcknowledgeableTypedEvent(
+                new EventConsumer.TypedEvent(
+                    "school.hei.haapi.endpoint.event.gen.CheckMobilePaymentTriggered",
+                    checkMobilePaymentTriggered),
+                () -> {})));
   }
 
   @Test
