@@ -43,6 +43,8 @@ public class Event {
   @Enumerated(STRING)
   private EventType type;
 
+  private String title;
+
   private String description;
 
   @Column(name = "begin_datetime")

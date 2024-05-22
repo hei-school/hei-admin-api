@@ -45,9 +45,10 @@ public class EventController {
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize,
       @RequestParam(name = "event_type", required = false) EventType eventType,
+      @RequestParam(required = false) String title,
       @RequestParam(required = false) Instant from,
       @RequestParam(required = false) Instant to) {
-    return eventService.getEvents(from, to, eventType, page, pageSize).stream()
+    return eventService.getEvents(from, to, title, eventType, page, pageSize).stream()
         .map(mapper::toRest)
         .collect(toUnmodifiableList());
   }
