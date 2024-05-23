@@ -14,6 +14,7 @@ import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.http.mapper.ExternalExceptionMapper;
 import school.hei.haapi.http.mapper.ExternalResponseMapper;
 import school.hei.haapi.http.model.TelmaAuthResponse;
+import school.hei.haapi.http.model.TelmaHttpHeadersOptions;
 import school.hei.haapi.http.model.TelmaTransactionDetails;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.exception.ApiException;
@@ -34,6 +35,7 @@ class MvolaApi implements MobileMoneyApi {
   public TransactionDetails getByTransactionRef(MobileMoneyType type, String transactionId) {
     try (HttpClient httpClient = HttpClient.newHttpClient()) {
       TelmaAuthResponse generatedToken = authService.generateToken(SANDBOX_URL);
+      TelmaHttpHeadersOptions httpHeadersOptions = new TelmaHttpHeadersOptions();
 
       String endPath = "/mvola/mm/transactions/type/merchantpay/1.0.0/" + transactionId;
 
@@ -41,13 +43,12 @@ class MvolaApi implements MobileMoneyApi {
           HttpRequest.newBuilder()
               .uri(URI.create(SANDBOX_URL + endPath))
               .header("Authorization", generatedToken.getAccessToken())
-              // .header("Version", client.getHeadersOptions().getVersion())
-              // .header("X-CorrelationID", client.getHeadersOptions().getCorrelationId())
-              // .header("UserLanguage", client.getHeadersOptions().getUserLanguage())
-              // .header("UserAccountIdentifier",
-              // client.getHeadersOptions().getUserAccountIdentifier())
-              // .header("partnerName", client.getHeadersOptions().getPartnerName())
-              // .header("Cache-Control", client.getHeadersOptions().getCacheControl())
+              .header("Version", httpHeadersOptions.getVersion())
+              .header("X-CorrelationID", httpHeadersOptions.getCorrelationId())
+              .header("UserLanguage", httpHeadersOptions.getUserLanguage())
+              .header("UserAccountIdentifier", httpHeadersOptions.getUserAccountIdentifier())
+              .header("partnerName", httpHeadersOptions.getPartnerName())
+              .header("Cache-Control", httpHeadersOptions.getCacheControl())
               .build();
       HttpResponse<String> response =
           httpClient.send(request, HttpResponse.BodyHandlers.ofString());

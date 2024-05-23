@@ -9,8 +9,8 @@ import java.time.temporal.TemporalAdjusters;
 import school.hei.haapi.model.CourseSession;
 
 public class InstantUtils {
+  private static final String UTC0 = "UTC+0";
 
-  // TODO: create a system var or bean to not need always specifying the ZonedId
   public static Instant now() {
     return LocalDateTime.now().atZone(ZoneId.of("UTC+3")).toInstant();
   }
@@ -19,7 +19,7 @@ public class InstantUtils {
     return LocalDate.now()
         .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         .atStartOfDay()
-        .atZone(ZoneId.of("UTC+0"))
+        .atZone(ZoneId.of(UTC0))
         .toInstant();
   }
 
@@ -27,7 +27,7 @@ public class InstantUtils {
     return LocalDate.now()
         .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
         .atStartOfDay()
-        .atZone(ZoneId.of("UTC+0"))
+        .atZone(ZoneId.of(UTC0))
         .toInstant();
   }
 

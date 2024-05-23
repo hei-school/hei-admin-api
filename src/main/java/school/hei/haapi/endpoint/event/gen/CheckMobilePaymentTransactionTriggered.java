@@ -9,4 +9,4 @@ import lombok.ToString;
 @Builder
 @ToString
 @AllArgsConstructor
-public class CheckMobilePaymentTriggered {}
+public class CheckMobilePaymentTransactionTriggered {}

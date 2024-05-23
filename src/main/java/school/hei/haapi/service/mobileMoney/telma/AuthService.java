@@ -53,7 +53,7 @@ class AuthService {
 
   @ToString
   @NoArgsConstructor
-  static class GenerateTokenParams {
+  private static class GenerateTokenParams {
     public String grant_type = "client_credentials";
     public String scope = "EXT_INT_MVOLA_SCOPE";
   }
