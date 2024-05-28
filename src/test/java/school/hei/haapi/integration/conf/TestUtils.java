@@ -7,9 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
-import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
-import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
-import static school.hei.haapi.endpoint.rest.model.EventType.SEMINAR;
+import static school.hei.haapi.endpoint.rest.model.EventType.*;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
@@ -22,9 +20,7 @@ import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnu
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.REMOVE;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.StudentIT.student2;
-import static school.hei.haapi.integration.StudentIT.student3;
+import static school.hei.haapi.integration.StudentIT.*;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
@@ -52,44 +48,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Announcement;
-import school.hei.haapi.endpoint.rest.model.AnnouncementAuthor;
-import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
-import school.hei.haapi.endpoint.rest.model.AwardedCourse;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
-import school.hei.haapi.endpoint.rest.model.Comment;
-import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CreateAnnouncement;
-import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
-import school.hei.haapi.endpoint.rest.model.CreateComment;
-import school.hei.haapi.endpoint.rest.model.CreateEvent;
-import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.CreateGrade;
-import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
-import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
-import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Event;
-import school.hei.haapi.endpoint.rest.model.EventParticipant;
-import school.hei.haapi.endpoint.rest.model.ExamDetail;
-import school.hei.haapi.endpoint.rest.model.ExamInfo;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.FeeTemplate;
-import school.hei.haapi.endpoint.rest.model.Grade;
-import school.hei.haapi.endpoint.rest.model.Group;
-import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
-import school.hei.haapi.endpoint.rest.model.Manager;
-import school.hei.haapi.endpoint.rest.model.Observer;
-import school.hei.haapi.endpoint.rest.model.Promotion;
-import school.hei.haapi.endpoint.rest.model.Scope;
-import school.hei.haapi.endpoint.rest.model.Sex;
-import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
-import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
-import school.hei.haapi.endpoint.rest.model.UserIdentifier;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -1008,7 +967,7 @@ public class TestUtils {
   }
 
   public static EventParticipant createParticipant(
-      Student student, AttendanceStatus status, String id, String groupName) {
+      Student student, AttendanceStatus status, String id, Group group) {
     return new EventParticipant()
         .id(id)
         .firstName(student.getFirstName())
@@ -1016,7 +975,7 @@ public class TestUtils {
         .ref(student.getRef())
         .nic(student.getNic())
         .email(student.getEmail())
-        .groupName(groupName)
+        .group(createGroupIdentifier(group))
         .eventStatus(status);
   }
 
@@ -1025,23 +984,23 @@ public class TestUtils {
   }
 
   public static EventParticipant student1MissEvent1() {
-    return createParticipant(student1(), MISSING, "event_participant1_id", "G1");
+    return createParticipant(student1(), MISSING, "event_participant1_id", group1());
   }
 
   public static EventParticipant student3AttendEvent1() {
-    return createParticipant(student3(), PRESENT, "event_participant2_id", "G1");
+    return createParticipant(student3(), PRESENT, "event_participant2_id", group1());
   }
 
   public static EventParticipant student1AttendEvent2() {
-    return createParticipant(student1(), PRESENT, "event_participant3_id", "G1");
+    return createParticipant(student1(), PRESENT, "event_participant3_id", group1());
   }
 
   public static EventParticipant student2AttendEvent2() {
-    return createParticipant(student2(), PRESENT, "event_participant4_id", "G2");
+    return createParticipant(student2(), PRESENT, "event_participant4_id", group2());
   }
 
   public static EventParticipant student3MissEvent2() {
-    return createParticipant(student3(), MISSING, "event_participant5_id", "G1");
+    return createParticipant(student3(), MISSING, "event_participant5_id", group1());
   }
 
   public static CreateEvent createEventCourse1() {

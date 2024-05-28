@@ -1,7 +1,13 @@
 package school.hei.haapi.service.event;
 
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
+
 import jakarta.mail.internet.AddressException;
 import jakarta.mail.internet.InternetAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -12,13 +18,6 @@ import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.notEntity.Group;
 import school.hei.haapi.service.UserService;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.function.Consumer;
-
-import static school.hei.haapi.model.User.Status.ENABLED;
-import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
 @Service
 @AllArgsConstructor
@@ -46,9 +45,10 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
           case MANAGER -> userService.getByRoleAndStatus(User.Role.MANAGER, ENABLED);
         };
 
-    users.forEach(user -> {
-      log.info("email: {} , user_id: {}", user.getEmail(), user.getId());
-    });
+    users.forEach(
+        user -> {
+          log.info("email: {} , user_id: {}", user.getEmail(), user.getId());
+        });
 
     List<InternetAddress> targetListAddress =
         users.stream().map(this::getInternetAddressFromUser).toList();

@@ -23,13 +23,19 @@ public class UserMapper {
   private final FileService fileService;
 
   public UserIdentifier toIdentifier(User user) {
+    String profilePictureKey = user.getProfilePictureKey();
+    String url =
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
+            : null;
     return new UserIdentifier()
         .id(user.getId())
         .ref(user.getRef())
         .nic(user.getNic())
         .lastName(user.getLastName())
         .firstName(user.getFirstName())
-        .email(user.getEmail());
+        .email(user.getEmail())
+        .profilePicture(url);
   }
 
   public Student toRestStudent(User user) {
