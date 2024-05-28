@@ -36,8 +36,7 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
   }
 
   public void sendEmail(AnnouncementSendInit domain) throws AddressException {
-    Context mailContext = getMailContext(domain);
-    String htmlBody = htmlToString("announcementEmail", mailContext);
+    String htmlBody = htmlToString("announcementEmail", getMailContext(domain));
     List<User> users =
         switch (domain.getScope()) {
           case GLOBAL -> userService.getAllEnabledUsers();
