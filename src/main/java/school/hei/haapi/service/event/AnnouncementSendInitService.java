@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.gen.AnnouncementSendInit;
@@ -21,7 +20,6 @@ import school.hei.haapi.service.UserService;
 
 @Service
 @AllArgsConstructor
-@Slf4j
 public class AnnouncementSendInitService implements Consumer<AnnouncementSendInit> {
 
   private final UserService userService;
@@ -36,8 +34,7 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
   }
 
   public void sendEmail(AnnouncementSendInit domain) throws AddressException {
-    Context mailContext = getMailContext(domain);
-    String htmlBody = htmlToString("announcementEmail", mailContext);
+    String htmlBody = htmlToString("announcementEmail", getMailContext(domain));
     List<User> users =
         switch (domain.getScope()) {
           case GLOBAL -> userService.getAllEnabledUsers();
@@ -45,21 +42,20 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
           case STUDENT -> getStudents(domain);
           case MANAGER -> userService.getByRoleAndStatus(User.Role.MANAGER, ENABLED);
         };
-    log.info("users {}", users.stream().map(User::getEmail).toList());
-    // InternetAddress firstAddress = targetListAddress.getFirst();
 
-    InternetAddress internetAddress = new InternetAddress("hei.mahefa@gmail.com");
-    InternetAddress internetAddressCC = new InternetAddress("hei.mahefa+cc@gmail.com");
-    Email email =
+    List<InternetAddress> targetListAddress =
+        users.stream().map(this::getInternetAddressFromUser).toList();
+
+    InternetAddress firstAddress = targetListAddress.getFirst();
+
+    mailer.accept(
         new Email(
-            internetAddress,
-            List.of(internetAddressCC),
+            firstAddress,
+            targetListAddress.subList(1, targetListAddress.size()),
             List.of(),
             domain.getTitle(),
             htmlBody,
-            List.of());
-    mailer.accept(email);
-    log.info(email.toString());
+            List.of()));
   }
 
   public InternetAddress getInternetAddressFromUser(User user) {
