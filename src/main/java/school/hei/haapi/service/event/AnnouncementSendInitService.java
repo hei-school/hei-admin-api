@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.gen.AnnouncementSendInit;
@@ -21,7 +20,6 @@ import school.hei.haapi.service.UserService;
 
 @Service
 @AllArgsConstructor
-@Slf4j
 public class AnnouncementSendInitService implements Consumer<AnnouncementSendInit> {
 
   private final UserService userService;
@@ -45,28 +43,19 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
           case MANAGER -> userService.getByRoleAndStatus(User.Role.MANAGER, ENABLED);
         };
 
-    log.info("---------------users---");
-    log.info(String.valueOf(users.size()));
-    log.info("---------------");
-    log.info(users.toString());
-
-    log.info("-----------------Internet target adress----------");
     List<InternetAddress> targetListAddress =
         users.stream().map(this::getInternetAddressFromUser).toList();
-    log.info(targetListAddress.toString());
 
     InternetAddress firstAddress = targetListAddress.getFirst();
 
-    Email email =
+    mailer.accept(
         new Email(
             firstAddress,
             targetListAddress.subList(1, targetListAddress.size()),
             List.of(),
             domain.getTitle(),
             htmlBody,
-            List.of());
-    mailer.accept(email);
-    log.info(email.toString());
+            List.of()));
   }
 
   public InternetAddress getInternetAddressFromUser(User user) {
