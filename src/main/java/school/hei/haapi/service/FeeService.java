@@ -139,7 +139,7 @@ public class FeeService {
   }
 
   public void sendLateFeesEmail() {
-    List<Fee> lateFees = feeRepository.getFeesByStatus(LATE);
+    List<Fee> lateFees = feeRepository.findAllByStatus(LATE);
     lateFees.forEach(
         fee -> {
           eventProducer.accept(List.of(toLateFeeEvent(fee)));
