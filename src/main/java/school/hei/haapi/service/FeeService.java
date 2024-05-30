@@ -128,18 +128,21 @@ public class FeeService {
     return lateFees;
   }
 
-  private LateFeeVerified toLateFeeEvent(Fee fee) {
+  @Transactional
+  public LateFeeVerified toLateFeeEvent(Fee fee) {
     return LateFeeVerified.builder()
         .type(fee.getType())
-        .student(fee.getStudent())
+        .student(LateFeeVerified.FeeUser.from(fee.getStudent()))
         .comment(fee.getComment())
         .remainingAmount(fee.getRemainingAmount())
         .dueDatetime(fee.getDueDatetime())
         .build();
   }
 
+  @Transactional
   public void sendLateFeesEmail() {
     List<Fee> lateFees = feeRepository.findAllByStatus(LATE);
+    log.info("Late fees size: " + lateFees.size());
     lateFees.forEach(
         fee -> {
           eventProducer.accept(List.of(toLateFeeEvent(fee)));

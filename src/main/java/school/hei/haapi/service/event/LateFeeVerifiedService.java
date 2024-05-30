@@ -16,7 +16,6 @@ import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
 
 @Service
@@ -24,12 +23,12 @@ import school.hei.haapi.model.exception.ApiException;
 public class LateFeeVerifiedService implements Consumer<LateFeeVerified> {
   private final Mailer mailer;
 
-  private static String emailSubject(User student, LateFeeVerified lateFee) {
-    return "Retard de paiement - " + student.getRef() + " - " + lateFee.getComment();
+  private static String emailSubject(LateFeeVerified.FeeUser student, LateFeeVerified lateFee) {
+    return "Retard de paiement - " + student.ref() + " - " + lateFee.getComment();
   }
 
-  private static String formatName(User student) {
-    return student.getLastName() + " " + student.getFirstName();
+  private static String formatName(LateFeeVerified.FeeUser student) {
+    return student.lastName() + " " + student.firstName();
   }
 
   private static Context getMailContext(LateFeeVerified lateFee) {
@@ -44,13 +43,13 @@ public class LateFeeVerifiedService implements Consumer<LateFeeVerified> {
 
   @Override
   public void accept(LateFeeVerified lateFee) {
-    User student = lateFee.getStudent();
+    LateFeeVerified.FeeUser student = lateFee.getStudent();
     String subject = emailSubject(student, lateFee);
     String htmlBody = htmlToString("lateFeeEmail", getMailContext(lateFee));
     try {
       mailer.accept(
           new Email(
-              new InternetAddress(student.getEmail()),
+              new InternetAddress(student.email()),
               List.of(),
               List.of(),
               subject,
