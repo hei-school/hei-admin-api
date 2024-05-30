@@ -25,6 +25,7 @@ import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnu
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.REMOVE;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
+import static school.hei.haapi.integration.StudentIT.mapRestStudentToDomain;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.StudentIT.student2;
 import static school.hei.haapi.integration.StudentIT.student3;
@@ -462,6 +463,21 @@ public class TestUtils {
         .birthPlace("")
         .address("Adr 5")
         .coordinates(coordinatesWithNullValues());
+  }
+
+  public static school.hei.haapi.model.Fee domainFee1(Fee restFee) {
+    school.hei.haapi.model.Fee domainFee = new school.hei.haapi.model.Fee();
+    domainFee.setId(FEE1_ID);
+    domainFee.setStudent(mapRestStudentToDomain(student1()));
+    domainFee.setComment(restFee.getComment());
+    domainFee.setRemainingAmount(restFee.getRemainingAmount());
+    domainFee.setStatus(restFee.getStatus());
+    domainFee.setCreationDatetime(restFee.getCreationDatetime());
+    domainFee.setDueDatetime(restFee.getDueDatetime());
+    domainFee.setType(restFee.getType());
+    domainFee.setTotalAmount(restFee.getTotalAmount());
+
+    return domainFee;
   }
 
   public static Fee fee1() {

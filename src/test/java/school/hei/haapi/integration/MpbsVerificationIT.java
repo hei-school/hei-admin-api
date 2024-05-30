@@ -4,10 +4,13 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
+import static school.hei.haapi.integration.MpbsIT.expectedMpbs1Domain;
 import static school.hei.haapi.integration.MpbsVerificationIT.ContextInitializer.SERVER_PORT;
+import static school.hei.haapi.integration.StudentIT.mapRestStudentToDomain;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
@@ -17,6 +20,8 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.domainFee1;
+import static school.hei.haapi.integration.conf.TestUtils.fee1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpMobilePaymentApi;
@@ -33,6 +38,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.event.EventConsumer;
 import school.hei.haapi.endpoint.event.gen.CheckMobilePaymentTransactionTriggered;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -41,6 +47,8 @@ import school.hei.haapi.endpoint.rest.model.MpbsVerification;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.repository.dao.MpbsDao;
+import school.hei.haapi.service.MpbsVerificationService;
 import school.hei.haapi.service.event.CheckMobilePaymentTransactionTriggeredService;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -50,23 +58,44 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @ContextConfiguration(initializers = MpbsVerificationIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class MpbsVerificationIT extends MockedThirdParties {
+  @Autowired EventConsumer eventConsumer;
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @MockBean private MobileMoneyApiFacade mobileMoneyApiFacade;
   @Autowired private CheckMobilePaymentTransactionTriggeredService subject;
+  @MockBean private MpbsDao mpbsDaoMock;
+  @MockBean private MpbsVerificationService mpbsVerificationService;
 
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
+    setUpMpbsDao();
     setUpMobilePaymentApi(mobileMoneyApiFacade);
+  }
+
+  private void setUpMpbsDao() {
+    when(mpbsDaoMock.findMpbsBetween(
+            Instant.parse("2021-11-05T08:25:24.00Z"), Instant.parse("2021-11-10T08:25:24.00Z")))
+        .thenReturn(List.of(expectedMpbs1Domain()));
+    when(mpbsVerificationService.checkMobilePaymentThenSaveVerification())
+        .thenReturn(List.of(domain1MpbsVerification()));
   }
 
   @Test
   void mobile_money_successfully_verified() throws InterruptedException, JsonProcessingException {
     CheckMobilePaymentTransactionTriggered checkMobilePaymentTriggered =
         CheckMobilePaymentTransactionTriggered.builder().build();
-    subject.accept(new CheckMobilePaymentTransactionTriggered());
+    // Trying to invoke the CheckMobilePaymentTransactionTriggered with EventConsumer
+    eventConsumer.accept(
+        List.of(
+            new EventConsumer.AcknowledgeableTypedEvent(
+                new EventConsumer.TypedEvent(
+                    "school.hei.haapi.endpoint.event.gen.CheckMobilePaymentTransactionTriggered",
+                    checkMobilePaymentTriggered),
+                () -> {})));
+
+    subject.accept(checkMobilePaymentTriggered);
 
     verify(mobileMoneyApiFacade, times(1)).getByTransactionRef(MVOLA, "psp2_id");
   }
@@ -76,7 +105,7 @@ public class MpbsVerificationIT extends MockedThirdParties {
       throws InterruptedException, JsonProcessingException {
     CheckMobilePaymentTransactionTriggered checkMobilePaymentTriggered =
         CheckMobilePaymentTransactionTriggered.builder().build();
-    subject.accept(new CheckMobilePaymentTransactionTriggered());
+    subject.accept(checkMobilePaymentTriggered);
 
     verify(mobileMoneyApiFacade, times(1)).getByTransactionRef(ORANGE_MONEY, "psp2_id");
   }
@@ -108,6 +137,25 @@ public class MpbsVerificationIT extends MockedThirdParties {
     PayingApi api = new PayingApi(student1Client);
 
     assertThrowsForbiddenException(() -> api.getMpbsVerifications(STUDENT2_ID, FEE2_ID));
+  }
+
+  public school.hei.haapi.model.Mpbs.MpbsVerification domain1MpbsVerification() {
+    MpbsVerification rest1MpbsVerification = expected1MpbsVerification();
+    school.hei.haapi.model.Mpbs.MpbsVerification domainMpbs =
+        new school.hei.haapi.model.Mpbs.MpbsVerification();
+    domainMpbs.setFee(domainFee1(fee1()));
+    domainMpbs.setStudent(mapRestStudentToDomain(student1()));
+    domainMpbs.setCreationDatetimeOfMpbs(rest1MpbsVerification.getCreationDatetimeOfMpbs());
+    domainMpbs.setCreationDatetime(rest1MpbsVerification.getCreationDatetime());
+    domainMpbs.setAmountInPsp(rest1MpbsVerification.getAmountInPsp());
+    domainMpbs.setAmountOfFeeRemainingPayment(
+        rest1MpbsVerification.getAmountOfFeeRemainingPayment());
+    domainMpbs.setMobileMoneyType(rest1MpbsVerification.getPspType());
+    domainMpbs.setComment(rest1MpbsVerification.getComment());
+    domainMpbs.setCreationDatetimeOfPaymentInPsp(
+        rest1MpbsVerification.getCreationDatetimeOfPaymentInPsp());
+
+    return domainMpbs;
   }
 
   public MpbsVerification expected1MpbsVerification() {

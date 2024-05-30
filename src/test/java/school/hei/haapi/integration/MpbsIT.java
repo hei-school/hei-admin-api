@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
 import static school.hei.haapi.integration.MpbsIT.ContextInitializer.SERVER_PORT;
+import static school.hei.haapi.integration.StudentIT.mapRestStudentToDomain;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
@@ -13,6 +14,8 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.domainFee1;
+import static school.hei.haapi.integration.conf.TestUtils.fee1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -99,6 +102,20 @@ public class MpbsIT extends MockedThirdParties {
         .amount(8000)
         .successfullyVerifiedOn(Instant.parse("2021-11-08T08:25:24.00Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+  }
+
+  public static school.hei.haapi.model.Mpbs.Mpbs expectedMpbs1Domain() {
+    school.hei.haapi.model.Mpbs.Mpbs domainMpbs1 = new school.hei.haapi.model.Mpbs.Mpbs();
+    domainMpbs1.setSuccessfullyVerifiedOn(Instant.parse("2021-11-08T08:25:24.00Z"));
+    domainMpbs1.setFee(domainFee1(fee1()));
+    domainMpbs1.setStudent(mapRestStudentToDomain(student1()));
+    domainMpbs1.setAmount(8000);
+    domainMpbs1.setPspId("psp2_id");
+    domainMpbs1.setId("mpbs1_id");
+    domainMpbs1.setMobileMoneyType(MVOLA);
+    domainMpbs1.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+
+    return domainMpbs1;
   }
 
   public static CreateMpbs createableMpbs1() {

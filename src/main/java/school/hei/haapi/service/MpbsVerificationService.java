@@ -1,6 +1,9 @@
 package school.hei.haapi.service;
 
+import static java.util.stream.Collectors.toList;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static school.hei.haapi.service.utils.InstantUtils.getCurrentMondayOfTheWeek;
+import static school.hei.haapi.service.utils.InstantUtils.getCurrentSaturdayOfTheWeek;
 
 import java.time.Instant;
 import java.util.List;
@@ -28,7 +31,7 @@ public class MpbsVerificationService {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
   }
 
-  public MpbsVerification isMobilePaymentThenSaveVerification(Mpbs mpbs) {
+  public MpbsVerification isMobilePaymentExistsThenSave(Mpbs mpbs) {
     try {
       var transactionDetails = mobilePaymentService.findTransactionByMpbs(mpbs);
       Fee fee = mpbs.getFee();
@@ -52,8 +55,10 @@ public class MpbsVerificationService {
     }
   }
 
-  public void checkMobilePaymentThenSaveVerification() {
-    List<Mpbs> mpbsOfTheWeek = mpbsDao.findMpbsOfTheWeek();
-    mpbsOfTheWeek.forEach(this::isMobilePaymentThenSaveVerification);
+  public List<MpbsVerification> checkMobilePaymentThenSaveVerification() {
+    List<Mpbs> mpbsOfTheWeek =
+        mpbsDao.findMpbsBetween(getCurrentMondayOfTheWeek(), getCurrentSaturdayOfTheWeek());
+
+    return mpbsOfTheWeek.stream().map(this::isMobilePaymentExistsThenSave).collect(toList());
   }
 }

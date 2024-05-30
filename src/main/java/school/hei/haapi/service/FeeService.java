@@ -66,11 +66,11 @@ public class FeeService {
   }
 
   public List<Fee> getFees(
-      PageFromOne page,
-      BoundedPageSize pageSize,
-      school.hei.haapi.endpoint.rest.model.FeeStatusEnum status) {
+          PageFromOne page,
+          BoundedPageSize pageSize,
+          school.hei.haapi.endpoint.rest.model.FeeStatusEnum status) {
     Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
+            PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
     if (status != null) {
       return feeRepository.getFeesByStatus(status, pageable);
     }
@@ -78,12 +78,12 @@ public class FeeService {
   }
 
   public List<Fee> getFeesByStudentId(
-      String studentId,
-      PageFromOne page,
-      BoundedPageSize pageSize,
-      school.hei.haapi.endpoint.rest.model.FeeStatusEnum status) {
+          String studentId,
+          PageFromOne page,
+          BoundedPageSize pageSize,
+          school.hei.haapi.endpoint.rest.model.FeeStatusEnum status) {
     Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
+            PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
     if (status != null) {
       return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
     }
@@ -105,22 +105,22 @@ public class FeeService {
     List<Fee> unpaidFees = feeRepository.getUnpaidFees(now);
     var lateFees = new ArrayList<Fee>();
     unpaidFees.forEach(
-        fee -> {
-          var modifiedFee = updateFeeStatus(fee);
-          log.info(
-              "Fee "
-                  + modifiedFee.describe()
-                  + "with id."
-                  + fee.getId()
-                  + " is going to be updated from UNPAID to "
-                  + fee.getStatus());
+            fee -> {
+              var modifiedFee = updateFeeStatus(fee);
+              log.info(
+                      "Fee "
+                              + modifiedFee.describe()
+                              + "with id."
+                              + fee.getId()
+                              + " is going to be updated from UNPAID to "
+                              + fee.getStatus());
           /*if (PAID.equals(modifiedFee.getStatus())) {
             paidFees.add(modifiedFee);
           } else*/
-          if (LATE.equals(modifiedFee.getStatus())) {
-            lateFees.add(modifiedFee);
-          }
-        });
+              if (LATE.equals(modifiedFee.getStatus())) {
+                lateFees.add(modifiedFee);
+              }
+            });
     lateFees.forEach(lf -> feeRepository.updateFeeStatusById(LATE, lf.getId()));
     log.info("lateFees = {}", lateFees.stream().map(Fee::describe).toList());
     // paidFees.forEach(lf -> feeRepository.updateFeeStatusById(PAID, lf.getId()));
@@ -130,21 +130,21 @@ public class FeeService {
   @Transactional
   public LateFeeVerified toLateFeeEvent(Fee fee) {
     return LateFeeVerified.builder()
-        .type(fee.getType())
-        .student(LateFeeVerified.FeeUser.from(fee.getStudent()))
-        .comment(fee.getComment())
-        .remainingAmount(fee.getRemainingAmount())
-        .dueDatetime(fee.getDueDatetime())
-        .build();
+            .type(fee.getType())
+            .student(LateFeeVerified.FeeUser.from(fee.getStudent()))
+            .comment(fee.getComment())
+            .remainingAmount(fee.getRemainingAmount())
+            .dueDatetime(fee.getDueDatetime())
+            .build();
   }
 
   public UnpaidFeesReminder toUnpaidFeesReminder(Fee fee) {
     return UnpaidFeesReminder.builder()
-        .studentEmail(fee.getStudent().getEmail())
-        .remainingAmount(fee.getRemainingAmount())
-        .id(fee.getId())
-        .dueDatetime(fee.getDueDatetime())
-        .build();
+            .studentEmail(fee.getStudent().getEmail())
+            .remainingAmount(fee.getRemainingAmount())
+            .id(fee.getId())
+            .dueDatetime(fee.getDueDatetime())
+            .build();
   }
 
   @Transactional
@@ -152,21 +152,20 @@ public class FeeService {
     List<Fee> lateFees = feeRepository.findAllByStatus(LATE);
     log.info("Late fees size: " + lateFees.size());
     lateFees.forEach(
-        fee -> {
-          eventProducer.accept(List.of(toLateFeeEvent(fee)));
-          log.info("Late Fee with id." + fee.getId() + " is sent to Queue");
-        });
+            fee -> {
+              eventProducer.accept(List.of(toLateFeeEvent(fee)));
+              log.info("Late Fee with id." + fee.getId() + " is sent to Queue");
+            });
   }
-
-  public void sendUnpaidFeesEmail() {
-    List<Fee> unpaidFees =
-        feeRepository.getUnpaidFeesForTheMonthSpecified(
-            Instant.now().atZone(ZoneId.of("UTC+3")).getMonthValue());
-    log.info("Unpaid fees size: {}", unpaidFees.size());
-    unpaidFees.forEach(
-        unpaidFee -> {
-          eventProducer.accept(List.of(toUnpaidFeesReminder(unpaidFee)));
-          log.info("Unpaid fee with id.{} is sent to Queue", unpaidFee.getId());
-        });
+    public void sendUnpaidFeesEmail () {
+      List<Fee> unpaidFees =
+              feeRepository.getUnpaidFeesForTheMonthSpecified(
+                      Instant.now().atZone(ZoneId.of("UTC+3")).getMonthValue());
+      log.info("Unpaid fees size: {}", unpaidFees.size());
+      unpaidFees.forEach(
+              unpaidFee -> {
+                eventProducer.accept(List.of(toUnpaidFeesReminder(unpaidFee)));
+                log.info("Unpaid fee with id.{} is sent to Queue", unpaidFee.getId());
+              });
+    }
   }
-}
