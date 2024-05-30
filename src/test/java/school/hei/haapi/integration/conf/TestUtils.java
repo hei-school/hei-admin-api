@@ -1008,7 +1008,7 @@ public class TestUtils {
   }
 
   public static EventParticipant createParticipant(
-      Student student, AttendanceStatus status, String id, String groupName) {
+      Student student, AttendanceStatus status, String id, Group group) {
     return new EventParticipant()
         .id(id)
         .firstName(student.getFirstName())
@@ -1016,7 +1016,7 @@ public class TestUtils {
         .ref(student.getRef())
         .nic(student.getNic())
         .email(student.getEmail())
-        .groupName(groupName)
+        .group(createGroupIdentifier(group))
         .eventStatus(status);
   }
 
@@ -1025,23 +1025,23 @@ public class TestUtils {
   }
 
   public static EventParticipant student1MissEvent1() {
-    return createParticipant(student1(), MISSING, "event_participant1_id", "G1");
+    return createParticipant(student1(), MISSING, "event_participant1_id", group1());
   }
 
   public static EventParticipant student3AttendEvent1() {
-    return createParticipant(student3(), PRESENT, "event_participant2_id", "G1");
+    return createParticipant(student3(), PRESENT, "event_participant2_id", group1());
   }
 
   public static EventParticipant student1AttendEvent2() {
-    return createParticipant(student1(), PRESENT, "event_participant3_id", "G1");
+    return createParticipant(student1(), PRESENT, "event_participant3_id", group1());
   }
 
   public static EventParticipant student2AttendEvent2() {
-    return createParticipant(student2(), PRESENT, "event_participant4_id", "G2");
+    return createParticipant(student2(), PRESENT, "event_participant4_id", group2());
   }
 
   public static EventParticipant student3MissEvent2() {
-    return createParticipant(student3(), MISSING, "event_participant5_id", "G1");
+    return createParticipant(student3(), MISSING, "event_participant5_id", group1());
   }
 
   public static CreateEvent createEventCourse1() {

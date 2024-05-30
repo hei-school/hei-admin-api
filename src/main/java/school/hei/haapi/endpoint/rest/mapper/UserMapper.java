@@ -4,14 +4,7 @@ import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURAT
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.CrupdateManager;
-import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
-import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
-import school.hei.haapi.endpoint.rest.model.Manager;
-import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.model.UserIdentifier;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.FileService;
 
@@ -23,13 +16,19 @@ public class UserMapper {
   private final FileService fileService;
 
   public UserIdentifier toIdentifier(User user) {
+    String profilePictureKey = user.getProfilePictureKey();
+    String url =
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
+            : null;
     return new UserIdentifier()
         .id(user.getId())
         .ref(user.getRef())
         .nic(user.getNic())
         .lastName(user.getLastName())
         .firstName(user.getFirstName())
-        .email(user.getEmail());
+        .email(user.getEmail())
+        .profilePicture(url);
   }
 
   public Student toRestStudent(User user) {
