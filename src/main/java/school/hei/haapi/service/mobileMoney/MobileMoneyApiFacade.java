@@ -22,7 +22,7 @@ public class MobileMoneyApiFacade implements MobileMoneyApi {
     }
 
     @Override
-    public TransactionDetails getByTransactionRef(MobileMoneyType type, String ref) {
+    public TransactionDetails getByTransactionRef(MobileMoneyType type, String ref) throws ApiException {
         return switch (type){
             case MVOLA -> mvolaApi.getByTransactionRef(type, ref);
             case ORANGE_MONEY -> orangeApi.getByTransactionRef(type, ref);

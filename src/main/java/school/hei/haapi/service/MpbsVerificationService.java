@@ -31,25 +31,30 @@ public class MpbsVerificationService {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
   }
 
-  public MpbsVerification isMobilePaymentExistsThenSave(Mpbs mpbs) {
+  public MpbsVerification verifyMobilePaymentAndSaveResult(Mpbs mpbs) {
     try {
-      var transactionDetails = mobilePaymentService.findTransactionByMpbs(mpbs);
+      var mobileTransactionResponseDetails = mobilePaymentService.findTransactionByMpbs(mpbs);
       Fee fee = mpbs.getFee();
-      MpbsVerification verifiedPayment =
+      MpbsVerification verifiedMobileTransaction =
           MpbsVerification.builder()
-              .amountInPsp(transactionDetails.getPspTransactionAmount())
+              .amountInPsp(mobileTransactionResponseDetails.getPspTransactionAmount())
               .fee(fee)
               .amountOfFeeRemainingPayment(fee.getRemainingAmount())
               .creationDatetimeOfMpbs(mpbs.getCreationDatetime())
               .creationDatetimeOfPaymentInPsp(
-                  transactionDetails.getPspDatetimeTransactionCreation())
+                  mobileTransactionResponseDetails.getPspDatetimeTransactionCreation())
               .student(mpbs.getStudent())
               .build();
 
-      log.info("Mpbs has successfully verified = {}", mpbs);
+      // Update mpbs ...
       mpbs.setSuccessfullyVerifiedOn(Instant.now());
-      mpbsRepository.save(mpbs);
-      return repository.save(verifiedPayment);
+      var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
+      log.info("Mpbs has successfully verified = {}", mpbs);
+
+      // ... then save the verification
+      verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
+      verifiedMobileTransaction.setPspId(successfullyVerifiedMpbs.getPspId());
+      return repository.save(verifiedMobileTransaction);
     } catch (ApiException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
@@ -59,6 +64,6 @@ public class MpbsVerificationService {
     List<Mpbs> mpbsOfTheWeek =
         mpbsDao.findMpbsBetween(getCurrentMondayOfTheWeek(), getCurrentSaturdayOfTheWeek());
 
-    return mpbsOfTheWeek.stream().map(this::isMobilePaymentExistsThenSave).collect(toList());
+    return mpbsOfTheWeek.stream().map(this::verifyMobilePaymentAndSaveResult).collect(toList());
   }
 }

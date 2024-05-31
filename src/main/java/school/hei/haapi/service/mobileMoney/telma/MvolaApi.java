@@ -32,7 +32,7 @@ class MvolaApi implements MobileMoneyApi {
   private final String PRODUCTION_URL = "https://api.mvola.mg";
 
   @Override
-  public TransactionDetails getByTransactionRef(MobileMoneyType type, String transactionId) {
+  public TransactionDetails getByTransactionRef(MobileMoneyType type, String transactionId) throws ApiException {
     try (HttpClient httpClient = HttpClient.newHttpClient()) {
       TelmaAuthResponse generatedToken = authService.generateToken(SANDBOX_URL);
       TelmaHttpHeadersOptions httpHeadersOptions = new TelmaHttpHeadersOptions();

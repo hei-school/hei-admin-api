@@ -1,11 +1,40 @@
 package school.hei.haapi.integration;
 
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ContextConfiguration;
+import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.event.gen.CheckMobilePaymentTransactionTriggered;
+import school.hei.haapi.endpoint.rest.api.PayingApi;
+import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.model.MpbsVerification;
+import school.hei.haapi.http.model.TransactionDetails;
+import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.repository.dao.MpbsDao;
+import school.hei.haapi.service.event.CheckMobilePaymentTransactionTriggeredService;
+import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
+import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
+import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
+
+import java.time.Instant;
+import java.util.List;
+
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.AIRTEL_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.integration.MpbsIT.expectedMpbs1Domain;
@@ -23,95 +52,70 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenE
 import static school.hei.haapi.integration.conf.TestUtils.domainFee1;
 import static school.hei.haapi.integration.conf.TestUtils.fee1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.setUpMobilePaymentApi;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-
-import com.fasterxml.jackson.core.JsonProcessingException;
-import java.time.Instant;
-import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.event.EventConsumer;
-import school.hei.haapi.endpoint.event.gen.CheckMobilePaymentTransactionTriggered;
-import school.hei.haapi.endpoint.rest.api.PayingApi;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
-import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.MpbsVerification;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.repository.dao.MpbsDao;
-import school.hei.haapi.service.MpbsVerificationService;
-import school.hei.haapi.service.event.CheckMobilePaymentTransactionTriggeredService;
-import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
-import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = MpbsVerificationIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class MpbsVerificationIT extends MockedThirdParties {
-  @Autowired EventConsumer eventConsumer;
-  @MockBean private EventBridgeClient eventBridgeClientMock;
-  @MockBean private MobileMoneyApiFacade mobileMoneyApiFacade;
   @Autowired private CheckMobilePaymentTransactionTriggeredService subject;
+  @MockBean
+  EventBridgeClient eventBridgeClient;
   @MockBean private MpbsDao mpbsDaoMock;
-  @MockBean private MpbsVerificationService mpbsVerificationService;
+  @MockBean(name = "OrangeApi")
+  MobileMoneyApi orangeApiMock;
+  @MockBean(name = "MvolaApi")
+  MobileMoneyApi mvolaApiMock;
+
 
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
-    setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
-    setUpMpbsDao();
-    setUpMobilePaymentApi(mobileMoneyApiFacade);
+    setUpMpbsDao(mpbsDaoMock);
+    setUpMobileMock(orangeApiMock);
+    setUpMobileMock(mvolaApiMock);
   }
 
-  private void setUpMpbsDao() {
-    when(mpbsDaoMock.findMpbsBetween(
-            Instant.parse("2021-11-05T08:25:24.00Z"), Instant.parse("2021-11-10T08:25:24.00Z")))
+  private void setUpMobileMock(MobileMoneyApi mobileMoneyApi) {
+    when(mobileMoneyApi.getByTransactionRef(eq(MVOLA), any())).thenReturn(attemptTransactionTelma());
+    when(mobileMoneyApi.getByTransactionRef(eq(ORANGE_MONEY), any())).thenReturn(attemptTransactionOrange());
+    when(mobileMoneyApi.getByTransactionRef(eq(AIRTEL_MONEY), any())).thenThrow(ApiException.class);
+  }
+
+  public TransactionDetails attemptTransactionTelma() {
+    return TransactionDetails.builder()
+            .pspTransactionRef("TELMA-ref")
+            .pspTransactionAmount(300_000)
+            .pspDatetimeTransactionCreation(Instant.parse("2021-11-08T08:25:24.00Z"))
+            .build();
+  }
+
+  public TransactionDetails attemptTransactionOrange() {
+    return TransactionDetails.builder()
+            .pspTransactionRef("ORANGE-ref")
+            .pspTransactionAmount(300_000)
+            .pspDatetimeTransactionCreation(Instant.parse("2021-11-08T08:25:24.00Z"))
+            .build();
+  }
+
+  private void setUpMpbsDao(MpbsDao mpbsDao) {
+    when(mpbsDao.findMpbsBetween(any(Instant.class), any(Instant.class)))
         .thenReturn(List.of(expectedMpbs1Domain()));
-    when(mpbsVerificationService.checkMobilePaymentThenSaveVerification())
-        .thenReturn(List.of(domain1MpbsVerification()));
   }
 
   @Test
-  void mobile_money_successfully_verified() throws InterruptedException, JsonProcessingException {
-    CheckMobilePaymentTransactionTriggered checkMobilePaymentTriggered =
-        CheckMobilePaymentTransactionTriggered.builder().build();
-    // Trying to invoke the CheckMobilePaymentTransactionTriggered with EventConsumer
-    eventConsumer.accept(
-        List.of(
-            new EventConsumer.AcknowledgeableTypedEvent(
-                new EventConsumer.TypedEvent(
-                    "school.hei.haapi.endpoint.event.gen.CheckMobilePaymentTransactionTriggered",
-                    checkMobilePaymentTriggered),
-                () -> {})));
-
-    subject.accept(checkMobilePaymentTriggered);
-
-    verify(mobileMoneyApiFacade, times(1)).getByTransactionRef(MVOLA, "psp2_id");
-  }
-
-  @Test
-  void mobile_money_successfully_verified_ko()
-      throws InterruptedException, JsonProcessingException {
+  void mvola_mobile_money_service_is_correctly_executed() {
     CheckMobilePaymentTransactionTriggered checkMobilePaymentTriggered =
         CheckMobilePaymentTransactionTriggered.builder().build();
     subject.accept(checkMobilePaymentTriggered);
 
-    verify(mobileMoneyApiFacade, times(1)).getByTransactionRef(ORANGE_MONEY, "psp2_id");
+    verify(mvolaApiMock, times(1)).getByTransactionRef(MVOLA, "psp2_id");
   }
 
   @Test
-  void student_read_own_mpbs_verifications_ok() throws ApiException {
+  void student_read_own_mpbs_verifications_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
@@ -122,7 +126,7 @@ public class MpbsVerificationIT extends MockedThirdParties {
   }
 
   @Test
-  void manager_read_mpbs_verification_ok() throws ApiException {
+void manager_read_mpbs_verification_ok() throws school.hei.haapi.endpoint.rest.client.ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
@@ -132,7 +136,7 @@ public class MpbsVerificationIT extends MockedThirdParties {
   }
 
   @Test
-  void student_read_other_mpbs_verifications_ko() throws ApiException {
+  void student_read_other_mpbs_verifications_ko() throws school.hei.haapi.endpoint.rest.client.ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 

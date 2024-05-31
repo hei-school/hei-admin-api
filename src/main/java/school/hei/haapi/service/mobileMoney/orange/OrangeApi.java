@@ -48,7 +48,7 @@ class OrangeApi implements MobileMoneyApi {
   }
 
   @Override
-  public TransactionDetails getByTransactionRef(MobileMoneyType type, String transactionRef) {
+  public TransactionDetails getByTransactionRef(MobileMoneyType type, String transactionRef) throws ApiException {
     String token = signinThenGenerateToken();
     String path = API_WALLET_TRANSACTION_PATH.formatted(transactionRef);
     try (HttpClient httpClient = HttpClient.newHttpClient()) {
