@@ -32,8 +32,9 @@ class EventServiceInvokerTest {
   }
 
   static LateFeeVerified lateFee() {
+    var student = randomStudent();
     return LateFeeVerified.builder()
-        .student(randomStudent())
+        .student(LateFeeVerified.FeeUser.from(student))
         .remainingAmount(25_000)
         .dueDatetime(Instant.parse("2023-02-08T08:30:24Z"))
         .build();

@@ -24,7 +24,7 @@ public class LateFeeVerified implements Serializable {
   private static final long serialVersionUID = 1L;
 
   @JsonProperty("concerned_student")
-  private User student;
+  private FeeUser student;
 
   @JsonProperty("type")
   private FeeTypeEnum type;
@@ -37,4 +37,10 @@ public class LateFeeVerified implements Serializable {
 
   @JsonProperty("comment")
   private String comment;
+
+  public record FeeUser (String ref, String lastName, String firstName, String email) {
+    public static FeeUser from (User user) {
+      return new FeeUser(user.getRef(), user.getLastName(), user.getFirstName(), user.getEmail());
+    }
+  };
 }
