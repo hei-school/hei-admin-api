@@ -11,6 +11,7 @@ import school.hei.haapi.service.EventParticipantService;
 public class EventParticipantMapper {
 
   private final EventParticipantService eventParticipantService;
+  private final GroupMapper groupMapper;
 
   public EventParticipant toDomain(
       school.hei.haapi.endpoint.rest.model.UpdateEventParticipant updateEventParticipant) {
@@ -31,6 +32,6 @@ public class EventParticipantMapper {
         .ref(participant.getRef())
         .firstName(participant.getFirstName())
         .lastName(participant.getLastName())
-        .groupName(domain.getGroup().getName());
+        .group(groupMapper.toRestGroupIdentifier(domain.getGroup()));
   }
 }

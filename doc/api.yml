@@ -3262,7 +3262,7 @@ paths:
   /teachers/announcements/{id}:
     get:
       tags:
-      - Announcements
+        - Announcements
       summary: Get teacher announcement by identifier
       parameters:
         - name: id
@@ -3464,6 +3464,8 @@ components:
         email:
           type: string
         nic:
+          type: string
+        profile_picture:
           type: string
     StudentAttendanceMovement:
       properties:
@@ -4065,8 +4067,8 @@ components:
         - $ref: '#/components/schemas/UserIdentifier'
       type: object
       properties:
-        group_name:
-          type: string
+        group:
+          $ref: "#/components/schemas/GroupIdentifier"
         event_status:
           $ref: '#/components/schemas/AttendanceStatus'
     Event:
@@ -4087,7 +4089,7 @@ components:
           type: string
           format: date-time
         planner:
-          $ref: '#/components/schemas/UserIdentifier'
+          $ref: "#/components/schemas/UserIdentifier"
         course:
           $ref: '#/components/schemas/Course'
     CrupdatePromotion:
