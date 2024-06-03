@@ -1,16 +1,12 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
 import java.io.File;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -24,12 +20,10 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.UserUpserted;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.UserValidator;
-import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.service.aws.FileService;
@@ -38,12 +32,10 @@ import school.hei.haapi.service.aws.FileService;
 @AllArgsConstructor
 @Slf4j
 public class UserService {
-
   private final UserRepository userRepository;
   private final EventProducer eventProducer;
   private final UserValidator userValidator;
   private final UserManagerDao userManagerDao;
-  private final GroupFlowRepository groupFlowRepository;
   private final FileService fileService;
   private final MultipartFileConverter fileConverter;
 
@@ -171,22 +163,7 @@ public class UserService {
   }
 
   public List<User> getByGroupId(String groupId) {
-    Sort sortable = Sort.by(DESC, "flowDatetime");
-    List<GroupFlow> studentsGroupFlow = groupFlowRepository.findAllByGroupId(groupId, sortable);
-    List<User> groupedStudentsJoin = new ArrayList<>();
-    List<User> groupedStudentsLeave = new ArrayList<>();
-    log.info("groupId {}", groupId);
-    studentsGroupFlow.forEach(
-        groupFlow -> {
-          if (groupFlow.getGroupFlowType().equals(LEAVE)) {
-            groupedStudentsLeave.add(groupFlow.getStudent());
-          }
-          if (!groupedStudentsLeave.stream().distinct().toList().contains(groupFlow.getStudent())) {
-            groupedStudentsJoin.add(groupFlow.getStudent());
-          }
-        });
-    log.info("groupId {}", groupId);
-    return groupedStudentsJoin.stream().distinct().collect(toList());
+    return userRepository.findAllRemainingStudentsByGroupId(groupId);
   }
 
   public List<User> getByGroupId(String groupId, PageFromOne page, BoundedPageSize pageSize) {
