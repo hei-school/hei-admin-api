@@ -3,6 +3,7 @@ package school.hei.haapi.service.event;
 import static school.hei.haapi.model.User.Role.MANAGER;
 import static school.hei.haapi.model.User.Role.TEACHER;
 import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
 import jakarta.mail.internet.AddressException;
@@ -14,12 +15,12 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.gen.AnnouncementSendInit;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.notEntity.Group;
 import school.hei.haapi.service.UserService;
 
@@ -33,10 +34,8 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
 
   private List<User> getStudents(AnnouncementSendInit domain) {
     List<User> students = new ArrayList<>();
-    log.info("groups = {}", domain.getGroups());
     for (Group group : domain.getGroups()) {
       List<User> byGroupId = userService.getByGroupId(group.getId());
-      log.info("students = {}", byGroupId);
       students.addAll(byGroupId);
     }
     return students;
@@ -53,17 +52,11 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
     return users.stream().map(MailUser::of).toList();
   }
 
-  @Transactional
   public void sendEmail(AnnouncementSendInit domain) throws AddressException {
     String htmlBody = htmlToString("announcementEmail", getMailContext(domain));
     List<MailUser> users = getEmailUsers(domain);
 
-    log.info("nb of users = {}", users.size());
-    users.forEach(
-        user -> {
-          log.info("mail user {}", user);
-        });
-
+    log.info("nb of email recipients = {}", users.size());
     List<InternetAddress> targetListAddress =
         users.stream().map(this::getInternetAddressFromUser).toList();
 
@@ -83,8 +76,8 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
     try {
       return new InternetAddress(user.email());
     } catch (AddressException e) {
-      log.info("error while getting internet address", e);
-      throw new RuntimeException(e);
+      log.info("bad email format {}", user.email);
+      throw new ApiException(SERVER_EXCEPTION, e);
     }
   }
 
@@ -98,6 +91,7 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
   public void accept(AnnouncementSendInit announcementSendInit) {
     try {
       sendEmail(announcementSendInit);
+      log.info("mailSent {} {}", announcementSendInit.getTitle(), announcementSendInit.getScope());
     } catch (AddressException e) {
       throw new RuntimeException(e);
     }
