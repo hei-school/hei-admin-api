@@ -13,6 +13,7 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -35,6 +36,7 @@ import school.hei.haapi.service.aws.FileService;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class UserService {
 
   private final UserRepository userRepository;
@@ -173,7 +175,7 @@ public class UserService {
     List<GroupFlow> studentsGroupFlow = groupFlowRepository.findAllByGroupId(groupId, sortable);
     List<User> groupedStudentsJoin = new ArrayList<>();
     List<User> groupedStudentsLeave = new ArrayList<>();
-
+    log.info("groupId {}", groupId);
     studentsGroupFlow.forEach(
         groupFlow -> {
           if (groupFlow.getGroupFlowType().equals(LEAVE)) {
@@ -183,7 +185,7 @@ public class UserService {
             groupedStudentsJoin.add(groupFlow.getStudent());
           }
         });
-
+    log.info("groupId {}", groupId);
     return groupedStudentsJoin.stream().distinct().collect(toList());
   }
 
