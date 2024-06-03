@@ -18,6 +18,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.model.notEntity.Group;
 import school.hei.haapi.repository.AnnouncementRepository;
 import school.hei.haapi.repository.dao.AnnouncementDao;
 
@@ -32,10 +33,7 @@ public class AnnouncementService {
   public Announcement findById(String id) {
     return announcementRepository
         .findById(id)
-        .orElseThrow(
-            () -> {
-              throw new NotFoundException("Announcement with id #" + id + " not found");
-            });
+        .orElseThrow(() -> new NotFoundException("Announcement with id #" + id + " not found"));
   }
 
   public List<Announcement> getAnnouncements(
@@ -59,6 +57,16 @@ public class AnnouncementService {
                 .title(announcementToCreate.getTitle())
                 .content(announcementToCreate.getContent())
                 .scope(announcementToCreate.getScope())
+                .groups(
+                    announcementToCreate.getGroups().stream()
+                        .map(
+                            group ->
+                                Group.builder()
+                                    .id(group.getId())
+                                    .ref(group.getRef())
+                                    .name(group.getName())
+                                    .build())
+                        .toList())
                 .build()));
     return saved;
   }

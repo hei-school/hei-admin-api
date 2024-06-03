@@ -33,6 +33,7 @@ public class EventMapper {
                     .toList()))
         .planner(userService.findById(createEvent.getPlannerId()))
         .type(createEvent.getEventType())
+        .title(createEvent.getTitle())
         .build();
   }
 
@@ -44,6 +45,7 @@ public class EventMapper {
         .description(domain.getDescription())
         .type(domain.getType())
         .course(Objects.isNull(domain.getCourse()) ? null : courseMapper.toRest(domain.getCourse()))
+        .title(domain.getTitle())
         .planner(userMapper.toIdentifier(domain.getPlanner()));
   }
 }

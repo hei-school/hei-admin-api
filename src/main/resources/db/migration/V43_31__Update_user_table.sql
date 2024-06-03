@@ -1,0 +1,1 @@
+alter table "user" add column if not exists commitment_begin_date timestamp with time zone;

@@ -46,9 +46,14 @@ public class EventService {
   }
 
   public List<Event> getEvents(
-      Instant from, Instant to, EventType eventType, PageFromOne page, BoundedPageSize pageSize) {
+      Instant from,
+      Instant to,
+      String title,
+      EventType eventType,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "beginDatetime"));
-    return eventDao.findByCriteria(from, to, eventType, pageable);
+    return eventDao.findByCriteria(title, from, to, eventType, pageable);
   }
 }

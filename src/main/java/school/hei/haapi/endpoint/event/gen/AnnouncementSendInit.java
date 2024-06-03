@@ -3,14 +3,10 @@ package school.hei.haapi.endpoint.event.gen;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.io.Serializable;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.ToString;
-import school.hei.haapi.endpoint.rest.model.Group;
+import javax.annotation.processing.Generated;
+import lombok.*;
 import school.hei.haapi.endpoint.rest.model.Scope;
+import school.hei.haapi.model.notEntity.Group;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,6 +14,7 @@ import school.hei.haapi.endpoint.rest.model.Scope;
 @Builder
 @ToString
 @Data
+@Generated("EventBridge")
 public class AnnouncementSendInit implements Serializable {
   @JsonProperty("scope")
   private Scope scope;

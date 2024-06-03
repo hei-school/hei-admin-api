@@ -49,6 +49,7 @@ public class WorkDocumentService {
 
     student.setWorkStatus(
         defineStudentWorkStatus(commitmentBegin, commitmentEnd, studentWorkStatus));
+    student.setCommitmentBeginDate(commitmentBegin);
     userRepository.save(student);
 
     return fileInfoService.uploadFile(

@@ -2707,6 +2707,12 @@ paths:
           description: Filter events by event type
           schema:
             $ref: '#/components/schemas/EventType'
+        - name: title
+          in: query
+          required: false
+          description: Filter events by title
+          schema:
+            type: string
       operationId: getEvents
       responses:
         '200':
@@ -3625,6 +3631,9 @@ components:
           $ref: '#/components/schemas/SpecializationField'
         work_study_status:
           $ref: '#/components/schemas/WorkStudyStatus'
+        commitment_begin_date:
+          type: string
+          format: date-time
         profile_picture:
           type: string
     Teacher:
@@ -4015,6 +4024,8 @@ components:
       properties:
         id:
           type: string
+        title:
+          type: string
         description:
           type: string
         begin_datetime:
@@ -4065,6 +4076,8 @@ components:
           type: string
         type:
           $ref: '#/components/schemas/EventType'
+        title:
+          type: string
         description:
           type: string
         begin_datetime:

@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
+import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
 import java.io.File;
@@ -119,6 +120,10 @@ public class UserService {
 
   public List<User> getByRoleAndStatus(User.Role role, User.Status status) {
     return userRepository.findAllByRoleAndStatus(role, status);
+  }
+
+  public List<User> getAllEnabledUsers() {
+    return userRepository.findAllByStatus(ENABLED);
   }
 
   public List<User> getByCriteria(
