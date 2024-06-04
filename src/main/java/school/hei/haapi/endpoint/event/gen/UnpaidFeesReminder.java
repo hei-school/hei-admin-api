@@ -3,7 +3,6 @@ package school.hei.haapi.endpoint.event.gen;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Instant;
 import javax.annotation.processing.Generated;
-
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

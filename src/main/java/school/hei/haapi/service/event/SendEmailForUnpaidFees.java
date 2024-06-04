@@ -8,6 +8,7 @@ import jakarta.mail.internet.InternetAddress;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.gen.UnpaidFeesReminder;
@@ -17,7 +18,8 @@ import school.hei.haapi.model.exception.ApiException;
 
 @Service
 @AllArgsConstructor
-public class UnpaidFeesReminderTriggeredService implements Consumer<UnpaidFeesReminder> {
+@Slf4j
+public class SendEmailForUnpaidFees implements Consumer<UnpaidFeesReminder> {
   private Mailer mailer;
 
   private static Context getMailContext(UnpaidFeesReminder unpaidFee) {
@@ -32,6 +34,7 @@ public class UnpaidFeesReminderTriggeredService implements Consumer<UnpaidFeesRe
   public void accept(UnpaidFeesReminder unpaidFeesReminder) {
     String htmlBody = htmlToString("unpaidFeeReminderEmail", getMailContext(unpaidFeesReminder));
     try {
+      log.info("Sending email to : {} ...", unpaidFeesReminder.getStudentEmail());
       mailer.accept(
           new Email(
               new InternetAddress(unpaidFeesReminder.getStudentEmail()),
@@ -40,6 +43,7 @@ public class UnpaidFeesReminderTriggeredService implements Consumer<UnpaidFeesRe
               "Rappel - Paiement de mensualité",
               htmlBody,
               List.of()));
+      log.info("Email sent...");
     } catch (AddressException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
