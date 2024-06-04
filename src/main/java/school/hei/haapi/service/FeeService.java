@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 
 import jakarta.transaction.Transactional;
 import java.time.Instant;
@@ -16,6 +17,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
+import school.hei.haapi.endpoint.event.gen.UnpaidFeesReminder;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
@@ -136,6 +138,15 @@ public class FeeService {
         .build();
   }
 
+  public UnpaidFeesReminder toUnpaidFeesReminder(Fee fee) {
+    return UnpaidFeesReminder.builder()
+        .studentEmail(fee.getStudent().getEmail())
+        .remainingAmount(fee.getRemainingAmount())
+        .id(fee.getId())
+        .dueDatetime(fee.getDueDatetime())
+        .build();
+  }
+
   @Transactional
   public void sendLateFeesEmail() {
     List<Fee> lateFees = feeRepository.findAllByStatus(LATE);
@@ -144,6 +155,16 @@ public class FeeService {
         fee -> {
           eventProducer.accept(List.of(toLateFeeEvent(fee)));
           log.info("Late Fee with id." + fee.getId() + " is sent to Queue");
+        });
+  }
+
+  public void sendUnpaidFeesEmail() {
+    List<Fee> unpaidFees = feeRepository.findAllByStatus(UNPAID);
+    log.info("Unpaid fees size: {}", unpaidFees.size());
+    unpaidFees.forEach(
+        unpaidFee -> {
+          eventProducer.accept(List.of(toUnpaidFeesReminder(unpaidFee)));
+          log.info("Unpaid fee with id.{} is sent to Queue", unpaidFee.getId());
         });
   }
 }

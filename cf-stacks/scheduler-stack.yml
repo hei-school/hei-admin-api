@@ -39,7 +39,39 @@ Resources:
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.gen.UpdateFeesStatusToLateTriggered'
           Source: 'school.hei.haapi'
+  CheckAttendanceScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Description: Scheduler that trigger updateFeesStatusToLate function
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name: CheckAttendanceScheduler
+      ScheduleExpression: "cron(0 */2 ? * MON-SAT *)"
+      Target:
+        Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
+        RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
+        DeadLetterConfig:
+          Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
+        EventBridgeParameters:
+          DetailType: 'school.hei.haapi.endpoint.event.gen.CheckAttendanceTriggered'
+          Source: 'school.hei.haapi'
 
+  UnpaidFeesReminderEmailScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Description: Scheduler which triggers unpaidFeesReminder function
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name: UnpaidFeesReminderEmailScheduler
+      ScheduleExpression: "cron(0 8 20 * *)"
+      Target:
+        Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
+        RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
+        DeadLetterConfig:
+          Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
+        EventBridgeParameters:
+          DetailType: 'school.hei.haapi.endpoint.event.gen.UnpaidFeesReminder'
+          Source: 'school.hei.haapi'
   ScheduledEventExecutionRole:
     Type: AWS::IAM::Role
     Properties:
