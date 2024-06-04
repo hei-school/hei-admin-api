@@ -1,6 +1,9 @@
 package school.hei.haapi.service.event;
 
+import static school.hei.haapi.model.User.Role.MANAGER;
+import static school.hei.haapi.model.User.Role.TEACHER;
 import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
 import jakarta.mail.internet.AddressException;
@@ -9,6 +12,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -16,6 +20,7 @@ import school.hei.haapi.endpoint.event.gen.AnnouncementSendInit;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.notEntity.Group;
 import school.hei.haapi.service.UserService;
 
@@ -27,29 +32,31 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
   private final UserService userService;
   private final Mailer mailer;
 
-  public List<User> getStudents(AnnouncementSendInit domain) {
+  private List<User> getStudents(AnnouncementSendInit domain) {
     List<User> students = new ArrayList<>();
     for (Group group : domain.getGroups()) {
-      students.addAll(userService.getByGroupId(group.getId()));
+      List<User> byGroupId = userService.getByGroupId(group.getId());
+      students.addAll(byGroupId);
     }
     return students;
   }
 
-  public void sendEmail(AnnouncementSendInit domain) throws AddressException {
-    String htmlBody = htmlToString("announcementEmail", getMailContext(domain));
-    List<User> users =
+  private List<MailUser> getEmailUsers(AnnouncementSendInit domain) {
+    var users =
         switch (domain.getScope()) {
           case GLOBAL -> userService.getAllEnabledUsers();
-          case TEACHER -> userService.getByRoleAndStatus(User.Role.TEACHER, ENABLED);
+          case TEACHER -> userService.getByRoleAndStatus(TEACHER, ENABLED);
           case STUDENT -> getStudents(domain);
-          case MANAGER -> userService.getByRoleAndStatus(User.Role.MANAGER, ENABLED);
+          case MANAGER -> userService.getByRoleAndStatus(MANAGER, ENABLED);
         };
+    return users.stream().map(MailUser::of).toList();
+  }
 
-    users.forEach(
-        user -> {
-          log.info("email: {} , user_id: {}", user.getEmail(), user.getId());
-        });
+  public void sendEmail(AnnouncementSendInit domain) throws AddressException {
+    String htmlBody = htmlToString("announcementEmail", getMailContext(domain));
+    List<MailUser> users = getEmailUsers(domain);
 
+    log.info("nb of email recipients = {}", users.size());
     List<InternetAddress> targetListAddress =
         users.stream().map(this::getInternetAddressFromUser).toList();
 
@@ -65,11 +72,12 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
             List.of()));
   }
 
-  public InternetAddress getInternetAddressFromUser(User user) {
+  private InternetAddress getInternetAddressFromUser(MailUser user) {
     try {
-      return new InternetAddress(user.getEmail());
+      return new InternetAddress(user.email());
     } catch (AddressException e) {
-      throw new RuntimeException(e);
+      log.info("bad email format {}", user.email);
+      throw new ApiException(SERVER_EXCEPTION, e);
     }
   }
 
@@ -83,8 +91,16 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
   public void accept(AnnouncementSendInit announcementSendInit) {
     try {
       sendEmail(announcementSendInit);
+      log.info("mailSent {} {}", announcementSendInit.getTitle(), announcementSendInit.getScope());
     } catch (AddressException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  @Builder
+  private record MailUser(String id, String email) {
+    static MailUser of(User user) {
+      return new MailUser(user.getId(), user.getEmail());
     }
   }
 }
