@@ -102,9 +102,6 @@ public class FeeService {
     Instant now = Instant.now();
     List<Fee> unpaidFees = feeRepository.getUnpaidFees(now);
     var lateFees = new ArrayList<Fee>();
-    // TODO: rename Event Class to RefreshUnpaidFees if we wish to handle unpaid -> paid status
-    // change
-    // var paidFees = new ArrayList<Fee>();
     unpaidFees.forEach(
         fee -> {
           var modifiedFee = updateFeeStatus(fee);
