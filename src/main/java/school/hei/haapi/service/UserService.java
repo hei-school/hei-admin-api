@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
 import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
 import java.io.File;
@@ -48,6 +49,11 @@ public class UserService {
     user.setProfilePictureKey(bucketKey);
     userRepository.save(user);
     fileService.uploadObjectToS3Bucket(bucketKey, savedProfilePicture);
+  }
+
+  @Transactional
+  public void suspendStudentById(String suspendedStudentId) {
+    userRepository.updateUserStatusById(SUSPENDED, suspendedStudentId);
   }
 
   public User updateUser(User user, String userId) {

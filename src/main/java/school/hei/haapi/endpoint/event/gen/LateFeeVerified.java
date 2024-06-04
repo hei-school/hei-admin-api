@@ -38,9 +38,10 @@ public class LateFeeVerified implements Serializable {
   @JsonProperty("comment")
   private String comment;
 
-  public record FeeUser(String ref, String lastName, String firstName, String email) {
+  public record FeeUser(String id, String ref, String lastName, String firstName, String email) {
     public static FeeUser from(User user) {
-      return new FeeUser(user.getRef(), user.getLastName(), user.getFirstName(), user.getEmail());
+      return new FeeUser(
+          user.getId(), user.getRef(), user.getLastName(), user.getFirstName(), user.getEmail());
     }
   }
   ;

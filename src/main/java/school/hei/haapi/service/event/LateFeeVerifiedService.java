@@ -11,17 +11,21 @@ import jakarta.mail.internet.InternetAddress;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.service.UserService;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class LateFeeVerifiedService implements Consumer<LateFeeVerified> {
   private final Mailer mailer;
+  private final UserService userService;
 
   private static String emailSubject(LateFeeVerified.FeeUser student, LateFeeVerified lateFee) {
     return "Retard de paiement - " + student.ref() + " - " + lateFee.getComment();
@@ -43,13 +47,18 @@ public class LateFeeVerifiedService implements Consumer<LateFeeVerified> {
 
   @Override
   public void accept(LateFeeVerified lateFee) {
-    LateFeeVerified.FeeUser student = lateFee.getStudent();
-    String subject = emailSubject(student, lateFee);
+    // Suspend student who has late fees ...
+    LateFeeVerified.FeeUser concernedUser = lateFee.getStudent();
+    userService.suspendStudentById(concernedUser.id());
+    log.info("Student with ref." + concernedUser.ref() + " has been flagged to SUSPENDED");
+
+    // ... Then send mail
+    String subject = emailSubject(concernedUser, lateFee);
     String htmlBody = htmlToString("lateFeeEmail", getMailContext(lateFee));
     try {
       mailer.accept(
           new Email(
-              new InternetAddress(student.email()),
+              new InternetAddress(concernedUser.email()),
               List.of(),
               List.of(),
               subject,

@@ -2,7 +2,9 @@ package school.hei.haapi.repository;
 
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.User;
 
@@ -13,6 +15,10 @@ public interface UserRepository extends JpaRepository<User, String> {
   List<User> findAllByStatus(User.Status status);
 
   List<User> findAllByRoleAndStatus(User.Role role, User.Status status);
+
+  @Modifying
+  @Query("update User u set u.status = :status where u.id = :user_id")
+  void updateUserStatusById(@Param("status") User.Status status, @Param("user_id") String id);
 
   @Query(
       nativeQuery = true,
