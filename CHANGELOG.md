@@ -1,3 +1,26 @@
+# [1.24.0](https://github.com/hei-school/hei-admin-api/compare/v1.23.0...v1.24.0) (2024-06-05)
+
+
+### Bug Fixes
+
+* add title attribute in event entity ([8dd6c86](https://github.com/hei-school/hei-admin-api/commit/8dd6c865800acfa12a72996ac47ffb200388cb69))
+* group null in announcement event model ([14ac1d0](https://github.com/hei-school/hei-admin-api/commit/14ac1d0e1e1d2656c6dd052108de9805a2a80834))
+* **hot-fix:**  correctly save fees by only updating status, avoid payment accident removal ([9a6c04b](https://github.com/hei-school/hei-admin-api/commit/9a6c04bd7ad0621a35183c75d3525f71f940cbb2))
+* migrations weren't numbered correctly thus failing deploy. ([a1457e8](https://github.com/hei-school/hei-admin-api/commit/a1457e89662ea0350c07d85f4ff1b904551aa111))
+* student commitment is not saved when uploading work file  ([3fd5b85](https://github.com/hei-school/hei-admin-api/commit/3fd5b85a7245ad0022c89530a0132f0e351bc0cb))
+
+
+### Features
+
+* commitment date on student payload  ([4d3783f](https://github.com/hei-school/hei-admin-api/commit/4d3783f3a2bbadc5f6f637d7e13264362d888d3b))
+
+
+### Reverts
+
+* remove logs ([e6dc4af](https://github.com/hei-school/hei-admin-api/commit/e6dc4af21385afd4292b831a3c6cd6c321e2beb9))
+
+
+
 # [1.23.0](https://github.com/hei-school/hei-admin-api/compare/v1.22.0...v1.23.0) (2024-04-30)
 
 
@@ -85,28 +108,6 @@
 ### Features
 
 * **not-implemented:** document student work file  ([8b1f6e6](https://github.com/hei-school/hei-admin-api/commit/8b1f6e6dcbba721a45c48226e8d15959646f3ab6))
-
-
-
-# [1.14.0](https://github.com/hei-school/hei-admin-api/compare/v1.11.0...v1.14.0) (2024-04-03)
-
-
-### Bug Fixes
-
-* handle hibernate dialect in aws  ([6bc0ebb](https://github.com/hei-school/hei-admin-api/commit/6bc0ebb0901ff337bf92f39c12d36f48a29e6f33))
-* handle year if it's higher than 2  ([a6f1e69](https://github.com/hei-school/hei-admin-api/commit/a6f1e695c94cc2e9d7c090117cef3aaf5802bc82))
-
-
-### Features
-
-* add high school origin attribute for user ([24da263](https://github.com/hei-school/hei-admin-api/commit/24da26313d1c9b888e00553a7d9e57ab86dae9dd))
-* event and event participants resources ([745eb33](https://github.com/hei-school/hei-admin-api/commit/745eb33a79718ab730afe80b12d1ddfd54d9a6a9))
-* get latest grouped comments   ([b77030f](https://github.com/hei-school/hei-admin-api/commit/b77030fb7416bfbf4692e2970847640df6a0cf67))
-* migrate db to neon ([108ae8e](https://github.com/hei-school/hei-admin-api/commit/108ae8e4f7247bc96b3566780abdbeb5b5d795d4))
-* **not-implemented:** alternants resources  ([b4b33a5](https://github.com/hei-school/hei-admin-api/commit/b4b33a54f7adbad98a77ada866c95ed267c5b020))
-* **not-implemented:** document student work file  ([1afca4e](https://github.com/hei-school/hei-admin-api/commit/1afca4e7b910e03971c3220151082e5324c22b7e))
-* **not-implemented:** document student work file  ([b90255f](https://github.com/hei-school/hei-admin-api/commit/b90255f329a2b69cf6a93c833abb17d49a4fc8c8))
-* **not-implemented:** document student work file  ([0540e4f](https://github.com/hei-school/hei-admin-api/commit/0540e4f7a99890394d025db919483620b591c8dc))
 
 
 
