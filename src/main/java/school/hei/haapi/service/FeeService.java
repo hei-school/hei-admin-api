@@ -159,7 +159,7 @@ public class FeeService {
   }
 
   public void sendUnpaidFeesEmail() {
-    List<Fee> unpaidFees = feeRepository.findAllByStatus(UNPAID);
+    List<Fee> unpaidFees = feeRepository.getUnpaidFees(Instant.now());
     log.info("Unpaid fees size: {}", unpaidFees.size());
     unpaidFees.forEach(
         unpaidFee -> {

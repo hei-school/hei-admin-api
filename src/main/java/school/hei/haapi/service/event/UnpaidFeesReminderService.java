@@ -19,7 +19,7 @@ import school.hei.haapi.model.exception.ApiException;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class SendEmailForUnpaidFees implements Consumer<UnpaidFeesReminder> {
+public class UnpaidFeesReminderService implements Consumer<UnpaidFeesReminder> {
   private Mailer mailer;
 
   private static Context getMailContext(UnpaidFeesReminder unpaidFee) {
