@@ -55,7 +55,6 @@ Resources:
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.gen.CheckAttendanceTriggered'
           Source: 'school.hei.haapi'
-
   UnpaidFeesReminderEmailScheduler:
     Type: AWS::Scheduler::Schedule
     Properties:

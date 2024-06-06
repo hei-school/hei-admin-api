@@ -3,7 +3,6 @@ package school.hei.haapi.service;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 
 import jakarta.transaction.Transactional;
 import java.time.Instant;
@@ -160,7 +159,9 @@ public class FeeService {
   }
 
   public void sendUnpaidFeesEmail() {
-    List<Fee> unpaidFees = feeRepository.getUnpaidFeesForTheMonthSpecified(Instant.now().atZone(ZoneId.of("UTC+3")).getMonthValue());
+    List<Fee> unpaidFees =
+        feeRepository.getUnpaidFeesForTheMonthSpecified(
+            Instant.now().atZone(ZoneId.of("UTC+3")).getMonthValue());
     log.info("Unpaid fees size: {}", unpaidFees.size());
     unpaidFees.forEach(
         unpaidFee -> {

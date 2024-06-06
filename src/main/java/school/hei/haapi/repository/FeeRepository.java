@@ -30,8 +30,8 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
   List<Fee> getUnpaidFees(@Param(value = "now") Instant now);
 
   @Query(
-          "select f from Fee f where f.status = 'UNPAID' AND EXTRACT(month from f.dueDatetime) = :month"
-  )
+      "select f from Fee f where f.status = 'UNPAID' AND EXTRACT(month from f.dueDatetime) ="
+          + " :month")
   List<Fee> getUnpaidFeesForTheMonthSpecified(Integer month);
 
   @Modifying
