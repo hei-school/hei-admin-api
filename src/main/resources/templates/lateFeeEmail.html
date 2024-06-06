@@ -50,13 +50,14 @@
 <body>
     <main>
         <h1>Bonjour
-            <span th:text="${fullName}"></span> ,
+            <span th:text="${fullName + ' - SUSPENSION'}"></span> ,
         </h1>
         <section>
             Sauf erreur de notre part, nous avons remarqué que vous n'avez pas encore effectué
             le paiement de <span th:text="${comment}"></span> qui devait être régler
             au plus tard le <span th:text="${dueDatetime}"></span>, pour un montant de <span th:text="${remainingAmount}"></span> MGA.
-            (<span th:text="${remainingAmWords}"></span> ARIARY)
+            (<span th:text="${remainingAmWords}"></span> ARIARY).
+            Par conséquent vous allez être SUSPENDU. Pour plus d'information contacter <a href="mailto:contact@mail.hei.school">contact@mail.hei.school</a>
         </section>
         <section>
             Veuillez régler vos impayés au plus vite afin de ne

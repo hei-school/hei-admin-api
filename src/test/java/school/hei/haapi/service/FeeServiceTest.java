@@ -33,8 +33,8 @@ class FeeServiceTest {
   FeeRepository feeRepository;
   FeeValidator feeValidator;
   EventProducer eventProducer;
-
   UpdateFeeValidator updateFeeValidator;
+  UserService userService;
 
   static User student1() {
     return User.builder().id(TestUtils.STUDENT1_ID).build();
@@ -116,6 +116,7 @@ class FeeServiceTest {
     feeValidator = mock(FeeValidator.class);
     updateFeeValidator = mock(UpdateFeeValidator.class);
     eventProducer = mock(EventProducer.class);
+    userService = mock(UserService.class);
     subject = new FeeService(feeRepository, feeValidator, updateFeeValidator, eventProducer);
   }
 

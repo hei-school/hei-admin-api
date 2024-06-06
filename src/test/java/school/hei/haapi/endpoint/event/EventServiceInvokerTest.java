@@ -9,11 +9,10 @@ import static org.mockito.Mockito.verify;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import school.hei.haapi.conf.BucketConf;
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.event.LateFeeVerifiedService;
 import school.hei.haapi.service.event.UserUpsertedService;
 
@@ -21,7 +20,7 @@ class EventServiceInvokerTest {
   UserUpsertedService userUpsertedService;
   LateFeeVerifiedService lateFeeService;
   Mailer sesService;
-  @MockBean BucketConf bucketConf;
+  UserService userService;
 
   static User randomStudent() {
     return User.builder()
@@ -44,7 +43,8 @@ class EventServiceInvokerTest {
   void setUp() {
     userUpsertedService = mock(UserUpsertedService.class);
     sesService = mock(Mailer.class);
-    lateFeeService = new LateFeeVerifiedService(sesService);
+    userService = mock(UserService.class);
+    lateFeeService = new LateFeeVerifiedService(sesService, userService);
   }
 
   @Test
