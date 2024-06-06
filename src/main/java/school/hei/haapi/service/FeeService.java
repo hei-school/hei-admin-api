@@ -7,6 +7,7 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 
 import jakarta.transaction.Transactional;
 import java.time.Instant;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -159,7 +160,7 @@ public class FeeService {
   }
 
   public void sendUnpaidFeesEmail() {
-    List<Fee> unpaidFees = feeRepository.getUnpaidFees(Instant.now());
+    List<Fee> unpaidFees = feeRepository.getUnpaidFeesForTheMonthSpecified(Instant.now().atZone(ZoneId.of("UTC+3")).getMonthValue());
     log.info("Unpaid fees size: {}", unpaidFees.size());
     unpaidFees.forEach(
         unpaidFee -> {
