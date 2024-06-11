@@ -15,7 +15,11 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.rest.model.FileType;
-import school.hei.haapi.model.*;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.FileInfo;
+import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.repository.FileInfoRepository;
 import school.hei.haapi.repository.dao.FileInfoDao;
 import school.hei.haapi.service.utils.Base64Converter;
@@ -38,6 +42,7 @@ public class StudentFileService {
   private final WorkDocumentService workDocumentService;
   private final FileInfoDao fileInfoDao;
 
+  // TIPS: Work Document part:
   public WorkDocument uploadStudentWorkFile(
       String studentId,
       String filename,
@@ -60,6 +65,17 @@ public class StudentFileService {
     return workDocumentService.getStudentWorkFileById(workFileId);
   }
 
+  public WorkDocument deleteStudentWorkDocumentById(String workDocumentId) {
+    return workDocumentService.deleteWorkDocumentById(workDocumentId);
+  }
+
+
+  // TIPS: Student file part
+  public FileInfo deleteStudentFileInfoById(String studentId, String fileInfoId) {
+    FileInfo studentFileInfo = getStudentFileById(studentId, fileInfoId);
+    return fileInfoService.deleteFileInfo(studentFileInfo);
+  }
+
   public FileInfo uploadStudentFile(
       String fileName, FileType fileType, String studentId, MultipartFile fileToUpload) {
     return fileInfoService.uploadFile(fileName, fileType, studentId, fileToUpload);
@@ -73,7 +89,6 @@ public class StudentFileService {
   }
 
   public FileInfo getStudentFileById(String studentId, String id) {
-    User user = userService.findById(studentId);
     return fileInfoRepository.getByUserIdAndId(studentId, id);
   }
 

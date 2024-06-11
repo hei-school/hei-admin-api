@@ -20,6 +20,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import school.hei.haapi.endpoint.rest.model.FileType;
 
 @Entity
@@ -30,6 +32,8 @@ import school.hei.haapi.endpoint.rest.model.FileType;
 @Setter
 @ToString
 @Builder(toBuilder = true)
+@SQLDelete(sql = "update \"file_info\" set is_deleted = true where id = ?")
+@Where(clause = "is_deleted = false")
 public class FileInfo implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -46,4 +50,6 @@ public class FileInfo implements Serializable {
   private FileType fileType;
 
   private String filePath;
+
+  private boolean isDeleted;
 }

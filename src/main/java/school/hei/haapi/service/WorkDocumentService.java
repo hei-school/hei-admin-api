@@ -25,6 +25,12 @@ public class WorkDocumentService {
   private final UserService userService;
   private final WorkDocumentRepository workDocumentRepository;
 
+  public WorkDocument deleteWorkDocumentById(String workDocumentId) {
+    WorkDocument deletedWorkDocument = getStudentWorkFileById(workDocumentId);
+    workDocumentRepository.deleteById(workDocumentId);
+    return deletedWorkDocument;
+  }
+
   public WorkDocument getStudentWorkFileById(String workFileId) {
     return workDocumentRepository
         .findById(workFileId)
