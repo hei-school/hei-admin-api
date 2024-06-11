@@ -69,7 +69,6 @@ public class StudentFileService {
     return workDocumentService.deleteWorkDocumentById(workDocumentId);
   }
 
-
   // TIPS: Student file part
   public FileInfo deleteStudentFileInfoById(String studentId, String fileInfoId) {
     FileInfo studentFileInfo = getStudentFileById(studentId, fileInfoId);

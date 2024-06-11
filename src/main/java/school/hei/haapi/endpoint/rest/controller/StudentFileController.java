@@ -6,8 +6,6 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import java.time.Instant;
 import java.util.List;
-
-import jakarta.ws.rs.Path;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -72,27 +70,26 @@ public class StudentFileController {
 
   @GetMapping(value = "/students/{student_id}/work_files/{id}")
   public FileInfo getStudentWorkDocumentsById(
-          @PathVariable(name = "student_id") String studentId, @PathVariable(name = "id") String id) {
+      @PathVariable(name = "student_id") String studentId, @PathVariable(name = "id") String id) {
     return workDocumentMapper.toRest(fileService.getStudentWorkFileById(id));
   }
 
   @DeleteMapping(value = "/students/{student_id}/work_files/{id}")
   public FileInfo deleteStudentWorkDocumentById(
-          @PathVariable(name = "student_id") String studentId,
-          @PathVariable(name = "id") String workDocumentId
-  ) {
+      @PathVariable(name = "student_id") String studentId,
+      @PathVariable(name = "id") String workDocumentId) {
     return workDocumentMapper.toRest(fileService.deleteStudentWorkDocumentById(workDocumentId));
   }
 
   // TIPS: Student files part
   @PostMapping(value = "/students/{student_id}/files/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public FileInfo uploadStudentFile(
-          @PathVariable(name = "student_id") String studentId,
-          @RequestParam(name = "filename") String fileName,
-          @RequestParam(name = "file_type") FileType fileType,
-          @RequestPart(name = "file_to_upload") MultipartFile fileToUpload) {
+      @PathVariable(name = "student_id") String studentId,
+      @RequestParam(name = "filename") String fileName,
+      @RequestParam(name = "file_type") FileType fileType,
+      @RequestPart(name = "file_to_upload") MultipartFile fileToUpload) {
     return fileInfoMapper.toRest(
-            fileService.uploadStudentFile(fileName, fileType, studentId, fileToUpload));
+        fileService.uploadStudentFile(fileName, fileType, studentId, fileToUpload));
   }
 
   @GetMapping(value = "/students/{student_id}/files")
@@ -115,8 +112,8 @@ public class StudentFileController {
 
   @DeleteMapping(value = "/students/{student_id}/files/{id}")
   public FileInfo deleteStudentFileById(
-          @PathVariable(name = "student_id") String studentId,
-          @PathVariable(name = "id") String fileId) {
+      @PathVariable(name = "student_id") String studentId,
+      @PathVariable(name = "id") String fileId) {
     return fileInfoMapper.toRest(fileService.deleteStudentFileInfoById(studentId, fileId));
   }
 }

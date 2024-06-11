@@ -13,7 +13,6 @@ import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
-import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.FilenameValidator;
 import school.hei.haapi.repository.FileInfoRepository;
 import school.hei.haapi.repository.WorkDocumentRepository;
@@ -98,7 +97,7 @@ public class FileInfoService {
 
   public FileInfo deleteFileInfo(FileInfo fileInfo) {
     fileInfoRepository.deleteById(fileInfo.getId());
-    log.info("File info with on path # {} has successfully deleted",  fileInfo.getFilePath());
+    log.info("File info with on path # {} has successfully deleted", fileInfo.getFilePath());
     return fileInfo;
   }
 }
