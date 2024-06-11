@@ -1,5 +1,6 @@
 package school.hei.haapi.service.event;
 
+import static java.lang.Math.min;
 import static school.hei.haapi.model.User.Role.MANAGER;
 import static school.hei.haapi.model.User.Role.TEACHER;
 import static school.hei.haapi.model.User.Status.ENABLED;
@@ -28,6 +29,7 @@ import school.hei.haapi.service.UserService;
 @AllArgsConstructor
 @Slf4j
 public class AnnouncementSendInitService implements Consumer<AnnouncementSendInit> {
+  private static final int MAX_SES_RECIPIENT_SIZE = 50;
 
   private final UserService userService;
   private final Mailer mailer;
@@ -58,17 +60,28 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
     List<MailUser> users = getEmailUsers(domain);
 
     log.info("nb of email recipients = {}", users.size());
-    List<InternetAddress> targetListAddress =
+    List<InternetAddress> targetListAddresses =
         users.stream().map(this::getInternetAddressFromUser).toList();
 
-    mailer.accept(
-        new Email(
-            new InternetAddress("contact@mail.hei.school"),
-            targetListAddress,
-            List.of(),
-            domain.getTitle(),
-            htmlBody,
-            List.of()));
+    // mail admin first then CC other receivers in order to check for data arrival
+    InternetAddress adminMailReceiver = new InternetAddress("contact@mail.hei.school");
+    listGroups(targetListAddresses)
+        .forEach(
+            listGroup -> {
+              mailer.accept(
+                  new Email(
+                      adminMailReceiver,
+                      listGroup,
+                      List.of(),
+                      domain.getTitle(),
+                      htmlBody,
+                      List.of()));
+              log.info(
+                  "mailSent {} {} to {} users",
+                  domain.getTitle(),
+                  domain.getScope(),
+                  listGroup.size());
+            });
   }
 
   private InternetAddress getInternetAddressFromUser(MailUser user) {
@@ -91,7 +104,6 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
   public void accept(AnnouncementSendInit announcementSendInit) {
     try {
       sendEmail(announcementSendInit);
-      log.info("mailSent {} {}", announcementSendInit.getTitle(), announcementSendInit.getScope());
     } catch (AddressException e) {
       throw new RuntimeException(e);
     }
@@ -102,5 +114,21 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
     static MailUser of(User user) {
       return new MailUser(user.getId(), user.getEmail());
     }
+  }
+
+  private List<List<InternetAddress>> listGroups(List<InternetAddress> addresses) {
+    if (addresses.size() <= MAX_SES_RECIPIENT_SIZE) {
+      return List.of(addresses);
+    }
+    List<List<InternetAddress>> groupedList = new ArrayList<>();
+    int size = addresses.size();
+
+    int groupSize = MAX_SES_RECIPIENT_SIZE;
+    for (int i = 0; i < size; i += groupSize) {
+      int end = min(size, i + groupSize);
+      groupedList.add(new ArrayList<>(addresses.subList(i, end)));
+    }
+
+    return groupedList;
   }
 }
