@@ -17,6 +17,8 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -26,10 +28,12 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.FilesApi;
@@ -47,6 +51,19 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @AutoConfigureMockMvc
 public class StudentFileIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
+  @Autowired private EntityManager entityManager;
+
+  private school.hei.haapi.model.FileInfo getFileInfoByIdWithoutJpaFiltering(String fileInfoId) {
+    try {
+      Query q =
+          entityManager.createNativeQuery(
+              "SELECT * FROM \"file_info\" where id = ?", school.hei.haapi.model.FileInfo.class);
+      q.setParameter(1, fileInfoId);
+      return (school.hei.haapi.model.FileInfo) q.getSingleResult();
+    } catch (NullPointerException e) {
+      throw new RuntimeException(e.getMessage());
+    }
+  }
 
   @BeforeEach
   public void setUp() {
@@ -122,6 +139,30 @@ public class StudentFileIT extends MockedThirdParties {
 
     assertEquals(2, documents.size());
     assertTrue(documents.contains(file1()));
+  }
+
+  @Test
+  @DirtiesContext
+  void manager_delete_student_files_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    FilesApi api = new FilesApi(manager1Client);
+
+    // Delete from webhooks ...
+    FileInfo deletedFile = api.deleteStudentFileById(STUDENT1_ID, "file1_id");
+
+    assertNotNull(deletedFile);
+
+    // ... Then assert that file info is correctly flagged as deleted
+    school.hei.haapi.model.FileInfo domainFileInfo = getFileInfoByIdWithoutJpaFiltering("file1_id");
+    assertTrue(domainFileInfo.isDeleted());
+  }
+
+  @Test
+  void student_delete_student_files_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    FilesApi api = new FilesApi(student1Client);
+
+    assertThrowsForbiddenException(() -> api.deleteStudentFileById(STUDENT1_ID, "file1_id"));
   }
 
   public static FileInfo file1() {

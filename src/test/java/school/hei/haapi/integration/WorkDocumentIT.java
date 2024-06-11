@@ -1,6 +1,8 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.FileType.WORK_DOCUMENT;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -14,13 +16,17 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.FilesApi;
@@ -30,6 +36,7 @@ import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.WorkDocument;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -38,7 +45,22 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @AutoConfigureMockMvc
 public class WorkDocumentIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
+  @Autowired private EntityManager entityManager;
   public static String WORK_DOCUMENT_1_ID = "work_file1_id";
+
+  private school.hei.haapi.model.WorkDocument getStudentWorkDocumentByIdWithoutJpaFiltering(
+      String id) {
+    try {
+      Query q =
+          entityManager.createNativeQuery(
+              "SELECT * FROM \"work_document\" where id = ?",
+              school.hei.haapi.model.WorkDocument.class);
+      q.setParameter(1, id);
+      return (school.hei.haapi.model.WorkDocument) q.getSingleResult();
+    } catch (NullPointerException e) {
+      throw new RuntimeException(e.getMessage());
+    }
+  }
 
   @BeforeEach
   public void setUp() {
@@ -104,6 +126,22 @@ public class WorkDocumentIT extends MockedThirdParties {
     FileInfo actual = api.getStudentWorkDocumentsById(STUDENT1_ID, WORK_DOCUMENT_1_ID);
 
     assertEquals(workDocument1(), actual);
+  }
+
+  @Test
+  @DirtiesContext
+  void manager_delete_work_document_by_id_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    FilesApi api = new FilesApi(manager1Client);
+
+    FileInfo deletedWorkDocument = api.deleteStudentWorkDocumentById(STUDENT1_ID, "work_file1_id");
+
+    assertNotNull(deletedWorkDocument);
+
+    WorkDocument domainWorkDocument =
+        getStudentWorkDocumentByIdWithoutJpaFiltering("work_file1_id");
+
+    assertTrue(domainWorkDocument.isDeleted());
   }
 
   private static ApiClient anApiClient(String token) {
