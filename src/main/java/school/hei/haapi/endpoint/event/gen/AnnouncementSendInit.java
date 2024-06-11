@@ -16,14 +16,17 @@ import school.hei.haapi.model.notEntity.Group;
 @Data
 @Generated("EventBridge")
 public class AnnouncementSendInit implements Serializable {
+  @JsonProperty("id")
+  private String id;
+
   @JsonProperty("scope")
   private Scope scope;
 
   @JsonProperty("title")
   private String title;
 
-  @JsonProperty("content")
-  private String content;
+  @JsonProperty("senderFullName")
+  private String senderFullName;
 
   @JsonProperty("groups")
   private List<Group> groups;
