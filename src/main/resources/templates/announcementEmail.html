@@ -51,16 +51,16 @@
 <main>
     <h1>[IMPORTANT]</h1>
     <section>
-        <span th:text="${fullName}"></span>
+        <span th:text="${fullName} + ' a récemment posté une annonce qui vous concernce de près ou de loin.'"></span>
     </section>
     <section>
 
-        <a href="https://admin.hei.school/#/announcements/[[${id}]]/show}">Voir l'annonce</a>
+        <a th:href="@{'https://admin.hei.school/announcements/'+${id}+'/show'}">Cliquer ici pour voir l'annonce</a>
 
-        Veuillez y prêter attention.
+        <span>Veuillez y prêter attention.</span>
 
-        Vous pouvez contacter l’administration via l’adresse email en copie <a href="mailto:contact@mail.hei.school">contact@mail.hei.school</a>
-        ou par le numéro <a href="tel:+261349404116">+261 34 94 041 16</a> pour toute réclamation.
+        <span>Vous pouvez contacter l’administration via l’adresse email en copie <a href="mailto:contact@mail.hei.school">contact@mail.hei.school</a>
+        ou par le numéro <a href="tel:+261349404116">+261 34 94 041 16</a> pour toute remarque.</span>
     </section>
 </main>
 <footer>

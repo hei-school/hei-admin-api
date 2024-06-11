@@ -54,6 +54,7 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
 
   public void sendEmail(AnnouncementSendInit domain) throws AddressException {
     String htmlBody = htmlToString("announcementEmail", getMailContext(domain));
+    log.info("Send email : {}", htmlBody);
     List<MailUser> users = getEmailUsers(domain);
 
     log.info("nb of email recipients = {}", users.size());
