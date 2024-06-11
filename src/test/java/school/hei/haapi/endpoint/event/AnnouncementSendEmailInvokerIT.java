@@ -33,8 +33,9 @@ class AnnouncementSendEmailInvokerIT extends MockedThirdParties {
   static AnnouncementSendInit announcement() {
     return AnnouncementSendInit.builder()
         .title("Title")
-        .content("A lot of content")
         .scope(GLOBAL)
+        .id("test_id")
+        .senderFullName("John Doe")
         .build();
   }
 

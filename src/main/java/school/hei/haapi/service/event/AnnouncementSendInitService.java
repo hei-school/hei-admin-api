@@ -54,18 +54,17 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
 
   public void sendEmail(AnnouncementSendInit domain) throws AddressException {
     String htmlBody = htmlToString("announcementEmail", getMailContext(domain));
+    log.info("Send email : {}", htmlBody);
     List<MailUser> users = getEmailUsers(domain);
 
     log.info("nb of email recipients = {}", users.size());
     List<InternetAddress> targetListAddress =
         users.stream().map(this::getInternetAddressFromUser).toList();
 
-    InternetAddress firstAddress = targetListAddress.getFirst();
-
     mailer.accept(
         new Email(
-            firstAddress,
-            targetListAddress.subList(1, targetListAddress.size()),
+            new InternetAddress("contact@mail.hei.school"),
+            targetListAddress,
             List.of(),
             domain.getTitle(),
             htmlBody,
@@ -83,7 +82,8 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
 
   private static Context getMailContext(AnnouncementSendInit announcement) {
     Context initial = new Context();
-    initial.setVariable("content", announcement.getContent());
+    initial.setVariable("fullName", announcement.getSenderFullName());
+    initial.setVariable("id", announcement.getId());
     return initial;
   }
 

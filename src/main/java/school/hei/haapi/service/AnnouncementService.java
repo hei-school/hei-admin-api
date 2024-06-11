@@ -54,9 +54,13 @@ public class AnnouncementService {
     eventProducer.accept(
         List.of(
             AnnouncementSendInit.builder()
+                .id(announcementToCreate.getId())
                 .title(announcementToCreate.getTitle())
-                .content(announcementToCreate.getContent())
                 .scope(announcementToCreate.getScope())
+                .senderFullName(
+                    announcementToCreate.getAuthor().getFirstName()
+                        + " "
+                        + announcementToCreate.getAuthor().getLastName())
                 .groups(
                     announcementToCreate.getGroups().stream()
                         .map(
