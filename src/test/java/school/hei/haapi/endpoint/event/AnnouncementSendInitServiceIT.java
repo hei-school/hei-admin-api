@@ -17,18 +17,15 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.event.gen.AnnouncementSendInit;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
-import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.service.event.AnnouncementSendInitService;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
-@ContextConfiguration(initializers = AnnouncementSendEmailInvokerIT.ContextInitializer.class)
+@ContextConfiguration(initializers = AnnouncementSendInitServiceIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-class AnnouncementSendEmailInvokerIT extends MockedThirdParties {
+class AnnouncementSendInitServiceIT extends MockedThirdParties {
   @Autowired AnnouncementSendInitService announcementSendInitService;
-  ;
-  @MockBean Mailer mailer;
-  @MockBean EventProducer producer;
+  @MockBean EventProducer eventProducerMock;
 
   static AnnouncementSendInit announcement() {
     return AnnouncementSendInit.builder()
@@ -40,10 +37,11 @@ class AnnouncementSendEmailInvokerIT extends MockedThirdParties {
   }
 
   @Test
-  void announcementEmail_invokes_corresponding_service() {
+  void should_invoke_eventproducer() {
     announcementSendInitService.accept(announcement());
 
-    verify(mailer, times(1)).accept(any());
+    // 2 relays on actual data
+    verify(eventProducerMock, times(2)).accept(any());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
