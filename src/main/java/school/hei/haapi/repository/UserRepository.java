@@ -52,4 +52,6 @@ public interface UserRepository extends JpaRepository<User, String> {
 						where u.status <> 'DISABLED'
 						""")
   List<User> findAllRemainingStudentsByGroupId(String groupId);
+
+  Integer countBySex(User.Sex sex);
 }

@@ -140,9 +140,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Group'
+                $ref: '#/components/schemas/StudentStat'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -428,9 +426,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Student'
+                $ref: '#/components/schemas/StudentStat'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -4256,6 +4252,36 @@ components:
           format: date-time
         scope:
           $ref: '#/components/schemas/Scope'
+    StudentStat:
+      type: object
+      properties:
+        total:
+          type: integer
+        men:
+          type: integer
+        women:
+          type: integer
+        student_alternating:
+          type: integer
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
+    GroupStat:
+      type: object
+      properties:
+        total:
+          type: integer
+        men:
+          type: integer
+        women:
+          type: integer
+        group_number:
+          type: integer
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
     Exception:
       type: object
       properties:

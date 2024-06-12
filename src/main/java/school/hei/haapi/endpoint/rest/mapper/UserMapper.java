@@ -16,7 +16,11 @@ import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.service.WorkDocumentService;
+import school.hei.haapi.service.GroupService;
 import school.hei.haapi.service.aws.FileService;
+
+import java.util.List;
+import java.util.Map;
 
 @Component
 @AllArgsConstructor
@@ -25,6 +29,7 @@ public class UserMapper {
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
   private final FileService fileService;
+  private final GroupService groupService;
 
   public UserIdentifier toIdentifier(User user) {
     return new UserIdentifier()
