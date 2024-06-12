@@ -10,7 +10,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.conf.FacadeIT;
-import school.hei.haapi.endpoint.event.gen.UuidCreated;
+import school.hei.haapi.endpoint.event.consumer.EventConsumer;
+import school.hei.haapi.endpoint.event.consumer.model.ConsumableEvent;
+import school.hei.haapi.endpoint.event.consumer.model.TypedEvent;
+import school.hei.haapi.endpoint.event.model.UuidCreated;
 import school.hei.haapi.repository.DummyUuidRepository;
 
 @PojaGenerated
@@ -28,9 +31,10 @@ class EventConsumerIT extends FacadeIT {
 
     subject.accept(
         List.of(
-            new EventConsumer.AcknowledgeableTypedEvent(
-                new EventConsumer.TypedEvent(
-                    "school.hei.haapi.endpoint.event.gen.UuidCreated", payloadReceived),
+            new ConsumableEvent(
+                new TypedEvent(
+                    "school.hei.haapi.endpoint.event.model.UuidCreated", payloadReceived),
+                () -> {},
                 () -> {})));
 
     Thread.sleep(2_000);

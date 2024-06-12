@@ -10,7 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.gen.AnnouncementSendInit;
+import school.hei.haapi.endpoint.event.model.AnnouncementSendInit;
 import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.model.Announcement;
 import school.hei.haapi.model.BoundedPageSize;
