@@ -37,8 +37,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.event.EventConsumer;
-import school.hei.haapi.endpoint.event.gen.UpdateFeesStatusToLateTriggered;
+import school.hei.haapi.endpoint.event.consumer.EventConsumer;
+import school.hei.haapi.endpoint.event.consumer.model.ConsumableEvent;
+import school.hei.haapi.endpoint.event.consumer.model.TypedEvent;
+import school.hei.haapi.endpoint.event.model.UpdateFeesStatusToLateTriggered;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -89,13 +91,12 @@ class FeeIT extends MockedThirdParties {
     UpdateFeesStatusToLateTriggered feesStatusToLateTriggered =
         UpdateFeesStatusToLateTriggered.builder().build();
 
-    subject.accept(
-        List.of(
-            new EventConsumer.AcknowledgeableTypedEvent(
-                new EventConsumer.TypedEvent(
-                    "school.hei.haapi.endpoint.event.gen.UpdateFeesStatusToLateTriggered",
-                    feesStatusToLateTriggered),
-                () -> {})));
+    TypedEvent typedEvent =
+        new TypedEvent(
+            "school.hei.haapi.endpoint.event.model.UpdateFeesStatusToLateTriggered",
+            feesStatusToLateTriggered);
+    ConsumableEvent consumableEvent = new ConsumableEvent(typedEvent, null, null);
+    subject.accept(List.of(consumableEvent));
   }
 
   @Test

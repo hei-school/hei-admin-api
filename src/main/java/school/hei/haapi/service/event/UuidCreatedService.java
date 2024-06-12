@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.PojaGenerated;
-import school.hei.haapi.endpoint.event.gen.UuidCreated;
+import school.hei.haapi.endpoint.event.model.UuidCreated;
 import school.hei.haapi.repository.DummyUuidRepository;
 import school.hei.haapi.repository.model.DummyUuid;
 

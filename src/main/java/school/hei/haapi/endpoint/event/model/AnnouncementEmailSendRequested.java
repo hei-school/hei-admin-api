@@ -1,4 +1,4 @@
-package school.hei.haapi.endpoint.event.gen;
+package school.hei.haapi.endpoint.event.model;
 
 import static java.util.UUID.randomUUID;
 

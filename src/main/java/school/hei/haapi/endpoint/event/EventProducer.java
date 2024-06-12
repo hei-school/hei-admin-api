@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.event;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +12,8 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.PojaGenerated;
+import school.hei.haapi.datastructure.ListGrouper;
+import school.hei.haapi.endpoint.event.model.PojaEvent;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -21,60 +24,62 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 @PojaGenerated
 @Component
 @Slf4j
-public class EventProducer implements Consumer<List<Object>> {
+public class EventProducer<T extends PojaEvent> implements Consumer<Collection<T>> {
   private static final String EVENT_SOURCE = "school.hei.haapi";
   private final ObjectMapper om;
-  private final String eventBusName;
   private final EventBridgeClient eventBridgeClient;
 
+  private static final int MAX_EVENTS_FOR_PUT_REQUEST = 10;
+  private final ListGrouper<T> listGrouper;
+
   public EventProducer(
-      ObjectMapper om,
-      @Value("${aws.eventBridge.bus}") String eventBusName,
-      EventBridgeClient eventBridgeClient) {
+      ObjectMapper om, EventBridgeClient eventBridgeClient, ListGrouper<T> listGrouper) {
     this.om = om;
-    this.eventBusName = eventBusName;
     this.eventBridgeClient = eventBridgeClient;
+    this.listGrouper = listGrouper;
   }
 
   @Override
-  public void accept(List<Object> events) {
-    log.info("Events to send {}", events);
-    PutEventsResponse response = sendRequest(events);
-    checkResponse(response);
+  public void accept(Collection<T> events) {
+    for (var batch : listGrouper.apply(events.stream().toList(), MAX_EVENTS_FOR_PUT_REQUEST)) {
+      log.info("Events to send: {}", batch);
+      PutEventsResponse response = sendRequest(batch);
+      checkResponse(response);
+    }
   }
 
-  private PutEventsRequest toEventsRequest(List<Object> events) {
+  private PutEventsRequest toEventsRequest(List<T> events) {
     return PutEventsRequest.builder()
         .entries(events.stream().map(this::toRequestEntry).toList())
         .build();
   }
 
-  private PutEventsRequestEntry toRequestEntry(Object event) {
+  private PutEventsRequestEntry toRequestEntry(PojaEvent event) {
     try {
       String eventAsString = om.writeValueAsString(event);
       return PutEventsRequestEntry.builder()
           .source(EVENT_SOURCE)
           .detailType(event.getClass().getTypeName())
           .detail(eventAsString)
-          .eventBusName(eventBusName)
+          .eventBusName(event.getEventStack().getBusName())
           .build();
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);
     }
   }
 
-  private PutEventsResponse sendRequest(List<Object> events) {
+  private PutEventsResponse sendRequest(List<T> events) {
     checkPayload(events);
     PutEventsRequest eventsRequest = toEventsRequest(events);
     return eventBridgeClient.putEvents(eventsRequest);
   }
 
-  private boolean isPayloadValid(List<Object> events) {
+  private boolean isPayloadValid(List<T> events) {
     PutEventsRequest eventsRequest = toEventsRequest(events);
     return eventsRequest.entries().size() <= Conf.MAX_PUT_EVENT_ENTRIES;
   }
 
-  private void checkPayload(List<Object> events) {
+  private void checkPayload(List<T> events) {
     if (!isPayloadValid(events)) {
       throw new RuntimeException("Request entries must be <= " + Conf.MAX_PUT_EVENT_ENTRIES);
     }

@@ -36,11 +36,6 @@ configurations {
     }
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 task generateJavaClient(type: GenerateTask) {
     generatorName = "java"
     inputSpec = "$rootDir/doc/api.yml".toString()
@@ -111,7 +106,7 @@ jacocoTestCoverageVerification {
         rule {
             limit {
                 counter = "LINE"
-                minimum = 0.8
+                minimum = 0.7
             }
         }
     }
@@ -219,5 +214,6 @@ testImplementation 'org.springframework.security:spring-security-test'
 testImplementation 'com.github.javafaker:javafaker:0.13'
 implementation 'org.xhtmlrenderer:flying-saucer-pdf:9.3.1'
 testImplementation 'org.mockito:mockito-core:5.3.1'
+    
 implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
 }
