@@ -14,7 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
-import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
+import school.hei.haapi.endpoint.event.model.LateFeeVerified;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.exception.ApiException;

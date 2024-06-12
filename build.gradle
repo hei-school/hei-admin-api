@@ -36,11 +36,6 @@ configurations {
     }
 }
 
-repositories {
-    mavenLocal()
-    mavenCentral()
-}
-
 task generateJavaClient(type: GenerateTask) {
     generatorName = "java"
     inputSpec = "$rootDir/doc/api.yml".toString()

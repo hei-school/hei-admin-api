@@ -18,8 +18,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
+<<<<<<< HEAD
 import school.hei.haapi.endpoint.event.gen.UserUpserted;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
+=======
+import school.hei.haapi.endpoint.event.model.UserUpserted;
+>>>>>>> 291ed6d (poja-upgrade: 13.4.0)
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;

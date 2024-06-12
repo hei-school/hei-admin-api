@@ -9,7 +9,13 @@ import static org.mockito.Mockito.verify;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+<<<<<<< HEAD
 import school.hei.haapi.endpoint.event.gen.LateFeeVerified;
+=======
+import org.springframework.boot.test.mock.mockito.MockBean;
+import school.hei.haapi.conf.BucketConf;
+import school.hei.haapi.endpoint.event.model.LateFeeVerified;
+>>>>>>> 291ed6d (poja-upgrade: 13.4.0)
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.UserService;

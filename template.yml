@@ -9,7 +9,6 @@ Globals:
     Tracing: Active
     Architectures:
       - x86_64
-    Timeout: 600
     EventInvokeConfig:
       MaximumRetryAttempts: 0
     AutoPublishAlias: live
@@ -58,6 +57,7 @@ Resources:
     Properties:
       Handler: school.hei.haapi.ApiEventHandler::handleRequest
       MemorySize: 2048
+      Timeout: 30
       Role: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
       
       Events:
@@ -74,6 +74,7 @@ Resources:
     Properties:
       Handler: school.hei.haapi.MailboxEventHandler::handleRequest
       MemorySize: 1024
+      Timeout: 600 #note(sqs-visibility)
       Role: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
       
       Events:

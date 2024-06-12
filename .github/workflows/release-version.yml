@@ -15,11 +15,11 @@ jobs:
     steps:
 
       - name: Checkout
-        uses: actions/checkout@v2
+        uses: actions/checkout@v4.1.6
         with:
           # secrets.GITHUB_TOKEN is not enough for releasing on protected branch
           # Use a Personal Access Token from someone who has sufficient privileges
-          token: ${{ secrets.GH_TOKEN_FOR_CONVENTIONAL_CHANGELOG }}
+          token: ${{ secrets.POJA_GH_TOKEN_FOR_CONVENTIONAL_CHANGELOG }}
 
 
       #############################################################################
@@ -40,16 +40,16 @@ jobs:
 
       - name: Read old version file
         id: read-old-version
-        uses: CumulusDS/get-yaml-paths-action@v0.1.0
+        uses: CumulusDS/get-yaml-paths-action@v1.0.1
         with:
           file: version.yml
           version: version
 
       - name: Conventional changelog
         id: conventional-ch
-        uses: TriPSs/conventional-changelog-action@v3
+        uses: TriPSs/conventional-changelog-action@v5.3.0
         with:
-          github-token: ${{ secrets.GH_TOKEN_FOR_CONVENTIONAL_CHANGELOG }}
+          github-token: ${{ secrets.POJA_GH_TOKEN_FOR_CONVENTIONAL_CHANGELOG }}
           git-message: 'release: {version}'
           release-count: '10'
           version-file: './version.yml'
@@ -60,7 +60,7 @@ jobs:
 
       - name: Read new version file
         id: read-new-version
-        uses: CumulusDS/get-yaml-paths-action@v0.1.0
+        uses: CumulusDS/get-yaml-paths-action@v1.0.1
         with:
           file: version.yml
           version: version

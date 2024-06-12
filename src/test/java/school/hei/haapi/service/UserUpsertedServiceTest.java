@@ -8,7 +8,7 @@ import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import school.hei.haapi.endpoint.event.gen.UserUpserted;
+import school.hei.haapi.endpoint.event.model.UserUpserted;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.service.event.UserUpsertedService;
 import software.amazon.awssdk.services.cognitoidentityprovider.model.UsernameExistsException;
