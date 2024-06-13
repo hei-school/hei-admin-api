@@ -1,0 +1,1 @@
+alter table "user" drop column if exists work_status;

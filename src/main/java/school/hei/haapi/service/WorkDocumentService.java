@@ -6,13 +6,13 @@ import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.model.exception.NotFoundException;
-import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.WorkDocumentRepository;
 
 @Service
@@ -21,7 +21,6 @@ public class WorkDocumentService {
   private final FileInfoService fileInfoService;
   private final UserService userService;
   private final WorkDocumentRepository workDocumentRepository;
-  private final UserRepository userRepository;
 
   public WorkDocument getStudentWorkFileById(String workFileId) {
     return workDocumentRepository
@@ -43,32 +42,40 @@ public class WorkDocumentService {
       Instant creationDatetime,
       Instant commitmentBegin,
       Instant commitmentEnd,
-      WorkStudyStatus studentWorkStatus,
       MultipartFile workFile) {
     User student = userService.findById(studentId);
-
-    student.setWorkStatus(
-        defineStudentWorkStatus(commitmentBegin, commitmentEnd, studentWorkStatus));
-    student.setCommitmentBeginDate(commitmentBegin);
-    userRepository.save(student);
 
     return fileInfoService.uploadFile(
         student, filename, creationDatetime, commitmentBegin, commitmentEnd, workFile);
   }
 
-  private WorkStudyStatus defineStudentWorkStatus(
-      Instant commitmentBegin, Instant commitmentEnd, WorkStudyStatus studentWorkStatus) {
+  public WorkDocument findLastWorkDocumentByStudentId(String studentId) {
+    List<WorkDocument> allWorkDocumentOfStudent =
+        workDocumentRepository.findAllByStudentId(
+            studentId, Sort.by(Sort.Direction.DESC, "creationDatetime"));
+    WorkDocument lastWorkDocument = new WorkDocument();
+
+    if (allWorkDocumentOfStudent != null && !allWorkDocumentOfStudent.isEmpty()) {
+      lastWorkDocument = allWorkDocumentOfStudent.getFirst();
+      return lastWorkDocument;
+    }
+    // Returning if student doesn't have a work document yet
+    return lastWorkDocument;
+  }
+
+  public WorkStudyStatus defineStudentWorkStatusFromWorkDocumentDetails(WorkDocument workDocument) {
     Instant now = Instant.now();
 
-    if (studentWorkStatus != null) {
-      return studentWorkStatus;
+    if (workDocument.getCommitmentBegin() != null) {
+      return WORKING;
     }
-    if (now.isBefore(commitmentBegin)) {
+    if (workDocument.getCommitmentBegin() != null
+        && now.isBefore(workDocument.getCommitmentBegin())) {
       return WILL_BE_WORKING;
     }
-    if (now.isAfter(commitmentEnd)) {
+    if (workDocument.getCommitmentEnd() != null && now.isAfter(workDocument.getCommitmentEnd())) {
       return HAVE_BEEN_WORKING;
     }
-    return WORKING;
+    return null;
   }
 }

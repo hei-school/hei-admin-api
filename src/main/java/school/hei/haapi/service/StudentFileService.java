@@ -15,7 +15,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.rest.model.FileType;
-import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.*;
 import school.hei.haapi.repository.FileInfoRepository;
 import school.hei.haapi.repository.dao.FileInfoDao;
@@ -45,16 +44,9 @@ public class StudentFileService {
       Instant creationDatetime,
       Instant commitmentBegin,
       Instant commitmentEnd,
-      WorkStudyStatus studentWorkStatus,
       MultipartFile workFile) {
     return workDocumentService.uploadStudentWorkFile(
-        studentId,
-        filename,
-        creationDatetime,
-        commitmentBegin,
-        commitmentEnd,
-        studentWorkStatus,
-        workFile);
+        studentId, filename, creationDatetime, commitmentBegin, commitmentEnd, workFile);
   }
 
   public List<WorkDocument> getStudentWorkFiles(
