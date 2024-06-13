@@ -2506,7 +2506,7 @@ paths:
             type: string
             format: date-time
         - name: commitment_end
-          required: true
+          required: false
           in: query
           schema:
             type: string

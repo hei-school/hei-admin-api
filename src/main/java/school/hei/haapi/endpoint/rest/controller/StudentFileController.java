@@ -53,9 +53,9 @@ public class StudentFileController {
   public FileInfo uploadStudentWorkFile(
       @PathVariable(name = "student_id") String studentId,
       @RequestParam(name = "filename", required = true) String filename,
-      @RequestParam(name = "work_study_status", required = true) WorkStudyStatus workStatus,
-      @RequestParam(name = "commitment_begin", required = false) Instant commitmentBegin,
-      @RequestParam(name = "commitment_end", required = false) Instant commitmentEnd,
+      @RequestParam(name = "work_study_status", required = false) WorkStudyStatus workStatus,
+      @RequestParam(name = "commitment_begin", required = true) Instant commitmentBegin,
+      @RequestParam(name = "commitment_end", required = true) Instant commitmentEnd,
       @RequestParam(name = "creation_datetime", required = false) Instant creationDatetime,
       @RequestPart(name = "file_to_upload") MultipartFile fileToUpload) {
     return workDocumentMapper.toRest(
