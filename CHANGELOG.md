@@ -1,3 +1,19 @@
+# [1.25.0](https://github.com/hei-school/hei-admin-api/compare/v1.24.0...v1.25.0) (2024-06-13)
+
+
+### Bug Fixes
+
+* max ses send email recipient size is 50, hence group list by 50 if needed ([fa6d180](https://github.com/hei-school/hei-admin-api/commit/fa6d180ec3f33de1b6ac5a321b62c11db55c41b8))
+* redirect to HA prod ui ([e40a221](https://github.com/hei-school/hei-admin-api/commit/e40a2213cea0e675fd3c94012f11f0d1c810669c))
+* wrong variable in email template ([02cf17f](https://github.com/hei-school/hei-admin-api/commit/02cf17f25f30986098321e7c002a1431d8fc019f))
+
+
+### Features
+
+* suspend user with late fees and mail them ([9c23ec7](https://github.com/hei-school/hei-admin-api/commit/9c23ec7772c7ebdfad5c4f2a90d7ab6de021ef0e))
+
+
+
 # [1.24.0](https://github.com/hei-school/hei-admin-api/compare/v1.23.0...v1.24.0) (2024-06-05)
 
 
@@ -99,15 +115,6 @@
 ### Features
 
 * student has work documents  ([805403a](https://github.com/hei-school/hei-admin-api/commit/805403af70f80da7a7f72de62da7e05616ce5bb1))
-
-
-
-# [1.15.0](https://github.com/hei-school/hei-admin-api/compare/v1.14.0...v1.15.0) (2024-04-03)
-
-
-### Features
-
-* **not-implemented:** document student work file  ([8b1f6e6](https://github.com/hei-school/hei-admin-api/commit/8b1f6e6dcbba721a45c48226e8d15959646f3ab6))
 
 
 
