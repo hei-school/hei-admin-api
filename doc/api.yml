@@ -2375,7 +2375,7 @@ paths:
     get:
       tags:
         - Files
-      summary: Get student files
+      summary: Get student file by identifier
       operationId: getStudentFilesById
       parameters:
         - name: student_id
@@ -2500,18 +2500,18 @@ paths:
             type: string
           in: query
         - name: work_study_status
-          required: true
+          required: false
           in: query
           schema:
             $ref: '#/components/schemas/WorkStudyStatus'
         - name: commitment_begin
-          required: false
+          required: true
           in: query
           schema:
             type: string
             format: date-time
         - name: commitment_end
-          required: false
+          required: true
           in: query
           schema:
             type: string
@@ -3262,7 +3262,7 @@ paths:
   /teachers/announcements/{id}:
     get:
       tags:
-      - Announcements
+        - Announcements
       summary: Get teacher announcement by identifier
       parameters:
         - name: id
