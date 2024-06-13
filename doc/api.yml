@@ -2499,11 +2499,6 @@ paths:
           schema:
             type: string
           in: query
-        - name: work_study_status
-          required: false
-          in: query
-          schema:
-            $ref: '#/components/schemas/WorkStudyStatus'
         - name: commitment_begin
           required: true
           in: query
