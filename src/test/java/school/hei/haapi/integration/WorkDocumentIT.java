@@ -92,6 +92,7 @@ public class WorkDocumentIT extends MockedThirdParties {
               Instant.parse("2021-11-08T08:25:24.00Z"),
               Instant.parse("2021-11-09T08:25:24.00Z"),
               null,
+              Instant.parse("2021-11-09T08:25:24.00Z"),
               getMockedFile("img", ".png"));
         });
   }

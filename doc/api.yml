@@ -2610,6 +2610,12 @@ paths:
           schema:
             type: string
           in: query
+        - name: work_study_status
+          required: false
+          description: If this field is not given, then its status will be calculated dynamically.
+          in: query
+          schema:
+            $ref: '#/components/schemas/WorkStudyStatus'
         - name: commitment_begin
           required: true
           in: query
@@ -2617,7 +2623,7 @@ paths:
             type: string
             format: date-time
         - name: commitment_end
-          required: false
+          required: true
           in: query
           schema:
             type: string
