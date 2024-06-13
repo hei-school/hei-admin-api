@@ -140,7 +140,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentStat'
+                $ref: '#/components/schemas/GroupDTO'
+
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -426,7 +427,8 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentStat'
+                $ref: '#/components/schemas/StudentDTO'
+
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -4252,32 +4254,33 @@ components:
           format: date-time
         scope:
           $ref: '#/components/schemas/Scope'
-    StudentStat:
+    Statistics:
       type: object
       properties:
-        total:
+        total_students:
           type: integer
         men:
           type: integer
         women:
           type: integer
-        student_alternating:
+        students_alternating:
           type: integer
+        total_groups:
+          type: integer
+    StudentDTO:
+      allOf:
+        - $ref: '#/components/schemas/Statistics'
+      type: object
+      properties:
         students:
           type: array
           items:
             $ref: '#/components/schemas/Student'
-    GroupStat:
+    GroupDTO:
+      allOf:
+        - $ref: '#/components/schemas/Statistics'
       type: object
       properties:
-        total:
-          type: integer
-        men:
-          type: integer
-        women:
-          type: integer
-        group_number:
-          type: integer
         groups:
           type: array
           items:

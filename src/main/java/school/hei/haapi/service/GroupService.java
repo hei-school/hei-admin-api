@@ -6,7 +6,6 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -139,12 +138,12 @@ public class GroupService {
     repository.save(group);
   }
 
-  public Map<String, Integer> getStudentsStat(){
+  public Map<String, Integer> getStudentsStat() {
     Map<String, Integer> map = new HashMap<>();
-    map.put("totalStudent", (int) userRepository.count());
+    map.put("totalStudents", (int) userRepository.count());
     map.put("men", userRepository.countBySex(User.Sex.M));
     map.put("women", userRepository.countBySex(User.Sex.F));
-    map.put("totalGroup", (int) groupRepository.count());
+    map.put("totalGroups", (int) groupRepository.count());
     return map;
   }
 }

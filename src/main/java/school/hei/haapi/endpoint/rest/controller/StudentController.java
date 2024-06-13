@@ -64,7 +64,7 @@ public class StudentController {
   }
 
   @GetMapping("/students")
-  public List<Student> getStudents(
+  public StudentDTO getStudents(
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
@@ -77,8 +77,8 @@ public class StudentController {
       @RequestParam(name = "commitment_begin_date", required = false) Instant commitmentBeginDate) {
     User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
     User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
-    return userService
-        .getByLinkedCourse(
+    return userMapper.toStudentDTO(
+        userService.getByLinkedCourse(
             STUDENT,
             firstName,
             lastName,
@@ -89,10 +89,7 @@ public class StudentController {
             domainStatus,
             domainSex,
             workStatus,
-            commitmentBeginDate)
-        .stream()
-        .map(userMapper::toRestStudent)
-        .collect(toUnmodifiableList());
+            commitmentBeginDate));
   }
 
   @PutMapping("/students")

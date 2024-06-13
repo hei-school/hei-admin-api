@@ -88,15 +88,16 @@ class PaginationIT extends MockedThirdParties {
     UsersApi api = new UsersApi(teacher1Client);
 
     final List<Student> page1 =
-        api.getStudents(1, pageSize, null, null, null, null, null, null, null, null);
+        api.getStudents(1, pageSize, null, null, null, null, null, null, null, null).getStudents();
     final List<Student> page2 =
-        api.getStudents(2, pageSize, null, null, null, null, null, null, null, null);
+        api.getStudents(2, pageSize, null, null, null, null, null, null, null, null).getStudents();
     final List<Student> page3 =
-        api.getStudents(3, pageSize, null, null, null, null, null, null, null, null);
+        api.getStudents(3, pageSize, null, null, null, null, null, null, null, null).getStudents();
     final List<Student> page4 =
-        api.getStudents(4, pageSize, null, null, null, null, null, null, null, null);
+        api.getStudents(4, pageSize, null, null, null, null, null, null, null, null).getStudents();
     final List<Student> page100 =
-        api.getStudents(100, pageSize, null, null, null, null, null, null, null, null);
+        api.getStudents(100, pageSize, null, null, null, null, null, null, null, null)
+            .getStudents();
 
     assertEquals(pageSize, page1.size());
     assertEquals(pageSize, page2.size());

@@ -8,10 +8,7 @@ import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
 import java.io.File;
 import java.time.Instant;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;

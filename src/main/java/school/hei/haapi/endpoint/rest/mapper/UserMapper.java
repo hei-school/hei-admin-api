@@ -1,26 +1,20 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
-
-import java.util.Optional;
-import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.CrupdateManager;
-import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
-import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
-import school.hei.haapi.endpoint.rest.model.Manager;
-import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.model.UserIdentifier;
-import school.hei.haapi.model.User;
-import school.hei.haapi.model.WorkDocument;
-import school.hei.haapi.service.WorkDocumentService;
-import school.hei.haapi.service.GroupService;
-import school.hei.haapi.service.aws.FileService;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
+import lombok.AllArgsConstructor;
+import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.WorkDocument;
+import school.hei.haapi.service.GroupService;
+import school.hei.haapi.service.WorkDocumentService;
+import school.hei.haapi.service.aws.FileService;
 
 @Component
 @AllArgsConstructor
@@ -39,6 +33,21 @@ public class UserMapper {
         .lastName(user.getLastName())
         .firstName(user.getFirstName())
         .email(user.getEmail());
+  }
+
+  public StudentDTO toStudentDTO(List<User> students) {
+    Map<String, Integer> stats = groupService.getStudentsStat();
+    List<Student> studentsRest = students.stream().map(this::toRestStudent).toList();
+    return new StudentDTO()
+        .students(studentsRest)
+        .men(stats.get("men"))
+        .totalStudents(stats.get("totalStudent"))
+        .women(stats.get("women"))
+        .studentsAlternating(
+            (int)
+                studentsRest.stream()
+                    .filter(s -> Objects.equals(s.getWorkStudyStatus(), WORKING))
+                    .count());
   }
 
   public Student toRestStudent(User user) {
