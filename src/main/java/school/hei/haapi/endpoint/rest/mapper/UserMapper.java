@@ -63,7 +63,7 @@ public class UserMapper {
     restStudent.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     restStudent.setHighSchoolOrigin(user.getHighSchoolOrigin());
-    restStudent.workStudyStatus(
+    restStudent.setWorkStudyStatus(
         workDocumentService.defineStudentWorkStatusFromWorkDocumentDetails(
             studentLastWorkDocument));
     restStudent.setCommitmentBeginDate(studentLastWorkDocument.getCommitmentBegin());

@@ -6,7 +6,6 @@ import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
@@ -50,17 +49,9 @@ public class WorkDocumentService {
   }
 
   public WorkDocument findLastWorkDocumentByStudentId(String studentId) {
-    List<WorkDocument> allWorkDocumentOfStudent =
-        workDocumentRepository.findAllByStudentId(
-            studentId, Sort.by(Sort.Direction.DESC, "creationDatetime"));
-    WorkDocument lastWorkDocument = new WorkDocument();
-
-    if (allWorkDocumentOfStudent != null && !allWorkDocumentOfStudent.isEmpty()) {
-      lastWorkDocument = allWorkDocumentOfStudent.getFirst();
-      return lastWorkDocument;
-    }
-    // Returning if student doesn't have a work document yet
-    return lastWorkDocument;
+    return workDocumentRepository
+        .findFirstByStudentIdOrderByCreationDatetimeDesc(studentId)
+        .orElse(new WorkDocument());
   }
 
   public WorkStudyStatus defineStudentWorkStatusFromWorkDocumentDetails(WorkDocument workDocument) {

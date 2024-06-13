@@ -138,7 +138,7 @@ public class UserService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
-        role, ref, firstName, lastName, pageable, status, sex, null, null, null);
+        role, ref, firstName, lastName, pageable, status, sex, null, null, null, null);
   }
 
   public List<User> getByLinkedCourse(
@@ -155,6 +155,7 @@ public class UserService {
       Instant commitmentBeginDate) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    Instant commitmentComparison = Instant.now();
     return userManagerDao.findByCriteria(
         role,
         ref,
@@ -165,7 +166,8 @@ public class UserService {
         sex,
         workStatus,
         commitmentBeginDate,
-        courseId);
+        courseId,
+        commitmentComparison);
   }
 
   public List<User> getByGroupId(String groupId) {
