@@ -17,6 +17,7 @@ import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -234,6 +235,7 @@ public class StudentIT extends MockedThirdParties {
     student.setSpecializationField(COMMON_CORE);
     student.setCoordinates(coordinatesWithNullValues());
     student.setHighSchoolOrigin("Lycée Analamahitsy");
+    student.setWorkStudyStatus(NOT_WORKING);
     return student;
   }
 
@@ -253,6 +255,7 @@ public class StudentIT extends MockedThirdParties {
         .nic("")
         .birthPlace("")
         .coordinates(coordinatesWithNullValues())
+        .workStudyStatus(NOT_WORKING)
         .address("Adr 1");
   }
 
@@ -287,6 +290,7 @@ public class StudentIT extends MockedThirdParties {
         .specializationField(COMMON_CORE)
         .birthPlace("")
         .address("Adr 2")
+        .workStudyStatus(NOT_WORKING)
         .coordinates(coordinatesWithNullValues());
   }
 
@@ -616,6 +620,7 @@ public class StudentIT extends MockedThirdParties {
             .ref(toUpdate0.getRef())
             .coordinates(coordinatesWithNullValues())
             .specializationField(toUpdate0.getSpecializationField())
+            .workStudyStatus(NOT_WORKING)
             .status(toUpdate0.getStatus());
 
     Student updated1 =
@@ -634,6 +639,7 @@ public class StudentIT extends MockedThirdParties {
             .ref(toUpdate1.getRef())
             .specializationField(toUpdate1.getSpecializationField())
             .coordinates(coordinatesWithNullValues())
+            .workStudyStatus(NOT_WORKING)
             .status(toUpdate1.getStatus());
 
     List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1));

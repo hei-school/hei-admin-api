@@ -4,6 +4,7 @@ import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.*;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -48,23 +49,34 @@ public class WorkDocumentService {
         student, filename, creationDatetime, commitmentBegin, commitmentEnd, workFile);
   }
 
-  public WorkDocument findLastWorkDocumentByStudentId(String studentId) {
-    return workDocumentRepository
-        .findFirstByStudentIdOrderByCreationDatetimeDesc(studentId)
-        .orElse(new WorkDocument());
+  public Optional<WorkDocument> findLastWorkDocumentByStudentId(String studentId) {
+    return workDocumentRepository.findTopByStudentIdOrderByCreationDatetimeDesc(studentId);
   }
 
-  public WorkStudyStatus defineStudentWorkStatusFromWorkDocumentDetails(WorkDocument workDocument) {
-    Instant now = Instant.now();
+  public Instant defineStudentCommitmentBegin(Optional<WorkDocument> workDocument) {
+    if (!workDocument.isPresent()) {
+      return null;
+    }
+    return workDocument.get().getCommitmentBegin();
+  }
 
-    if (workDocument.getCommitmentBegin() != null) {
+  public WorkStudyStatus defineStudentWorkStatusFromWorkDocumentDetails(
+      Optional<WorkDocument> workDocument) {
+    if (!workDocument.isPresent()) {
+      return NOT_WORKING;
+    }
+
+    Instant now = Instant.now();
+    WorkDocument domainWorkDocument = workDocument.get();
+    if (domainWorkDocument.getCommitmentBegin() != null) {
       return WORKING;
     }
-    if (workDocument.getCommitmentBegin() != null
-        && now.isBefore(workDocument.getCommitmentBegin())) {
+    if (domainWorkDocument.getCommitmentBegin() != null
+        && now.isBefore(domainWorkDocument.getCommitmentBegin())) {
       return WILL_BE_WORKING;
     }
-    if (workDocument.getCommitmentEnd() != null && now.isAfter(workDocument.getCommitmentEnd())) {
+    if (domainWorkDocument.getCommitmentEnd() != null
+        && now.isAfter(domainWorkDocument.getCommitmentEnd())) {
       return HAVE_BEEN_WORKING;
     }
     return null;

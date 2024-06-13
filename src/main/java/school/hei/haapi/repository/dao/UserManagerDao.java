@@ -86,34 +86,26 @@ public class UserManagerDao {
       predicate = builder.and(predicate, builder.equal(root.get("sex"), sex));
     }
 
-    if (workStatus != null) {
-      // Get student work status predicate
-      switch (workStatus) {
-        case WORKING:
-          predicate =
-              builder.and(
-                  predicate,
-                  builder.lessThanOrEqualTo(
-                      workDocumentJoin.get("commitmentBegin"), commitmentComparison));
-          break;
-        case HAVE_BEEN_WORKING:
-          predicate =
-              builder.and(
-                  predicate,
-                  builder.lessThanOrEqualTo(
-                      workDocumentJoin.get("commitmentEnd"), commitmentComparison));
-          break;
-        case WILL_BE_WORKING:
-          predicate =
-              builder.and(
-                  predicate,
-                  builder.greaterThanOrEqualTo(
-                      workDocumentJoin.get("commitmentBegin"), commitmentComparison));
-          break;
-        default:
-          // nothing
-          break;
-      }
+    if (workStatus != null && WORKING.equals(workStatus)) {
+      predicate =
+          builder.and(
+              predicate,
+              builder.lessThanOrEqualTo(
+                  workDocumentJoin.get("commitmentBegin"), commitmentComparison));
+    }
+    if (workStatus != null && HAVE_BEEN_WORKING.equals(workStatus)) {
+      predicate =
+          builder.and(
+              predicate,
+              builder.lessThanOrEqualTo(
+                  workDocumentJoin.get("commitmentEnd"), commitmentComparison));
+    }
+    if (workStatus != null && WILL_BE_WORKING.equals(workStatus)) {
+      predicate =
+          builder.and(
+              predicate,
+              builder.greaterThanOrEqualTo(
+                  workDocumentJoin.get("commitmentBegin"), commitmentComparison));
     }
 
     predicate = builder.and(predicate, hasUserRole, hasUserRef, hasUserLastName);

@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
 
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
@@ -37,7 +38,7 @@ public class UserMapper {
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
-    WorkDocument studentLastWorkDocument =
+    Optional<WorkDocument> studentLastWorkDocument =
         workDocumentService.findLastWorkDocumentByStudentId(user.getId());
     String profilePictureKey = user.getProfilePictureKey();
     String url =
@@ -66,7 +67,8 @@ public class UserMapper {
     restStudent.setWorkStudyStatus(
         workDocumentService.defineStudentWorkStatusFromWorkDocumentDetails(
             studentLastWorkDocument));
-    restStudent.setCommitmentBeginDate(studentLastWorkDocument.getCommitmentBegin());
+    restStudent.setCommitmentBeginDate(
+        workDocumentService.defineStudentCommitmentBegin(studentLastWorkDocument));
     return restStudent;
   }
 

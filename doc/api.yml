@@ -3504,6 +3504,7 @@ components:
         - HAVE_BEEN_WORKING
         - WILL_BE_WORKING
         - WORKING
+        - NOT_WORKING
     SpecializationField:
       type: string
       enum:

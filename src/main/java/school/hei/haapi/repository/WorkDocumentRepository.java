@@ -11,5 +11,5 @@ import school.hei.haapi.model.WorkDocument;
 public interface WorkDocumentRepository extends JpaRepository<WorkDocument, String> {
   List<WorkDocument> findAllByStudentId(String studentId, Pageable pageable);
 
-  Optional<WorkDocument> findFirstByStudentIdOrderByCreationDatetimeDesc(String studentId);
+  Optional<WorkDocument> findTopByStudentIdOrderByCreationDatetimeDesc(String studentId);
 }

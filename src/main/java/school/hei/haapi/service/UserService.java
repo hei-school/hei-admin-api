@@ -155,7 +155,7 @@ public class UserService {
       Instant commitmentBeginDate) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-    Instant commitmentComparison = Instant.now();
+    Instant now = Instant.now();
     return userManagerDao.findByCriteria(
         role,
         ref,
@@ -167,7 +167,7 @@ public class UserService {
         workStatus,
         commitmentBeginDate,
         courseId,
-        commitmentComparison);
+        now);
   }
 
   public List<User> getByGroupId(String groupId) {
