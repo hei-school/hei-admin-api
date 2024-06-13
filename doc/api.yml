@@ -409,6 +409,12 @@ paths:
           description: Filter students by sex value return all by default
           schema:
             $ref: '#/components/schemas/Sex'
+        - name: work_study_status
+          required: false
+          in: query
+          description: Filter students by work study status
+          schema:
+            $ref: '#/components/schemas/WorkStudyStatus'
         - name: commitment_begin_date
           required: false
           in: query

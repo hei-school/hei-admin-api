@@ -1,6 +1,9 @@
 package school.hei.haapi.repository.dao;
 
 import static jakarta.persistence.criteria.JoinType.LEFT;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.HAVE_BEEN_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WILL_BE_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
@@ -32,6 +35,7 @@ public class UserManagerDao {
       WorkStudyStatus workStatus,
       Instant commitmentBeginDate,
       String courseId) {
+    Instant now = Instant.now();
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
@@ -70,11 +74,6 @@ public class UserManagerDao {
               builder.greaterThanOrEqualTo(commitmentBeginExpression, commitmentBeginDate));
     }
 
-    if (workStatus != null) {
-      Expression<WorkStudyStatus> workStatusExpression = root.get("workStatus");
-      predicate = builder.and(predicate, builder.equal(workStatusExpression, workStatus));
-    }
-
     if (firstName != null && !firstName.isEmpty()) {
       predicate = builder.and(predicate, hasUserFirstName);
     }
@@ -87,6 +86,32 @@ public class UserManagerDao {
       predicate = builder.and(predicate, builder.equal(root.get("sex"), sex));
     }
 
+    // Get student work status predicate
+    switch (getFilterCase(workStatus)) {
+      case 1:
+        // WORKING
+        predicate =
+            builder.and(
+                predicate, builder.lessThanOrEqualTo(workDocumentJoin.get("commitmentBegin"), now));
+        break;
+      case 2:
+        // HAVE WORKING
+        predicate =
+            builder.and(
+                predicate, builder.lessThanOrEqualTo(workDocumentJoin.get("commitmentEnd"), now));
+        break;
+      case 3:
+        // WILL WORKING
+        predicate =
+            builder.and(
+                predicate,
+                builder.greaterThanOrEqualTo(workDocumentJoin.get("commitmentBegin"), now));
+        break;
+      default:
+        // nothing
+        break;
+    }
+
     predicate = builder.and(predicate, hasUserRole, hasUserRef, hasUserLastName);
 
     query.where(predicate).orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
@@ -96,6 +121,19 @@ public class UserManagerDao {
         .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
         .setMaxResults(pageable.getPageSize())
         .getResultList();
+  }
+
+  private int getFilterCase(WorkStudyStatus status) {
+    if (status != null && status == WORKING) {
+      return 1;
+    }
+    if (status != null && status == HAVE_BEEN_WORKING) {
+      return 2;
+    }
+    if (status != null && status == WILL_BE_WORKING) {
+      return 3;
+    }
+    return 0;
   }
 
   public List<User> findByLinkedCourse(User.Role role, String courseId, Pageable pageable) {
