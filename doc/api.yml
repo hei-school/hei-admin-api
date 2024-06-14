@@ -2506,7 +2506,7 @@ paths:
             type: string
             format: date-time
         - name: commitment_end
-          required: true
+          required: false
           in: query
           schema:
             type: string
@@ -3504,6 +3504,7 @@ components:
         - HAVE_BEEN_WORKING
         - WILL_BE_WORKING
         - WORKING
+        - NOT_WORKING
     SpecializationField:
       type: string
       enum:

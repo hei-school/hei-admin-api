@@ -138,7 +138,7 @@ public class UserService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
-        role, ref, firstName, lastName, pageable, status, sex, null, null, null);
+        role, ref, firstName, lastName, pageable, status, sex, null, null, null, null);
   }
 
   public List<User> getByLinkedCourse(
@@ -165,7 +165,8 @@ public class UserService {
         sex,
         workStatus,
         commitmentBeginDate,
-        courseId);
+        courseId,
+        Instant.now());
   }
 
   public List<User> getByGroupId(String groupId) {

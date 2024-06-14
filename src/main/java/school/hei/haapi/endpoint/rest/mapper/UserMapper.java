@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
 
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
@@ -13,11 +14,14 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.WorkDocument;
+import school.hei.haapi.service.WorkDocumentService;
 import school.hei.haapi.service.aws.FileService;
 
 @Component
 @AllArgsConstructor
 public class UserMapper {
+  private final WorkDocumentService workDocumentService;
   private final StatusEnumMapper statusEnumMapper;
   private final SexEnumMapper sexEnumMapper;
   private final FileService fileService;
@@ -34,6 +38,8 @@ public class UserMapper {
 
   public Student toRestStudent(User user) {
     Student restStudent = new Student();
+    Optional<WorkDocument> studentLastWorkDocument =
+        workDocumentService.findLastWorkDocumentByStudentId(user.getId());
     String profilePictureKey = user.getProfilePictureKey();
     String url =
         profilePictureKey != null
@@ -58,8 +64,11 @@ public class UserMapper {
     restStudent.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     restStudent.setHighSchoolOrigin(user.getHighSchoolOrigin());
-    restStudent.workStudyStatus(user.getWorkStatus());
-    restStudent.setCommitmentBeginDate(user.getCommitmentBeginDate());
+    restStudent.setWorkStudyStatus(
+        workDocumentService.defineStudentWorkStatusFromWorkDocumentDetails(
+            studentLastWorkDocument));
+    restStudent.setCommitmentBeginDate(
+        workDocumentService.defineStudentCommitmentBegin(studentLastWorkDocument));
     return restStudent;
   }
 

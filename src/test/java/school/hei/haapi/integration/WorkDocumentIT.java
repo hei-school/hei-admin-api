@@ -8,6 +8,8 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -53,12 +55,23 @@ public class WorkDocumentIT extends MockedThirdParties {
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
   }
 
-  public static FileInfo workDocument2() {
-    return new FileInfo()
-        .id("work_file2_id")
-        .name("work file 2")
-        .fileType(WORK_DOCUMENT)
-        .creationDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+  @Test
+  void manager_create_student_work_documents_with_bad_field_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    FilesApi api = new FilesApi(manager1Client);
+
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Commitment begin must be less than commitment"
+            + " end\"}",
+        () -> {
+          api.uploadStudentWorkFile(
+              STUDENT1_ID,
+              "test",
+              Instant.parse("2021-11-08T08:25:24.00Z"),
+              Instant.parse("2021-11-09T08:25:24.00Z"),
+              null,
+              getMockedFile("img", ".png"));
+        });
   }
 
   @Test
