@@ -1,3 +1,12 @@
+# [1.26.0](https://github.com/hei-school/hei-admin-api/compare/v1.25.0...v1.26.0) (2024-06-14)
+
+
+### Features
+
+* compute the work status during fetching students data  ([9f998e0](https://github.com/hei-school/hei-admin-api/commit/9f998e040d670bc843bfe7aaf4edd99f82bf6fbb))
+
+
+
 # [1.25.0](https://github.com/hei-school/hei-admin-api/compare/v1.24.0...v1.25.0) (2024-06-13)
 
 
@@ -106,15 +115,6 @@
 ### Features
 
 * **not-implemented:** promotion endpoint ([034997d](https://github.com/hei-school/hei-admin-api/commit/034997d82801502e490a8b31f76e80eaef1fa849))
-
-
-
-# [1.16.0](https://github.com/hei-school/hei-admin-api/compare/v1.15.0...v1.16.0) (2024-04-03)
-
-
-### Features
-
-* student has work documents  ([805403a](https://github.com/hei-school/hei-admin-api/commit/805403af70f80da7a7f72de62da7e05616ce5bb1))
 
 
 
