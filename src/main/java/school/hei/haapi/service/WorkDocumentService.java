@@ -1,6 +1,9 @@
 package school.hei.haapi.service;
 
-import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.*;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.HAVE_BEEN_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WILL_BE_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 
 import java.time.Instant;
 import java.util.List;
@@ -57,28 +60,24 @@ public class WorkDocumentService {
     if (!workDocument.isPresent()) {
       return null;
     }
-    return workDocument.get().getCommitmentBegin();
+    return workDocument.map(WorkDocument::getCommitmentBegin).orElse(null);
   }
 
   public WorkStudyStatus defineStudentWorkStatusFromWorkDocumentDetails(
       Optional<WorkDocument> workDocument) {
-    if (!workDocument.isPresent()) {
-      return NOT_WORKING;
-    }
+    return workDocument.map(this::getStudentWorkStudy).orElse(NOT_WORKING);
+  }
 
+  private WorkStudyStatus getStudentWorkStudy(WorkDocument workDocument) {
     Instant now = Instant.now();
-    WorkDocument domainWorkDocument = workDocument.get();
-    if (domainWorkDocument.getCommitmentBegin() != null) {
-      return WORKING;
-    }
-    if (domainWorkDocument.getCommitmentBegin() != null
-        && now.isBefore(domainWorkDocument.getCommitmentBegin())) {
+
+    if (workDocument.getCommitmentBegin() != null
+        && now.isBefore(workDocument.getCommitmentBegin())) {
       return WILL_BE_WORKING;
     }
-    if (domainWorkDocument.getCommitmentEnd() != null
-        && now.isAfter(domainWorkDocument.getCommitmentEnd())) {
+    if (workDocument.getCommitmentEnd() != null && now.isAfter(workDocument.getCommitmentEnd())) {
       return HAVE_BEEN_WORKING;
     }
-    return null;
+    return WORKING;
   }
 }

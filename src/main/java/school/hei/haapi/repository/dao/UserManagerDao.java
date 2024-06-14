@@ -86,21 +86,21 @@ public class UserManagerDao {
       predicate = builder.and(predicate, builder.equal(root.get("sex"), sex));
     }
 
-    if (workStatus != null && WORKING.equals(workStatus)) {
+    if (WORKING.equals(workStatus)) {
       predicate =
           builder.and(
               predicate,
               builder.lessThanOrEqualTo(
                   workDocumentJoin.get("commitmentBegin"), commitmentComparison));
     }
-    if (workStatus != null && HAVE_BEEN_WORKING.equals(workStatus)) {
+    if (HAVE_BEEN_WORKING.equals(workStatus)) {
       predicate =
           builder.and(
               predicate,
               builder.lessThanOrEqualTo(
                   workDocumentJoin.get("commitmentEnd"), commitmentComparison));
     }
-    if (workStatus != null && WILL_BE_WORKING.equals(workStatus)) {
+    if (WILL_BE_WORKING.equals(workStatus)) {
       predicate =
           builder.and(
               predicate,

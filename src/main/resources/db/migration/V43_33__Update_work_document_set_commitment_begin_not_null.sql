@@ -1,0 +1,1 @@
+alter table "work_document" alter column commitment_begin set not null;

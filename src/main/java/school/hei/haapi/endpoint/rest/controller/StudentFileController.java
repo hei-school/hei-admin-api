@@ -58,7 +58,8 @@ public class StudentFileController {
       @RequestParam(name = "commitment_end", required = false) Instant commitmentEnd,
       @RequestParam(name = "creation_datetime", required = false) Instant creationDatetime,
       @RequestPart(name = "file_to_upload") MultipartFile fileToUpload) {
-    createStudentWorkFileValidator.acceptWorkDocumentField(filename, commitmentBegin);
+    createStudentWorkFileValidator.acceptWorkDocumentField(
+        filename, commitmentBegin, commitmentEnd);
     return workDocumentMapper.toRest(
         fileService.uploadStudentWorkFile(
             studentId, filename, creationDatetime, commitmentBegin, commitmentEnd, fileToUpload));
