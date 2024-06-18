@@ -26,8 +26,9 @@ public class GroupMapper {
     return new GroupDTO()
         .groups(groups.stream().map(this::toRest).toList())
         .men(stats.get("men"))
-        .totalStudents(stats.get("totalStudent"))
+        .totalStudents(stats.get("totalStudents"))
         .women(stats.get("women"))
+        .totalGroups(stats.get("totalGroups"))
         .studentsAlternating(0);
   }
 

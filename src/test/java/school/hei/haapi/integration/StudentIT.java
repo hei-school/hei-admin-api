@@ -59,13 +59,11 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -842,6 +840,27 @@ public class StudentIT extends MockedThirdParties {
 
     assertTrue(suspended.contains(updated));
     assertEquals(1, actual.size());
+  }
+
+  @Test
+  void stats_are_exact() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi usersApi = new UsersApi(manager1Client);
+    TeachingApi teachingApi = new TeachingApi(manager1Client);
+
+    StudentDTO studentDTO =
+        usersApi.getStudents(1, 200, null, null, null, null, ENABLED, M, null, null);
+    StudentDTO studentDTO1 =
+        usersApi.getStudents(1, 200, null, null, null, null, ENABLED, F, null, null);
+    StudentDTO studentDTO2 =
+        usersApi.getStudents(1, 200, null, null, null, null, ENABLED, null, null, null);
+
+    GroupDTO groupDTO = teachingApi.getGroups(1, 200);
+
+    assertEquals(groupDTO.getGroups().size(), groupDTO.getTotalGroups());
+    assertEquals(studentDTO.getStudents().size(), studentDTO.getMen());
+    assertEquals(studentDTO1.getStudents().size(), studentDTO.getWomen());
+    assertEquals(studentDTO2.getStudents().size(), studentDTO1.getTotalStudents());
   }
 
   @Test
