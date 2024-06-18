@@ -2,6 +2,9 @@ package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Sex.F;
+import static school.hei.haapi.model.User.Sex.M;
 import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.model.User.Status.SUSPENDED;
 import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
@@ -19,12 +22,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.UserUpserted;
+import school.hei.haapi.endpoint.rest.model.Statistics;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.UserValidator;
+import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.service.aws.FileService;
@@ -39,6 +44,7 @@ public class UserService {
   private final UserManagerDao userManagerDao;
   private final FileService fileService;
   private final MultipartFileConverter fileConverter;
+  private final GroupRepository groupRepository;
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = findById(userId);
@@ -183,5 +189,13 @@ public class UserService {
       return List.of();
     }
     return returnedStudent.subList(startIndex, endIndex);
+  }
+
+  public Statistics getStudentsStat() {
+    return new Statistics()
+        .women(userRepository.countBySexAndStatusAndRole(F, ENABLED, STUDENT))
+        .totalGroups((int) groupRepository.count())
+        .men(userRepository.countBySexAndStatusAndRole(M, ENABLED, STUDENT))
+        .totalStudents(userRepository.countByStatusAndRole(ENABLED, STUDENT));
   }
 }

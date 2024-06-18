@@ -1,7 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.util.List;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.*;
@@ -19,17 +17,6 @@ public class GroupMapper {
         .name(group.getName())
         .ref(group.getRef())
         .creationDatetime(group.getCreationDatetime());
-  }
-
-  public GroupDTO toGroupDTO(List<school.hei.haapi.model.Group> groups) {
-    Map<String, Integer> stats = groupService.getStudentsStat();
-    return new GroupDTO()
-        .groups(groups.stream().map(this::toRest).toList())
-        .men(stats.get("men"))
-        .totalStudents(stats.get("totalStudents"))
-        .women(stats.get("women"))
-        .totalGroups(stats.get("totalGroups"))
-        .studentsAlternating(0);
   }
 
   public school.hei.haapi.model.Group toDomain(Group restGroup) {

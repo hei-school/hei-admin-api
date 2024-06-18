@@ -2,7 +2,9 @@ package school.hei.haapi.endpoint.rest.controller;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.time.Instant;
 import java.util.List;
@@ -64,7 +66,7 @@ public class StudentController {
   }
 
   @GetMapping("/students")
-  public StudentDTO getStudents(
+  public List<Student> getStudents(
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
@@ -77,8 +79,8 @@ public class StudentController {
       @RequestParam(name = "commitment_begin_date", required = false) Instant commitmentBeginDate) {
     User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
     User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
-    return userMapper.toStudentDTO(
-        userService.getByLinkedCourse(
+    return userService
+        .getByLinkedCourse(
             STUDENT,
             firstName,
             lastName,
@@ -89,7 +91,10 @@ public class StudentController {
             domainStatus,
             domainSex,
             workStatus,
-            commitmentBeginDate));
+            commitmentBeginDate)
+        .stream()
+        .map(userMapper::toRestStudent)
+        .toList();
   }
 
   @PutMapping("/students")
@@ -116,5 +121,17 @@ public class StudentController {
     return groupFlowService.saveAll(createGroupFlow).stream()
         .map(groupFlowMapper::toRest)
         .collect(toUnmodifiableList());
+  }
+
+  @GetMapping("/students/stats")
+  public Statistics getStats() {
+    return userService
+        .getStudentsStat()
+        .studentsAlternating(
+            userService.getByRoleAndStatus(STUDENT, ENABLED).stream()
+                .map(userMapper::toRestStudent)
+                .filter(student -> student.getWorkStudyStatus() == WORKING)
+                .toList()
+                .size());
   }
 }
