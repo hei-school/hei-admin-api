@@ -3,7 +3,9 @@ package school.hei.haapi.service;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -29,6 +31,7 @@ public class GroupService {
   private final GroupRepository repository;
   private final UserRepository userRepository;
   private final GroupFlowService groupFlowService;
+  private final GroupRepository groupRepository;
 
   public Group findById(String groupId) {
     return repository
@@ -133,5 +136,14 @@ public class GroupService {
     Group group = findById(groupId);
     group.setPromotion(promotion);
     repository.save(group);
+  }
+
+  public Map<String, Integer> getStudentsStat() {
+    Map<String, Integer> map = new HashMap<>();
+    map.put("totalStudents", (int) userRepository.count());
+    map.put("men", userRepository.countBySex(User.Sex.M));
+    map.put("women", userRepository.countBySex(User.Sex.F));
+    map.put("totalGroups", (int) groupRepository.count());
+    return map;
   }
 }

@@ -119,7 +119,7 @@ class GroupIT extends MockedThirdParties {
 
     TeachingApi api = new TeachingApi(student1Client);
     Group actual1 = api.getGroupById(GROUP1_ID);
-    List<Group> actualGroups = api.getGroups(1, 10);
+    List<Group> actualGroups = api.getGroups(1, 10).getGroups();
 
     assertEquals(group1(), actual1);
     assertTrue(actualGroups.contains(group1()));
