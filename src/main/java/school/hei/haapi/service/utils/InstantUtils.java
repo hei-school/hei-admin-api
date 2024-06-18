@@ -48,4 +48,14 @@ public class InstantUtils {
         .atZone(ZoneId.of("UTC+3"))
         .toInstant();
   }
+
+  public static Instant getToDay() {
+    LocalDate now = LocalDate.now();
+    return Instant.from(now.atStartOfDay());
+  }
+
+  public static Instant getYesterday() {
+    LocalDate now = LocalDate.now();
+    return Instant.from(now.minusDays(1));
+  }
 }

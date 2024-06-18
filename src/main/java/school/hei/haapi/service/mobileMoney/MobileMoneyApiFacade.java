@@ -12,20 +12,25 @@ import school.hei.haapi.model.exception.ApiException;
 public class MobileMoneyApiFacade implements MobileMoneyApi {
     private final MobileMoneyApi orangeApi;
     private final MobileMoneyApi mvolaApi;
+    private final MobileMoneyApi orangeScrappingApi;
 
-    public MobileMoneyApiFacade(@Qualifier("OrangeApi")
-    MobileMoneyApi orangeApi,
-    @Qualifier("MvolaApi")
-    MobileMoneyApi mvolaApi) {
+    public MobileMoneyApiFacade(
+            @Qualifier("OrangeApi")
+            MobileMoneyApi orangeApi,
+            @Qualifier("MvolaApi")
+            MobileMoneyApi mvolaApi,
+            @Qualifier("OrangeScrappingApi")
+            MobileMoneyApi orangeScrappingApi) {
         this.orangeApi = orangeApi;
         this.mvolaApi = mvolaApi;
+        this.orangeScrappingApi = orangeScrappingApi;
     }
 
     @Override
     public TransactionDetails getByTransactionRef(MobileMoneyType type, String ref) throws ApiException {
         return switch (type){
             case MVOLA -> mvolaApi.getByTransactionRef(type, ref);
-            case ORANGE_MONEY -> orangeApi.getByTransactionRef(type, ref);
+            case ORANGE_MONEY -> orangeScrappingApi.getByTransactionRef(type, ref);
             case AIRTEL_MONEY -> throw new ApiException(ApiException.ExceptionType.SERVER_EXCEPTION, "NOT IMPLEMENTED");
         };
     }

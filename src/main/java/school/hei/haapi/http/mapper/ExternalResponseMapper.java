@@ -2,7 +2,9 @@ package school.hei.haapi.http.mapper;
 
 import java.time.Instant;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.http.model.OrangeDailyTransactionScrappingDetails;
 import school.hei.haapi.http.model.OrangeTransactionDetails;
+import school.hei.haapi.http.model.OrangeTransactionScrappingDetails;
 import school.hei.haapi.http.model.TelmaTransactionDetails;
 import school.hei.haapi.http.model.TransactionDetails;
 
@@ -22,5 +24,13 @@ public class ExternalResponseMapper {
         .pspTransactionRef(telmaRest.getTransactionReference())
         .pspTransactionAmount(telmaRest.getAmount())
         .build();
+  }
+
+  public TransactionDetails from(OrangeTransactionScrappingDetails orangeScrappingRest) {
+    return TransactionDetails.builder()
+            .pspDatetimeTransactionCreation(Instant.parse(orangeScrappingRest.getDate()))
+            .pspTransactionAmount(orangeScrappingRest.getAmount())
+            .pspTransactionRef(orangeScrappingRest.getRef())
+            .build();
   }
 }
