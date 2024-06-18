@@ -7,14 +7,14 @@ import lombok.Setter;
 @Getter
 @Setter
 public class OrangeTransactionScrappingDetails {
-    private int number;
-    private String date;
-    private String time;
-    private String ref;
-    private String status;
+  private int number;
+  private String date;
+  private String time;
+  private String ref;
+  private String status;
 
-    @JsonProperty("client_number")
-    private String clientNumber;
+  @JsonProperty("client_number")
+  private String clientNumber;
 
-    private int amount;
+  private int amount;
 }

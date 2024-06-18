@@ -61,8 +61,7 @@ public class MpbsVerificationService {
   }
 
   public List<MpbsVerification> checkMobilePaymentThenSaveVerification() {
-    List<Mpbs> mpbsOfTheDay =
-        mpbsDao.findMpbsBetween(getYesterday(), getToDay());
+    List<Mpbs> mpbsOfTheDay = mpbsDao.findMpbsBetween(getYesterday(), getToDay());
 
     return mpbsOfTheDay.stream().map(this::verifyMobilePaymentAndSaveResult).collect(toList());
   }

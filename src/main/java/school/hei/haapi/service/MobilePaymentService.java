@@ -7,7 +7,6 @@ import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.repository.MobilePaymentRepository;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
-import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 
 @Service
 @AllArgsConstructor
