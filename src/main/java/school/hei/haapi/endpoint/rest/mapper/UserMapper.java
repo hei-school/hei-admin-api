@@ -41,8 +41,9 @@ public class UserMapper {
     return new StudentDTO()
         .students(studentsRest)
         .men(stats.get("men"))
-        .totalStudents(stats.get("totalStudent"))
+        .totalStudents(stats.get("totalStudents"))
         .women(stats.get("women"))
+        .totalGroups(stats.get("totalGroups"))
         .studentsAlternating(
             (int)
                 studentsRest.stream()

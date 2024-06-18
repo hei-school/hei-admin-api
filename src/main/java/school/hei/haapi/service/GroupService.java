@@ -1,6 +1,10 @@
 package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Sex.F;
+import static school.hei.haapi.model.User.Sex.M;
+import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -140,9 +144,9 @@ public class GroupService {
 
   public Map<String, Integer> getStudentsStat() {
     Map<String, Integer> map = new HashMap<>();
-    map.put("totalStudents", (int) userRepository.count());
-    map.put("men", userRepository.countBySex(User.Sex.M));
-    map.put("women", userRepository.countBySex(User.Sex.F));
+    map.put("totalStudents", userRepository.countByStatusAndRole(ENABLED, STUDENT));
+    map.put("men", userRepository.countBySexAndStatusAndRole(M, ENABLED, STUDENT));
+    map.put("women", userRepository.countBySexAndStatusAndRole(F, ENABLED, STUDENT));
     map.put("totalGroups", (int) groupRepository.count());
     return map;
   }
