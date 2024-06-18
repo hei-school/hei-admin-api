@@ -1,15 +1,9 @@
 package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.model.User.Role.STUDENT;
-import static school.hei.haapi.model.User.Sex.F;
-import static school.hei.haapi.model.User.Sex.M;
-import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -140,14 +134,5 @@ public class GroupService {
     Group group = findById(groupId);
     group.setPromotion(promotion);
     repository.save(group);
-  }
-
-  public Map<String, Integer> getStudentsStat() {
-    Map<String, Integer> map = new HashMap<>();
-    map.put("totalStudents", userRepository.countByStatusAndRole(ENABLED, STUDENT));
-    map.put("men", userRepository.countBySexAndStatusAndRole(M, ENABLED, STUDENT));
-    map.put("women", userRepository.countBySexAndStatusAndRole(F, ENABLED, STUDENT));
-    map.put("totalGroups", (int) groupRepository.count());
-    return map;
   }
 }

@@ -140,7 +140,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GroupDTO'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Group'
 
         '400':
           $ref: '#/components/responses/400'
@@ -186,6 +188,19 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/stats:
+    get:
+      tags:
+        - Users
+      summary: Get some stats infos about students.
+      operationId: getStats
+      responses:
+        '200':
+          description: Stats info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Statistics'
   /students/{id}/work_info:
     get:
       tags:
@@ -427,7 +442,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentDTO'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
 
         '400':
           $ref: '#/components/responses/400'
@@ -4267,24 +4284,6 @@ components:
           type: integer
         total_groups:
           type: integer
-    StudentDTO:
-      allOf:
-        - $ref: '#/components/schemas/Statistics'
-      type: object
-      properties:
-        students:
-          type: array
-          items:
-            $ref: '#/components/schemas/Student'
-    GroupDTO:
-      allOf:
-        - $ref: '#/components/schemas/Statistics'
-      type: object
-      properties:
-        groups:
-          type: array
-          items:
-            $ref: '#/components/schemas/Group'
     Exception:
       type: object
       properties:
