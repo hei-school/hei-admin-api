@@ -27,9 +27,10 @@ class OrangeScrappingApi implements MobileMoneyApi {
   private final ExternalExceptionMapper exceptionMapper;
   private final ExternalResponseMapper responseMapper;
 
-  private static final String BASE_URL = "";
+  private static final String BASE_URL = "http://localhost:3000";
 
-  public List<TransactionDetails> scrapOrangeTransactions() throws ApiException {
+  public List<TransactionDetails> getTransactions() {
+    System.out.println(getYesterday());
     String PATH = "/transactions?date=" + getYesterday();
 
     try (HttpClient httpClient = HttpClient.newHttpClient()) {
@@ -54,7 +55,7 @@ class OrangeScrappingApi implements MobileMoneyApi {
   @Override
   public TransactionDetails getByTransactionRef(MobileMoneyType type, String ref)
       throws ApiException {
-    List<TransactionDetails> dailyTransactions = scrapOrangeTransactions();
+    List<TransactionDetails> dailyTransactions = getTransactions();
 
     return dailyTransactions.stream()
         .filter(transactionDetails -> ref.equals(transactionDetails.getPspTransactionRef()))

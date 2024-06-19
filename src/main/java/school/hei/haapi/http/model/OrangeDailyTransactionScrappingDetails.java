@@ -10,7 +10,7 @@ import lombok.Setter;
 @Setter
 public class OrangeDailyTransactionScrappingDetails {
   @JsonProperty("transactionDate")
-  private Instant transactionDate;
+  private String transactionDate;
 
   private Instant timestamp;
 

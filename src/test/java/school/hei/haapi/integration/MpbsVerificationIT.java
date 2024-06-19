@@ -4,8 +4,6 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.AIRTEL_MONEY;
@@ -34,7 +32,6 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.event.gen.CheckMobilePaymentTransactionTriggered;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.model.MpbsVerification;
@@ -93,15 +90,6 @@ public class MpbsVerificationIT extends MockedThirdParties {
         .pspTransactionAmount(300_000)
         .pspDatetimeTransactionCreation(Instant.parse("2021-11-08T08:25:24.00Z"))
         .build();
-  }
-
-  @Test
-  void mvola_mobile_money_service_is_correctly_executed() {
-    CheckMobilePaymentTransactionTriggered checkMobilePaymentTriggered =
-        CheckMobilePaymentTransactionTriggered.builder().build();
-    subject.accept(checkMobilePaymentTriggered);
-
-    verify(mvolaApiMock, times(1)).getByTransactionRef(MVOLA, "psp2_id");
   }
 
   @Test

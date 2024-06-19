@@ -140,11 +140,11 @@ public class FeeService {
 
   public UnpaidFeesReminder toUnpaidFeesReminder(Fee fee) {
     return UnpaidFeesReminder.builder()
-            .studentEmail(fee.getStudent().getEmail())
-            .remainingAmount(fee.getRemainingAmount())
-            .id(fee.getId())
-            .dueDatetime(fee.getDueDatetime())
-            .build();
+        .studentEmail(fee.getStudent().getEmail())
+        .remainingAmount(fee.getRemainingAmount())
+        .id(fee.getId())
+        .dueDatetime(fee.getDueDatetime())
+        .build();
   }
 
   @Transactional
@@ -158,15 +158,15 @@ public class FeeService {
         });
   }
 
-    public void sendUnpaidFeesEmail () {
-      List<Fee> unpaidFees =
-              feeRepository.getUnpaidFeesForTheMonthSpecified(
-                      Instant.now().atZone(ZoneId.of("UTC+3")).getMonthValue());
-      log.info("Unpaid fees size: {}", unpaidFees.size());
-      unpaidFees.forEach(
-              unpaidFee -> {
-                eventProducer.accept(List.of(toUnpaidFeesReminder(unpaidFee)));
-                log.info("Unpaid fee with id.{} is sent to Queue", unpaidFee.getId());
-              });
-    }
+  public void sendUnpaidFeesEmail() {
+    List<Fee> unpaidFees =
+        feeRepository.getUnpaidFeesForTheMonthSpecified(
+            Instant.now().atZone(ZoneId.of("UTC+3")).getMonthValue());
+    log.info("Unpaid fees size: {}", unpaidFees.size());
+    unpaidFees.forEach(
+        unpaidFee -> {
+          eventProducer.accept(List.of(toUnpaidFeesReminder(unpaidFee)));
+          log.info("Unpaid fee with id.{} is sent to Queue", unpaidFee.getId());
+        });
   }
+}

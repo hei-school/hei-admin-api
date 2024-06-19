@@ -1,6 +1,10 @@
 package school.hei.haapi.http.mapper;
 
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.http.model.OrangeTransactionDetails;
 import school.hei.haapi.http.model.OrangeTransactionScrappingDetails;
@@ -27,9 +31,19 @@ public class ExternalResponseMapper {
 
   public TransactionDetails from(OrangeTransactionScrappingDetails orangeScrappingRest) {
     return TransactionDetails.builder()
-        .pspDatetimeTransactionCreation(Instant.parse(orangeScrappingRest.getDate()))
+        .pspDatetimeTransactionCreation(
+            formatAndGetDateOfTransaction(orangeScrappingRest.getDate()))
         .pspTransactionAmount(orangeScrappingRest.getAmount())
         .pspTransactionRef(orangeScrappingRest.getRef())
         .build();
+  }
+
+  private Instant formatAndGetDateOfTransaction(String dateString) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
+    if (!Objects.isNull(dateString)) {
+      LocalDate localDate = LocalDate.parse(dateString, formatter);
+      return localDate.atStartOfDay(ZoneId.of("UTC")).toInstant();
+    }
+    return null;
   }
 }
