@@ -1,3 +1,12 @@
+# [1.27.0](https://github.com/hei-school/hei-admin-api/compare/v1.26.1...v1.27.0) (2024-06-19)
+
+
+### Features
+
+* implement a specific endpoint for students statistics ([ee2ebd4](https://github.com/hei-school/hei-admin-api/commit/ee2ebd4cc85ed79ce906840c73cde8be593a1298))
+
+
+
 ## [1.26.1](https://github.com/hei-school/hei-admin-api/compare/v1.26.0...v1.26.1) (2024-06-18)
 
 
@@ -101,15 +110,6 @@
 ### Features
 
 * insert multiple group flows for a student  ([6c166bb](https://github.com/hei-school/hei-admin-api/commit/6c166bb7d8512af81f286e99435295f3e9270636))
-
-
-
-# [1.18.0](https://github.com/hei-school/hei-admin-api/compare/v1.17.0...v1.18.0) (2024-04-12)
-
-
-### Features
-
-* filter students by commitment begin date  ([cf7ebb9](https://github.com/hei-school/hei-admin-api/commit/cf7ebb947bc0e33628bdefebda01ff744d05a012))
 
 
 
