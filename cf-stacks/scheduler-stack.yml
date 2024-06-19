@@ -22,7 +22,6 @@ Resources:
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.gen.SendLateFeesEmailTriggered'
           Source: 'school.hei.haapi'
-
   UpdateFeesStatusToLateScheduler:
     Type: AWS::Scheduler::Schedule
     Properties:
@@ -62,7 +61,7 @@ Resources:
       FlexibleTimeWindow:
         Mode: "OFF"
       Name: UnpaidFeesReminderEmailScheduler
-      ScheduleExpression: "cron(0 8 20 * *)"
+      ScheduleExpression: "cron(0 8 20 * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
         RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
