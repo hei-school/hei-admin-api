@@ -1,6 +1,7 @@
 package school.hei.haapi.service.event;
 
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static school.hei.haapi.service.utils.DataFormatterUtils.instantToCommonDate;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
 import jakarta.mail.internet.AddressException;
@@ -25,7 +26,7 @@ public class UnpaidFeesReminderService implements Consumer<UnpaidFeesReminder> {
   private static Context getMailContext(UnpaidFeesReminder unpaidFee) {
     Context initial = new Context();
     initial.setVariable("comment", unpaidFee.getComment());
-    initial.setVariable("dueDatetime", unpaidFee.getDueDatetime());
+    initial.setVariable("dueDatetime", instantToCommonDate(unpaidFee.getDueDatetime()));
     initial.setVariable("remainingAmount", unpaidFee.getRemainingAmount());
     return initial;
   }
