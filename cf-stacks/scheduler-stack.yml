@@ -62,7 +62,7 @@ Resources:
       FlexibleTimeWindow:
         Mode: "OFF"
       Name: UnpaidFeesReminderEmailScheduler
-      ScheduleExpression: "cron(0 8 20 * *)"
+      ScheduleExpression: "cron(0 8 20 * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
         RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
