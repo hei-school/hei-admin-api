@@ -193,9 +193,9 @@ public class UserService {
 
   public Statistics getStudentsStat() {
     return new Statistics()
-        .women(userRepository.countBySexAndStatusAndRole(F, ENABLED, STUDENT))
+        .women(userRepository.countBySexAndRole(F, STUDENT))
         .totalGroups((int) groupRepository.count())
-        .men(userRepository.countBySexAndStatusAndRole(M, ENABLED, STUDENT))
-        .totalStudents(userRepository.countByStatusAndRole(ENABLED, STUDENT));
+        .men(userRepository.countBySexAndRole(M, STUDENT))
+        .totalStudents(userRepository.countByRole(STUDENT));
   }
 }

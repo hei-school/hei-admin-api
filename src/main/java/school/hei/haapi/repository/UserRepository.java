@@ -53,7 +53,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 						""")
   List<User> findAllRemainingStudentsByGroupId(String groupId);
 
-  Integer countBySexAndStatusAndRole(User.Sex sex, User.Status status, User.Role role);
+  Integer countBySexAndRole(User.Sex sex, User.Role role);
 
-  Integer countByStatusAndRole(User.Status status, User.Role role);
+  Integer countByRole(User.Role role);
 }

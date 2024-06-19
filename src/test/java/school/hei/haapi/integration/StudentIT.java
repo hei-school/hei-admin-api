@@ -49,7 +49,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -60,7 +59,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -78,7 +76,6 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 @Testcontainers
 @ContextConfiguration(initializers = StudentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-@Slf4j
 public class StudentIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
 
@@ -827,20 +824,17 @@ public class StudentIT extends MockedThirdParties {
   void stats_are_exact() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi usersApi = new UsersApi(manager1Client);
-    TeachingApi teachingApi = new TeachingApi(manager1Client);
 
     Integer women =
-        usersApi.getStudents(1, 200, null, null, null, null, ENABLED, F, null, null).size();
-    Integer men =
-        usersApi.getStudents(1, 200, null, null, null, null, ENABLED, M, null, null).size();
+        usersApi.getStudents(1, 200, null, null, null, null, null, F, null, null).size();
+    Integer men = usersApi.getStudents(1, 200, null, null, null, null, null, M, null, null).size();
     Integer totalStudents =
-        usersApi.getStudents(1, 200, null, null, null, null, ENABLED, null, null, null).size();
+        usersApi.getStudents(1, 200, null, null, null, null, null, null, null, null).size();
 
     Statistics statistics = usersApi.getStats();
     assertEquals(statistics.getWomen(), women);
     assertEquals(statistics.getMen(), men);
     assertEquals(statistics.getTotalStudents(), totalStudents);
-    log.info(statistics.toString());
   }
 
   @Test
