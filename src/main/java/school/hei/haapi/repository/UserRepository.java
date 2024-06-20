@@ -56,4 +56,8 @@ public interface UserRepository extends JpaRepository<User, String> {
   Integer countBySexAndRole(User.Sex sex, User.Role role);
 
   Integer countByRole(User.Role role);
+
+  Integer countBySexAndRoleAndStatus(User.Sex sex, User.Role role, User.Status status);
+
+  Integer countByRoleAndStatus(User.Role role, User.Status status);
 }
