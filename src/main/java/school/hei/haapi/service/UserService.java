@@ -193,27 +193,26 @@ public class UserService {
 
   public Statistics getStudentsStat(List<Student> students) {
     return new Statistics()
-        .women(userRepository.countBySexAndRole(F, STUDENT))
+        .women(
+            new StatisticsDetails()
+                .disabled(userRepository.countBySexAndRoleAndStatus(F, STUDENT, DISABLED))
+                .suspended(userRepository.countBySexAndRoleAndStatus(F, STUDENT, SUSPENDED))
+                .enabled(userRepository.countBySexAndRoleAndStatus(F, STUDENT, ENABLED))
+                .total(userRepository.countBySexAndRole(F, STUDENT)))
         .totalGroups((int) groupRepository.count())
-        .men(userRepository.countBySexAndRole(M, STUDENT))
         .totalStudents(userRepository.countByRole(STUDENT))
-        .disabled(
+        .men(
             new StatisticsDetails()
-                .men(userRepository.countBySexAndRoleAndStatus(M, STUDENT, DISABLED))
-                .women(userRepository.countBySexAndRoleAndStatus(F, STUDENT, DISABLED))
-                .total(userRepository.countByRoleAndStatus(STUDENT, DISABLED)))
-        .enabled(
-            new StatisticsDetails()
-                .men(userRepository.countBySexAndRoleAndStatus(M, STUDENT, ENABLED))
-                .women(userRepository.countBySexAndRoleAndStatus(F, STUDENT, ENABLED))
-                .total(userRepository.countByRoleAndStatus(STUDENT, ENABLED)))
-        .suspended(
-            new StatisticsDetails()
-                .men(userRepository.countBySexAndRoleAndStatus(M, STUDENT, ENABLED))
-                .women(userRepository.countBySexAndRoleAndStatus(F, STUDENT, ENABLED))
-                .total(userRepository.countByRoleAndStatus(STUDENT, ENABLED)))
+                .disabled(userRepository.countBySexAndRoleAndStatus(M, STUDENT, DISABLED))
+                .suspended(userRepository.countBySexAndRoleAndStatus(M, STUDENT, SUSPENDED))
+                .enabled(userRepository.countBySexAndRoleAndStatus(M, STUDENT, ENABLED))
+                .total(userRepository.countBySexAndRole(M, STUDENT)))
         .studentsAlternating(
             new StatisticsStudentsAlternating()
+                .total(
+                    getStudentsAlternatingSize(students, WORKING)
+                        + getStudentsAlternatingSize(students, HAVE_BEEN_WORKING)
+                        + getStudentsAlternatingSize(students, WORKING))
                 .haveBeenWorking(getStudentsAlternatingSize(students, HAVE_BEEN_WORKING))
                 .working(getStudentsAlternatingSize(students, WORKING))
                 .notWorking(getStudentsAlternatingSize(students, NOT_WORKING))

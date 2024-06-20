@@ -4276,13 +4276,11 @@ components:
       properties:
         total_students:
           type: integer
-        men:
-          type: integer
-        women:
-          type: integer
         students_alternating:
           type: object
           properties:
+            total:
+              type: integer
             working:
               type: integer
             have_been_working:
@@ -4291,11 +4289,9 @@ components:
               type: integer
             will_work:
               type: integer
-        disabled:
+        men:
           $ref: '#/components/schemas/StatisticsDetails'
-        suspended:
-          $ref: '#/components/schemas/StatisticsDetails'
-        enabled:
+        women:
           $ref: '#/components/schemas/StatisticsDetails'
         total_groups:
           type: integer
@@ -4304,9 +4300,11 @@ components:
       properties:
         total:
           type: integer
-        men:
+        disabled:
           type: integer
-        women:
+        enabled:
+          type: integer
+        suspended:
           type: integer
     Exception:
       type: object
