@@ -33,9 +33,7 @@ public class GroupController {
   public List<Group> getGroups(
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
-    return groupService.getAll(page, pageSize).stream()
-        .map(groupMapper::toRest)
-        .collect(toUnmodifiableList());
+    return groupService.getAll(page, pageSize).stream().map(groupMapper::toRest).collect(toList());
   }
 
   // todo: to review

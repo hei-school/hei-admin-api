@@ -17,6 +17,7 @@ import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -61,10 +62,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -150,28 +148,6 @@ public class StudentIT extends MockedThirdParties {
     return studentList;
   }
 
-  public static Student studentZ() {
-    Student student = new Student();
-    student.setId("studentZ_id");
-    student.setFirstName("Displayed");
-    student.setLastName("Commitment");
-    student.setEmail("test+displayed@hei.school");
-    student.setRef("STD21999");
-    student.setPhone("0322411123");
-    student.setStatus(ENABLED);
-    student.setSex(M);
-    student.setBirthDate(LocalDate.parse("2000-01-01"));
-    student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    student.setAddress("Adr 1");
-    student.setNic("");
-    student.setSpecializationField(COMMON_CORE);
-    student.setBirthPlace("");
-    student.setHighSchoolOrigin("Lycée Andohalo");
-    student.setCommitmentBeginDate(Instant.parse("2024-05-07T08:25:24.00Z"));
-
-    return student;
-  }
-
   public static Student student1() {
     Student student = new Student();
     student.setId("student1_id");
@@ -190,6 +166,8 @@ public class StudentIT extends MockedThirdParties {
     student.setBirthPlace("");
     student.setCoordinates(new Coordinates().longitude(-123.123).latitude(123.0));
     student.setHighSchoolOrigin("Lycée Andohalo");
+    student.setWorkStudyStatus(WORKING);
+    student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24Z"));
     return student;
   }
 
@@ -211,6 +189,8 @@ public class StudentIT extends MockedThirdParties {
     student.setSpecializationField(COMMON_CORE);
     student.setCoordinates(new Coordinates().longitude(255.255).latitude(-255.255));
     student.setHighSchoolOrigin("Lycée Andohalo");
+    student.setWorkStudyStatus(WORKING);
+    student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24.00Z"));
     return student;
   }
 
@@ -252,6 +232,7 @@ public class StudentIT extends MockedThirdParties {
     student.setSpecializationField(COMMON_CORE);
     student.setCoordinates(coordinatesWithNullValues());
     student.setHighSchoolOrigin("Lycée Analamahitsy");
+    student.setWorkStudyStatus(NOT_WORKING);
     return student;
   }
 
@@ -271,27 +252,8 @@ public class StudentIT extends MockedThirdParties {
         .nic("")
         .birthPlace("")
         .coordinates(coordinatesWithNullValues())
+        .workStudyStatus(NOT_WORKING)
         .address("Adr 1");
-  }
-
-  public static Student studentWorker() {
-    return new Student()
-        .id("student7_id")
-        .firstName("Worker")
-        .lastName("One")
-        .email("test+worker@hei.school")
-        .ref("STD29009")
-        .status(ENABLED)
-        .sex(M)
-        .birthDate(LocalDate.parse("2000-12-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .phone("0322411123")
-        .specializationField(COMMON_CORE)
-        .nic("")
-        .birthPlace("")
-        .coordinates(coordinatesWithNullValues())
-        .address("Adr 1")
-        .workStudyStatus(WORKING);
   }
 
   public static CrupdateStudent creatableSuspendedStudent() {
@@ -325,6 +287,7 @@ public class StudentIT extends MockedThirdParties {
         .specializationField(COMMON_CORE)
         .birthPlace("")
         .address("Adr 2")
+        .workStudyStatus(NOT_WORKING)
         .coordinates(coordinatesWithNullValues());
   }
 
@@ -430,8 +393,8 @@ public class StudentIT extends MockedThirdParties {
     List<Student> actualStudents =
         api.getStudents(1, 10, null, null, null, null, null, null, WORKING, null);
 
-    assertEquals(1, actualStudents.size());
-    assertEquals(studentWorker(), actualStudents.get(0));
+    assertEquals(2, actualStudents.size());
+    assertTrue(actualStudents.containsAll(List.of(student2(), student1())));
   }
 
   @Test
@@ -479,11 +442,12 @@ public class StudentIT extends MockedThirdParties {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actualStudents =
-        api.getStudents(1, 20, "STD21999", null, null, null, null, null, null, null);
+        api.getStudents(
+            1, 20, null, null, null, null, null, null, null, Instant.parse("2021-11-08T08:25:24Z"));
 
-    assertEquals(1, actualStudents.size());
+    assertEquals(2, actualStudents.size());
     assertEquals(
-        studentZ().getCommitmentBeginDate(), actualStudents.get(0).getCommitmentBeginDate());
+        student1().getCommitmentBeginDate(), actualStudents.get(0).getCommitmentBeginDate());
   }
 
   @Test
@@ -653,6 +617,7 @@ public class StudentIT extends MockedThirdParties {
             .ref(toUpdate0.getRef())
             .coordinates(coordinatesWithNullValues())
             .specializationField(toUpdate0.getSpecializationField())
+            .workStudyStatus(NOT_WORKING)
             .status(toUpdate0.getStatus());
 
     Student updated1 =
@@ -671,6 +636,7 @@ public class StudentIT extends MockedThirdParties {
             .ref(toUpdate1.getRef())
             .specializationField(toUpdate1.getSpecializationField())
             .coordinates(coordinatesWithNullValues())
+            .workStudyStatus(NOT_WORKING)
             .status(toUpdate1.getStatus());
 
     List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1));
@@ -852,6 +818,23 @@ public class StudentIT extends MockedThirdParties {
 
     assertTrue(suspended.contains(updated));
     assertEquals(1, actual.size());
+  }
+
+  @Test
+  void stats_are_exact() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi usersApi = new UsersApi(manager1Client);
+
+    Integer women =
+        usersApi.getStudents(1, 200, null, null, null, null, null, F, null, null).size();
+    Integer men = usersApi.getStudents(1, 200, null, null, null, null, null, M, null, null).size();
+    Integer totalStudents =
+        usersApi.getStudents(1, 200, null, null, null, null, null, null, null, null).size();
+
+    Statistics statistics = usersApi.getStats();
+    assertEquals(statistics.getWomen(), women);
+    assertEquals(statistics.getMen(), men);
+    assertEquals(statistics.getTotalStudents(), totalStudents);
   }
 
   @Test

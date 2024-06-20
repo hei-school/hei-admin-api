@@ -1,13 +1,15 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.CreateGroup;
-import school.hei.haapi.endpoint.rest.model.Group;
-import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
+import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.service.GroupService;
 
 @Component
+@AllArgsConstructor
 public class GroupMapper {
   // todo: to review all class
+  private final GroupService groupService;
 
   public Group toRest(school.hei.haapi.model.Group group) {
     return new Group()

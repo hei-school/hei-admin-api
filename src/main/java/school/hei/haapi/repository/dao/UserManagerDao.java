@@ -1,6 +1,9 @@
 package school.hei.haapi.repository.dao;
 
 import static jakarta.persistence.criteria.JoinType.LEFT;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.HAVE_BEEN_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WILL_BE_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
@@ -31,7 +34,8 @@ public class UserManagerDao {
       User.Sex sex,
       WorkStudyStatus workStatus,
       Instant commitmentBeginDate,
-      String courseId) {
+      String courseId,
+      Instant commitmentComparison) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
@@ -70,11 +74,6 @@ public class UserManagerDao {
               builder.greaterThanOrEqualTo(commitmentBeginExpression, commitmentBeginDate));
     }
 
-    if (workStatus != null) {
-      Expression<WorkStudyStatus> workStatusExpression = root.get("workStatus");
-      predicate = builder.and(predicate, builder.equal(workStatusExpression, workStatus));
-    }
-
     if (firstName != null && !firstName.isEmpty()) {
       predicate = builder.and(predicate, hasUserFirstName);
     }
@@ -85,6 +84,28 @@ public class UserManagerDao {
 
     if (sex != null) {
       predicate = builder.and(predicate, builder.equal(root.get("sex"), sex));
+    }
+
+    if (WORKING.equals(workStatus)) {
+      predicate =
+          builder.and(
+              predicate,
+              builder.lessThanOrEqualTo(
+                  workDocumentJoin.get("commitmentBegin"), commitmentComparison));
+    }
+    if (HAVE_BEEN_WORKING.equals(workStatus)) {
+      predicate =
+          builder.and(
+              predicate,
+              builder.lessThanOrEqualTo(
+                  workDocumentJoin.get("commitmentEnd"), commitmentComparison));
+    }
+    if (WILL_BE_WORKING.equals(workStatus)) {
+      predicate =
+          builder.and(
+              predicate,
+              builder.greaterThanOrEqualTo(
+                  workDocumentJoin.get("commitmentBegin"), commitmentComparison));
     }
 
     predicate = builder.and(predicate, hasUserRole, hasUserRef, hasUserLastName);

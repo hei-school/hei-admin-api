@@ -2,7 +2,9 @@ package school.hei.haapi.endpoint.rest.controller;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.time.Instant;
 import java.util.List;
@@ -92,7 +94,7 @@ public class StudentController {
             commitmentBeginDate)
         .stream()
         .map(userMapper::toRestStudent)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @PutMapping("/students")
@@ -119,5 +121,17 @@ public class StudentController {
     return groupFlowService.saveAll(createGroupFlow).stream()
         .map(groupFlowMapper::toRest)
         .collect(toUnmodifiableList());
+  }
+
+  @GetMapping("/students/stats")
+  public Statistics getStats() {
+    return userService
+        .getStudentsStat()
+        .studentsAlternating(
+            userService.getByRoleAndStatus(STUDENT, ENABLED).stream()
+                .map(userMapper::toRestStudent)
+                .filter(student -> student.getWorkStudyStatus() == WORKING)
+                .toList()
+                .size());
   }
 }

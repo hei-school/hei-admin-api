@@ -1,9 +1,13 @@
 package school.hei.haapi.service;
 
-import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.*;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.HAVE_BEEN_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WILL_BE_WORKING;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -12,7 +16,6 @@ import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.model.exception.NotFoundException;
-import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.WorkDocumentRepository;
 
 @Service
@@ -21,7 +24,6 @@ public class WorkDocumentService {
   private final FileInfoService fileInfoService;
   private final UserService userService;
   private final WorkDocumentRepository workDocumentRepository;
-  private final UserRepository userRepository;
 
   public WorkDocument getStudentWorkFileById(String workFileId) {
     return workDocumentRepository
@@ -43,30 +45,37 @@ public class WorkDocumentService {
       Instant creationDatetime,
       Instant commitmentBegin,
       Instant commitmentEnd,
-      WorkStudyStatus studentWorkStatus,
       MultipartFile workFile) {
     User student = userService.findById(studentId);
-
-    student.setWorkStatus(
-        defineStudentWorkStatus(commitmentBegin, commitmentEnd, studentWorkStatus));
-    student.setCommitmentBeginDate(commitmentBegin);
-    userRepository.save(student);
 
     return fileInfoService.uploadFile(
         student, filename, creationDatetime, commitmentBegin, commitmentEnd, workFile);
   }
 
-  private WorkStudyStatus defineStudentWorkStatus(
-      Instant commitmentBegin, Instant commitmentEnd, WorkStudyStatus studentWorkStatus) {
+  public Optional<WorkDocument> findLastWorkDocumentByStudentId(String studentId) {
+    return workDocumentRepository.findTopByStudentIdOrderByCreationDatetimeDesc(studentId);
+  }
+
+  public Instant defineStudentCommitmentBegin(Optional<WorkDocument> workDocument) {
+    if (!workDocument.isPresent()) {
+      return null;
+    }
+    return workDocument.map(WorkDocument::getCommitmentBegin).orElse(null);
+  }
+
+  public WorkStudyStatus defineStudentWorkStatusFromWorkDocumentDetails(
+      Optional<WorkDocument> workDocument) {
+    return workDocument.map(this::getStudentWorkStudy).orElse(NOT_WORKING);
+  }
+
+  private WorkStudyStatus getStudentWorkStudy(WorkDocument workDocument) {
     Instant now = Instant.now();
 
-    if (studentWorkStatus != null) {
-      return studentWorkStatus;
-    }
-    if (now.isBefore(commitmentBegin)) {
+    if (workDocument.getCommitmentBegin() != null
+        && now.isBefore(workDocument.getCommitmentBegin())) {
       return WILL_BE_WORKING;
     }
-    if (now.isAfter(commitmentEnd)) {
+    if (workDocument.getCommitmentEnd() != null && now.isAfter(workDocument.getCommitmentEnd())) {
       return HAVE_BEEN_WORKING;
     }
     return WORKING;

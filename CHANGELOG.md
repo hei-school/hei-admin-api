@@ -1,3 +1,47 @@
+# [1.27.0](https://github.com/hei-school/hei-admin-api/compare/v1.26.1...v1.27.0) (2024-06-19)
+
+
+### Features
+
+* implement a specific endpoint for students statistics ([ee2ebd4](https://github.com/hei-school/hei-admin-api/commit/ee2ebd4cc85ed79ce906840c73cde8be593a1298))
+
+
+
+## [1.26.1](https://github.com/hei-school/hei-admin-api/compare/v1.26.0...v1.26.1) (2024-06-18)
+
+
+### Bug Fixes
+
+* migration error when updating commitment begin default value  ([57382f8](https://github.com/hei-school/hei-admin-api/commit/57382f8589f4a7b7d5a30a5edf0da8f27da70689))
+* students stat are now exact ([179dbb6](https://github.com/hei-school/hei-admin-api/commit/179dbb6c9b5f60f27f8c6b6023cd9a09e5d073ef))
+
+
+
+# [1.26.0](https://github.com/hei-school/hei-admin-api/compare/v1.25.0...v1.26.0) (2024-06-14)
+
+
+### Features
+
+* compute the work status during fetching students data  ([9f998e0](https://github.com/hei-school/hei-admin-api/commit/9f998e040d670bc843bfe7aaf4edd99f82bf6fbb))
+
+
+
+# [1.25.0](https://github.com/hei-school/hei-admin-api/compare/v1.24.0...v1.25.0) (2024-06-13)
+
+
+### Bug Fixes
+
+* max ses send email recipient size is 50, hence group list by 50 if needed ([fa6d180](https://github.com/hei-school/hei-admin-api/commit/fa6d180ec3f33de1b6ac5a321b62c11db55c41b8))
+* redirect to HA prod ui ([e40a221](https://github.com/hei-school/hei-admin-api/commit/e40a2213cea0e675fd3c94012f11f0d1c810669c))
+* wrong variable in email template ([02cf17f](https://github.com/hei-school/hei-admin-api/commit/02cf17f25f30986098321e7c002a1431d8fc019f))
+
+
+### Features
+
+* suspend user with late fees and mail them ([9c23ec7](https://github.com/hei-school/hei-admin-api/commit/9c23ec7772c7ebdfad5c4f2a90d7ab6de021ef0e))
+
+
+
 # [1.24.0](https://github.com/hei-school/hei-admin-api/compare/v1.23.0...v1.24.0) (2024-06-05)
 
 
@@ -66,48 +110,6 @@
 ### Features
 
 * insert multiple group flows for a student  ([6c166bb](https://github.com/hei-school/hei-admin-api/commit/6c166bb7d8512af81f286e99435295f3e9270636))
-
-
-
-# [1.18.0](https://github.com/hei-school/hei-admin-api/compare/v1.17.0...v1.18.0) (2024-04-12)
-
-
-### Features
-
-* filter students by commitment begin date  ([cf7ebb9](https://github.com/hei-school/hei-admin-api/commit/cf7ebb947bc0e33628bdefebda01ff744d05a012))
-
-
-
-# [1.17.0](https://github.com/hei-school/hei-admin-api/compare/v1.16.0...v1.17.0) (2024-04-09)
-
-
-### Bug Fixes
-
-* fees remove payment after updating status  ([142c7c5](https://github.com/hei-school/hei-admin-api/commit/142c7c5f76bcd0716c4857e4e919a257cc27a4e0))
-* reset remaining amount after deleting payment  ([487c65c](https://github.com/hei-school/hei-admin-api/commit/487c65c6a22f195fd09de564b7b0799f74b2d342))
-
-
-### Features
-
-* **not-implemented:** promotion endpoint ([034997d](https://github.com/hei-school/hei-admin-api/commit/034997d82801502e490a8b31f76e80eaef1fa849))
-
-
-
-# [1.16.0](https://github.com/hei-school/hei-admin-api/compare/v1.15.0...v1.16.0) (2024-04-03)
-
-
-### Features
-
-* student has work documents  ([805403a](https://github.com/hei-school/hei-admin-api/commit/805403af70f80da7a7f72de62da7e05616ce5bb1))
-
-
-
-# [1.15.0](https://github.com/hei-school/hei-admin-api/compare/v1.14.0...v1.15.0) (2024-04-03)
-
-
-### Features
-
-* **not-implemented:** document student work file  ([8b1f6e6](https://github.com/hei-school/hei-admin-api/commit/8b1f6e6dcbba721a45c48226e8d15959646f3ab6))
 
 
 

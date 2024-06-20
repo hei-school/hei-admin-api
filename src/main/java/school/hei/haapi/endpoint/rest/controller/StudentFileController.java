@@ -18,7 +18,7 @@ import school.hei.haapi.endpoint.rest.mapper.FileInfoMapper;
 import school.hei.haapi.endpoint.rest.mapper.WorkDocumentMapper;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.FileType;
-import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
+import school.hei.haapi.endpoint.rest.validator.CreateStudentWorkFileValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.StudentFileService;
@@ -29,6 +29,7 @@ public class StudentFileController {
   private final StudentFileService fileService;
   private final FileInfoMapper fileInfoMapper;
   private final WorkDocumentMapper workDocumentMapper;
+  private final CreateStudentWorkFileValidator createStudentWorkFileValidator;
 
   @GetMapping(
       value = "/students/{id}/scholarship_certificate/raw",
@@ -53,20 +54,15 @@ public class StudentFileController {
   public FileInfo uploadStudentWorkFile(
       @PathVariable(name = "student_id") String studentId,
       @RequestParam(name = "filename", required = true) String filename,
-      @RequestParam(name = "work_study_status", required = true) WorkStudyStatus workStatus,
-      @RequestParam(name = "commitment_begin", required = false) Instant commitmentBegin,
+      @RequestParam(name = "commitment_begin", required = true) Instant commitmentBegin,
       @RequestParam(name = "commitment_end", required = false) Instant commitmentEnd,
       @RequestParam(name = "creation_datetime", required = false) Instant creationDatetime,
       @RequestPart(name = "file_to_upload") MultipartFile fileToUpload) {
+    createStudentWorkFileValidator.acceptWorkDocumentField(
+        filename, commitmentBegin, commitmentEnd);
     return workDocumentMapper.toRest(
         fileService.uploadStudentWorkFile(
-            studentId,
-            filename,
-            creationDatetime,
-            commitmentBegin,
-            commitmentEnd,
-            workStatus,
-            fileToUpload));
+            studentId, filename, creationDatetime, commitmentBegin, commitmentEnd, fileToUpload));
   }
 
   @GetMapping(value = "/students/{student_id}/work_files")

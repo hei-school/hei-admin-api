@@ -29,6 +29,7 @@ public class GroupService {
   private final GroupRepository repository;
   private final UserRepository userRepository;
   private final GroupFlowService groupFlowService;
+  private final GroupRepository groupRepository;
 
   public Group findById(String groupId) {
     return repository
