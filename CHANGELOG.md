@@ -1,3 +1,12 @@
+## [1.28.1](https://github.com/hei-school/hei-admin-api/compare/v1.28.0...v1.28.1) (2024-06-20)
+
+
+### Bug Fixes
+
+* change statistics details model  ([4448724](https://github.com/hei-school/hei-admin-api/commit/4448724f27e7088fdc05c32d7930dd8df5346cc4))
+
+
+
 # [1.28.0](https://github.com/hei-school/hei-admin-api/compare/v1.27.0...v1.28.0) (2024-06-20)
 
 
@@ -107,15 +116,6 @@
 
 * get mpbs verifications ([a097964](https://github.com/hei-school/hei-admin-api/commit/a0979649e38667e31b0f27eb0cb6fc13658d3e19))
 * mobile payment by student reources  ([a219a8b](https://github.com/hei-school/hei-admin-api/commit/a219a8bc8f52665f90f470fdb74a88cb57284a2d))
-
-
-
-# [1.20.0](https://github.com/hei-school/hei-admin-api/compare/v1.19.0...v1.20.0) (2024-04-16)
-
-
-### Features
-
-* **not-implemented:** mobile payment by student  ([e0d0a41](https://github.com/hei-school/hei-admin-api/commit/e0d0a41257af7da7bb716d5dae7c4b9875a40757))
 
 
 
