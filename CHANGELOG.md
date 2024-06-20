@@ -1,3 +1,18 @@
+# [1.28.0](https://github.com/hei-school/hei-admin-api/compare/v1.27.0...v1.28.0) (2024-06-20)
+
+
+### Bug Fixes
+
+* cron expressions in unPaidFeesReminder scheduler ([7c5613a](https://github.com/hei-school/hei-admin-api/commit/7c5613a8a8990dbb513fff493366a7befdf2cf70))
+
+
+### Features
+
+* add enabled and suspended in statistics model  ([b41fe68](https://github.com/hei-school/hei-admin-api/commit/b41fe68c762d371c29a42adf795a36ba6d129596))
+* send an email reminder for unpaid fees ([d0ba735](https://github.com/hei-school/hei-admin-api/commit/d0ba735007750bc4d25e082706f03739537fe028))
+
+
+
 # [1.27.0](https://github.com/hei-school/hei-admin-api/compare/v1.26.1...v1.27.0) (2024-06-19)
 
 
@@ -101,15 +116,6 @@
 ### Features
 
 * **not-implemented:** mobile payment by student  ([e0d0a41](https://github.com/hei-school/hei-admin-api/commit/e0d0a41257af7da7bb716d5dae7c4b9875a40757))
-
-
-
-# [1.19.0](https://github.com/hei-school/hei-admin-api/compare/v1.18.0...v1.19.0) (2024-04-12)
-
-
-### Features
-
-* insert multiple group flows for a student  ([6c166bb](https://github.com/hei-school/hei-admin-api/commit/6c166bb7d8512af81f286e99435295f3e9270636))
 
 
 
