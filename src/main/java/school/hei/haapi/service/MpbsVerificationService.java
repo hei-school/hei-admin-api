@@ -14,6 +14,7 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.repository.dao.MpbsDao;
@@ -25,6 +26,7 @@ public class MpbsVerificationService {
   private final MpbsVerificationRepository repository;
   private final MpbsDao mpbsDao;
   private final MpbsRepository mpbsRepository;
+  private final FeeService feeService;
   private final MobilePaymentService mobilePaymentService;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
@@ -54,15 +56,20 @@ public class MpbsVerificationService {
       // ... then save the verification
       verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
       verifiedMobileTransaction.setPspId(successfullyVerifiedMpbs.getPspId());
-      return repository.save(verifiedMobileTransaction);
+      repository.save(verifiedMobileTransaction);
+
+      // ... then update fee remaining amount
+      feeService.debitAmount(fee, verifiedMobileTransaction.getAmountInPsp());
+      return verifiedMobileTransaction;
     } catch (ApiException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
   }
 
   public List<MpbsVerification> checkMobilePaymentThenSaveVerification() {
-    List<Mpbs> mpbsOfTheDay = mpbsDao.findMpbsBetween(getYesterday(), getToDay());
+    // yesterday because orange can render only transactions of yesterday.
+    List<Mpbs> mpbsOfYesterday = mpbsDao.findMpbsBetween(getYesterday(), getToDay());
 
-    return mpbsOfTheDay.stream().map(this::verifyMobilePaymentAndSaveResult).collect(toList());
+    return mpbsOfYesterday.stream().map(this::verifyMobilePaymentAndSaveResult).collect(toList());
   }
 }
