@@ -14,7 +14,6 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.exception.ApiException;
-import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.repository.dao.MpbsDao;
@@ -35,6 +34,8 @@ public class MpbsVerificationService {
 
   public MpbsVerification verifyMobilePaymentAndSaveResult(Mpbs mpbs) {
     try {
+      // Will check in database
+      // TODO: create a new scheduler who will scrapp orange every day
       var mobileTransactionResponseDetails = mobilePaymentService.findTransactionByMpbs(mpbs);
       Fee fee = mpbs.getFee();
       MpbsVerification verifiedMobileTransaction =

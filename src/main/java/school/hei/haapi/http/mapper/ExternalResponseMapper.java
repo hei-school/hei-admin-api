@@ -4,12 +4,14 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 import java.util.Objects;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.http.model.OrangeTransactionDetails;
 import school.hei.haapi.http.model.OrangeTransactionScrappingDetails;
 import school.hei.haapi.http.model.TelmaTransactionDetails;
 import school.hei.haapi.http.model.TransactionDetails;
+import school.hei.haapi.model.MobileTransactionDetails;
 
 @Component
 public class ExternalResponseMapper {
@@ -36,6 +38,28 @@ public class ExternalResponseMapper {
         .pspTransactionAmount(orangeScrappingRest.getAmount())
         .pspTransactionRef(orangeScrappingRest.getRef())
         .build();
+  }
+
+  public TransactionDetails toExternalTransactionDetails(MobileTransactionDetails transactionDetails) {
+    return TransactionDetails.builder()
+            .pspDatetimeTransactionCreation(transactionDetails.getPspDatetimeTransactionCreation())
+            .pspTransactionRef(transactionDetails.getPspTransactionRef())
+            .pspTransactionAmount(transactionDetails.getPspTransactionAmount())
+            .build();
+  }
+
+  public MobileTransactionDetails toDomainMobileTransactionDetails(TransactionDetails transactionDetails) {
+    return MobileTransactionDetails.builder()
+            .pspTransactionRef(transactionDetails.getPspTransactionRef())
+            .pspTransactionAmount(transactionDetails.getPspTransactionAmount())
+            .pspDatetimeTransactionCreation(transactionDetails.getPspDatetimeTransactionCreation())
+            .build();
+  }
+
+  public List<MobileTransactionDetails> fromResponseToDomain(List<TransactionDetails> givenResponse) {
+    return givenResponse.stream()
+            .map(this::toDomainMobileTransactionDetails)
+            .toList();
   }
 
   private Instant formatAndGetDateOfTransaction(String dateString) {

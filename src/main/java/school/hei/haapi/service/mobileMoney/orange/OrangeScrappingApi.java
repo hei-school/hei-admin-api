@@ -17,7 +17,9 @@ import school.hei.haapi.http.mapper.ExternalExceptionMapper;
 import school.hei.haapi.http.mapper.ExternalResponseMapper;
 import school.hei.haapi.http.model.OrangeDailyTransactionScrappingDetails;
 import school.hei.haapi.http.model.TransactionDetails;
+import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.repository.MobileTransactionDetailsRepository;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
 
 @Component("OrangeScrappingApi")
@@ -26,6 +28,7 @@ class OrangeScrappingApi implements MobileMoneyApi {
   private final ObjectMapper objectMapper;
   private final ExternalExceptionMapper exceptionMapper;
   private final ExternalResponseMapper responseMapper;
+  private final MobileTransactionDetailsRepository mobileTransactionDetailsRepository;
 
   private static final String BASE_URL = "http://localhost:3000";
 
@@ -41,12 +44,17 @@ class OrangeScrappingApi implements MobileMoneyApi {
           httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
       exceptionMapper.accept(response);
-      return objectMapper
-          .readValue(response.body(), OrangeDailyTransactionScrappingDetails.class)
-          .getTransactions()
-          .stream()
-          .map(responseMapper::from)
-          .toList();
+      var mappedResponseList = objectMapper
+              .readValue(response.body(), OrangeDailyTransactionScrappingDetails.class)
+              .getTransactions()
+              .stream()
+              .map(responseMapper::from)
+              .toList();
+
+      // store the collected data ...
+      mobileTransactionDetailsRepository.saveAll(responseMapper.fromResponseToDomain(mappedResponseList));
+
+      return mappedResponseList;
     } catch (IOException | InterruptedException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
