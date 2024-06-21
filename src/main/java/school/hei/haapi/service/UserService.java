@@ -210,7 +210,7 @@ public class UserService {
         .studentsAlternating(
             new StatisticsStudentsAlternating()
                 .total(
-                    getStudentsAlternatingSize(students, WORKING)
+                    getStudentsAlternatingSize(students, WILL_BE_WORKING)
                         + getStudentsAlternatingSize(students, HAVE_BEEN_WORKING)
                         + getStudentsAlternatingSize(students, WORKING))
                 .haveBeenWorking(getStudentsAlternatingSize(students, HAVE_BEEN_WORKING))
