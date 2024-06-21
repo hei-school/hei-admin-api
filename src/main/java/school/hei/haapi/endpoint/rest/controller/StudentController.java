@@ -125,13 +125,10 @@ public class StudentController {
 
   @GetMapping("/students/stats")
   public Statistics getStats() {
-    return userService
-        .getStudentsStat()
-        .studentsAlternating(
-            userService.getByRoleAndStatus(STUDENT, ENABLED).stream()
-                .map(userMapper::toRestStudent)
-                .filter(student -> student.getWorkStudyStatus() == WORKING)
-                .toList()
-                .size());
+    return userService.getStudentsStat(
+        userService.getByRoleAndStatus(STUDENT, ENABLED).stream()
+            .map(userMapper::toRestStudent)
+            .filter(student -> student.getWorkStudyStatus() == WORKING)
+            .toList());
   }
 }

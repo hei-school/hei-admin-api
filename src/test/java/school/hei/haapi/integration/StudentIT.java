@@ -832,8 +832,8 @@ public class StudentIT extends MockedThirdParties {
         usersApi.getStudents(1, 200, null, null, null, null, null, null, null, null).size();
 
     Statistics statistics = usersApi.getStats();
-    assertEquals(statistics.getWomen(), women);
-    assertEquals(statistics.getMen(), men);
+    assertEquals(statistics.getWomen().getTotal(), women);
+    assertEquals(statistics.getMen().getTotal(), men);
     assertEquals(statistics.getTotalStudents(), totalStudents);
   }
 

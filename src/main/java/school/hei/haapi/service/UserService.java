@@ -2,16 +2,17 @@ package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.*;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Sex.F;
 import static school.hei.haapi.model.User.Sex.M;
-import static school.hei.haapi.model.User.Status.ENABLED;
-import static school.hei.haapi.model.User.Status.SUSPENDED;
+import static school.hei.haapi.model.User.Status.*;
 import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
 import java.io.File;
 import java.time.Instant;
 import java.util.List;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -22,8 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.gen.UserUpserted;
-import school.hei.haapi.endpoint.rest.model.Statistics;
-import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
@@ -191,11 +191,39 @@ public class UserService {
     return returnedStudent.subList(startIndex, endIndex);
   }
 
-  public Statistics getStudentsStat() {
+  public Statistics getStudentsStat(List<Student> students) {
     return new Statistics()
-        .women(userRepository.countBySexAndRole(F, STUDENT))
+        .women(
+            new StatisticsDetails()
+                .disabled(userRepository.countBySexAndRoleAndStatus(F, STUDENT, DISABLED))
+                .suspended(userRepository.countBySexAndRoleAndStatus(F, STUDENT, SUSPENDED))
+                .enabled(userRepository.countBySexAndRoleAndStatus(F, STUDENT, ENABLED))
+                .total(userRepository.countBySexAndRole(F, STUDENT)))
         .totalGroups((int) groupRepository.count())
-        .men(userRepository.countBySexAndRole(M, STUDENT))
-        .totalStudents(userRepository.countByRole(STUDENT));
+        .totalStudents(userRepository.countByRole(STUDENT))
+        .men(
+            new StatisticsDetails()
+                .disabled(userRepository.countBySexAndRoleAndStatus(M, STUDENT, DISABLED))
+                .suspended(userRepository.countBySexAndRoleAndStatus(M, STUDENT, SUSPENDED))
+                .enabled(userRepository.countBySexAndRoleAndStatus(M, STUDENT, ENABLED))
+                .total(userRepository.countBySexAndRole(M, STUDENT)))
+        .studentsAlternating(
+            new StatisticsStudentsAlternating()
+                .total(
+                    getStudentsAlternatingSize(students, WORKING)
+                        + getStudentsAlternatingSize(students, HAVE_BEEN_WORKING)
+                        + getStudentsAlternatingSize(students, WORKING))
+                .haveBeenWorking(getStudentsAlternatingSize(students, HAVE_BEEN_WORKING))
+                .working(getStudentsAlternatingSize(students, WORKING))
+                .notWorking(getStudentsAlternatingSize(students, NOT_WORKING))
+                .willWork(getStudentsAlternatingSize(students, WILL_BE_WORKING)));
+  }
+
+  public Integer getStudentsAlternatingSize(
+      List<Student> students, WorkStudyStatus workStudyStatus) {
+    return students.stream()
+        .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
+        .toList()
+        .size();
   }
 }
