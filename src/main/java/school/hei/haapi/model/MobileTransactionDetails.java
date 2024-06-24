@@ -31,4 +31,6 @@ public class MobileTransactionDetails implements Serializable {
   private Instant pspDatetimeTransactionCreation;
 
   private String pspTransactionRef;
+
+  private String studentRef;
 }

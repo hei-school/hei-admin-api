@@ -4,17 +4,21 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 import java.util.Objects;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.http.model.OrangeTransactionDetails;
 import school.hei.haapi.http.model.OrangeTransactionScrappingDetails;
 import school.hei.haapi.http.model.TelmaTransactionDetails;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
+import school.hei.haapi.repository.MpbsRepository;
 
 @Component
+@AllArgsConstructor
 public class ExternalResponseMapper {
+  private final MpbsRepository mpbsRepository;
+
   public TransactionDetails from(OrangeTransactionDetails orangeRest) {
     return TransactionDetails.builder()
         .pspDatetimeTransactionCreation(orangeRest.getTransactionCreation())
@@ -51,10 +55,12 @@ public class ExternalResponseMapper {
 
   public MobileTransactionDetails toDomainMobileTransactionDetails(
       TransactionDetails transactionDetails) {
+    String studentRef = findStudentRefByTransactionDetails(transactionDetails);
     return MobileTransactionDetails.builder()
         .pspTransactionRef(transactionDetails.getPspTransactionRef())
         .pspTransactionAmount(transactionDetails.getPspTransactionAmount())
         .pspDatetimeTransactionCreation(transactionDetails.getPspDatetimeTransactionCreation())
+        .studentRef(studentRef)
         .build();
   }
 
@@ -68,11 +74,6 @@ public class ExternalResponseMapper {
         .build();
   }
 
-  public List<MobileTransactionDetails> fromResponseToDomain(
-      List<TransactionDetails> givenResponse) {
-    return givenResponse.stream().map(this::toDomainMobileTransactionDetails).toList();
-  }
-
   private Instant formatAndGetDateOfTransaction(String dateString) {
     DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
     if (!Objects.isNull(dateString)) {
@@ -80,5 +81,12 @@ public class ExternalResponseMapper {
       return localDate.atStartOfDay(ZoneId.of("UTC")).toInstant();
     }
     return null;
+  }
+
+  private String findStudentRefByTransactionDetails(TransactionDetails transactionDetails) {
+    return mpbsRepository
+        .findByPspId(transactionDetails.getPspTransactionRef())
+        .getStudent()
+        .getRef();
   }
 }

@@ -36,7 +36,6 @@ public class MpbsVerificationService {
   public MpbsVerification verifyMobilePaymentAndSaveResult(Mpbs mpbs) {
     try {
       // Find transaction in database
-      // TODO: create a new scheduler who will scrapp orange every day
       var mobileTransactionResponseDetails = mobilePaymentService.findTransactionByMpbs(mpbs);
       Fee fee = mpbs.getFee();
       MpbsVerification verifiedMobileTransaction =

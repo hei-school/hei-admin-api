@@ -7,4 +7,6 @@ import school.hei.haapi.model.Mpbs.Mpbs;
 @Repository
 public interface MpbsRepository extends JpaRepository<Mpbs, String> {
   Mpbs findByStudentIdAndFeeId(String studentId, String FeeId);
+
+  Mpbs findByPspId(String pspId);
 }
