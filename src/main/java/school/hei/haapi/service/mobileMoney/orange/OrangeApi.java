@@ -8,6 +8,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
@@ -69,5 +70,10 @@ class OrangeApi implements MobileMoneyApi {
     } catch (IOException | InterruptedException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
+  }
+
+  @Override
+  public List<TransactionDetails> fetchThenSaveTransactionsDetails(MobileMoneyType type) {
+    return null;
   }
 }

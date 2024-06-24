@@ -40,26 +40,27 @@ public class ExternalResponseMapper {
         .build();
   }
 
-  public TransactionDetails toExternalTransactionDetails(MobileTransactionDetails transactionDetails) {
+  public TransactionDetails toExternalTransactionDetails(
+      MobileTransactionDetails transactionDetails) {
     return TransactionDetails.builder()
-            .pspDatetimeTransactionCreation(transactionDetails.getPspDatetimeTransactionCreation())
-            .pspTransactionRef(transactionDetails.getPspTransactionRef())
-            .pspTransactionAmount(transactionDetails.getPspTransactionAmount())
-            .build();
+        .pspDatetimeTransactionCreation(transactionDetails.getPspDatetimeTransactionCreation())
+        .pspTransactionRef(transactionDetails.getPspTransactionRef())
+        .pspTransactionAmount(transactionDetails.getPspTransactionAmount())
+        .build();
   }
 
-  public MobileTransactionDetails toDomainMobileTransactionDetails(TransactionDetails transactionDetails) {
+  public MobileTransactionDetails toDomainMobileTransactionDetails(
+      TransactionDetails transactionDetails) {
     return MobileTransactionDetails.builder()
-            .pspTransactionRef(transactionDetails.getPspTransactionRef())
-            .pspTransactionAmount(transactionDetails.getPspTransactionAmount())
-            .pspDatetimeTransactionCreation(transactionDetails.getPspDatetimeTransactionCreation())
-            .build();
+        .pspTransactionRef(transactionDetails.getPspTransactionRef())
+        .pspTransactionAmount(transactionDetails.getPspTransactionAmount())
+        .pspDatetimeTransactionCreation(transactionDetails.getPspDatetimeTransactionCreation())
+        .build();
   }
 
-  public List<MobileTransactionDetails> fromResponseToDomain(List<TransactionDetails> givenResponse) {
-    return givenResponse.stream()
-            .map(this::toDomainMobileTransactionDetails)
-            .toList();
+  public List<MobileTransactionDetails> fromResponseToDomain(
+      List<TransactionDetails> givenResponse) {
+    return givenResponse.stream().map(this::toDomainMobileTransactionDetails).toList();
   }
 
   private Instant formatAndGetDateOfTransaction(String dateString) {

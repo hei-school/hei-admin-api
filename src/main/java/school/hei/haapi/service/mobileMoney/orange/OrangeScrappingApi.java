@@ -17,7 +17,6 @@ import school.hei.haapi.http.mapper.ExternalExceptionMapper;
 import school.hei.haapi.http.mapper.ExternalResponseMapper;
 import school.hei.haapi.http.model.OrangeDailyTransactionScrappingDetails;
 import school.hei.haapi.http.model.TransactionDetails;
-import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.repository.MobileTransactionDetailsRepository;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
@@ -32,7 +31,8 @@ class OrangeScrappingApi implements MobileMoneyApi {
 
   private static final String BASE_URL = "http://localhost:3000";
 
-  public List<TransactionDetails> getTransactions() {
+  @Override
+  public List<TransactionDetails> fetchThenSaveTransactionsDetails(MobileMoneyType type) {
     System.out.println(getYesterday());
     String PATH = "/transactions?date=" + getYesterday();
 
@@ -44,7 +44,8 @@ class OrangeScrappingApi implements MobileMoneyApi {
           httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
 
       exceptionMapper.accept(response);
-      var mappedResponseList = objectMapper
+      var mappedResponseList =
+          objectMapper
               .readValue(response.body(), OrangeDailyTransactionScrappingDetails.class)
               .getTransactions()
               .stream()
@@ -52,7 +53,8 @@ class OrangeScrappingApi implements MobileMoneyApi {
               .toList();
 
       // store the collected data ...
-      mobileTransactionDetailsRepository.saveAll(responseMapper.fromResponseToDomain(mappedResponseList));
+      mobileTransactionDetailsRepository.saveAll(
+          responseMapper.fromResponseToDomain(mappedResponseList));
 
       return mappedResponseList;
     } catch (IOException | InterruptedException e) {
@@ -63,12 +65,7 @@ class OrangeScrappingApi implements MobileMoneyApi {
   @Override
   public TransactionDetails getByTransactionRef(MobileMoneyType type, String ref)
       throws ApiException {
-    List<TransactionDetails> dailyTransactions = getTransactions();
-
-    return dailyTransactions.stream()
-        .filter(transactionDetails -> ref.equals(transactionDetails.getPspTransactionRef()))
-        .distinct()
-        .toList()
-        .getFirst();
+    return responseMapper.toExternalTransactionDetails(
+        mobileTransactionDetailsRepository.findByPspTransactionRef(ref));
   }
 }

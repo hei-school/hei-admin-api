@@ -5,6 +5,7 @@ import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.MobileTransactionDetails;
 
 @Repository
-public interface MobileTransactionDetailsRepository extends JpaRepository<MobileTransactionDetails, String>  {
-    MobileTransactionDetails findByPspTransactionRef(String pspRef);
+public interface MobileTransactionDetailsRepository
+    extends JpaRepository<MobileTransactionDetails, String> {
+  MobileTransactionDetails findByPspTransactionRef(String pspRef);
 }

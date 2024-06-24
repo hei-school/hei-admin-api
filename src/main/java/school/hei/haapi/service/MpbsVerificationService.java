@@ -10,6 +10,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
@@ -34,7 +35,7 @@ public class MpbsVerificationService {
 
   public MpbsVerification verifyMobilePaymentAndSaveResult(Mpbs mpbs) {
     try {
-      // Will check in database
+      // Find transaction in database
       // TODO: create a new scheduler who will scrapp orange every day
       var mobileTransactionResponseDetails = mobilePaymentService.findTransactionByMpbs(mpbs);
       Fee fee = mpbs.getFee();
@@ -72,5 +73,9 @@ public class MpbsVerificationService {
     List<Mpbs> mpbsOfYesterday = mpbsDao.findMpbsBetween(getYesterday(), getToDay());
 
     return mpbsOfYesterday.stream().map(this::verifyMobilePaymentAndSaveResult).collect(toList());
+  }
+
+  public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {
+    return mobilePaymentService.fetchThenSaveTransactionDetails();
   }
 }

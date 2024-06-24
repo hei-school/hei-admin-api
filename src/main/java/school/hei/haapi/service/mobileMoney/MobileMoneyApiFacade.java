@@ -9,6 +9,8 @@ import school.hei.haapi.model.exception.ApiException;
 
 import java.util.List;
 
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+
 @Component
 @Primary
 public class MobileMoneyApiFacade implements MobileMoneyApi {
@@ -33,7 +35,16 @@ public class MobileMoneyApiFacade implements MobileMoneyApi {
         return switch (type){
             case MVOLA -> mvolaApi.getByTransactionRef(type, ref);
             case ORANGE_MONEY -> orangeScrappingApi.getByTransactionRef(type, ref);
-            case AIRTEL_MONEY -> throw new ApiException(ApiException.ExceptionType.SERVER_EXCEPTION, "NOT IMPLEMENTED");
+            case AIRTEL_MONEY -> throw new ApiException(SERVER_EXCEPTION, "NOT IMPLEMENTED");
+        };
+    }
+
+    @Override
+    public List<TransactionDetails> fetchThenSaveTransactionsDetails(MobileMoneyType type) {
+        return switch (type){
+            case MVOLA -> mvolaApi.fetchThenSaveTransactionsDetails(type);
+            case ORANGE_MONEY -> orangeScrappingApi.fetchThenSaveTransactionsDetails(type);
+            case AIRTEL_MONEY -> throw new ApiException(SERVER_EXCEPTION, "NOT IMPLEMENTED");
         };
     }
 }
