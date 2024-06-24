@@ -58,6 +58,16 @@ public class ExternalResponseMapper {
         .build();
   }
 
+  public TransactionDetails toRestMobileTransactionDetails(
+      MobileTransactionDetails mobileTransactionDetails) {
+    return TransactionDetails.builder()
+        .pspTransactionAmount(mobileTransactionDetails.getPspTransactionAmount())
+        .pspTransactionRef(mobileTransactionDetails.getPspTransactionRef())
+        .pspDatetimeTransactionCreation(
+            mobileTransactionDetails.getPspDatetimeTransactionCreation())
+        .build();
+  }
+
   public List<MobileTransactionDetails> fromResponseToDomain(
       List<TransactionDetails> givenResponse) {
     return givenResponse.stream().map(this::toDomainMobileTransactionDetails).toList();

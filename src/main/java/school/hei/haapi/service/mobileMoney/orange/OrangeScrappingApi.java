@@ -53,10 +53,13 @@ class OrangeScrappingApi implements MobileMoneyApi {
               .toList();
 
       // store the collected data ...
-      mobileTransactionDetailsRepository.saveAll(
-          responseMapper.fromResponseToDomain(mappedResponseList));
+      var savedResponseList =
+          mobileTransactionDetailsRepository.saveAll(
+              responseMapper.fromResponseToDomain(mappedResponseList));
 
-      return mappedResponseList;
+      return savedResponseList.stream()
+          .map(responseMapper::toRestMobileTransactionDetails)
+          .toList();
     } catch (IOException | InterruptedException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }

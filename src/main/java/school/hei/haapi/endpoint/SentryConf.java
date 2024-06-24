@@ -11,13 +11,14 @@ import org.springframework.context.annotation.Configuration;
 public class SentryConf {
 
   private final String sentryDsn;
-  // private final String env;
+  private final String env;
 
   private static final double TRACES_SAMPLE_RATE = 1.0;
 
-  public SentryConf(@Value("${sentry.dsn}") String sentryDsn) {
+  public SentryConf(
+      @Value("${sentry.dsn}") String sentryDsn, @Value("${sentry.environment}") String env) {
     this.sentryDsn = sentryDsn;
-    // this.env = env;
+    this.env = env;
   }
 
   @Bean
@@ -25,7 +26,7 @@ public class SentryConf {
     OptionsConfiguration<SentryOptions> optionsConf =
         options -> {
           options.setDsn(sentryDsn);
-          // options.setEnvironment(env);
+          options.setEnvironment(env);
           options.setTracesSampleRate(TRACES_SAMPLE_RATE);
         };
     Sentry.init(optionsConf);
