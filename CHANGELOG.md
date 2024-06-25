@@ -1,3 +1,17 @@
+# [1.29.0](https://github.com/hei-school/hei-admin-api/compare/v1.28.1...v1.29.0) (2024-06-25)
+
+
+### Bug Fixes
+
+* students works stats size  ([23c95bf](https://github.com/hei-school/hei-admin-api/commit/23c95bf67f5fce5a3c351491f3da658610ec1dfb))
+
+
+### Features
+
+* **not-implemented:** group statistics documentation  ([44ef424](https://github.com/hei-school/hei-admin-api/commit/44ef4240234845589d41ca3ef39bcb91aed88b56))
+
+
+
 ## [1.28.1](https://github.com/hei-school/hei-admin-api/compare/v1.28.0...v1.28.1) (2024-06-20)
 
 
@@ -106,16 +120,6 @@
 * get announcement by id ([01ea24b](https://github.com/hei-school/hei-admin-api/commit/01ea24bffafbc6019fa5ef5b98dda9a43f34e3b3))
 * implement promotion resources ([de6a706](https://github.com/hei-school/hei-admin-api/commit/de6a706098b70f1031ca82e8c66bc5747e2db43f))
 * implements announcements resources ([46ddaba](https://github.com/hei-school/hei-admin-api/commit/46ddaba53ae599096c2c6601b696bb37de1705d2))
-
-
-
-# [1.21.0](https://github.com/hei-school/hei-admin-api/compare/v1.20.0...v1.21.0) (2024-04-17)
-
-
-### Features
-
-* get mpbs verifications ([a097964](https://github.com/hei-school/hei-admin-api/commit/a0979649e38667e31b0f27eb0cb6fc13658d3e19))
-* mobile payment by student reources  ([a219a8b](https://github.com/hei-school/hei-admin-api/commit/a219a8bc8f52665f90f470fdb74a88cb57284a2d))
 
 
 
