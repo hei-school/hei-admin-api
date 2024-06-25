@@ -188,6 +188,19 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /groups/students/stats:
+    get:
+      tags:
+        - Users
+      summary: Get some stats infos about students.
+      operationId: getGroupStats
+      responses:
+        '200':
+          description: Stats info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupStatistics'
   /students/stats:
     get:
       tags:
@@ -4271,6 +4284,15 @@ components:
           format: date-time
         scope:
           $ref: '#/components/schemas/Scope'
+    GroupStatistics:
+      type: object
+      properties:
+        total_students:
+          type: integer
+        men:
+          $ref: '#/components/schemas/StatisticsDetails'
+        women:
+          $ref: '#/components/schemas/StatisticsDetails'
     Statistics:
       type: object
       properties:
