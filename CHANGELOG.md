@@ -1,3 +1,12 @@
+# [1.30.0](https://github.com/hei-school/hei-admin-api/compare/v1.29.0...v1.30.0) (2024-06-27)
+
+
+### Features
+
+* **not-implemented:** documentation for fetched mobile transaction  ([d393aa9](https://github.com/hei-school/hei-admin-api/commit/d393aa9aff51f86ee17bbe8907fb49ba2e8becb8))
+
+
+
 # [1.29.0](https://github.com/hei-school/hei-admin-api/compare/v1.28.1...v1.29.0) (2024-06-25)
 
 
@@ -109,17 +118,6 @@
 ### Features
 
 * add pagination when fetching students group  ([1107816](https://github.com/hei-school/hei-admin-api/commit/1107816ce4d196a70982cc6c579f9c1b3a119e8d))
-
-
-
-# [1.22.0](https://github.com/hei-school/hei-admin-api/compare/v1.21.0...v1.22.0) (2024-04-30)
-
-
-### Features
-
-* get announcement by id ([01ea24b](https://github.com/hei-school/hei-admin-api/commit/01ea24bffafbc6019fa5ef5b98dda9a43f34e3b3))
-* implement promotion resources ([de6a706](https://github.com/hei-school/hei-admin-api/commit/de6a706098b70f1031ca82e8c66bc5747e2db43f))
-* implements announcements resources ([46ddaba](https://github.com/hei-school/hei-admin-api/commit/46ddaba53ae599096c2c6601b696bb37de1705d2))
 
 
 
