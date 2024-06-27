@@ -3749,6 +3749,8 @@ components:
         creation_datetime:
           type: string
           format: date-time
+        size:
+          type: integer
     CreateGroup:
       type: object
       properties:

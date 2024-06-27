@@ -358,7 +358,8 @@ public class TestUtils {
         .id(GROUP1_ID)
         .name("G1")
         .ref("GRP21001")
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .size(2);
   }
 
   public static Group group2() {
@@ -366,7 +367,8 @@ public class TestUtils {
         .id(GROUP2_ID)
         .name("G2")
         .ref("GRP21002")
-        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
+        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
+        .size(1);
   }
 
   public static Group group3() {
@@ -374,7 +376,8 @@ public class TestUtils {
         .id("group3_id")
         .name("H1")
         .ref("GRP22001")
-        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
+        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
+        .size(0);
   }
 
   public static Group group4() {
@@ -382,7 +385,8 @@ public class TestUtils {
         .id("group4_id")
         .name("H2")
         .ref("GRP22002")
-        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
+        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
+        .size(0);
   }
 
   public static Group group5() {
@@ -390,7 +394,8 @@ public class TestUtils {
         .id("group5_id")
         .name("J1")
         .ref("GRP23001")
-        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
+        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
+        .size(0);
   }
 
   public static Teacher teacher1() {

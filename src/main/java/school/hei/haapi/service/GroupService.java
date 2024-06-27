@@ -4,6 +4,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +50,11 @@ public class GroupService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
     return repository.findAll(pageable).toList();
+  }
+
+  public Integer getGroupSize(String groupId) {
+    Optional<List<User>> students = userRepository.findAllRemainingStudentsByGroupId(groupId);
+    return students.map(List::size).orElse(0);
   }
 
   @Transactional

@@ -1,6 +1,7 @@
 package school.hei.haapi.repository;
 
 import java.util.List;
+import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -45,13 +46,13 @@ public interface UserRepository extends JpaRepository<User, String> {
 						    u.*
 						FROM
 						    "user" u
-						        INNER JOIN
+					 	        INNER JOIN
 						    student_group_flow sgf
 						    ON
 						        sgf.student_id = u.id
 						where u.status <> 'DISABLED'
 						""")
-  List<User> findAllRemainingStudentsByGroupId(String groupId);
+  Optional<List<User>> findAllRemainingStudentsByGroupId(String groupId);
 
   Integer countBySexAndRole(User.Sex sex, User.Role role);
 
