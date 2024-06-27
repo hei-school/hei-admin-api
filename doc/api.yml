@@ -1689,6 +1689,10 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: isMpbs
+          in: query
+          schema:
+            type: boolean
       operationId: getFees
       responses:
         '200':
