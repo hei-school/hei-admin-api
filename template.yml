@@ -35,6 +35,7 @@ Globals:
         SENTRY_ENVIRONMENT: !Ref Env
         AWS_COGNITO_USERPOOL_ID: !Sub '{{resolve:ssm:/haapi/${Env}/cognito/userpool-id}}'
         AWS_SES_CONTACT: !Sub '{{resolve:ssm:/haapi/${Env}/ses/contact}}'
+        ORANGE_SCRAPPER_URL: !Sub '{{resolve:ssm:/haapi/${Env}/orange/url}'
         SPRING_DATASOURCE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/db/url}}'
         SPRING_DATASOURCE_USERNAME: !Sub '{{resolve:ssm:/haapi/${Env}/db/username}}'
         SPRING_DATASOURCE_PASSWORD: !Sub '{{resolve:ssm:/haapi/${Env}/db/password}}'
