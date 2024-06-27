@@ -6,11 +6,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
-import school.hei.haapi.model.CourseSession;
 
 public class InstantUtils {
+  private static final String UTC0 = "UTC+0";
 
-  // TODO: create a system var or bean to not need always specifying the ZonedId
   public static Instant now() {
     return LocalDateTime.now().atZone(ZoneId.of("UTC+3")).toInstant();
   }
@@ -19,7 +18,7 @@ public class InstantUtils {
     return LocalDate.now()
         .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         .atStartOfDay()
-        .atZone(ZoneId.of("UTC+3"))
+        .atZone(ZoneId.of(UTC0))
         .toInstant();
   }
 
@@ -27,25 +26,17 @@ public class InstantUtils {
     return LocalDate.now()
         .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
         .atStartOfDay()
-        .atZone(ZoneId.of("UTC+3"))
+        .atZone(ZoneId.of(UTC0))
         .toInstant();
   }
 
-  public static Instant courseSessionStudentAttendanceBeforeIntervalPredicate(
-      CourseSession toPredicate) {
-    return LocalDateTime.ofInstant(toPredicate.getBegin(), ZoneId.of("UTC+3"))
-        .plusHours(1)
-        .plusMinutes(55)
-        .atZone(ZoneId.of("UTC+3"))
-        .toInstant();
+  public static Instant getToDay() {
+    LocalDate now = LocalDate.now();
+    return now.atStartOfDay(ZoneId.of("UTC")).plusHours(8).toInstant();
   }
 
-  public static Instant courseSessionStudentAttendanceAfterIntervalPredicate(
-      CourseSession toPredicate) {
-    return LocalDateTime.ofInstant(toPredicate.getBegin(), ZoneId.of("UTC+3"))
-        .minusHours(1)
-        .minusMinutes(30)
-        .atZone(ZoneId.of("UTC+3"))
-        .toInstant();
+  public static Instant getYesterday() {
+    LocalDate now = LocalDate.now();
+    return now.minusDays(1).atStartOfDay(ZoneId.of("UTC")).plusHours(8).toInstant();
   }
 }
