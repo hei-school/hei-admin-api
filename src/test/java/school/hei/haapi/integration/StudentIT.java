@@ -148,6 +148,28 @@ public class StudentIT extends MockedThirdParties {
     return studentList;
   }
 
+  public static Student studentZ() {
+    Student student = new Student();
+    student.setId("studentZ_id");
+    student.setFirstName("Displayed");
+    student.setLastName("Commitment");
+    student.setEmail("test+displayed@hei.school");
+    student.setRef("STD21999");
+    student.setPhone("0322411123");
+    student.setStatus(ENABLED);
+    student.setSex(M);
+    student.setBirthDate(LocalDate.parse("2000-01-01"));
+    student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    student.setAddress("Adr 1");
+    student.setNic("");
+    student.setSpecializationField(COMMON_CORE);
+    student.setBirthPlace("");
+    student.setHighSchoolOrigin("Lycée Andohalo");
+    student.setCommitmentBeginDate(Instant.parse("2024-05-07T08:25:24.00Z"));
+
+    return student;
+  }
+
   public static Student student1() {
     Student student = new Student();
     student.setId("student1_id");

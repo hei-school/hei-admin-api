@@ -8,6 +8,7 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -21,6 +22,7 @@ import school.hei.haapi.model.User;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @EqualsAndHashCode(callSuper = true)
 public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   private Integer amount;

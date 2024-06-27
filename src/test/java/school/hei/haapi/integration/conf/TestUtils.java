@@ -14,6 +14,9 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.AIRTEL_MONEY;
+import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
+import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
 import static school.hei.haapi.endpoint.rest.model.Scope.GLOBAL;
@@ -91,7 +94,9 @@ import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
+import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.service.aws.FileService;
+import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -169,6 +174,14 @@ public class TestUtils {
     return client;
   }
 
+  public static void setUpMobilePaymentApi(MobileMoneyApiFacade mobilePaymentApi) {
+    when(mobilePaymentApi.getByTransactionRef(MVOLA, "psp2_id")).thenReturn(psp2Verification());
+    when(mobilePaymentApi.getByTransactionRef(ORANGE_MONEY, "psp2_id"))
+        .thenThrow(school.hei.haapi.model.exception.ApiException.class);
+    when(mobilePaymentApi.getByTransactionRef(AIRTEL_MONEY, "psp2_id"))
+        .thenThrow(school.hei.haapi.model.exception.ApiException.class);
+  }
+
   public static void setUpCognito(CognitoComponent cognitoComponent) {
     when(cognitoComponent.getEmailByIdToken(BAD_TOKEN)).thenReturn(null);
     when(cognitoComponent.getEmailByIdToken(STUDENT1_TOKEN)).thenReturn("test+ryan@hei.school");
@@ -224,6 +237,14 @@ public class TestUtils {
       throw new school.hei.haapi.model.exception.ApiException(
           SERVER_EXCEPTION, ioException.getMessage());
     }
+  }
+
+  public static TransactionDetails psp2Verification() {
+    return TransactionDetails.builder()
+        .pspDatetimeTransactionCreation(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .pspTransactionRef("psp2_id")
+        .pspTransactionAmount(300000)
+        .build();
   }
 
   public static CrupdateTeacher someCreatableTeacher() {

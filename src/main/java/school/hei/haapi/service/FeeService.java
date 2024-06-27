@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import jakarta.transaction.Transactional;
 import java.time.Instant;
@@ -21,6 +22,7 @@ import school.hei.haapi.endpoint.event.gen.UnpaidFeesReminder;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
@@ -35,6 +37,19 @@ public class FeeService {
   private final FeeValidator feeValidator;
   private final UpdateFeeValidator updateFeeValidator;
   private final EventProducer eventProducer;
+
+  public Fee debitAmount(Fee toUpdate, int amountToDebit) {
+    int remainingAmount = toUpdate.getRemainingAmount();
+
+    if (remainingAmount == 0) {
+      throw new ApiException(SERVER_EXCEPTION, "Remaining amount is already 0");
+    }
+    if (amountToDebit > remainingAmount) {
+      throw new ApiException(SERVER_EXCEPTION, "Remaining amount is inferior to your request");
+    }
+    toUpdate.setRemainingAmount(remainingAmount - amountToDebit);
+    return updateFeeStatus(toUpdate);
+  }
 
   public Fee deleteFeeByStudentIdAndFeeId(String studentId, String feeId) {
     Fee deletedFee = getByStudentIdAndFeeId(studentId, feeId);

@@ -22,7 +22,38 @@ Resources:
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.gen.SendLateFeesEmailTriggered'
           Source: 'school.hei.haapi'
-
+  FetchMobileTransactionScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Description: Scheduler that trigger fetchMobileTransactionTriggered
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name: FetchMobileTransactionScheduler
+      ScheduleExpression: "cron(0 8 * * ? *)"
+      Target:
+        Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
+        RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
+        DeadLetterConfig:
+          Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
+        EventBridgeParameters:
+          DetailType: 'school.hei.haapi.endpoint.event.gen.FetchMobileTransactionTriggered'
+          Source: 'school.hei.haapi'
+  CheckMobilePaymentTransactionScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Description: Scheduler that check if fee is correctly paid by mobile money
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name: CheckMobilePaymentTransactionScheduler
+      ScheduleExpression: "cron(0 8/4 * * ? *)"
+      Target:
+        Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
+        RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
+        DeadLetterConfig:
+          Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
+        EventBridgeParameters:
+          DetailType: 'school.hei.haapi.endpoint.event.gen.FetchMobileTransactionTriggered'
+          Source: 'school.hei.haapi'
   UpdateFeesStatusToLateScheduler:
     Type: AWS::Scheduler::Schedule
     Properties:
