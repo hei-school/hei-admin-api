@@ -14,37 +14,27 @@ import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER
 @Component
 @Primary
 public class MobileMoneyApiFacade implements MobileMoneyApi {
-    private final MobileMoneyApi orangeApi;
-    private final MobileMoneyApi mvolaApi;
     private final MobileMoneyApi orangeScrappingApi;
 
     public MobileMoneyApiFacade(
-            @Qualifier("OrangeApi")
-            MobileMoneyApi orangeApi,
-            @Qualifier("MvolaApi")
-            MobileMoneyApi mvolaApi,
             @Qualifier("OrangeScrappingApi")
             MobileMoneyApi orangeScrappingApi) {
-        this.orangeApi = orangeApi;
-        this.mvolaApi = mvolaApi;
         this.orangeScrappingApi = orangeScrappingApi;
     }
 
     @Override
     public TransactionDetails getByTransactionRef(MobileMoneyType type, String ref) throws ApiException {
         return switch (type){
-            case MVOLA -> mvolaApi.getByTransactionRef(type, ref);
+            case MVOLA, AIRTEL_MONEY -> throw new ApiException(SERVER_EXCEPTION, "NOT IMPLEMENTED");
             case ORANGE_MONEY -> orangeScrappingApi.getByTransactionRef(type, ref);
-            case AIRTEL_MONEY -> throw new ApiException(SERVER_EXCEPTION, "NOT IMPLEMENTED");
         };
     }
 
     @Override
     public List<TransactionDetails> fetchThenSaveTransactionsDetails(MobileMoneyType type) {
         return switch (type){
-            case MVOLA -> mvolaApi.fetchThenSaveTransactionsDetails(type);
+            case MVOLA, AIRTEL_MONEY -> throw new ApiException(SERVER_EXCEPTION, "NOT IMPLEMENTED");
             case ORANGE_MONEY -> orangeScrappingApi.fetchThenSaveTransactionsDetails(type);
-            case AIRTEL_MONEY -> throw new ApiException(SERVER_EXCEPTION, "NOT IMPLEMENTED");
         };
     }
 }

@@ -29,7 +29,7 @@ Resources:
       FlexibleTimeWindow:
         Mode: "OFF"
       Name: FetchMobileTransactionScheduler
-      ScheduleExpression: "cron(0 0 * * ? *)"
+      ScheduleExpression: "cron(0 8 * * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
         RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
@@ -45,7 +45,7 @@ Resources:
       FlexibleTimeWindow:
         Mode: "OFF"
       Name: CheckMobilePaymentTransactionScheduler
-      ScheduleExpression: "cron(0 8 * * ? *)"
+      ScheduleExpression: "cron(0 8/4 * * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
         RoleArn: !GetAtt ScheduledEventExecutionRole.Arn

@@ -32,7 +32,8 @@ class OrangeScrappingApi implements MobileMoneyApi {
   private final ExternalResponseMapper responseMapper;
   private final MobileTransactionDetailsRepository mobileTransactionDetailsRepository;
 
-  private static final String BASE_URL = "https://o90a12nuyc.execute-api.eu-west-3.amazonaws.com/Prod";
+  private static final String BASE_URL =
+      "https://o90a12nuyc.execute-api.eu-west-3.amazonaws.com/Prod";
 
   @Override
   public List<TransactionDetails> fetchThenSaveTransactionsDetails(MobileMoneyType type) {
@@ -58,8 +59,7 @@ class OrangeScrappingApi implements MobileMoneyApi {
       // store the collected data ...
       var savedResponseList =
           mobileTransactionDetailsRepository.saveAll(
-                  mappedResponseList
-                  .stream()
+              mappedResponseList.stream()
                   .map(responseMapper::toDomainMobileTransactionDetails)
                   .toList());
       log.info(

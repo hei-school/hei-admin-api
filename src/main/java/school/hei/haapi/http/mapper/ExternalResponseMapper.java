@@ -9,29 +9,20 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.http.model.OrangeTransactionDetails;
 import school.hei.haapi.http.model.OrangeTransactionScrappingDetails;
-import school.hei.haapi.http.model.TelmaTransactionDetails;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
-import school.hei.haapi.repository.MpbsRepository;
+import school.hei.haapi.service.MpbsService;
 
 @Component
 @AllArgsConstructor
 public class ExternalResponseMapper {
-  private final MpbsRepository mpbsRepository;
+  private final MpbsService mpbsService;
 
   public TransactionDetails from(OrangeTransactionDetails orangeRest) {
     return TransactionDetails.builder()
         .pspDatetimeTransactionCreation(orangeRest.getTransactionCreation())
         .pspTransactionRef(orangeRest.getTransactionRef())
         .pspTransactionAmount(orangeRest.getTransactionAmount())
-        .build();
-  }
-
-  public TransactionDetails from(TelmaTransactionDetails telmaRest) {
-    return TransactionDetails.builder()
-        .pspDatetimeTransactionCreation(Instant.parse(telmaRest.getCreateDate()))
-        .pspTransactionRef(telmaRest.getTransactionReference())
-        .pspTransactionAmount(telmaRest.getAmount())
         .build();
   }
 
@@ -84,9 +75,6 @@ public class ExternalResponseMapper {
   }
 
   private String findStudentRefByTransactionDetails(TransactionDetails transactionDetails) {
-    return mpbsRepository
-        .findByPspId(transactionDetails.getPspTransactionRef())
-        .getStudent()
-        .getRef();
+    return mpbsService.getByPspId(transactionDetails.getPspTransactionRef()).getStudent().getRef();
   }
 }

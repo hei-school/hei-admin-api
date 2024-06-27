@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.Mpbs.Mpbs;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.MpbsRepository;
 
 @Service
@@ -16,5 +17,11 @@ public class MpbsService {
 
   public Mpbs getStudentMobilePaymentByFeeId(String studentId, String feeId) {
     return mpbsRepository.findByStudentIdAndFeeId(studentId, feeId);
+  }
+
+  public Mpbs getByPspId(String pspId) {
+    return mpbsRepository
+        .findByPspId(pspId)
+        .orElseThrow(() -> new NotFoundException("Mpbs not found #" + pspId));
   }
 }
