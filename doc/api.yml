@@ -1821,7 +1821,55 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  /mpbs/transactions_fetched:
+    get:
+      tags:
+        - Paying
+      summary: Get all mobile transaction fetched from source
+      description: Fetched mobile transaction.
+      parameters:
+        - name: student_ref
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: transaction_ref
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      operationId: getFetchedMobileTransactions
+      responses:
+        '200':
+          description: List of all fetched mobile transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/FetchedMobileTransaction'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees/{fee_id}/mpbs:
     get:
       tags:
@@ -3890,6 +3938,20 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Payment'
+    FetchedMobileTransaction:
+      type: object
+      properties:
+        id:
+          type: string
+        transaction_amount:
+          type: integer
+        transaction_datetime_creation:
+          type: string
+          format: date-time
+        transaction_ref:
+          type: string
+        student_ref:
+          type: string
     Fee:
       allOf:
         - $ref: '#/components/schemas/CreateFee'
