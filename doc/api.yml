@@ -1821,12 +1821,12 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /mpbs/transactions_fetched:
+  /mpbs:
     get:
       tags:
         - Paying
-      summary: Get all mobile transaction fetched from source
-      description: Fetched mobile transaction.
+      summary: Get all mobile payment by student.
+      description: Fetched mobile payment by student.
       parameters:
         - name: student_ref
           in: query
@@ -1859,7 +1859,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/FetchedMobileTransaction'
+                  $ref: '#/components/schemas/Mpbs'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3938,20 +3938,6 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Payment'
-    FetchedMobileTransaction:
-      type: object
-      properties:
-        id:
-          type: string
-        transaction_amount:
-          type: integer
-        transaction_datetime_creation:
-          type: string
-          format: date-time
-        transaction_ref:
-          type: string
-        student_ref:
-          type: string
     Fee:
       allOf:
         - $ref: '#/components/schemas/CreateFee'
@@ -3993,6 +3979,12 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    MpbsStatus:
+      type: string
+      enum:
+        - PENDING
+        - SUCCESS
+        - FAILED
     MobileMoneyType:
       type: string
       enum:
@@ -4084,6 +4076,8 @@ components:
         successfully_verified_on:
           type: string
           format: date-time
+        status:
+          $ref: '#/components/schemas/MpbsStatus'
     MpbsVerification:
       allOf:
         - $ref: '#/components/schemas/CreateMpbs'
