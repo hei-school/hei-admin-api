@@ -1,3 +1,13 @@
+# [1.31.0](https://github.com/hei-school/hei-admin-api/compare/v1.30.0...v1.31.0) (2024-06-27)
+
+
+### Features
+
+* **not-implemented:** filter fees by payment by mobile  ([d264b7a](https://github.com/hei-school/hei-admin-api/commit/d264b7ad66613aebf24f3ba8f313fe6a2f1b9b26))
+* orange and telma mobile payment  ([5fd9743](https://github.com/hei-school/hei-admin-api/commit/5fd974362155f882ef26c815c1658e1eb5002e16))
+
+
+
 # [1.30.0](https://github.com/hei-school/hei-admin-api/compare/v1.29.0...v1.30.0) (2024-06-27)
 
 
@@ -109,15 +119,6 @@
 ### Reverts
 
 * remove logs ([e6dc4af](https://github.com/hei-school/hei-admin-api/commit/e6dc4af21385afd4292b831a3c6cd6c321e2beb9))
-
-
-
-# [1.23.0](https://github.com/hei-school/hei-admin-api/compare/v1.22.0...v1.23.0) (2024-04-30)
-
-
-### Features
-
-* add pagination when fetching students group  ([1107816](https://github.com/hei-school/hei-admin-api/commit/1107816ce4d196a70982cc6c579f9c1b3a119e8d))
 
 
 
