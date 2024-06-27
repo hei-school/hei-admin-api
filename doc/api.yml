@@ -1821,7 +1821,55 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  /mpbs:
+    get:
+      tags:
+        - Paying
+      summary: Get all mobile payment by student.
+      description: Fetched mobile payment by student.
+      parameters:
+        - name: student_ref
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: transaction_ref
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      operationId: getFetchedMobileTransactions
+      responses:
+        '200':
+          description: List of all fetched mobile transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mpbs'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees/{fee_id}/mpbs:
     get:
       tags:
@@ -3931,6 +3979,12 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    MpbsStatus:
+      type: string
+      enum:
+        - PENDING
+        - SUCCESS
+        - FAILED
     MobileMoneyType:
       type: string
       enum:
@@ -4022,6 +4076,8 @@ components:
         successfully_verified_on:
           type: string
           format: date-time
+        status:
+          $ref: '#/components/schemas/MpbsStatus'
     MpbsVerification:
       allOf:
         - $ref: '#/components/schemas/CreateMpbs'
