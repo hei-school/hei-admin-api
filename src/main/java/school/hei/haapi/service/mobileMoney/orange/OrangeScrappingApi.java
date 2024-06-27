@@ -10,8 +10,8 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.List;
-import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.http.mapper.ExternalExceptionMapper;
@@ -24,16 +24,26 @@ import school.hei.haapi.repository.MobileTransactionDetailsRepository;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
 
 @Component("OrangeScrappingApi")
-@AllArgsConstructor
 @Slf4j
 class OrangeScrappingApi implements MobileMoneyApi {
   private final ObjectMapper objectMapper;
   private final ExternalExceptionMapper exceptionMapper;
   private final ExternalResponseMapper responseMapper;
   private final MobileTransactionDetailsRepository mobileTransactionDetailsRepository;
+  private final String baseUrl;
 
-  private static final String BASE_URL =
-      "https://o90a12nuyc.execute-api.eu-west-3.amazonaws.com/Prod";
+  OrangeScrappingApi(
+      ObjectMapper objectMapper,
+      ExternalExceptionMapper exceptionMapper,
+      ExternalResponseMapper responseMapper,
+      MobileTransactionDetailsRepository mobileTransactionDetailsRepository,
+      @Value("${orange.scrapper.url}") String baseUrl) {
+    this.objectMapper = objectMapper;
+    this.exceptionMapper = exceptionMapper;
+    this.responseMapper = responseMapper;
+    this.mobileTransactionDetailsRepository = mobileTransactionDetailsRepository;
+    this.baseUrl = baseUrl;
+  }
 
   @Override
   public List<TransactionDetails> fetchThenSaveTransactionsDetails(MobileMoneyType type) {
@@ -41,7 +51,7 @@ class OrangeScrappingApi implements MobileMoneyApi {
 
     try (HttpClient httpClient = HttpClient.newHttpClient()) {
       HttpRequest httpRequest =
-          HttpRequest.newBuilder().uri(URI.create(BASE_URL + PATH)).GET().build();
+          HttpRequest.newBuilder().uri(URI.create(baseUrl + PATH)).GET().build();
 
       log.info("Fetching data from = {}", getYesterday());
       HttpResponse<String> response =
