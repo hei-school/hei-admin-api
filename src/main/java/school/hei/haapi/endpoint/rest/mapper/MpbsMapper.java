@@ -4,8 +4,11 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateMpbs;
 import school.hei.haapi.endpoint.rest.model.Mpbs;
+import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.UserService;
+
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 
 @Component
 @AllArgsConstructor
@@ -32,6 +35,7 @@ public class MpbsMapper {
     domain.setFee(feeService.getById(rest.getFeeId()));
     domain.setPspId(rest.getPspId());
     domain.setMobileMoneyType(rest.getPspType());
+    domain.setStatus(PENDING);
     return domain;
   }
 }
