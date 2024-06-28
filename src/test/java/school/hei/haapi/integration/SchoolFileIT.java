@@ -2,43 +2,48 @@ package school.hei.haapi.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.springframework.http.HttpMethod.POST;
 import static school.hei.haapi.endpoint.rest.model.FileType.DOCUMENT;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.List;
+
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.client.RestTemplate;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
+import school.hei.haapi.endpoint.rest.model.ShareInfo;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.service.OwnCloudService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
 @ContextConfiguration(initializers = SchoolFileIT.ContextInitializer.class)
 @AutoConfigureMockMvc
+@Slf4j
 public class SchoolFileIT extends MockedThirdParties {
   @MockBean EventBridgeClient eventBridgeClientMock;
+  @MockBean RestTemplate restTemplateMock;
   @Autowired ObjectMapper objectMapper;
 
   @BeforeEach
@@ -46,6 +51,62 @@ public class SchoolFileIT extends MockedThirdParties {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
+    setUpRestTemplate(restTemplateMock);
+  }
+
+  private static void setUpRestTemplate(RestTemplate restTemplateMock){
+    when(restTemplateMock.exchange(any(),  eq(POST), any(), eq(String.class))).thenReturn(ResponseEntity.ok(OCS_MOCKED_RESPONSE));
+  }
+
+  private static final String OCS_MOCKED_RESPONSE = """
+          {
+            "ocs": {
+              "meta": {
+                "status": "ok",
+                "statuscode": 100,
+                "message": null,
+                "totalitems": "",
+                "itemsperpage": ""
+              },
+              "data": {
+                "id": "130",
+                "share_type": 3,
+                "uid_owner": "ilo",
+                "displayname_owner": "ilo",
+                "permissions": 1,
+                "stime": 1719915415,
+                "parent": null,
+                "expiration": "2024-07-03 00:00:00",
+                "token": "vDq5Er8qizxQOEB",
+                "uid_file_owner": "ilo",
+                "displayname_file_owner": "ilo",
+                "additional_info_owner": null,
+                "additional_info_file_owner": null,
+                "path": "/Test-api",
+                "mimetype": "httpd/unix-directory",
+                "storage_id": "object::user:ilo",
+                "storage": 66,
+                "item_type": "folder",
+                "item_source": 22602,
+                "file_source": 22602,
+                "file_parent": 22570,
+                "file_target": "/Test-api",
+                "name": "test",
+                "url": "https://owncloud.hei.school/s/vDq5Er8qizxQOEB",
+                "mail_send": 0,
+                "attributes": null
+              }
+            }
+          }""";
+
+  @Test
+  void manager_get_share_link() throws ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+    FilesApi filesApi = new FilesApi(apiClient);
+
+    ShareInfo actual = filesApi.createShareLink("name", "/Test-api");
+    log.info(actual.toString());
+//    assertEquals(actual.getUrl(), "https://owncloud.server.mock");
   }
 
   @Test

@@ -2467,6 +2467,40 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/school/files/share_link':
+    post:
+      tags:
+        - Files
+      summary: create a share link to access files or folder in owncloud
+      operationId: createShareLink
+      parameters:
+        - name: name
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: path
+          in: query
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Share link with additional infos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/students/{student_id}/files/{id}':
     get:
       tags:
@@ -3844,6 +3878,19 @@ components:
         file_type:
           $ref: '#/components/schemas/FileType'
         file_url:
+          type: string
+    ShareInfo:
+      type: object
+      properties:
+        expiration:
+          type: string
+        name:
+          type: string
+        path:
+          type: string
+        url:
+          type: string
+        permissions:
           type: string
     AwardedCourse:
       type: object
