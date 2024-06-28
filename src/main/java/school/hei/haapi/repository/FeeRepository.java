@@ -23,6 +23,8 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
 
   List<Fee> getByStudentId(String studentId, Pageable pageable);
 
+  List<Fee> findAllByMpbsIsNotNull(Pageable pageable);
+
   @Query(
       "select f from Fee f where f.status = 'UNPAID' "
           + "and f.remainingAmount > 0 "

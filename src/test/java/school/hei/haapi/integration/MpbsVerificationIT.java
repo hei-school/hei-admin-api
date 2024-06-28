@@ -40,7 +40,6 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.exception.ApiException;
-import school.hei.haapi.repository.dao.MpbsDao;
 import school.hei.haapi.service.event.CheckMobilePaymentTransactionTriggeredService;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -52,7 +51,6 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 public class MpbsVerificationIT extends MockedThirdParties {
   @Autowired private CheckMobilePaymentTransactionTriggeredService subject;
   @MockBean EventBridgeClient eventBridgeClient;
-  @MockBean private MpbsDao mpbsDaoMock;
 
   @MockBean(name = "OrangeApi")
   MobileMoneyApi orangeApiMock;
