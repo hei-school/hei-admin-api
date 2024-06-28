@@ -83,9 +83,13 @@ public class FeeService {
   public List<Fee> getFees(
       PageFromOne page,
       BoundedPageSize pageSize,
-      school.hei.haapi.endpoint.rest.model.FeeStatusEnum status) {
+      school.hei.haapi.endpoint.rest.model.FeeStatusEnum status,
+      boolean isMpbs) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
+    if (isMpbs) {
+      return feeRepository.findAllByMpbsIsNotNull(pageable);
+    }
     if (status != null) {
       return feeRepository.getFeesByStatus(status, pageable);
     }

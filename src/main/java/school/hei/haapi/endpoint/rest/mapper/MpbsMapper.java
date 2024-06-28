@@ -21,7 +21,8 @@ public class MpbsMapper {
         .pspId(domain.getPspId())
         .pspType(domain.getMobileMoneyType())
         .amount(domain.getAmount())
-        .successfullyVerifiedOn(domain.getSuccessfullyVerifiedOn());
+        .successfullyVerifiedOn(domain.getSuccessfullyVerifiedOn())
+        .status(domain.getStatus());
   }
 
   public school.hei.haapi.model.Mpbs.Mpbs toDomain(CreateMpbs rest) {

@@ -189,9 +189,9 @@ class FeeServiceTest {
     when(feeRepository.findAll())
         .thenReturn(List.of(fee1(isMocked), fee2(isMocked), fee3(isMocked)));
 
-    List<Fee> actualPaidPage1 = subject.getFees(page1, pageSize, PAID);
-    List<Fee> actualLatePage1 = subject.getFees(page1, pageSize, LATE);
-    List<Fee> actualLatePage2 = subject.getFees(page2, pageSize, LATE);
+    List<Fee> actualPaidPage1 = subject.getFees(page1, pageSize, PAID, false);
+    List<Fee> actualLatePage1 = subject.getFees(page1, pageSize, LATE, false);
+    List<Fee> actualLatePage2 = subject.getFees(page2, pageSize, LATE, false);
 
     assertEquals(0, actualPaidPage1.size());
     assertEquals(0, actualLatePage1.size());

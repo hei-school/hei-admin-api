@@ -1,0 +1,1 @@
+alter table "mobile_transaction_details" add column "status" mpbs_status default 'PENDING';
