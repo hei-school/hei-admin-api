@@ -1,9 +1,8 @@
 package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toList;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
-import static school.hei.haapi.service.utils.InstantUtils.getToDay;
-import static school.hei.haapi.service.utils.InstantUtils.getYesterday;
 
 import java.time.Instant;
 import java.util.List;
@@ -17,14 +16,12 @@ import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
-import school.hei.haapi.repository.dao.MpbsDao;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 public class MpbsVerificationService {
   private final MpbsVerificationRepository repository;
-  private final MpbsDao mpbsDao;
   private final MpbsRepository mpbsRepository;
   private final FeeService feeService;
   private final MobilePaymentService mobilePaymentService;
@@ -36,7 +33,8 @@ public class MpbsVerificationService {
   public MpbsVerification verifyMobilePaymentAndSaveResult(Mpbs mpbs) {
     try {
       // Find transaction in database
-      var mobileTransactionResponseDetails = mobilePaymentService.findTransactionByMpbs(mpbs);
+      TransactionDetails mobileTransactionResponseDetails =
+          mobilePaymentService.findTransactionByMpbs(mpbs);
       Fee fee = mpbs.getFee();
       MpbsVerification verifiedMobileTransaction =
           MpbsVerification.builder()
@@ -51,6 +49,7 @@ public class MpbsVerificationService {
 
       // Update mpbs ...
       mpbs.setSuccessfullyVerifiedOn(Instant.now());
+      mpbs.setStatus(mobileTransactionResponseDetails.getStatus());
       var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
       log.info("Mpbs has successfully verified = {}", mpbs);
 
@@ -68,10 +67,9 @@ public class MpbsVerificationService {
   }
 
   public List<MpbsVerification> checkMobilePaymentThenSaveVerification() {
-    // yesterday because orange can render only transactions of yesterday.
-    List<Mpbs> mpbsOfYesterday = mpbsDao.findMpbsBetween(getYesterday(), getToDay());
+    List<Mpbs> pendingMpbs = mpbsRepository.findAllByStatus(PENDING);
 
-    return mpbsOfYesterday.stream().map(this::verifyMobilePaymentAndSaveResult).collect(toList());
+    return pendingMpbs.stream().map(this::verifyMobilePaymentAndSaveResult).collect(toList());
   }
 
   public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {

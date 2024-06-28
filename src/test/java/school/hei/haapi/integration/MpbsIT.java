@@ -3,6 +3,7 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.integration.MpbsIT.ContextInitializer.SERVER_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
@@ -98,7 +99,8 @@ public class MpbsIT extends MockedThirdParties {
         .pspType(MVOLA)
         .amount(8000)
         .successfullyVerifiedOn(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .status(PENDING);
   }
 
   public static CreateMpbs createableMpbs1() {

@@ -1,5 +1,6 @@
 package school.hei.haapi.http.mapper;
 
+
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -32,6 +33,7 @@ public class ExternalResponseMapper {
             formatAndGetDateOfTransaction(orangeScrappingRest.getDate()))
         .pspTransactionAmount(orangeScrappingRest.getAmount())
         .pspTransactionRef(orangeScrappingRest.getRef())
+        .status(orangeScrappingRest.getStatusAsMpbsStatus())
         .build();
   }
 
@@ -41,6 +43,7 @@ public class ExternalResponseMapper {
         .pspDatetimeTransactionCreation(transactionDetails.getPspDatetimeTransactionCreation())
         .pspTransactionRef(transactionDetails.getPspTransactionRef())
         .pspTransactionAmount(transactionDetails.getPspTransactionAmount())
+        .status(transactionDetails.getStatus())
         .build();
   }
 
@@ -52,6 +55,7 @@ public class ExternalResponseMapper {
         .pspTransactionAmount(transactionDetails.getPspTransactionAmount())
         .pspDatetimeTransactionCreation(transactionDetails.getPspDatetimeTransactionCreation())
         .studentRef(studentRef)
+        .status(transactionDetails.getStatus())
         .build();
   }
 
@@ -62,6 +66,7 @@ public class ExternalResponseMapper {
         .pspTransactionRef(mobileTransactionDetails.getPspTransactionRef())
         .pspDatetimeTransactionCreation(
             mobileTransactionDetails.getPspDatetimeTransactionCreation())
+        .status(mobileTransactionDetails.getStatus())
         .build();
   }
 
