@@ -7,6 +7,7 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -128,7 +129,7 @@ class OrangeScrappingApiIT extends MockedThirdParties {
             .clientNumber("0000000")
             .number(1)
             .amount(300)
-            .status("Succés")
+            .status("Succès")
             .time("10:16:07")
             .build());
   }
@@ -139,6 +140,7 @@ class OrangeScrappingApiIT extends MockedThirdParties {
             .pspDatetimeTransactionCreation(Instant.parse("2024-06-12T00:00:00.00Z"))
             .pspTransactionRef("psp2_id")
             .pspTransactionAmount(300)
+            .status(SUCCESS)
             .build());
   }
 

@@ -130,6 +130,16 @@ class FeeIT extends MockedThirdParties {
   }
 
   @Test
+  void manager_read_fee_paid_by_mpbs() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    List<Fee> actual = api.getFees(null, 1, 10, true);
+
+    assertEquals(1, actual.size());
+  }
+
+  @Test
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);

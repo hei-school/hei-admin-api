@@ -1,7 +1,5 @@
 package school.hei.haapi.http.mapper;
 
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -10,7 +8,6 @@ import java.time.format.DateTimeFormatter;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.http.model.OrangeTransactionDetails;
 import school.hei.haapi.http.model.OrangeTransactionScrappingDetails;
 import school.hei.haapi.http.model.TransactionDetails;
@@ -36,7 +33,7 @@ public class ExternalResponseMapper {
             formatAndGetDateOfTransaction(orangeScrappingRest.getDate()))
         .pspTransactionAmount(orangeScrappingRest.getAmount())
         .pspTransactionRef(orangeScrappingRest.getRef())
-        .status(defineTransactionStatus(orangeScrappingRest.getStatus()))
+        .status(orangeScrappingRest.getStatusAsMpbsStatus())
         .build();
   }
 
@@ -84,12 +81,5 @@ public class ExternalResponseMapper {
 
   private String findStudentRefByTransactionDetails(TransactionDetails transactionDetails) {
     return mpbsService.getByPspId(transactionDetails.getPspTransactionRef()).getStudent().getRef();
-  }
-
-  private MpbsStatus defineTransactionStatus(String orangeStatus) {
-    if ("Succès".equals(orangeStatus)) {
-      return SUCCESS;
-    }
-    return FAILED;
   }
 }
