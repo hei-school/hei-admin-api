@@ -30,7 +30,7 @@ public abstract class PojaEvent implements Serializable {
   }
 
   public String getEventSource() {
-    if (getEventStack().equals(EVENT_STACK_1)) return "com.company.base.event1";
-    return "com.company.base.event2";
+    if (getEventStack().equals(EVENT_STACK_1)) return "school.hei.haapi.event1";
+    return "school.hei.haapi.event2";
   }
 }

@@ -28,7 +28,7 @@ jobs:
           secrets: ${{ toJSON(secrets) }}
           region: ${{ env.AWS_REGION }}
 
-      - name: Deploy event stack 1
+      - name: Deploy event stack
         uses: aws-actions/aws-cloudformation-github-deploy@v1
         with:
           name: ${{ github.ref_name }}-event-haapi
