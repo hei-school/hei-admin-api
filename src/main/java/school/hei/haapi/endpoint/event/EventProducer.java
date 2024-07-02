@@ -1,5 +1,8 @@
 package school.hei.haapi.endpoint.event;
 
+import com.company.base.PojaGenerated;
+import com.company.base.datastructure.ListGrouper;
+import com.company.base.endpoint.event.model.PojaEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -11,9 +14,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.PojaGenerated;
-import school.hei.haapi.datastructure.ListGrouper;
-import school.hei.haapi.endpoint.event.model.PojaEvent;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -25,18 +25,22 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 @Component
 @Slf4j
 public class EventProducer<T extends PojaEvent> implements Consumer<Collection<T>> {
-  private static final String EVENT_SOURCE = "school.hei.haapi";
   private final ObjectMapper om;
   private final EventBridgeClient eventBridgeClient;
+  private final String eventBusName;
 
   private static final int MAX_EVENTS_FOR_PUT_REQUEST = 10;
   private final ListGrouper<T> listGrouper;
 
   public EventProducer(
-      ObjectMapper om, EventBridgeClient eventBridgeClient, ListGrouper<T> listGrouper) {
+      ObjectMapper om,
+      EventBridgeClient eventBridgeClient,
+      @Value("${aws.eventBridge.bus}") String eventBusName,
+      ListGrouper<T> listGrouper) {
     this.om = om;
     this.eventBridgeClient = eventBridgeClient;
     this.listGrouper = listGrouper;
+    this.eventBusName = eventBusName;
   }
 
   @Override
@@ -58,10 +62,10 @@ public class EventProducer<T extends PojaEvent> implements Consumer<Collection<T
     try {
       String eventAsString = om.writeValueAsString(event);
       return PutEventsRequestEntry.builder()
-          .source(EVENT_SOURCE)
+          .source(event.getEventSource())
           .detailType(event.getClass().getTypeName())
           .detail(eventAsString)
-          .eventBusName(event.getEventStack().getBusName())
+          .eventBusName(this.eventBusName)
           .build();
     } catch (JsonProcessingException e) {
       throw new RuntimeException(e);

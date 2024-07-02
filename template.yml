@@ -23,10 +23,9 @@ Globals:
     Environment:
       Variables:
         ENV: !Ref Env
+        AWS_EVENTBRIDGE_BUS: !Sub '{{resolve:ssm:/poja-base/${Env}/eventbridge/bus-name}}'
         AWS_EVENT_STACK_1_SQS_QUEUE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/1/sqs/mailbox-queue-url}}'
-        AWS_EVENT_STACK_1_EVENTBRIDGE_BUS: !Sub '{{resolve:ssm:/haapi/${Env}/1/eventbridge/bus-name}}'
         AWS_EVENT_STACK_2_SQS_QUEUE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/2/sqs/mailbox-queue-url}}'
-        AWS_EVENT_STACK_2_EVENTBRIDGE_BUS: !Sub '{{resolve:ssm:/haapi/${Env}/2/eventbridge/bus-name}}'
         AWS_S3_BUCKET: !Sub '{{resolve:ssm:/haapi/${Env}/s3/bucket-name}}'
         AWS_SES_SOURCE: contact@hei.school
         

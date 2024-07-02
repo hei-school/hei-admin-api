@@ -5,7 +5,7 @@ aurora_min_capacity: null
 aurora_scale_point: null
 aurora_sleep: 300
 aws_account_id: 057045785189
-cli_version: 14.0.0
+cli_version: 15.0.0
 codeartifact_domain_name: npm-hei-lab
 codeartifact_repository_name: hei-store
 custom_java_deps: poja-custom-java-deps.txt
