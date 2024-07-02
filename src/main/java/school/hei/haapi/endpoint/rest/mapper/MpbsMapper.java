@@ -1,14 +1,13 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateMpbs;
 import school.hei.haapi.endpoint.rest.model.Mpbs;
-import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.UserService;
-
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 
 @Component
 @AllArgsConstructor

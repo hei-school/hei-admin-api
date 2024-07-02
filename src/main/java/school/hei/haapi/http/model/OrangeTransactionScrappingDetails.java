@@ -1,6 +1,9 @@
 package school.hei.haapi.http.model;
 
-import com.fasterxml.jackson.annotation.JsonCreator;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -8,10 +11,6 @@ import lombok.Getter;
 import lombok.Setter;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.exception.ApiException;
-
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 @Getter
 @Setter
