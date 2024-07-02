@@ -1,8 +1,5 @@
 package school.hei.haapi.endpoint.event;
 
-import com.company.base.PojaGenerated;
-import com.company.base.datastructure.ListGrouper;
-import com.company.base.endpoint.event.model.PojaEvent;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.util.ArrayList;
@@ -14,6 +11,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.PojaGenerated;
+import school.hei.haapi.datastructure.ListGrouper;
+import school.hei.haapi.endpoint.event.model.PojaEvent;
 import software.amazon.awssdk.regions.Region;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
