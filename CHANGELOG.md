@@ -1,33 +1,25 @@
-# [1.31.0](https://github.com/hei-school/hei-admin-api/compare/v1.30.0...v1.31.0) (2024-06-27)
-
-
-### Features
-
-* **not-implemented:** filter fees by payment by mobile  ([d264b7a](https://github.com/hei-school/hei-admin-api/commit/d264b7ad66613aebf24f3ba8f313fe6a2f1b9b26))
-* orange and telma mobile payment  ([5fd9743](https://github.com/hei-school/hei-admin-api/commit/5fd974362155f882ef26c815c1658e1eb5002e16))
-
-
-
-# [1.30.0](https://github.com/hei-school/hei-admin-api/compare/v1.29.0...v1.30.0) (2024-06-27)
-
-
-### Features
-
-* **not-implemented:** documentation for fetched mobile transaction  ([d393aa9](https://github.com/hei-school/hei-admin-api/commit/d393aa9aff51f86ee17bbe8907fb49ba2e8becb8))
-
-
-
-# [1.29.0](https://github.com/hei-school/hei-admin-api/compare/v1.28.1...v1.29.0) (2024-06-25)
+# [1.32.0](https://github.com/hei-school/hei-admin-api/compare/v1.28.1...v1.32.0) (2024-07-03)
 
 
 ### Bug Fixes
 
+* add @AllArgsConstructor to endpoint.event.gen classes otherwise they cannot be deserialized from empty bean ([19a87a5](https://github.com/hei-school/hei-admin-api/commit/19a87a502c008881011230b18eeae3934d92ffb2))
+* check mobile transaction scheduler stack  ([3987703](https://github.com/hei-school/hei-admin-api/commit/3987703c04d534d6b8922845c4cff6fce380e204))
+* mpbs status default values  ([becab74](https://github.com/hei-school/hei-admin-api/commit/becab748c5037bee78bd91d353cbdc21b08dd5da))
+* scheduled events are processed by event stack 1 ([266bf79](https://github.com/hei-school/hei-admin-api/commit/266bf79be7837a040fab52b731603dda2258bffb))
 * students works stats size  ([23c95bf](https://github.com/hei-school/hei-admin-api/commit/23c95bf67f5fce5a3c351491f3da658610ec1dfb))
+* update event classes imports ([a70b160](https://github.com/hei-school/hei-admin-api/commit/a70b16000ed1979d7c2f064e6336372e333d0c83))
+* worker function timeout must be less than sqs visibility timeout ([9dbf48b](https://github.com/hei-school/hei-admin-api/commit/9dbf48b47affc1e4c9c262ef9c08b0dfc5c816ba))
 
 
 ### Features
 
-* **not-implemented:** group statistics documentation  ([44ef424](https://github.com/hei-school/hei-admin-api/commit/44ef4240234845589d41ca3ef39bcb91aed88b56))
+* add size to group model ([c7abded](https://github.com/hei-school/hei-admin-api/commit/c7abded36e63e339a82fc9da0c1fb52d612f10a9))
+* add status to MPBS to know if PENDING, SUCCESS or FAILED  ([af23531](https://github.com/hei-school/hei-admin-api/commit/af23531404a4b8434ecafe6a5bfeba03ae01dc01))
+* **not-implemented:** documentation for fetched mobile transaction  ([7ea15ee](https://github.com/hei-school/hei-admin-api/commit/7ea15eec67fa355a9e2a4b3bcc96b2ef3265f877))
+* **not-implemented:** filter fees by payment by mobile  ([a5ba67a](https://github.com/hei-school/hei-admin-api/commit/a5ba67ac90ce340ca143c5e0aee05e609dc5ef4a))
+* **not-implemented:** group statistics documentation  ([5527f65](https://github.com/hei-school/hei-admin-api/commit/5527f652056ef534bddbc6cde708538533c07a3b))
+* orange and telma mobile payment  ([2a6f0bb](https://github.com/hei-school/hei-admin-api/commit/2a6f0bb57b12ed60264b3477240a6dfcd713153c))
 
 
 
@@ -119,6 +111,26 @@
 ### Reverts
 
 * remove logs ([e6dc4af](https://github.com/hei-school/hei-admin-api/commit/e6dc4af21385afd4292b831a3c6cd6c321e2beb9))
+
+
+
+# [1.23.0](https://github.com/hei-school/hei-admin-api/compare/v1.22.0...v1.23.0) (2024-04-30)
+
+
+### Features
+
+* add pagination when fetching students group  ([1107816](https://github.com/hei-school/hei-admin-api/commit/1107816ce4d196a70982cc6c579f9c1b3a119e8d))
+
+
+
+# [1.22.0](https://github.com/hei-school/hei-admin-api/compare/v1.21.0...v1.22.0) (2024-04-30)
+
+
+### Features
+
+* get announcement by id ([01ea24b](https://github.com/hei-school/hei-admin-api/commit/01ea24bffafbc6019fa5ef5b98dda9a43f34e3b3))
+* implement promotion resources ([de6a706](https://github.com/hei-school/hei-admin-api/commit/de6a706098b70f1031ca82e8c66bc5747e2db43f))
+* implements announcements resources ([46ddaba](https://github.com/hei-school/hei-admin-api/commit/46ddaba53ae599096c2c6601b696bb37de1705d2))
 
 
 
