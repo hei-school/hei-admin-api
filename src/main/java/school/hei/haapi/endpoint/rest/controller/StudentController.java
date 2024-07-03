@@ -4,7 +4,6 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.model.User.Role.STUDENT;
-import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.time.Instant;
 import java.util.List;
@@ -126,7 +125,7 @@ public class StudentController {
   @GetMapping("/students/stats")
   public Statistics getStats() {
     return userService.getStudentsStat(
-        userService.getByRoleAndStatus(STUDENT, ENABLED).stream()
+        userService.getAllStudentNotDisabled().stream()
             .map(userMapper::toRestStudent)
             .filter(student -> student.getWorkStudyStatus() == WORKING)
             .toList());

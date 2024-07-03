@@ -54,6 +54,14 @@ public interface UserRepository extends JpaRepository<User, String> {
 						""")
   Optional<List<User>> findAllRemainingStudentsByGroupId(String groupId);
 
+  @Query(
+      nativeQuery = true,
+      value =
+          """
+		SELECT * FROM "user" u WHERE u."role" = 'STUDENT' and u.status <> 'DISABLED'
+""")
+  List<User> findAllStudentNotDisabled();
+
   Integer countBySexAndRole(User.Sex sex, User.Role role);
 
   Integer countByRole(User.Role role);

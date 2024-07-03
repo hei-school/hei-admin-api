@@ -191,6 +191,10 @@ public class UserService {
     return returnedStudent.subList(startIndex, endIndex);
   }
 
+  public List<User> getAllStudentNotDisabled() {
+    return userRepository.findAllStudentNotDisabled();
+  }
+
   public Statistics getStudentsStat(List<Student> students) {
     return new Statistics()
         .women(
