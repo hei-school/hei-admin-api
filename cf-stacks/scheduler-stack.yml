@@ -20,7 +20,7 @@ Resources:
         DeadLetterConfig:
           Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
         EventBridgeParameters:
-          DetailType: 'school.hei.haapi.endpoint.event.gen.SendLateFeesEmailTriggered'
+          DetailType: 'school.hei.haapi.endpoint.event.model.SendLateFeesEmailTriggered'
           Source: 'school.hei.haapi'
   FetchMobileTransactionScheduler:
     Type: AWS::Scheduler::Schedule
@@ -36,7 +36,7 @@ Resources:
         DeadLetterConfig:
           Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
         EventBridgeParameters:
-          DetailType: 'school.hei.haapi.endpoint.event.gen.FetchMobileTransactionTriggered'
+          DetailType: 'school.hei.haapi.endpoint.event.model.FetchMobileTransactionTriggered'
           Source: 'school.hei.haapi'
   CheckMobilePaymentTransactionScheduler:
     Type: AWS::Scheduler::Schedule
@@ -52,7 +52,7 @@ Resources:
         DeadLetterConfig:
           Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
         EventBridgeParameters:
-          DetailType: 'school.hei.haapi.endpoint.event.gen.FetchMobileTransactionTriggered'
+          DetailType: 'school.hei.haapi.endpoint.event.model.CheckMobilePaymentTransactionTriggered'
           Source: 'school.hei.haapi'
   UpdateFeesStatusToLateScheduler:
     Type: AWS::Scheduler::Schedule
@@ -68,7 +68,7 @@ Resources:
         DeadLetterConfig:
           Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
         EventBridgeParameters:
-          DetailType: 'school.hei.haapi.endpoint.event.gen.UpdateFeesStatusToLateTriggered'
+          DetailType: 'school.hei.haapi.endpoint.event.model.UpdateFeesStatusToLateTriggered'
           Source: 'school.hei.haapi'
   CheckAttendanceScheduler:
     Type: AWS::Scheduler::Schedule
@@ -84,7 +84,7 @@ Resources:
         DeadLetterConfig:
           Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
         EventBridgeParameters:
-          DetailType: 'school.hei.haapi.endpoint.event.gen.CheckAttendanceTriggered'
+          DetailType: 'school.hei.haapi.endpoint.event.model.CheckAttendanceTriggered'
           Source: 'school.hei.haapi'
   UnpaidFeesReminderEmailScheduler:
     Type: AWS::Scheduler::Schedule
@@ -100,7 +100,7 @@ Resources:
         DeadLetterConfig:
           Arn: !Sub '{{resolve:ssm:/haapi/${Env}/sqs/dead-letter-queue-arn}}'
         EventBridgeParameters:
-          DetailType: 'school.hei.haapi.endpoint.event.gen.SendUnpaidFeesReminderTriggered'
+          DetailType: 'school.hei.haapi.endpoint.event.model.SendUnpaidFeesReminderTriggered'
           Source: 'school.hei.haapi'
   ScheduledEventExecutionRole:
     Type: AWS::IAM::Role
