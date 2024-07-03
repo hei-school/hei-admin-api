@@ -1,11 +1,16 @@
 package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.*;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
 
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -15,18 +20,22 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.PaymentValidator;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.PaymentRepository;
+import school.hei.haapi.repository.UserRepository;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class PaymentService {
   private final FeeRepository feeRepository;
-  private final FeeService feeService;
   private final PaymentRepository paymentRepository;
+  private final UserRepository userRepository;
+  private final FeeService feeService;
   private final PaymentValidator paymentValidator;
 
   public Payment deleteFeePaymentById(String paymentId) {
@@ -71,9 +80,20 @@ public class PaymentService {
   public void computeRemainingAmount(String feeId, int amount) {
     Fee associatedFee = feeService.getById(feeId);
     associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() - amount);
+    computeUserStatusAfterPayingFee(associatedFee.getStudent());
     if (associatedFee.getRemainingAmount() == 0) {
       associatedFee.setStatus(PAID);
     }
+  }
+
+  public void computeUserStatusAfterPayingFee(User userToResetStatus) {
+    Instant now = Instant.now();
+    List<Fee> unpaidFeesBeforeNow =
+        feeRepository.getStudentFeesUnpaidOrLateFrom(now, userToResetStatus.getId(), LATE);
+    if (!unpaidFeesBeforeNow.isEmpty()) {
+      userRepository.updateUserStatusById(SUSPENDED, userToResetStatus.getId());
+    }
+    userRepository.updateUserStatusById(ENABLED, userToResetStatus.getId());
   }
 
   @Transactional

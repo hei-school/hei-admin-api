@@ -36,6 +36,20 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
           + " :month")
   List<Fee> getUnpaidFeesForTheMonthSpecified(Integer month);
 
+  @Query(
+      """
+        select f from Fee f
+        left join User u on f.student = u
+        where f.dueDatetime < :toCompare
+        and u.id = :studentId
+        and f.status = :status
+        and f.remainingAmount > 0
+        """)
+  List<Fee> getStudentFeesUnpaidOrLateFrom(
+      @Param(value = "toCompare") Instant toCompare,
+      @Param("studentId") String studentId,
+      @Param("status") FeeStatusEnum status);
+
   @Modifying
   @Query("update Fee f set f.status = :status " + "where f.id = :fee_id")
   void updateFeeStatusById(
