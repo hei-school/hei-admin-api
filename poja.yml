@@ -40,6 +40,6 @@ with_snapstart: 'true'
 with_sonar: 'false'
 with_swagger_ui: 'true'
 worker_batch: 5
-worker_function_timeout: 900
+worker_function_timeout: 600
 worker_memory: 1024
 worker_reserved_concurrent_executions_nb: null

@@ -75,7 +75,7 @@ Resources:
     Properties:
       Handler: school.hei.haapi.MailboxEventHandler::handleRequest
       MemorySize: 1024
-      Timeout: 900 #note(sqs-visibility)
+      Timeout: 600 #note(sqs-visibility)
       Role: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
       
       Events:
@@ -90,7 +90,7 @@ Resources:
     Properties:
       Handler: school.hei.haapi.MailboxEventHandler::handleRequest
       MemorySize: 1024
-      Timeout: 900 #note(sqs-visibility)
+      Timeout: 600 #note(sqs-visibility)
       Role: !Sub '{{resolve:ssm:/haapi/${Env}/execution/role-arn}}'
       
       Events:
