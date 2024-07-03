@@ -53,6 +53,8 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -78,6 +80,7 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 @ContextConfiguration(initializers = StudentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class StudentIT extends MockedThirdParties {
+  private static final Logger log = LoggerFactory.getLogger(StudentIT.class);
   @MockBean private EventBridgeClient eventBridgeClientMock;
 
   @Autowired ObjectMapper objectMapper;
