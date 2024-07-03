@@ -11,9 +11,9 @@ import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.conf.FacadeIT;
-import school.hei.haapi.endpoint.event.gen.CheckAttendanceTriggered;
-import school.hei.haapi.endpoint.event.gen.SendLateFeesEmailTriggered;
-import school.hei.haapi.endpoint.event.gen.UpdateFeesStatusToLateTriggered;
+import school.hei.haapi.endpoint.event.model.CheckAttendanceTriggered;
+import school.hei.haapi.endpoint.event.model.SendLateFeesEmailTriggered;
+import school.hei.haapi.endpoint.event.model.UpdateFeesStatusToLateTriggered;
 
 public class GenClassesDeserializerTest extends FacadeIT {
 
