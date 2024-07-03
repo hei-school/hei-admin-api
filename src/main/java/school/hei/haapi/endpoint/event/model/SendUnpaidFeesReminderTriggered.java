@@ -1,7 +1,6 @@
 package school.hei.haapi.endpoint.event.model;
 
 import java.io.Serializable;
-import javax.annotation.processing.Generated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
