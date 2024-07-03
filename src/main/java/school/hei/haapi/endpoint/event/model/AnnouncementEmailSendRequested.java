@@ -3,7 +3,6 @@ package school.hei.haapi.endpoint.event.model;
 import static java.util.UUID.randomUUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.annotation.processing.Generated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +18,6 @@ import school.hei.haapi.model.User;
 @Builder
 @ToString
 @Data
-@Generated("EventBridge")
 public class AnnouncementEmailSendRequested {
   @JsonProperty("id")
   private String id;

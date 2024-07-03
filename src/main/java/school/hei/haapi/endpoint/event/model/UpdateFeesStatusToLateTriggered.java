@@ -1,7 +1,6 @@
 package school.hei.haapi.endpoint.event.model;
 
 import java.time.Duration;
-import javax.annotation.processing.Generated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -11,7 +10,6 @@ import lombok.ToString;
 @Builder
 @ToString
 @AllArgsConstructor
-@Generated("EventBridge")
 public class UpdateFeesStatusToLateTriggered extends PojaEvent {
   @Override
   public Duration maxConsumerDuration() {

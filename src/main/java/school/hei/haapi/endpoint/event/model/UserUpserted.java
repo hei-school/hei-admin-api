@@ -3,9 +3,7 @@ package school.hei.haapi.endpoint.event.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Duration;
 import java.util.Objects;
-import javax.annotation.processing.Generated;
 
-@Generated("EventBridge")
 public class UserUpserted extends PojaEvent {
   private static final long serialVersionUID = 1L;
 
