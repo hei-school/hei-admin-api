@@ -182,7 +182,7 @@ Resources:
       EventBusName: !GetAtt EventBridgeBus.Name
       EventPattern:
         source:
-          - com.company.base.event1
+          - school.hei.haapi.event1
       Targets:
         - Arn: !GetAtt MailboxQueue1.Arn
           Id: !Join ['', [!Ref Env, -1-haapi, -api-mailbox]]
@@ -194,7 +194,7 @@ Resources:
       EventBusName: !GetAtt EventBridgeBus.Name
       EventPattern:
         source:
-          - com.company.base.event2
+          - school.hei.haapi.event2
       Targets:
         - Arn: !GetAtt MailboxQueue2.Arn
           Id: !Join [ '', [ !Ref Env, -2-haapi, -api-mailbox ] ]
