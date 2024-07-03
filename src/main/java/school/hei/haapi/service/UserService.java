@@ -176,7 +176,7 @@ public class UserService {
   }
 
   public List<User> getByGroupId(String groupId) {
-    return userRepository.findAllRemainingStudentsByGroupId(groupId);
+    return userRepository.findAllRemainingStudentsByGroupId(groupId).get();
   }
 
   public List<User> getByGroupId(String groupId, PageFromOne page, BoundedPageSize pageSize) {

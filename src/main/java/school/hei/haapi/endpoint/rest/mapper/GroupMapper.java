@@ -16,6 +16,7 @@ public class GroupMapper {
         .id(group.getId())
         .name(group.getName())
         .ref(group.getRef())
+        .size(groupService.getGroupSize(group.getId()))
         .creationDatetime(group.getCreationDatetime());
   }
 

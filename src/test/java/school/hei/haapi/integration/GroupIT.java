@@ -55,6 +55,7 @@ class GroupIT extends MockedThirdParties {
     group.setName("G1");
     group.setRef("GRP21001");
     group.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    group.setSize(2);
     return group;
   }
 
@@ -64,6 +65,7 @@ class GroupIT extends MockedThirdParties {
     group.setName("G2");
     group.setRef("GRP21002");
     group.setCreationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
+    group.setSize(1);
     return group;
   }
 
@@ -80,7 +82,8 @@ class GroupIT extends MockedThirdParties {
         .id(createGroup.getId())
         .name(createGroup.getName())
         .creationDatetime(createGroup.getCreationDatetime())
-        .ref(createGroup.getRef());
+        .ref(createGroup.getRef())
+        .size(createGroup.getSize() == null ? 0 : createGroup.getSize());
   }
 
   public static CreateGroup groupToCreateGroup(Group group) {
@@ -88,7 +91,8 @@ class GroupIT extends MockedThirdParties {
         .id(group.getId())
         .name(group.getName())
         .creationDatetime(group.getCreationDatetime())
-        .ref(group.getRef());
+        .ref(group.getRef())
+        .size(group.getSize());
   }
 
   @BeforeEach
