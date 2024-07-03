@@ -12,7 +12,7 @@ Resources:
       Description: Scheduler that trigger sendLateFeesEmail function
       FlexibleTimeWindow:
         Mode: "OFF"
-      Name: LateFeesScheduler
+      Name: !Join ['', [!Ref Env, -LateFeesScheduler]]
       ScheduleExpression: "cron(0 5 1/2 * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
@@ -28,7 +28,7 @@ Resources:
       Description: Scheduler that trigger fetchMobileTransactionTriggered
       FlexibleTimeWindow:
         Mode: "OFF"
-      Name: FetchMobileTransactionScheduler
+      Name: !Join ['', [!Ref Env, -FetchMobileTransactionScheduler]]
       ScheduleExpression: "cron(0 8 * * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
@@ -44,7 +44,7 @@ Resources:
       Description: Scheduler that check if fee is correctly paid by mobile money
       FlexibleTimeWindow:
         Mode: "OFF"
-      Name: CheckMobilePaymentTransactionScheduler
+      Name: !Join ['', [!Ref Env, -CheckMobilePaymentTransactionScheduler]]
       ScheduleExpression: "cron(0 8/4 * * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
@@ -60,7 +60,7 @@ Resources:
       Description: Scheduler that trigger updateFeesStatusToLate function
       FlexibleTimeWindow:
         Mode: "OFF"
-      Name: UpdateLateFeesStatusScheduler
+      Name: !Join ['', [!Ref Env, -UpdateLateFeesStatusScheduler]]
       ScheduleExpression: "cron(0 0 * * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
@@ -73,10 +73,10 @@ Resources:
   CheckAttendanceScheduler:
     Type: AWS::Scheduler::Schedule
     Properties:
-      Description: Scheduler that trigger updateFeesStatusToLate function
+      Description: Scheduler that trigger checkAttendancesEachDays function
       FlexibleTimeWindow:
         Mode: "OFF"
-      Name: CheckAttendanceScheduler
+      Name: !Join ['', [!Ref Env, -CheckAttendanceScheduler]]
       ScheduleExpression: "cron(0 */2 ? * MON-SAT *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
@@ -92,7 +92,7 @@ Resources:
       Description: Scheduler which triggers sendUnpaidFeesEmail function
       FlexibleTimeWindow:
         Mode: "OFF"
-      Name: UnpaidFeesReminderEmailScheduler
+      Name: !Join ['', [!Ref Env, -UnpaidFeesReminderEmailScheduler]]
       ScheduleExpression: "cron(0 8 20 * ? *)"
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
