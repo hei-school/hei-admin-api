@@ -1,6 +1,6 @@
 package school.hei.haapi.endpoint.event.model;
 
-import java.io.Serializable;
+import java.time.Duration;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -10,4 +10,14 @@ import lombok.ToString;
 @Builder
 @ToString
 @AllArgsConstructor
-public class SendUnpaidFeesReminderTriggered implements Serializable {}
+public class SendUnpaidFeesReminderTriggered extends PojaEvent {
+  @Override
+  public Duration maxConsumerDuration() {
+    return Duration.ofSeconds(30);
+  }
+
+  @Override
+  public Duration maxConsumerBackoffBetweenRetries() {
+    return Duration.ofSeconds(30);
+  }
+}

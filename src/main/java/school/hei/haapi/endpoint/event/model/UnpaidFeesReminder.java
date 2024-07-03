@@ -1,8 +1,8 @@
 package school.hei.haapi.endpoint.event.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import java.time.Duration;
 import java.time.Instant;
-import javax.annotation.processing.Generated;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -14,8 +14,7 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @Data
-@Generated("EventBridge")
-public class UnpaidFeesReminder {
+public class UnpaidFeesReminder extends PojaEvent {
   @JsonProperty("id")
   private String id;
 
@@ -30,4 +29,14 @@ public class UnpaidFeesReminder {
 
   @JsonProperty("comment")
   private String comment;
+
+  @Override
+  public Duration maxConsumerDuration() {
+    return Duration.ofSeconds(30);
+  }
+
+  @Override
+  public Duration maxConsumerBackoffBetweenRetries() {
+    return Duration.ofSeconds(30);
+  }
 }
