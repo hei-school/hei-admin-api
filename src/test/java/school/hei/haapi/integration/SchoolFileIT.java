@@ -1,6 +1,7 @@
 package school.hei.haapi.integration;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.FileType.DOCUMENT;
@@ -9,11 +10,13 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -22,6 +25,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.FilesApi;
@@ -39,7 +43,19 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @AutoConfigureMockMvc
 public class SchoolFileIT extends MockedThirdParties {
   @MockBean EventBridgeClient eventBridgeClientMock;
-  @Autowired ObjectMapper objectMapper;
+  @Autowired private EntityManager entityManager;
+
+  private school.hei.haapi.model.FileInfo getSchoolFileByIdWithoutJpaFiltering(String id) {
+    try {
+      Query q =
+          entityManager.createNativeQuery(
+              "SELECT * FROM \"file_info\" where id = ?", school.hei.haapi.model.FileInfo.class);
+      q.setParameter(1, id);
+      return (school.hei.haapi.model.FileInfo) q.getSingleResult();
+    } catch (NullPointerException e) {
+      throw new RuntimeException(e.getMessage());
+    }
+  }
 
   @BeforeEach
   public void setUp() {
@@ -89,6 +105,32 @@ public class SchoolFileIT extends MockedThirdParties {
     FileInfo schoolRegulation = api.getSchoolRegulationById("file3_id");
 
     assertEquals(schoolFile(), schoolRegulation);
+  }
+
+  @Test
+  @DirtiesContext
+  void manager_delete_school_file_by_id_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    FilesApi api = new FilesApi(manager1Client);
+
+    FileInfo deletedFile = api.deleteRegulationById("file3_id");
+
+    // Delete file from web hook ...
+    assertNotNull(deletedFile);
+
+    school.hei.haapi.model.FileInfo domainFileInfo =
+        getSchoolFileByIdWithoutJpaFiltering("file3_id");
+
+    // ... Then assert that file is correctly flagged to deleted
+    assertTrue(domainFileInfo.isDeleted());
+  }
+
+  @Test
+  void student_delete_school_file_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    FilesApi api = new FilesApi(student1Client);
+
+    assertThrowsForbiddenException(() -> api.deleteRegulationById("file3_id"));
   }
 
   public static FileInfo schoolFile() {

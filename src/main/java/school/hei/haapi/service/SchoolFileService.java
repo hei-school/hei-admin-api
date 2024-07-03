@@ -34,4 +34,9 @@ public class SchoolFileService {
   public FileInfo getSchoolFileById(String id) {
     return fileInfoRepository.findByUserIsNullAndId(id);
   }
+
+  public FileInfo deleteSchoolFileById(String id) {
+    FileInfo deletedSchoolFile = getSchoolFileById(id);
+    return fileInfoService.deleteFileInfo(deletedSchoolFile);
+  }
 }

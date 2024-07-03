@@ -5,6 +5,7 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -46,5 +47,10 @@ public class SchoolFileController {
   @GetMapping("/school/files/{id}")
   public FileInfo getSchoolRegulationById(@PathVariable(name = "id") String schoolFileId) {
     return fileInfoMapper.toRest(schoolFileService.getSchoolFileById(schoolFileId));
+  }
+
+  @DeleteMapping(value = "/school/files/{id}")
+  public FileInfo deleteRegulationById(@PathVariable(name = "id") String schoolFileId) {
+    return fileInfoMapper.toRest(schoolFileService.deleteSchoolFileById(schoolFileId));
   }
 }

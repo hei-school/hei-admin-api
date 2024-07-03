@@ -6,6 +6,7 @@ import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 import java.io.File;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.model.FileType;
@@ -19,6 +20,7 @@ import school.hei.haapi.service.aws.FileService;
 
 @Service
 @AllArgsConstructor
+@Slf4j
 public class FileInfoService {
   private final WorkDocumentRepository workFileRepository;
   private final FileInfoRepository fileInfoRepository;
@@ -91,5 +93,11 @@ public class FileInfoService {
             .creationDatetime(Instant.now())
             .build();
     return fileInfoRepository.save(fileInfo);
+  }
+
+  public FileInfo deleteFileInfo(FileInfo fileInfo) {
+    fileInfoRepository.deleteById(fileInfo.getId());
+    log.info("File info with on path # {} has successfully deleted", fileInfo.getFilePath());
+    return fileInfo;
   }
 }

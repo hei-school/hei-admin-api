@@ -2411,6 +2411,35 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Files
+      summary: Delete school document by identifier.
+      operationId: deleteRegulationById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          description: file id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted file by id.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/school/files/raw':
     post:
       tags:
@@ -2472,6 +2501,40 @@ paths:
       responses:
         '200':
           description: File by id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Files
+      summary: Delete student file by identifier
+      operationId: deleteStudentFileById
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: file id
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted file by id
           content:
             application/json:
               schema:
@@ -2563,6 +2626,39 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Files
+      summary: Delete student work file by id
+      operationId: deleteStudentWorkDocumentById
+      parameters:
+        - name: student_id
+          required: true
+          schema:
+            type: string
+          in: path
+        - name: id
+          required: true
+          in: path
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Deleted student work documents
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/FileInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/students/{student_id}/work_files/raw':
     post:
       tags:
@@ -2579,6 +2675,12 @@ paths:
           schema:
             type: string
           in: query
+        - name: work_study_status
+          required: false
+          description: If this field is not given, then its status will be calculated dynamically.
+          in: query
+          schema:
+            $ref: '#/components/schemas/WorkStudyStatus'
         - name: commitment_begin
           required: true
           in: query
@@ -2586,7 +2688,7 @@ paths:
             type: string
             format: date-time
         - name: commitment_end
-          required: false
+          required: true
           in: query
           schema:
             type: string

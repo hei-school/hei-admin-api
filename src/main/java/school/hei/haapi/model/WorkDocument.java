@@ -13,6 +13,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Table(name = "\"work_document\"")
 @Entity
@@ -23,6 +25,8 @@ import org.hibernate.annotations.CreationTimestamp;
 @Builder
 @EqualsAndHashCode
 @ToString
+@SQLDelete(sql = "update \"work_document\" set is_deleted = true where id = ?")
+@Where(clause = "is_deleted = false")
 public class WorkDocument implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -41,4 +45,6 @@ public class WorkDocument implements Serializable {
   @ManyToOne
   @JoinColumn(name = "student_id")
   private User student;
+
+  private boolean isDeleted;
 }
