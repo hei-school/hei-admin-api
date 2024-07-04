@@ -10,6 +10,7 @@ import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.MobilePaymentRepository;
 import school.hei.haapi.repository.MobileTransactionDetailsRepository;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
@@ -33,7 +34,15 @@ public class MobilePaymentService implements MobilePaymentRepository {
     return mobileMoneyApi.fetchThenSaveTransactionsDetails(ORANGE_MONEY);
   }
 
-  private MobileTransactionDetails findTransactionById(String pspId) {
-    return mobileTransactionDetailsRepository.findByPspTransactionRef(pspId);
+  public MobileTransactionDetails findTransactionById(String pspId) {
+    return mobileTransactionDetailsRepository
+        .findByPspTransactionRef(pspId)
+        .orElseThrow(
+            () -> new NotFoundException("Mobile transaction with ref." + pspId + " not found"));
+  }
+
+  public List<MobileTransactionDetails> saveAll(
+      List<MobileTransactionDetails> mobileTransactionDetails) {
+    return mobileTransactionDetailsRepository.saveAll(mobileTransactionDetails);
   }
 }

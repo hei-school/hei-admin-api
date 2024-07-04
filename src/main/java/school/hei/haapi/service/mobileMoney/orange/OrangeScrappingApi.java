@@ -20,7 +20,7 @@ import school.hei.haapi.http.model.OrangeDailyTransactionScrappingDetails;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.exception.ApiException;
-import school.hei.haapi.repository.MobileTransactionDetailsRepository;
+import school.hei.haapi.service.MobilePaymentService;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
 
 @Component("OrangeScrappingApi")
@@ -30,7 +30,7 @@ class OrangeScrappingApi implements MobileMoneyApi {
   private final ObjectMapper objectMapper;
   private final ExternalExceptionMapper exceptionMapper;
   private final ExternalResponseMapper responseMapper;
-  private final MobileTransactionDetailsRepository mobileTransactionDetailsRepository;
+  private final MobilePaymentService mobilePaymentService;
 
   private static final String BASE_URL =
       "https://o90a12nuyc.execute-api.eu-west-3.amazonaws.com/Prod";
@@ -58,7 +58,7 @@ class OrangeScrappingApi implements MobileMoneyApi {
 
       // store the collected data ...
       var savedResponseList =
-          mobileTransactionDetailsRepository.saveAll(
+          mobilePaymentService.saveAll(
               mappedResponseList.stream()
                   .map(responseMapper::toDomainMobileTransactionDetails)
                   .toList());
@@ -78,6 +78,6 @@ class OrangeScrappingApi implements MobileMoneyApi {
   public TransactionDetails getByTransactionRef(MobileMoneyType type, String ref)
       throws ApiException {
     return responseMapper.toExternalTransactionDetails(
-        mobileTransactionDetailsRepository.findByPspTransactionRef(ref));
+        mobilePaymentService.findTransactionById(ref));
   }
 }
