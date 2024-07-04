@@ -30,17 +30,18 @@ public class FileInfoMapper {
   }
 
   public ShareInfo toShareInfo(OcsData ocsData) {
-      log.info("sssssss");
+    log.info("sssssss");
     return new ShareInfo()
-            .name(ocsData.getName())
-            .path(ocsData.getPath())
-            .url(ocsData.getUrl())
-            .permissions(switch (ocsData.getPermissions()){
+        .name(ocsData.getName())
+        .path(ocsData.getPath())
+        .url(ocsData.getUrl())
+        .permissions(
+            switch (ocsData.getPermissions()) {
               case 1 -> "READ";
               case 2 -> "READ/WRITE";
-              default -> throw new IllegalStateException("Unexpected value: " + ocsData.getPermissions());
+              default -> throw new IllegalStateException(
+                  "Unexpected value: " + ocsData.getPermissions());
             })
-            .expiration(ocsData.getExpiration());
+        .expiration(ocsData.getExpiration());
   }
-
 }

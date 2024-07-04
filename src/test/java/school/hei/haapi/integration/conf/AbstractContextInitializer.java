@@ -9,8 +9,7 @@ public abstract class AbstractContextInitializer
     implements ApplicationContextInitializer<ConfigurableApplicationContext> {
   private static final String SENTRY_MOCK_DSN = "https://examplePublicKey@example.sentry.io/12345";
 
-  public AbstractContextInitializer() {
-  }
+  public AbstractContextInitializer() {}
 
   @Override
   public void initialize(ConfigurableApplicationContext applicationContext) {
@@ -37,10 +36,9 @@ public abstract class AbstractContextInitializer
         "spring.datasource.username=" + postgresContainer.getUsername(),
         "spring.datasource.password=" + postgresContainer.getPassword(),
         "spring.flyway.locations=classpath:/db/migration," + flywayTestdataPath,
-            "OWNCLOUD_BASE_URL=https://owncloud.hei.school",
-            "OWNCLOUD_USERNAME=ilo",
-            "OWNCLOUD_PASSWORD=iloreus"
-            );
+        "OWNCLOUD_BASE_URL=https://owncloud.example.com",
+        "OWNCLOUD_USERNAME=dummy",
+        "OWNCLOUD_PASSWORD=dummy");
   }
 
   public abstract int getServerPort();

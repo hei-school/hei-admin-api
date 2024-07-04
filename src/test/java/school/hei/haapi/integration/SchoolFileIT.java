@@ -13,7 +13,6 @@ import static school.hei.haapi.integration.conf.TestUtils.*;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.time.Instant;
 import java.util.List;
-
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,7 +32,6 @@ import school.hei.haapi.endpoint.rest.model.ShareInfo;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.service.OwnCloudService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -54,11 +52,13 @@ public class SchoolFileIT extends MockedThirdParties {
     setUpRestTemplate(restTemplateMock);
   }
 
-  private static void setUpRestTemplate(RestTemplate restTemplateMock){
-    when(restTemplateMock.exchange(any(),  eq(POST), any(), eq(String.class))).thenReturn(ResponseEntity.ok(OCS_MOCKED_RESPONSE));
+  private static void setUpRestTemplate(RestTemplate restTemplateMock) {
+    when(restTemplateMock.exchange(any(), eq(POST), any(), eq(String.class)))
+        .thenReturn(ResponseEntity.ok(OCS_MOCKED_RESPONSE));
   }
 
-  private static final String OCS_MOCKED_RESPONSE = """
+  private static final String OCS_MOCKED_RESPONSE =
+      """
           {
             "ocs": {
               "meta": {
@@ -92,7 +92,7 @@ public class SchoolFileIT extends MockedThirdParties {
                 "file_parent": 22570,
                 "file_target": "/Test-api",
                 "name": "test",
-                "url": "https://owncloud.hei.school/s/vDq5Er8qizxQOEB",
+                "url": "https://owncloud.example.com/s/vDq5Er8qizxQOEB",
                 "mail_send": 0,
                 "attributes": null
               }
@@ -106,7 +106,7 @@ public class SchoolFileIT extends MockedThirdParties {
 
     ShareInfo actual = filesApi.createShareLink("name", "/Test-api");
     log.info(actual.toString());
-//    assertEquals(actual.getUrl(), "https://owncloud.server.mock");
+    //    assertEquals(actual.getUrl(), "https://owncloud.server.mock");
   }
 
   @Test

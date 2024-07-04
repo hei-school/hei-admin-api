@@ -205,13 +205,15 @@ public class TestUtils {
   }
 
   public static void setUpOwncloudService(OwnCloudService ownCloudService) {
-    when(ownCloudService.createShareLink(any(), any())).thenReturn(OcsData.builder()
-                    .url("https://owncloud.server.mock")
-                    .path("/files")
-                    .name("Share files")
-                    .expiration("2024-07-01")
-                    .permissions(1)
-            .build());
+    when(ownCloudService.createShareLink(any(), any()))
+        .thenReturn(
+            OcsData.builder()
+                .url("https://owncloud.server.mock")
+                .path("/files")
+                .name("Share files")
+                .expiration("2024-07-01")
+                .permissions(1)
+                .build());
   }
 
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {

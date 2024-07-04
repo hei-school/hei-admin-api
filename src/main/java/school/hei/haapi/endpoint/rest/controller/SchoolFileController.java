@@ -3,7 +3,6 @@ package school.hei.haapi.endpoint.rest.controller;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
-import java.io.IOException;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -27,7 +26,7 @@ import school.hei.haapi.service.SchoolFileService;
 public class SchoolFileController {
   private final SchoolFileService schoolFileService;
   private final FileInfoMapper fileInfoMapper;
- private final OwnCloudService ownCloudService;
+  private final OwnCloudService ownCloudService;
 
   @PostMapping(value = "/school/files/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public FileInfo uploadSchoolFile(
@@ -53,7 +52,7 @@ public class SchoolFileController {
   }
 
   @PostMapping("/school/files/share_link")
-  public ShareInfo postShareLink(@RequestParam String name, @RequestParam String path){
+  public ShareInfo postShareLink(@RequestParam String name, @RequestParam String path) {
     return fileInfoMapper.toShareInfo(ownCloudService.createShareLink(name, path));
   }
 }

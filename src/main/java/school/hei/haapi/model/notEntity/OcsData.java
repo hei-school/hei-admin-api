@@ -19,22 +19,21 @@ import lombok.ToString;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OcsData {
-        @JsonProperty("id")
-        private String id;
+  @JsonProperty("id")
+  private String id;
 
-        @JsonProperty("permissions")
-        private int permissions;
+  @JsonProperty("permissions")
+  private int permissions;
 
-        @JsonProperty("expiration")
-        private String expiration;
+  @JsonProperty("expiration")
+  private String expiration;
 
-        @JsonProperty("name")
-        private String name;
+  @JsonProperty("name")
+  private String name;
 
-        @JsonProperty("url")
-        private String url;
+  @JsonProperty("url")
+  private String url;
 
-        @JsonProperty("path")
-        private String path;
+  @JsonProperty("path")
+  private String path;
 }
-
