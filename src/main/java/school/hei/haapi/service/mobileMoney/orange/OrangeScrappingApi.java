@@ -20,6 +20,7 @@ import school.hei.haapi.http.model.OrangeDailyTransactionScrappingDetails;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.MobileTransactionDetailsRepository;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
 
@@ -77,7 +78,12 @@ class OrangeScrappingApi implements MobileMoneyApi {
   @Override
   public TransactionDetails getByTransactionRef(MobileMoneyType type, String ref)
       throws ApiException {
-    return responseMapper.toExternalTransactionDetails(
-        mobileTransactionDetailsRepository.findByPspTransactionRef(ref));
+    return responseMapper.toExternalTransactionDetails(findTransactionById(ref));
+  }
+
+  private MobileTransactionDetails findTransactionById(String ref) {
+    return mobileTransactionDetailsRepository
+        .findByPspTransactionRef(ref)
+        .orElseThrow(() -> new NotFoundException("Psp with id." + ref + " not found"));
   }
 }

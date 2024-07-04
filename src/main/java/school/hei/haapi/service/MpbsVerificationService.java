@@ -1,14 +1,18 @@
 package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toList;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
@@ -30,7 +34,7 @@ public class MpbsVerificationService {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
   }
 
-  public MpbsVerification verifyMobilePaymentAndSaveResult(Mpbs mpbs) {
+  public MpbsVerification verifyMobilePaymentAndSaveResult(Mpbs mpbs, Instant toCompare) {
     try {
       // Find transaction in database
       TransactionDetails mobileTransactionResponseDetails =
@@ -49,7 +53,9 @@ public class MpbsVerificationService {
 
       // Update mpbs ...
       mpbs.setSuccessfullyVerifiedOn(Instant.now());
-      mpbs.setStatus(mobileTransactionResponseDetails.getStatus());
+      mpbs.setStatus(
+          defineMpbsStatusByOrangeStatusOrByInstantValidity(
+              mobileTransactionResponseDetails, mpbs, toCompare));
       var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
       log.info("Mpbs has successfully verified = {}", mpbs);
 
@@ -68,11 +74,27 @@ public class MpbsVerificationService {
 
   public List<MpbsVerification> checkMobilePaymentThenSaveVerification() {
     List<Mpbs> pendingMpbs = mpbsRepository.findAllByStatus(PENDING);
+    Instant now = Instant.now();
 
-    return pendingMpbs.stream().map(this::verifyMobilePaymentAndSaveResult).collect(toList());
+    return pendingMpbs.stream()
+        .map((mpbs -> this.verifyMobilePaymentAndSaveResult(mpbs, now)))
+        .collect(toList());
   }
 
   public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {
     return mobilePaymentService.fetchThenSaveTransactionDetails();
+  }
+
+  private MpbsStatus defineMpbsStatusByOrangeStatusOrByInstantValidity(
+      TransactionDetails storedTransaction, Mpbs mpbs, Instant toCompare) {
+    if (SUCCESS.equals(storedTransaction.getStatus())) {
+      return SUCCESS;
+    }
+    long dayValidity = mpbs.getCreationDatetime().until(toCompare, ChronoUnit.DAYS);
+
+    if (dayValidity > 2) {
+      return FAILED;
+    }
+    return PENDING;
   }
 }
