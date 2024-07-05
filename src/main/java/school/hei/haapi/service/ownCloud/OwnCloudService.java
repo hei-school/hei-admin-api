@@ -1,14 +1,18 @@
-package school.hei.haapi.service;
+package school.hei.haapi.service.ownCloud;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
 import static org.springframework.http.HttpMethod.POST;
+import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.*;
 import static school.hei.haapi.endpoint.rest.security.AuthProvider.getPrincipal;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
+import static school.hei.haapi.service.utils.OwnCloudUtils.findPermissionKey;
+import static school.hei.haapi.service.utils.OwnCloudUtils.getBasicAuth;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.util.Base64;
+import java.util.*;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpEntity;
@@ -16,7 +20,7 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;
-import school.hei.haapi.endpoint.OwnCloudConf;
+import school.hei.haapi.endpoint.rest.model.OwnCloudPermission;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.notEntity.OcsData;
@@ -40,9 +44,7 @@ public class OwnCloudService {
 
     log.info(conf.getUsername(), conf.getPassword());
     HttpHeaders headers = new HttpHeaders();
-    String auth = conf.getUsername() + ":" + conf.getPassword();
-    String authHeader =
-        "Basic " + new String(Base64.getEncoder().encode(auth.getBytes(StandardCharsets.US_ASCII)));
+    String authHeader = getBasicAuth(conf.getUsername(), conf.getPassword());
     headers.set("Authorization", authHeader);
     HttpEntity<Void> entity = new HttpEntity<>(null, headers);
     try {

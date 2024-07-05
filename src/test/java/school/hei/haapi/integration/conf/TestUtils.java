@@ -96,7 +96,7 @@ import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.notEntity.OcsData;
-import school.hei.haapi.service.OwnCloudService;
+import school.hei.haapi.service.ownCloud.OwnCloudService;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;

@@ -1,4 +1,4 @@
-package school.hei.haapi.endpoint;
+package school.hei.haapi.service.ownCloud;
 
 import static school.hei.haapi.service.utils.DataFormatterUtils.instantToOcsDateFormat;
 
@@ -14,20 +14,22 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 @Configuration
 public class OwnCloudConf {
-  private final UriComponents baseUrl;
+  private final UriComponents fileTemplateUrl;
   @Getter private final String username;
   @Getter private final String password;
+  private final String OWNCLOUD_SHARE_TYPE = "3";
+
 
   public OwnCloudConf(
-      @Value("${OWNCLOUD_BASE_URL}") String baseUrl,
+      @Value("${OWNCLOUD_BASE_URL}") String fileTemplateUrl,
       @Value("${OWNCLOUD_USERNAME}") String username,
       @Value("${OWNCLOUD_PASSWORD}") String password) {
-    this.baseUrl =
-        UriComponentsBuilder.fromHttpUrl(baseUrl)
+    this.fileTemplateUrl =
+        UriComponentsBuilder.fromHttpUrl(fileTemplateUrl)
             .path("/ocs/v1.php/apps/files_sharing/api/v1/shares")
             .queryParam("path={path}")
             .queryParam("name={name}")
-            .queryParam("shareType=3")
+            .queryParam("shareType={shareType}")
             .queryParam("permissions={permissions}")
             .queryParam("expireDate={expireDate}")
             .queryParam("format=json")
@@ -38,12 +40,13 @@ public class OwnCloudConf {
   }
 
   public URI getURI(String path, String name, Integer permissions) {
-    Map<String, Object> uriVariables =
+    Map<String, String> uriVariables =
         Map.of(
             "path", path,
             "name", name,
-            "permissions", permissions,
+            "shareType", OWNCLOUD_SHARE_TYPE,
+            "permissions", String.valueOf(permissions),
             "expireDate", instantToOcsDateFormat(Instant.now().plus(1, ChronoUnit.DAYS)));
-    return baseUrl.expand(uriVariables).toUri();
+    return fileTemplateUrl.expand(uriVariables).toUri();
   }
 }

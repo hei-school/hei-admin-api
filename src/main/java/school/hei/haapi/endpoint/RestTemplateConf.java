@@ -13,7 +13,6 @@ import org.springframework.web.client.RestTemplate;
 import school.hei.haapi.model.exception.ApiException;
 
 @Configuration
-@Slf4j
 public class RestTemplateConf {
   @Bean
   public RestTemplate restTemplate(RestTemplateBuilder restTemplateBuilder) {

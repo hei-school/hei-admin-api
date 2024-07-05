@@ -18,7 +18,7 @@ import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.endpoint.rest.model.ShareInfo;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.service.OwnCloudService;
+import school.hei.haapi.service.ownCloud.OwnCloudService;
 import school.hei.haapi.service.SchoolFileService;
 
 @RestController
@@ -51,8 +51,8 @@ public class SchoolFileController {
     return fileInfoMapper.toRest(schoolFileService.getSchoolFileById(schoolFileId));
   }
 
-  @PostMapping("/school/files/share_link")
-  public ShareInfo postShareLink(@RequestParam String name, @RequestParam String path) {
+  @GetMapping("/school/files/share_link")
+  public ShareInfo getShareLink(@RequestParam String name, @RequestParam String path) {
     return fileInfoMapper.toShareInfo(ownCloudService.createShareLink(name, path));
   }
 }
