@@ -9,6 +9,8 @@ import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -34,8 +36,9 @@ public class MpbsVerificationService {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
   }
 
+  @Transactional
   public MpbsVerification verifyMobilePaymentAndSaveResult(Mpbs mpbs, Instant toCompare) {
-    try {
+      log.info("Magic happened here");
       // Find transaction in database
       TransactionDetails mobileTransactionResponseDetails =
           mobilePaymentService.findTransactionByMpbs(mpbs);
@@ -67,13 +70,11 @@ public class MpbsVerificationService {
       // ... then update fee remaining amount
       feeService.debitAmount(fee, verifiedMobileTransaction.getAmountInPsp());
       return verifiedMobileTransaction;
-    } catch (ApiException e) {
-      throw new ApiException(SERVER_EXCEPTION, e);
-    }
   }
 
   public List<MpbsVerification> checkMobilePaymentThenSaveVerification() {
     List<Mpbs> pendingMpbs = mpbsRepository.findAllByStatus(PENDING);
+    log.info("pending mpbs = {}", pendingMpbs.size());
     Instant now = Instant.now();
 
     return pendingMpbs.stream()
