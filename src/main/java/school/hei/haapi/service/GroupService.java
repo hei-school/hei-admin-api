@@ -20,6 +20,7 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.repository.dao.GroupDao;
 
 @Service
 @AllArgsConstructor
@@ -29,7 +30,7 @@ public class GroupService {
   private final GroupRepository repository;
   private final UserRepository userRepository;
   private final GroupFlowService groupFlowService;
-  private final GroupRepository groupRepository;
+  private final GroupDao groupDao;
 
   public Group findById(String groupId) {
     return repository
@@ -45,10 +46,10 @@ public class GroupService {
     }
   }
 
-  public List<Group> getAll(PageFromOne page, BoundedPageSize pageSize) {
+  public List<Group> getAll(String ref, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return repository.findAll(pageable).toList();
+    return groupDao.findByCriteria(ref, pageable);
   }
 
   public Integer getGroupSize(String groupId) {

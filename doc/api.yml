@@ -123,6 +123,10 @@ paths:
       summary: Get all groups
       operationId: getGroups
       parameters:
+        - name: ref
+          in: query
+          schema:
+            type: string
         - name: page
           in: query
           schema:
