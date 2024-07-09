@@ -4,13 +4,11 @@ import static java.util.stream.Collectors.toList;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
-import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
+import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
-
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -19,7 +17,6 @@ import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
-import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 
@@ -38,38 +35,38 @@ public class MpbsVerificationService {
 
   @Transactional
   public MpbsVerification verifyMobilePaymentAndSaveResult(Mpbs mpbs, Instant toCompare) {
-      log.info("Magic happened here");
-      // Find transaction in database
-      TransactionDetails mobileTransactionResponseDetails =
-          mobilePaymentService.findTransactionByMpbs(mpbs);
-      Fee fee = mpbs.getFee();
-      MpbsVerification verifiedMobileTransaction =
-          MpbsVerification.builder()
-              .amountInPsp(mobileTransactionResponseDetails.getPspTransactionAmount())
-              .fee(fee)
-              .amountOfFeeRemainingPayment(fee.getRemainingAmount())
-              .creationDatetimeOfMpbs(mpbs.getCreationDatetime())
-              .creationDatetimeOfPaymentInPsp(
-                  mobileTransactionResponseDetails.getPspDatetimeTransactionCreation())
-              .student(mpbs.getStudent())
-              .build();
+    log.info("Magic happened here");
+    // Find transaction in database
+    TransactionDetails mobileTransactionResponseDetails =
+        mobilePaymentService.findTransactionByMpbs(mpbs);
+    Fee fee = mpbs.getFee();
+    MpbsVerification verifiedMobileTransaction =
+        MpbsVerification.builder()
+            .amountInPsp(mobileTransactionResponseDetails.getPspTransactionAmount())
+            .fee(fee)
+            .amountOfFeeRemainingPayment(fee.getRemainingAmount())
+            .creationDatetimeOfMpbs(mpbs.getCreationDatetime())
+            .creationDatetimeOfPaymentInPsp(
+                mobileTransactionResponseDetails.getPspDatetimeTransactionCreation())
+            .student(mpbs.getStudent())
+            .build();
 
-      // Update mpbs ...
-      mpbs.setSuccessfullyVerifiedOn(Instant.now());
-      mpbs.setStatus(
-          defineMpbsStatusByOrangeStatusOrByInstantValidity(
-              mobileTransactionResponseDetails, mpbs, toCompare));
-      var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
-      log.info("Mpbs has successfully verified = {}", mpbs);
+    // Update mpbs ...
+    mpbs.setSuccessfullyVerifiedOn(Instant.now());
+    mpbs.setStatus(
+        defineMpbsStatusByOrangeStatusOrByInstantValidity(
+            mobileTransactionResponseDetails, mpbs, toCompare));
+    var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
+    log.info("Mpbs has successfully verified = {}", mpbs);
 
-      // ... then save the verification
-      verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
-      verifiedMobileTransaction.setPspId(successfullyVerifiedMpbs.getPspId());
-      repository.save(verifiedMobileTransaction);
+    // ... then save the verification
+    verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
+    verifiedMobileTransaction.setPspId(successfullyVerifiedMpbs.getPspId());
+    repository.save(verifiedMobileTransaction);
 
-      // ... then update fee remaining amount
-      feeService.debitAmount(fee, verifiedMobileTransaction.getAmountInPsp());
-      return verifiedMobileTransaction;
+    // ... then update fee remaining amount
+    feeService.debitAmount(fee, verifiedMobileTransaction.getAmountInPsp());
+    return verifiedMobileTransaction;
   }
 
   public List<MpbsVerification> checkMobilePaymentThenSaveVerification() {

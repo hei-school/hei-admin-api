@@ -1,8 +1,6 @@
 package school.hei.haapi.service.event;
 
 import java.util.function.Consumer;
-
-import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.model.CheckMobilePaymentTransactionTriggered;
