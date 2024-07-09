@@ -96,9 +96,9 @@ import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.notEntity.OcsData;
-import school.hei.haapi.service.ownCloud.OwnCloudService;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
+import school.hei.haapi.service.ownCloud.OwnCloudService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -205,7 +205,7 @@ public class TestUtils {
   }
 
   public static void setUpOwncloudService(OwnCloudService ownCloudService) {
-    when(ownCloudService.createShareLink(any(), any()))
+    when(ownCloudService.createShareLink(any()))
         .thenReturn(
             OcsData.builder()
                 .url("https://owncloud.server.mock")

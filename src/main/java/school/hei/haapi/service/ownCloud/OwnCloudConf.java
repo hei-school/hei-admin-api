@@ -19,7 +19,6 @@ public class OwnCloudConf {
   @Getter private final String password;
   private final String OWNCLOUD_SHARE_TYPE = "3";
 
-
   public OwnCloudConf(
       @Value("${OWNCLOUD_BASE_URL}") String fileTemplateUrl,
       @Value("${OWNCLOUD_USERNAME}") String username,
@@ -28,7 +27,6 @@ public class OwnCloudConf {
         UriComponentsBuilder.fromHttpUrl(fileTemplateUrl)
             .path("/ocs/v1.php/apps/files_sharing/api/v1/shares")
             .queryParam("path={path}")
-            .queryParam("name={name}")
             .queryParam("shareType={shareType}")
             .queryParam("permissions={permissions}")
             .queryParam("expireDate={expireDate}")
@@ -39,14 +37,17 @@ public class OwnCloudConf {
     this.password = password;
   }
 
-  public URI getURI(String path, String name, Integer permissions) {
+  public URI getURI(String path, Integer permissions) {
     Map<String, String> uriVariables =
         Map.of(
-            "path", path,
-            "name", name,
-            "shareType", OWNCLOUD_SHARE_TYPE,
-            "permissions", String.valueOf(permissions),
-            "expireDate", instantToOcsDateFormat(Instant.now().plus(1, ChronoUnit.DAYS)));
+            "path",
+            path,
+            "shareType",
+            OWNCLOUD_SHARE_TYPE,
+            "permissions",
+            String.valueOf(permissions),
+            "expireDate",
+            instantToOcsDateFormat(Instant.now().plus(1, ChronoUnit.DAYS)));
     return fileTemplateUrl.expand(uriVariables).toUri();
   }
 }

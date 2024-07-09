@@ -1,49 +1,77 @@
 package school.hei.haapi.service.utils;
 
+import static java.nio.charset.StandardCharsets.US_ASCII;
+import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.CREATE;
+import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.DELETE;
+import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.READ;
+import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.SHARE;
+import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.UPDATE;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Base64;
+import java.util.EnumSet;
+import java.util.List;
+import java.util.Map;
+import lombok.Getter;
 import school.hei.haapi.endpoint.rest.model.OwnCloudPermission;
 
-import java.util.*;
-
-import static java.nio.charset.StandardCharsets.US_ASCII;
-import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.*;
-
+@Getter
 public class OwnCloudUtils {
 
-    public static List<Integer> findPermissionKey(int value, List<Integer> key, List<Integer> res) {
-        if (key.contains(value)) {
-            res.add(value);
-            return res;
-        } else {
-            List<Integer> currentKeyArray = new ArrayList<>();
-            for (int k : key) {
-                if (k < value) {
-                    currentKeyArray.add(k);
-                }
-            }
-            int currentValue = currentKeyArray.removeLast();
-            res.add(currentValue);
-            return findPermissionKey(value - currentValue, currentKeyArray, res);
+  private static final Map<Integer, OwnCloudPermission> permissionMap =
+      Map.of(
+          1, READ,
+          2, UPDATE,
+          4, CREATE,
+          8, DELETE,
+          16, SHARE);
+
+  public static List<Integer> findPermissionKey(int value, List<Integer> key, List<Integer> res) {
+    if (key.contains(value)) {
+      res.add(value);
+      return res;
+    } else {
+      List<Integer> currentKeyArray = new ArrayList<>();
+      for (int k : key) {
+        if (k < value) {
+          currentKeyArray.add(k);
         }
+      }
+      int currentValue = currentKeyArray.removeLast();
+      res.add(currentValue);
+      return findPermissionKey(value - currentValue, currentKeyArray, res);
+    }
+  }
+
+  public static EnumSet<OwnCloudPermission> findOwnCloudPermissionsFromValue(int value) {
+    List<Integer> permissionKeys =
+        findPermissionKey(
+            value,
+            Arrays.asList(permissionMap.keySet().toArray(new Integer[0])),
+            new ArrayList<>());
+
+    List<OwnCloudPermission> res = new ArrayList<>();
+    for (int k : permissionKeys) {
+      res.add(permissionMap.get(k));
     }
 
-    public static EnumSet<OwnCloudPermission> findPermissionValue(int value) {
-        List<Integer> permissionKeys = findPermissionKey(value, Arrays.asList(1, 2, 4, 8, 16), new ArrayList<>());
-        Map<Integer, OwnCloudPermission> permissionValue = new HashMap<>();
-        permissionValue.put(1, READ);
-        permissionValue.put(2, UPDATE);
-        permissionValue.put(4, CREATE);
-        permissionValue.put(8, DELETE);
-        permissionValue.put(16, SHARE);
+    return EnumSet.copyOf(res);
+  }
 
-        List<OwnCloudPermission> res = new ArrayList<>();
-        for (int k : permissionKeys) {
-            res.add(permissionValue.get(k));
-        }
+  public static String getBasicAuth(String username, String password) {
+    return "Basic "
+        + new String(
+            Base64.getEncoder()
+                .encode(String.format("%s : %s", username, password).getBytes(US_ASCII)));
+  }
+  ;
 
-        return EnumSet.copyOf(res);
-    }
-
-    public static String getBasicAuth(String username, String password) {
-              return "Basic " + new String(Base64.getEncoder().encode(String.format("%s : %s", username, password).getBytes(US_ASCII)));
-    };
+  public static Integer getPermissionValueFromOwnCloudPermission(
+      List<OwnCloudPermission> ownCloudPermissions) {
+    return permissionMap.entrySet().stream()
+        .filter(entry -> ownCloudPermissions.contains(entry.getValue()))
+        .mapToInt(Map.Entry::getKey)
+        .sum();
+  }
 }

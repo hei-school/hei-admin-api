@@ -5,18 +5,12 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.FileType.TRANSCRIPT;
+import static school.hei.haapi.integration.SchoolFileIT.setUpRestTemplate;
 import static school.hei.haapi.integration.StudentFileIT.ContextInitializer.SERVER_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -26,16 +20,19 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
+import org.springframework.web.client.RestTemplate;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
+import school.hei.haapi.endpoint.rest.model.ShareInfo;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -47,12 +44,15 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @AutoConfigureMockMvc
 public class StudentFileIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
+  @MockBean RestTemplate restTemplateMock;
+  @Autowired ObjectMapper objectMapper;
 
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
+    setUpRestTemplate(restTemplateMock);
   }
 
   @Test
@@ -122,6 +122,24 @@ public class StudentFileIT extends MockedThirdParties {
 
     assertEquals(2, documents.size());
     assertTrue(documents.contains(file1()));
+  }
+
+  @Test
+  void student_get_own_share_link() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    FilesApi api = new FilesApi(student1Client);
+
+    ShareInfo actual = api.getStudentFilesShareLink(STUDENT1_ID, "/Test-api");
+    assertTrue(actual.getPath().contains("/Test-api"));
+    assertTrue(actual.getUrl().contains("https://owncloud.example.com"));
+  }
+
+  @Test
+  void student_get_others_share_link_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    FilesApi api = new FilesApi(student1Client);
+
+    assertThrowsForbiddenException(() -> api.getStudentFilesShareLink(STUDENT2_ID, "/Test-api"));
   }
 
   public static FileInfo file1() {

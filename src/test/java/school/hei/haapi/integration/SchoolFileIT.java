@@ -52,7 +52,7 @@ public class SchoolFileIT extends MockedThirdParties {
     setUpRestTemplate(restTemplateMock);
   }
 
-  private static void setUpRestTemplate(RestTemplate restTemplateMock) {
+  public static void setUpRestTemplate(RestTemplate restTemplateMock) {
     when(restTemplateMock.exchange(any(), eq(POST), any(), eq(String.class)))
         .thenReturn(ResponseEntity.ok(OCS_MOCKED_RESPONSE));
   }
@@ -72,19 +72,19 @@ public class SchoolFileIT extends MockedThirdParties {
                 "id": "130",
                 "share_type": 3,
                 "uid_owner": "ilo",
-                "displayname_owner": "ilo",
-                "permissions": 1,
+                "displayname_owner": "john",
+                "permissions": 15,
                 "stime": 1719915415,
                 "parent": null,
                 "expiration": "2024-07-03 00:00:00",
                 "token": "vDq5Er8qizxQOEB",
-                "uid_file_owner": "ilo",
-                "displayname_file_owner": "ilo",
+                "uid_file_owner": "john",
+                "displayname_file_owner": "john",
                 "additional_info_owner": null,
                 "additional_info_file_owner": null,
                 "path": "/Test-api",
                 "mimetype": "httpd/unix-directory",
-                "storage_id": "object::user:ilo",
+                "storage_id": "object::user:john",
                 "storage": 66,
                 "item_type": "folder",
                 "item_source": 22602,
@@ -104,9 +104,29 @@ public class SchoolFileIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     FilesApi filesApi = new FilesApi(apiClient);
 
-    ShareInfo actual = filesApi.createShareLink("name", "/Test-api");
-    log.info(actual.toString());
-    //    assertEquals(actual.getUrl(), "https://owncloud.server.mock");
+    ShareInfo actual = filesApi.getSchoolFilesShareLink("/Test-api");
+    assertTrue(actual.getPath().contains("/Test-api"));
+    assertTrue(actual.getUrl().contains("https://owncloud.example.com"));
+  }
+
+  @Test
+  void student_get_share_link() throws ApiException {
+    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
+    FilesApi filesApi = new FilesApi(apiClient);
+
+    ShareInfo actual = filesApi.getSchoolFilesShareLink("/Test-api");
+    assertTrue(actual.getPath().contains("/Test-api"));
+    assertTrue(actual.getUrl().contains("https://owncloud.example.com"));
+  }
+
+  @Test
+  void teacher_get_share_link() throws ApiException {
+    ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
+    FilesApi filesApi = new FilesApi(apiClient);
+
+    ShareInfo actual = filesApi.getSchoolFilesShareLink("/Test-api");
+    assertTrue(actual.getPath().contains("/Test-api"));
+    assertTrue(actual.getUrl().contains("https://owncloud.example.com"));
   }
 
   @Test
