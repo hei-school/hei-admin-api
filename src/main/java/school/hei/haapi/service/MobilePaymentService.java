@@ -34,11 +34,21 @@ public class MobilePaymentService implements MobilePaymentRepository {
     return mobileMoneyApi.fetchThenSaveTransactionsDetails(ORANGE_MONEY);
   }
 
+  public TransactionDetails findTransactionByMpbsWithoutException(Mpbs mpbs) throws ApiException {
+    String transactionRef = mpbs.getPspId();
+    return externalResponseMapper.toExternalTransactionDetails(
+        findTransactionByIdWithoutException(transactionRef));
+  }
+
   public MobileTransactionDetails findTransactionById(String pspId) {
     return mobileTransactionDetailsRepository
         .findByPspTransactionRef(pspId)
         .orElseThrow(
             () -> new NotFoundException("Mobile transaction with ref." + pspId + " not found"));
+  }
+
+  public MobileTransactionDetails findTransactionByIdWithoutException(String pspId) {
+    return mobileTransactionDetailsRepository.findByPspTransactionRef(pspId).orElse(null);
   }
 
   public List<MobileTransactionDetails> saveAll(

@@ -38,35 +38,40 @@ public class MpbsVerificationService {
     log.info("Magic happened here");
     // Find transaction in database
     TransactionDetails mobileTransactionResponseDetails =
-        mobilePaymentService.findTransactionByMpbs(mpbs);
-    Fee fee = mpbs.getFee();
-    MpbsVerification verifiedMobileTransaction =
-        MpbsVerification.builder()
-            .amountInPsp(mobileTransactionResponseDetails.getPspTransactionAmount())
-            .fee(fee)
-            .amountOfFeeRemainingPayment(fee.getRemainingAmount())
-            .creationDatetimeOfMpbs(mpbs.getCreationDatetime())
-            .creationDatetimeOfPaymentInPsp(
-                mobileTransactionResponseDetails.getPspDatetimeTransactionCreation())
-            .student(mpbs.getStudent())
-            .build();
+        mobilePaymentService.findTransactionByMpbsWithoutException(mpbs);
 
-    // Update mpbs ...
-    mpbs.setSuccessfullyVerifiedOn(Instant.now());
-    mpbs.setStatus(
-        defineMpbsStatusByOrangeStatusOrByInstantValidity(
-            mobileTransactionResponseDetails, mpbs, toCompare));
-    var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
-    log.info("Mpbs has successfully verified = {}", mpbs);
+    // TIPS: do not use exception to continue script
+    if (mobileTransactionResponseDetails != null) {
+      Fee fee = mpbs.getFee();
+      MpbsVerification verifiedMobileTransaction =
+          MpbsVerification.builder()
+              .amountInPsp(mobileTransactionResponseDetails.getPspTransactionAmount())
+              .fee(fee)
+              .amountOfFeeRemainingPayment(fee.getRemainingAmount())
+              .creationDatetimeOfMpbs(mpbs.getCreationDatetime())
+              .creationDatetimeOfPaymentInPsp(
+                  mobileTransactionResponseDetails.getPspDatetimeTransactionCreation())
+              .student(mpbs.getStudent())
+              .build();
 
-    // ... then save the verification
-    verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
-    verifiedMobileTransaction.setPspId(successfullyVerifiedMpbs.getPspId());
-    repository.save(verifiedMobileTransaction);
+      // Update mpbs ...
+      mpbs.setSuccessfullyVerifiedOn(Instant.now());
+      mpbs.setStatus(
+          defineMpbsStatusByOrangeStatusOrByInstantValidity(
+              mobileTransactionResponseDetails, mpbs, toCompare));
+      var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
+      log.info("Mpbs has successfully verified = {}", mpbs);
 
-    // ... then update fee remaining amount
-    feeService.debitAmount(fee, verifiedMobileTransaction.getAmountInPsp());
-    return verifiedMobileTransaction;
+      // ... then save the verification
+      verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
+      verifiedMobileTransaction.setPspId(successfullyVerifiedMpbs.getPspId());
+      repository.save(verifiedMobileTransaction);
+
+      // ... then update fee remaining amount
+      feeService.debitAmount(fee, verifiedMobileTransaction.getAmountInPsp());
+      return verifiedMobileTransaction;
+    }
+    return null;
   }
 
   public List<MpbsVerification> checkMobilePaymentThenSaveVerification() {
