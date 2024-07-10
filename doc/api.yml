@@ -127,6 +127,11 @@ paths:
           in: query
           schema:
             type: string
+        - name: first_name
+          in: query
+          description: Filter group by student first name
+          schema:
+            type: string
         - name: page
           in: query
           schema:
