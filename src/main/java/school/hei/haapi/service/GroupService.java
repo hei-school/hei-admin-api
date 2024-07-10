@@ -14,7 +14,6 @@ import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Group;
-import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
@@ -81,59 +80,7 @@ public class GroupService {
   }
 
   public List<Group> getByUserId(String studentId) {
-    User student = userRepository.getById(studentId);
-    List<Group> groups = new ArrayList<>();
-    List<GroupFlow> groupFlows = new ArrayList<>();
-    for (GroupFlow groupFlow : student.getGroupFlows()) {
-      if (!groups.contains(groupFlow.getGroup())) {
-        if (groupFlows.stream()
-                .filter(groupFlow1 -> groupFlow1.getGroup() == groupFlow.getGroup())
-                .count()
-            > 0) {
-          if (groupFlow
-              .getFlowDatetime()
-              .isAfter(
-                  groupFlows.stream()
-                      .filter(groupFlow1 -> groupFlow1.getGroup().equals(groupFlow.getGroup()))
-                      .findFirst()
-                      .get()
-                      .getFlowDatetime())) {
-            if (groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.JOIN) {
-              groups.add(groupFlow.getGroup());
-            }
-            groupFlows.remove(
-                groupFlows.stream()
-                    .filter(groupFlow1 -> groupFlow1.getGroup().equals(groupFlow.getGroup()))
-                    .findFirst()
-                    .get());
-            groupFlows.add(groupFlow);
-          }
-        } else {
-          if (groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.JOIN) {
-            groups.add(groupFlow.getGroup());
-          }
-          groupFlows.add(groupFlow);
-        }
-      } else if (groupFlow
-          .getFlowDatetime()
-          .isAfter(
-              groupFlows.stream()
-                  .filter(groupFlow1 -> groupFlow1.getGroup().equals(groupFlow.getGroup()))
-                  .findFirst()
-                  .get()
-                  .getFlowDatetime())) {
-        if (groupFlow.getGroupFlowType() == GroupFlow.GroupFlowType.LEAVE) {
-          groups.remove(groupFlow.getGroup());
-        }
-        groupFlows.remove(
-            groupFlows.stream()
-                .filter(groupFlow1 -> groupFlow1.getGroup().equals(groupFlow.getGroup()))
-                .findFirst()
-                .get());
-        groupFlows.add(groupFlow);
-      }
-    }
-    return groups;
+    return groupRepository.findByStudentId(studentId).orElse(List.of());
   }
 
   public void updateGroups(Promotion promotion, String groupId) {

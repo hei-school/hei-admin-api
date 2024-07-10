@@ -9,7 +9,6 @@ import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.service.GroupService;
-import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.WorkDocumentService;
 import school.hei.haapi.service.aws.FileService;
 
@@ -21,7 +20,7 @@ public class UserMapper {
   private final SexEnumMapper sexEnumMapper;
   private final FileService fileService;
   private final GroupService groupService;
-  private final UserService userService;
+  private final GroupMapper groupMapper;
 
   public UserIdentifier toIdentifier(User user) {
     return new UserIdentifier()
@@ -58,6 +57,8 @@ public class UserMapper {
     restStudent.setBirthPlace(user.getBirthPlace());
     restStudent.setSpecializationField(user.getSpecializationField());
     restStudent.setProfilePicture(url);
+    restStudent.groups(
+        groupService.getByUserId(user.getId()).stream().map(groupMapper::toRest).toList());
     restStudent.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     restStudent.setHighSchoolOrigin(user.getHighSchoolOrigin());

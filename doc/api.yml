@@ -3712,6 +3712,10 @@ components:
           format: date-time
         profile_picture:
           type: string
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
     Teacher:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
