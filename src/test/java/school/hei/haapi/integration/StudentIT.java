@@ -19,22 +19,7 @@ import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithValues;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
@@ -194,6 +179,7 @@ public class StudentIT extends MockedThirdParties {
     student.setHighSchoolOrigin("Lycée Andohalo");
     student.setWorkStudyStatus(WORKING);
     student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24Z"));
+    student.setGroups(List.of(group1(), group2()));
     return student;
   }
 
@@ -217,6 +203,7 @@ public class StudentIT extends MockedThirdParties {
     student.setHighSchoolOrigin("Lycée Andohalo");
     student.setWorkStudyStatus(WORKING);
     student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24.00Z"));
+    student.setGroups(List.of(group1()));
     return student;
   }
 
@@ -236,7 +223,6 @@ public class StudentIT extends MockedThirdParties {
     student.setBirthPlace("");
     student.setNic("");
     student.setCoordinates(coordinatesWithNullValues());
-
     return student;
   }
 
@@ -259,6 +245,7 @@ public class StudentIT extends MockedThirdParties {
     student.setCoordinates(coordinatesWithNullValues());
     student.setHighSchoolOrigin("Lycée Analamahitsy");
     student.setWorkStudyStatus(NOT_WORKING);
+    student.setGroups(List.of());
     return student;
   }
 
@@ -279,7 +266,8 @@ public class StudentIT extends MockedThirdParties {
         .birthPlace("")
         .coordinates(coordinatesWithNullValues())
         .workStudyStatus(NOT_WORKING)
-        .address("Adr 1");
+        .address("Adr 1")
+        .groups(List.of());
   }
 
   public static CrupdateStudent creatableSuspendedStudent() {
@@ -314,7 +302,8 @@ public class StudentIT extends MockedThirdParties {
         .birthPlace("")
         .address("Adr 2")
         .workStudyStatus(NOT_WORKING)
-        .coordinates(coordinatesWithNullValues());
+        .coordinates(coordinatesWithNullValues())
+        .groups(List.of());
   }
 
   @BeforeEach
@@ -647,7 +636,8 @@ public class StudentIT extends MockedThirdParties {
             .coordinates(coordinatesWithNullValues())
             .specializationField(toUpdate0.getSpecializationField())
             .workStudyStatus(NOT_WORKING)
-            .status(toUpdate0.getStatus());
+            .status(toUpdate0.getStatus())
+            .groups(List.of());
 
     Student updated1 =
         new Student()
@@ -666,7 +656,8 @@ public class StudentIT extends MockedThirdParties {
             .specializationField(toUpdate1.getSpecializationField())
             .coordinates(coordinatesWithNullValues())
             .workStudyStatus(NOT_WORKING)
-            .status(toUpdate1.getStatus());
+            .status(toUpdate1.getStatus())
+            .groups(List.of());
 
     List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1));
 
