@@ -52,7 +52,7 @@ public class MpbsVerificationService {
       TransactionDetails transactionDetails =
           externalResponseMapper.toExternalTransactionDetails(
               mobileTransactionResponseDetails.get());
-      saveTheVerifiedMpbs(mpbs, transactionDetails, toCompare);
+      return saveTheVerifiedMpbs(mpbs, transactionDetails, toCompare);
     }
     saveTheUnverifiedMpbs(mpbs, toCompare);
     return null;
@@ -79,11 +79,9 @@ public class MpbsVerificationService {
 
     // Update mpbs ...
     mpbs.setSuccessfullyVerifiedOn(Instant.now());
-    mpbs.setStatus(
-        defineMpbsStatusFromOrangeTransactionDetails(
-            correspondingMobileTransaction, mpbs, toCompare));
+    mpbs.setStatus(defineMpbsStatusFromOrangeTransactionDetails(correspondingMobileTransaction));
     var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
-    log.info("Mpbs has successfully verified = {}", mpbs);
+    log.info("Mpbs has successfully verified = {}", mpbs.toString());
 
     // ... then save the verification
     verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
@@ -91,8 +89,8 @@ public class MpbsVerificationService {
     repository.save(verifiedMobileTransaction);
 
     // ... then save the corresponding payment
-    paymentService.savePaymentFromMpbs(mpbs);
-    log.info("Creating corresponding payment = {}", mpbs);
+    paymentService.savePaymentFromMpbs(successfullyVerifiedMpbs);
+    log.info("Creating corresponding payment = {}", successfullyVerifiedMpbs.toString());
 
     // ... then update fee remaining amount
     feeService.debitAmount(fee, verifiedMobileTransaction.getAmountInPsp());
@@ -114,13 +112,15 @@ public class MpbsVerificationService {
   }
 
   private MpbsStatus defineMpbsStatusFromOrangeTransactionDetails(
-      TransactionDetails storedTransaction, Mpbs mpbs, Instant toCompare) {
+      TransactionDetails storedTransaction) {
 
     // 1. if it contains and if the status is success then make it success
     if (SUCCESS.equals(storedTransaction.getStatus())) {
+      log.info("correct");
       return SUCCESS;
     }
     // 2. and else if the mpbs is stored to day or less than 2 days, it will be verified later
+    log.info("status computed = else");
     return PENDING;
   }
 
