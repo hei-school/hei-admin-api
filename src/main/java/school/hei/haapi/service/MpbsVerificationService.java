@@ -104,19 +104,18 @@ public class MpbsVerificationService {
   private MpbsStatus defineMpbsStatusByOrangeStatusOrByInstantValidity(
       TransactionDetails storedTransaction, Mpbs mpbs, Instant toCompare) {
     long dayValidity = mpbs.getCreationDatetime().until(toCompare, ChronoUnit.DAYS);
+    // TODO: use Optional instead of handling null value later
 
-    if (storedTransaction == null) {
-      if (dayValidity > 2) {
-        return FAILED;
-      }
-    }
-    if (dayValidity > 2) {
+    // 1. handle if it contains corresponding mobile transaction in database
+    // if not and the day validity expired then make it fail
+    if (dayValidity > 2 && storedTransaction == null) {
       return FAILED;
     }
+    // 2. if it contains and if the status is success then make it success
     if (SUCCESS.equals(storedTransaction.getStatus())) {
       return SUCCESS;
     }
-
+    // 3. and else if the mpbs is stored to day or less than 2 days, it will be verified later
     return PENDING;
   }
 }
