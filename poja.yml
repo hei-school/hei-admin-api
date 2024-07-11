@@ -11,8 +11,8 @@ codeartifact_repository_name: hei-store
 custom_java_deps: poja-custom-java-deps.txt
 custom_java_env_vars: poja-custom-java-env-vars.txt
 custom_java_repositories: poja-custom-java-repositories.txt
-database_non_root_password: null
-database_non_root_username: null
+database_non_root_password: /haapi/{Env}/db/user/password
+database_non_root_username: /haapi/{Env}/db/user/username
 frontal_function_timeout: 600
 frontal_memory: 2048
 frontal_reserved_concurrent_executions_nb: null
