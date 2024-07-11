@@ -1,23 +1,13 @@
 package school.hei.haapi.integration;
 
 import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -106,7 +96,7 @@ class GroupIT extends MockedThirdParties {
     ApiClient anonymousClient = anApiClient(BAD_TOKEN);
 
     TeachingApi api = new TeachingApi(anonymousClient);
-    assertThrowsForbiddenException(() -> api.getGroups(1, 10));
+    assertThrowsForbiddenException(() -> api.getGroups(null, null, 1, 10));
   }
 
   @Test
@@ -123,7 +113,7 @@ class GroupIT extends MockedThirdParties {
 
     TeachingApi api = new TeachingApi(student1Client);
     Group actual1 = api.getGroupById(GROUP1_ID);
-    List<Group> actualGroups = api.getGroups(1, 10);
+    List<Group> actualGroups = api.getGroups(null, null, 1, 10);
 
     assertEquals(group1(), actual1);
     assertTrue(actualGroups.contains(group1()));
@@ -144,6 +134,27 @@ class GroupIT extends MockedThirdParties {
 
     TeachingApi api = new TeachingApi(teacher1Client);
     assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
+  }
+
+  @Test
+  void manager_read_ok() throws ApiException {
+    ApiClient client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(client);
+
+    List<Group> actualGroups = api.getGroups(null, null, 1, 10);
+    assertTrue(actualGroups.contains(group1()));
+    assertTrue(actualGroups.contains(group2()));
+    assertTrue(actualGroups.contains(group3()));
+
+    List<Group> groupsFilteredByRef = api.getGroups("GRP21001", null, 1, 10);
+    assertTrue(groupsFilteredByRef.contains(group1()));
+    assertFalse(groupsFilteredByRef.contains(group2()));
+    assertFalse(groupsFilteredByRef.contains(group3()));
+
+    List<Group> groupsFilteredByStudentRef = api.getGroups(null, "STD21002", 1, 10);
+    assertTrue(groupsFilteredByStudentRef.contains(group1()));
+    assertFalse(groupsFilteredByStudentRef.contains(group2()));
+    assertFalse(groupsFilteredByStudentRef.contains(group3()));
   }
 
   @Test

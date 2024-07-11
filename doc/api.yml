@@ -123,6 +123,15 @@ paths:
       summary: Get all groups
       operationId: getGroups
       parameters:
+        - name: ref
+          in: query
+          schema:
+            type: string
+        - name: student_ref
+          in: query
+          description: Filter group by student ref
+          schema:
+            type: string
         - name: page
           in: query
           schema:
