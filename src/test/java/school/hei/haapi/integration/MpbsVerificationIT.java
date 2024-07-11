@@ -26,7 +26,6 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -40,7 +39,6 @@ import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.exception.ApiException;
-import school.hei.haapi.service.event.CheckMobilePaymentTransactionTriggeredService;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
@@ -49,7 +47,6 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @ContextConfiguration(initializers = MpbsVerificationIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class MpbsVerificationIT extends MockedThirdParties {
-  @Autowired private CheckMobilePaymentTransactionTriggeredService subject;
   @MockBean EventBridgeClient eventBridgeClient;
 
   @MockBean(name = "OrangeApi")

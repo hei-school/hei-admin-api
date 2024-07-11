@@ -4,6 +4,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
+import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
 import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.model.User.Status.SUSPENDED;
 
@@ -18,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
@@ -94,6 +96,19 @@ public class PaymentService {
       userRepository.updateUserStatusById(SUSPENDED, userToResetStatus.getId());
     }
     userRepository.updateUserStatusById(ENABLED, userToResetStatus.getId());
+  }
+
+  public Payment savePaymentFromMpbs(Mpbs verifiedMpbs) {
+    Fee correspondingFee = verifiedMpbs.getFee();
+    Payment paymentFromMpbs =
+        Payment.builder()
+            .type(MOBILE_MONEY)
+            .fee(correspondingFee)
+            .amount(verifiedMpbs.getAmount())
+            .creationDatetime(Instant.now())
+            .comment(correspondingFee.getComment())
+            .build();
+    return paymentRepository.save(paymentFromMpbs);
   }
 
   @Transactional

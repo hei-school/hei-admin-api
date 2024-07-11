@@ -195,8 +195,6 @@ public class SecurityConf {
                     .hasRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*/fees/*/mpbs/verifications")
                     .hasRole(MANAGER.getRole())
-                    .requestMatchers(GET, "/verify-transactions")
-                    .hasRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*", "students"))
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(DELETE, "/students/*/fees/*")
