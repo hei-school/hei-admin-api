@@ -1,3 +1,19 @@
+# [1.34.0](https://github.com/hei-school/hei-admin-api/compare/v1.33.0...v1.34.0) (2024-07-11)
+
+
+### Bug Fixes
+
+* comment and fix the algorithm process to compute mpbs status  ([e2e4e5d](https://github.com/hei-school/hei-admin-api/commit/e2e4e5de486c9eb31106d8e4a58b9ab30f55315e))
+* computing mpbs status fail if the transaction details is null …  ([16497f7](https://github.com/hei-school/hei-admin-api/commit/16497f7ce57041879d7797858d2615d23a820a9a))
+
+
+### Features
+
+* filter group by ref and student ref ([3ff5b82](https://github.com/hei-school/hei-admin-api/commit/3ff5b82cfb13ba14f435412d9ac7b13cbdb90b3d))
+* payment by mobile money  ([09732dc](https://github.com/hei-school/hei-admin-api/commit/09732dc5333665160f3a7b3ea07705541acb65f5))
+
+
+
 # [1.33.0](https://github.com/hei-school/hei-admin-api/compare/v1.32.0...v1.33.0) (2024-07-10)
 
 
@@ -127,15 +143,6 @@
 ### Reverts
 
 * remove logs ([e6dc4af](https://github.com/hei-school/hei-admin-api/commit/e6dc4af21385afd4292b831a3c6cd6c321e2beb9))
-
-
-
-# [1.23.0](https://github.com/hei-school/hei-admin-api/compare/v1.22.0...v1.23.0) (2024-04-30)
-
-
-### Features
-
-* add pagination when fetching students group  ([1107816](https://github.com/hei-school/hei-admin-api/commit/1107816ce4d196a70982cc6c579f9c1b3a119e8d))
 
 
 
