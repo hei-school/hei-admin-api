@@ -127,9 +127,9 @@ paths:
           in: query
           schema:
             type: string
-        - name: first_name
+        - name: student_ref
           in: query
-          description: Filter group by student first name
+          description: Filter group by student ref
           schema:
             type: string
         - name: page

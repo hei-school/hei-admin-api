@@ -96,7 +96,7 @@ class GroupIT extends MockedThirdParties {
     ApiClient anonymousClient = anApiClient(BAD_TOKEN);
 
     TeachingApi api = new TeachingApi(anonymousClient);
-    assertThrowsForbiddenException(() -> api.getGroups(null, 1, 10));
+    assertThrowsForbiddenException(() -> api.getGroups(null, null, 1, 10));
   }
 
   @Test
@@ -113,7 +113,7 @@ class GroupIT extends MockedThirdParties {
 
     TeachingApi api = new TeachingApi(student1Client);
     Group actual1 = api.getGroupById(GROUP1_ID);
-    List<Group> actualGroups = api.getGroups(null, 1, 10);
+    List<Group> actualGroups = api.getGroups(null, null, 1, 10);
 
     assertEquals(group1(), actual1);
     assertTrue(actualGroups.contains(group1()));
@@ -141,15 +141,20 @@ class GroupIT extends MockedThirdParties {
     ApiClient client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(client);
 
-    List<Group> actualGroups = api.getGroups(null, 1, 10);
+    List<Group> actualGroups = api.getGroups(null, null, 1, 10);
     assertTrue(actualGroups.contains(group1()));
     assertTrue(actualGroups.contains(group2()));
     assertTrue(actualGroups.contains(group3()));
 
-    List<Group> groupsFilteredByRef = api.getGroups("GRP21001", 1, 10);
+    List<Group> groupsFilteredByRef = api.getGroups("GRP21001", null, 1, 10);
     assertTrue(groupsFilteredByRef.contains(group1()));
     assertFalse(groupsFilteredByRef.contains(group2()));
     assertFalse(groupsFilteredByRef.contains(group3()));
+
+    List<Group> groupsFilteredByStudentRef = api.getGroups(null, "STD21002", 1, 10);
+    assertTrue(groupsFilteredByStudentRef.contains(group1()));
+    assertFalse(groupsFilteredByStudentRef.contains(group2()));
+    assertFalse(groupsFilteredByStudentRef.contains(group3()));
   }
 
   @Test

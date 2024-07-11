@@ -32,9 +32,10 @@ public class GroupController {
   @GetMapping(value = "/groups")
   public List<Group> getGroups(
       @RequestParam(required = false) String ref,
+      @RequestParam(value = "student_ref", required = false) String studentRef,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
-    return groupService.getAll(ref, page, pageSize).stream()
+    return groupService.getAll(ref, studentRef, page, pageSize).stream()
         .map(groupMapper::toRest)
         .collect(toList());
   }

@@ -30,6 +30,7 @@ public class GroupService {
   private final GroupRepository repository;
   private final UserRepository userRepository;
   private final GroupFlowService groupFlowService;
+  private final GroupRepository groupRepository;
   private final GroupDao groupDao;
 
   public Group findById(String groupId) {
@@ -46,10 +47,11 @@ public class GroupService {
     }
   }
 
-  public List<Group> getAll(String ref, PageFromOne page, BoundedPageSize pageSize) {
+  public List<Group> getAll(
+      String ref, String studentRef, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return groupDao.findByCriteria(ref, pageable);
+    return groupDao.findByCriteria(ref, studentRef, pageable);
   }
 
   public Integer getGroupSize(String groupId) {
