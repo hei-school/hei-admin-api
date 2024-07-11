@@ -1425,7 +1425,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /delay_penalty_change:
     post:
       tags:
