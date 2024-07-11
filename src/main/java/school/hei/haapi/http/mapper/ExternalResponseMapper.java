@@ -38,6 +38,9 @@ public class ExternalResponseMapper {
 
   public TransactionDetails toExternalTransactionDetails(
       MobileTransactionDetails transactionDetails) {
+    if (transactionDetails == null) {
+      return null;
+    }
     return TransactionDetails.builder()
         .pspDatetimeTransactionCreation(transactionDetails.getPspDatetimeTransactionCreation())
         .pspTransactionRef(transactionDetails.getPspTransactionRef())

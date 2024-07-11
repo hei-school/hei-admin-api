@@ -7,6 +7,9 @@ import school.hei.haapi.endpoint.rest.model.MpbsVerification;
 public class MpbsVerificationMapper {
 
   public MpbsVerification toRest(school.hei.haapi.model.Mpbs.MpbsVerification domain) {
+    if (domain == null) {
+      return null;
+    }
     return new MpbsVerification()
         .feeId(domain.getFee().getId())
         .amountInPsp(domain.getAmountInPsp())

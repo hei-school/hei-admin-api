@@ -42,36 +42,49 @@ public class MpbsVerificationService {
 
     // TIPS: do not use exception to continue script
     if (mobileTransactionResponseDetails != null) {
-      Fee fee = mpbs.getFee();
-      MpbsVerification verifiedMobileTransaction =
-          MpbsVerification.builder()
-              .amountInPsp(mobileTransactionResponseDetails.getPspTransactionAmount())
-              .fee(fee)
-              .amountOfFeeRemainingPayment(fee.getRemainingAmount())
-              .creationDatetimeOfMpbs(mpbs.getCreationDatetime())
-              .creationDatetimeOfPaymentInPsp(
-                  mobileTransactionResponseDetails.getPspDatetimeTransactionCreation())
-              .student(mpbs.getStudent())
-              .build();
-
-      // Update mpbs ...
-      mpbs.setSuccessfullyVerifiedOn(Instant.now());
-      mpbs.setStatus(
-          defineMpbsStatusByOrangeStatusOrByInstantValidity(
-              mobileTransactionResponseDetails, mpbs, toCompare));
-      var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
-      log.info("Mpbs has successfully verified = {}", mpbs);
-
-      // ... then save the verification
-      verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
-      verifiedMobileTransaction.setPspId(successfullyVerifiedMpbs.getPspId());
-      repository.save(verifiedMobileTransaction);
-
-      // ... then update fee remaining amount
-      feeService.debitAmount(fee, verifiedMobileTransaction.getAmountInPsp());
-      return verifiedMobileTransaction;
+      saveTheVerifiedMpbs(mpbs, mobileTransactionResponseDetails, toCompare);
     }
+    saveTheUnverifiedMpbs(mpbs, mobileTransactionResponseDetails, toCompare);
     return null;
+  }
+
+  private Mpbs saveTheUnverifiedMpbs(
+      Mpbs mpbs, TransactionDetails transactionDetails, Instant toCompare) {
+    mpbs.setStatus(
+        defineMpbsStatusByOrangeStatusOrByInstantValidity(transactionDetails, mpbs, toCompare));
+    return mpbsRepository.save(mpbs);
+  }
+
+  private MpbsVerification saveTheVerifiedMpbs(
+      Mpbs mpbs, TransactionDetails correspondingMobileTransaction, Instant toCompare) {
+    Fee fee = mpbs.getFee();
+    MpbsVerification verifiedMobileTransaction =
+        MpbsVerification.builder()
+            .amountInPsp(correspondingMobileTransaction.getPspTransactionAmount())
+            .fee(fee)
+            .amountOfFeeRemainingPayment(fee.getRemainingAmount())
+            .creationDatetimeOfMpbs(mpbs.getCreationDatetime())
+            .creationDatetimeOfPaymentInPsp(
+                correspondingMobileTransaction.getPspDatetimeTransactionCreation())
+            .student(mpbs.getStudent())
+            .build();
+
+    // Update mpbs ...
+    mpbs.setSuccessfullyVerifiedOn(Instant.now());
+    mpbs.setStatus(
+        defineMpbsStatusByOrangeStatusOrByInstantValidity(
+            correspondingMobileTransaction, mpbs, toCompare));
+    var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
+    log.info("Mpbs has successfully verified = {}", mpbs);
+
+    // ... then save the verification
+    verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
+    verifiedMobileTransaction.setPspId(successfullyVerifiedMpbs.getPspId());
+    repository.save(verifiedMobileTransaction);
+
+    // ... then update fee remaining amount
+    feeService.debitAmount(fee, verifiedMobileTransaction.getAmountInPsp());
+    return verifiedMobileTransaction;
   }
 
   public List<MpbsVerification> checkMobilePaymentThenSaveVerification() {
@@ -90,14 +103,20 @@ public class MpbsVerificationService {
 
   private MpbsStatus defineMpbsStatusByOrangeStatusOrByInstantValidity(
       TransactionDetails storedTransaction, Mpbs mpbs, Instant toCompare) {
-    if (SUCCESS.equals(storedTransaction.getStatus())) {
-      return SUCCESS;
-    }
     long dayValidity = mpbs.getCreationDatetime().until(toCompare, ChronoUnit.DAYS);
 
+    if (storedTransaction == null) {
+      if (dayValidity > 2) {
+        return FAILED;
+      }
+    }
     if (dayValidity > 2) {
       return FAILED;
     }
+    if (SUCCESS.equals(storedTransaction.getStatus())) {
+      return SUCCESS;
+    }
+
     return PENDING;
   }
 }

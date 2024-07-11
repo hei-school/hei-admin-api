@@ -28,8 +28,11 @@ public class MpbsVerificationController {
 
   @GetMapping(value = "/verify-transactions")
   public List<MpbsVerification> verifyTransactions() {
-    return mpbsVerificationService.checkMobilePaymentThenSaveVerification().stream()
-        .map(mapper::toRest)
-        .collect(toUnmodifiableList());
+    var verifiedMpbs = mpbsVerificationService.checkMobilePaymentThenSaveVerification();
+    if (verifiedMpbs == null) {
+      return List.of();
+    }
+    // TODO: this doesn't work but the service script is executed
+    return verifiedMpbs.stream().map(mapper::toRest).collect(toUnmodifiableList());
   }
 }
