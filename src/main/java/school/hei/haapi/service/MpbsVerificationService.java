@@ -28,6 +28,7 @@ public class MpbsVerificationService {
   private final MpbsRepository mpbsRepository;
   private final FeeService feeService;
   private final MobilePaymentService mobilePaymentService;
+  private final PaymentService paymentService;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
@@ -81,6 +82,10 @@ public class MpbsVerificationService {
     verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
     verifiedMobileTransaction.setPspId(successfullyVerifiedMpbs.getPspId());
     repository.save(verifiedMobileTransaction);
+
+    // ... then save the corresponding payment
+    paymentService.savePaymentFromMpbs(mpbs);
+    log.info("Creating corresponding payment = {}", mpbs);
 
     // ... then update fee remaining amount
     feeService.debitAmount(fee, verifiedMobileTransaction.getAmountInPsp());
