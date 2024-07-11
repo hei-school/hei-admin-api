@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.http.mapper.ExternalResponseMapper;
@@ -34,10 +35,9 @@ public class MobilePaymentService implements MobilePaymentRepository {
     return mobileMoneyApi.fetchThenSaveTransactionsDetails(ORANGE_MONEY);
   }
 
-  public TransactionDetails findTransactionByMpbsWithoutException(Mpbs mpbs) throws ApiException {
+  public Optional<MobileTransactionDetails> findTransactionByMpbsWithoutException(Mpbs mpbs) {
     String transactionRef = mpbs.getPspId();
-    return externalResponseMapper.toExternalTransactionDetails(
-        findTransactionByIdWithoutException(transactionRef));
+    return findTransactionByIdWithoutException(transactionRef);
   }
 
   public MobileTransactionDetails findTransactionById(String pspId) {
@@ -47,8 +47,8 @@ public class MobilePaymentService implements MobilePaymentRepository {
             () -> new NotFoundException("Mobile transaction with ref." + pspId + " not found"));
   }
 
-  public MobileTransactionDetails findTransactionByIdWithoutException(String pspId) {
-    return mobileTransactionDetailsRepository.findByPspTransactionRef(pspId).orElse(null);
+  public Optional<MobileTransactionDetails> findTransactionByIdWithoutException(String pspId) {
+    return mobileTransactionDetailsRepository.findByPspTransactionRef(pspId);
   }
 
   public List<MobileTransactionDetails> saveAll(

@@ -9,14 +9,18 @@ import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
+import school.hei.haapi.http.mapper.ExternalResponseMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
+import school.hei.haapi.repository.MobileTransactionDetailsRepository;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 
@@ -29,6 +33,8 @@ public class MpbsVerificationService {
   private final FeeService feeService;
   private final MobilePaymentService mobilePaymentService;
   private final PaymentService paymentService;
+  private final ExternalResponseMapper externalResponseMapper;
+  private final MobileTransactionDetailsRepository mobileTransactionDetailsRepository;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
@@ -38,21 +44,22 @@ public class MpbsVerificationService {
   public MpbsVerification verifyMobilePaymentAndSaveResult(Mpbs mpbs, Instant toCompare) {
     log.info("Magic happened here");
     // Find transaction in database
-    TransactionDetails mobileTransactionResponseDetails =
+    Optional<MobileTransactionDetails> mobileTransactionResponseDetails =
         mobilePaymentService.findTransactionByMpbsWithoutException(mpbs);
 
     // TIPS: do not use exception to continue script
-    if (mobileTransactionResponseDetails != null) {
-      saveTheVerifiedMpbs(mpbs, mobileTransactionResponseDetails, toCompare);
+    if (mobileTransactionResponseDetails.isPresent()) {
+      TransactionDetails transactionDetails =
+          externalResponseMapper.toExternalTransactionDetails(
+              mobileTransactionResponseDetails.get());
+      saveTheVerifiedMpbs(mpbs, transactionDetails, toCompare);
     }
-    saveTheUnverifiedMpbs(mpbs, mobileTransactionResponseDetails, toCompare);
+    saveTheUnverifiedMpbs(mpbs, toCompare);
     return null;
   }
 
-  private Mpbs saveTheUnverifiedMpbs(
-      Mpbs mpbs, TransactionDetails transactionDetails, Instant toCompare) {
-    mpbs.setStatus(
-        defineMpbsStatusByOrangeStatusOrByInstantValidity(transactionDetails, mpbs, toCompare));
+  private Mpbs saveTheUnverifiedMpbs(Mpbs mpbs, Instant toCompare) {
+    mpbs.setStatus(defineMpbsStatusWithoutOrangeTransactionDetails(mpbs, toCompare));
     return mpbsRepository.save(mpbs);
   }
 
@@ -73,7 +80,7 @@ public class MpbsVerificationService {
     // Update mpbs ...
     mpbs.setSuccessfullyVerifiedOn(Instant.now());
     mpbs.setStatus(
-        defineMpbsStatusByOrangeStatusOrByInstantValidity(
+        defineMpbsStatusFromOrangeTransactionDetails(
             correspondingMobileTransaction, mpbs, toCompare));
     var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
     log.info("Mpbs has successfully verified = {}", mpbs);
@@ -106,21 +113,22 @@ public class MpbsVerificationService {
     return mobilePaymentService.fetchThenSaveTransactionDetails();
   }
 
-  private MpbsStatus defineMpbsStatusByOrangeStatusOrByInstantValidity(
+  private MpbsStatus defineMpbsStatusFromOrangeTransactionDetails(
       TransactionDetails storedTransaction, Mpbs mpbs, Instant toCompare) {
-    long dayValidity = mpbs.getCreationDatetime().until(toCompare, ChronoUnit.DAYS);
-    // TODO: use Optional instead of handling null value later
 
-    // 1. handle if it contains corresponding mobile transaction in database
-    // if not and the day validity expired then make it fail
-    if (dayValidity > 2 && storedTransaction == null) {
-      return FAILED;
-    }
-    // 2. if it contains and if the status is success then make it success
+    // 1. if it contains and if the status is success then make it success
     if (SUCCESS.equals(storedTransaction.getStatus())) {
       return SUCCESS;
     }
-    // 3. and else if the mpbs is stored to day or less than 2 days, it will be verified later
+    // 2. and else if the mpbs is stored to day or less than 2 days, it will be verified later
+    return PENDING;
+  }
+
+  private MpbsStatus defineMpbsStatusWithoutOrangeTransactionDetails(Mpbs mpbs, Instant toCompare) {
+    long dayValidity = mpbs.getCreationDatetime().until(toCompare, ChronoUnit.DAYS);
+    if (dayValidity > 2) {
+      return FAILED;
+    }
     return PENDING;
   }
 }
