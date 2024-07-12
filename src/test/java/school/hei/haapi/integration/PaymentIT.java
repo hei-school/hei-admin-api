@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.integration.StudentIT.someCreatableStudent;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
@@ -22,7 +24,9 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
@@ -35,18 +39,24 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
+import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreatePayment;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Payment;
+import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -54,6 +64,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 @AutoConfigureMockMvc
 class PaymentIT extends MockedThirdParties {
   @Autowired EntityManager entityManager;
+  @MockBean private EventBridgeClient eventBridgeClientMock;
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, PaymentIT.ContextInitializer.SERVER_PORT);
@@ -137,6 +148,14 @@ class PaymentIT extends MockedThirdParties {
         .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
   }
 
+  static CreatePayment creatablePaymentZ() {
+    return new CreatePayment()
+        .type(CreatePayment.TypeEnum.CASH)
+        .amount(5000)
+        .comment("Comment")
+        .creationDatetime(Instant.parse("2022-11-08T08:25:24.00Z"));
+  }
+
   static CreatePayment creatablePayment2() {
     return new CreatePayment()
         .type(CreatePayment.TypeEnum.MOBILE_MONEY)
@@ -149,6 +168,7 @@ class PaymentIT extends MockedThirdParties {
   void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
+    setUpEventBridge(eventBridgeClientMock);
   }
 
   @Test
@@ -235,6 +255,38 @@ class PaymentIT extends MockedThirdParties {
 
     List<Payment> expected = api.getStudentPayments(STUDENT1_ID, FEE3_ID, 1, 5);
     assertTrue(expected.containsAll(actual));
+  }
+
+  @Test
+  @DirtiesContext
+  void student_is_now_enabled_after_paying_fee() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi payingApi = new PayingApi(manager1Client);
+    UsersApi usersApi = new UsersApi(manager1Client);
+    CrupdateStudent subject = someCreatableStudent();
+    subject.setStatus(EnableStatus.ENABLED);
+
+    // Assert before all that the actual student is SUSPENDED ...
+    Student student = usersApi.createOrUpdateStudents(List.of(subject)).getFirst();
+    assertEquals(EnableStatus.ENABLED, student.getStatus());
+    // Update inserted user
+    subject.setId(student.getId());
+    subject.setStatus(EnableStatus.SUSPENDED);
+    Student actualSuspended = usersApi.createOrUpdateStudents(List.of(subject)).getFirst();
+    assertEquals(EnableStatus.SUSPENDED, actualSuspended.getStatus());
+
+    String subjectId = student.getId();
+
+    // ... create corresponding fee ...
+    Fee createdFee = payingApi.createStudentFees(subjectId, List.of(creatableFee1())).getFirst();
+
+    // ... after all assert that the status of student is ENABLED
+    payingApi.createStudentPayments(subjectId, createdFee.getId(), List.of(creatablePaymentZ()));
+    Fee actualFee = payingApi.getStudentFeeById(subjectId, createdFee.getId());
+    Student actualStudent = usersApi.getStudentById(subjectId);
+
+    assertEquals(PAID, actualFee.getStatus());
+    assertEquals(EnableStatus.ENABLED, actualStudent.getStatus());
   }
 
   @Test

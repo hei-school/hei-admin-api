@@ -22,7 +22,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.gen.UserUpserted;
+import school.hei.haapi.endpoint.event.model.UserUpserted;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -176,7 +176,7 @@ public class UserService {
   }
 
   public List<User> getByGroupId(String groupId) {
-    return userRepository.findAllRemainingStudentsByGroupId(groupId);
+    return userRepository.findAllRemainingStudentsByGroupId(groupId).get();
   }
 
   public List<User> getByGroupId(String groupId, PageFromOne page, BoundedPageSize pageSize) {
@@ -189,6 +189,10 @@ public class UserService {
       return List.of();
     }
     return returnedStudent.subList(startIndex, endIndex);
+  }
+
+  public List<User> getAllStudentNotDisabled() {
+    return userRepository.findAllStudentNotDisabled();
   }
 
   public Statistics getStudentsStat(List<Student> students) {

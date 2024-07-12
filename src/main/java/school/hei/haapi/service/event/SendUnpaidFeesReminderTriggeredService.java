@@ -3,7 +3,7 @@ package school.hei.haapi.service.event;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.endpoint.event.gen.SendUnpaidFeesReminderTriggered;
+import school.hei.haapi.endpoint.event.model.SendUnpaidFeesReminderTriggered;
 import school.hei.haapi.service.FeeService;
 
 @Service

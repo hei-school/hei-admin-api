@@ -20,7 +20,7 @@ jobs:
       AWS_REGION: eu-west-3
 
     steps:
-      - uses: actions/checkout@v4.1.1
+      - uses: actions/checkout@v4.1.6
 
       - uses: hei-school/aws-credentials-setter@v1.0.3
         with:

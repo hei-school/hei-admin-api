@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
+
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateMpbs;
@@ -21,7 +23,8 @@ public class MpbsMapper {
         .pspId(domain.getPspId())
         .pspType(domain.getMobileMoneyType())
         .amount(domain.getAmount())
-        .successfullyVerifiedOn(domain.getSuccessfullyVerifiedOn());
+        .successfullyVerifiedOn(domain.getSuccessfullyVerifiedOn())
+        .status(domain.getStatus());
   }
 
   public school.hei.haapi.model.Mpbs.Mpbs toDomain(CreateMpbs rest) {
@@ -31,6 +34,7 @@ public class MpbsMapper {
     domain.setFee(feeService.getById(rest.getFeeId()));
     domain.setPspId(rest.getPspId());
     domain.setMobileMoneyType(rest.getPspType());
+    domain.setStatus(PENDING);
     return domain;
   }
 }

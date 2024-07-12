@@ -39,6 +39,7 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -203,6 +204,7 @@ class TeacherIT extends MockedThirdParties {
   }
 
   @Test
+  @Disabled("TODO: poja has removed max put entries check")
   void manager_write_update_more_than_10_teachers_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);

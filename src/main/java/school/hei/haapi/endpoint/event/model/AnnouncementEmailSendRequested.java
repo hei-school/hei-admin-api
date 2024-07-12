@@ -1,9 +1,9 @@
-package school.hei.haapi.endpoint.event.gen;
+package school.hei.haapi.endpoint.event.model;
 
 import static java.util.UUID.randomUUID;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import javax.annotation.processing.Generated;
+import java.time.Duration;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,8 +19,7 @@ import school.hei.haapi.model.User;
 @Builder
 @ToString
 @Data
-@Generated("EventBridge")
-public class AnnouncementEmailSendRequested {
+public class AnnouncementEmailSendRequested extends PojaEvent {
   @JsonProperty("id")
   private String id;
 
@@ -37,6 +36,16 @@ public class AnnouncementEmailSendRequested {
   private String senderFullName;
 
   private MailUser to;
+
+  @Override
+  public Duration maxConsumerDuration() {
+    return Duration.ofMinutes(2);
+  }
+
+  @Override
+  public Duration maxConsumerBackoffBetweenRetries() {
+    return Duration.ofMinutes(1);
+  }
 
   @Builder
   public record MailUser(String id, String email) {

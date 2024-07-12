@@ -1,12 +1,10 @@
-package school.hei.haapi.endpoint.event.gen;
+package school.hei.haapi.endpoint.event.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.Serializable;
+import java.time.Duration;
 import java.util.Objects;
-import javax.annotation.processing.Generated;
 
-@Generated("EventBridge")
-public class UserUpserted implements Serializable {
+public class UserUpserted extends PojaEvent {
   private static final long serialVersionUID = 1L;
 
   @JsonProperty("userId")
@@ -75,5 +73,15 @@ public class UserUpserted implements Serializable {
       return "null";
     }
     return o.toString().replace("\n", "\n    ");
+  }
+
+  @Override
+  public Duration maxConsumerDuration() {
+    return Duration.ofSeconds(60);
+  }
+
+  @Override
+  public Duration maxConsumerBackoffBetweenRetries() {
+    return Duration.ofSeconds(60);
   }
 }

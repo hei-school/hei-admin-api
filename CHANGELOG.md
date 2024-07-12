@@ -1,3 +1,60 @@
+# [1.34.0](https://github.com/hei-school/hei-admin-api/compare/v1.33.0...v1.34.0) (2024-07-11)
+
+
+### Bug Fixes
+
+* comment and fix the algorithm process to compute mpbs status  ([e2e4e5d](https://github.com/hei-school/hei-admin-api/commit/e2e4e5de486c9eb31106d8e4a58b9ab30f55315e))
+* computing mpbs status fail if the transaction details is null …  ([16497f7](https://github.com/hei-school/hei-admin-api/commit/16497f7ce57041879d7797858d2615d23a820a9a))
+
+
+### Features
+
+* filter group by ref and student ref ([3ff5b82](https://github.com/hei-school/hei-admin-api/commit/3ff5b82cfb13ba14f435412d9ac7b13cbdb90b3d))
+* payment by mobile money  ([09732dc](https://github.com/hei-school/hei-admin-api/commit/09732dc5333665160f3a7b3ea07705541acb65f5))
+
+
+
+# [1.33.0](https://github.com/hei-school/hei-admin-api/compare/v1.32.0...v1.33.0) (2024-07-10)
+
+
+### Bug Fixes
+
+* handle day validity checker for mpbs status  ([0e5079e](https://github.com/hei-school/hei-admin-api/commit/0e5079edf792c9e3b8e6529e41a529e8acd18947))
+
+
+### Features
+
+* endpoint who will execute the sceduler task  ([30807fb](https://github.com/hei-school/hei-admin-api/commit/30807fbd3249a6eddd25350d524ac4a985aeb095))
+* group attribute in user rest model ([764bad9](https://github.com/hei-school/hei-admin-api/commit/764bad9c149941c62ae36e492b42c37f620b3f65))
+* update user status accordingly after paying fee ([ddff281](https://github.com/hei-school/hei-admin-api/commit/ddff28172aa224c3e47c81b9b44cad70fe6f2577))
+
+
+
+# [1.32.0](https://github.com/hei-school/hei-admin-api/compare/v1.28.1...v1.32.0) (2024-07-03)
+
+
+### Bug Fixes
+
+* add @AllArgsConstructor to endpoint.event.gen classes otherwise they cannot be deserialized from empty bean ([19a87a5](https://github.com/hei-school/hei-admin-api/commit/19a87a502c008881011230b18eeae3934d92ffb2))
+* check mobile transaction scheduler stack  ([3987703](https://github.com/hei-school/hei-admin-api/commit/3987703c04d534d6b8922845c4cff6fce380e204))
+* mpbs status default values  ([becab74](https://github.com/hei-school/hei-admin-api/commit/becab748c5037bee78bd91d353cbdc21b08dd5da))
+* scheduled events are processed by event stack 1 ([266bf79](https://github.com/hei-school/hei-admin-api/commit/266bf79be7837a040fab52b731603dda2258bffb))
+* students works stats size  ([23c95bf](https://github.com/hei-school/hei-admin-api/commit/23c95bf67f5fce5a3c351491f3da658610ec1dfb))
+* update event classes imports ([a70b160](https://github.com/hei-school/hei-admin-api/commit/a70b16000ed1979d7c2f064e6336372e333d0c83))
+* worker function timeout must be less than sqs visibility timeout ([9dbf48b](https://github.com/hei-school/hei-admin-api/commit/9dbf48b47affc1e4c9c262ef9c08b0dfc5c816ba))
+
+
+### Features
+
+* add size to group model ([c7abded](https://github.com/hei-school/hei-admin-api/commit/c7abded36e63e339a82fc9da0c1fb52d612f10a9))
+* add status to MPBS to know if PENDING, SUCCESS or FAILED  ([af23531](https://github.com/hei-school/hei-admin-api/commit/af23531404a4b8434ecafe6a5bfeba03ae01dc01))
+* **not-implemented:** documentation for fetched mobile transaction  ([7ea15ee](https://github.com/hei-school/hei-admin-api/commit/7ea15eec67fa355a9e2a4b3bcc96b2ef3265f877))
+* **not-implemented:** filter fees by payment by mobile  ([a5ba67a](https://github.com/hei-school/hei-admin-api/commit/a5ba67ac90ce340ca143c5e0aee05e609dc5ef4a))
+* **not-implemented:** group statistics documentation  ([5527f65](https://github.com/hei-school/hei-admin-api/commit/5527f652056ef534bddbc6cde708538533c07a3b))
+* orange and telma mobile payment  ([2a6f0bb](https://github.com/hei-school/hei-admin-api/commit/2a6f0bb57b12ed60264b3477240a6dfcd713153c))
+
+
+
 ## [1.28.1](https://github.com/hei-school/hei-admin-api/compare/v1.28.0...v1.28.1) (2024-06-20)
 
 
@@ -86,36 +143,6 @@
 ### Reverts
 
 * remove logs ([e6dc4af](https://github.com/hei-school/hei-admin-api/commit/e6dc4af21385afd4292b831a3c6cd6c321e2beb9))
-
-
-
-# [1.23.0](https://github.com/hei-school/hei-admin-api/compare/v1.22.0...v1.23.0) (2024-04-30)
-
-
-### Features
-
-* add pagination when fetching students group  ([1107816](https://github.com/hei-school/hei-admin-api/commit/1107816ce4d196a70982cc6c579f9c1b3a119e8d))
-
-
-
-# [1.22.0](https://github.com/hei-school/hei-admin-api/compare/v1.21.0...v1.22.0) (2024-04-30)
-
-
-### Features
-
-* get announcement by id ([01ea24b](https://github.com/hei-school/hei-admin-api/commit/01ea24bffafbc6019fa5ef5b98dda9a43f34e3b3))
-* implement promotion resources ([de6a706](https://github.com/hei-school/hei-admin-api/commit/de6a706098b70f1031ca82e8c66bc5747e2db43f))
-* implements announcements resources ([46ddaba](https://github.com/hei-school/hei-admin-api/commit/46ddaba53ae599096c2c6601b696bb37de1705d2))
-
-
-
-# [1.21.0](https://github.com/hei-school/hei-admin-api/compare/v1.20.0...v1.21.0) (2024-04-17)
-
-
-### Features
-
-* get mpbs verifications ([a097964](https://github.com/hei-school/hei-admin-api/commit/a0979649e38667e31b0f27eb0cb6fc13658d3e19))
-* mobile payment by student reources  ([a219a8b](https://github.com/hei-school/hei-admin-api/commit/a219a8bc8f52665f90f470fdb74a88cb57284a2d))
 
 
 

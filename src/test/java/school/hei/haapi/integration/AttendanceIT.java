@@ -31,7 +31,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.event.gen.CheckAttendanceTriggered;
+import school.hei.haapi.endpoint.event.model.CheckAttendanceTriggered;
 import school.hei.haapi.endpoint.rest.api.AttendanceApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;

@@ -7,7 +7,6 @@ import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -26,7 +25,6 @@ import school.hei.haapi.integration.conf.TestUtils;
 @Testcontainers
 @ContextConfiguration(initializers = CommentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
-@Slf4j
 class CommentIT extends MockedThirdParties {
   public static String STUDENT1_REF = "STD21001";
 
@@ -75,8 +73,6 @@ class CommentIT extends MockedThirdParties {
 
     List<Comment> actual = api.getStudentComments(STUDENT1_ID, null, 1, 15);
 
-    log.info(actual.toString());
-
     assertTrue(actual.contains(comment1()));
     assertTrue(actual.contains(comment2()));
   }
@@ -87,8 +83,6 @@ class CommentIT extends MockedThirdParties {
     CommentsApi api = new CommentsApi(apiClient);
 
     List<Comment> actual = api.getStudentComments(STUDENT1_ID, null, 1, 15);
-
-    log.info(actual.toString());
 
     assertTrue(actual.contains(comment1()));
     assertTrue(actual.contains(comment2()));

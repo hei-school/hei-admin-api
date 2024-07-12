@@ -123,6 +123,15 @@ paths:
       summary: Get all groups
       operationId: getGroups
       parameters:
+        - name: ref
+          in: query
+          schema:
+            type: string
+        - name: student_ref
+          in: query
+          description: Filter group by student ref
+          schema:
+            type: string
         - name: page
           in: query
           schema:
@@ -188,6 +197,19 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /groups/students/stats:
+    get:
+      tags:
+        - Users
+      summary: Get some stats infos about students.
+      operationId: getGroupStats
+      responses:
+        '200':
+          description: Stats info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GroupStatistics'
   /students/stats:
     get:
       tags:
@@ -1403,7 +1425,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /delay_penalty_change:
     post:
       tags:
@@ -1676,6 +1697,10 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: isMpbs
+          in: query
+          schema:
+            type: boolean
       operationId: getFees
       responses:
         '200':
@@ -1808,7 +1833,55 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  /mpbs:
+    get:
+      tags:
+        - Paying
+      summary: Get all mobile payment by student.
+      description: Fetched mobile payment by student.
+      parameters:
+        - name: student_ref
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: transaction_ref
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+      operationId: getFetchedMobileTransactions
+      responses:
+        '200':
+          description: List of all fetched mobile transactions
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mpbs'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees/{fee_id}/mpbs:
     get:
       tags:
@@ -3647,6 +3720,10 @@ components:
           format: date-time
         profile_picture:
           type: string
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/Group'
     Teacher:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
@@ -3684,6 +3761,8 @@ components:
         creation_datetime:
           type: string
           format: date-time
+        size:
+          type: integer
     CreateGroup:
       type: object
       properties:
@@ -3918,6 +3997,12 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    MpbsStatus:
+      type: string
+      enum:
+        - PENDING
+        - SUCCESS
+        - FAILED
     MobileMoneyType:
       type: string
       enum:
@@ -4009,6 +4094,8 @@ components:
         successfully_verified_on:
           type: string
           format: date-time
+        status:
+          $ref: '#/components/schemas/MpbsStatus'
     MpbsVerification:
       allOf:
         - $ref: '#/components/schemas/CreateMpbs'
@@ -4271,6 +4358,15 @@ components:
           format: date-time
         scope:
           $ref: '#/components/schemas/Scope'
+    GroupStatistics:
+      type: object
+      properties:
+        total_students:
+          type: integer
+        men:
+          $ref: '#/components/schemas/StatisticsDetails'
+        women:
+          $ref: '#/components/schemas/StatisticsDetails'
     Statistics:
       type: object
       properties:

@@ -6,7 +6,9 @@ import io.sentry.SentryOptions;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import school.hei.haapi.PojaGenerated;
 
+@PojaGenerated
 @Configuration
 public class SentryConf {
 
