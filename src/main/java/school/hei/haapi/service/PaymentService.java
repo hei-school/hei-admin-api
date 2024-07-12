@@ -98,13 +98,13 @@ public class PaymentService {
     userRepository.updateUserStatusById(ENABLED, userToResetStatus.getId());
   }
 
-  public Payment savePaymentFromMpbs(Mpbs verifiedMpbs) {
+  public Payment savePaymentFromMpbs(Mpbs verifiedMpbs, int amount) {
     Fee correspondingFee = verifiedMpbs.getFee();
     Payment paymentFromMpbs =
         Payment.builder()
             .type(MOBILE_MONEY)
             .fee(correspondingFee)
-            .amount(verifiedMpbs.getAmount())
+            .amount(amount)
             .creationDatetime(Instant.now())
             .comment(correspondingFee.getComment())
             .build();

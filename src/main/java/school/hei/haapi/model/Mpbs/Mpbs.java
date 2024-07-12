@@ -18,6 +18,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.Fee;
@@ -31,6 +32,7 @@ import school.hei.haapi.model.User;
 @Setter
 @Builder
 @EqualsAndHashCode(callSuper = true)
+@ToString
 public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   private Integer amount;
 
