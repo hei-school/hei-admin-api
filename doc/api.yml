@@ -2481,6 +2481,12 @@ paths:
           example: "/path/to/the/folder"
           schema:
             type: string
+        - name: password
+          in: query
+          required: true
+          description: The password used to protect the link
+          schema:
+            type: string
       responses:
         '200':
           description: Share link with additional infos
@@ -2523,42 +2529,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FileInfo'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  '/students/{student_id}/files/share_link':
-    get:
-      tags:
-        - Files
-      summary: Get a share link for specified student's files
-      operationId: getStudentFilesShareLink
-      parameters:
-        - name: student_id
-          required: true
-          schema:
-            type: string
-          in: path
-        - name: path
-          in: query
-          required: true
-          description: should begin with `/`
-          example: "/path/to/the/folder"
-          schema:
-            type: string
-      responses:
-        '200':
-          description: Share link with additional infos
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ShareInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3928,6 +3898,8 @@ components:
         path:
           type: string
         url:
+          type: string
+        password:
           type: string
         permission:
           type: array

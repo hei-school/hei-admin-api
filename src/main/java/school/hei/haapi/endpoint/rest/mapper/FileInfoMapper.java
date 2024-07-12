@@ -33,11 +33,12 @@ public class FileInfoMapper {
 
   public ShareInfo toShareInfo(OcsData ocsData) {
     EnumSet<OwnCloudPermission> permissions =
-        findOwnCloudPermissionsFromValue(ocsData.getPermissions());
+        findOwnCloudPermissionsFromValue(ocsData.getOcs().getData().getPermissions());
     return new ShareInfo()
-        .path(ocsData.getPath())
-        .url(ocsData.getUrl())
+        .path(ocsData.getOcs().getData().getPath())
+        .password(ocsData.getOcs().getData().getPassword())
+        .url(ocsData.getOcs().getData().getUrl())
         .permission(permissions.stream().toList())
-        .expiration(ocsData.getExpiration());
+        .expiration(ocsData.getOcs().getData().getExpiration());
   }
 }

@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.controller;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -52,7 +53,8 @@ public class SchoolFileController {
   }
 
   @GetMapping("/school/files/share_link")
-  public ShareInfo getShareLink(@RequestParam String path) {
-    return fileInfoMapper.toShareInfo(ownCloudService.createShareLink(path));
+  public ShareInfo getShareLink(@RequestParam String path, @RequestParam String password)
+      throws JsonProcessingException {
+    return fileInfoMapper.toShareInfo(ownCloudService.createShareLink(path, password));
   }
 }

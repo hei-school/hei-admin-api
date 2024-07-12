@@ -8,6 +8,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 
 @AllArgsConstructor
@@ -19,21 +20,35 @@ import lombok.ToString;
 @Data
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OcsData {
-  @JsonProperty("id")
-  private String id;
+  @JsonProperty("ocs")
+  private Ocs ocs;
 
-  @JsonProperty("permissions")
-  private int permissions;
+  @Getter
+  public static class Ocs {
+    @JsonProperty("data")
+    private Data data;
 
-  @JsonProperty("expiration")
-  private String expiration;
+    @Getter
+    @Setter
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public static class Data {
+      @JsonProperty("id")
+      private String id;
 
-  @JsonProperty("name")
-  private String name;
+      @JsonProperty("permissions")
+      private int permissions;
 
-  @JsonProperty("url")
-  private String url;
+      @JsonProperty("expiration")
+      private String expiration;
 
-  @JsonProperty("path")
-  private String path;
+      @JsonProperty("path")
+      private String path;
+
+      @JsonProperty("url")
+      private String url;
+
+      @JsonProperty("password")
+      private String password;
+    }
+  }
 }

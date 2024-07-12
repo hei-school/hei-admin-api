@@ -7,16 +7,9 @@ import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.READ;
 import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.SHARE;
 import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.UPDATE;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Base64;
-import java.util.EnumSet;
-import java.util.List;
-import java.util.Map;
-import lombok.Getter;
+import java.util.*;
 import school.hei.haapi.endpoint.rest.model.OwnCloudPermission;
 
-@Getter
 public class OwnCloudUtils {
 
   private static final Map<Integer, OwnCloudPermission> permissionMap =
@@ -73,5 +66,9 @@ public class OwnCloudUtils {
         .filter(entry -> ownCloudPermissions.contains(entry.getValue()))
         .mapToInt(Map.Entry::getKey)
         .sum();
+  }
+
+  public static String generateRandomPassword() {
+    return UUID.randomUUID().toString();
   }
 }

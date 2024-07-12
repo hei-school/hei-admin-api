@@ -32,7 +32,6 @@ import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
-import school.hei.haapi.endpoint.rest.model.ShareInfo;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -122,24 +121,6 @@ public class StudentFileIT extends MockedThirdParties {
 
     assertEquals(2, documents.size());
     assertTrue(documents.contains(file1()));
-  }
-
-  @Test
-  void student_get_own_share_link() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    FilesApi api = new FilesApi(student1Client);
-
-    ShareInfo actual = api.getStudentFilesShareLink(STUDENT1_ID, "/Test-api");
-    assertTrue(actual.getPath().contains("/Test-api"));
-    assertTrue(actual.getUrl().contains("https://owncloud.example.com"));
-  }
-
-  @Test
-  void student_get_others_share_link_ko() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    FilesApi api = new FilesApi(student1Client);
-
-    assertThrowsForbiddenException(() -> api.getStudentFilesShareLink(STUDENT2_ID, "/Test-api"));
   }
 
   public static FileInfo file1() {

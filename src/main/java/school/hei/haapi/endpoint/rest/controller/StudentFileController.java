@@ -18,7 +18,6 @@ import school.hei.haapi.endpoint.rest.mapper.FileInfoMapper;
 import school.hei.haapi.endpoint.rest.mapper.WorkDocumentMapper;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.FileType;
-import school.hei.haapi.endpoint.rest.model.ShareInfo;
 import school.hei.haapi.endpoint.rest.validator.CreateStudentWorkFileValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -100,10 +99,5 @@ public class StudentFileController {
       @PathVariable(name = "student_id") String studentId,
       @PathVariable(name = "id") String fileId) {
     return fileInfoMapper.toRest(fileService.getStudentFileById(studentId, fileId));
-  }
-
-  @GetMapping("/students/{student_id}/files/share_link")
-  public ShareInfo getShareLink(@RequestParam String path, @PathVariable String student_id) {
-    return fileInfoMapper.toShareInfo(ownCloudService.createShareLink(path));
   }
 }

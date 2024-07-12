@@ -95,10 +95,8 @@ import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
-import school.hei.haapi.model.notEntity.OcsData;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
-import school.hei.haapi.service.ownCloud.OwnCloudService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -202,18 +200,6 @@ public class TestUtils {
 
   public static void setUpS3Service(FileService fileService, Manager user) {
     when(fileService.getPresignedUrl(user.getRef(), 180L)).thenReturn(user.getRef());
-  }
-
-  public static void setUpOwncloudService(OwnCloudService ownCloudService) {
-    when(ownCloudService.createShareLink(any()))
-        .thenReturn(
-            OcsData.builder()
-                .url("https://owncloud.server.mock")
-                .path("/files")
-                .name("Share files")
-                .expiration("2024-07-01")
-                .permissions(1)
-                .build());
   }
 
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {
