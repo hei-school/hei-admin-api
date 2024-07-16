@@ -22,6 +22,6 @@ public class CreateStudentWorkFileValidator {
   }
 
   private boolean acceptCommitmentBeginIsLessThan(Instant commtimentBegin, Instant toCompare) {
-    return toCompare.isAfter(commtimentBegin);
+    return commtimentBegin.isAfter(toCompare);
   }
 }
