@@ -67,8 +67,8 @@ public class WorkDocumentIT extends MockedThirdParties {
           api.uploadStudentWorkFile(
               STUDENT1_ID,
               "test",
-              Instant.parse("2021-11-08T08:25:24.00Z"),
               Instant.parse("2021-11-09T08:25:24.00Z"),
+              Instant.parse("2021-11-08T08:25:24.00Z"),
               null,
               getMockedFile("img", ".png"));
         });
