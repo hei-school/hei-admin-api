@@ -1,0 +1,1 @@
+alter table "mobile_transaction_details" add constraint mobile_transaction_psp_id_unique unique (psp_transaction_ref);
