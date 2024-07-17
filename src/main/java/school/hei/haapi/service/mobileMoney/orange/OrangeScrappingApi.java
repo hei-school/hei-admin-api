@@ -52,7 +52,7 @@ class OrangeScrappingApi implements MobileMoneyApi {
       exceptionMapper.accept(response);
       log.info("No exception thrown");
       a = objectMapper.readValue(response.body(), OrangeDailyTransactionScrappingDetails.class);
-      log.info("Transaction details is correctly mapped");
+      log.info(a.toString());
     } catch (IOException | InterruptedException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
