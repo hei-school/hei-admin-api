@@ -88,7 +88,7 @@ public class FeeService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
     if (isMpbs) {
-      return feeRepository.findAllByMpbsIsNotNull(pageable);
+      return feeRepository.findAllByMpbsIsNotNullOrderByMpbsCreationDatetimeDesc(pageable);
     }
     if (status != null) {
       return feeRepository.getFeesByStatus(status, pageable);
