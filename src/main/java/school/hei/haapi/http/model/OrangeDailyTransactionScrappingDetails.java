@@ -7,11 +7,13 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.Setter;
+import lombok.ToString;
 
 @Getter
 @Setter
 @Builder
 @EqualsAndHashCode
+@ToString
 public class OrangeDailyTransactionScrappingDetails {
   @JsonProperty("transactionDate")
   private String transactionDate;
