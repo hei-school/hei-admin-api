@@ -4031,6 +4031,8 @@ components:
       properties:
         id:
           type: string
+        student_ref:
+          type: string
         student_id:
           type: string
         remaining_amount:
