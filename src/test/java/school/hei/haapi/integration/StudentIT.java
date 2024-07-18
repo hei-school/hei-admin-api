@@ -47,6 +47,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -900,6 +901,36 @@ public class StudentIT extends MockedThirdParties {
     CrupdateStudent payload = toCrupdateStudent(expectedStudent1AfterUpdate);
 
     assertThrowsForbiddenException(() -> api.updateStudent(STUDENT1_ID, payload));
+  }
+
+  @Test
+  void manager_read_group_students_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+
+    List<Student> actualGroupStudents =
+        api.getStudentsByGroupId(GROUP1_ID, 1, 10, null, null, null);
+    assertEquals(2, actualGroupStudents.size());
+
+    List<Student> actualGroupStudentsByRef =
+        api.getStudentsByGroupId(GROUP1_ID, 1, 10, "STD21001", null, null);
+    assertEquals(1, actualGroupStudentsByRef.size());
+    assertEquals(student1(), actualGroupStudentsByRef.getFirst());
+
+    List<Student> actualGroupStudentsByFirstname =
+        api.getStudentsByGroupId(GROUP1_ID, 1, 10, null, "Ryan", null);
+    assertEquals(1, actualGroupStudentsByFirstname.size());
+    assertEquals(student1(), actualGroupStudentsByFirstname.getFirst());
+
+    List<Student> actualGroupStudentsByLastname =
+        api.getStudentsByGroupId(GROUP1_ID, 1, 10, null, null, "Andria");
+    assertEquals(1, actualGroupStudentsByLastname.size());
+    assertEquals(student1(), actualGroupStudentsByLastname.getFirst());
+
+    List<Student> actualByStudentData =
+        api.getStudentsByGroupId(GROUP1_ID, 1, 10, "STD21001", "Ryan", "Andria");
+    assertEquals(1, actualByStudentData.size());
+    assertEquals(student1(), actualByStudentData.getFirst());
   }
 
   private Student toStudent(CrupdateStudent crupdateStudent) {

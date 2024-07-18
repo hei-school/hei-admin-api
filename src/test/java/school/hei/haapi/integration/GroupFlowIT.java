@@ -52,7 +52,7 @@ public class GroupFlowIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID, 1, 10);
+    List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID, 1, 10, null, null, null);
 
     assertEquals(2, group1Students.size());
   }
@@ -66,7 +66,8 @@ public class GroupFlowIT extends MockedThirdParties {
             + "\"type\":\"400 BAD_REQUEST\","
             + "\"message\":\"Student has already left this group\"}";
 
-    List<Student> actualStudentsGroup = api.getStudentsByGroupId(GROUP1_ID, 1, 20);
+    List<Student> actualStudentsGroup =
+        api.getStudentsByGroupId(GROUP1_ID, 1, 20, null, null, null);
 
     // Assert that specified student is really in actual group ...
     assertTrue(
@@ -87,7 +88,8 @@ public class GroupFlowIT extends MockedThirdParties {
     String expectedBody =
         "{" + "\"type\":\"400 BAD_REQUEST\"," + "\"message\":\"Student is already in group\"}";
 
-    List<Student> actualStudentsGroup = api.getStudentsByGroupId(GROUP2_ID, 1, 20);
+    List<Student> actualStudentsGroup =
+        api.getStudentsByGroupId(GROUP2_ID, 1, 20, null, null, null);
 
     // Assert that specified student is not in actual group ...
     assertFalse(actualStudentsGroup.contains(student2()));
@@ -108,8 +110,8 @@ public class GroupFlowIT extends MockedThirdParties {
 
     api.moveOrDeleteStudentInGroup(
         STUDENT2_ID, List.of(createStudent2LeavesGroup1(), createStudent2JoinsGroup2()));
-    List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID, 1, 10);
-    List<Student> group2Students = api.getStudentsByGroupId(GROUP2_ID, 1, 10);
+    List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID, 1, 10, null, null, null);
+    List<Student> group2Students = api.getStudentsByGroupId(GROUP2_ID, 1, 10, null, null, null);
 
     Student student2moved = student2().groups(List.of(group2().size(2)));
     assertEquals(1, group1Students.size());
