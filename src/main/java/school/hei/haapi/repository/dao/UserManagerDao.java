@@ -4,6 +4,8 @@ import static jakarta.persistence.criteria.JoinType.LEFT;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.HAVE_BEEN_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WILL_BE_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
@@ -14,10 +16,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
-import school.hei.haapi.model.AwardedCourse;
-import school.hei.haapi.model.Course;
-import school.hei.haapi.model.User;
-import school.hei.haapi.model.WorkDocument;
+import school.hei.haapi.model.*;
 
 @Repository
 @AllArgsConstructor
@@ -35,13 +34,15 @@ public class UserManagerDao {
       WorkStudyStatus workStatus,
       Instant commitmentBeginDate,
       String courseId,
-      Instant commitmentComparison) {
+      Instant commitmentComparison,
+      List<String> excludeGroupIds) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
     Join<User, WorkDocument> workDocumentJoin = root.join("workDocuments", LEFT);
     Join<User, AwardedCourse> awardedCourseJoin = root.join("awardedCourses", LEFT);
     Join<AwardedCourse, Course> courseJoin = awardedCourseJoin.join("course", LEFT);
+
     Predicate predicate = builder.conjunction();
 
     Predicate hasUserRef =
@@ -106,6 +107,36 @@ public class UserManagerDao {
               predicate,
               builder.greaterThanOrEqualTo(
                   workDocumentJoin.get("commitmentBegin"), commitmentComparison));
+    }
+
+    if (excludeGroupIds != null) {
+      Subquery<String> subquery = query.subquery(String.class);
+      Root<GroupFlow> groupFlowRoot = subquery.from(GroupFlow.class);
+
+      subquery.select(groupFlowRoot.get("student").get("id"));
+      //      subquery.where(builder.like(groupFlowRoot.get("group").get("id"), excludeGroupId));
+      subquery.where(groupFlowRoot.get("group").get("id").in(excludeGroupIds));
+
+      subquery.groupBy(
+          groupFlowRoot.get("group").get("id"), groupFlowRoot.get("student").get("id"));
+
+      Expression<Integer> joinCount =
+          builder.sum(
+              builder
+                  .<Integer>selectCase()
+                  .when(builder.equal(groupFlowRoot.get("groupFlowType"), JOIN), 1)
+                  .otherwise(0));
+
+      Expression<Integer> leaveCount =
+          builder.sum(
+              builder
+                  .<Integer>selectCase()
+                  .when(builder.equal(groupFlowRoot.get("groupFlowType"), LEAVE), 1)
+                  .otherwise(0));
+
+      subquery.having(builder.greaterThan(joinCount, leaveCount));
+
+      predicate = builder.and(predicate, builder.not(root.get("id").in(subquery)));
     }
 
     predicate = builder.and(predicate, hasUserRole, hasUserRef, hasUserLastName);

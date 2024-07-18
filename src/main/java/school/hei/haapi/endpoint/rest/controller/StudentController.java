@@ -75,7 +75,8 @@ public class StudentController {
       @RequestParam(name = "status", required = false) EnableStatus status,
       @RequestParam(name = "sex", required = false) Sex sex,
       @RequestParam(name = "work_study_status", required = false) WorkStudyStatus workStatus,
-      @RequestParam(name = "commitment_begin_date", required = false) Instant commitmentBeginDate) {
+      @RequestParam(name = "commitment_begin_date", required = false) Instant commitmentBeginDate,
+      @RequestParam(name = "exclude_groups", required = false) List<String> excludeGroupIds) {
     User.Sex domainSex = sexEnumMapper.toDomainSexEnum(sex);
     User.Status domainStatus = statusEnumMapper.toDomainStatus(status);
     return userService
@@ -90,7 +91,8 @@ public class StudentController {
             domainStatus,
             domainSex,
             workStatus,
-            commitmentBeginDate)
+            commitmentBeginDate,
+            excludeGroupIds)
         .stream()
         .map(userMapper::toRestStudent)
         .toList();

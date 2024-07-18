@@ -458,6 +458,14 @@ paths:
           schema:
             type: string
             format: date-time
+        - name: exclude_groups
+          required: false
+          in: query
+          description: List of group ids to exclude students from
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
           description: List of students, ordered by ref.
