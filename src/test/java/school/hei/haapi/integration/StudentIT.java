@@ -908,29 +908,12 @@ public class StudentIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<Student> actualGroupStudents =
-        api.getStudentsByGroupId(GROUP1_ID, 1, 10, null, null, null);
+    List<Student> actualGroupStudents = api.getStudentsByGroupId(GROUP1_ID, 1, 10, null);
     assertEquals(2, actualGroupStudents.size());
 
-    List<Student> actualGroupStudentsByRef =
-        api.getStudentsByGroupId(GROUP1_ID, 1, 10, "STD21001", null, null);
+    List<Student> actualGroupStudentsByRef = api.getStudentsByGroupId(GROUP1_ID, 1, 10, "Ryan");
     assertEquals(1, actualGroupStudentsByRef.size());
     assertEquals(student1(), actualGroupStudentsByRef.getFirst());
-
-    List<Student> actualGroupStudentsByFirstname =
-        api.getStudentsByGroupId(GROUP1_ID, 1, 10, null, "Ryan", null);
-    assertEquals(1, actualGroupStudentsByFirstname.size());
-    assertEquals(student1(), actualGroupStudentsByFirstname.getFirst());
-
-    List<Student> actualGroupStudentsByLastname =
-        api.getStudentsByGroupId(GROUP1_ID, 1, 10, null, null, "Andria");
-    assertEquals(1, actualGroupStudentsByLastname.size());
-    assertEquals(student1(), actualGroupStudentsByLastname.getFirst());
-
-    List<Student> actualByStudentData =
-        api.getStudentsByGroupId(GROUP1_ID, 1, 10, "STD21001", "Ryan", "Andria");
-    assertEquals(1, actualByStudentData.size());
-    assertEquals(student1(), actualByStudentData.getFirst());
   }
 
   private Student toStudent(CrupdateStudent crupdateStudent) {
