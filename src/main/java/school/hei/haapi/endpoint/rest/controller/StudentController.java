@@ -59,12 +59,8 @@ public class StudentController {
       @PathVariable String groupId,
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize,
-      @RequestParam(name = "ref", required = false) String studentRef,
-      @RequestParam(name = "first_name", required = false) String firstname,
-      @RequestParam(name = "last_name", required = false) String lastname) {
-    return userService
-        .getByGroupIdWithFilter(groupId, page, pageSize, studentRef, firstname, lastname)
-        .stream()
+      @RequestParam(name = "first_name", required = false) String studentFirstname) {
+    return userService.getByGroupIdWithFilter(groupId, page, pageSize, studentFirstname).stream()
         .map(userMapper::toRestStudent)
         .collect(Collectors.toUnmodifiableList());
   }

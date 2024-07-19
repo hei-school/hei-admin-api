@@ -1011,22 +1011,10 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-        - name: ref
+        - name: first_name
           in: query
           required: false
-          description: Filter group students by reference
-          schema:
-            type: string
-        - name: firstname
-          in: query
-          required: false
-          description: Filter group students by firstname
-          schema:
-            type: string
-        - name: lastname
-          in: query
-          required: false
-          description: Filter group students by lastname
+          description: Filter group students by first name
           schema:
             type: string
       operationId: getStudentsByGroupId

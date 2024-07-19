@@ -182,16 +182,9 @@ public class UserService {
   }
 
   public List<User> getByGroupIdWithFilter(
-      String groupId,
-      PageFromOne page,
-      BoundedPageSize pageSize,
-      String studentRef,
-      String studentFirstname,
-      String studentLastname) {
+      String groupId, PageFromOne page, BoundedPageSize pageSize, String studentFirstname) {
     var returnedStudent =
-        userRepository
-            .findStudentGroupsWithFilter(groupId, studentRef, studentFirstname, studentLastname)
-            .get();
+        userRepository.findStudentGroupsWithFilter(groupId, studentFirstname).get();
 
     int startIndex = (page.getValue() - 1) * pageSize.getValue();
     int endIndex = Math.min(startIndex + pageSize.getValue(), returnedStudent.size());
