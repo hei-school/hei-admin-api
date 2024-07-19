@@ -1,7 +1,6 @@
 package school.hei.haapi.repository;
 
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
@@ -39,5 +38,5 @@ public interface GroupRepository extends JpaRepository<Group, String> {
                               ON
                                   sgf.group_id = g.id
                           """)
-  Optional<List<Group>> findByStudentId(String studentId);
+  List<Group> findByStudentId(String studentId);
 }
