@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.controller;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -15,15 +16,18 @@ import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.FileInfoMapper;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.FileType;
+import school.hei.haapi.endpoint.rest.model.ShareInfo;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.SchoolFileService;
+import school.hei.haapi.service.ownCloud.OwnCloudService;
 
 @RestController
 @AllArgsConstructor
 public class SchoolFileController {
   private final SchoolFileService schoolFileService;
   private final FileInfoMapper fileInfoMapper;
+  private final OwnCloudService ownCloudService;
 
   @PostMapping(value = "/school/files/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public FileInfo uploadSchoolFile(
@@ -46,5 +50,11 @@ public class SchoolFileController {
   @GetMapping("/school/files/{id}")
   public FileInfo getSchoolRegulationById(@PathVariable(name = "id") String schoolFileId) {
     return fileInfoMapper.toRest(schoolFileService.getSchoolFileById(schoolFileId));
+  }
+
+  @GetMapping("/school/files/share_link")
+  public ShareInfo getShareLink(@RequestParam String path, @RequestParam String password)
+      throws JsonProcessingException {
+    return fileInfoMapper.toShareInfo(ownCloudService.createShareLink(path, password));
   }
 }

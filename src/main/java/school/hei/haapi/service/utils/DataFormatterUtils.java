@@ -3,6 +3,7 @@ package school.hei.haapi.service.utils;
 import java.text.NumberFormat;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
@@ -32,6 +33,12 @@ public class DataFormatterUtils {
             // Madagascar's timezone
             .withZone(ZoneId.of("UTC+3"));
     return formatter.format(instant);
+  }
+
+  public static String instantToOcsDateFormat(Instant instant) {
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    LocalDateTime localDateTime = LocalDateTime.ofInstant(instant, ZoneId.of("UTC+3"));
+    return localDateTime.format(formatter);
   }
 
   public static String numberToReadable(int number) {

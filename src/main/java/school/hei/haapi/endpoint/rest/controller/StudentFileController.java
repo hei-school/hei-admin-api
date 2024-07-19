@@ -22,6 +22,7 @@ import school.hei.haapi.endpoint.rest.validator.CreateStudentWorkFileValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.StudentFileService;
+import school.hei.haapi.service.ownCloud.OwnCloudService;
 
 @RestController
 @AllArgsConstructor
@@ -30,6 +31,7 @@ public class StudentFileController {
   private final FileInfoMapper fileInfoMapper;
   private final WorkDocumentMapper workDocumentMapper;
   private final CreateStudentWorkFileValidator createStudentWorkFileValidator;
+  private final OwnCloudService ownCloudService;
 
   @GetMapping(
       value = "/students/{id}/scholarship_certificate/raw",

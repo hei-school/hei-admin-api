@@ -33,7 +33,10 @@ public abstract class AbstractContextInitializer
         "spring.datasource.url=" + postgresContainer.getJdbcUrl(),
         "spring.datasource.username=" + postgresContainer.getUsername(),
         "spring.datasource.password=" + postgresContainer.getPassword(),
-        "spring.flyway.locations=classpath:/db/migration," + flywayTestdataPath);
+        "spring.flyway.locations=classpath:/db/migration," + flywayTestdataPath,
+        "OWNCLOUD_BASE_URL=https://owncloud.example.com",
+        "OWNCLOUD_USERNAME=dummy",
+        "OWNCLOUD_PASSWORD=dummy");
   }
 
   public abstract int getServerPort();

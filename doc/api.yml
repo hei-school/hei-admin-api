@@ -2467,6 +2467,43 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/school/files/share_link':
+    get:
+      tags:
+        - Files
+      summary: get a share link to access files or folder in owncloud
+      operationId: getSchoolFilesShareLink
+      parameters:
+        - name: path
+          in: query
+          required: true
+          description: should begin with `/`
+          example: "/path/to/the/folder"
+          schema:
+            type: string
+        - name: password
+          in: query
+          required: true
+          description: The password used to protect the link
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Share link with additional infos
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ShareInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/students/{student_id}/files/{id}':
     get:
       tags:
@@ -3845,6 +3882,29 @@ components:
           $ref: '#/components/schemas/FileType'
         file_url:
           type: string
+    OwnCloudPermission:
+      type: string
+      enum:
+        - READ
+        - DELETE
+        - UPDATE
+        - CREATE
+        - SHARE
+    ShareInfo:
+      type: object
+      properties:
+        expiration:
+          type: string
+        path:
+          type: string
+        url:
+          type: string
+        password:
+          type: string
+        permission:
+          type: array
+          items:
+            $ref: '#/components/schemas/OwnCloudPermission'
     AwardedCourse:
       type: object
       properties:
