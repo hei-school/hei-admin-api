@@ -1,7 +1,6 @@
 package school.hei.haapi.repository;
 
 import java.util.List;
-import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -21,10 +20,10 @@ public interface UserRepository extends JpaRepository<User, String> {
   @Query("update User u set u.status = :status where u.id = :user_id")
   void updateUserStatusById(@Param("status") User.Status status, @Param("user_id") String id);
 
-	@Query(
-			nativeQuery = true,
-			value =
-					"""
+  @Query(
+      nativeQuery = true,
+      value =
+          """
                                   WITH student_group_flow AS (
                                       SELECT
                                           gf.group_id,
@@ -50,11 +49,10 @@ public interface UserRepository extends JpaRepository<User, String> {
                                       student_group_flow sgf
                                       ON
                                           sgf.student_id = u.id
-                                  where u.status <> 'DISABLED' 
+                                  where u.status <> 'DISABLED'
                                   and (?2 is null or u.first_name = ?2)
                                   """)
-	List<User> findStudentGroupsWithFilter(String groupId, String studentFirstname);
-
+  List<User> findStudentGroupsWithFilter(String groupId, String studentFirstname);
 
   @Query(
       nativeQuery = true,
