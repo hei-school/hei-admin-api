@@ -1,3 +1,12 @@
+# [1.36.0](https://github.com/hei-school/hei-admin-api/compare/v1.35.0...v1.36.0) (2024-07-19)
+
+
+### Features
+
+* add student ref in fee payload and filter group student by firstname  ([47d2819](https://github.com/hei-school/hei-admin-api/commit/47d28192145581596c64067df285225b59488fbd))
+
+
+
 # [1.35.0](https://github.com/hei-school/hei-admin-api/compare/v1.34.0...v1.35.0) (2024-07-19)
 
 
@@ -122,22 +131,6 @@
 ### Features
 
 * compute the work status during fetching students data  ([9f998e0](https://github.com/hei-school/hei-admin-api/commit/9f998e040d670bc843bfe7aaf4edd99f82bf6fbb))
-
-
-
-# [1.25.0](https://github.com/hei-school/hei-admin-api/compare/v1.24.0...v1.25.0) (2024-06-13)
-
-
-### Bug Fixes
-
-* max ses send email recipient size is 50, hence group list by 50 if needed ([fa6d180](https://github.com/hei-school/hei-admin-api/commit/fa6d180ec3f33de1b6ac5a321b62c11db55c41b8))
-* redirect to HA prod ui ([e40a221](https://github.com/hei-school/hei-admin-api/commit/e40a2213cea0e675fd3c94012f11f0d1c810669c))
-* wrong variable in email template ([02cf17f](https://github.com/hei-school/hei-admin-api/commit/02cf17f25f30986098321e7c002a1431d8fc019f))
-
-
-### Features
-
-* suspend user with late fees and mail them ([9c23ec7](https://github.com/hei-school/hei-admin-api/commit/9c23ec7772c7ebdfad5c4f2a90d7ab6de021ef0e))
 
 
 
