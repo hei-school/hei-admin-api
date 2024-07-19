@@ -39,5 +39,5 @@ public interface GroupRepository extends JpaRepository<Group, String> {
                               ON
                                   sgf.group_id = g.id
                           """)
-  Optional<List<Group>> findByStudentId(String studentId);
+  List<Group> findByStudentId(String studentId);
 }

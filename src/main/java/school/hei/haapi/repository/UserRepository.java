@@ -53,7 +53,7 @@ public interface UserRepository extends JpaRepository<User, String> {
                                   where u.status <> 'DISABLED' 
                                   and (?2 is null or u.first_name = ?2)
                                   """)
-	Optional<List<User>> findStudentGroupsWithFilter(String groupId, String studentFirstname);
+	List<User> findStudentGroupsWithFilter(String groupId, String studentFirstname);
 
 
   @Query(
@@ -87,7 +87,7 @@ public interface UserRepository extends JpaRepository<User, String> {
 						        sgf.student_id = u.id
 						where u.status <> 'DISABLED'
 						""")
-  Optional<List<User>> findAllRemainingStudentsByGroupId(String groupId);
+  List<User> findAllRemainingStudentsByGroupId(String groupId);
 
   @Query(
       nativeQuery = true,

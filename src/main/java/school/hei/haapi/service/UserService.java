@@ -178,26 +178,13 @@ public class UserService {
   }
 
   public List<User> getByGroupId(String groupId) {
-    return userRepository.findAllRemainingStudentsByGroupId(groupId).get();
+    return userRepository.findAllRemainingStudentsByGroupId(groupId);
   }
 
   public List<User> getByGroupIdWithFilter(
       String groupId, PageFromOne page, BoundedPageSize pageSize, String studentFirstname) {
-    var returnedStudent =
-        userRepository.findStudentGroupsWithFilter(groupId, studentFirstname).get();
+    var returnedStudent = userRepository.findStudentGroupsWithFilter(groupId, studentFirstname);
 
-    int startIndex = (page.getValue() - 1) * pageSize.getValue();
-    int endIndex = Math.min(startIndex + pageSize.getValue(), returnedStudent.size());
-
-    if (startIndex >= returnedStudent.size()) {
-      return List.of();
-    }
-    return returnedStudent.subList(startIndex, endIndex);
-  }
-
-  public List<User> getByGroupId(String groupId, PageFromOne page, BoundedPageSize pageSize) {
-    var returnedStudent = getByGroupId(groupId);
-    // Calculate start and end index for pagination
     int startIndex = (page.getValue() - 1) * pageSize.getValue();
     int endIndex = Math.min(startIndex + pageSize.getValue(), returnedStudent.size());
 
