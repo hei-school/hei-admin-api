@@ -143,7 +143,7 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
                     .requestMatchers(GET, "/school/files/*")
                     .hasAnyRole(MANAGER.getRole(), STUDENT.getRole(), TEACHER.getRole())
-                    .requestMatchers(POST, "/school/files/share_link")
+                    .requestMatchers(GET, "/school/files/share_link")
                     .hasAnyRole(MANAGER.getRole(), STUDENT.getRole(), TEACHER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/work_files", "students"))
                     .hasRole(STUDENT.getRole())
