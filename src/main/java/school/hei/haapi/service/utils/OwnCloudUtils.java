@@ -1,6 +1,6 @@
 package school.hei.haapi.service.utils;
 
-import static java.nio.charset.StandardCharsets.US_ASCII;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.CREATE;
 import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.DELETE;
 import static school.hei.haapi.endpoint.rest.model.OwnCloudPermission.READ;
@@ -54,11 +54,8 @@ public class OwnCloudUtils {
 
   public static String getBasicAuth(String username, String password) {
     return "Basic "
-        + new String(
-            Base64.getEncoder()
-                .encode(String.format("%s : %s", username, password).getBytes(US_ASCII)));
+        + Base64.getEncoder().encodeToString((username + ":" + password).getBytes(UTF_8));
   }
-  ;
 
   public static Integer getPermissionValueFromOwnCloudPermission(
       List<OwnCloudPermission> ownCloudPermissions) {
