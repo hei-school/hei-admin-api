@@ -32,12 +32,13 @@ public class OwnCloudConf {
             .queryParam("expireDate={expireDate}")
             .queryParam("format=json")
             .queryParam("publicUpload=false")
+                .queryParam("password={password}")
             .build();
     this.username = username;
     this.password = password;
   }
 
-  public URI getURI(String path, Integer permissions) {
+  public URI getURI(String path, Integer permissions, String password) {
     Map<String, String> uriVariables =
         Map.of(
             "path",
@@ -46,6 +47,8 @@ public class OwnCloudConf {
             OWNCLOUD_SHARE_TYPE,
             "permissions",
             String.valueOf(permissions),
+            "password",
+                password,
             "expireDate",
             instantToOcsDateFormat(Instant.now().plus(1, ChronoUnit.DAYS)));
     return fileTemplateUrl.expand(uriVariables).toUri();
