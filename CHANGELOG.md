@@ -1,3 +1,44 @@
+# [1.37.0](https://github.com/hei-school/hei-admin-api/compare/v1.36.0...v1.37.0) (2024-07-24)
+
+
+### Bug Fixes
+
+* set up security conf properly for share link endpoint ([51cfeec](https://github.com/hei-school/hei-admin-api/commit/51cfeec48e98137baf4ffda1a817638440452148))
+
+
+### Features
+
+* filter fees by student ref ([c01cf7c](https://github.com/hei-school/hei-admin-api/commit/c01cf7c42bef5580408765dcc6cbeba55b3380de))
+
+
+
+# [1.36.0](https://github.com/hei-school/hei-admin-api/compare/v1.35.0...v1.36.0) (2024-07-19)
+
+
+### Features
+
+* add student ref in fee payload and filter group student by firstname  ([47d2819](https://github.com/hei-school/hei-admin-api/commit/47d28192145581596c64067df285225b59488fbd))
+
+
+
+# [1.35.0](https://github.com/hei-school/hei-admin-api/compare/v1.34.0...v1.35.0) (2024-07-19)
+
+
+### Bug Fixes
+
+* amount value when saving payment is given from mobile transaction  ([ca7e5f6](https://github.com/hei-school/hei-admin-api/commit/ca7e5f638223aa4367b0d60f58811a6a767afd0c))
+* date validator when inserting work student file  ([38b918d](https://github.com/hei-school/hei-admin-api/commit/38b918d9a3029fa801ec199217cce4c8fbf6090a))
+* orange transaction is not stored when computing student ref  ([c8ecd0e](https://github.com/hei-school/hei-admin-api/commit/c8ecd0e77385303bbdf261447b4754014b8d7419))
+
+
+### Features
+
+* filter students by exclude group id ([d26b542](https://github.com/hei-school/hei-admin-api/commit/d26b5426daeb3c521f29cc2fb6ead6b0b84da161))
+* **temporary:** fetch transaction from 2024-07-12T08:00:00Z from orange  ([74060c6](https://github.com/hei-school/hei-admin-api/commit/74060c676fa5a5a997c82d26fe789ce620cc00b9))
+* **temporary:** fetch transaction from 2024-07-12T08:00:00Z from orange  ([dbc7bd0](https://github.com/hei-school/hei-admin-api/commit/dbc7bd064835dc118f8f467d7a63abb9722eb7e7))
+
+
+
 # [1.34.0](https://github.com/hei-school/hei-admin-api/compare/v1.33.0...v1.34.0) (2024-07-11)
 
 
@@ -95,54 +136,6 @@
 
 * migration error when updating commitment begin default value  ([57382f8](https://github.com/hei-school/hei-admin-api/commit/57382f8589f4a7b7d5a30a5edf0da8f27da70689))
 * students stat are now exact ([179dbb6](https://github.com/hei-school/hei-admin-api/commit/179dbb6c9b5f60f27f8c6b6023cd9a09e5d073ef))
-
-
-
-# [1.26.0](https://github.com/hei-school/hei-admin-api/compare/v1.25.0...v1.26.0) (2024-06-14)
-
-
-### Features
-
-* compute the work status during fetching students data  ([9f998e0](https://github.com/hei-school/hei-admin-api/commit/9f998e040d670bc843bfe7aaf4edd99f82bf6fbb))
-
-
-
-# [1.25.0](https://github.com/hei-school/hei-admin-api/compare/v1.24.0...v1.25.0) (2024-06-13)
-
-
-### Bug Fixes
-
-* max ses send email recipient size is 50, hence group list by 50 if needed ([fa6d180](https://github.com/hei-school/hei-admin-api/commit/fa6d180ec3f33de1b6ac5a321b62c11db55c41b8))
-* redirect to HA prod ui ([e40a221](https://github.com/hei-school/hei-admin-api/commit/e40a2213cea0e675fd3c94012f11f0d1c810669c))
-* wrong variable in email template ([02cf17f](https://github.com/hei-school/hei-admin-api/commit/02cf17f25f30986098321e7c002a1431d8fc019f))
-
-
-### Features
-
-* suspend user with late fees and mail them ([9c23ec7](https://github.com/hei-school/hei-admin-api/commit/9c23ec7772c7ebdfad5c4f2a90d7ab6de021ef0e))
-
-
-
-# [1.24.0](https://github.com/hei-school/hei-admin-api/compare/v1.23.0...v1.24.0) (2024-06-05)
-
-
-### Bug Fixes
-
-* add title attribute in event entity ([8dd6c86](https://github.com/hei-school/hei-admin-api/commit/8dd6c865800acfa12a72996ac47ffb200388cb69))
-* group null in announcement event model ([14ac1d0](https://github.com/hei-school/hei-admin-api/commit/14ac1d0e1e1d2656c6dd052108de9805a2a80834))
-* **hot-fix:**  correctly save fees by only updating status, avoid payment accident removal ([9a6c04b](https://github.com/hei-school/hei-admin-api/commit/9a6c04bd7ad0621a35183c75d3525f71f940cbb2))
-* migrations weren't numbered correctly thus failing deploy. ([a1457e8](https://github.com/hei-school/hei-admin-api/commit/a1457e89662ea0350c07d85f4ff1b904551aa111))
-* student commitment is not saved when uploading work file  ([3fd5b85](https://github.com/hei-school/hei-admin-api/commit/3fd5b85a7245ad0022c89530a0132f0e351bc0cb))
-
-
-### Features
-
-* commitment date on student payload  ([4d3783f](https://github.com/hei-school/hei-admin-api/commit/4d3783f3a2bbadc5f6f637d7e13264362d888d3b))
-
-
-### Reverts
-
-* remove logs ([e6dc4af](https://github.com/hei-school/hei-admin-api/commit/e6dc4af21385afd4292b831a3c6cd6c321e2beb9))
 
 
 

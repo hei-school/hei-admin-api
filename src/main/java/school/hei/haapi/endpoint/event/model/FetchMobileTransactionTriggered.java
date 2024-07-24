@@ -13,7 +13,7 @@ import lombok.ToString;
 public class FetchMobileTransactionTriggered extends PojaEvent {
   @Override
   public Duration maxConsumerDuration() {
-    return Duration.ofSeconds(30);
+    return Duration.ofSeconds(300);
   }
 
   @Override

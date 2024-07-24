@@ -39,40 +39,39 @@ class OrangeScrappingApi implements MobileMoneyApi {
   @Override
   public List<TransactionDetails> fetchThenSaveTransactionsDetails(MobileMoneyType type) {
     String PATH = "/transactions?date=" + getYesterday();
+    HttpRequest httpRequest =
+        HttpRequest.newBuilder().uri(URI.create(BASE_URL + PATH)).GET().build();
+    OrangeDailyTransactionScrappingDetails a;
 
     try (HttpClient httpClient = HttpClient.newHttpClient()) {
-      HttpRequest httpRequest =
-          HttpRequest.newBuilder().uri(URI.create(BASE_URL + PATH)).GET().build();
-
       log.info("Fetching data from = {}", getYesterday());
       HttpResponse<String> response =
           httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
-
+      log.info("Response = {}", response.toString());
       exceptionMapper.accept(response);
-      var mappedResponseList =
-          objectMapper
-              .readValue(response.body(), OrangeDailyTransactionScrappingDetails.class)
-              .getTransactions()
-              .stream()
-              .map(responseMapper::from)
-              .toList();
-
-      // store the collected data ...
-      var savedResponseList =
-          mobileTransactionDetailsRepository.saveAll(
-              mappedResponseList.stream()
-                  .map(responseMapper::toDomainMobileTransactionDetails)
-                  .toList());
-      log.info(
-          "Saved transactions = {}",
-          savedResponseList.stream().map(MobileTransactionDetails::getPspTransactionRef).toList());
-
-      return savedResponseList.stream()
-          .map(responseMapper::toRestMobileTransactionDetails)
-          .toList();
+      log.info("No exception thrown");
+      a = objectMapper.readValue(response.body(), OrangeDailyTransactionScrappingDetails.class);
+      log.info(a.toString());
     } catch (IOException | InterruptedException e) {
       throw new ApiException(SERVER_EXCEPTION, e);
     }
+    return mapTransactions(a);
+  }
+
+  private List<TransactionDetails> mapTransactions(OrangeDailyTransactionScrappingDetails a) {
+    var mappedResponseList = a.getTransactions().stream().map(responseMapper::from).toList();
+
+    // store the collected data ...
+    var savedResponseList =
+        mobileTransactionDetailsRepository.saveAll(
+            mappedResponseList.stream()
+                .map(responseMapper::toDomainMobileTransactionDetails)
+                .toList());
+    log.info(
+        "Saved transactions = {}",
+        savedResponseList.stream().map(MobileTransactionDetails::getPspTransactionRef).toList());
+
+    return savedResponseList.stream().map(responseMapper::toRestMobileTransactionDetails).toList();
   }
 
   @Override

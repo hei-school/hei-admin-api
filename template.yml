@@ -38,6 +38,9 @@ Globals:
         SPRING_DATASOURCE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/db/url}}'
         SPRING_DATASOURCE_USERNAME: !Sub '{{resolve:ssm:/haapi/${Env}/db/username}}'
         SPRING_DATASOURCE_PASSWORD: !Sub '{{resolve:ssm:/haapi/${Env}/db/password}}'
+        OWNCLOUD_BASE_URL: !Sub '{{resolve:ssm:/haapi/${Env}/oc/url}}'
+        OWNCLOUD_USERNAME: !Sub '{{resolve:ssm:/haapi/${Env}/oc/username}}'
+        OWNCLOUD_PASSWORD: !Sub '{{resolve:ssm:/haapi/${Env}/oc/password}}'
     
         
 

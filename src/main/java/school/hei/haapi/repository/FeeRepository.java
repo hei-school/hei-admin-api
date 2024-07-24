@@ -23,7 +23,7 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
 
   List<Fee> getByStudentId(String studentId, Pageable pageable);
 
-  List<Fee> findAllByMpbsIsNotNull(Pageable pageable);
+  List<Fee> findAllByMpbsIsNotNullOrderByMpbsCreationDatetimeDesc(Pageable pageable);
 
   @Query(
       "select f from Fee f where f.status = 'UNPAID' "
@@ -54,4 +54,6 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
   @Query("update Fee f set f.status = :status " + "where f.id = :fee_id")
   void updateFeeStatusById(
       @Param(value = "status") FeeStatusEnum status, @Param(value = "fee_id") String feeId);
+
+  List<Fee> findAllByStudentRef(String studentRef, Pageable pageable);
 }

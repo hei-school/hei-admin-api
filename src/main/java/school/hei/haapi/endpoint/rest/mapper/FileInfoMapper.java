@@ -1,8 +1,14 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static school.hei.haapi.service.utils.OwnCloudUtils.findOwnCloudPermissionsFromValue;
+
+import java.util.EnumSet;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.OwnCloudPermission;
+import school.hei.haapi.endpoint.rest.model.ShareInfo;
 import school.hei.haapi.model.FileInfo;
+import school.hei.haapi.model.notEntity.OcsData;
 import school.hei.haapi.service.aws.FileService;
 
 @Component
@@ -23,5 +29,16 @@ public class FileInfoMapper {
         .name(fileInfo.getName())
         .fileUrl(presignedUrl)
         .creationDatetime(fileInfo.getCreationDatetime());
+  }
+
+  public ShareInfo toShareInfo(OcsData ocsData) {
+    EnumSet<OwnCloudPermission> permissions =
+        findOwnCloudPermissionsFromValue(ocsData.getOcs().getData().getPermissions());
+    return new ShareInfo()
+        .path(ocsData.getOcs().getData().getPath())
+        .password(ocsData.getOcs().getData().getPassword())
+        .url(ocsData.getOcs().getData().getUrl())
+        .permission(permissions.stream().toList())
+        .expiration(ocsData.getOcs().getData().getExpiration());
   }
 }

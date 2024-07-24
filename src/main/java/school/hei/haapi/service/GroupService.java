@@ -4,7 +4,6 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -55,8 +54,8 @@ public class GroupService {
   }
 
   public Integer getGroupSize(String groupId) {
-    Optional<List<User>> students = userRepository.findAllRemainingStudentsByGroupId(groupId);
-    return students.map(List::size).orElse(0);
+    List<User> students = userRepository.findAllRemainingStudentsByGroupId(groupId);
+    return students.size();
   }
 
   @Transactional
@@ -83,7 +82,7 @@ public class GroupService {
   }
 
   public List<Group> getByUserId(String studentId) {
-    return groupRepository.findByStudentId(studentId).orElse(List.of());
+    return groupRepository.findByStudentId(studentId);
   }
 
   public void updateGroups(Promotion promotion, String groupId) {

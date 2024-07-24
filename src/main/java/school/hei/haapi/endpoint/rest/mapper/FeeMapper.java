@@ -29,8 +29,10 @@ public class FeeMapper {
   private final MpbsMapper mpbsMapper;
 
   public ModelFee toRestModelFee(school.hei.haapi.model.Fee fee) {
+    var studentFee = fee.getStudent();
     return new ModelFee()
-        .studentId(fee.getStudent().getId())
+        .studentId(studentFee.getId())
+        .studentRef(studentFee.getRef())
         .status(fee.getStatus())
         .type(fee.getType())
         .totalAmount(fee.getTotalAmount())
@@ -47,9 +49,11 @@ public class FeeMapper {
 
   public Fee toRestFee(school.hei.haapi.model.Fee fee) {
     Mpbs feeMpbs = fee.getMpbs() != null ? mpbsMapper.toRest(fee.getMpbs()) : null;
+    var studentFee = fee.getStudent();
     return new Fee()
         .id(fee.getId())
-        .studentId(fee.getStudent().getId())
+        .studentId(studentFee.getId())
+        .studentRef(studentFee.getRef())
         .status(fee.getStatus())
         .type(fee.getType())
         .totalAmount(fee.getTotalAmount())

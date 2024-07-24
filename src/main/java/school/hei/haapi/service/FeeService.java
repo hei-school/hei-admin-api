@@ -26,6 +26,7 @@ import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
+import school.hei.haapi.repository.dao.FeeDao;
 
 @Service
 @AllArgsConstructor
@@ -37,6 +38,7 @@ public class FeeService {
   private final FeeValidator feeValidator;
   private final UpdateFeeValidator updateFeeValidator;
   private final EventProducer eventProducer;
+  private final FeeDao feeDao;
 
   public Fee debitAmount(Fee toUpdate, int amountToDebit) {
     int remainingAmount = toUpdate.getRemainingAmount();
@@ -84,14 +86,15 @@ public class FeeService {
       PageFromOne page,
       BoundedPageSize pageSize,
       school.hei.haapi.endpoint.rest.model.FeeStatusEnum status,
-      boolean isMpbs) {
+      boolean isMpbs,
+      String studentRef) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
     if (isMpbs) {
-      return feeRepository.findAllByMpbsIsNotNull(pageable);
+      return feeRepository.findAllByMpbsIsNotNullOrderByMpbsCreationDatetimeDesc(pageable);
     }
-    if (status != null) {
-      return feeRepository.getFeesByStatus(status, pageable);
+    if (status != null || studentRef != null) {
+      return feeDao.getByCriteria(status, studentRef, pageable);
     }
     return feeRepository.getFeesByStatus(DEFAULT_STATUS, pageable);
   }

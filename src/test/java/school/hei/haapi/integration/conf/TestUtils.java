@@ -473,6 +473,7 @@ public class TestUtils {
     return new Fee()
         .id(FEE1_ID)
         .studentId(STUDENT1_ID)
+        .studentRef("STD21001")
         .status(PAID)
         .type(TUITION)
         .totalAmount(5000)
@@ -488,6 +489,7 @@ public class TestUtils {
     return new Fee()
         .id(FEE2_ID)
         .studentId(STUDENT1_ID)
+        .studentRef("STD21001")
         .status(PAID)
         .type(HARDWARE)
         .totalAmount(5000)
@@ -502,6 +504,7 @@ public class TestUtils {
     return new Fee()
         .id(FEE3_ID)
         .studentId(STUDENT1_ID)
+        .studentRef("STD21001")
         .status(LATE)
         .type(TUITION)
         .totalAmount(5000)
@@ -510,6 +513,21 @@ public class TestUtils {
         .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
         .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
         .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
+  }
+
+  public static Fee fee4() {
+    return new Fee()
+        .id(FEE4_ID)
+        .studentId(STUDENT2_ID)
+        .status(LATE)
+        .type(TUITION)
+        .totalAmount(5000)
+        .remainingAmount(5000)
+        .studentRef("STD21002")
+        .comment("Comment")
+        .updatedAt(Instant.parse("2023-02-08T08:30:24.00Z"))
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .dueDatetime(Instant.parse("2021-12-09T08:25:25.00Z"));
   }
 
   public static Course course1() {

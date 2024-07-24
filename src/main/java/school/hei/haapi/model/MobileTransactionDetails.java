@@ -38,8 +38,6 @@ public class MobileTransactionDetails implements Serializable {
 
   private String pspTransactionRef;
 
-  private String studentRef;
-
   @Column(name = "\"status\"")
   @Enumerated(STRING)
   @JdbcTypeCode(NAMED_ENUM)
