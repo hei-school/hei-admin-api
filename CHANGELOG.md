@@ -1,3 +1,17 @@
+# [1.37.0](https://github.com/hei-school/hei-admin-api/compare/v1.36.0...v1.37.0) (2024-07-24)
+
+
+### Bug Fixes
+
+* set up security conf properly for share link endpoint ([51cfeec](https://github.com/hei-school/hei-admin-api/commit/51cfeec48e98137baf4ffda1a817638440452148))
+
+
+### Features
+
+* filter fees by student ref ([c01cf7c](https://github.com/hei-school/hei-admin-api/commit/c01cf7c42bef5580408765dcc6cbeba55b3380de))
+
+
+
 # [1.36.0](https://github.com/hei-school/hei-admin-api/compare/v1.35.0...v1.36.0) (2024-07-19)
 
 
@@ -122,15 +136,6 @@
 
 * migration error when updating commitment begin default value  ([57382f8](https://github.com/hei-school/hei-admin-api/commit/57382f8589f4a7b7d5a30a5edf0da8f27da70689))
 * students stat are now exact ([179dbb6](https://github.com/hei-school/hei-admin-api/commit/179dbb6c9b5f60f27f8c6b6023cd9a09e5d073ef))
-
-
-
-# [1.26.0](https://github.com/hei-school/hei-admin-api/compare/v1.25.0...v1.26.0) (2024-06-14)
-
-
-### Features
-
-* compute the work status during fetching students data  ([9f998e0](https://github.com/hei-school/hei-admin-api/commit/9f998e040d670bc843bfe7aaf4edd99f82bf6fbb))
 
 
 
