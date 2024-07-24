@@ -136,7 +136,7 @@ class FeeIT extends MockedThirdParties {
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
     List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 5, null);
-    List<Fee> actualFees2 = api.getFees(PAID.toString(), 1, 10, false, null);
+    List<Fee> actualFees2 = api.getFees(PAID.toString(), 1, 10, null, null);
 
     assertEquals(fee1(), actualFee);
     assertEquals(2, actualFees2.size());

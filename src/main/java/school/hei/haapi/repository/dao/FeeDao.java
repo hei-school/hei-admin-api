@@ -18,7 +18,8 @@ public class FeeDao {
 
   private final EntityManager entityManager;
 
-  public List<Fee> getByCriteria(FeeStatusEnum status, String studentRef, Pageable pageable) {
+  public List<Fee> getByCriteria(
+      FeeStatusEnum status, Boolean isMpbs, String studentRef, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Fee> query = builder.createQuery(Fee.class);
     Root<Fee> root = query.from(Fee.class);
@@ -32,6 +33,11 @@ public class FeeDao {
     if (studentRef != null) {
       Join<Fee, User> join = root.join("student");
       predicates.add(builder.like(join.get("ref"), "%" + studentRef + "%"));
+    }
+
+    if (isMpbs != null) {
+      predicates.add(
+          isMpbs ? builder.isNotNull(root.get("mpbs")) : builder.isNull(root.get("mpbs")));
     }
 
     query
