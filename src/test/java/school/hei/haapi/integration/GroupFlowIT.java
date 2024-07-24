@@ -71,7 +71,8 @@ public class GroupFlowIT extends MockedThirdParties {
 
     // Assert that specified student is really in actual group ...
     assertTrue(
-        actualStudentsGroup.contains(student1().groups(List.of(group1(), group2().size(2)))));
+        actualStudentsGroup.contains(
+            student1().groups(List.of(group1().size(2), group2().size(1)))));
     // ... before handling duplicated leaves for this group
     assertThrowsApiException(
         expectedBody,
@@ -116,10 +117,9 @@ public class GroupFlowIT extends MockedThirdParties {
     Student student2moved = student2().groups(List.of(group2().size(2)));
     assertEquals(1, group1Students.size());
     assertEquals(2, group2Students.size());
-    assertTrue(
-        group2Students.containsAll(
-            List.of(
-                student2moved, student1().groups(List.of(group1().size(1), group2().size(2))))));
+    assertEquals(
+        List.of(student2moved, student1().groups(List.of(group1().size(1), group2().size(2)))),
+        group2Students);
   }
 
   public GroupFlow student2GroupFlow() {

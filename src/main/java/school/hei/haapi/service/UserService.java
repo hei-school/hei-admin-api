@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.*;
@@ -25,6 +26,7 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.UserUpserted;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.GroupAttender;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -45,6 +47,7 @@ public class UserService {
   private final FileService fileService;
   private final MultipartFileConverter fileConverter;
   private final GroupRepository groupRepository;
+  private final GroupAttenderService groupAttenderService;
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = findById(userId);
@@ -178,20 +181,9 @@ public class UserService {
   }
 
   public List<User> getByGroupId(String groupId) {
-    return userRepository.findAllRemainingStudentsByGroupId(groupId);
-  }
-
-  public List<User> getByGroupIdWithFilter(
-      String groupId, PageFromOne page, BoundedPageSize pageSize, String studentFirstname) {
-    var returnedStudent = userRepository.findStudentGroupsWithFilter(groupId, studentFirstname);
-
-    int startIndex = (page.getValue() - 1) * pageSize.getValue();
-    int endIndex = Math.min(startIndex + pageSize.getValue(), returnedStudent.size());
-
-    if (startIndex >= returnedStudent.size()) {
-      return List.of();
-    }
-    return returnedStudent.subList(startIndex, endIndex);
+    return groupAttenderService.getAllByGroupId(groupId).stream()
+        .map(GroupAttender::getStudent)
+        .collect(toList());
   }
 
   public List<User> getAllStudentNotDisabled() {

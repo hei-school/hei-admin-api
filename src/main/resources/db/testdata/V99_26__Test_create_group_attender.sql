@@ -3,4 +3,6 @@ insert into group_attender
 values
     ('group_attender1_id', 'group1_id', 'student1_id', '2021-11-08T08:25:24.00Z'),
     ('group_attender2_id', 'group1_id', 'student2_id', '2021-11-08T08:25:24.00Z'),
+    -- group 1: student 1, student 2
     ('group_attender4_id', 'group2_id', 'student1_id', '2021-11-08T08:25:24.00Z');
+    -- group 2: student 1
