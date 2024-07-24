@@ -169,7 +169,7 @@ class GroupIT extends MockedThirdParties {
     List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
     List<Group> createdWithStudent = api.createOrUpdateGroups(List.of(toCreate5));
     List<Student> students =
-        api.getStudentsByGroupId(createdWithStudent.get(0).getId(), 1, 10, null);
+        api.getStudentsByGroupId(createdWithStudent.get(0).getId(), 1, 10, null, null, null);
 
     assertEquals(2, created.size());
     Group created3 = created.get(0);

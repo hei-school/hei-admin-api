@@ -908,10 +908,12 @@ public class StudentIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<Student> actualGroupStudents = api.getStudentsByGroupId(GROUP1_ID, 1, 10, null);
+    List<Student> actualGroupStudents =
+        api.getStudentsByGroupId(GROUP1_ID, 1, 10, null, null, null);
     assertEquals(2, actualGroupStudents.size());
 
-    List<Student> actualGroupStudentsByRef = api.getStudentsByGroupId(GROUP1_ID, 1, 10, "Ryan");
+    List<Student> actualGroupStudentsByRef =
+        api.getStudentsByGroupId(GROUP1_ID, 1, 10, null, "ryan", null);
     assertEquals(1, actualGroupStudentsByRef.size());
     assertEquals(student1(), actualGroupStudentsByRef.getFirst());
   }
