@@ -54,4 +54,6 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
   @Query("update Fee f set f.status = :status " + "where f.id = :fee_id")
   void updateFeeStatusById(
       @Param(value = "status") FeeStatusEnum status, @Param(value = "fee_id") String feeId);
+
+  List<Fee> findAllByStudentRef(String studentRef, Pageable pageable);
 }

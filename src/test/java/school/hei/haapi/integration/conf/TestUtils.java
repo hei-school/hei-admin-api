@@ -515,6 +515,21 @@ public class TestUtils {
         .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
   }
 
+  public static Fee fee4() {
+    return new Fee()
+        .id(FEE4_ID)
+        .studentId(STUDENT2_ID)
+        .status(LATE)
+        .type(TUITION)
+        .totalAmount(5000)
+        .remainingAmount(5000)
+        .studentRef("STD21002")
+        .comment("Comment")
+        .updatedAt(Instant.parse("2023-02-08T08:30:24.00Z"))
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .dueDatetime(Instant.parse("2021-12-09T08:25:25.00Z"));
+  }
+
   public static Course course1() {
     return new Course().id(COURSE1_ID).code("PROG1").credits(6).totalHours(20).name("Algorithmics");
   }
