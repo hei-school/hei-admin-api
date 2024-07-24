@@ -88,8 +88,9 @@ public class FeeController {
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(required = false) FeeStatusEnum status,
-      @RequestParam(name = "isMpbs", required = false) boolean isMpbs) {
-    return feeService.getFees(page, pageSize, status, isMpbs).stream()
+      @RequestParam(name = "isMpbs", required = false) boolean isMpbs,
+      @RequestParam(name = "student_ref", required = false) String studentRef) {
+    return feeService.getFees(page, pageSize, status, isMpbs, studentRef).stream()
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
   }

@@ -8,21 +8,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
-import static school.hei.haapi.integration.conf.TestUtils.fee1;
-import static school.hei.haapi.integration.conf.TestUtils.fee2;
-import static school.hei.haapi.integration.conf.TestUtils.fee3;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityManager;
@@ -31,6 +17,8 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -55,6 +43,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 @ContextConfiguration(initializers = FeeIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class FeeIT extends MockedThirdParties {
+  private static final Logger log = LoggerFactory.getLogger(FeeIT.class);
   @Autowired EventConsumer subject;
   @Autowired EntityManager entityManager;
 
@@ -135,7 +124,7 @@ class FeeIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    List<Fee> actual = api.getFees(null, 1, 10, true);
+    List<Fee> actual = api.getFees(null, 1, 10, true, null);
 
     assertEquals(1, actual.size());
   }
@@ -147,7 +136,7 @@ class FeeIT extends MockedThirdParties {
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
     List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 5, null);
-    List<Fee> actualFees2 = api.getFees(PAID.toString(), 1, 10, false);
+    List<Fee> actualFees2 = api.getFees(PAID.toString(), 1, 10, false, null);
 
     assertEquals(fee1(), actualFee);
     assertEquals(2, actualFees2.size());
@@ -156,6 +145,12 @@ class FeeIT extends MockedThirdParties {
     assertTrue(actualFees1.contains(fee3()));
     assertTrue(actualFees2.contains(fee1()));
     assertTrue(actualFees2.contains(fee2()));
+
+    List<Fee> student2Fees = api.getFees(null, 1, 5, false, "STD21002");
+    assertEquals(student2Fees.getFirst(), fee4());
+    assertFalse(student2Fees.contains(fee1()));
+    assertFalse(student2Fees.contains(fee2()));
+    assertFalse(student2Fees.contains(fee3()));
   }
 
   @Test
@@ -171,7 +166,7 @@ class FeeIT extends MockedThirdParties {
         () -> api.getStudentFees(STUDENT2_ID, null, null, null));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getFees(null, null, null, false));
+        () -> api.getFees(null, null, null, false, null));
   }
 
   @Test
@@ -187,7 +182,7 @@ class FeeIT extends MockedThirdParties {
         () -> api.getStudentFees(STUDENT2_ID, null, null, null));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getFees(null, null, null, false));
+        () -> api.getFees(null, null, null, false, null));
   }
 
   @Test

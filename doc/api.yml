@@ -1715,6 +1715,11 @@ paths:
           in: query
           schema:
             type: boolean
+        - name: student_ref
+          in: query
+          required: false
+          schema:
+            type: string
       operationId: getFees
       responses:
         '200':
