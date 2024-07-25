@@ -69,6 +69,8 @@ public class UserMapper {
         workDocumentService.defineStudentProfessionalExperienceStatus(studentLastWorkDocument));
     restStudent.setCommitmentBeginDate(
         workDocumentService.defineStudentCommitmentBegin(studentLastWorkDocument));
+    restStudent.setCommitmentEndDate(
+        workDocumentService.defineStudentCommitmentEnd(studentLastWorkDocument));
     return restStudent;
   }
 

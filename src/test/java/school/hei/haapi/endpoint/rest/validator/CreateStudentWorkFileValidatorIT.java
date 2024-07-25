@@ -82,10 +82,7 @@ class CreateStudentWorkFileValidatorIT extends MockedThirdParties {
             ApiException.class,
             () ->
                 subject.acceptWorkDocumentField(
-                    null,
-                    Instant.parse("2021-11-25T08:25:24.00Z"),
-                    Instant.parse("2021-11-08T08:25:24.00Z"),
-                    null));
+                    "file", Instant.parse("2021-11-25T08:25:24.00Z"), null, null));
     String actualMessage = exception.getMessage();
     String expectedMessage = "Professional experience type is mandatory";
 

@@ -71,10 +71,11 @@ public class WorkDocumentService {
   }
 
   public Instant defineStudentCommitmentBegin(Optional<WorkDocument> workDocument) {
-    if (!workDocument.isPresent()) {
-      return null;
-    }
     return workDocument.map(WorkDocument::getCommitmentBegin).orElse(null);
+  }
+
+  public Instant defineStudentCommitmentEnd(Optional<WorkDocument> workDocument) {
+    return workDocument.map(WorkDocument::getCommitmentEnd).orElse(null);
   }
 
   public WorkStudyStatus defineStudentWorkStatusFromWorkDocumentDetails(
