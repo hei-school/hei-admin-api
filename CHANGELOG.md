@@ -1,3 +1,17 @@
+# [1.39.0](https://github.com/hei-school/hei-admin-api/compare/v1.38.0...v1.39.0) (2024-07-25)
+
+
+### Bug Fixes
+
+* students alternating stats are now exact ([b21671f](https://github.com/hei-school/hei-admin-api/commit/b21671f900402c23e84578c179a4e62e087ae0c3))
+
+
+### Features
+
+* **not-implemented:** student professional experience status documentation  ([d05a6b9](https://github.com/hei-school/hei-admin-api/commit/d05a6b97ed7f4e2a1a78ac70bdc5e395d0bd0b95))
+
+
+
 # [1.38.0](https://github.com/hei-school/hei-admin-api/compare/v1.37.0...v1.38.0) (2024-07-25)
 
 
@@ -131,15 +145,6 @@
 
 * add enabled and suspended in statistics model  ([b41fe68](https://github.com/hei-school/hei-admin-api/commit/b41fe68c762d371c29a42adf795a36ba6d129596))
 * send an email reminder for unpaid fees ([d0ba735](https://github.com/hei-school/hei-admin-api/commit/d0ba735007750bc4d25e082706f03739537fe028))
-
-
-
-# [1.27.0](https://github.com/hei-school/hei-admin-api/compare/v1.26.1...v1.27.0) (2024-06-19)
-
-
-### Features
-
-* implement a specific endpoint for students statistics ([ee2ebd4](https://github.com/hei-school/hei-admin-api/commit/ee2ebd4cc85ed79ce906840c73cde8be593a1298))
 
 
 
