@@ -18,6 +18,7 @@ import school.hei.haapi.endpoint.rest.mapper.FileInfoMapper;
 import school.hei.haapi.endpoint.rest.mapper.WorkDocumentMapper;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.FileType;
+import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
 import school.hei.haapi.endpoint.rest.validator.CreateStudentWorkFileValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -59,6 +60,8 @@ public class StudentFileController {
       @RequestParam(name = "commitment_begin", required = true) Instant commitmentBegin,
       @RequestParam(name = "commitment_end", required = false) Instant commitmentEnd,
       @RequestParam(name = "creation_datetime", required = false) Instant creationDatetime,
+      @RequestParam(name = "experience_type", required = true)
+          ProfessionalExperienceFileTypeEnum professionalExperience,
       @RequestPart(name = "file_to_upload") MultipartFile fileToUpload) {
     createStudentWorkFileValidator.acceptWorkDocumentField(
         filename, commitmentBegin, commitmentEnd);

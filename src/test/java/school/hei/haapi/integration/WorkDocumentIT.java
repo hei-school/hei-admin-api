@@ -3,6 +3,7 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.FileType.WORK_DOCUMENT;
+import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.BUSINESS_OWNER;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -26,7 +27,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.FileInfo;
+import school.hei.haapi.endpoint.rest.model.WorkDocumentInfo;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -47,11 +48,12 @@ public class WorkDocumentIT extends MockedThirdParties {
     setUpS3Service(fileService, student1());
   }
 
-  public static FileInfo workDocument1() {
-    return new FileInfo()
+  public static WorkDocumentInfo workDocument1() {
+    return new WorkDocumentInfo()
         .id("work_file1_id")
         .name("work file")
         .fileType(WORK_DOCUMENT)
+        .professionalExperience(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
   }
 
@@ -68,8 +70,9 @@ public class WorkDocumentIT extends MockedThirdParties {
               STUDENT1_ID,
               "test",
               Instant.parse("2021-11-09T08:25:24.00Z"),
+              BUSINESS_OWNER,
               Instant.parse("2021-11-08T08:25:24.00Z"),
-              null,
+              Instant.parse("2021-11-08T08:25:24.00Z"),
               getMockedFile("img", ".png"));
         });
   }
@@ -79,7 +82,7 @@ public class WorkDocumentIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     FilesApi api = new FilesApi(manager1Client);
 
-    List<FileInfo> workDocuments = api.getStudentWorkDocuments(STUDENT1_ID, 1, 10);
+    List<WorkDocumentInfo> workDocuments = api.getStudentWorkDocuments(STUDENT1_ID, 1, 10, null);
 
     assertEquals(1, workDocuments.size());
     assertEquals(workDocument1(), workDocuments.get(0));
@@ -90,7 +93,7 @@ public class WorkDocumentIT extends MockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     FilesApi api = new FilesApi(student1Client);
 
-    List<FileInfo> workDocuments = api.getStudentWorkDocuments(STUDENT1_ID, 1, 10);
+    List<WorkDocumentInfo> workDocuments = api.getStudentWorkDocuments(STUDENT1_ID, 1, 10, null);
 
     assertEquals(1, workDocuments.size());
     assertEquals(workDocument1(), workDocuments.get(0));
@@ -101,7 +104,7 @@ public class WorkDocumentIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     FilesApi api = new FilesApi(manager1Client);
 
-    FileInfo actual = api.getStudentWorkDocumentsById(STUDENT1_ID, WORK_DOCUMENT_1_ID);
+    WorkDocumentInfo actual = api.getStudentWorkDocumentsById(STUDENT1_ID, WORK_DOCUMENT_1_ID);
 
     assertEquals(workDocument1(), actual);
   }

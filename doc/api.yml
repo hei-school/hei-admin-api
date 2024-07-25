@@ -2574,6 +2574,12 @@ paths:
           required: true
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: professional_experience
+          in: query
+          description: Filter student work files by Professional Experience status
+          required: false
+          schema:
+            $ref: '#/components/schemas/ProfessionalExperienceFileTypeEnum'
       responses:
         '200':
           description: List of student work documents
@@ -2582,7 +2588,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/FileInfo'
+                  $ref: '#/components/schemas/WorkDocumentInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2616,7 +2622,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FileInfo'
+                $ref: '#/components/schemas/WorkDocumentInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -2661,6 +2667,11 @@ paths:
           schema:
             type: string
             format: date-time
+        - name: experience_type
+          required: true
+          in: query
+          schema:
+            $ref: '#/components/schemas/ProfessionalExperienceFileTypeEnum'
       operationId: uploadStudentWorkFile
       requestBody:
         required: true
@@ -2674,7 +2685,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/FileInfo'
+                $ref: '#/components/schemas/WorkDocumentInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3879,6 +3890,13 @@ components:
           type: string
         group_id:
           type: string
+    WorkDocumentInfo:
+      allOf:
+        - $ref: '#/components/schemas/FileInfo'
+      type: object
+      properties:
+        professional_experience:
+          $ref: '#/components/schemas/ProfessionalExperienceFileTypeEnum'
     FileInfo:
       type: object
       properties:
@@ -4007,6 +4025,13 @@ components:
           $ref: '#/components/schemas/AttendanceMovementType'
         place:
           $ref: '#/components/schemas/PlaceEnum'
+    ProfessionalExperienceFileTypeEnum:
+      type: string
+      enum:
+        - WORKER_STUDENT
+        - BUSINESS_OWNER
+        - INTERN_STUDENT
+        - INTERN_PROJECT
     PlaceEnum:
       type: string
       enum:
