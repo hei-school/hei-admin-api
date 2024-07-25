@@ -29,13 +29,13 @@ public class FileInfoService {
   private final FilenameValidator filenameValidator;
 
   public WorkDocument uploadFile(
-          User student,
-          String filename,
-          Instant creationDatetime,
-          Instant commitmentBegin,
-          Instant commitmentEnd,
-          MultipartFile workFile,
-          ProfessionalExperienceFileTypeEnum professionalExperience) {
+      User student,
+      String filename,
+      Instant creationDatetime,
+      Instant commitmentBegin,
+      Instant commitmentEnd,
+      MultipartFile workFile,
+      ProfessionalExperienceFileTypeEnum professionalExperience) {
     filenameValidator.accept(filename);
     // STUDENT/REF/WORK_DOCUMENT/filename
     String filePath =

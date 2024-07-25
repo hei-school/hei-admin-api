@@ -60,11 +60,11 @@ public class WorkDocumentIT extends MockedThirdParties {
 
   public static WorkDocumentInfo workDocumentInfoBusinessOwnerStudent1() {
     return new WorkDocumentInfo()
-            .professionalExperience(BUSINESS_OWNER)
-            .id("work_file3_id")
-            .fileType(WORK_DOCUMENT)
-            .name("business file")
-            .creationDatetime(Instant.parse("2020-11-08T08:25:24.00Z"));
+        .professionalExperience(BUSINESS_OWNER)
+        .id("work_file3_id")
+        .fileType(WORK_DOCUMENT)
+        .name("business file")
+        .creationDatetime(Instant.parse("2020-11-08T08:25:24.00Z"));
   }
 
   @Test
@@ -114,7 +114,8 @@ public class WorkDocumentIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     FilesApi api = new FilesApi(manager1Client);
 
-    List<WorkDocumentInfo> workDocuments = api.getStudentWorkDocuments(STUDENT1_ID, 1, 10, BUSINESS_OWNER);
+    List<WorkDocumentInfo> workDocuments =
+        api.getStudentWorkDocuments(STUDENT1_ID, 1, 10, BUSINESS_OWNER);
 
     assertEquals(1, workDocuments.size());
     assertEquals(workDocumentInfoBusinessOwnerStudent1(), workDocuments.get(0));

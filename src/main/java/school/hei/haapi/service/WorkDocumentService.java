@@ -38,22 +38,32 @@ public class WorkDocumentService {
             });
   }
 
-  public List<WorkDocument> getStudentWorkFiles(String studentId, ProfessionalExperienceFileTypeEnum professionalExperience, Pageable pageable) {
-    return workDocumentDao.findAllByStudentIdAndProfessionalExperienceType(studentId, professionalExperience, pageable);
+  public List<WorkDocument> getStudentWorkFiles(
+      String studentId,
+      ProfessionalExperienceFileTypeEnum professionalExperience,
+      Pageable pageable) {
+    return workDocumentDao.findAllByStudentIdAndProfessionalExperienceType(
+        studentId, professionalExperience, pageable);
   }
 
   public WorkDocument uploadStudentWorkFile(
-          String studentId,
-          String filename,
-          Instant creationDatetime,
-          Instant commitmentBegin,
-          Instant commitmentEnd,
-          MultipartFile workFile,
-          ProfessionalExperienceFileTypeEnum professionalExperience) {
+      String studentId,
+      String filename,
+      Instant creationDatetime,
+      Instant commitmentBegin,
+      Instant commitmentEnd,
+      MultipartFile workFile,
+      ProfessionalExperienceFileTypeEnum professionalExperience) {
     User student = userService.findById(studentId);
 
     return fileInfoService.uploadFile(
-        student, filename, creationDatetime, commitmentBegin, commitmentEnd, workFile, professionalExperience);
+        student,
+        filename,
+        creationDatetime,
+        commitmentBegin,
+        commitmentEnd,
+        workFile,
+        professionalExperience);
   }
 
   public Optional<WorkDocument> findLastWorkDocumentByStudentId(String studentId) {
@@ -70,6 +80,11 @@ public class WorkDocumentService {
   public WorkStudyStatus defineStudentWorkStatusFromWorkDocumentDetails(
       Optional<WorkDocument> workDocument) {
     return workDocument.map(this::getStudentWorkStudy).orElse(NOT_WORKING);
+  }
+
+  public ProfessionalExperienceFileTypeEnum defineStudentProfessionalExperienceStatus(
+      Optional<WorkDocument> workDocument) {
+    return workDocument.map(WorkDocument::getProfessionalExperienceType).orElse(null);
   }
 
   private WorkStudyStatus getStudentWorkStudy(WorkDocument workDocument) {

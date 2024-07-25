@@ -66,7 +66,13 @@ public class StudentFileController {
         filename, commitmentBegin, commitmentEnd, professionalExperience);
     return workDocumentMapper.toRest(
         fileService.uploadStudentWorkFile(
-            studentId, filename, creationDatetime, commitmentBegin, commitmentEnd, fileToUpload, professionalExperience));
+            studentId,
+            filename,
+            creationDatetime,
+            commitmentBegin,
+            commitmentEnd,
+            fileToUpload,
+            professionalExperience));
   }
 
   @GetMapping(value = "/students/{student_id}/work_files")
@@ -76,7 +82,9 @@ public class StudentFileController {
       @RequestParam(name = "page_size") BoundedPageSize pageSize,
       @RequestParam(name = "professional_experience", required = false)
           ProfessionalExperienceFileTypeEnum professionalExperience) {
-    return fileService.getStudentWorkFiles(studentId, professionalExperience, page, pageSize).stream()
+    return fileService
+        .getStudentWorkFiles(studentId, professionalExperience, page, pageSize)
+        .stream()
         .map(workDocumentMapper::toRest)
         .collect(toUnmodifiableList());
   }
