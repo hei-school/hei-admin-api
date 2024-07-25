@@ -58,6 +58,15 @@ public class WorkDocumentIT extends MockedThirdParties {
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
   }
 
+  public static WorkDocumentInfo workDocumentInfoBusinessOwnerStudent1() {
+    return new WorkDocumentInfo()
+            .professionalExperience(BUSINESS_OWNER)
+            .id("work_file3_id")
+            .fileType(WORK_DOCUMENT)
+            .name("business file")
+            .creationDatetime(Instant.parse("2020-11-08T08:25:24.00Z"));
+  }
+
   @Test
   void manager_create_student_work_documents_with_bad_field_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -98,6 +107,17 @@ public class WorkDocumentIT extends MockedThirdParties {
 
     assertEquals(3, workDocuments.size());
     assertEquals(workDocument1(), workDocuments.get(0));
+  }
+
+  @Test
+  void manager_read_work_documents_by_professional_type_and_student_id() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    FilesApi api = new FilesApi(manager1Client);
+
+    List<WorkDocumentInfo> workDocuments = api.getStudentWorkDocuments(STUDENT1_ID, 1, 10, BUSINESS_OWNER);
+
+    assertEquals(1, workDocuments.size());
+    assertEquals(workDocumentInfoBusinessOwnerStudent1(), workDocuments.get(0));
   }
 
   @Test
