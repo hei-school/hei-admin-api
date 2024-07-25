@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.FileType.WORK_DOCUMENT;
 import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.BUSINESS_OWNER;
+import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -53,7 +54,7 @@ public class WorkDocumentIT extends MockedThirdParties {
         .id("work_file1_id")
         .name("work file")
         .fileType(WORK_DOCUMENT)
-        .professionalExperience(null)
+        .professionalExperience(WORKER_STUDENT)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
   }
 
@@ -84,7 +85,7 @@ public class WorkDocumentIT extends MockedThirdParties {
 
     List<WorkDocumentInfo> workDocuments = api.getStudentWorkDocuments(STUDENT1_ID, 1, 10, null);
 
-    assertEquals(1, workDocuments.size());
+    assertEquals(3, workDocuments.size());
     assertEquals(workDocument1(), workDocuments.get(0));
   }
 
@@ -95,7 +96,7 @@ public class WorkDocumentIT extends MockedThirdParties {
 
     List<WorkDocumentInfo> workDocuments = api.getStudentWorkDocuments(STUDENT1_ID, 1, 10, null);
 
-    assertEquals(1, workDocuments.size());
+    assertEquals(3, workDocuments.size());
     assertEquals(workDocument1(), workDocuments.get(0));
   }
 

@@ -1,6 +1,8 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
@@ -13,6 +15,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.JdbcTypeCode;
+import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
 
 @Table(name = "\"work_document\"")
 @Entity
@@ -41,4 +45,8 @@ public class WorkDocument implements Serializable {
   @ManyToOne
   @JoinColumn(name = "student_id")
   private User student;
+
+  @JdbcTypeCode(NAMED_ENUM)
+  @Enumerated(STRING)
+  private ProfessionalExperienceFileTypeEnum professionalExperienceType;
 }

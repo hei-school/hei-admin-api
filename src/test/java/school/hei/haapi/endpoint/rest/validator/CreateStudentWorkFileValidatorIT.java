@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.validator;
 import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -49,7 +50,8 @@ class CreateStudentWorkFileValidatorIT extends MockedThirdParties {
                 subject.acceptWorkDocumentField(
                     "filename",
                     Instant.parse("2021-11-25T08:25:24.00Z"),
-                    Instant.parse("2021-11-08T08:25:24.00Z")));
+                    Instant.parse("2021-11-08T08:25:24.00Z"),
+                    WORKER_STUDENT));
     String actualMessage = exception.getMessage();
     String expectedMessage = "Commitment begin must be less than commitment end";
 
@@ -65,9 +67,27 @@ class CreateStudentWorkFileValidatorIT extends MockedThirdParties {
                 subject.acceptWorkDocumentField(
                     null,
                     Instant.parse("2021-11-25T08:25:24.00Z"),
-                    Instant.parse("2021-11-08T08:25:24.00Z")));
+                    Instant.parse("2021-11-08T08:25:24.00Z"),
+                    WORKER_STUDENT));
     String actualMessage = exception.getMessage();
     String expectedMessage = "Filename is mandatory";
+
+    assertTrue(actualMessage.contains(expectedMessage));
+  }
+
+  @Test
+  void assert_experience_type_is_given() {
+    Exception exception =
+        assertThrows(
+            ApiException.class,
+            () ->
+                subject.acceptWorkDocumentField(
+                    null,
+                    Instant.parse("2021-11-25T08:25:24.00Z"),
+                    Instant.parse("2021-11-08T08:25:24.00Z"),
+                    null));
+    String actualMessage = exception.getMessage();
+    String expectedMessage = "Professional experience type is mandatory";
 
     assertTrue(actualMessage.contains(expectedMessage));
   }
@@ -76,7 +96,8 @@ class CreateStudentWorkFileValidatorIT extends MockedThirdParties {
   void assert_commitment_begin_is_given() {
     Exception exception =
         assertThrows(
-            ApiException.class, () -> subject.acceptWorkDocumentField("filename", null, null));
+            ApiException.class,
+            () -> subject.acceptWorkDocumentField("filename", null, null, WORKER_STUDENT));
     String actualMessage = exception.getMessage();
     String expectedMessage = "Commitment begin date is mandatory";
 

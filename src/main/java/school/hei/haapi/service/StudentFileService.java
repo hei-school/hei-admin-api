@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.rest.model.FileType;
+import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
 import school.hei.haapi.model.*;
 import school.hei.haapi.repository.FileInfoRepository;
 import school.hei.haapi.repository.dao.FileInfoDao;
@@ -44,16 +45,17 @@ public class StudentFileService {
       Instant creationDatetime,
       Instant commitmentBegin,
       Instant commitmentEnd,
-      MultipartFile workFile) {
+      MultipartFile workFile,
+      ProfessionalExperienceFileTypeEnum professionalExperience) {
     return workDocumentService.uploadStudentWorkFile(
-        studentId, filename, creationDatetime, commitmentBegin, commitmentEnd, workFile);
+        studentId, filename, creationDatetime, commitmentBegin, commitmentEnd, workFile, professionalExperience);
   }
 
   public List<WorkDocument> getStudentWorkFiles(
-      String studentId, PageFromOne page, BoundedPageSize pageSize) {
+      String studentId, ProfessionalExperienceFileTypeEnum professionalExperience, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return workDocumentService.getStudentWorkFiles(studentId, pageable);
+    return workDocumentService.getStudentWorkFiles(studentId, professionalExperience, pageable);
   }
 
   public WorkDocument getStudentWorkFileById(String workFileId) {

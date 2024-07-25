@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.model.FileType;
+import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
@@ -28,12 +29,13 @@ public class FileInfoService {
   private final FilenameValidator filenameValidator;
 
   public WorkDocument uploadFile(
-      User student,
-      String filename,
-      Instant creationDatetime,
-      Instant commitmentBegin,
-      Instant commitmentEnd,
-      MultipartFile workFile) {
+          User student,
+          String filename,
+          Instant creationDatetime,
+          Instant commitmentBegin,
+          Instant commitmentEnd,
+          MultipartFile workFile,
+          ProfessionalExperienceFileTypeEnum professionalExperience) {
     filenameValidator.accept(filename);
     // STUDENT/REF/WORK_DOCUMENT/filename
     String filePath =
@@ -48,6 +50,7 @@ public class FileInfoService {
             .filePath(filePath)
             .filename(filename)
             .student(student)
+            .professionalExperienceType(professionalExperience)
             .build();
     File file = multipartFileConverter.apply(workFile);
     fileService.uploadObjectToS3Bucket(filePath, file);
