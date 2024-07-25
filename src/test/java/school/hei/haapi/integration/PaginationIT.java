@@ -82,7 +82,7 @@ class PaginationIT extends MockedThirdParties {
 
   @Test
   void student_pages_are_ordered_by_reference() throws ApiException {
-    //TODO: fix why the pagination doesn't work properly
+    // TODO: fix why the pagination doesn't work properly
     someCreatableStudentList(7);
     int pageSize = 4;
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
