@@ -18,6 +18,7 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.WorkDocumentRepository;
+import school.hei.haapi.repository.dao.WorkDocumentDao;
 
 @Service
 @AllArgsConstructor
@@ -38,7 +39,7 @@ public class WorkDocumentService {
   }
 
   public List<WorkDocument> getStudentWorkFiles(String studentId, ProfessionalExperienceFileTypeEnum professionalExperience, Pageable pageable) {
-    return workDocumentRepository.findAllByStudentIdAndProfessionalExperienceType(studentId, professionalExperience, pageable);
+    return workDocumentDao.findAllByStudentIdAndProfessionalExperienceType(studentId, professionalExperience, pageable);
   }
 
   public WorkDocument uploadStudentWorkFile(
