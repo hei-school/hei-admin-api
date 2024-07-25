@@ -3787,6 +3787,9 @@ components:
         commitment_begin_date:
           type: string
           format: date-time
+        commitment_end_date:
+          type: string
+          format: date-time
         profile_picture:
           type: string
         groups:

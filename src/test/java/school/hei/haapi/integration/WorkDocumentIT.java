@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.FileType.WORK_DOCUMENT;
 import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.BUSINESS_OWNER;
+import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -53,8 +54,17 @@ public class WorkDocumentIT extends MockedThirdParties {
         .id("work_file1_id")
         .name("work file")
         .fileType(WORK_DOCUMENT)
-        .professionalExperience(null)
+        .professionalExperience(WORKER_STUDENT)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+  }
+
+  public static WorkDocumentInfo workDocumentInfoBusinessOwnerStudent1() {
+    return new WorkDocumentInfo()
+        .professionalExperience(BUSINESS_OWNER)
+        .id("work_file3_id")
+        .fileType(WORK_DOCUMENT)
+        .name("business file")
+        .creationDatetime(Instant.parse("2020-11-08T08:25:24.00Z"));
   }
 
   @Test
@@ -84,7 +94,7 @@ public class WorkDocumentIT extends MockedThirdParties {
 
     List<WorkDocumentInfo> workDocuments = api.getStudentWorkDocuments(STUDENT1_ID, 1, 10, null);
 
-    assertEquals(1, workDocuments.size());
+    assertEquals(3, workDocuments.size());
     assertEquals(workDocument1(), workDocuments.get(0));
   }
 
@@ -95,8 +105,20 @@ public class WorkDocumentIT extends MockedThirdParties {
 
     List<WorkDocumentInfo> workDocuments = api.getStudentWorkDocuments(STUDENT1_ID, 1, 10, null);
 
-    assertEquals(1, workDocuments.size());
+    assertEquals(3, workDocuments.size());
     assertEquals(workDocument1(), workDocuments.get(0));
+  }
+
+  @Test
+  void manager_read_work_documents_by_professional_type_and_student_id() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    FilesApi api = new FilesApi(manager1Client);
+
+    List<WorkDocumentInfo> workDocuments =
+        api.getStudentWorkDocuments(STUDENT1_ID, 1, 10, BUSINESS_OWNER);
+
+    assertEquals(1, workDocuments.size());
+    assertEquals(workDocumentInfoBusinessOwnerStudent1(), workDocuments.get(0));
   }
 
   @Test
