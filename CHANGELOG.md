@@ -1,3 +1,17 @@
+# [1.38.0](https://github.com/hei-school/hei-admin-api/compare/v1.37.0...v1.38.0) (2024-07-25)
+
+
+### Bug Fixes
+
+* change basic auth encoding ([175a7cb](https://github.com/hei-school/hei-admin-api/commit/175a7cba50063a53b2a95051cf279edce9120783))
+
+
+### Features
+
+* **not-implemented:** upload new student work document file type  ([178a241](https://github.com/hei-school/hei-admin-api/commit/178a241590ce7941286d32bd8009ea445fb450ba))
+
+
+
 # [1.37.0](https://github.com/hei-school/hei-admin-api/compare/v1.36.0...v1.37.0) (2024-07-24)
 
 
@@ -126,16 +140,6 @@
 ### Features
 
 * implement a specific endpoint for students statistics ([ee2ebd4](https://github.com/hei-school/hei-admin-api/commit/ee2ebd4cc85ed79ce906840c73cde8be593a1298))
-
-
-
-## [1.26.1](https://github.com/hei-school/hei-admin-api/compare/v1.26.0...v1.26.1) (2024-06-18)
-
-
-### Bug Fixes
-
-* migration error when updating commitment begin default value  ([57382f8](https://github.com/hei-school/hei-admin-api/commit/57382f8589f4a7b7d5a30a5edf0da8f27da70689))
-* students stat are now exact ([179dbb6](https://github.com/hei-school/hei-admin-api/commit/179dbb6c9b5f60f27f8c6b6023cd9a09e5d073ef))
 
 
 
