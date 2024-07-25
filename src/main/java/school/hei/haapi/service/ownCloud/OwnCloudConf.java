@@ -32,7 +32,7 @@ public class OwnCloudConf {
             .queryParam("expireDate={expireDate}")
             .queryParam("format=json")
             .queryParam("publicUpload=false")
-                .queryParam("password={password}")
+            .queryParam("password={password}")
             .build();
     this.username = username;
     this.password = password;
@@ -48,7 +48,7 @@ public class OwnCloudConf {
             "permissions",
             String.valueOf(permissions),
             "password",
-                password,
+            password,
             "expireDate",
             instantToOcsDateFormat(Instant.now().plus(1, ChronoUnit.DAYS)));
     return fileTemplateUrl.expand(uriVariables).toUri();
