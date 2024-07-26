@@ -42,8 +42,8 @@ class GroupIT extends MockedThirdParties {
   public static Group group1() {
     Group group = new Group();
     group.setId("group1_id");
-    group.setName("G1");
-    group.setRef("GRP21001");
+    group.setRef("G1");
+    group.setName("GRP21001");
     group.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
     group.setSize(2);
     return group;
@@ -52,8 +52,8 @@ class GroupIT extends MockedThirdParties {
   public static Group group2() {
     Group group = new Group();
     group.setId("group2_id");
-    group.setName("G2");
-    group.setRef("GRP21002");
+    group.setRef("G2");
+    group.setName("GRP21002");
     group.setCreationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
     group.setSize(1);
     return group;
@@ -146,7 +146,7 @@ class GroupIT extends MockedThirdParties {
     assertTrue(actualGroups.contains(group2()));
     assertTrue(actualGroups.contains(group3()));
 
-    List<Group> groupsFilteredByRef = api.getGroups("GRP21001", null, 1, 10);
+    List<Group> groupsFilteredByRef = api.getGroups("G1", null, 1, 10);
     assertTrue(groupsFilteredByRef.contains(group1()));
     assertFalse(groupsFilteredByRef.contains(group2()));
     assertFalse(groupsFilteredByRef.contains(group3()));

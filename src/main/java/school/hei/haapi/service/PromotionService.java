@@ -27,7 +27,7 @@ public class PromotionService {
   public List<Promotion> getPromotions(
       String name, String ref, String groupRef, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime").and(Sort.by(DESC, "ref")));
     return promotionDao.findByCriteria(name, ref, groupRef, pageable);
   }
 

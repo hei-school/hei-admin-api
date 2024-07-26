@@ -49,7 +49,10 @@ public class GroupService {
   public List<Group> getAll(
       String ref, String studentRef, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
+        PageRequest.of(
+            page.getValue() - 1,
+            pageSize.getValue(),
+            Sort.by(DESC, "creationDatetime").and(Sort.by(DESC, "ref")));
     return groupDao.findByCriteria(ref, studentRef, pageable);
   }
 

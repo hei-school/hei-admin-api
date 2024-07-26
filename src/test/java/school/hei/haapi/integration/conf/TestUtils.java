@@ -374,8 +374,8 @@ public class TestUtils {
   public static Group group3() {
     return new Group()
         .id("group3_id")
-        .name("H1")
-        .ref("GRP22001")
+        .ref("H1")
+        .name("GRP22001")
         .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
         .size(0);
   }
