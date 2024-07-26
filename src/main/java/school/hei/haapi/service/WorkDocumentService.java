@@ -12,11 +12,13 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.WorkDocumentRepository;
+import school.hei.haapi.repository.dao.WorkDocumentDao;
 
 @Service
 @AllArgsConstructor
@@ -24,6 +26,7 @@ public class WorkDocumentService {
   private final FileInfoService fileInfoService;
   private final UserService userService;
   private final WorkDocumentRepository workDocumentRepository;
+  private final WorkDocumentDao workDocumentDao;
 
   public WorkDocument getStudentWorkFileById(String workFileId) {
     return workDocumentRepository
@@ -35,8 +38,12 @@ public class WorkDocumentService {
             });
   }
 
-  public List<WorkDocument> getStudentWorkFiles(String studentId, Pageable pageable) {
-    return workDocumentRepository.findAllByStudentId(studentId, pageable);
+  public List<WorkDocument> getStudentWorkFiles(
+      String studentId,
+      ProfessionalExperienceFileTypeEnum professionalExperience,
+      Pageable pageable) {
+    return workDocumentDao.findAllByStudentIdAndProfessionalExperienceType(
+        studentId, professionalExperience, pageable);
   }
 
   public WorkDocument uploadStudentWorkFile(
@@ -45,11 +52,18 @@ public class WorkDocumentService {
       Instant creationDatetime,
       Instant commitmentBegin,
       Instant commitmentEnd,
-      MultipartFile workFile) {
+      MultipartFile workFile,
+      ProfessionalExperienceFileTypeEnum professionalExperience) {
     User student = userService.findById(studentId);
 
     return fileInfoService.uploadFile(
-        student, filename, creationDatetime, commitmentBegin, commitmentEnd, workFile);
+        student,
+        filename,
+        creationDatetime,
+        commitmentBegin,
+        commitmentEnd,
+        workFile,
+        professionalExperience);
   }
 
   public Optional<WorkDocument> findLastWorkDocumentByStudentId(String studentId) {
@@ -57,15 +71,21 @@ public class WorkDocumentService {
   }
 
   public Instant defineStudentCommitmentBegin(Optional<WorkDocument> workDocument) {
-    if (!workDocument.isPresent()) {
-      return null;
-    }
     return workDocument.map(WorkDocument::getCommitmentBegin).orElse(null);
+  }
+
+  public Instant defineStudentCommitmentEnd(Optional<WorkDocument> workDocument) {
+    return workDocument.map(WorkDocument::getCommitmentEnd).orElse(null);
   }
 
   public WorkStudyStatus defineStudentWorkStatusFromWorkDocumentDetails(
       Optional<WorkDocument> workDocument) {
     return workDocument.map(this::getStudentWorkStudy).orElse(NOT_WORKING);
+  }
+
+  public ProfessionalExperienceFileTypeEnum defineStudentProfessionalExperienceStatus(
+      Optional<WorkDocument> workDocument) {
+    return workDocument.map(WorkDocument::getProfessionalExperienceType).orElse(null);
   }
 
   private WorkStudyStatus getStudentWorkStudy(WorkDocument workDocument) {

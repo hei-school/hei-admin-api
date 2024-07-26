@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
+import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
@@ -179,6 +180,7 @@ public class StudentIT extends MockedThirdParties {
     student.setCoordinates(new Coordinates().longitude(-123.123).latitude(123.0));
     student.setHighSchoolOrigin("Lycée Andohalo");
     student.setWorkStudyStatus(WORKING);
+    student.setProfessionalExperience(WORKER_STUDENT);
     student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24Z"));
     student.setGroups(List.of(group1(), group2()));
     return student;
@@ -203,6 +205,7 @@ public class StudentIT extends MockedThirdParties {
     student.setCoordinates(new Coordinates().longitude(255.255).latitude(-255.255));
     student.setHighSchoolOrigin("Lycée Andohalo");
     student.setWorkStudyStatus(WORKING);
+    student.setProfessionalExperience(WORKER_STUDENT);
     student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setGroups(List.of(group1()));
     return student;

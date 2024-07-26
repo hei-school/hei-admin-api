@@ -1,3 +1,40 @@
+# [1.40.0](https://github.com/hei-school/hei-admin-api/compare/v1.39.0...v1.40.0) (2024-07-25)
+
+
+### Features
+
+* new type for professional experience and add new field on student information  ([66c383e](https://github.com/hei-school/hei-admin-api/commit/66c383e5f5b7d8b39adefe0d5347d4b6231f574b))
+
+
+
+# [1.39.0](https://github.com/hei-school/hei-admin-api/compare/v1.38.0...v1.39.0) (2024-07-25)
+
+
+### Bug Fixes
+
+* students alternating stats are now exact ([b21671f](https://github.com/hei-school/hei-admin-api/commit/b21671f900402c23e84578c179a4e62e087ae0c3))
+
+
+### Features
+
+* **not-implemented:** student professional experience status documentation  ([d05a6b9](https://github.com/hei-school/hei-admin-api/commit/d05a6b97ed7f4e2a1a78ac70bdc5e395d0bd0b95))
+
+
+
+# [1.38.0](https://github.com/hei-school/hei-admin-api/compare/v1.37.0...v1.38.0) (2024-07-25)
+
+
+### Bug Fixes
+
+* change basic auth encoding ([175a7cb](https://github.com/hei-school/hei-admin-api/commit/175a7cba50063a53b2a95051cf279edce9120783))
+
+
+### Features
+
+* **not-implemented:** upload new student work document file type  ([178a241](https://github.com/hei-school/hei-admin-api/commit/178a241590ce7941286d32bd8009ea445fb450ba))
+
+
+
 # [1.37.0](https://github.com/hei-school/hei-admin-api/compare/v1.36.0...v1.37.0) (2024-07-24)
 
 
@@ -102,40 +139,6 @@
 ### Bug Fixes
 
 * change statistics details model  ([4448724](https://github.com/hei-school/hei-admin-api/commit/4448724f27e7088fdc05c32d7930dd8df5346cc4))
-
-
-
-# [1.28.0](https://github.com/hei-school/hei-admin-api/compare/v1.27.0...v1.28.0) (2024-06-20)
-
-
-### Bug Fixes
-
-* cron expressions in unPaidFeesReminder scheduler ([7c5613a](https://github.com/hei-school/hei-admin-api/commit/7c5613a8a8990dbb513fff493366a7befdf2cf70))
-
-
-### Features
-
-* add enabled and suspended in statistics model  ([b41fe68](https://github.com/hei-school/hei-admin-api/commit/b41fe68c762d371c29a42adf795a36ba6d129596))
-* send an email reminder for unpaid fees ([d0ba735](https://github.com/hei-school/hei-admin-api/commit/d0ba735007750bc4d25e082706f03739537fe028))
-
-
-
-# [1.27.0](https://github.com/hei-school/hei-admin-api/compare/v1.26.1...v1.27.0) (2024-06-19)
-
-
-### Features
-
-* implement a specific endpoint for students statistics ([ee2ebd4](https://github.com/hei-school/hei-admin-api/commit/ee2ebd4cc85ed79ce906840c73cde8be593a1298))
-
-
-
-## [1.26.1](https://github.com/hei-school/hei-admin-api/compare/v1.26.0...v1.26.1) (2024-06-18)
-
-
-### Bug Fixes
-
-* migration error when updating commitment begin default value  ([57382f8](https://github.com/hei-school/hei-admin-api/commit/57382f8589f4a7b7d5a30a5edf0da8f27da70689))
-* students stat are now exact ([179dbb6](https://github.com/hei-school/hei-admin-api/commit/179dbb6c9b5f60f27f8c6b6023cd9a09e5d073ef))
 
 
 

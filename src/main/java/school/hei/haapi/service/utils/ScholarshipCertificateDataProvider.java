@@ -44,7 +44,7 @@ public class ScholarshipCertificateDataProvider {
     return switch (specializationField) {
       case COMMON_CORE -> "Tronc commun";
       case TN -> "Transformation Numérique";
-      case EL -> "Écosystéme Logiciel";
+      case EL -> "Écosystème Logiciel";
       default -> throw new ApiException(SERVER_EXCEPTION, "Invalid specialization field");
     };
   }

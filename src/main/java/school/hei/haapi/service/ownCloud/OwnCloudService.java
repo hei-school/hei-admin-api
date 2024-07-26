@@ -37,7 +37,8 @@ public class OwnCloudService {
 
     HttpEntity<Void> entity = new HttpEntity<>(null, headers);
     ResponseEntity<String> response =
-        restTemplate.exchange(conf.getURI(path, permission, ocsPassword), POST, entity, String.class);
+        restTemplate.exchange(
+            conf.getURI(path, permission, ocsPassword), POST, entity, String.class);
 
     OcsData ocsData = objectMapper.readValue(response.getBody(), OcsData.class);
     ocsData.getOcs().getData().setPassword(ocsPassword);

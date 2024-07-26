@@ -18,11 +18,12 @@ import school.hei.haapi.endpoint.rest.mapper.FileInfoMapper;
 import school.hei.haapi.endpoint.rest.mapper.WorkDocumentMapper;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.FileType;
+import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
+import school.hei.haapi.endpoint.rest.model.WorkDocumentInfo;
 import school.hei.haapi.endpoint.rest.validator.CreateStudentWorkFileValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.StudentFileService;
-import school.hei.haapi.service.ownCloud.OwnCloudService;
 
 @RestController
 @AllArgsConstructor
@@ -31,7 +32,6 @@ public class StudentFileController {
   private final FileInfoMapper fileInfoMapper;
   private final WorkDocumentMapper workDocumentMapper;
   private final CreateStudentWorkFileValidator createStudentWorkFileValidator;
-  private final OwnCloudService ownCloudService;
 
   @GetMapping(
       value = "/students/{id}/scholarship_certificate/raw",
@@ -53,26 +53,38 @@ public class StudentFileController {
   @PostMapping(
       value = "/students/{student_id}/work_files/raw",
       consumes = MULTIPART_FORM_DATA_VALUE)
-  public FileInfo uploadStudentWorkFile(
+  public WorkDocumentInfo uploadStudentWorkFile(
       @PathVariable(name = "student_id") String studentId,
       @RequestParam(name = "filename", required = true) String filename,
       @RequestParam(name = "commitment_begin", required = true) Instant commitmentBegin,
       @RequestParam(name = "commitment_end", required = false) Instant commitmentEnd,
       @RequestParam(name = "creation_datetime", required = false) Instant creationDatetime,
+      @RequestParam(name = "experience_type", required = true)
+          ProfessionalExperienceFileTypeEnum professionalExperience,
       @RequestPart(name = "file_to_upload") MultipartFile fileToUpload) {
     createStudentWorkFileValidator.acceptWorkDocumentField(
-        filename, commitmentBegin, commitmentEnd);
+        filename, commitmentBegin, commitmentEnd, professionalExperience);
     return workDocumentMapper.toRest(
         fileService.uploadStudentWorkFile(
-            studentId, filename, creationDatetime, commitmentBegin, commitmentEnd, fileToUpload));
+            studentId,
+            filename,
+            creationDatetime,
+            commitmentBegin,
+            commitmentEnd,
+            fileToUpload,
+            professionalExperience));
   }
 
   @GetMapping(value = "/students/{student_id}/work_files")
-  public List<FileInfo> getStudentWorkDocuments(
+  public List<WorkDocumentInfo> getStudentWorkDocuments(
       @PathVariable(name = "student_id") String studentId,
       @RequestParam(name = "page") PageFromOne page,
-      @RequestParam(name = "page_size") BoundedPageSize pageSize) {
-    return fileService.getStudentWorkFiles(studentId, page, pageSize).stream()
+      @RequestParam(name = "page_size") BoundedPageSize pageSize,
+      @RequestParam(name = "professional_experience", required = false)
+          ProfessionalExperienceFileTypeEnum professionalExperience) {
+    return fileService
+        .getStudentWorkFiles(studentId, professionalExperience, page, pageSize)
+        .stream()
         .map(workDocumentMapper::toRest)
         .collect(toUnmodifiableList());
   }
@@ -89,7 +101,7 @@ public class StudentFileController {
   }
 
   @GetMapping(value = "/students/{student_id}/work_files/{id}")
-  public FileInfo getStudentWorkDocumentsById(
+  public WorkDocumentInfo getStudentWorkDocumentsById(
       @PathVariable(name = "student_id") String studentId, @PathVariable(name = "id") String id) {
     return workDocumentMapper.toRest(fileService.getStudentWorkFileById(id));
   }
