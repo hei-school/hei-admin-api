@@ -356,8 +356,8 @@ public class TestUtils {
   public static Group group1() {
     return new Group()
         .id(GROUP1_ID)
-        .name("G1")
-        .ref("GRP21001")
+        .ref("G1")
+        .name("GRP21001")
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .size(2);
   }
@@ -365,8 +365,8 @@ public class TestUtils {
   public static Group group2() {
     return new Group()
         .id(GROUP2_ID)
-        .name("G2")
-        .ref("GRP21002")
+        .ref("G2")
+        .name("GRP21002")
         .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
         .size(1);
   }
