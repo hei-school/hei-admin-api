@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.ArrayList;
@@ -53,7 +52,7 @@ public class GroupService {
         PageRequest.of(
             page.getValue() - 1,
             pageSize.getValue(),
-                Sort.by(DESC, "creationDatetime").and(Sort.by(DESC, "ref")));
+            Sort.by(DESC, "creationDatetime").and(Sort.by(DESC, "ref")));
     return groupDao.findByCriteria(ref, studentRef, pageable);
   }
 
