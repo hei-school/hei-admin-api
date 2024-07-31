@@ -12,7 +12,6 @@ import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT_PARTICIPANT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT_PARTICIPANT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.GROUP2_REF;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -146,7 +145,7 @@ public class EventIT extends MockedThirdParties {
     assertFalse(actual.contains(student1AttendEvent2()));
 
     List<EventParticipant> participantsFilteredByGroupRef =
-        api.getEventParticipants(EVENT2_ID, 1, 15, GROUP2_REF);
+        api.getEventParticipants(EVENT2_ID, 1, 15, "G2");
 
     // Notice :
     // Student 1 and Student 3 are in GROUP 1
@@ -176,7 +175,7 @@ public class EventIT extends MockedThirdParties {
         api.updateEventParticipantsStatus(
             EVENT1_ID, List.of(updateStudent1StatusEvent1, updateStudent3StatusInEvent1));
 
-    assertTrue(actual.containsAll(List.of(student1IsPresentInEvent1, student3MissEvent1)));
+    assertEquals(actual, List.of(student1IsPresentInEvent1, student3MissEvent1));
   }
 
   @Test

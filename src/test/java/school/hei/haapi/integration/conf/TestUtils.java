@@ -356,8 +356,8 @@ public class TestUtils {
   public static Group group1() {
     return new Group()
         .id(GROUP1_ID)
-        .name("G1")
-        .ref("GRP21001")
+        .ref("G1")
+        .name("GRP21001")
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .size(2);
   }
@@ -365,8 +365,8 @@ public class TestUtils {
   public static Group group2() {
     return new Group()
         .id(GROUP2_ID)
-        .name("G2")
-        .ref("GRP21002")
+        .ref("G2")
+        .name("GRP21002")
         .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
         .size(1);
   }
@@ -374,8 +374,8 @@ public class TestUtils {
   public static Group group3() {
     return new Group()
         .id("group3_id")
-        .name("H1")
-        .ref("GRP22001")
+        .ref("H1")
+        .name("GRP22001")
         .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
         .size(0);
   }
@@ -383,8 +383,8 @@ public class TestUtils {
   public static Group group4() {
     return new Group()
         .id("group4_id")
-        .name("H2")
-        .ref("GRP22002")
+        .ref("H2")
+        .name("GRP22002")
         .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
         .size(0);
   }
@@ -392,8 +392,8 @@ public class TestUtils {
   public static Group group5() {
     return new Group()
         .id("group5_id")
-        .name("J1")
-        .ref("GRP23001")
+        .ref("J1")
+        .name("GRP23001")
         .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
         .size(0);
   }
@@ -1069,23 +1069,23 @@ public class TestUtils {
   }
 
   public static EventParticipant student1MissEvent1() {
-    return createParticipant(student1(), MISSING, "event_participant1_id", "G1");
+    return createParticipant(student1(), MISSING, "event_participant1_id", "GRP21001");
   }
 
   public static EventParticipant student3AttendEvent1() {
-    return createParticipant(student3(), PRESENT, "event_participant2_id", "G1");
+    return createParticipant(student3(), PRESENT, "event_participant2_id", "GRP21001");
   }
 
   public static EventParticipant student1AttendEvent2() {
-    return createParticipant(student1(), PRESENT, "event_participant3_id", "G1");
+    return createParticipant(student1(), PRESENT, "event_participant3_id", "GRP21001");
   }
 
   public static EventParticipant student2AttendEvent2() {
-    return createParticipant(student2(), PRESENT, "event_participant4_id", "G2");
+    return createParticipant(student2(), PRESENT, "event_participant4_id", "GRP21002");
   }
 
   public static EventParticipant student3MissEvent2() {
-    return createParticipant(student3(), MISSING, "event_participant5_id", "G1");
+    return createParticipant(student3(), MISSING, "event_participant5_id", "GRP21001");
   }
 
   public static CreateEvent createEventCourse1() {
