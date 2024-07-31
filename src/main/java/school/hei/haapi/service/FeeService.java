@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.util.UUID.randomUUID;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
@@ -18,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.LateFeeVerified;
+import school.hei.haapi.endpoint.event.model.StudentsWithOverdueFeesReminder;
 import school.hei.haapi.endpoint.event.model.UnpaidFeesReminder;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
@@ -145,7 +147,8 @@ public class FeeService {
         });
     lateFees.forEach(lf -> feeRepository.updateFeeStatusById(LATE, lf.getId()));
     log.info("lateFees = {}", lateFees.stream().map(Fee::describe).toList());
-    // paidFees.forEach(lf -> feeRepository.updateFeeStatusById(PAID, lf.getId()));
+    // Send list of late fees with student ref to contact
+    eventProducer.accept(List.of(toStudentsWithOverdueFeesReminder(lateFees)));
     return lateFees;
   }
 
@@ -166,6 +169,16 @@ public class FeeService {
         .remainingAmount(fee.getRemainingAmount())
         .id(fee.getId())
         .dueDatetime(fee.getDueDatetime())
+        .build();
+  }
+
+  public StudentsWithOverdueFeesReminder toStudentsWithOverdueFeesReminder(List<Fee> fees) {
+    return StudentsWithOverdueFeesReminder.builder()
+        .id(String.valueOf(randomUUID()))
+        .students(
+            fees.stream()
+                .map(StudentsWithOverdueFeesReminder.StudentWithOverdueFees::from)
+                .toList())
         .build();
   }
 
