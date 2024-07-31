@@ -1,5 +1,8 @@
 package school.hei.haapi.endpoint.rest.security.model;
 
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
+
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -8,9 +11,6 @@ import lombok.ToString;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import school.hei.haapi.model.User;
-
-import static school.hei.haapi.model.User.Status.ENABLED;
-import static school.hei.haapi.model.User.Status.SUSPENDED;
 
 @Getter
 @AllArgsConstructor
