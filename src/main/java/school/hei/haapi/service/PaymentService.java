@@ -108,6 +108,8 @@ public class PaymentService {
             .creationDatetime(Instant.now())
             .comment(correspondingFee.getComment())
             .build();
+    computeUserStatusAfterPayingFee(correspondingFee.getStudent());
+    log.info("Student computed status: {}", correspondingFee.getStudent().getStatus().toString());
     return paymentRepository.save(paymentFromMpbs);
   }
 
