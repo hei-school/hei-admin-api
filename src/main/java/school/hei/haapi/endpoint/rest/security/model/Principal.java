@@ -9,6 +9,9 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import school.hei.haapi.model.User;
 
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
+
 @Getter
 @AllArgsConstructor
 @ToString
@@ -49,7 +52,7 @@ public class Principal implements UserDetails {
 
   @Override
   public boolean isEnabled() {
-    return User.Status.ENABLED.equals(user.getStatus());
+    return ENABLED.equals(user.getStatus()) || SUSPENDED.equals(user.getStatus());
   }
 
   public String getUserId() {
