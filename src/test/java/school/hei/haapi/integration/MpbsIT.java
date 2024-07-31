@@ -3,6 +3,7 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
+import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.integration.MpbsIT.ContextInitializer.SERVER_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -105,6 +106,14 @@ public class MpbsIT extends MockedThirdParties {
 
   public static CreateMpbs createableMpbs1() {
     return new CreateMpbs().studentId(STUDENT1_ID).feeId(FEE2_ID).pspType(MVOLA).pspId("psp1_id");
+  }
+
+  public static CreateMpbs createableMpbsFromFeeIdWithStudent1(String feeId) {
+    return new CreateMpbs()
+        .studentId(STUDENT1_ID)
+        .feeId(feeId)
+        .pspType(ORANGE_MONEY)
+        .pspId("psp_test");
   }
 
   private static ApiClient anApiClient(String token) {

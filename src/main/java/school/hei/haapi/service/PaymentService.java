@@ -98,6 +98,7 @@ public class PaymentService {
     userRepository.updateUserStatusById(ENABLED, userToResetStatus.getId());
   }
 
+  @Transactional
   public Payment savePaymentFromMpbs(Mpbs verifiedMpbs, int amount) {
     Fee correspondingFee = verifiedMpbs.getFee();
     Payment paymentFromMpbs =
