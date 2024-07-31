@@ -98,6 +98,7 @@ public class PaymentService {
     userRepository.updateUserStatusById(ENABLED, userToResetStatus.getId());
   }
 
+  @Transactional
   public Payment savePaymentFromMpbs(Mpbs verifiedMpbs, int amount) {
     Fee correspondingFee = verifiedMpbs.getFee();
     Payment paymentFromMpbs =
@@ -108,6 +109,8 @@ public class PaymentService {
             .creationDatetime(Instant.now())
             .comment(correspondingFee.getComment())
             .build();
+    computeUserStatusAfterPayingFee(correspondingFee.getStudent());
+    log.info("Student computed status: {}", correspondingFee.getStudent().getStatus().toString());
     return paymentRepository.save(paymentFromMpbs);
   }
 

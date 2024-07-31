@@ -21,6 +21,7 @@ import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
@@ -96,6 +97,7 @@ public class StudentIT extends MockedThirdParties {
     student.setAddress("Adr 1");
     student.setNic("");
     student.setBirthPlace("");
+    student.coordinates(coordinatesWithNullValues());
     return student;
   }
 
