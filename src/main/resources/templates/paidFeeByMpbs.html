@@ -49,16 +49,14 @@
 </head>
 <body>
 <main>
-    <h1>Bonjour,
+    <h1>Bonjour
+        <span th:text="${fullName + ' - PAIEMENT PAR ORANGE MONEY'}"></span> ,
     </h1>
     <section>
-        Nous tenons à vous rappeler que la date d'échéance du paiement des frais de scolarité est le <span th:text="${dueDatetime}"></span>,
-    </section>
-    <section>
-        Si vous avez déjà effectué vos paiements, veuillez déposer votre bordereau de versement au bureau de HEI.
-    </section>
-    <section>
-        Vous pouvez contacter l’administration via l’adresse email contact@mail.hei.school ou par le numéro +261 34 94 041 16 pour toute réclamation.
+        La transaction sur votre ecollage a bien été effectué
+        pour un montant de <span th:text="${pspAmount}"></span> MGA.
+        (<span th:text="${pspAmount}"></span> ARIARY). Au nom de <span th:text="${mpbsAuthor}"></span>
+        Pour plus d'information contacter <a href="mailto:contact@mail.hei.school">contact@mail.hei.school</a>
     </section>
     <section>
         Veuillez respecter ces horaires pour l'envoi des e-mails : de 8h à 16h du lundi au vendredi. En dehors de cela, vos mails concernant les frais de scolarité ne seront pas pris en compte.

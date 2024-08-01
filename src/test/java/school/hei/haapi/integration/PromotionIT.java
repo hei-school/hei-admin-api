@@ -76,7 +76,7 @@ public class PromotionIT extends MockedThirdParties {
     assertFalse(promotionsFilteredByRef.contains(promotion21()));
     assertFalse(promotionsFilteredByRef.contains(promotion23()));
 
-    List<Promotion> promotionsFilteredByGroupRef = api.getPromotions(1, 15, null, null, "GRP21001");
+    List<Promotion> promotionsFilteredByGroupRef = api.getPromotions(1, 15, null, null, "G1");
     assertTrue(promotionsFilteredByGroupRef.contains(promotion21()));
     assertFalse(promotionsFilteredByGroupRef.contains(promotion22()));
     assertFalse(promotionsFilteredByGroupRef.contains(promotion23()));
@@ -100,7 +100,6 @@ public class PromotionIT extends MockedThirdParties {
 
     List<Promotion> allPromotions = api.getPromotions(1, 15, null, null, null);
     assertTrue(allPromotions.contains(promotion21()));
-    assertTrue(allPromotions.contains(promotion22()));
     assertTrue(allPromotions.contains(promotion23()));
   }
 

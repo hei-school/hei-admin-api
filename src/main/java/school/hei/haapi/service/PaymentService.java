@@ -17,6 +17,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsNotificationBody;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
@@ -39,6 +41,7 @@ public class PaymentService {
   private final UserRepository userRepository;
   private final FeeService feeService;
   private final PaymentValidator paymentValidator;
+  private final EventProducer eventProducer;
 
   public Payment deleteFeePaymentById(String paymentId) {
     Payment deletedPayment = getById(paymentId);
@@ -98,6 +101,7 @@ public class PaymentService {
     userRepository.updateUserStatusById(ENABLED, userToResetStatus.getId());
   }
 
+  @Transactional
   public Payment savePaymentFromMpbs(Mpbs verifiedMpbs, int amount) {
     Fee correspondingFee = verifiedMpbs.getFee();
     Payment paymentFromMpbs =
@@ -108,6 +112,9 @@ public class PaymentService {
             .creationDatetime(Instant.now())
             .comment(correspondingFee.getComment())
             .build();
+    computeUserStatusAfterPayingFee(correspondingFee.getStudent());
+    log.info("Student computed status: {}", correspondingFee.getStudent().getStatus().toString());
+    eventProducer.accept(List.of(PaidFeeByMpbsNotificationBody.from(paymentFromMpbs)));
     return paymentRepository.save(paymentFromMpbs);
   }
 

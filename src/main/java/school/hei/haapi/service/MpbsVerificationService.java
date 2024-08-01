@@ -59,12 +59,14 @@ public class MpbsVerificationService {
   }
 
   private Mpbs saveTheUnverifiedMpbs(Mpbs mpbs, Instant toCompare) {
+    mpbs.setLastVerificationDatetime(Instant.now());
     mpbs.setStatus(defineMpbsStatusWithoutOrangeTransactionDetails(mpbs, toCompare));
     return mpbsRepository.save(mpbs);
   }
 
   private MpbsVerification saveTheVerifiedMpbs(
       Mpbs mpbs, TransactionDetails correspondingMobileTransaction, Instant toCompare) {
+    Instant now = Instant.now();
     Fee fee = mpbs.getFee();
     MpbsVerification verifiedMobileTransaction =
         MpbsVerification.builder()
@@ -78,7 +80,7 @@ public class MpbsVerificationService {
             .build();
 
     // Update mpbs ...
-    mpbs.setSuccessfullyVerifiedOn(Instant.now());
+    mpbs.setSuccessfullyVerifiedOn(now);
     mpbs.setStatus(defineMpbsStatusFromOrangeTransactionDetails(correspondingMobileTransaction));
     var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
     log.info("Mpbs has successfully verified = {}", mpbs.toString());
@@ -95,6 +97,7 @@ public class MpbsVerificationService {
 
     // ... then update fee remaining amount
     feeService.debitAmount(fee, verifiedMobileTransaction.getAmountInPsp());
+
     return verifiedMobileTransaction;
   }
 
