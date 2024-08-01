@@ -1,3 +1,14 @@
+# [1.41.0](https://github.com/hei-school/hei-admin-api/compare/v1.40.0...v1.41.0) (2024-08-01)
+
+
+### Features
+
+* compute user status by mpbs ([3afce0b](https://github.com/hei-school/hei-admin-api/commit/3afce0b3a8846bed2d09232a50247d77e15e69ac))
+* **not-implemented:** add field for mpbs payload and add last verification  ([95c5193](https://github.com/hei-school/hei-admin-api/commit/95c51937e37d0cf52023478da7bdcdd3f5cdd1fe))
+* sort group and promotion by ref and creation datetime DESC  ([04e688a](https://github.com/hei-school/hei-admin-api/commit/04e688af52ba9053e3cc5634ca5d2b6c0c5baeea))
+
+
+
 # [1.40.0](https://github.com/hei-school/hei-admin-api/compare/v1.39.0...v1.40.0) (2024-07-25)
 
 
@@ -130,15 +141,6 @@
 * **not-implemented:** filter fees by payment by mobile  ([a5ba67a](https://github.com/hei-school/hei-admin-api/commit/a5ba67ac90ce340ca143c5e0aee05e609dc5ef4a))
 * **not-implemented:** group statistics documentation  ([5527f65](https://github.com/hei-school/hei-admin-api/commit/5527f652056ef534bddbc6cde708538533c07a3b))
 * orange and telma mobile payment  ([2a6f0bb](https://github.com/hei-school/hei-admin-api/commit/2a6f0bb57b12ed60264b3477240a6dfcd713153c))
-
-
-
-## [1.28.1](https://github.com/hei-school/hei-admin-api/compare/v1.28.0...v1.28.1) (2024-06-20)
-
-
-### Bug Fixes
-
-* change statistics details model  ([4448724](https://github.com/hei-school/hei-admin-api/commit/4448724f27e7088fdc05c32d7930dd8df5346cc4))
 
 
 
