@@ -95,6 +95,7 @@ public class MpbsVerificationService {
 
     // ... then update fee remaining amount
     feeService.debitAmount(fee, verifiedMobileTransaction.getAmountInPsp());
+
     return verifiedMobileTransaction;
   }
 
