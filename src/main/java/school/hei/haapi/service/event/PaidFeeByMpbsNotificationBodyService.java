@@ -42,7 +42,7 @@ public class PaidFeeByMpbsNotificationBodyService
   @Override
   public void accept(PaidFeeByMpbsNotificationBody paidFeeByMpbsNotificationBody) {
     var body = htmlToString("paidFeeByMpbs", getMailContext(paidFeeByMpbsNotificationBody));
-    String mailTitle = "Mobile Payment By Student via [ Orange Money ]";
+    String mailTitle = "Ecollage - [ Orange Money ]";
     InternetAddress to =
         getInternetAdressFromEmail(paidFeeByMpbsNotificationBody.getMpbsAuthorEmail());
     mailer.accept(new Email(to, List.of(), List.of(), mailTitle, body, List.of()));
