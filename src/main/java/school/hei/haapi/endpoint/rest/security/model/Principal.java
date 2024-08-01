@@ -1,5 +1,8 @@
 package school.hei.haapi.endpoint.rest.security.model;
 
+import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
+
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -49,7 +52,8 @@ public class Principal implements UserDetails {
 
   @Override
   public boolean isEnabled() {
-    return User.Status.ENABLED.equals(user.getStatus());
+    // TODO: make a stronger security to not authorize SUSPENDED user to access other resources
+    return ENABLED.equals(user.getStatus()) || SUSPENDED.equals(user.getStatus());
   }
 
   public String getUserId() {
