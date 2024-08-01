@@ -1,0 +1,1 @@
+alter table "mpbs" add column if not exists last_verification_datetime timestamp with time zone;

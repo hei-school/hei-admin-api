@@ -24,6 +24,7 @@ public class MpbsMapper {
         .pspType(domain.getMobileMoneyType())
         .amount(domain.getAmount())
         .successfullyVerifiedOn(domain.getSuccessfullyVerifiedOn())
+        .lastDatetimeVerification(domain.getLastVerificationDatetime())
         .status(domain.getStatus());
   }
 
