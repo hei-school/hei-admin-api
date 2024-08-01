@@ -4205,6 +4205,9 @@ components:
         successfully_verified_on:
           type: string
           format: date-time
+        last_datetime_verification:
+          type: string
+          format: date-time
         status:
           $ref: '#/components/schemas/MpbsStatus'
     MpbsVerification:
