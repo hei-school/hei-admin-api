@@ -38,6 +38,8 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
 
   private Instant successfullyVerifiedOn;
 
+  private Instant lastVerificationDatetime;
+
   @ManyToOne
   @JoinColumn(name = "student_id")
   private User student;
