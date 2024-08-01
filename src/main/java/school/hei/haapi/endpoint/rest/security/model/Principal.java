@@ -52,6 +52,7 @@ public class Principal implements UserDetails {
 
   @Override
   public boolean isEnabled() {
+    // TODO: make a stronger security to not authorize SUSPENDED user to access other resources
     return ENABLED.equals(user.getStatus()) || SUSPENDED.equals(user.getStatus());
   }
 
