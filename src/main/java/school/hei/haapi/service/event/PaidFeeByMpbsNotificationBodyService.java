@@ -39,7 +39,7 @@ public class PaidFeeByMpbsNotificationBodyService
     }
   }
 
-  private Context loadContexte(PaidFeeByMpbsNotificationBody mailBodyContent) {
+  private Context loadContext(PaidFeeByMpbsNotificationBody mailBodyContent) {
     Context initial = new Context();
     Resource emailSignatureImage = classPathResourceResolver.apply("Signature-HEI-v2", ".png");
 
@@ -52,7 +52,7 @@ public class PaidFeeByMpbsNotificationBodyService
 
   @Override
   public void accept(PaidFeeByMpbsNotificationBody paidFeeByMpbsNotificationBody) {
-    var body = htmlToString("paidFeeByMpbs", loadContexte(paidFeeByMpbsNotificationBody));
+    var body = htmlToString("paidFeeByMpbs", loadContext(paidFeeByMpbsNotificationBody));
     String mailTitle = "Ecollage - [ Orange Money ]";
     InternetAddress to =
         getInternetAdressFromEmail(paidFeeByMpbsNotificationBody.getMpbsAuthorEmail());
