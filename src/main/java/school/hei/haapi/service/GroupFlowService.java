@@ -26,6 +26,7 @@ public class GroupFlowService {
   private final GroupRepository groupRepository;
   private final UserRepository userRepository;
   private final GroupFlowValidator validator;
+  private final GroupAttenderService groupAttenderService;
 
   private void logger(GroupFlow studentGroupFlow) {
     log.info(
@@ -65,8 +66,9 @@ public class GroupFlowService {
             .collect(Collectors.toList());
 
     validator.accept(groupFlowsToSave);
+    groupAttenderService.saveFromGroupFlows(groupFlowsToSave);
     groupFlowsToSave.forEach(this::logger);
-    return repository.saveAll(groupFlowsToSave);
+    return groupFlowsToSave;
   }
 
   private GroupFlow fromCreateGroupFlowsToGroupFlows(CreateGroupFlow toMap) {

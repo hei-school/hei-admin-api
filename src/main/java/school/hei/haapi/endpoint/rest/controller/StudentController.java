@@ -26,6 +26,7 @@ import school.hei.haapi.endpoint.rest.validator.CoordinatesValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.GroupAttenderService;
 import school.hei.haapi.service.GroupFlowService;
 import school.hei.haapi.service.UserService;
 
@@ -33,6 +34,7 @@ import school.hei.haapi.service.UserService;
 @AllArgsConstructor
 public class StudentController {
   private final UserService userService;
+  private final GroupAttenderService groupAttenderService;
   private final UserMapper userMapper;
   private final GroupFlowService groupFlowService;
   private final GroupFlowMapper groupFlowMapper;
@@ -58,9 +60,14 @@ public class StudentController {
       @PathVariable String groupId,
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize,
-      @RequestParam(name = "first_name", required = false) String studentFirstname) {
-    return userService.getByGroupIdWithFilter(groupId, page, pageSize, studentFirstname).stream()
-        .map(userMapper::toRestStudent)
+      @RequestParam(name = "ref", required = false) String studentRef,
+      @RequestParam(name = "first_name", required = false) String studentFirstname,
+      @RequestParam(name = "last_name", required = false) String studentLastname) {
+    return groupAttenderService
+        .getGroupAttenderByGroupIdAndStudentCriteria(
+            groupId, studentRef, studentLastname, studentFirstname, page, pageSize)
+        .stream()
+        .map(userMapper::fromGroupAttenderToRestStudent)
         .collect(Collectors.toUnmodifiableList());
   }
 

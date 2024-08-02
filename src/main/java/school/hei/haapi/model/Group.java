@@ -46,7 +46,7 @@ public class Group implements Serializable {
 
   @OneToMany(mappedBy = "group", fetch = LAZY)
   @ToString.Exclude
-  private List<GroupFlow> groupFlows;
+  private List<GroupAttender> groupAttenders;
 
   @ManyToOne
   @JoinColumn(name = "promotion_id", referencedColumnName = "id")

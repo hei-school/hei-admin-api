@@ -1,13 +1,16 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static java.util.stream.Collectors.toList;
 import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
 
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.model.GroupAttender;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
+import school.hei.haapi.service.GroupAttenderService;
 import school.hei.haapi.service.GroupService;
 import school.hei.haapi.service.WorkDocumentService;
 import school.hei.haapi.service.aws.FileService;
@@ -21,6 +24,7 @@ public class UserMapper {
   private final FileService fileService;
   private final GroupService groupService;
   private final GroupMapper groupMapper;
+  private final GroupAttenderService groupAttenderService;
 
   public UserIdentifier toIdentifier(User user) {
     return new UserIdentifier()
@@ -30,6 +34,51 @@ public class UserMapper {
         .lastName(user.getLastName())
         .firstName(user.getFirstName())
         .email(user.getEmail());
+  }
+
+  public Student fromGroupAttenderToRestStudent(GroupAttender groupAttender) {
+    Student restStudent = new Student();
+    User user = groupAttender.getStudent();
+
+    Optional<WorkDocument> studentLastWorkDocument =
+        workDocumentService.findLastWorkDocumentByStudentId(user.getId());
+    String profilePictureKey = user.getProfilePictureKey();
+    String url =
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
+            : null;
+
+    restStudent.setId(user.getId());
+    restStudent.setFirstName(user.getFirstName());
+    restStudent.setLastName(user.getLastName());
+    restStudent.setEmail(user.getEmail());
+    restStudent.setRef(user.getRef());
+    restStudent.setStatus(statusEnumMapper.toRestStatus(user.getStatus()));
+    restStudent.setPhone(user.getPhone());
+    restStudent.setEntranceDatetime(user.getEntranceDatetime());
+    restStudent.setBirthDate(user.getBirthDate());
+    restStudent.setSex(sexEnumMapper.toRestSexEnum(user.getSex()));
+    restStudent.setAddress(user.getAddress());
+    restStudent.setNic(user.getNic());
+    restStudent.setBirthPlace(user.getBirthPlace());
+    restStudent.setSpecializationField(user.getSpecializationField());
+    restStudent.setProfilePicture(url);
+    restStudent.groups(
+        groupAttenderService.getAllByStudentId(user.getId()).stream()
+            .map(GroupAttender::getGroup)
+            .collect(toList())
+            .stream()
+            .map(groupMapper::toRest)
+            .toList());
+    restStudent.setCoordinates(
+        new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
+    restStudent.setHighSchoolOrigin(user.getHighSchoolOrigin());
+    restStudent.setWorkStudyStatus(
+        workDocumentService.defineStudentWorkStatusFromWorkDocumentDetails(
+            studentLastWorkDocument));
+    restStudent.setCommitmentBeginDate(
+        workDocumentService.defineStudentCommitmentBegin(studentLastWorkDocument));
+    return restStudent;
   }
 
   public Student toRestStudent(User user) {
@@ -58,7 +107,12 @@ public class UserMapper {
     restStudent.setSpecializationField(user.getSpecializationField());
     restStudent.setProfilePicture(url);
     restStudent.groups(
-        groupService.getByUserId(user.getId()).stream().map(groupMapper::toRest).toList());
+        groupAttenderService.getAllByStudentId(user.getId()).stream()
+            .map(GroupAttender::getGroup)
+            .collect(toList())
+            .stream()
+            .map(groupMapper::toRest)
+            .toList());
     restStudent.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     restStudent.setHighSchoolOrigin(user.getHighSchoolOrigin());

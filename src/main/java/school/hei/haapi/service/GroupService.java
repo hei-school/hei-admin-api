@@ -13,9 +13,9 @@ import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupAttender;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Promotion;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -31,6 +31,7 @@ public class GroupService {
   private final GroupFlowService groupFlowService;
   private final GroupRepository groupRepository;
   private final GroupDao groupDao;
+  private final GroupAttenderService groupAttenderService;
 
   public Group findById(String groupId) {
     return repository
@@ -57,7 +58,7 @@ public class GroupService {
   }
 
   public Integer getGroupSize(String groupId) {
-    List<User> students = userRepository.findAllRemainingStudentsByGroupId(groupId);
+    List<GroupAttender> students = groupAttenderService.getAllByGroupId(groupId);
     return students.size();
   }
 
