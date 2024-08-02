@@ -205,6 +205,10 @@ public class UserService {
   }
 
   public Statistics getStudentsStat(List<Student> students) {
+    int willBeWorkingNb = getStudentsAlternatingSize(students, WILL_BE_WORKING);
+    int haveBeenWorkingNb = getStudentsAlternatingSize(students, HAVE_BEEN_WORKING);
+    int workingNb = getStudentsAlternatingSize(students, WORKING);
+    int notWorkingNb = getStudentsAlternatingSize(students, NOT_WORKING);
     return new Statistics()
         .women(
             new StatisticsDetails()
@@ -222,21 +226,18 @@ public class UserService {
                 .total(userRepository.countBySexAndRole(M, STUDENT)))
         .studentsAlternating(
             new StatisticsStudentsAlternating()
-                .total(
-                    getStudentsAlternatingSize(students, WILL_BE_WORKING)
-                        + getStudentsAlternatingSize(students, HAVE_BEEN_WORKING)
-                        + getStudentsAlternatingSize(students, WORKING))
-                .haveBeenWorking(getStudentsAlternatingSize(students, HAVE_BEEN_WORKING))
-                .working(getStudentsAlternatingSize(students, WORKING))
-                .notWorking(getStudentsAlternatingSize(students, NOT_WORKING))
-                .willWork(getStudentsAlternatingSize(students, WILL_BE_WORKING)));
+                .total(willBeWorkingNb + haveBeenWorkingNb + workingNb)
+                .haveBeenWorking(haveBeenWorkingNb)
+                .working(workingNb)
+                .notWorking(notWorkingNb)
+                .willWork(willBeWorkingNb));
   }
 
-  public Integer getStudentsAlternatingSize(
-      List<Student> students, WorkStudyStatus workStudyStatus) {
-    return students.stream()
-        .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
-        .toList()
-        .size();
+  public int getStudentsAlternatingSize(List<Student> students, WorkStudyStatus workStudyStatus) {
+    // TODO: use long
+    return (int)
+        students.stream()
+            .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
+            .count();
   }
 }
