@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
@@ -41,7 +42,7 @@ public class PaymentService {
   private final UserRepository userRepository;
   private final FeeService feeService;
   private final PaymentValidator paymentValidator;
-  private final EventProducer eventProducer;
+  private final EventProducer<PaidFeeByMpbsNotificationBody> eventProducer;
 
   public Payment deleteFeePaymentById(String paymentId) {
     Payment deletedPayment = getById(paymentId);
@@ -57,7 +58,7 @@ public class PaymentService {
   }
 
   private void resetRemainingAmountBetweenDelete(Fee associatedFee, int amount) {
-    Instant now = Instant.now();
+    Instant now = now();
     associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() + amount);
 
     if (associatedFee.getDueDatetime().isBefore(now) && associatedFee.getRemainingAmount() != 0) {
@@ -82,7 +83,7 @@ public class PaymentService {
     return paymentRepository.getByStudentIdAndFeeId(studentId, feeId, pageable);
   }
 
-  public void computeRemainingAmount(String feeId, int amount) {
+  private void computeRemainingAmount(String feeId, int amount) {
     Fee associatedFee = feeService.getById(feeId);
     associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() - amount);
     computeUserStatusAfterPayingFee(associatedFee.getStudent());
@@ -91,12 +92,13 @@ public class PaymentService {
     }
   }
 
-  public void computeUserStatusAfterPayingFee(User userToResetStatus) {
-    Instant now = Instant.now();
+  private void computeUserStatusAfterPayingFee(User userToResetStatus) {
+    Instant now = now();
     List<Fee> unpaidFeesBeforeNow =
         feeRepository.getStudentFeesUnpaidOrLateFrom(now, userToResetStatus.getId(), LATE);
     if (!unpaidFeesBeforeNow.isEmpty()) {
       userRepository.updateUserStatusById(SUSPENDED, userToResetStatus.getId());
+      return;
     }
     userRepository.updateUserStatusById(ENABLED, userToResetStatus.getId());
   }
@@ -109,12 +111,15 @@ public class PaymentService {
             .type(MOBILE_MONEY)
             .fee(correspondingFee)
             .amount(amount)
-            .creationDatetime(Instant.now())
+            .creationDatetime(now())
             .comment(correspondingFee.getComment())
             .build();
     computeUserStatusAfterPayingFee(correspondingFee.getStudent());
     log.info("Student computed status: {}", correspondingFee.getStudent().getStatus().toString());
-    eventProducer.accept(List.of(PaidFeeByMpbsNotificationBody.from(paymentFromMpbs)));
+    eventProducer.accept(
+        List.of(
+            PaidFeeByMpbsNotificationBody.from(
+                paymentFromMpbs, verifiedMpbs.getMobileMoneyType())));
     return paymentRepository.save(paymentFromMpbs);
   }
 

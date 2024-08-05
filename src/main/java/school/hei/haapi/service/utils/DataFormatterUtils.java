@@ -9,6 +9,7 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.FormatStyle;
 import java.util.Locale;
 import pl.allegro.finance.tradukisto.ValueConverters;
+import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 
 public class DataFormatterUtils {
   private DataFormatterUtils() {}
@@ -66,5 +67,13 @@ public class DataFormatterUtils {
     }
     throw new IllegalArgumentException(
         "Unexpected value '" + value + "' for enum " + enumClass.getSimpleName());
+  }
+
+  public static String toHumanReadableString(MobileMoneyType mobileMoneyType) {
+    return switch (mobileMoneyType) {
+      case MVOLA -> "Mvola";
+      case ORANGE_MONEY -> "Orange Money";
+      case AIRTEL_MONEY -> "Airtel Money";
+    };
   }
 }

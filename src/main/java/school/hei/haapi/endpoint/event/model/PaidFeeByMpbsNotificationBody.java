@@ -8,13 +8,14 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 
+@EqualsAndHashCode(callSuper = true)
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
 @Builder
 @Data
 @ToString
@@ -28,17 +29,23 @@ public class PaidFeeByMpbsNotificationBody extends PojaEvent {
   @JsonProperty("amount")
   private int amount;
 
-  public static PaidFeeByMpbsNotificationBody from(Payment payment) {
+  @JsonProperty("payment_type")
+  private MobileMoneyType paymentType;
+
+  public static PaidFeeByMpbsNotificationBody from(
+      Payment payment, MobileMoneyType mobileMoneyType) {
+    Fee correspondingFee = payment.getFee();
+    User correspondingStudent = correspondingFee.getStudent();
     return PaidFeeByMpbsNotificationBody.builder()
         .amount(payment.getAmount())
-        .mpbsAuthor(defineMpbsAuthorEntireName(payment.getFee()))
-        .mpbsAuthorEmail(payment.getFee().getStudent().getEmail())
+        .mpbsAuthor(extractFullNameFrom(correspondingStudent))
+        .paymentType(mobileMoneyType)
+        .mpbsAuthorEmail(correspondingStudent.getEmail())
         .build();
   }
 
-  private static String defineMpbsAuthorEntireName(Fee fee) {
-    User student = fee.getStudent();
-    return student.getLastName() + " " + student.getFirstName();
+  private static String extractFullNameFrom(User correspondingStudent) {
+    return correspondingStudent.getLastName() + " " + correspondingStudent.getFirstName();
   }
 
   @Override

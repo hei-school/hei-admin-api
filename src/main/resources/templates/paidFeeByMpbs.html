@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="fr">
 <head>
     <title>Document</title>
     <style>
@@ -50,25 +50,23 @@
 <body>
 <main>
     <h1>Bonjour
-        <span th:text="${fullName + ' - PAIEMENT PAR ORANGE MONEY'}"></span> ,
+        <span th:text="${mpbs_author + ' - Transaction ' + payment_type}"></span> ,
     </h1>
     <section>
-        La transaction sur votre ecollage a bien été effectué
-        pour un montant de <span th:text="${pspAmount}"></span> MGA.
-        (<span th:text="${pspAmount}"></span> ARIARY). Au nom de <span th:text="${mpbsAuthor}"></span>
+        Votre transaction a bien été effectuée
+        pour un montant de <span th:text="${psp_amount}"></span> MGA.
+        (<span th:text="${psp_amount}"></span> ARIARY). Au nom de <span th:text="${mpbs_author}"></span>
         Pour plus d'information contacter <a href="mailto:contact@mail.hei.school">contact@mail.hei.school</a>
     </section>
     <section>
         Veuillez respecter ces horaires pour l'envoi des e-mails : de 8h à 16h du lundi au vendredi. En dehors de cela, vos mails concernant les frais de scolarité ne seront pas pris en compte.
-
-        Heure de remise de bordereau : 10h - 12h et 14h - 16h.
     </section>
 </main>
 <footer>
     <div class="contacts">
         <div>Cordialement,</div>
         <div class="hei">
-            <a href="www.hei.school">HEI Madagascar </a> <br>
+            <a href="https://www.hei.school">HEI Madagascar </a> <br>
             <span class="motto">Penser • Travailler • Impacter </span> <br>
             Lot II J161 R Ivandry Ambodivoanjo <br>
             contact@mail.hei.school <br>
