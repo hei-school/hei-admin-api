@@ -4,11 +4,10 @@ import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
-import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdWithStudent1;
+import static school.hei.haapi.integration.MpbsIT.creatableMpbsFrom;
 import static school.hei.haapi.integration.StudentIT.someCreatableStudent;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -18,6 +17,8 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -38,6 +39,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @ContextConfiguration(initializers = PaymentServiceTest.ContextInitializer.class)
 @AutoConfigureMockMvc
 class PaymentServiceTest extends MockedThirdParties {
+  private static final Logger log = LoggerFactory.getLogger(PaymentServiceTest.class);
   @Autowired private PaymentService subject;
   @Autowired private MpbsService mpbsService;
   @MockBean private EventBridgeClient eventBridgeClientMock;
@@ -54,33 +56,58 @@ class PaymentServiceTest extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi usersApi = new UsersApi(manager1Client);
     PayingApi payingApi = new PayingApi(manager1Client);
+    /*
+     * STEP 1 - BEGIN
+     * Create test student,
+     * assert student is enabled
+     * create a fee for the student
+     *  */
+    var studentToCreate = someCreatableStudent();
+    var createdStudent = usersApi.createOrUpdateStudents(List.of(studentToCreate)).getFirst();
+    assertEquals(ENABLED, createdStudent.getStatus());
+    String currentStudentId = createdStudent.getId();
 
-    var correspondingCreateableStudent = someCreatableStudent();
-    var correspondingFee =
-        payingApi.createStudentFees(STUDENT1_ID, List.of(creatableFee1())).getFirst();
-    var correspondingMpbs =
+    var createdFee =
+        payingApi.createStudentFees(currentStudentId, List.of(creatableFee1())).getFirst();
+    var createdMpbs =
         payingApi.createMpbs(
-            STUDENT1_ID,
-            correspondingFee.getId(),
-            createableMpbsFromFeeIdWithStudent1(correspondingFee.getId()));
-    var correspondingStudent =
-        usersApi.createOrUpdateStudents(List.of(correspondingCreateableStudent)).getFirst();
+            createdFee.getStudentId(),
+            createdFee.getId(),
+            creatableMpbsFrom(
+                createdFee.getStudentId(), createdFee.getId(), /*what is psp test?*/ "psp_test"));
+    /*
+     * STEP 1 - END
+     *  */
 
-    assertEquals(ENABLED, correspondingStudent.getStatus());
+    /*
+     * STEP 2 - BEGIN
+     * Suspend previously created student
+     */
+    log.info("createdfee = {}", createdFee);
+    log.info("created mpbs = {}", createdMpbs);
+    studentToCreate.setId(currentStudentId);
+    studentToCreate.setStatus(SUSPENDED);
 
-    correspondingCreateableStudent.setId(correspondingStudent.getId());
-    correspondingCreateableStudent.setStatus(SUSPENDED);
+    var suspendedCreatedStudent =
+        usersApi.createOrUpdateStudents(List.of(studentToCreate)).getFirst();
 
-    var correspondingStudentAfterMakingSUSPENDED =
-        usersApi.createOrUpdateStudents(List.of(correspondingCreateableStudent)).getFirst();
+    assertEquals(SUSPENDED, suspendedCreatedStudent.getStatus());
+    /*
+     * STEP 2 - END
+     */
+    /*
+     * STEP 3 - BEGIN
+     * Pay created fee, expect it to update previously created student status to ENABLED
+     */
+    var domainCreatedMpbs = mpbsService.getByPspId(createdMpbs.getPspId());
+    var createdPayment = subject.savePaymentsViaMpbs(domainCreatedMpbs, 5000);
+    log.info("created payment = {}", createdPayment);
 
-    assertEquals(SUSPENDED, correspondingStudentAfterMakingSUSPENDED.getStatus());
-
-    var domainMpbs = mpbsService.getByPspId(correspondingMpbs.getPspId());
-    subject.savePaymentFromMpbs(domainMpbs, 5000);
-
-    var actualStudent1 = usersApi.getStudentById(STUDENT1_ID);
-    assertEquals(ENABLED, actualStudent1.getStatus());
+    var actualStudent = usersApi.getStudentById(currentStudentId);
+    assertEquals(ENABLED, actualStudent.getStatus());
+    /*
+     * STEP 3 - END
+     */
   }
 
   private static ApiClient anApiClient(String token) {

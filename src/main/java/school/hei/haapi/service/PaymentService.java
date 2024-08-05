@@ -92,19 +92,20 @@ public class PaymentService {
     }
   }
 
-  private void computeUserStatusAfterPayingFee(User userToResetStatus) {
+  private void computeUserStatusAfterPayingFee(User persistedUser) {
     Instant now = now();
     List<Fee> unpaidFeesBeforeNow =
-        feeRepository.getStudentFeesUnpaidOrLateFrom(now, userToResetStatus.getId(), LATE);
+        feeRepository.getStudentFeesWithPositiveRemainingAmountBy(now, persistedUser.getId(), LATE);
+    log.info("unpaid fees = {}", unpaidFeesBeforeNow);
     if (!unpaidFeesBeforeNow.isEmpty()) {
-      userRepository.updateUserStatusById(SUSPENDED, userToResetStatus.getId());
+      userRepository.updateUserStatusById(SUSPENDED, persistedUser.getId());
       return;
     }
-    userRepository.updateUserStatusById(ENABLED, userToResetStatus.getId());
+    userRepository.updateUserStatusById(ENABLED, persistedUser.getId());
   }
 
   @Transactional
-  public Payment savePaymentFromMpbs(Mpbs verifiedMpbs, int amount) {
+  public Payment savePaymentsViaMpbs(Mpbs verifiedMpbs, int amount) {
     Fee correspondingFee = verifiedMpbs.getFee();
     Payment paymentFromMpbs =
         Payment.builder()
@@ -114,13 +115,15 @@ public class PaymentService {
             .creationDatetime(now())
             .comment(correspondingFee.getComment())
             .build();
-    computeUserStatusAfterPayingFee(correspondingFee.getStudent());
-    log.info("Student computed status: {}", correspondingFee.getStudent().getStatus().toString());
     eventProducer.accept(
         List.of(
             PaidFeeByMpbsNotificationBody.from(
                 paymentFromMpbs, verifiedMpbs.getMobileMoneyType())));
-    return paymentRepository.save(paymentFromMpbs);
+    var payment = saveAll(List.of(paymentFromMpbs)).getFirst();
+    User correspondingStudent = correspondingFee.getStudent();
+    computeUserStatusAfterPayingFee(correspondingStudent);
+    log.info("Student computed status: {}", correspondingStudent.getStatus().toString());
+    return payment;
   }
 
   @Transactional

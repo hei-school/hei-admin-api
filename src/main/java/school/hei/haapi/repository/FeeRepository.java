@@ -45,7 +45,7 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
         and f.status = :status
         and f.remainingAmount > 0
         """)
-  List<Fee> getStudentFeesUnpaidOrLateFrom(
+  List<Fee> getStudentFeesWithPositiveRemainingAmountBy(
       @Param(value = "toCompare") Instant toCompare,
       @Param("studentId") String studentId,
       @Param("status") FeeStatusEnum status);

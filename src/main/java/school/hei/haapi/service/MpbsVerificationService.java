@@ -91,7 +91,7 @@ public class MpbsVerificationService {
     repository.save(verifiedMobileTransaction);
 
     // ... then save the corresponding payment
-    paymentService.savePaymentFromMpbs(
+    paymentService.savePaymentsViaMpbs(
         successfullyVerifiedMpbs, correspondingMobileTransaction.getPspTransactionAmount());
     log.info("Creating corresponding payment = {}", successfullyVerifiedMpbs.toString());
 

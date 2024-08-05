@@ -108,12 +108,8 @@ public class MpbsIT extends MockedThirdParties {
     return new CreateMpbs().studentId(STUDENT1_ID).feeId(FEE2_ID).pspType(MVOLA).pspId("psp1_id");
   }
 
-  public static CreateMpbs createableMpbsFromFeeIdWithStudent1(String feeId) {
-    return new CreateMpbs()
-        .studentId(STUDENT1_ID)
-        .feeId(feeId)
-        .pspType(ORANGE_MONEY)
-        .pspId("psp_test");
+  public static CreateMpbs creatableMpbsFrom(String studentId, String feeId, String pspId) {
+    return new CreateMpbs().studentId(studentId).feeId(feeId).pspType(ORANGE_MONEY).pspId(pspId);
   }
 
   private static ApiClient anApiClient(String token) {
