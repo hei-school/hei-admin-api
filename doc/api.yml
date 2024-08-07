@@ -3815,6 +3815,11 @@ components:
     CrupdateTeacher:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        courses:
+          type: array
+          items: 
+            $ref: '#/components/schemas/Course'
     CrupdateManager:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
@@ -3886,6 +3891,10 @@ components:
       properties:
         profile_picture:
           type: string
+        courses:
+          type: array
+          items:
+            $ref: '#/components/schemas/Course'  
     Manager:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
