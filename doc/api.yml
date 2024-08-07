@@ -3977,12 +3977,6 @@ components:
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'
-    CourseWithTeacher:
-      allOf:
-        - $ref: '#/components/schemas/CourseTemplate'
-      properties:
-        teacher:
-          $ref: '#/components/schemas/Teacher'
     CreateAwardedCourse:
       type: object
       properties:
