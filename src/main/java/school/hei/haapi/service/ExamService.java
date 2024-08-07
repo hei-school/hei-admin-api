@@ -11,12 +11,12 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.ExamRepository;
 
 @Service
 @AllArgsConstructor
 public class ExamService {
-  // todo: to review all class
   private final ExamRepository examRepository;
 
   public List<Exam> getExamsFromAwardedCourseIdAndGroupId(
@@ -30,7 +30,9 @@ public class ExamService {
 
   public Exam getExamsByIdAndGroupIdAndAwardedCourseId(
       String id, String awardedCourseId, String groupId) {
-    return examRepository.findExamsByIdAndGroupIdAndAwardedGroupId(id, awardedCourseId, groupId);
+    return examRepository
+        .findById(id)
+        .orElseThrow(() -> new NotFoundException("Exam with id #" + id + " not found"));
   }
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {

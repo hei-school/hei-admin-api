@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.time.ZoneId;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
@@ -10,13 +9,12 @@ import school.hei.haapi.model.Exam;
 @Component
 @AllArgsConstructor
 public class ExamMapper {
-  // todo: to review all class
   public ExamInfo toRest(Exam exam) {
     return new ExamInfo()
         .id(exam.getId())
         .coefficient(exam.getCoefficient())
         .title(exam.getTitle())
-        .examinationDate(exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
+        .examinationDate(exam.getExaminationDate())
         .awardedCourseId(exam.getAwardedCourse().getId());
   }
 
@@ -25,7 +23,7 @@ public class ExamMapper {
         .id(examInfo.getId())
         .coefficient(examInfo.getCoefficient())
         .title(examInfo.getTitle())
-        .examinationDate(examInfo.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
+        .examinationDate(examInfo.getExaminationDate())
         .awardedCourse(awardedCourse)
         .build();
   }
