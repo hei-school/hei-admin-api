@@ -1,0 +1,219 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+import org.openapitools.generator.gradle.plugin.tasks.GenerateTask
+
+plugins {
+    id 'java'
+    id 'org.springframework.boot' version '3.2.2'
+    id 'io.spring.dependency-management' version '1.1.3'
+
+    id 'org.openapi.generator' version '7.4.0'
+
+    id 'jacoco'
+
+    
+}
+
+jacoco {
+    toolVersion = "0.8.11"
+}
+
+
+
+repositories {
+mavenLocal()
+    mavenCentral()
+}
+
+java {
+    group = 'school.hei.haapi'
+    sourceCompatibility = '21'
+    targetCompatibility = '21'
+}
+
+configurations {
+    compileOnly {
+        extendsFrom annotationProcessor
+    }
+}
+
+task generateJavaClient(type: GenerateTask) {
+    generatorName = "java"
+    inputSpec = "$rootDir/doc/api.yml".toString()
+    outputDir = "$buildDir/gen".toString()
+    apiPackage = "school.hei.haapi.endpoint.rest.api"
+    invokerPackage = "school.hei.haapi.endpoint.rest.client"
+    modelPackage = "school.hei.haapi.endpoint.rest.model"
+
+    configOptions = [
+            serializableModel: "true",
+            serializationLibrary: "jackson",
+            dateLibrary: "custom"
+    ]
+    typeMappings = [
+            // What date-time type to use when? https://i.stack.imgur.com/QPhGW.png
+            Date: "java.time.LocalDate",
+            DateTime: "java.time.Instant",
+    ]
+    library = "native"
+
+    groupId = 'school.hei'
+    id = 'haapi-gen'
+    skipValidateSpec = false
+    logToStderr = true
+    generateAliasAsModel = false
+    enablePostProcessFile = false
+}
+task generateTsClient(type: org.openapitools.generator.gradle.plugin.tasks.GenerateTask) {
+    generatorName = "typescript-axios"
+    inputSpec = "$rootDir/doc/api.yml".toString()
+    outputDir = "$buildDir/gen-ts".toString()
+    typeMappings = [
+            Date    : "Date",
+            DateTime: "Date",
+    ]
+    additionalProperties = [
+            enumPropertyNaming: "original",
+            npmName           : "@haapi/typescript-client",
+            npmVersion        : project.properties["args"] ?: "latest"
+    ]
+}
+task publishJavaClientToMavenLocal(type: Exec, dependsOn: generateJavaClient) {
+    if (Os.isFamily(Os.FAMILY_WINDOWS)){
+        commandLine './.shell/publish_gen_to_maven_local.bat'
+    } else {
+        commandLine './.shell/publish_gen_to_maven_local.sh'
+    }
+}
+tasks.compileJava.dependsOn publishJavaClientToMavenLocal
+
+
+test {
+    maxParallelForks = Runtime.runtime.availableProcessors().intdiv(2) ?: 1
+    useJUnitPlatform()
+    finalizedBy jacocoTestCoverageVerification
+}
+
+jacocoTestCoverageVerification {
+    dependsOn test
+    afterEvaluate {
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    "**/gen/**"
+            ])
+        }))
+    }
+    violationRules {
+        rule {
+            limit {
+                counter = "LINE"
+                minimum = 0.7
+            }
+        }
+    }
+    finalizedBy jacocoTestReport
+}
+
+jacocoTestReport {
+    reports {
+        xml.required = true
+        html.required = true
+    }
+    afterEvaluate {
+        // Need to be duplicated like this from jacocoTestCoverageVerification,
+        // else display coverageRate is inconsistent with what was computed during coverage...
+        classDirectories.setFrom(files(classDirectories.files.collect {
+            fileTree(dir: it, exclude: [
+                    "**/gen/**"
+            ])
+        }))
+    }
+    doLast {
+        def coverageReportFile = file("$buildDir/reports/jacoco/test/jacocoTestReport.xml")
+
+        if (coverageReportFile.exists()) {
+            def xmlParser = new XmlParser()
+            xmlParser.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false)
+            xmlParser.setFeature("http://apache.org/xml/features/disallow-doctype-decl", false)
+
+            def xml = xmlParser.parse(coverageReportFile)
+
+            def totalLines = xml.'counter'.find { it.@type == 'LINE' }.@missed.toInteger() + xml.'counter'.find { it.@type == 'LINE' }.@covered.toInteger()
+            def coveredLines = xml.'counter'.find { it.@type == 'LINE' }.@covered.toInteger()
+            def coverageRate = coveredLines / totalLines.toDouble() * 100
+
+            println "Total Line Coverage Rate: ${coverageRate.round(2)}%"
+        } else {
+            println "No JaCoCo coverage report found. Make sure you run 'gradle test jacocoTestReport' first."
+        }
+    }
+}
+
+dependencies {
+    implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+    implementation 'org.flywaydb:flyway-core'
+    testImplementation 'org.testcontainers:postgresql:1.19.4'
+    implementation 'org.postgresql:postgresql'
+    implementation 'org.xerial:sqlite-jdbc:3.45.1.0'
+    implementation 'org.hibernate.orm:hibernate-community-dialects:6.4.3.Final'
+
+    implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
+
+    implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot3:2.0.0-M2'
+    implementation 'software.amazon.awssdk:aws-query-protocol:2.20.26'
+
+    implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
+    implementation 'com.amazonaws:aws-lambda-java-events:3.11.3'
+    implementation 'software.amazon.awssdk:sqs:2.21.40'
+    implementation 'software.amazon.awssdk:eventbridge:2.21.40'
+    implementation 'software.amazon.awssdk:s3:2.21.40'
+    implementation 'software.amazon.awssdk:s3-transfer-manager:2.21.40'
+    implementation 'software.amazon.awssdk.crt:aws-crt:0.28.12'
+    implementation 'software.amazon.awssdk:ses:2.21.40'
+    implementation 'software.amazon.awssdk:core:2.21.40'
+
+    implementation 'jakarta.mail:jakarta.mail-api:2.1.2'
+    implementation 'jakarta.activation:jakarta.activation-api:2.1.2'
+    implementation 'com.sun.mail:jakarta.mail:2.0.1'
+    implementation 'com.sun.activation:jakarta.activation:2.0.1'
+
+    implementation 'org.apache.tika:tika-core:2.9.1'
+
+    implementation 'org.reflections:reflections:0.10.2'
+
+    compileOnly 'org.projectlombok:lombok'
+    annotationProcessor 'org.projectlombok:lombok'
+    testCompileOnly 'org.projectlombok:lombok'
+    testAnnotationProcessor 'org.projectlombok:lombok'
+
+    implementation 'org.openapitools:jackson-databind-nullable:0.2.6'
+    implementation 'io.swagger:swagger-annotations:1.6.12'
+
+    testImplementation 'org.springframework.boot:spring-boot-starter-test'
+    testImplementation 'org.testcontainers:junit-jupiter:1.19.1'
+    testImplementation 'org.junit-pioneer:junit-pioneer:2.2.0'
+
+
+    implementation 'io.sentry:sentry-logback:7.6.0'
+    implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.4.0'
+    implementation 'school.hei:haapi-gen:latest'
+
+implementation 'org.springframework.boot:spring-boot-starter-security'
+
+implementation 'com.nimbusds:nimbus-jose-jwt:9.37'
+
+implementation 'software.amazon.awssdk:cognitoidentityprovider:2.20.66'
+implementation 'software.amazon.awssdk:ses:2.20.69'
+
+implementation 'org.springframework.boot:spring-boot-starter-validation'
+implementation 'org.thymeleaf:thymeleaf:3.1.1.RELEASE'
+// A library that format number into words
+implementation 'pl.allegro.finance:tradukisto:1.12.0'
+testImplementation 'org.springframework.security:spring-security-test'
+// Can __NOT__ upgrade javaker to higher versions
+testImplementation 'com.github.javafaker:javafaker:0.13'
+implementation 'org.xhtmlrenderer:flying-saucer-pdf:9.3.1'
+testImplementation 'org.mockito:mockito-core:5.3.1'
+    
+implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
+}

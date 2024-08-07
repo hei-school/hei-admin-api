@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Document</title>
+    <style>
+        body {
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        h1,section, footer {
+            margin: 2vh 2vw;
+        }
+
+        h1 {
+            font-size: 1.5em;
+            font-weight: 500;
+        }
+
+        section, footer{
+            font-size: 1.1em;
+            line-height: 1.5em;
+        }
+
+        a {
+            color: rgb(195, 128, 3);
+            text-decoration: none;
+            margin: 0 2px;
+        }
+
+        a:hover {
+            color: rgb(251, 189, 73);
+        }
+
+        .contacts {
+            width: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .motto {
+            color: rgb(0, 0, 125);
+        }
+
+        .hei {
+            color: rgb(164, 164, 164);
+        }
+
+    </style>
+</head>
+<body>
+<main>
+    <h1>Bonjour,
+    </h1>
+    <section>
+        Voici la liste de tous les étudiants ayant un frais en retard et sont susceptibles d'être SUSPENDUS :
+    </section>
+    <section>
+        <span th:each="student : ${students}" >
+            <span th:text="${student.ref + ', ' + student.feeComment}"></span>
+        </span>
+    </section>
+</main>
+<footer>
+    <div class="contacts">
+        <div>Cordialement,</div>
+        <div class="hei">
+            <a href="www.hei.school">HEI Madagascar </a> <br>
+            <span class="motto">Penser • Travailler • Impacter </span> <br>
+            Lot II J161 R Ivandry Ambodivoanjo <br>
+            contact@mail.hei.school <br>
+            +261 34 94 041 16
+        </div>
+    </div>
+</footer>
+</body>
+</html>
