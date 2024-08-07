@@ -15,12 +15,16 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.event.LateFeeVerifiedService;
 import school.hei.haapi.service.event.UserUpsertedService;
+import school.hei.haapi.service.utils.Base64Converter;
+import school.hei.haapi.service.utils.ClassPathResourceResolver;
 
 class EventServiceInvokerTest {
   UserUpsertedService userUpsertedService;
   LateFeeVerifiedService lateFeeService;
   Mailer sesService;
   UserService userService;
+  Base64Converter base64Converter;
+  ClassPathResourceResolver classPathResourceResolver;
 
   static User randomStudent() {
     return User.builder()
@@ -44,7 +48,11 @@ class EventServiceInvokerTest {
     userUpsertedService = mock(UserUpsertedService.class);
     sesService = mock(Mailer.class);
     userService = mock(UserService.class);
-    lateFeeService = new LateFeeVerifiedService(sesService, userService);
+    classPathResourceResolver = mock(ClassPathResourceResolver.class);
+    base64Converter = mock(Base64Converter.class);
+    lateFeeService =
+        new LateFeeVerifiedService(
+            sesService, userService, base64Converter, classPathResourceResolver);
   }
 
   @Test
