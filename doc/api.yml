@@ -3796,6 +3796,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Group'
+        is_repeating_year:
+          type: boolean
     Teacher:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
