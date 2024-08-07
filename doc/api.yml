@@ -653,7 +653,76 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  /courses_assign_to_teacher:
+    get:
+      tags:
+        - Teaching
+      summary: Get all courses assign to a teacher
+      operationId: getCoursesAssignToTeacher
+      parameters:
+        - name: code
+          in: query
+          description: "Filter courses by code, case is ignored"
+          schema:
+            type: string
+        - name: name
+          in: query
+          description: "Filter courses by name, case is ignored"
+          schema:
+            type: string
+        - name: credits
+          in: query
+          description: "Filter courses by credits"
+          schema:
+            type: integer
+        - name: teacher_first_name
+          in: query
+          description: "Filter courses by teacher firstname, case is ignored"
+          schema:
+            type: string
+        - name: teacher_last_name
+          in: query
+          description: "Filter courses by teacher lastname, case is ignored"
+          schema:
+            type: string
+        - name: credits_order
+          in: query
+          schema:
+            $ref: '#/components/schemas/CourseDirection'
+        - name: code_order
+          in: query
+          schema:
+            $ref: '#/components/schemas/CourseDirection'
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: List of all courses
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseWithTeacher'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /groups/{group_id}/awarded_courses/{awarded_course_id}:
     get:
       tags:
@@ -3886,6 +3955,12 @@ components:
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'
+    CourseWithTeacher:
+      allOf:
+        - $ref: '#/components/schemas/CourseTemplate'
+      properties:
+        teacher:
+          $ref: '#/components/schemas/Teacher'
     CreateAwardedCourse:
       type: object
       properties:
