@@ -25,7 +25,6 @@ public class ExamController {
   private final AwardedCourseService awardedCourseService;
   private final ExamMapper examMapper;
 
-  // todo: to review all class
   @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams")
   public List<ExamInfo> getAwardedCourseExams(
       @PathVariable("group_id") String groupId,

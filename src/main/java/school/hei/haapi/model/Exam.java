@@ -31,7 +31,6 @@ import lombok.ToString;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class Exam implements Serializable {
-  // todo: to review all class
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
