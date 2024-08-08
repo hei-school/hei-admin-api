@@ -26,8 +26,7 @@ import school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService;
 @AutoConfigureMockMvc
 class StudentsWithOverdueReminderServiceIT extends MockedThirdParties {
 
-  @Autowired
-  StudentsWithOverdueFeesReminderService subject;
+  @Autowired StudentsWithOverdueFeesReminderService subject;
   @MockBean Mailer mailerMock;
 
   static StudentsWithOverdueFeesReminder actual() {
