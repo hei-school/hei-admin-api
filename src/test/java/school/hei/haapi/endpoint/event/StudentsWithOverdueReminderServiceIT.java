@@ -18,7 +18,7 @@ import school.hei.haapi.endpoint.event.model.StudentsWithOverdueFeesReminder;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.mail.Mailer;
-import school.hei.haapi.service.event.StudentWithOverdueFeesReminderService;
+import school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -26,7 +26,8 @@ import school.hei.haapi.service.event.StudentWithOverdueFeesReminderService;
 @AutoConfigureMockMvc
 class StudentsWithOverdueReminderServiceIT extends MockedThirdParties {
 
-  @Autowired StudentWithOverdueFeesReminderService subject;
+  @Autowired
+  StudentsWithOverdueFeesReminderService subject;
   @MockBean Mailer mailerMock;
 
   static StudentsWithOverdueFeesReminder actual() {
