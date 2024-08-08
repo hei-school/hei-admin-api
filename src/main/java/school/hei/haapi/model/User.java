@@ -105,6 +105,8 @@ public class User implements Serializable {
 
   private String highSchoolOrigin;
 
+  private transient Boolean isRepeatingYear;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
