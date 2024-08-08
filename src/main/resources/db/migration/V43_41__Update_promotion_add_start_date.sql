@@ -1,1 +1,1 @@
-alter table "mpbs" add column if not exists last_verification_datetime timestamp with time zone;
+alter table "promotion" add column if not exists start_date date;
