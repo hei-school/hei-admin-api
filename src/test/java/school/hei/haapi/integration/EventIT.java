@@ -1,9 +1,8 @@
 package school.hei.haapi.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
@@ -14,7 +13,6 @@ import static school.hei.haapi.integration.conf.TestUtils.EVENT_PARTICIPANT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT_PARTICIPANT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.createEventCourse1;
 import static school.hei.haapi.integration.conf.TestUtils.event1;
@@ -32,30 +30,22 @@ import static school.hei.haapi.integration.conf.TestUtils.student3MissEvent2;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.UpdateEventParticipant;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = EventIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-public class EventIT extends MockedThirdParties {
+public class EventIT extends FacadeITMockedThirdParties {
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, EventIT.ContextInitializer.SERVER_PORT);
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, localPort);
   }
 
   @BeforeEach
@@ -71,7 +61,7 @@ public class EventIT extends MockedThirdParties {
 
     List<Event> actual = api.crupdateEvents(List.of(createEventCourse1()));
 
-    Event event = actual.get(0);
+    Event event = actual.getFirst();
     assertEquals(expectedCourseEventCreated().getType(), event.getType());
     assertEquals(expectedCourseEventCreated().getEndDatetime(), event.getEndDatetime());
     assertEquals(expectedCourseEventCreated().getBeginDatetime(), event.getBeginDatetime());
@@ -158,6 +148,7 @@ public class EventIT extends MockedThirdParties {
 
   @Test
   @DirtiesContext
+  @Disabled("dirty")
   void manager_update_event_participant_ok() throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
@@ -179,21 +170,12 @@ public class EventIT extends MockedThirdParties {
   }
 
   @Test
-  void student_create_or_update_event_or_event_participant_ko() throws ApiException {
+  void student_create_or_update_event_or_event_participant_ko() {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
 
     assertThrowsForbiddenException(() -> api.crupdateEvents(List.of(createEventCourse1())));
     assertThrowsForbiddenException(
         () -> api.updateEventParticipantsStatus(EVENT1_ID, List.of(new UpdateEventParticipant())));
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
   }
 }

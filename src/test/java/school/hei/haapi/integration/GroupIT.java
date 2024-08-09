@@ -1,11 +1,10 @@
 package school.hei.haapi.integration;
 
 import static java.util.UUID.randomUUID;
-import static org.junit.Assert.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 
@@ -14,29 +13,20 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateGroup;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = GroupIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-class GroupIT extends MockedThirdParties {
+class GroupIT extends FacadeITMockedThirdParties {
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, localPort);
   }
 
   public static Group group1() {
@@ -169,17 +159,17 @@ class GroupIT extends MockedThirdParties {
     List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
     List<Group> createdWithStudent = api.createOrUpdateGroups(List.of(toCreate5));
     List<Student> students =
-        api.getStudentsByGroupId(createdWithStudent.get(0).getId(), 1, 10, null);
+        api.getStudentsByGroupId(createdWithStudent.getFirst().getId(), 1, 10, null);
 
     assertEquals(2, created.size());
-    Group created3 = created.get(0);
+    Group created3 = created.getFirst();
     assertTrue(isValidUUID(created3.getId()));
     toCreate3.setId(created3.getId());
     assertNotNull(created3.getCreationDatetime());
     toCreate3.setCreationDatetime(created3.getCreationDatetime());
 
     assertEquals(created3, createGroupToGroup(toCreate3));
-    Group created4 = created.get(0);
+    Group created4 = created.getFirst();
     assertTrue(isValidUUID(created4.getId()));
     toCreate4.setId(created4.getId());
     assertNotNull(created4.getCreationDatetime());
@@ -205,14 +195,5 @@ class GroupIT extends MockedThirdParties {
     assertEquals(2, updated.size());
     assertTrue(updated.contains(createGroupToGroup(ModifyGroups.get(0))));
     assertTrue(updated.contains(createGroupToGroup(ModifyGroups.get(1))));
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
   }
 }

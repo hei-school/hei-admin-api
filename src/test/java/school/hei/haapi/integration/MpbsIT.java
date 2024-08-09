@@ -1,11 +1,9 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
-import static school.hei.haapi.integration.MpbsIT.ContextInitializer.SERVER_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
@@ -13,7 +11,6 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -22,25 +19,16 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateMpbs;
 import school.hei.haapi.endpoint.rest.model.Mpbs;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = MpbsIT.ContextInitializer.class)
-@AutoConfigureMockMvc
 public class MpbsIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
 
@@ -72,7 +60,7 @@ public class MpbsIT extends MockedThirdParties {
   }
 
   @Test
-  void student_read_others_ko() throws ApiException {
+  void student_read_others_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
@@ -116,16 +104,7 @@ public class MpbsIT extends MockedThirdParties {
         .pspId("psp_test");
   }
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, SERVER_PORT);
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, localPort);
   }
 }

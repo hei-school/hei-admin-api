@@ -1,7 +1,6 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.OrderDirection.ASC;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.*;
@@ -9,23 +8,14 @@ import static school.hei.haapi.integration.conf.TestUtils.*;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.CommentsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Comment;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = CommentIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-class CommentIT extends MockedThirdParties {
+class CommentIT extends FacadeITMockedThirdParties {
   public static String STUDENT1_REF = "STD21001";
 
   @BeforeEach
@@ -54,16 +44,16 @@ class CommentIT extends MockedThirdParties {
     List<Comment> actualTimestampAscendant = api.getComments(1, 10, ASC, null);
 
     // Verify Comments are filter by timestamp Ascendant
-    assertEquals(comment1().getContent(), actualTimestampAscendant.get(0).getContent());
+    assertEquals(comment1().getContent(), actualTimestampAscendant.getFirst().getContent());
     assertEquals(
-        comment1().getCreationDatetime(), actualTimestampAscendant.get(0).getCreationDatetime());
+        comment1().getCreationDatetime(), actualTimestampAscendant.getFirst().getCreationDatetime());
 
     // Verify Comments are filter by timestamp Descendant (by default)
     assertEquals(
-        createCommentByTeacher().getContent(), actualTimestampDescendant.get(0).getContent());
+        createCommentByTeacher().getContent(), actualTimestampDescendant.getFirst().getContent());
     assertEquals(
         createCommentByTeacher().getStudentId(),
-        actualTimestampDescendant.get(0).getSubject().getId());
+        actualTimestampDescendant.getFirst().getSubject().getId());
   }
 
   @Test
@@ -100,7 +90,7 @@ class CommentIT extends MockedThirdParties {
   }
 
   @Test
-  void student1_read_comment_about_other_student_ko() throws ApiException {
+  void student1_read_comment_about_other_student_ko() {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     CommentsApi api = new CommentsApi(apiClient);
 
@@ -135,16 +125,7 @@ class CommentIT extends MockedThirdParties {
         commentCreatedByTeacher().getSubject().getRef(), createdComment.getSubject().getRef());
   }
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, CommentIT.ContextInitializer.SERVER_PORT);
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, localPort);
   }
 }

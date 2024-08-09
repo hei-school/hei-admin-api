@@ -1,9 +1,8 @@
 package school.hei.haapi.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.PROMOTION1_ID;
@@ -11,7 +10,6 @@ import static school.hei.haapi.integration.conf.TestUtils.PROMOTION3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.addGroupToPromotion3;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.createGroupIdentifier;
 import static school.hei.haapi.integration.conf.TestUtils.createPromotion4;
@@ -26,27 +24,18 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PromotionsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
 import school.hei.haapi.endpoint.rest.model.Promotion;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = PromotionIT.ContextInitializer.class)
-@AutoConfigureMockMvc
 public class PromotionIT extends MockedThirdParties {
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, PromotionIT.ContextInitializer.SERVER_PORT);
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, localPort);
   }
 
   @BeforeEach
@@ -169,28 +158,21 @@ public class PromotionIT extends MockedThirdParties {
   }
 
   @Test
-  void update_promotion_forbidden_ok() throws ApiException {
+  void update_promotion_forbidden_ok() {
     ApiClient studentApiClient = anApiClient(STUDENT1_TOKEN);
-    PromotionsApi studentCallAPi = new PromotionsApi(studentApiClient);
+    PromotionsApi studentPromotionsApi = new PromotionsApi(studentApiClient);
 
     ApiClient teacherApiClient = anApiClient(STUDENT1_TOKEN);
-    PromotionsApi teacherCallAPi = new PromotionsApi(teacherApiClient);
+    PromotionsApi teacherPromotionsApi = new PromotionsApi(teacherApiClient);
 
-    assertThrowsForbiddenException(() -> studentCallAPi.crupdatePromotion(createPromotion4()));
     assertThrowsForbiddenException(
-        () -> studentCallAPi.updatePromotionGroups(PROMOTION3_ID, addGroupToPromotion3()));
-
-    assertThrowsForbiddenException(() -> teacherCallAPi.crupdatePromotion(createPromotion4()));
+        () -> studentPromotionsApi.crupdatePromotion(createPromotion4()));
     assertThrowsForbiddenException(
-        () -> teacherCallAPi.updatePromotionGroups(PROMOTION3_ID, addGroupToPromotion3()));
-  }
+        () -> studentPromotionsApi.updatePromotionGroups(PROMOTION3_ID, addGroupToPromotion3()));
 
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
+    assertThrowsForbiddenException(
+        () -> teacherPromotionsApi.crupdatePromotion(createPromotion4()));
+    assertThrowsForbiddenException(
+        () -> teacherPromotionsApi.updatePromotionGroups(PROMOTION3_ID, addGroupToPromotion3()));
   }
 }

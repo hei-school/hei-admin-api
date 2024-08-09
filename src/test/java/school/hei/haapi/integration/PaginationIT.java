@@ -2,7 +2,6 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
@@ -10,7 +9,6 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -22,11 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -35,20 +29,15 @@ import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = PaginationIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-class PaginationIT extends MockedThirdParties {
+class PaginationIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, localPort);
   }
 
   private static Payment payment2() {
@@ -105,9 +94,9 @@ class PaginationIT extends MockedThirdParties {
     assertEquals(1, page4.size());
     assertEquals(0, page100.size());
     // students are ordered by ref
-    assertTrue(isBefore(page1.get(0).getRef(), page1.get(2).getRef()));
+    assertTrue(isBefore(page1.getFirst().getRef(), page1.get(2).getRef()));
     assertTrue(isBefore(page1.get(2).getRef(), page2.get(0).getRef()));
-    assertTrue(isBefore(page2.get(0).getRef(), page2.get(2).getRef()));
+    assertTrue(isBefore(page2.getFirst().getRef(), page2.get(2).getRef()));
   }
 
   @Test
@@ -123,8 +112,8 @@ class PaginationIT extends MockedThirdParties {
     assertEquals(pageSize, page1.size());
     assertEquals(2, page2.size());
     assertEquals(2, page3.size());
-    assertTrue(isAfter(page1.get(0).getDueDatetime(), page1.get(1).getDueDatetime()));
-    assertTrue(isAfter(page1.get(1).getDueDatetime(), page2.get(0).getDueDatetime()));
+    assertTrue(isAfter(page1.getFirst().getDueDatetime(), page1.get(1).getDueDatetime()));
+    assertTrue(isAfter(page1.getFirst().getDueDatetime(), page2.getFirst().getDueDatetime()));
   }
 
   @Test
@@ -140,8 +129,8 @@ class PaginationIT extends MockedThirdParties {
     assertEquals(pageSize, page1.size());
     assertEquals(1, page2.size());
     assertEquals(0, page3.size());
-    assertTrue(isAfter(page1.get(0).getCreationDatetime(), page1.get(1).getCreationDatetime()));
-    assertTrue(isAfter(page1.get(1).getCreationDatetime(), page2.get(0).getCreationDatetime()));
+    assertTrue(isAfter(page1.getFirst().getCreationDatetime(), page1.get(1).getCreationDatetime()));
+    assertTrue(isAfter(page1.get(1).getCreationDatetime(), page2.getFirst().getCreationDatetime()));
   }
 
   private boolean isBefore(String a, String b) {
@@ -163,14 +152,5 @@ class PaginationIT extends MockedThirdParties {
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"page size must be <500\"}",
         () -> api.getStudents(1, 1000, null, null, null, null, null, null, null, null, null));
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
   }
 }

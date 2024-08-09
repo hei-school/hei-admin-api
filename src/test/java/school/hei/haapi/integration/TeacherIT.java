@@ -63,10 +63,6 @@ import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = TeacherIT.ContextInitializer.class)
-@AutoConfigureMockMvc
 class TeacherIT extends MockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
 

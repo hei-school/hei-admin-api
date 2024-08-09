@@ -1,12 +1,10 @@
 package school.hei.haapi.integration;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
-import static org.junit.Assert.assertTrue;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.FileType.TRANSCRIPT;
 import static school.hei.haapi.integration.SchoolFileIT.setUpRestTemplate;
-import static school.hei.haapi.integration.StudentFileIT.ContextInitializer.SERVER_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 
@@ -21,27 +19,18 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = StudentFileIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-public class StudentFileIT extends MockedThirdParties {
+public class StudentFileIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @MockBean RestTemplate restTemplateMock;
   @Autowired ObjectMapper objectMapper;
@@ -55,7 +44,7 @@ public class StudentFileIT extends MockedThirdParties {
   }
 
   @Test
-  void student_load_other_certificate_ko() throws ApiException {
+  void student_load_other_certificate_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     FilesApi api = new FilesApi(student1Client);
 
@@ -66,9 +55,9 @@ public class StudentFileIT extends MockedThirdParties {
   void student_load_certificate_via_http_client_ok() throws IOException, InterruptedException {
     String STUDENT_CERTIFICATE = "/students/" + STUDENT1_ID + "/scholarship_certificate/raw";
     HttpClient httpClient = HttpClient.newBuilder().build();
-    String basePath = "http://localhost:" + SERVER_PORT;
+    String basePath = "http://localhost:" + localPort;
 
-    HttpResponse response =
+    HttpResponse<byte[]> response =
         httpClient.send(
             HttpRequest.newBuilder()
                 .uri(URI.create(basePath + STUDENT_CERTIFICATE))
@@ -83,7 +72,7 @@ public class StudentFileIT extends MockedThirdParties {
   }
 
   @Test
-  void student_load_other_files_ko() throws ApiException {
+  void student_load_other_files_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     FilesApi api = new FilesApi(student1Client);
 
@@ -131,16 +120,7 @@ public class StudentFileIT extends MockedThirdParties {
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
   }
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, StudentFileIT.ContextInitializer.SERVER_PORT);
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, localPort);
   }
 }

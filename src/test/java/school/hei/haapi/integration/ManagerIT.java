@@ -1,12 +1,10 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithValues;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -20,15 +18,10 @@ import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
-import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -37,20 +30,14 @@ import school.hei.haapi.endpoint.rest.model.CrupdateManager;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = ManagerIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-@Slf4j
-public class ManagerIT extends MockedThirdParties {
+public class ManagerIT extends FacadeITMockedThirdParties {
   @Autowired ObjectMapper objectMapper;
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, localPort);
   }
 
   public static Manager manager1() {
@@ -149,8 +136,7 @@ public class ManagerIT extends MockedThirdParties {
   @Test
   void manager_update_own_profile_picture() throws IOException, InterruptedException {
     HttpResponse<InputStream> response =
-        uploadProfilePicture(
-            ContextInitializer.SERVER_PORT, MANAGER1_TOKEN, MANAGER_ID, "managers");
+        uploadProfilePicture(localPort, MANAGER1_TOKEN, MANAGER_ID, "managers");
 
     Manager manager = objectMapper.readValue(response.body(), Manager.class);
 
@@ -194,15 +180,6 @@ public class ManagerIT extends MockedThirdParties {
     List<Manager> managers = api.getManagers(1, 20, null, null);
 
     assertEquals(4, managers.size());
-    assertEquals(manager1(), managers.get(0));
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
+    assertEquals(manager1(), managers.getFirst());
   }
 }

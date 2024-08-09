@@ -9,7 +9,6 @@ import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
 import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
@@ -40,22 +39,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
-import org.springframework.test.context.ContextConfiguration;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.*;
-import school.hei.haapi.integration.conf.AbstractContextInitializer;
-import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -63,18 +55,13 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 
-@SpringBootTest(webEnvironment = RANDOM_PORT)
-@Testcontainers
-@ContextConfiguration(initializers = StudentIT.ContextInitializer.class)
-@AutoConfigureMockMvc
-public class StudentIT extends MockedThirdParties {
-  private static final Logger log = LoggerFactory.getLogger(StudentIT.class);
+public class StudentIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
 
   @Autowired ObjectMapper objectMapper;
 
-  private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, ContextInitializer.SERVER_PORT);
+  private ApiClient anApiClient(String token) {
+    return TestUtils.anApiClient(token, localPort);
   }
 
   File getFileFromResource(String resourceName) {
@@ -323,8 +310,7 @@ public class StudentIT extends MockedThirdParties {
   void manager_upload_profile_picture() throws IOException, InterruptedException {
 
     HttpResponse<InputStream> response =
-        uploadProfilePicture(
-            ContextInitializer.SERVER_PORT, MANAGER1_TOKEN, STUDENT1_ID, "students");
+        uploadProfilePicture(localPort, MANAGER1_TOKEN, STUDENT1_ID, "students");
 
     Student student = objectMapper.readValue(response.body(), Student.class);
 
@@ -335,7 +321,7 @@ public class StudentIT extends MockedThirdParties {
   @Test
   @Disabled
   // TODO: Same here
-  void student_update_other_profile_picture_ko() throws ApiException {
+  void student_update_other_profile_picture_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
     assertThrowsForbiddenException(
@@ -345,7 +331,7 @@ public class StudentIT extends MockedThirdParties {
   @Test
   @Disabled
   // TODO: Check why this returns null while a Forbidden Exception is thrown
-  void student_update_own_ko() throws ApiException {
+  void student_update_own_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
     assertThrowsForbiddenException(
@@ -482,7 +468,7 @@ public class StudentIT extends MockedThirdParties {
 
     assertEquals(2, actualStudents.size());
     assertEquals(
-        student1().getCommitmentBeginDate(), actualStudents.get(0).getCommitmentBeginDate());
+        student1().getCommitmentBeginDate(), actualStudents.getFirst().getCommitmentBeginDate());
   }
 
   @Test
@@ -600,7 +586,7 @@ public class StudentIT extends MockedThirdParties {
     List<Student> toCreate =
         api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));
 
-    Student created0 = toCreate.get(0);
+    Student created0 = toCreate.getFirst();
     CrupdateStudent toUpdate0 =
         new CrupdateStudent()
             .birthDate(created0.getBirthDate())
@@ -739,7 +725,7 @@ public class StudentIT extends MockedThirdParties {
   }
 
   @Test
-  void manager_write_with_longitude_null_ko() throws ApiException {
+  void manager_write_with_longitude_null_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
@@ -754,7 +740,7 @@ public class StudentIT extends MockedThirdParties {
   }
 
   @Test
-  void manager_write_with_latitude_null_ko() throws ApiException {
+  void manager_write_with_latitude_null_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
@@ -789,8 +775,8 @@ public class StudentIT extends MockedThirdParties {
     PutEventsRequest actualRequest = captor.getValue();
     List<PutEventsRequestEntry> actualRequestEntries = actualRequest.entries();
     assertEquals(2, actualRequestEntries.size());
-    Student created0 = created.get(0);
-    PutEventsRequestEntry requestEntry0 = actualRequestEntries.get(0);
+    Student created0 = created.getFirst();
+    PutEventsRequestEntry requestEntry0 = actualRequestEntries.getFirst();
     assertTrue(requestEntry0.detail().contains(created0.getId()));
     assertTrue(requestEntry0.detail().contains(created0.getEmail()));
     Student created1 = created.get(1);
@@ -856,7 +842,7 @@ public class StudentIT extends MockedThirdParties {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actual = api.createOrUpdateStudents(List.of(creatableSuspendedStudent()));
-    Student created = actual.get(0);
+    Student created = actual.getFirst();
     List<Student> suspended =
         api.getStudents(1, 10, null, "Suspended", null, null, SUSPENDED, null, null, null, null);
 
@@ -871,7 +857,7 @@ public class StudentIT extends MockedThirdParties {
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> actual = api.createOrUpdateStudents(List.of(createStudent2().status(SUSPENDED)));
-    Student updated = actual.get(0);
+    Student updated = actual.getFirst();
     List<Student> suspended =
         api.getStudents(1, 10, null, null, null, null, SUSPENDED, null, null, null, null);
 
@@ -975,14 +961,5 @@ public class StudentIT extends MockedThirdParties {
         .lastName(randomUUID().toString())
         .firstName(randomUUID().toString())
         .specializationField(student.getSpecializationField());
-  }
-
-  static class ContextInitializer extends AbstractContextInitializer {
-    public static final int SERVER_PORT = anAvailableRandomPort();
-
-    @Override
-    public int getServerPort() {
-      return SERVER_PORT;
-    }
   }
 }
