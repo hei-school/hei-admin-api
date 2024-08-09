@@ -59,4 +59,14 @@ public class AwardedCourseController {
         .map(mapper::toRest)
         .collect(toList());
   }
+
+  @GetMapping("/teachers/{teacher_id}/awarded_courses")
+  public List<AwardedCourse> getByTeacherId(
+          @PathVariable("teacher_id") String teacherId,
+          @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+          @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
+    return service.getByTeacherId(teacherId, page, pageSize).stream()
+            .map(mapper::toRest)
+            .collect(toList());
+  }
 }

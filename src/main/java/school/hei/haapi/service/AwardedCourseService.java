@@ -87,4 +87,11 @@ public class AwardedCourseService {
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "name"));
     return awardedCourseDao.findByCriteria(teacherId, courseId, pageable);
   }
+
+  public List<AwardedCourse> getByTeacherId(
+          String teacherId, PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable =
+            PageRequest.of(page.getValue() -  1, pageSize.getValue(), Sort.by(ASC, "course"));
+    return awardedCourseRepository.findByTeacherId(teacherId, pageable);
+  }
 }
