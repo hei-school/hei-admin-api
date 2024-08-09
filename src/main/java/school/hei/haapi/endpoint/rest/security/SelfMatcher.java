@@ -5,12 +5,14 @@ import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 
 @AllArgsConstructor
+@Slf4j
 public class SelfMatcher implements RequestMatcher {
 
   private final HttpMethod method;
@@ -20,11 +22,11 @@ public class SelfMatcher implements RequestMatcher {
   @Override
   public boolean matches(HttpServletRequest request) {
     AntPathRequestMatcher antMatcher = new AntPathRequestMatcher(antPattern, method.toString());
-    Principal principal = AuthProvider.getPrincipal();
-    String userIdFromRequest = getSelfId(request);
     if (!antMatcher.matches(request)) {
       return false;
     }
+    Principal principal = AuthProvider.getPrincipal();
+    String userIdFromRequest = getSelfId(request);
     return Objects.equals(userIdFromRequest, principal.getUserId());
   }
 
