@@ -1,3 +1,15 @@
+# [1.42.0](https://github.com/hei-school/hei-admin-api/compare/v1.41.0...v1.42.0) (2024-08-09)
+
+
+### Features
+
+* add mpbs field for the last verification datetime  ([f1c56e9](https://github.com/hei-school/hei-admin-api/commit/f1c56e90b86c8b0c4484ed40ec5c56dc236e7093))
+* **not-implemented:** add endpoint for courses with teacher ([adb454b](https://github.com/hei-school/hei-admin-api/commit/adb454b6292aba95fc29ae59369656e8df0409c5))
+* **not-implemented:** add field for repeating student  ([2b263cb](https://github.com/hei-school/hei-admin-api/commit/2b263cbc9e47b41264504b889902b5b08a1e3914))
+* notify user after fee is paid by mpbs  ([05ff9fb](https://github.com/hei-school/hei-admin-api/commit/05ff9fb9e2bc1429d1a132b17869a4a73046b23d))
+
+
+
 # [1.41.0](https://github.com/hei-school/hei-admin-api/compare/v1.40.0...v1.41.0) (2024-08-01)
 
 
@@ -116,31 +128,6 @@
 * endpoint who will execute the sceduler task  ([30807fb](https://github.com/hei-school/hei-admin-api/commit/30807fbd3249a6eddd25350d524ac4a985aeb095))
 * group attribute in user rest model ([764bad9](https://github.com/hei-school/hei-admin-api/commit/764bad9c149941c62ae36e492b42c37f620b3f65))
 * update user status accordingly after paying fee ([ddff281](https://github.com/hei-school/hei-admin-api/commit/ddff28172aa224c3e47c81b9b44cad70fe6f2577))
-
-
-
-# [1.32.0](https://github.com/hei-school/hei-admin-api/compare/v1.28.1...v1.32.0) (2024-07-03)
-
-
-### Bug Fixes
-
-* add @AllArgsConstructor to endpoint.event.gen classes otherwise they cannot be deserialized from empty bean ([19a87a5](https://github.com/hei-school/hei-admin-api/commit/19a87a502c008881011230b18eeae3934d92ffb2))
-* check mobile transaction scheduler stack  ([3987703](https://github.com/hei-school/hei-admin-api/commit/3987703c04d534d6b8922845c4cff6fce380e204))
-* mpbs status default values  ([becab74](https://github.com/hei-school/hei-admin-api/commit/becab748c5037bee78bd91d353cbdc21b08dd5da))
-* scheduled events are processed by event stack 1 ([266bf79](https://github.com/hei-school/hei-admin-api/commit/266bf79be7837a040fab52b731603dda2258bffb))
-* students works stats size  ([23c95bf](https://github.com/hei-school/hei-admin-api/commit/23c95bf67f5fce5a3c351491f3da658610ec1dfb))
-* update event classes imports ([a70b160](https://github.com/hei-school/hei-admin-api/commit/a70b16000ed1979d7c2f064e6336372e333d0c83))
-* worker function timeout must be less than sqs visibility timeout ([9dbf48b](https://github.com/hei-school/hei-admin-api/commit/9dbf48b47affc1e4c9c262ef9c08b0dfc5c816ba))
-
-
-### Features
-
-* add size to group model ([c7abded](https://github.com/hei-school/hei-admin-api/commit/c7abded36e63e339a82fc9da0c1fb52d612f10a9))
-* add status to MPBS to know if PENDING, SUCCESS or FAILED  ([af23531](https://github.com/hei-school/hei-admin-api/commit/af23531404a4b8434ecafe6a5bfeba03ae01dc01))
-* **not-implemented:** documentation for fetched mobile transaction  ([7ea15ee](https://github.com/hei-school/hei-admin-api/commit/7ea15eec67fa355a9e2a4b3bcc96b2ef3265f877))
-* **not-implemented:** filter fees by payment by mobile  ([a5ba67a](https://github.com/hei-school/hei-admin-api/commit/a5ba67ac90ce340ca143c5e0aee05e609dc5ef4a))
-* **not-implemented:** group statistics documentation  ([5527f65](https://github.com/hei-school/hei-admin-api/commit/5527f652056ef534bddbc6cde708538533c07a3b))
-* orange and telma mobile payment  ([2a6f0bb](https://github.com/hei-school/hei-admin-api/commit/2a6f0bb57b12ed60264b3477240a6dfcd713153c))
 
 
 
