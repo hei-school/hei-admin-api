@@ -22,7 +22,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -78,40 +77,23 @@ public class SecurityConf {
 
         // authenticate
         .authenticationProvider(authProvider)
-        .addFilterBefore(
-            bearerFilter(
-                new NegatedRequestMatcher(
-                    new OrRequestMatcher(
-                        new AntPathRequestMatcher("/ping", GET.name()),
-                        new AntPathRequestMatcher("/uuid-created", GET.name()),
-                        new AntPathRequestMatcher("/health/db", GET.name()),
-                        new AntPathRequestMatcher("/health/email", GET.name()),
-                        new AntPathRequestMatcher("/health/event1", GET.name()),
-                        new AntPathRequestMatcher("/health/event2", GET.name()),
-                        new AntPathRequestMatcher("/health/event/uuids", POST.name()),
-                        new AntPathRequestMatcher("/health/bucket", GET.name()),
-                        new AntPathRequestMatcher("/**", OPTIONS.toString())))),
-            AnonymousAuthenticationFilter.class)
+        .addFilterBefore(bearerFilter(new OrRequestMatcher()), AnonymousAuthenticationFilter.class)
 
         // authorize
         .authorizeHttpRequests(
             request ->
                 request
-                    .requestMatchers(GET, "/ping")
-                    .permitAll()
-                    .requestMatchers(GET, "/health/db")
-                    .permitAll()
-                    .requestMatchers(GET, "/health/email")
-                    .permitAll()
-                    .requestMatchers(GET, "/health/event1")
-                    .permitAll()
-                    .requestMatchers(GET, "/health/event2")
-                    .permitAll()
-                    .requestMatchers(POST, "/health/event/uuids")
-                    .permitAll()
-                    .requestMatchers(GET, "/health/bucket")
-                    .permitAll()
-                    .requestMatchers(OPTIONS, "/**")
+                    .requestMatchers(
+                        new OrRequestMatcher(
+                            new AntPathRequestMatcher("/ping", GET.name()),
+                            new AntPathRequestMatcher("/uuid-created", GET.name()),
+                            new AntPathRequestMatcher("/health/db", GET.name()),
+                            new AntPathRequestMatcher("/health/email", GET.name()),
+                            new AntPathRequestMatcher("/health/event1", GET.name()),
+                            new AntPathRequestMatcher("/health/event2", GET.name()),
+                            new AntPathRequestMatcher("/health/event/uuids", POST.name()),
+                            new AntPathRequestMatcher("/health/bucket", GET.name()),
+                            new AntPathRequestMatcher("/**", OPTIONS.toString())))
                     .permitAll()
                     .requestMatchers(GET, "/whoami")
                     .authenticated()
