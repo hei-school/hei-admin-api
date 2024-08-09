@@ -179,7 +179,6 @@ public class SecurityConf {
                     nonAccessibleBySuspendedUserPath)),
             AnonymousAuthenticationFilter.class)
         .addFilterAfter(
-            // TODO use the correct matcher
             new SuspendedStudentFilter(nonAccessibleBySuspendedUserPath), BearerAuthFilter.class)
 
         // authorize

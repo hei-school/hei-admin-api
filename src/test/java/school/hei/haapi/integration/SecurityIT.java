@@ -115,10 +115,7 @@ class SecurityIT extends MockedThirdParties {
 
     assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
     assertEquals(
-        "{"
-            + "\"type\":\"403 FORBIDDEN\","
-            + "\"message\":\"You cannot access this resources because you are suspended. Please contact headmaster for additional informations\"}",
-        response.body());
+        "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", response.body());
   }
 
   @Test

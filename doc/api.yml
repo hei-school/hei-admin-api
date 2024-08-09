@@ -87,6 +87,31 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/non-accessible-by-suspended':
+    get:
+      tags:
+        - Security
+      summary: Assert that the connected user is not SUSPENDED
+      operationId: amISuspended
+      responses:
+        '200':
+          description: Assertion that user(STUDENT) is not SUSPENDED
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: not suspended
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
   '/groups/{id}':
     get:
       tags:
