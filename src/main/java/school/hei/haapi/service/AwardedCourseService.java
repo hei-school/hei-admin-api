@@ -89,9 +89,9 @@ public class AwardedCourseService {
   }
 
   public List<AwardedCourse> getByTeacherId(
-          String teacherId, PageFromOne page, BoundedPageSize pageSize) {
+      String teacherId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
-            PageRequest.of(page.getValue() -  1, pageSize.getValue(), Sort.by(ASC, "course"));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "course"));
     return awardedCourseRepository.findByTeacherId(teacherId, pageable);
   }
 }

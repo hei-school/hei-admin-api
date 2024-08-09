@@ -138,8 +138,8 @@ class AwardedCourseIT extends MockedThirdParties {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
     assertThrowsApiException(
-            "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-            () -> api.getAwardedCoursesAssignedToTeacher(TEACHER1_ID, 1, 10));
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.getAwardedCoursesAssignedToTeacher(TEACHER1_ID, 1, 10));
   }
 
   void student_create_or_update_ko() throws ApiException {
