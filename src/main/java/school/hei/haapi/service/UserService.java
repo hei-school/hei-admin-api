@@ -11,8 +11,12 @@ import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
 import java.io.File;
 import java.time.Instant;
+import java.time.Year;
+import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -23,9 +27,14 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.UserUpserted;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.Statistics;
+import school.hei.haapi.endpoint.rest.model.StatisticsDetails;
+import school.hei.haapi.endpoint.rest.model.StatisticsStudentsAlternating;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.UserValidator;
@@ -232,5 +241,39 @@ public class UserService {
         .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
         .toList()
         .size();
+  }
+
+  public Boolean computeIsRepeatingThisYear(User user) {
+    Set<school.hei.haapi.model.Promotion> distinctPromotions = getStudentDistinctPromotions(user);
+    if (distinctPromotions.isEmpty()) {
+      return false;
+    }
+    school.hei.haapi.model.Promotion mostRecentPromotion =
+        distinctPromotions.stream()
+            .sorted(Comparator.comparingInt(prom -> prom.getStartDate().getYear()))
+            .toList()
+            .getLast();
+    return didRepeatYear(user)
+        && (mostRecentPromotion.getStartDate().getYear() == Year.now().getValue()
+            || mostRecentPromotion.getStartDate().getYear() + 1 == Year.now().getValue());
+  }
+
+  public Boolean didRepeatYear(User user) {
+    int normalNumberOfPromotion = 1;
+    Set<Promotion> distinctPromotions = getStudentDistinctPromotions(user);
+    return distinctPromotions.size() > normalNumberOfPromotion;
+  }
+
+  public Set<school.hei.haapi.model.Promotion> getStudentDistinctPromotions(User user) {
+    List<school.hei.haapi.model.Group> belongedGroup =
+        groupRepository.findAllFormerAndCurrentByStudentId(user.getId());
+    List<school.hei.haapi.model.Promotion> belongedPromotion = new java.util.ArrayList<>();
+    belongedGroup.forEach(
+        (group) -> {
+          if (Objects.nonNull(group.getPromotion())) {
+            belongedPromotion.add(group.getPromotion());
+          }
+        });
+    return new HashSet<>(belongedPromotion);
   }
 }

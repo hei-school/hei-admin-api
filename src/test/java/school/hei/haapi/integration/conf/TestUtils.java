@@ -164,6 +164,10 @@ public class TestUtils {
   public static final String PROMOTION2_ID = "promotion2_id";
   public static final String PROMOTION3_ID = "promotion3_id";
 
+  public static final String STUDENT8_TOKEN = "student8_token";
+  public static final String STUDENT7_ID = "student7_id";
+  public static final String STUDENT8_ID = "student8_id";
+
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
     client.setScheme("http");
@@ -185,6 +189,8 @@ public class TestUtils {
   public static void setUpCognito(CognitoComponent cognitoComponent) {
     when(cognitoComponent.getEmailByIdToken(BAD_TOKEN)).thenReturn(null);
     when(cognitoComponent.getEmailByIdToken(STUDENT1_TOKEN)).thenReturn("test+ryan@hei.school");
+    when(cognitoComponent.getEmailByIdToken(STUDENT8_TOKEN))
+        .thenReturn("test+repeating2@hei" + ".school");
     when(cognitoComponent.getEmailByIdToken(TEACHER1_TOKEN)).thenReturn("test+teacher1@hei.school");
     when(cognitoComponent.getEmailByIdToken(MANAGER1_TOKEN)).thenReturn("test+manager1@hei.school");
   }
