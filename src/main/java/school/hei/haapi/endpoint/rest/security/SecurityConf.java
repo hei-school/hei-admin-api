@@ -58,6 +58,8 @@ public class SecurityConf {
   @Bean
   public SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
     // @formatter:off
+    AntPathRequestMatcher nonAccessibleBySuspendedUserPath =
+        antMatcher(GET, "/non-accessible-by-suspended");
     httpSecurity
         .exceptionHandling(
             exceptionHandlingConfigurer ->
@@ -173,8 +175,12 @@ public class SecurityConf {
                     antMatcher(PUT, "/promotions/*/groups"),
                     antMatcher(GET, "/attendance"),
                     antMatcher(POST, "/attendance/movement"),
-                    antMatcher(PUT, STUDENT_COURSE))),
+                    antMatcher(PUT, STUDENT_COURSE),
+                    nonAccessibleBySuspendedUserPath)),
             AnonymousAuthenticationFilter.class)
+        .addFilterAfter(
+            // TODO use the correct matcher
+            new SuspendedStudentFilter(nonAccessibleBySuspendedUserPath), BearerAuthFilter.class)
 
         // authorize
         .authorizeHttpRequests(
@@ -534,6 +540,8 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
                     .requestMatchers(PUT, STUDENT_COURSE)
                     .hasAnyRole(MANAGER.getRole())
+                    .requestMatchers(nonAccessibleBySuspendedUserPath)
+                    .authenticated()
                     .requestMatchers("/**")
                     .denyAll())
 
