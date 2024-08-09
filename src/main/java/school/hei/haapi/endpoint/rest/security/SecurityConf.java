@@ -404,7 +404,7 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/teachers/*", "teachers"))
                     .hasAnyRole(TEACHER.getRole())
-                    .requestMatchers(GET, "/teachers/**")
+                    .requestMatchers(GET, "/teachers/*")
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(PUT, "/teachers/*", "teachers"))
                     .hasRole(TEACHER.getRole())
@@ -424,6 +424,8 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
                     .requestMatchers(PUT, "/groups/*/awarded_courses")
                     .hasAnyRole(MANAGER.getRole())
+                    .requestMatchers(GET, "/teachers/*/awarded_courses")
+                    .hasAnyRole(STUDENT.getRole(), TEACHER.getRole(), MANAGER.getRole())
                     .requestMatchers(
                         new AwardedCourseOfTeacherMatcher(
                             awardedCourseService, PUT, "/groups/*/awarded_courses/*/exams"))

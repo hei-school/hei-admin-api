@@ -86,6 +86,19 @@ class AwardedCourseIT extends MockedThirdParties {
   }
 
   @Test
+  void student_read_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+
+    List<AwardedCourse> awardedCoursesAssignedToTeacher =
+        api.getAwardedCoursesAssignedToTeacher(TEACHER2_ID, 1, 10);
+
+    assertEquals(3, awardedCoursesAssignedToTeacher.size());
+    assertTrue(awardedCoursesAssignedToTeacher.contains(awardedCourse2()));
+    assertTrue(awardedCoursesAssignedToTeacher.contains(awardedCourse3()));
+  }
+
+  @Test
   void student_read_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
@@ -111,6 +124,9 @@ class AwardedCourseIT extends MockedThirdParties {
     List<AwardedCourse> awardedCoursesByCourse =
         api.getAllAwardedCourseByCriteria(null, COURSE1_ID, null, null);
 
+    List<AwardedCourse> awardedCoursesAssignedToTeacher =
+        api.getAwardedCoursesAssignedToTeacher(TEACHER2_ID, 1, 10);
+
     assertEquals(awardedCourse1(), actual);
 
     assertEquals(3, actuals.size());
@@ -131,15 +147,10 @@ class AwardedCourseIT extends MockedThirdParties {
     assertTrue(awardedCoursesByCourse.contains(awardedCourse1()));
     assertTrue(awardedCoursesByCourse.contains(awardedCourse2()));
     assertTrue(awardedCoursesByCourse.contains(awardedCourse3()));
-  }
 
-  @Test
-  void Teacher_read_ko() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(teacher1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.getAwardedCoursesAssignedToTeacher(TEACHER1_ID, 1, 10));
+    assertEquals(3, awardedCoursesAssignedToTeacher.size());
+    assertTrue(awardedCoursesAssignedToTeacher.contains(awardedCourse2()));
+    assertTrue(awardedCoursesAssignedToTeacher.contains(awardedCourse3()));
   }
 
   void student_create_or_update_ko() throws ApiException {
