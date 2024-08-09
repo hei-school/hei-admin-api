@@ -574,6 +574,135 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{student_id}/cors:
+    get:
+      tags:
+        - Teaching
+      summary: Get student Convocation Observation Renvoi
+      operationId: getStudentCors
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: All given cors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/StudentCor'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /cors/{id}:
+    get:
+      tags:
+        - Teaching
+      summary: Get Convocation Observation Renvoi by identifier
+      operationId: getCorById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The identified course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentCor'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /cors:
+    get:
+      tags:
+        - Teaching
+      summary: Get all Convocation Observation Renvoi
+      operationId: getCors
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: All given cors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/StudentCor'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Teaching
+      summary: Create or update a Convocation Observation Renvoi
+      operationId: createOrUpdateStudentCor
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateStudentCor'
+      responses:
+        '200':
+          description: The created or updated students cor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  allOf:
+                    - $ref: '#/components/schemas/StudentCor'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /courses:
     get:
       tags:
@@ -3989,6 +4118,56 @@ components:
           type: integer
         total_hours:
           type: integer
+    StudentCor:
+      type: object
+      properties:
+        id:
+          type: string
+        student:
+          $ref: '#/components/schemas/Student'
+        submission_datetime:
+          type: string
+          format: date-time
+        expiry_datetime:
+          type: string
+          format: date-time
+        creation_datetime:
+          type: string
+          format: date-time
+        appointment_datetime:
+          type: string
+          format: date-time
+        comment:
+          type: string
+        appointment_decision:
+          type: string
+        remark:
+          $ref: '#/components/schemas/CorRemarkEnum'
+    CrupdateStudentCor:
+      type: object
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+        submission_datetime:
+          type: string
+          format: date-time
+        expiry_datetime:
+          type: string
+          format: date-time
+        creation_datetime:
+          type: string
+          format: date-time
+        appointment_datetime:
+          type: string
+          format: date-time
+        comment:
+          type: string
+        appointment_decision:
+          type: string
+        remark:
+          $ref: '#/components/schemas/CorRemarkEnum'
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'
@@ -4138,6 +4317,11 @@ components:
           $ref: '#/components/schemas/AttendanceMovementType'
         place:
           $ref: '#/components/schemas/PlaceEnum'
+    CorRemarkEnum:
+      type: string
+      enum:
+        - LAY_OFF
+        - NOT_LAID_OFF
     ProfessionalExperienceFileTypeEnum:
       type: string
       enum:
