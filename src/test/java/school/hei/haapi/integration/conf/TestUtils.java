@@ -169,6 +169,8 @@ public class TestUtils {
   public static final String STUDENT7_ID = "student7_id";
   public static final String STUDENT8_ID = "student8_id";
 
+  public static final String NOT_EXISTING_ID = "not_existing_id";
+
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
     client.setScheme("http");

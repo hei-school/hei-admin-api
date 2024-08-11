@@ -11,17 +11,22 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
+import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
+import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.service.UserService;
 
 @RestController
 @AllArgsConstructor
 public class AwardedCourseController {
   private final AwardedCourseService service;
   private final AwardedCourseMapper mapper;
+  private final UserMapper userMapper;
+  private final UserService userService;
 
   @GetMapping("/groups/{group_id}/awarded_courses")
   public List<AwardedCourse> getByGroupId(
@@ -65,7 +70,8 @@ public class AwardedCourseController {
       @PathVariable("teacher_id") String teacherId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
-    return service.getByTeacherId(teacherId, page, pageSize).stream()
+    Teacher teacher = userMapper.toRestTeacher(userService.findById(teacherId));
+    return service.getByTeacherId(teacher.getId(), page, pageSize).stream()
         .map(mapper::toRest)
         .collect(toList());
   }

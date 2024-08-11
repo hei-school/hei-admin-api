@@ -108,6 +108,18 @@ class AwardedCourseIT extends MockedThirdParties {
   }
 
   @Test
+  void awarded_courses_by_teacher_id_ko() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+
+    assertThrowsApiException(
+        "{\"type\":\"404 NOT_FOUND\",\"message\":\"User with id: "
+            + NOT_EXISTING_ID
+            + " not found\"}",
+        () -> api.getAwardedCoursesAssignedToTeacher(NOT_EXISTING_ID, 1, 10));
+  }
+
+  @Test
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
