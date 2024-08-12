@@ -1,1 +1,0 @@
-alter table "promotion" add column if not exists start_date date;

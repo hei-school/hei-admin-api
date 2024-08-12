@@ -379,9 +379,9 @@ public class StudentIT extends MockedThirdParties {
 
   @Test
   void student_read_itself_repeating_this_year_ok() throws ApiException {
-    ApiClient student7Client = anApiClient(STUDENT8_TOKEN);
+    ApiClient student8Client = anApiClient(STUDENT8_TOKEN);
 
-    UsersApi api = new UsersApi(student7Client);
+    UsersApi api = new UsersApi(student8Client);
     Student actual = api.getStudentById(STUDENT8_ID);
 
     assertEquals(repeatingStudent2(), actual);
@@ -542,7 +542,7 @@ public class StudentIT extends MockedThirdParties {
   }
 
   @Test
-  void manager_read_displayed_commitment_date() throws ApiException {
+  void manager_read_displayed_commitment_date() throws ApiException, InterruptedException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 

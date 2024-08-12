@@ -35,7 +35,7 @@ public class Promotion {
   private String ref;
   private String name;
 
-  private LocalDate startDate;
+  private Instant startDatetime;
 
   @OneToMany(mappedBy = "promotion")
   private List<Group> groups;
