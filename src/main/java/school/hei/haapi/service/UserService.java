@@ -13,12 +13,9 @@ import java.io.File;
 import java.time.Instant;
 import java.time.Year;
 import java.time.ZoneId;
-import java.util.Comparator;
-import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -249,18 +246,17 @@ public class UserService {
 
   public boolean computeIsRepeatingThisYear(User user) {
     LinkedHashSet<school.hei.haapi.model.Promotion> studentPromotions =
-            getAllStudentPromotions(user);
+        getAllStudentPromotions(user);
     if (studentPromotions.isEmpty()) {
       return false;
     }
     school.hei.haapi.model.Promotion mostRecentPromotion = studentPromotions.getFirst();
     int promotionStartYear =
-            mostRecentPromotion.getStartDatetime().atZone(ZoneId.of("UTC+3")).getYear();
+        mostRecentPromotion.getStartDatetime().atZone(ZoneId.of("UTC+3")).getYear();
     int currentYear = Year.now().getValue();
     return didRepeatYear(user)
-         && ( promotionStartYear == currentYear
-            || promotionStartYear + 1 == currentYear)
-            && promotionStartYear + 1 <= currentYear;
+        && (promotionStartYear == currentYear || promotionStartYear + 1 == currentYear)
+        && promotionStartYear + 1 <= currentYear;
   }
 
   public boolean didRepeatYear(User user) {

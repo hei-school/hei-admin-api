@@ -1,21 +1,17 @@
 package school.hei.haapi.repository;
 
+import java.util.LinkedHashSet;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.model.Group;
 import school.hei.haapi.model.Promotion;
-
-import java.util.LinkedHashSet;
-import java.util.List;
-import java.util.Set;
 
 @Repository
 public interface PromotionRepository extends JpaRepository<Promotion, String> {
-    @Query(
-            nativeQuery = true,
-            value =
-                    """
+  @Query(
+      nativeQuery = true,
+      value =
+          """
                                             WITH student_group_flow AS (
                                                 SELECT
                                                     gf.group_id,
@@ -37,12 +33,12 @@ public interface PromotionRepository extends JpaRepository<Promotion, String> {
                                                 ON
                                                     sgf.group_id = g.id)
                                             SELECT p.*
-                                            FROM "promotion" p 
-                                                    INNER JOIN 
+                                            FROM "promotion" p
+                                                    INNER JOIN
                                                     student_group sg
-                                                ON 
+                                                ON
                                                     sg.promotion_id = p.id
-                                            ORDER BY p.start_datetime DESC 
+                                            ORDER BY p.start_datetime DESC
                                             """)
-    LinkedHashSet<Promotion> findAllPromotionsByStudentId(String studentId);
+  LinkedHashSet<Promotion> findAllPromotionsByStudentId(String studentId);
 }
