@@ -2598,12 +2598,6 @@ paths:
           example: "/path/to/the/folder"
           schema:
             type: string
-        - name: password
-          in: query
-          required: true
-          description: The password used to protect the link
-          schema:
-            type: string
       responses:
         '200':
           description: Share link with additional infos
@@ -4040,8 +4034,6 @@ components:
         path:
           type: string
         url:
-          type: string
-        password:
           type: string
         permission:
           type: array

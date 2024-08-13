@@ -46,9 +46,6 @@ public class OcsData {
 
       @JsonProperty("url")
       private String url;
-
-      @JsonProperty("password")
-      private String password;
     }
   }
 }

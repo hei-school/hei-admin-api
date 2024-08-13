@@ -36,7 +36,6 @@ public class FileInfoMapper {
         findOwnCloudPermissionsFromValue(ocsData.getOcs().getData().getPermissions());
     return new ShareInfo()
         .path(ocsData.getOcs().getData().getPath())
-        .password(ocsData.getOcs().getData().getPassword())
         .url(ocsData.getOcs().getData().getUrl())
         .permission(permissions.stream().toList())
         .expiration(ocsData.getOcs().getData().getExpiration());
