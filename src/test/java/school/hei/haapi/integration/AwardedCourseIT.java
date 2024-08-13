@@ -215,11 +215,6 @@ class AwardedCourseIT extends MockedThirdParties {
             .allMatch(
                 awardedCourseUpdated ->
                     TEACHER2_ID.equals(awardedCourseUpdated.getMainTeacher().getId())));
-
-    //    List<ExamInfo> actualUpdateList =
-    //            api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1()));
-    //    assertEquals(1, actualUpdateList.size());
-    //    assertTrue(actualUpdateList.contains(exam1()));
   }
 
   @Test
