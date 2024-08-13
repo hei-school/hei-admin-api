@@ -14,6 +14,5 @@ public interface AwardedCourseRepository extends JpaRepository<AwardedCourse, St
 
   List<AwardedCourse> findByGroupId(String groupId, Pageable pageable);
 
-  @Query("SELECT ac from AwardedCourse ac where ac.mainTeacher.id = :teacherId")
-  List<AwardedCourse> findByTeacherId(String teacherId, Pageable pageable);
+  List<AwardedCourse> findByMainTeacherId(String teacherId, Pageable pageable);
 }

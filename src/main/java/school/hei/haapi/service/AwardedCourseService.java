@@ -92,7 +92,7 @@ public class AwardedCourseService {
       String teacherId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "course"));
-    return awardedCourseRepository.findByTeacherId(teacherId, pageable);
+    return awardedCourseRepository.findByMainTeacherId(teacherId, pageable);
   }
 
   @Transactional
