@@ -11,9 +11,6 @@ import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
 import java.io.File;
 import java.time.Instant;
-import java.time.Year;
-import java.time.ZoneId;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -33,7 +30,6 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.UserValidator;
@@ -242,29 +238,5 @@ public class UserService {
         .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
         .toList()
         .size();
-  }
-
-  public boolean computeIsRepeatingThisYear(User user) {
-    LinkedHashSet<school.hei.haapi.model.Promotion> studentPromotions =
-        getAllStudentPromotions(user);
-    if (studentPromotions.isEmpty()) {
-      return false;
-    }
-    school.hei.haapi.model.Promotion mostRecentPromotion = studentPromotions.getFirst();
-    int promotionStartYear =
-        mostRecentPromotion.getStartDatetime().atZone(ZoneId.of("UTC+3")).getYear();
-    int currentYear = Year.now().getValue();
-    return didRepeatYear(user)
-        && (promotionStartYear == currentYear || promotionStartYear + 1 == currentYear)
-        && promotionStartYear + 1 <= currentYear;
-  }
-
-  public boolean didRepeatYear(User user) {
-    int normalNumberOfPromotion = 1;
-    return getAllStudentPromotions(user).size() > normalNumberOfPromotion;
-  }
-
-  public LinkedHashSet<Promotion> getAllStudentPromotions(User user) {
-    return promotionRepository.findAllPromotionsByStudentId(user.getId());
   }
 }

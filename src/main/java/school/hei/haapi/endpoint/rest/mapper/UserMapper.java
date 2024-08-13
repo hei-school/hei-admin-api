@@ -12,6 +12,7 @@ import school.hei.haapi.service.GroupService;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.WorkDocumentService;
 import school.hei.haapi.service.aws.FileService;
+import school.hei.haapi.service.utils.IsStudentRepeatingYear;
 
 @Component
 @AllArgsConstructor
@@ -23,6 +24,7 @@ public class UserMapper {
   private final GroupService groupService;
   private final GroupMapper groupMapper;
   private final UserService service;
+  private final IsStudentRepeatingYear isStudentRepeatingYear;
 
   public UserIdentifier toIdentifier(User user) {
     return new UserIdentifier()
@@ -73,7 +75,7 @@ public class UserMapper {
         workDocumentService.defineStudentCommitmentBegin(studentLastWorkDocument));
     restStudent.setCommitmentEndDate(
         workDocumentService.defineStudentCommitmentEnd(studentLastWorkDocument));
-    restStudent.setIsRepeatingYear(service.computeIsRepeatingThisYear(user));
+    restStudent.setIsRepeatingYear(isStudentRepeatingYear.apply(user));
     return restStudent;
   }
 
