@@ -31,9 +31,10 @@ public class Promotion {
   private String id;
 
   @CreationTimestamp private Instant creationDatetime;
-
   private String ref;
   private String name;
+
+  private Instant startDatetime;
 
   @OneToMany(mappedBy = "promotion")
   private List<Group> groups;

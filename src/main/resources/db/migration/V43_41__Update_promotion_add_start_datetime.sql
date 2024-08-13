@@ -1,0 +1,1 @@
+alter table "promotion" add column if not exists start_datetime timestamp with time zone;
