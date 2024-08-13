@@ -19,12 +19,12 @@ public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
   @Override
   public boolean matches(HttpServletRequest request) {
     AntPathRequestMatcher antMatcher = new AntPathRequestMatcher(antPattern, method.toString());
-    Principal principal = AuthProvider.getPrincipal();
-    String awardedCourseIdFromRequest = getSelfId(request, "awarded_courses");
-    String groupIdFromRequest = getSelfId(request, "groups");
     if (!antMatcher.matches(request)) {
       return false;
     }
+    Principal principal = AuthProvider.getPrincipal();
+    String awardedCourseIdFromRequest = getSelfId(request, "awarded_courses");
+    String groupIdFromRequest = getSelfId(request, "groups");
     return awardedCourseService.checkTeacherOfAwardedCourse(
         principal.getUserId(), awardedCourseIdFromRequest, groupIdFromRequest);
   }
