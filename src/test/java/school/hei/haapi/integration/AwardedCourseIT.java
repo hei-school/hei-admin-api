@@ -165,20 +165,34 @@ class AwardedCourseIT extends MockedThirdParties {
     assertTrue(awardedCoursesAssignedToTeacher.contains(awardedCourse3()));
   }
 
+  @Test
   void student_create_or_update_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateAwardedCourses(GROUP1_ID, List.of(createAwardedCourse())));
+
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () ->
+            api.createOrUpdateAwardedCoursesAssignToTeacher(
+                TEACHER2_ID, someAwardedCoursesToCrupdate()));
   }
 
+  @Test
   void teacher_create_or_update_ko() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateAwardedCourses(GROUP1_ID, List.of(createAwardedCourse())));
+
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () ->
+            api.createOrUpdateAwardedCoursesAssignToTeacher(
+                TEACHER2_ID, someAwardedCoursesToCrupdate()));
   }
 
   @Test
@@ -192,10 +206,34 @@ class AwardedCourseIT extends MockedThirdParties {
             GROUP1_ID, someCreatableCreateAwardedCourseList(numberOfExamToAdd));
     assertEquals(numberOfExamToAdd, actualCreatList.size());
 
+    List<AwardedCourse> awardedCoursesUpdated =
+        api.createOrUpdateAwardedCoursesAssignToTeacher(
+            TEACHER2_ID, someAwardedCoursesToCrupdate());
+
+    assertTrue(
+        awardedCoursesUpdated.stream()
+            .allMatch(
+                awardedCourseUpdated ->
+                    TEACHER2_ID.equals(awardedCourseUpdated.getMainTeacher().getId())));
+
     //    List<ExamInfo> actualUpdateList =
     //            api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1()));
     //    assertEquals(1, actualUpdateList.size());
     //    assertTrue(actualUpdateList.contains(exam1()));
+  }
+
+  @Test
+  void manager_create_or_update_ko() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+
+    assertThrowsApiException(
+        "{\"type\":\"404 NOT_FOUND\",\"message\":\"User with id: "
+            + NOT_EXISTING_ID
+            + " not found\"}",
+        () ->
+            api.createOrUpdateAwardedCoursesAssignToTeacher(
+                NOT_EXISTING_ID, someAwardedCoursesToCrupdate()));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

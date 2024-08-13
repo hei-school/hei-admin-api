@@ -45,6 +45,7 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
@@ -305,6 +306,20 @@ public class TestUtils {
         .courseId("course2_id")
         .groupId("group2_id")
         .mainTeacherId("teacher2_id");
+  }
+
+  public static List<CreateAwardedCourse> someAwardedCoursesToCrupdate() {
+    return new ArrayList<>(
+        Arrays.asList(
+            new CreateAwardedCourse()
+                .id(AWARDED_COURSE4_ID)
+                .courseId("course2_id")
+                .groupId("group1_id")
+                .mainTeacherId("teacher4_id"),
+            new CreateAwardedCourse()
+                .courseId("course2_id")
+                .groupId("group1_id")
+                .mainTeacherId("teacher2_id")));
   }
 
   public static ExamInfo createExam() {

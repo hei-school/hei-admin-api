@@ -426,6 +426,8 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(GET, "/teachers/*/awarded_courses")
                     .hasAnyRole(STUDENT.getRole(), TEACHER.getRole(), MANAGER.getRole())
+                    .requestMatchers(PUT, "/teachers/*/awarded_courses")
+                    .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(
                         new AwardedCourseOfTeacherMatcher(
                             awardedCourseService, PUT, "/groups/*/awarded_courses/*/exams"))

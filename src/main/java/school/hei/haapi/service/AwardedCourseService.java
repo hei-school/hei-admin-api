@@ -94,4 +94,26 @@ public class AwardedCourseService {
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "course"));
     return awardedCourseRepository.findByTeacherId(teacherId, pageable);
   }
+
+  @Transactional
+  public List<AwardedCourse> createOrUpdateAwardedCoursesByTeacherId(
+      String teacherId, List<CreateAwardedCourse> createAwardedCourses) {
+    return createAwardedCourses.stream()
+        .map(
+            createAwardedCourse ->
+                createOrUpdateAwardedCourseByTeacherId(teacherId, createAwardedCourse))
+        .collect(toList());
+  }
+
+  public AwardedCourse createOrUpdateAwardedCourseByTeacherId(
+      String teacherId, CreateAwardedCourse createAwardedCourse) {
+    Group group = groupRepository.getById(createAwardedCourse.getGroupId());
+    Course course = courseRepository.getById(createAwardedCourse.getCourseId());
+    User teacher = userRepository.getById(teacherId);
+    AwardedCourse awardedCourse =
+        awardedCourseRepository.save(
+            AwardedCourse.builder().course(course).mainTeacher(teacher).group(group).build());
+    awardedCourseValidator.accept(awardedCourse);
+    return awardedCourse;
+  }
 }
