@@ -1,6 +1,8 @@
 package school.hei.haapi.repository;
 
 import java.util.List;
+
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
@@ -52,7 +54,7 @@ public interface UserRepository extends JpaRepository<User, String> {
                                   where u.status <> 'DISABLED'
                                   and (?2 is null or u.first_name = ?2)
                                   """)
-  List<User> findStudentGroupsWithFilter(String groupId, String studentFirstname);
+  List<User> findStudentGroupsWithFilter(String groupId, String studentFirstname, Pageable pageable);
 
   @Query(
       nativeQuery = true,
