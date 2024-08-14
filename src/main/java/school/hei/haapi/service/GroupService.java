@@ -1,7 +1,6 @@
 package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,8 +34,8 @@ public class GroupService {
 
   public Group findById(String groupId) {
     return repository
-            .findById(groupId)
-            .orElseThrow(() -> new NotFoundException("Group with id." + groupId + " not found"));
+        .findById(groupId)
+        .orElseThrow(() -> new NotFoundException("Group with id." + groupId + " not found"));
   }
 
   public List<Group> getAllById(List<String> groupsId) {
@@ -48,12 +47,9 @@ public class GroupService {
   }
 
   public List<Group> getAll(
-          String ref, String studentRef, PageFromOne page, BoundedPageSize pageSize) {
+      String ref, String studentRef, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
-            PageRequest.of(
-                    page.getValue() - 1,
-                    pageSize.getValue(),
-                    Sort.by(ASC, "ref"));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return groupDao.findByCriteria(ref, studentRef, pageable);
   }
 
@@ -74,10 +70,10 @@ public class GroupService {
       if (createGroup.getStudents() != null) {
         for (String studentId : createGroup.getStudents()) {
           createGroupFlows.add(
-                  new CreateGroupFlow()
-                          .moveType(CreateGroupFlow.MoveTypeEnum.JOIN)
-                          .groupId(group.getId())
-                          .studentId(studentId));
+              new CreateGroupFlow()
+                  .moveType(CreateGroupFlow.MoveTypeEnum.JOIN)
+                  .groupId(group.getId())
+                  .studentId(studentId));
         }
       }
     }
