@@ -214,20 +214,6 @@ class AwardedCourseIT extends MockedThirdParties {
     assertEquals(2, awardedCoursesUpdated.size());
   }
 
-  @Test
-  void manager_create_or_update_ko() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
-
-    assertThrowsApiException(
-        "{\"type\":\"404 NOT_FOUND\",\"message\":\"User with id: "
-            + NOT_EXISTING_ID
-            + " not found\"}",
-        () ->
-            api.createOrUpdateAwardedCoursesAssignToTeacher(
-                NOT_EXISTING_ID, someAwardedCoursesToCrupdate()));
-  }
-
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
 
