@@ -50,7 +50,7 @@ public interface UserRepository extends JpaRepository<User, String> {
                                       ON
                                           sgf.student_id = u.id
                                   where u.status <> 'DISABLED'
-                                  and (?2 is null or u.first_name = ?2)
+                                  and (?2 is null or u.first_name ilike CONCAT('%', ?2, '%'))
                                   """)
   List<User> findStudentGroupsWithFilter(String groupId, String studentFirstname);
 

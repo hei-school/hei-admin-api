@@ -1001,6 +1001,11 @@ public class StudentIT extends MockedThirdParties {
     List<Student> actualGroupStudentsByRef = api.getStudentsByGroupId(GROUP1_ID, 1, 10, "Ryan");
     assertEquals(1, actualGroupStudentsByRef.size());
     assertEquals(student1(), actualGroupStudentsByRef.getFirst());
+
+    List<Student> actualGroupStudentsByFirstName =
+        api.getStudentsByGroupId(GROUP1_ID, 1, 10, "ryan");
+    assertEquals(1, actualGroupStudentsByFirstName.size());
+    assertEquals(student1(), actualGroupStudents.getFirst());
   }
 
   private Student toStudent(CrupdateStudent crupdateStudent) {
