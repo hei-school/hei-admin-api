@@ -1173,7 +1173,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GroupFlow'
+                  $ref: '#/components/schemas/CreateGroupFlow'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1276,7 +1276,54 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  /groups/{id}/group_flows:
+    get:
+      tags:
+        - Teaching
+      summary: Get all group flows for a specific group
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: status
+          in: query
+          required: false
+          description: Filter group flows by status
+          schema:
+            $ref: '#/components/schemas/CreateGroupFlow'
+      operationId: getGroupFlowsByGroupId
+      responses:
+        '200':
+          description: List of all group flows for a specific group
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CreateGroupFlow'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/teachers/{id}':
     get:
       tags:
