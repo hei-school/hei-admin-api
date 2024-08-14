@@ -189,8 +189,11 @@ public class UserService {
 
   public List<User> getByGroupIdWithFilter(
       String groupId, PageFromOne page, BoundedPageSize pageSize, String studentFirstname) {
-    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
-    return userRepository.findStudentGroupsWithFilter(groupId, studentFirstname, pageable);
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    return userRepository
+        .findStudentGroupsWithFilter(groupId, studentFirstname, pageable)
+        .getContent();
   }
 
   public List<User> getAllStudentNotDisabled() {
