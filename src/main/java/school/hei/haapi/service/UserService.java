@@ -189,15 +189,8 @@ public class UserService {
 
   public List<User> getByGroupIdWithFilter(
       String groupId, PageFromOne page, BoundedPageSize pageSize, String studentFirstname) {
-    var returnedStudent = userRepository.findStudentGroupsWithFilter(groupId, studentFirstname);
-
-    int startIndex = (page.getValue() - 1) * pageSize.getValue();
-    int endIndex = Math.min(startIndex + pageSize.getValue(), returnedStudent.size());
-
-    if (startIndex >= returnedStudent.size()) {
-      return List.of();
-    }
-    return returnedStudent.subList(startIndex, endIndex);
+    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    return userRepository.findStudentGroupsWithFilter(groupId, studentFirstname, pageable);
   }
 
   public List<User> getAllStudentNotDisabled() {
