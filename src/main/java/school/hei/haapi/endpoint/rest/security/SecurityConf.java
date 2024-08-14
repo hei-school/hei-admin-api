@@ -172,7 +172,7 @@ public class SecurityConf {
                     antMatcher(PUT, "/events/*/participants"),
                     antMatcher(GET, "/promotions"),
                     antMatcher(PUT, "/promotions"),
-                    antMatcher("/promotions/*"),
+                    antMatcher(GET, "/promotions/*"),
                     antMatcher(PUT, "/promotions/*/groups"),
                     antMatcher(GET, "/attendance"),
                     antMatcher(POST, "/attendance/movement"),
