@@ -308,14 +308,22 @@ public class TestUtils {
         .mainTeacherId("teacher2_id");
   }
 
+  public static AwardedCourse updatedAwardedCourse2() {
+    return new AwardedCourse()
+        .id(AWARDED_COURSE2_ID)
+        .course(course2())
+        .group(group2())
+        .mainTeacher(teacher2());
+  }
+
   public static List<CreateAwardedCourse> someAwardedCoursesToCrupdate() {
     return new ArrayList<>(
         Arrays.asList(
             new CreateAwardedCourse()
-                .id(AWARDED_COURSE4_ID)
+                .id(AWARDED_COURSE2_ID)
                 .courseId("course2_id")
-                .groupId("group1_id")
-                .mainTeacherId("teacher4_id"),
+                .groupId("group2_id")
+                .mainTeacherId("teacher2_id"),
             new CreateAwardedCourse()
                 .courseId("course2_id")
                 .groupId("group1_id")

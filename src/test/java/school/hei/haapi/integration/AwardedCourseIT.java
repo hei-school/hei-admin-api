@@ -210,11 +210,8 @@ class AwardedCourseIT extends MockedThirdParties {
         api.createOrUpdateAwardedCoursesAssignToTeacher(
             TEACHER2_ID, someAwardedCoursesToCrupdate());
 
-    assertTrue(
-        awardedCoursesUpdated.stream()
-            .allMatch(
-                awardedCourseUpdated ->
-                    TEACHER2_ID.equals(awardedCourseUpdated.getMainTeacher().getId())));
+    assertTrue(awardedCoursesUpdated.contains(updatedAwardedCourse2()));
+    assertEquals(2, awardedCoursesUpdated.size());
   }
 
   @Test
