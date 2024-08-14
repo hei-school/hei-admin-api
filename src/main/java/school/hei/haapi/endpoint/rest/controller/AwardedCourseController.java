@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.controller;
 import static java.util.stream.Collectors.*;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -11,7 +12,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
-import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.model.BoundedPageSize;
@@ -25,7 +25,6 @@ import school.hei.haapi.service.UserService;
 public class AwardedCourseController {
   private final AwardedCourseService service;
   private final AwardedCourseMapper mapper;
-  private final UserMapper userMapper;
   private final UserService userService;
 
   @GetMapping("/groups/{group_id}/awarded_courses")
@@ -79,9 +78,12 @@ public class AwardedCourseController {
   @PutMapping("/teachers/{teacher_id}/awarded_courses")
   public List<AwardedCourse> createOrUpdateAwardedCoursesByTeacherId(
       @PathVariable("teacher_id") String teacherId,
-      @RequestBody List<CreateAwardedCourse> awardedCourses) {
-    User teacher = userService.findById(teacherId);
-    return service.createOrUpdateAwardedCoursesByTeacherId(teacher.getId(), awardedCourses).stream()
+      @RequestBody List<CreateAwardedCourse> createAwardedCourses) {
+    List<school.hei.haapi.model.AwardedCourse> awardedCourses =
+        createAwardedCourses.stream()
+            .map(mapper::fromCreateAwardedCourseToAwardedCourse)
+            .collect(Collectors.toList());
+    return service.createOrUpdateAwardedCoursesByTeacherId(teacherId, awardedCourses).stream()
         .map(mapper::toRest)
         .collect(toList());
   }

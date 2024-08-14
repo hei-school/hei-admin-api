@@ -5,6 +5,7 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -19,6 +20,7 @@ import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.AwardedCourseValidator;
 import school.hei.haapi.repository.AwardedCourseRepository;
 import school.hei.haapi.repository.CourseRepository;
@@ -97,23 +99,34 @@ public class AwardedCourseService {
 
   @Transactional
   public List<AwardedCourse> createOrUpdateAwardedCoursesByTeacherId(
-      String teacherId, List<CreateAwardedCourse> createAwardedCourses) {
-    return createAwardedCourses.stream()
-        .map(
-            createAwardedCourse ->
-                createOrUpdateAwardedCourseByTeacherId(teacherId, createAwardedCourse))
-        .collect(toList());
+      String teacherId, List<AwardedCourse> awardedCourses) {
+
+    List<AwardedCourse> updatedAwardedCourses =
+        awardedCourses.stream()
+            .map(
+                awardedCourse -> {
+                  if (awardedCourse.getId() != null) {
+                    AwardedCourse existingAwardedCourse = findById(awardedCourse.getId());
+                    existingAwardedCourse.setCourse(awardedCourse.getCourse());
+                    existingAwardedCourse.setGroup(awardedCourse.getGroup());
+                    existingAwardedCourse.setMainTeacher(awardedCourse.getMainTeacher());
+                    awardedCourseValidator.accept(existingAwardedCourse);
+                    return existingAwardedCourse;
+                  } else {
+                    awardedCourseValidator.accept(awardedCourse);
+                    return awardedCourse;
+                  }
+                })
+            .collect(Collectors.toList());
+
+    return awardedCourseRepository.saveAll(updatedAwardedCourses);
   }
 
-  public AwardedCourse createOrUpdateAwardedCourseByTeacherId(
-      String teacherId, CreateAwardedCourse createAwardedCourse) {
-    Group group = groupRepository.getById(createAwardedCourse.getGroupId());
-    Course course = courseRepository.getById(createAwardedCourse.getCourseId());
-    User teacher = userRepository.getById(teacherId);
-    AwardedCourse awardedCourse =
-        awardedCourseRepository.save(
-            AwardedCourse.builder().course(course).mainTeacher(teacher).group(group).build());
-    awardedCourseValidator.accept(awardedCourse);
-    return awardedCourse;
+  public AwardedCourse findById(String awardedCourseId) {
+    return awardedCourseRepository
+        .findById(awardedCourseId)
+        .orElseThrow(
+            () ->
+                new NotFoundException("Awarded course with id: " + awardedCourseId + " not found"));
   }
 }
