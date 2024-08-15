@@ -1,7 +1,6 @@
 package school.hei.haapi.repository;
 
 import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -52,9 +51,10 @@ public interface UserRepository extends JpaRepository<User, String> {
                                       ON
                                           sgf.student_id = u.id
                                   where u.status <> 'DISABLED'
-                                  and (?2 is null or u.first_name = ?2)
+                                  and (?2 is null or u.first_name ILIKE CONCAT('%', ?2, '%'))
                                   """,
-  countQuery = """
+      countQuery =
+          """
                                   WITH student_group_flow AS (
                                       SELECT
                                           gf.group_id,
@@ -81,10 +81,11 @@ public interface UserRepository extends JpaRepository<User, String> {
                                       ON
                                           sgf.student_id = u.id
                                   where u.status <> 'DISABLED'
-                                  and (?2 is null or u.first_name = ?2)
+                                  and (?2 is null or u.first_name ILIKE CONCAT('%', ?2, '%'))
                                   """,
-		  nativeQuery = true)
-  Page<User> findStudentGroupsWithFilter(String groupId, String studentFirstname, Pageable pageable);
+      nativeQuery = true)
+  Page<User> findStudentGroupsWithFilter(
+      String groupId, String studentFirstname, Pageable pageable);
 
   @Query(
       nativeQuery = true,
