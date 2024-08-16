@@ -23,7 +23,7 @@ public class OwnCloudService {
   private final RestTemplate restTemplate;
   private final OwnCloudConf conf;
 
-  public OcsData createShareLink(String path, String ocsPassword) throws JsonProcessingException {
+  public OcsData createShareLink(String path) throws JsonProcessingException {
     User currentUser = getPrincipal().getUser();
     Integer permission =
         switch (currentUser.getRole()) {
@@ -37,11 +37,8 @@ public class OwnCloudService {
 
     HttpEntity<Void> entity = new HttpEntity<>(null, headers);
     ResponseEntity<String> response =
-        restTemplate.exchange(
-            conf.getURI(path, permission, ocsPassword), POST, entity, String.class);
+        restTemplate.exchange(conf.getURI(path, permission), POST, entity, String.class);
 
-    OcsData ocsData = objectMapper.readValue(response.getBody(), OcsData.class);
-    ocsData.getOcs().getData().setPassword(ocsPassword);
-    return ocsData;
+    return objectMapper.readValue(response.getBody(), OcsData.class);
   }
 }

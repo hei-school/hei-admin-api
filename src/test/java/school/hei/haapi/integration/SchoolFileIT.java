@@ -102,10 +102,9 @@ public class SchoolFileIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     FilesApi filesApi = new FilesApi(apiClient);
 
-    ShareInfo actual = filesApi.getSchoolFilesShareLink("/Test-api", "password");
+    ShareInfo actual = filesApi.getSchoolFilesShareLink("/Test-api");
     assertTrue(actual.getPath().contains("/Test-api"));
     assertTrue(actual.getUrl().contains("https://owncloud.example.com"));
-    assertEquals("password", actual.getPassword());
   }
 
   @Test
@@ -113,10 +112,9 @@ public class SchoolFileIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     FilesApi filesApi = new FilesApi(apiClient);
 
-    ShareInfo actual = filesApi.getSchoolFilesShareLink("/Test-api", "password");
+    ShareInfo actual = filesApi.getSchoolFilesShareLink("/Test-api");
     assertTrue(actual.getPath().contains("/Test-api"));
     assertTrue(actual.getUrl().contains("https://owncloud.example.com"));
-    assertEquals("password", actual.getPassword());
   }
 
   @Test
@@ -124,10 +122,9 @@ public class SchoolFileIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
     FilesApi filesApi = new FilesApi(apiClient);
 
-    ShareInfo actual = filesApi.getSchoolFilesShareLink("/Test-api", "password");
+    ShareInfo actual = filesApi.getSchoolFilesShareLink("/Test-api");
     assertTrue(actual.getPath().contains("/Test-api"));
     assertTrue(actual.getUrl().contains("https://owncloud.example.com"));
-    assertEquals("password", actual.getPassword());
   }
 
   @Test

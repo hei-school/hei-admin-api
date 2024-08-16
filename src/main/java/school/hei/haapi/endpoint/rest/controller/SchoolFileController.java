@@ -53,8 +53,7 @@ public class SchoolFileController {
   }
 
   @GetMapping("/school/files/share_link")
-  public ShareInfo getShareLink(@RequestParam String path, @RequestParam String password)
-      throws JsonProcessingException {
-    return fileInfoMapper.toShareInfo(ownCloudService.createShareLink(path, password));
+  public ShareInfo getShareLink(@RequestParam String path) throws JsonProcessingException {
+    return fileInfoMapper.toShareInfo(ownCloudService.createShareLink(path));
   }
 }
