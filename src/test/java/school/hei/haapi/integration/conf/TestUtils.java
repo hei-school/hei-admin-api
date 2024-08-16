@@ -147,6 +147,7 @@ public class TestUtils {
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
+  public static final String SUSPENDED_TOKEN = "suspended_token";
   public static final String FEE_TEMPLATE1_ID = "fee_template1";
   public static final String FEE_TEMPLATE2_ID = "fee_template2";
   public static final String FEE_TEMPLATE1_NAME = "annuel x9";
@@ -163,6 +164,10 @@ public class TestUtils {
   public static final String PROMOTION1_ID = "promotion1_id";
   public static final String PROMOTION2_ID = "promotion2_id";
   public static final String PROMOTION3_ID = "promotion3_id";
+
+  public static final String STUDENT8_TOKEN = "student8_token";
+  public static final String STUDENT7_ID = "student7_id";
+  public static final String STUDENT8_ID = "student8_id";
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -185,8 +190,12 @@ public class TestUtils {
   public static void setUpCognito(CognitoComponent cognitoComponent) {
     when(cognitoComponent.getEmailByIdToken(BAD_TOKEN)).thenReturn(null);
     when(cognitoComponent.getEmailByIdToken(STUDENT1_TOKEN)).thenReturn("test+ryan@hei.school");
+    when(cognitoComponent.getEmailByIdToken(STUDENT8_TOKEN))
+        .thenReturn("test+repeating2@hei" + ".school");
     when(cognitoComponent.getEmailByIdToken(TEACHER1_TOKEN)).thenReturn("test+teacher1@hei.school");
     when(cognitoComponent.getEmailByIdToken(MANAGER1_TOKEN)).thenReturn("test+manager1@hei.school");
+    when(cognitoComponent.getEmailByIdToken(SUSPENDED_TOKEN))
+        .thenReturn("test+suspended@hei.school");
   }
 
   public static void setUpS3Service(FileService fileService, Student user) {

@@ -87,6 +87,31 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/non-accessible-by-suspended':
+    get:
+      tags:
+        - Security
+      summary: Assert that the connected user is not SUSPENDED
+      operationId: amISuspended
+      responses:
+        '200':
+          description: Assertion that user(STUDENT) is not SUSPENDED
+          content:
+            text/plain:
+              schema:
+                type: string
+                example: not suspended
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
   '/groups/{id}':
     get:
       tags:
@@ -653,7 +678,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /groups/{group_id}/awarded_courses/{awarded_course_id}:
     get:
       tags:
@@ -973,6 +997,88 @@ paths:
       responses:
         '200':
           description: Exams infos without the students participated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AwardedCourse'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /teachers/{teacher_id}/awarded_courses:
+    get:
+      tags:
+        - Teaching
+      summary: Get all awarded_courses assigned to a teacher
+      parameters:
+        - name: teacher_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getAwardedCoursesAssignedToTeacher
+      responses:
+        '200':
+          description: List of all awarded_courses assigned to a teacher
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/AwardedCourse'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Teaching
+      summary: Create new awarded_courses or update existing awarded_courses assign to a teacher
+      description: Update awarded_courses when `id` are provided, create them otherwise.
+      parameters:
+        - name: teacher_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: CreateOrUpdateAwardedCoursesAssignToTeacher
+      requestBody:
+        required: true
+        description: Awarded_courses to update
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateAwardedCourse'
+      responses:
+        '200':
+          description: List of awarded_courses created or updated
           content:
             application/json:
               schema:
@@ -2492,12 +2598,6 @@ paths:
           example: "/path/to/the/folder"
           schema:
             type: string
-        - name: password
-          in: query
-          required: true
-          description: The password used to protect the link
-          schema:
-            type: string
       responses:
         '200':
           description: Share link with additional infos
@@ -3796,6 +3896,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Group'
+        is_repeating_year:
+          type: boolean
     Teacher:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
@@ -3932,8 +4034,6 @@ components:
         path:
           type: string
         url:
-          type: string
-        password:
           type: string
         permission:
           type: array

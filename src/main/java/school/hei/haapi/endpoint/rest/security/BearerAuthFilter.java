@@ -16,8 +16,9 @@ public class BearerAuthFilter extends AbstractAuthenticationProcessingFilter {
 
   private final String authHeader;
 
-  protected BearerAuthFilter(RequestMatcher requestMatcher, String authHeader) {
-    super(requestMatcher);
+  protected BearerAuthFilter(
+      RequestMatcher requiresAuthenticationRequestMatcher, String authHeader) {
+    super(requiresAuthenticationRequestMatcher);
     this.authHeader = authHeader;
   }
 

@@ -23,13 +23,18 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.UserUpserted;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.Statistics;
+import school.hei.haapi.endpoint.rest.model.StatisticsDetails;
+import school.hei.haapi.endpoint.rest.model.StatisticsStudentsAlternating;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.GroupRepository;
+import school.hei.haapi.repository.PromotionRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.service.aws.FileService;
@@ -45,6 +50,7 @@ public class UserService {
   private final FileService fileService;
   private final MultipartFileConverter fileConverter;
   private final GroupRepository groupRepository;
+  private final PromotionRepository promotionRepository;
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = findById(userId);
@@ -183,15 +189,11 @@ public class UserService {
 
   public List<User> getByGroupIdWithFilter(
       String groupId, PageFromOne page, BoundedPageSize pageSize, String studentFirstname) {
-    var returnedStudent = userRepository.findStudentGroupsWithFilter(groupId, studentFirstname);
-
-    int startIndex = (page.getValue() - 1) * pageSize.getValue();
-    int endIndex = Math.min(startIndex + pageSize.getValue(), returnedStudent.size());
-
-    if (startIndex >= returnedStudent.size()) {
-      return List.of();
-    }
-    return returnedStudent.subList(startIndex, endIndex);
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    return userRepository
+        .findStudentGroupsWithFilter(groupId, studentFirstname, pageable)
+        .getContent();
   }
 
   public List<User> getAllStudentNotDisabled() {
@@ -199,6 +201,10 @@ public class UserService {
   }
 
   public Statistics getStudentsStat(List<Student> students) {
+    int willBeWorkingNb = getStudentsAlternatingSize(students, WILL_BE_WORKING);
+    int haveBeenWorkingNb = getStudentsAlternatingSize(students, HAVE_BEEN_WORKING);
+    int workingNb = getStudentsAlternatingSize(students, WORKING);
+    int notWorkingNb = getStudentsAlternatingSize(students, NOT_WORKING);
     return new Statistics()
         .women(
             new StatisticsDetails()
@@ -216,21 +222,18 @@ public class UserService {
                 .total(userRepository.countBySexAndRole(M, STUDENT)))
         .studentsAlternating(
             new StatisticsStudentsAlternating()
-                .total(
-                    getStudentsAlternatingSize(students, WILL_BE_WORKING)
-                        + getStudentsAlternatingSize(students, HAVE_BEEN_WORKING)
-                        + getStudentsAlternatingSize(students, WORKING))
-                .haveBeenWorking(getStudentsAlternatingSize(students, HAVE_BEEN_WORKING))
-                .working(getStudentsAlternatingSize(students, WORKING))
-                .notWorking(getStudentsAlternatingSize(students, NOT_WORKING))
-                .willWork(getStudentsAlternatingSize(students, WILL_BE_WORKING)));
+                .total(willBeWorkingNb + haveBeenWorkingNb + workingNb)
+                .haveBeenWorking(haveBeenWorkingNb)
+                .working(workingNb)
+                .notWorking(notWorkingNb)
+                .willWork(willBeWorkingNb));
   }
 
-  public Integer getStudentsAlternatingSize(
-      List<Student> students, WorkStudyStatus workStudyStatus) {
-    return students.stream()
-        .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
-        .toList()
-        .size();
+  public int getStudentsAlternatingSize(List<Student> students, WorkStudyStatus workStudyStatus) {
+    // TODO: use long
+    return (int)
+        students.stream()
+            .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
+            .count();
   }
 }

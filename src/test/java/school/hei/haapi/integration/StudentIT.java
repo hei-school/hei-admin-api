@@ -20,6 +20,8 @@ import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
+import static school.hei.haapi.integration.GroupIT.updatedGroup3;
+import static school.hei.haapi.integration.GroupIT.updatedGroup5;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
 
@@ -185,6 +187,7 @@ public class StudentIT extends MockedThirdParties {
     student.setProfessionalExperience(WORKER_STUDENT);
     student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24Z"));
     student.setGroups(List.of(group1(), group2()));
+    student.setIsRepeatingYear(false);
     return student;
   }
 
@@ -210,6 +213,7 @@ public class StudentIT extends MockedThirdParties {
     student.setProfessionalExperience(WORKER_STUDENT);
     student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setGroups(List.of(group1()));
+    student.setIsRepeatingYear(false);
     return student;
   }
 
@@ -229,6 +233,7 @@ public class StudentIT extends MockedThirdParties {
     student.setBirthPlace("");
     student.setNic("");
     student.setCoordinates(coordinatesWithNullValues());
+
     return student;
   }
 
@@ -252,6 +257,7 @@ public class StudentIT extends MockedThirdParties {
     student.setHighSchoolOrigin("Lycée Analamahitsy");
     student.setWorkStudyStatus(NOT_WORKING);
     student.setGroups(List.of());
+    student.setIsRepeatingYear(false);
     return student;
   }
 
@@ -273,7 +279,8 @@ public class StudentIT extends MockedThirdParties {
         .coordinates(coordinatesWithNullValues())
         .workStudyStatus(NOT_WORKING)
         .address("Adr 1")
-        .groups(List.of());
+        .groups(List.of())
+        .isRepeatingYear(false);
   }
 
   public static CrupdateStudent creatableSuspendedStudent() {
@@ -309,7 +316,58 @@ public class StudentIT extends MockedThirdParties {
         .address("Adr 2")
         .workStudyStatus(NOT_WORKING)
         .coordinates(coordinatesWithNullValues())
-        .groups(List.of());
+        .groups(List.of())
+        .isRepeatingYear(false);
+  }
+
+  public static Student repeatingStudent1() {
+    Group copyGroup3 = new Group();
+    copyGroup3.setId(group3().getId());
+    copyGroup3.setRef(group3().getRef());
+    copyGroup3.setCreationDatetime(group3().getCreationDatetime());
+    copyGroup3.setName(group3().getName());
+    copyGroup3.setSize(1);
+    return new Student()
+        .id("student7_id")
+        .firstName("Repeating")
+        .lastName("One")
+        .email("test+repeating1@hei.school")
+        .ref("STD22090")
+        .status(ENABLED)
+        .sex(M)
+        .birthDate(LocalDate.parse("2000-12-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .phone("0322411190")
+        .nic("")
+        .specializationField(COMMON_CORE)
+        .birthPlace("")
+        .address("Adr 1")
+        .workStudyStatus(NOT_WORKING)
+        .coordinates(coordinatesWithNullValues())
+        .groups(List.of(updatedGroup3()))
+        .isRepeatingYear(Boolean.FALSE);
+  }
+
+  public static Student repeatingStudent2() {
+    return new Student()
+        .id("student8_id")
+        .firstName("Repeating")
+        .lastName("Two")
+        .email("test+repeating2@hei.school")
+        .ref("STD23090")
+        .status(ENABLED)
+        .sex(F)
+        .birthDate(LocalDate.parse("2000-12-02"))
+        .entranceDatetime(Instant.parse("2022-11-09T08:26:24.00Z"))
+        .phone("0322411191")
+        .nic("")
+        .specializationField(COMMON_CORE)
+        .birthPlace("")
+        .address("Adr 2")
+        .workStudyStatus(NOT_WORKING)
+        .coordinates(coordinatesWithNullValues())
+        .groups(List.of(updatedGroup5()))
+        .isRepeatingYear(Boolean.TRUE);
   }
 
   @BeforeEach
@@ -317,6 +375,28 @@ public class StudentIT extends MockedThirdParties {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
+  }
+
+  @Test
+  void student_read_itself_repeating_this_year_ok() throws ApiException {
+    ApiClient student8Client = anApiClient(STUDENT8_TOKEN);
+
+    UsersApi api = new UsersApi(student8Client);
+    Student actual = api.getStudentById(STUDENT8_ID);
+
+    assertEquals(repeatingStudent2(), actual);
+    assertEquals(Boolean.TRUE, actual.getIsRepeatingYear());
+  }
+
+  @Test
+  void manager_read_repeating_student_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    UsersApi api = new UsersApi(manager1Client);
+
+    List<Student> actualStudents =
+        api.getStudents(1, 10, null, null, null, null, null, null, null, null, null);
+
+    assertTrue(actualStudents.containsAll(List.of(repeatingStudent2(), repeatingStudent1())));
   }
 
   @Test
@@ -462,7 +542,7 @@ public class StudentIT extends MockedThirdParties {
   }
 
   @Test
-  void manager_read_displayed_commitment_date() throws ApiException {
+  void manager_read_displayed_commitment_date() throws ApiException, InterruptedException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
@@ -658,7 +738,8 @@ public class StudentIT extends MockedThirdParties {
             .specializationField(toUpdate0.getSpecializationField())
             .workStudyStatus(NOT_WORKING)
             .status(toUpdate0.getStatus())
-            .groups(List.of());
+            .groups(List.of())
+            .isRepeatingYear(false);
 
     Student updated1 =
         new Student()
@@ -678,7 +759,8 @@ public class StudentIT extends MockedThirdParties {
             .coordinates(coordinatesWithNullValues())
             .workStudyStatus(NOT_WORKING)
             .status(toUpdate1.getStatus())
-            .groups(List.of());
+            .groups(List.of())
+            .isRepeatingYear(false);
 
     List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1));
 
@@ -919,6 +1001,11 @@ public class StudentIT extends MockedThirdParties {
     List<Student> actualGroupStudentsByRef = api.getStudentsByGroupId(GROUP1_ID, 1, 10, "Ryan");
     assertEquals(1, actualGroupStudentsByRef.size());
     assertEquals(student1(), actualGroupStudentsByRef.getFirst());
+
+    List<Student> actualGroupStudentsByFirstName =
+        api.getStudentsByGroupId(GROUP1_ID, 1, 10, "ryan");
+    assertEquals(1, actualGroupStudentsByFirstName.size());
+    assertEquals(student1(), actualGroupStudentsByFirstName.getFirst());
   }
 
   private Student toStudent(CrupdateStudent crupdateStudent) {

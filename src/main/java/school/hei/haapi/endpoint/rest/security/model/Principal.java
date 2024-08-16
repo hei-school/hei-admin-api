@@ -56,6 +56,10 @@ public class Principal implements UserDetails {
     return ENABLED.equals(user.getStatus()) || SUSPENDED.equals(user.getStatus());
   }
 
+  public User.Status getStatus() {
+    return user.getStatus();
+  }
+
   public String getUserId() {
     return user.getId();
   }

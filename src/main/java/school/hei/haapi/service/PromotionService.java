@@ -1,6 +1,6 @@
 package school.hei.haapi.service;
 
-import static org.springframework.data.domain.Sort.Direction.DESC;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 
 import java.util.List;
 import java.util.Optional;
@@ -27,10 +27,7 @@ public class PromotionService {
   public List<Promotion> getPromotions(
       String name, String ref, String groupRef, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
-        PageRequest.of(
-            page.getValue() - 1,
-            pageSize.getValue(),
-            Sort.by(DESC, "creationDatetime").and(Sort.by(DESC, "ref")));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return promotionDao.findByCriteria(name, ref, groupRef, pageable);
   }
 

@@ -39,4 +39,31 @@ public interface GroupRepository extends JpaRepository<Group, String> {
                                   sgf.group_id = g.id
                           """)
   List<Group> findByStudentId(String studentId);
+
+  @Query(
+      nativeQuery = true,
+      value =
+          """
+                                  WITH student_group_flow AS (
+                                      SELECT
+                                          gf.group_id,
+                                          gf.student_id
+                                      FROM
+                                          group_flow gf
+                                      WHERE
+                                          gf.student_id = ?1
+                                      GROUP BY
+                                          gf.group_id,
+                                          gf.student_id
+                                  )
+                                  SELECT
+                                      g.*
+                                  FROM
+                                      "group" g
+                                          INNER JOIN
+                                      student_group_flow sgf
+                                      ON
+                                          sgf.group_id = g.id
+                                  """)
+  List<Group> findAllFormerAndCurrentByStudentId(String studentId);
 }

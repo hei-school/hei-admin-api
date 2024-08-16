@@ -59,6 +59,26 @@ class GroupIT extends MockedThirdParties {
     return group;
   }
 
+  public static Group updatedGroup3() {
+    Group copyGroup3 = new Group();
+    copyGroup3.setId(group3().getId());
+    copyGroup3.setRef(group3().getRef());
+    copyGroup3.setCreationDatetime(group3().getCreationDatetime());
+    copyGroup3.setName(group3().getName());
+    copyGroup3.setSize(1);
+    return copyGroup3;
+  }
+
+  public static Group updatedGroup5() {
+    Group copyGroup5 = new Group();
+    copyGroup5.setId(group5().getId());
+    copyGroup5.setRef(group5().getRef());
+    copyGroup5.setCreationDatetime(group5().getCreationDatetime());
+    copyGroup5.setName(group5().getName());
+    copyGroup5.setSize(1);
+    return copyGroup5;
+  }
+
   public static CreateGroup someCreatableGroup(List<String> students) {
     CreateGroup createGroup = new CreateGroup();
     createGroup.setName("Some name");
@@ -144,12 +164,12 @@ class GroupIT extends MockedThirdParties {
     List<Group> actualGroups = api.getGroups(null, null, 1, 10);
     assertTrue(actualGroups.contains(group1()));
     assertTrue(actualGroups.contains(group2()));
-    assertTrue(actualGroups.contains(group3()));
+    assertTrue(actualGroups.contains(updatedGroup3()));
 
     List<Group> groupsFilteredByRef = api.getGroups("G1", null, 1, 10);
     assertTrue(groupsFilteredByRef.contains(group1()));
     assertFalse(groupsFilteredByRef.contains(group2()));
-    assertFalse(groupsFilteredByRef.contains(group3()));
+    assertFalse(groupsFilteredByRef.contains(updatedGroup3()));
 
     List<Group> groupsFilteredByStudentRef = api.getGroups(null, "STD21002", 1, 10);
     assertTrue(groupsFilteredByStudentRef.contains(group1()));

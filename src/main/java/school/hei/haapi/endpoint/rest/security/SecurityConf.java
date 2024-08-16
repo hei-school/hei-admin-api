@@ -5,6 +5,7 @@ import static org.springframework.http.HttpMethod.GET;
 import static org.springframework.http.HttpMethod.OPTIONS;
 import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
+import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
 import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
 import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
@@ -22,7 +23,6 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AnonymousAuthenticationFilter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
-import org.springframework.security.web.util.matcher.NegatedRequestMatcher;
 import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
@@ -58,6 +58,8 @@ public class SecurityConf {
   @Bean
   public SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
     // @formatter:off
+    AntPathRequestMatcher nonAccessibleBySuspendedUserPath =
+        antMatcher(GET, "/non-accessible-by-suspended");
     httpSecurity
         .exceptionHandling(
             exceptionHandlingConfigurer ->
@@ -80,38 +82,121 @@ public class SecurityConf {
         .authenticationProvider(authProvider)
         .addFilterBefore(
             bearerFilter(
-                new NegatedRequestMatcher(
-                    new OrRequestMatcher(
-                        new AntPathRequestMatcher("/ping", GET.name()),
-                        new AntPathRequestMatcher("/uuid-created", GET.name()),
-                        new AntPathRequestMatcher("/health/db", GET.name()),
-                        new AntPathRequestMatcher("/health/email", GET.name()),
-                        new AntPathRequestMatcher("/health/event1", GET.name()),
-                        new AntPathRequestMatcher("/health/event2", GET.name()),
-                        new AntPathRequestMatcher("/health/event/uuids", POST.name()),
-                        new AntPathRequestMatcher("/health/bucket", GET.name()),
-                        new AntPathRequestMatcher("/**", OPTIONS.toString())))),
+                new OrRequestMatcher(
+                    antMatcher(GET, "/whoami"),
+                    antMatcher(GET, "/teachers/announcements"),
+                    antMatcher(GET, "/students/announcements"),
+                    antMatcher(GET, "/students/announcements/*"),
+                    antMatcher(GET, "/announcements"),
+                    antMatcher(GET, "/announcements/*"),
+                    antMatcher(POST, "/announcements"),
+                    antMatcher(POST, "/school/files/raw"),
+                    antMatcher(GET, "/school/files"),
+                    antMatcher(GET, "/school/files/*"),
+                    antMatcher(GET, "/school/files/share_link"),
+                    antMatcher(GET, "/students/*/work_files"),
+                    antMatcher(GET, "/students/*/work_files/*"),
+                    antMatcher(POST, "/students/*/group_flows"),
+                    antMatcher(GET, "/students/*/work_files"),
+                    antMatcher(GET, "/students/*/work_files/*"),
+                    antMatcher(POST, "/students/*/work_files/raw"),
+                    antMatcher(POST, "/students/*/files/raw"),
+                    antMatcher(GET, "/students/*/files"),
+                    antMatcher(GET, "/students/*/files/*"),
+                    antMatcher(POST, "/students/*/picture/raw"),
+                    antMatcher(POST, "/teachers/*/picture/raw"),
+                    antMatcher(POST, "/managers/*/picture/raw"),
+                    antMatcher(GET, "/students"),
+                    antMatcher(GET, "/fees"),
+                    antMatcher(GET, "/fees/*"),
+                    antMatcher(PUT, "/students/*/fees/*/mpbs"),
+                    antMatcher(GET, "/students/*/fees/*/mpbs"),
+                    antMatcher(GET, "/students/*/fees/*/mpbs/verifications"),
+                    antMatcher(GET, "/students/*/fees/*"),
+                    antMatcher(DELETE, "/students/*/fees/*"),
+                    antMatcher(GET, "/students/*/fees/*/payments"),
+                    antMatcher(POST, "/students/*/fees/*/payments"),
+                    antMatcher(DELETE, "/students/*/fees/*/payments/*"),
+                    antMatcher(GET, "/students/*/fees"),
+                    antMatcher(POST, "/students/*/fees"),
+                    antMatcher(PUT, "/students/*/fees"),
+                    antMatcher(GET, "/students/*"),
+                    antMatcher(PUT, "/students/**"),
+                    antMatcher(GET, "/students/*/grades"),
+                    antMatcher(GET, "/teachers"),
+                    antMatcher(GET, "/teachers/*"),
+                    antMatcher(GET, "/students/*/scholarship_certificate/raw"),
+                    antMatcher(PUT, "/students/**"),
+                    antMatcher(GET, "/fees/templates"),
+                    antMatcher(PUT, "/fees/templates/*"),
+                    antMatcher(GET, "/fees/templates/*"),
+                    antMatcher(GET, "/teachers"),
+                    antMatcher(GET, "/teachers/*"),
+                    antMatcher(GET, "/teachers/**"),
+                    antMatcher(PUT, "/teachers/*"),
+                    antMatcher(PUT, "/teachers/**"),
+                    antMatcher(PUT, "/managers/*"),
+                    antMatcher(GET, "/managers/*"),
+                    antMatcher(GET, "/managers/**"),
+                    antMatcher(GET, "/groups"),
+                    antMatcher(GET, "/groups/*"),
+                    antMatcher(GET, "/groups/*/awarded_courses"),
+                    antMatcher(GET, "/groups/*/awarded_courses/*"),
+                    antMatcher(PUT, "/groups/*/awarded_courses"),
+                    antMatcher(PUT, "/groups/*/awarded_courses/*/exams"),
+                    antMatcher(GET, "/groups/*/awarded_courses/*/exams"),
+                    antMatcher(GET, "/groups/*/awarded_courses/*/exams/*"),
+                    antMatcher(GET, "/groups/*/awarded_courses/*/exams/*/grades"),
+                    antMatcher(GET, "/groups/*/awarded_courses/*/exams/*/students/*/grade"),
+                    antMatcher(GET, "/awarded_courses"),
+                    antMatcher(PUT, "/groups/*/awarded_courses/*/exams"),
+                    antMatcher(GET, "/groups/*/students"),
+                    antMatcher(GET, "/groups/**"),
+                    antMatcher(PUT, "/groups/**"),
+                    antMatcher(GET, "/courses"),
+                    antMatcher(PUT, "/courses"),
+                    antMatcher(PUT, "/courses/**"),
+                    antMatcher(GET, "/courses/*"),
+                    antMatcher(GET, "/courses/*/exams"),
+                    antMatcher(GET, "/courses/*/exams/*"),
+                    antMatcher(GET, "/courses/*/exams/*/details"),
+                    antMatcher(GET, "/courses/*/exams/*/participants/*"),
+                    antMatcher(GET, STUDENT_COURSE),
+                    antMatcher(GET, "/comments"),
+                    antMatcher(GET, "/students/*/comments"),
+                    antMatcher(POST, "/students/*/comments"),
+                    antMatcher(GET, "/events"),
+                    antMatcher(PUT, "/events"),
+                    antMatcher(GET, "/events/*"),
+                    antMatcher(GET, "/events/*/participants"),
+                    antMatcher(PUT, "/events/*/participants"),
+                    antMatcher(GET, "/promotions"),
+                    antMatcher(PUT, "/promotions"),
+                    antMatcher(GET, "/promotions/*"),
+                    antMatcher(PUT, "/promotions/*/groups"),
+                    antMatcher(GET, "/attendance"),
+                    antMatcher(POST, "/attendance/movement"),
+                    antMatcher(PUT, STUDENT_COURSE),
+                    nonAccessibleBySuspendedUserPath)),
             AnonymousAuthenticationFilter.class)
+        .addFilterAfter(
+            new SuspendedStudentFilter(nonAccessibleBySuspendedUserPath), BearerAuthFilter.class)
 
         // authorize
         .authorizeHttpRequests(
             request ->
                 request
-                    .requestMatchers(GET, "/ping")
-                    .permitAll()
-                    .requestMatchers(GET, "/health/db")
-                    .permitAll()
-                    .requestMatchers(GET, "/health/email")
-                    .permitAll()
-                    .requestMatchers(GET, "/health/event1")
-                    .permitAll()
-                    .requestMatchers(GET, "/health/event2")
-                    .permitAll()
-                    .requestMatchers(POST, "/health/event/uuids")
-                    .permitAll()
-                    .requestMatchers(GET, "/health/bucket")
-                    .permitAll()
-                    .requestMatchers(OPTIONS, "/**")
+                    .requestMatchers(
+                        new OrRequestMatcher(
+                            new AntPathRequestMatcher("/ping", GET.name()),
+                            new AntPathRequestMatcher("/uuid-created", GET.name()),
+                            new AntPathRequestMatcher("/health/db", GET.name()),
+                            new AntPathRequestMatcher("/health/email", GET.name()),
+                            new AntPathRequestMatcher("/health/event1", GET.name()),
+                            new AntPathRequestMatcher("/health/event2", GET.name()),
+                            new AntPathRequestMatcher("/health/event/uuids", POST.name()),
+                            new AntPathRequestMatcher("/health/bucket", GET.name()),
+                            new AntPathRequestMatcher("/**", OPTIONS.toString())))
                     .permitAll()
                     .requestMatchers(GET, "/whoami")
                     .authenticated()
@@ -184,6 +269,8 @@ public class SecurityConf {
                     //
                     .requestMatchers(GET, "/fees/*")
                     .hasRole(MANAGER.getRole())
+                    .requestMatchers(GET, "/fees")
+                    .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/mpbs", "students"))
                     .hasRole(STUDENT.getRole())
                     .requestMatchers(new SelfMatcher(PUT, "/students/*/fees/*/mpbs", "students"))
@@ -254,6 +341,7 @@ public class SecurityConf {
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+                    // TODO: clarify PUT STUDENTS/** FOR MANAGERS
                     .requestMatchers(PUT, "/students/**")
                     .hasAnyRole(MANAGER.getRole())
                     //
@@ -263,8 +351,6 @@ public class SecurityConf {
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*/grades")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
-                    .requestMatchers(GET, "/fees")
-                    .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(GET, "/teachers")
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/teachers/*", "teachers"))
@@ -454,6 +540,8 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
                     .requestMatchers(PUT, STUDENT_COURSE)
                     .hasAnyRole(MANAGER.getRole())
+                    .requestMatchers(nonAccessibleBySuspendedUserPath)
+                    .authenticated()
                     .requestMatchers("/**")
                     .denyAll())
 
@@ -477,8 +565,9 @@ public class SecurityConf {
     return new ForbiddenException("Access is denied");
   }
 
-  private BearerAuthFilter bearerFilter(RequestMatcher requestMatcher) throws Exception {
-    BearerAuthFilter bearerFilter = new BearerAuthFilter(requestMatcher, AUTHORIZATION_HEADER);
+  private BearerAuthFilter bearerFilter(RequestMatcher requiresAuthenticationRequestMatcher) {
+    BearerAuthFilter bearerFilter =
+        new BearerAuthFilter(requiresAuthenticationRequestMatcher, AUTHORIZATION_HEADER);
     bearerFilter.setAuthenticationManager(authenticationManager());
     bearerFilter.setAuthenticationSuccessHandler(
         (httpServletRequest, httpServletResponse, authentication) -> {});

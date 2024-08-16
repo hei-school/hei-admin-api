@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.LateFeeVerified;
+import school.hei.haapi.endpoint.event.model.PojaEvent;
 import school.hei.haapi.endpoint.event.model.StudentsWithOverdueFeesReminder;
 import school.hei.haapi.endpoint.event.model.UnpaidFeesReminder;
 import school.hei.haapi.model.BoundedPageSize;
@@ -39,7 +40,7 @@ public class FeeService {
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
   private final UpdateFeeValidator updateFeeValidator;
-  private final EventProducer eventProducer;
+  private final EventProducer<PojaEvent> eventProducer;
   private final FeeDao feeDao;
 
   public Fee debitAmount(Fee toUpdate, int amountToDebit) {
