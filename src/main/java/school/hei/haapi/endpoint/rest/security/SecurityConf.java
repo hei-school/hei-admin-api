@@ -143,6 +143,8 @@ public class SecurityConf {
                     antMatcher(GET, "/groups/*/awarded_courses"),
                     antMatcher(GET, "/groups/*/awarded_courses/*"),
                     antMatcher(PUT, "/groups/*/awarded_courses"),
+                    antMatcher(GET, "/teachers/*/awarded_courses"),
+                    antMatcher(PUT, "/teachers/*/awarded_courses"),
                     antMatcher(PUT, "/groups/*/awarded_courses/*/exams"),
                     antMatcher(GET, "/groups/*/awarded_courses/*/exams"),
                     antMatcher(GET, "/groups/*/awarded_courses/*/exams/*"),
