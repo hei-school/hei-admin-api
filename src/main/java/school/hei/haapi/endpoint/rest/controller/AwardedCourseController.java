@@ -65,18 +65,18 @@ public class AwardedCourseController {
   }
 
   @GetMapping("/teachers/{teacher_id}/awarded_courses")
-  public List<AwardedCourse> getByTeacherId(
+  public List<AwardedCourse> getAwardedCoursesAssignedToTeacher(
       @PathVariable("teacher_id") String teacherId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     User teacher = userService.findById(teacherId);
-    return service.getByTeacherId(teacher.getId(), page, pageSize).stream()
+    return service.getAwardedCoursesByTeacherId(teacher.getId(), page, pageSize).stream()
         .map(mapper::toRest)
         .collect(toList());
   }
 
   @PutMapping("/teachers/{teacher_id}/awarded_courses")
-  public List<AwardedCourse> createOrUpdateAwardedCoursesByTeacherId(
+  public List<AwardedCourse> createOrUpdateAwardedCoursesAssignToTeacher(
       @PathVariable("teacher_id") String teacherId,
       @RequestBody List<CreateAwardedCourse> createAwardedCourses) {
     List<school.hei.haapi.model.AwardedCourse> awardedCourses =
