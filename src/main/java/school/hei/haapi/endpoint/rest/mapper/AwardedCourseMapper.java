@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import static java.util.stream.Collectors.toList;
 
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -81,6 +82,7 @@ public class AwardedCourseMapper {
         .group(group)
         .course(course)
         .mainTeacher(teacher)
+        .creationDatetime(Instant.now())
         .build();
   }
 }

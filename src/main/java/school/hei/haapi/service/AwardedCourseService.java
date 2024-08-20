@@ -5,7 +5,6 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -100,26 +99,8 @@ public class AwardedCourseService {
   @Transactional
   public List<AwardedCourse> createOrUpdateAwardedCoursesByTeacherId(
       String teacherId, List<AwardedCourse> awardedCourses) {
-
-    List<AwardedCourse> updatedAwardedCourses =
-        awardedCourses.stream()
-            .map(
-                awardedCourse -> {
-                  if (awardedCourse.getId() != null) {
-                    AwardedCourse existingAwardedCourse = findById(awardedCourse.getId());
-                    existingAwardedCourse.setCourse(awardedCourse.getCourse());
-                    existingAwardedCourse.setGroup(awardedCourse.getGroup());
-                    existingAwardedCourse.setMainTeacher(awardedCourse.getMainTeacher());
-                    awardedCourseValidator.accept(existingAwardedCourse);
-                    return existingAwardedCourse;
-                  } else {
-                    awardedCourseValidator.accept(awardedCourse);
-                    return awardedCourse;
-                  }
-                })
-            .collect(Collectors.toList());
-
-    return awardedCourseRepository.saveAll(updatedAwardedCourses);
+    awardedCourses.forEach(awardedCourse -> awardedCourseValidator.accept(awardedCourse));
+    return awardedCourseRepository.saveAll(awardedCourses);
   }
 
   public AwardedCourse findById(String awardedCourseId) {

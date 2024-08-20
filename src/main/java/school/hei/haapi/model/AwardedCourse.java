@@ -14,7 +14,6 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -59,7 +58,5 @@ public class AwardedCourse implements Serializable {
   @ToString.Exclude
   private List<Exam> exams;
 
-  @CreationTimestamp
-  @Getter(AccessLevel.NONE)
-  private Instant creationDatetime;
+  @CreationTimestamp private Instant creationDatetime;
 }
