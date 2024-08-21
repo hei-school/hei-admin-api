@@ -28,7 +28,7 @@ public class StudentsWithOverdueFeesReminderService
 
   private Context getMailContext(StudentsWithOverdueFeesReminder students) {
     Context initial = new Context();
-    Resource emailSignatureImage = classPathResourceResolver.apply("Signature-HEI-v2", ".png");
+    Resource emailSignatureImage = classPathResourceResolver.apply("HEI_signature", ".png");
 
     initial.setVariable("students", students.getStudents());
     initial.setVariable("emailSignature", base64Converter.apply(emailSignatureImage));
