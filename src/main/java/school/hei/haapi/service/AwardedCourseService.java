@@ -92,14 +92,14 @@ public class AwardedCourseService {
   public List<AwardedCourse> getAwardedCoursesByTeacherId(
       String teacherId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "course"));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue());
     return awardedCourseRepository.findByMainTeacherId(teacherId, pageable);
   }
 
   @Transactional
   public List<AwardedCourse> createOrUpdateAwardedCoursesByTeacherId(
       String teacherId, List<AwardedCourse> awardedCourses) {
-    awardedCourses.forEach(awardedCourse -> awardedCourseValidator.accept(awardedCourse));
+    awardedCourseValidator.accept(awardedCourses);
     return awardedCourseRepository.saveAll(awardedCourses);
   }
 
