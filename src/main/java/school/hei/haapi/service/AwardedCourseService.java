@@ -91,8 +91,7 @@ public class AwardedCourseService {
 
   public List<AwardedCourse> getAwardedCoursesByTeacherId(
       String teacherId, PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue());
+    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     return awardedCourseRepository.findByMainTeacherId(teacherId, pageable);
   }
 
