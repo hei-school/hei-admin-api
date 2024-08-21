@@ -14,6 +14,7 @@ import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 public class TransactionDetails {
   private Integer pspTransactionAmount;
   private Instant pspDatetimeTransactionCreation;
+  private Instant pspOwnDatetimeVerification;
   private String pspTransactionRef;
   private MpbsStatus status;
 }

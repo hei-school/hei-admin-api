@@ -1,0 +1,1 @@
+alter table "mpbs" add column if not exists psp_own_datetime_verification timestamp with time zone;
