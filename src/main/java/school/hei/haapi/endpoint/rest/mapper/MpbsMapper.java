@@ -25,6 +25,7 @@ public class MpbsMapper {
         .amount(domain.getAmount())
         .successfullyVerifiedOn(domain.getSuccessfullyVerifiedOn())
         .lastDatetimeVerification(domain.getLastVerificationDatetime())
+        .pspOwnDatetimeVerification(domain.getPspOwnDatetimeVerification())
         .status(domain.getStatus());
   }
 

@@ -4302,6 +4302,9 @@ components:
         creation_datetime:
           type: string
           format: date-time
+        psp_own_datetime_verification:
+          type: string
+          format: date-time
         successfully_verified_on:
           type: string
           format: date-time

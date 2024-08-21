@@ -36,6 +36,8 @@ public class MobileTransactionDetails implements Serializable {
 
   private Instant pspDatetimeTransactionCreation;
 
+  private Instant pspOwnDatetimeVerification;
+
   private String pspTransactionRef;
 
   @Column(name = "\"status\"")
