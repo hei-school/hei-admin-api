@@ -36,7 +36,7 @@ public class CourseValidator implements Consumer<Course> {
       violationMessages.add("Credits must be positive");
     }
     if (course.getTotalHours() <= 0) {
-      violationMessages.add("Credits must be positive");
+      violationMessages.add("Total hours must be positive");
     }
     if (!violationMessages.isEmpty()) {
       String formattedViolationMessages =
