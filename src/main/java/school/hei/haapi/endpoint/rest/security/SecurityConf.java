@@ -180,7 +180,21 @@ public class SecurityConf {
                     nonAccessibleBySuspendedUserPath)),
             AnonymousAuthenticationFilter.class)
         .addFilterAfter(
-            new SuspendedStudentFilter(nonAccessibleBySuspendedUserPath), BearerAuthFilter.class)
+            new SuspendedStudentFilter(
+                new OrRequestMatcher(
+                    antMatcher(GET, "/school/files"),
+                    antMatcher(GET, "/school/files/*"),
+                    antMatcher(GET, "/school/files"),
+                    antMatcher(GET, "/school/files/*"),
+                    antMatcher(GET, "/students/*/work_files"),
+                    antMatcher(GET, "/students/*/work_files/*"),
+                    antMatcher(GET, "/students/*/files"),
+                    antMatcher(GET, "/students/*/files/*"),
+                    antMatcher(GET, "/students/*/scholarship_certificate/raw"),
+                    antMatcher(GET, "/announcements"),
+                    antMatcher(GET, "/announcements/*"),
+                    nonAccessibleBySuspendedUserPath)),
+            BearerAuthFilter.class)
 
         // authorize
         .authorizeHttpRequests(
