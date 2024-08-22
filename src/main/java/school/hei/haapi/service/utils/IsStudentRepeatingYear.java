@@ -1,7 +1,5 @@
 package school.hei.haapi.service.utils;
 
-import java.time.Year;
-import java.time.ZoneId;
 import java.util.LinkedHashSet;
 import java.util.function.Function;
 import lombok.AllArgsConstructor;
@@ -23,19 +21,12 @@ public class IsStudentRepeatingYear implements Function<User, Boolean> {
     if (studentPromotions.isEmpty()) {
       return false;
     }
-    school.hei.haapi.model.Promotion mostRecentPromotion = studentPromotions.getFirst();
-    int promotionStartYear =
-        mostRecentPromotion.getStartDatetime().atZone(ZoneId.of("UTC+3")).getYear();
-    int currentYear = Year.now().getValue();
 
-    return didRepeatYear(user)
-        && (promotionStartYear == currentYear || promotionStartYear + 1 == currentYear)
-        && promotionStartYear + 1 <= currentYear;
+    return didRepeatYear(user);
   }
 
   private boolean didRepeatYear(User user) {
-    int normalNumberOfPromotion = 1;
-    return getAllStudentPromotions(user).size() > normalNumberOfPromotion;
+    return getAllStudentPromotions(user).size() > 1;
   }
 
   private LinkedHashSet<Promotion> getAllStudentPromotions(User user) {
