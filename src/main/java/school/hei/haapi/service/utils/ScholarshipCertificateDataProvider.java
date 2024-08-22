@@ -4,17 +4,19 @@ import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
-import java.time.temporal.ChronoUnit;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.service.PromotionService;
 
 @Component
 @AllArgsConstructor
 public class ScholarshipCertificateDataProvider {
   private final SchoolYearGetter schoolYearGetter;
+  private final IsStudentRepeatingYear isStudentRepeatingYear;
+  private final PromotionService promotionService;
 
   public String getAcademicYearSentence(User student) {
     String academicYear = getAcademicYear(student);
@@ -22,10 +24,15 @@ public class ScholarshipCertificateDataProvider {
   }
 
   public String getAcademicYear(User student) {
+    boolean isRepeating = isStudentRepeatingYear.apply(student);
     ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC+3"));
     ZonedDateTime entranceDatetime = student.getEntranceDatetime().atZone(ZoneId.of("UTC+3"));
-    int year = (int) ChronoUnit.YEARS.between(entranceDatetime, now);
+    int year = now.getYear() - entranceDatetime.getYear();
 
+    if (isRepeating && year > 0) {
+      int numberOfRepeats = calculateNumberOfRepeats(student);
+      year -= numberOfRepeats;
+    }
     return switch (year) {
       case 0 -> "Première";
       case 1 -> "Deuxième";
@@ -48,4 +55,9 @@ public class ScholarshipCertificateDataProvider {
       default -> throw new ApiException(SERVER_EXCEPTION, "Invalid specialization field");
     };
   }
+
+  private int calculateNumberOfRepeats(User student) {
+    return promotionService.getAllStudentPromotions(student.getId()).size();
+  }
+  ;
 }
