@@ -345,7 +345,7 @@ public class StudentIT extends MockedThirdParties {
         .workStudyStatus(NOT_WORKING)
         .coordinates(coordinatesWithNullValues())
         .groups(List.of(updatedGroup3()))
-        .isRepeatingYear(Boolean.FALSE);
+        .isRepeatingYear(Boolean.TRUE);
   }
 
   public static Student repeatingStudent2() {
