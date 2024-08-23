@@ -16,6 +16,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -116,6 +117,46 @@ class SecurityIT extends MockedThirdParties {
     assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
     assertEquals(
         "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", response.body());
+  }
+
+  @Test
+  void non_authorized_path_for_suspended_user_ko() {
+    HttpClient unauthenticatedClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + ContextInitializer.SERVER_PORT;
+    List<String> nonAuthorizedPaths =
+        List.of(
+            "/school/files",
+            "/school/files/*",
+            "/school/files",
+            "/school/files/*",
+            "/students/*/work_files",
+            "/students/*/work_files/*",
+            "/students/*/files",
+            "/students/*/files/*",
+            "/students/*/scholarship_certificate/raw",
+            "/announcements",
+            "/announcements/*");
+
+    nonAuthorizedPaths.forEach(
+        path -> {
+          HttpResponse<String> response = null;
+          try {
+            response =
+                unauthenticatedClient.send(
+                    HttpRequest.newBuilder()
+                        .uri(URI.create(basePath + path))
+                        .header("Authorization", "Bearer " + SUSPENDED_TOKEN)
+                        .build(),
+                    HttpResponse.BodyHandlers.ofString());
+          } catch (IOException | InterruptedException e) {
+            throw new RuntimeException(e);
+          }
+
+          assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
+          assertEquals(
+              "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}",
+              response.body());
+        });
   }
 
   @Test

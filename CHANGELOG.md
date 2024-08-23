@@ -1,3 +1,19 @@
+# [1.43.0](https://github.com/hei-school/hei-admin-api/compare/v1.42.0...v1.43.0) (2024-08-21)
+
+
+### Bug Fixes
+
+* group sorted by ref ordered ASC ([96faf97](https://github.com/hei-school/hei-admin-api/commit/96faf9702c7f365d2f090f6debb789aca74c054a))
+* template image won't load, fallback to background-image  ([168c76e](https://github.com/hei-school/hei-admin-api/commit/168c76ef1ddf431511bcf85ed7baba1c31a073e0))
+
+
+### Features
+
+* filter for security conf to disable user suspended  ([4c8494b](https://github.com/hei-school/hei-admin-api/commit/4c8494bc1fe962267cb14abe508ee22c2d6ae81d))
+* implementation of repeating student of current year  ([bd6aa91](https://github.com/hei-school/hei-admin-api/commit/bd6aa91152d7f7d3e4e794f5ca8aa7109f925aa6))
+
+
+
 # [1.42.0](https://github.com/hei-school/hei-admin-api/compare/v1.41.0...v1.42.0) (2024-08-09)
 
 
@@ -112,22 +128,6 @@
 
 * filter group by ref and student ref ([3ff5b82](https://github.com/hei-school/hei-admin-api/commit/3ff5b82cfb13ba14f435412d9ac7b13cbdb90b3d))
 * payment by mobile money  ([09732dc](https://github.com/hei-school/hei-admin-api/commit/09732dc5333665160f3a7b3ea07705541acb65f5))
-
-
-
-# [1.33.0](https://github.com/hei-school/hei-admin-api/compare/v1.32.0...v1.33.0) (2024-07-10)
-
-
-### Bug Fixes
-
-* handle day validity checker for mpbs status  ([0e5079e](https://github.com/hei-school/hei-admin-api/commit/0e5079edf792c9e3b8e6529e41a529e8acd18947))
-
-
-### Features
-
-* endpoint who will execute the sceduler task  ([30807fb](https://github.com/hei-school/hei-admin-api/commit/30807fbd3249a6eddd25350d524ac4a985aeb095))
-* group attribute in user rest model ([764bad9](https://github.com/hei-school/hei-admin-api/commit/764bad9c149941c62ae36e492b42c37f620b3f65))
-* update user status accordingly after paying fee ([ddff281](https://github.com/hei-school/hei-admin-api/commit/ddff28172aa224c3e47c81b9b44cad70fe6f2577))
 
 
 

@@ -42,7 +42,7 @@ public class LateFeeVerifiedService implements Consumer<LateFeeVerified> {
 
   private Context getMailContext(LateFeeVerified lateFee) {
     Context initial = new Context();
-    Resource emailSignatureImage = classPathResourceResolver.apply("Signature-HEI-v2", ".png");
+    Resource emailSignatureImage = classPathResourceResolver.apply("HEI_signature", ".png");
 
     initial.setVariable("fullName", formatName(lateFee.getStudent()));
     initial.setVariable("comment", lateFee.getComment());

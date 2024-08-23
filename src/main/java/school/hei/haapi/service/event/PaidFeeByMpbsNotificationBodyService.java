@@ -41,7 +41,7 @@ public class PaidFeeByMpbsNotificationBodyService
 
   private Context loadContext(PaidFeeByMpbsNotificationBody mailBodyContent) {
     Context initial = new Context();
-    Resource emailSignatureImage = classPathResourceResolver.apply("Signature-HEI-v2", ".png");
+    Resource emailSignatureImage = classPathResourceResolver.apply("HEI_signature", ".png");
 
     initial.setVariable("pspAmount", numberToReadable(mailBodyContent.getAmount()));
     initial.setVariable("pspAmountWord", numberToWords(mailBodyContent.getAmount()));

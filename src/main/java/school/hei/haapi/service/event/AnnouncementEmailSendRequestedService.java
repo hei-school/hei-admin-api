@@ -39,7 +39,7 @@ public class AnnouncementEmailSendRequestedService
 
   private Context getMailContext(AnnouncementEmailSendRequested domain) {
     Context initial = new Context();
-    Resource emailSignatureImage = classPathResourceResolver.apply("Signature-HEI-v2", ".png");
+    Resource emailSignatureImage = classPathResourceResolver.apply("HEI_signature", ".png");
 
     initial.setVariable("fullName", domain.getSenderFullName());
     initial.setVariable("id", domain.getAnnouncementId());
