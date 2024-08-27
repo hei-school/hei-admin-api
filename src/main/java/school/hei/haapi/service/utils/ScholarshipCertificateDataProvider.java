@@ -2,11 +2,13 @@ package school.hei.haapi.service.utils;
 
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
+import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.service.PromotionService;
@@ -15,24 +17,21 @@ import school.hei.haapi.service.PromotionService;
 @AllArgsConstructor
 public class ScholarshipCertificateDataProvider {
   private final SchoolYearGetter schoolYearGetter;
-  private final IsStudentRepeatingYear isStudentRepeatingYear;
   private final PromotionService promotionService;
 
   public String getAcademicYearSentence(User student) {
-    String academicYear = getAcademicYear(student);
+    String academicYear = getAcademicYear(student, Instant.now());
     return academicYear + " année d'informatique - parcours " + specializationFiledString(student);
   }
 
-  public String getAcademicYear(User student) {
-    boolean isRepeating = isStudentRepeatingYear.apply(student);
-    ZonedDateTime now = ZonedDateTime.now(ZoneId.of("UTC+3"));
-    ZonedDateTime entranceDatetime = student.getEntranceDatetime().atZone(ZoneId.of("UTC+3"));
-    int year = now.getYear() - entranceDatetime.getYear();
+  public String getAcademicYear(User student, Instant from) {
+    ZonedDateTime lastPromotionStartDatetime = ZonedDateTime.ofInstant(findLastStudentPromotion(student).getStartDatetime(), ZoneId.of("UTC+3"));
+    ZonedDateTime zonedDateTimeNow = from.atZone(ZoneId.of("UTC+3"));
+    int currentYear = zonedDateTimeNow.getYear();
+    int lastPromotionYear = lastPromotionStartDatetime.getYear();
 
-    if (isRepeating && year > 0) {
-      int numberOfRepeats = calculateNumberOfRepeats(student);
-      year -= numberOfRepeats;
-    }
+    int year = currentYear - lastPromotionYear;
+
     return switch (year) {
       case 0 -> "Première";
       case 1 -> "Deuxième";
@@ -56,8 +55,7 @@ public class ScholarshipCertificateDataProvider {
     };
   }
 
-  private int calculateNumberOfRepeats(User student) {
-    return promotionService.getAllStudentPromotions(student.getId()).size();
+  private Promotion findLastStudentPromotion(User student) {
+    return promotionService.getAllStudentPromotions(student.getId()).getFirst();
   }
-  ;
 }
