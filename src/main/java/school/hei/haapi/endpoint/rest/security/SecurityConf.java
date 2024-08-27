@@ -7,6 +7,7 @@ import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 import static org.springframework.security.web.util.matcher.AntPathRequestMatcher.antMatcher;
 import static school.hei.haapi.endpoint.rest.security.model.Role.MANAGER;
+import static school.hei.haapi.endpoint.rest.security.model.Role.MONITOR;
 import static school.hei.haapi.endpoint.rest.security.model.Role.STUDENT;
 import static school.hei.haapi.endpoint.rest.security.model.Role.TEACHER;
 
@@ -227,7 +228,7 @@ public class SecurityConf {
                     .requestMatchers(GET, "/students/announcements")
                     .hasRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/announcements/*")
-                    .hasRole(STUDENT.getRole())
+                    .hasAnyRole(STUDENT.getRole(), MONITOR.getRole())
                     .requestMatchers(GET, "/announcements")
                     .hasRole(MANAGER.getRole())
                     .requestMatchers(GET, "/announcements/*")
@@ -241,9 +242,11 @@ public class SecurityConf {
                     .requestMatchers(POST, "/school/files/raw")
                     .hasRole(MANAGER.getRole())
                     .requestMatchers(GET, "/school/files")
-                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
+                    .hasAnyRole(
+                        MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole(), MONITOR.getRole())
                     .requestMatchers(GET, "/school/files/*")
-                    .hasAnyRole(MANAGER.getRole(), STUDENT.getRole(), TEACHER.getRole())
+                    .hasAnyRole(
+                        MANAGER.getRole(), STUDENT.getRole(), TEACHER.getRole(), MONITOR.getRole())
                     .requestMatchers(GET, "/school/files/share_link")
                     .hasAnyRole(MANAGER.getRole(), STUDENT.getRole(), TEACHER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/work_files", "students"))

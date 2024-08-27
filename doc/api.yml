@@ -3694,6 +3694,7 @@ components:
         role:
           type: string
           enum:
+            - MONITOR
             - STUDENT
             - TEACHER
             - MANAGER
