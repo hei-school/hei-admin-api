@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.SUSPENDED_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
@@ -49,6 +50,14 @@ class SecurityIT extends MockedThirdParties {
     return whoami;
   }
 
+  public static Whoami whoisMonitor1() {
+    Whoami whoami = new Whoami();
+    whoami.setId("monitor1_id");
+    whoami.setBearer(MONITOR1_TOKEN);
+    whoami.setRole(Whoami.RoleEnum.MONITOR);
+    return whoami;
+  }
+
   public static Whoami whoisTeacher1() {
     Whoami whoami = new Whoami();
     whoami.setId("teacher1_id");
@@ -69,6 +78,16 @@ class SecurityIT extends MockedThirdParties {
   public void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
+  }
+
+  @Test
+  void monitor_read_whoami_ok() throws ApiException {
+    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
+
+    SecurityApi api = new SecurityApi(monitor1Client);
+    Whoami actual = api.whoami();
+
+    assertEquals(whoisMonitor1(), actual);
   }
 
   @Test
