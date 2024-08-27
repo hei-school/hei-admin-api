@@ -19,6 +19,7 @@ import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.AwardedCourseValidator;
 import school.hei.haapi.repository.AwardedCourseRepository;
 import school.hei.haapi.repository.CourseRepository;
@@ -51,7 +52,7 @@ public class AwardedCourseService {
       String groupId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return awardedCourseRepository.findByGroupId(groupId, pageable);
+    return awardedCourseRepository.findAllByGroupId(groupId, pageable);
   }
 
   public AwardedCourse getById(String id, String groupId) {
@@ -86,5 +87,26 @@ public class AwardedCourseService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "name"));
     return awardedCourseDao.findByCriteria(teacherId, courseId, pageable);
+  }
+
+  public List<AwardedCourse> getAwardedCoursesByTeacherId(
+      String teacherId, PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
+    return awardedCourseRepository.findAllByMainTeacherId(teacherId, pageable);
+  }
+
+  @Transactional
+  public List<AwardedCourse> createOrUpdateAwardedCoursesByTeacherId(
+      String teacherId, List<AwardedCourse> awardedCourses) {
+    awardedCourseValidator.accept(awardedCourses);
+    return awardedCourseRepository.saveAll(awardedCourses);
+  }
+
+  public AwardedCourse findById(String awardedCourseId) {
+    return awardedCourseRepository
+        .findById(awardedCourseId)
+        .orElseThrow(
+            () ->
+                new NotFoundException("Awarded course with id: " + awardedCourseId + " not found"));
   }
 }

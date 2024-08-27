@@ -56,6 +56,9 @@ class AwardedCourseIT extends MockedThirdParties {
     List<AwardedCourse> awardedCoursesByCourse =
         api.getAllAwardedCourseByCriteria(null, COURSE1_ID, null, null);
 
+    List<AwardedCourse> awardedCoursesAssignedToTeacher =
+        api.getAwardedCoursesAssignedToTeacher(TEACHER2_ID, 1, 10);
+
     assertEquals(awardedCourse1(), actual);
 
     assertEquals(3, actuals.size());
@@ -76,6 +79,23 @@ class AwardedCourseIT extends MockedThirdParties {
     assertTrue(awardedCoursesByCourse.contains(awardedCourse1()));
     assertTrue(awardedCoursesByCourse.contains(awardedCourse2()));
     assertTrue(awardedCoursesByCourse.contains(awardedCourse3()));
+
+    assertEquals(3, awardedCoursesAssignedToTeacher.size());
+    assertTrue(awardedCoursesAssignedToTeacher.contains(awardedCourse2()));
+    assertTrue(awardedCoursesAssignedToTeacher.contains(awardedCourse3()));
+  }
+
+  @Test
+  void student_read_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+
+    List<AwardedCourse> awardedCoursesAssignedToTeacher =
+        api.getAwardedCoursesAssignedToTeacher(TEACHER2_ID, 1, 10);
+
+    assertEquals(3, awardedCoursesAssignedToTeacher.size());
+    assertTrue(awardedCoursesAssignedToTeacher.contains(awardedCourse2()));
+    assertTrue(awardedCoursesAssignedToTeacher.contains(awardedCourse3()));
   }
 
   @Test
@@ -85,6 +105,18 @@ class AwardedCourseIT extends MockedThirdParties {
     assertThrowsForbiddenException(
         () -> api.getAwardedCoursesByIdAndGroupId(GROUP1_ID, AWARDED_COURSE1_ID));
     assertThrowsForbiddenException(() -> api.getAllAwardedCourseByGroup(GROUP1_ID, 1, 10));
+  }
+
+  @Test
+  void awarded_courses_by_teacher_id_ko() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+
+    assertThrowsApiException(
+        "{\"type\":\"404 NOT_FOUND\",\"message\":\"User with id: "
+            + NOT_EXISTING_ID
+            + " not found\"}",
+        () -> api.getAwardedCoursesAssignedToTeacher(NOT_EXISTING_ID, 1, 10));
   }
 
   @Test
@@ -104,6 +136,9 @@ class AwardedCourseIT extends MockedThirdParties {
     List<AwardedCourse> awardedCoursesByCourse =
         api.getAllAwardedCourseByCriteria(null, COURSE1_ID, null, null);
 
+    List<AwardedCourse> awardedCoursesAssignedToTeacher =
+        api.getAwardedCoursesAssignedToTeacher(TEACHER2_ID, 1, 10);
+
     assertEquals(awardedCourse1(), actual);
 
     assertEquals(3, actuals.size());
@@ -124,22 +159,40 @@ class AwardedCourseIT extends MockedThirdParties {
     assertTrue(awardedCoursesByCourse.contains(awardedCourse1()));
     assertTrue(awardedCoursesByCourse.contains(awardedCourse2()));
     assertTrue(awardedCoursesByCourse.contains(awardedCourse3()));
+
+    assertEquals(3, awardedCoursesAssignedToTeacher.size());
+    assertTrue(awardedCoursesAssignedToTeacher.contains(awardedCourse2()));
+    assertTrue(awardedCoursesAssignedToTeacher.contains(awardedCourse3()));
   }
 
+  @Test
   void student_create_or_update_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateAwardedCourses(GROUP1_ID, List.of(createAwardedCourse())));
+
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () ->
+            api.createOrUpdateAwardedCoursesAssignToTeacher(
+                TEACHER2_ID, someAwardedCoursesToCrupdate()));
   }
 
+  @Test
   void teacher_create_or_update_ko() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateAwardedCourses(GROUP1_ID, List.of(createAwardedCourse())));
+
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () ->
+            api.createOrUpdateAwardedCoursesAssignToTeacher(
+                TEACHER2_ID, someAwardedCoursesToCrupdate()));
   }
 
   @Test
@@ -153,10 +206,12 @@ class AwardedCourseIT extends MockedThirdParties {
             GROUP1_ID, someCreatableCreateAwardedCourseList(numberOfExamToAdd));
     assertEquals(numberOfExamToAdd, actualCreatList.size());
 
-    //    List<ExamInfo> actualUpdateList =
-    //            api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1()));
-    //    assertEquals(1, actualUpdateList.size());
-    //    assertTrue(actualUpdateList.contains(exam1()));
+    List<AwardedCourse> awardedCoursesUpdated =
+        api.createOrUpdateAwardedCoursesAssignToTeacher(
+            TEACHER2_ID, someAwardedCoursesToCrupdate());
+
+    assertTrue(awardedCoursesUpdated.contains(updatedAwardedCourse2()));
+    assertEquals(2, awardedCoursesUpdated.size());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

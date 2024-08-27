@@ -15,13 +15,16 @@ import school.hei.haapi.endpoint.rest.model.AwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
 import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.service.UserService;
 
 @RestController
 @AllArgsConstructor
 public class AwardedCourseController {
   private final AwardedCourseService service;
   private final AwardedCourseMapper mapper;
+  private final UserService userService;
 
   @GetMapping("/groups/{group_id}/awarded_courses")
   public List<AwardedCourse> getByGroupId(
@@ -56,6 +59,30 @@ public class AwardedCourseController {
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return service.getByCriteria(teacherId, courseId, page, pageSize).stream()
+        .map(mapper::toRest)
+        .collect(toList());
+  }
+
+  @GetMapping("/teachers/{teacher_id}/awarded_courses")
+  public List<AwardedCourse> getAwardedCoursesAssignedToTeacher(
+      @PathVariable("teacher_id") String teacherId,
+      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
+    User teacher = userService.findById(teacherId);
+    return service.getAwardedCoursesByTeacherId(teacher.getId(), page, pageSize).stream()
+        .map(mapper::toRest)
+        .collect(toList());
+  }
+
+  @PutMapping("/teachers/{teacher_id}/awarded_courses")
+  public List<AwardedCourse> createOrUpdateAwardedCoursesAssignToTeacher(
+      @PathVariable("teacher_id") String teacherId,
+      @RequestBody List<CreateAwardedCourse> createAwardedCourses) {
+    List<school.hei.haapi.model.AwardedCourse> awardedCourses =
+        createAwardedCourses.stream()
+            .map(mapper::fromCreateAwardedCourseToAwardedCourse)
+            .collect(toList());
+    return service.createOrUpdateAwardedCoursesByTeacherId(teacherId, awardedCourses).stream()
         .map(mapper::toRest)
         .collect(toList());
   }

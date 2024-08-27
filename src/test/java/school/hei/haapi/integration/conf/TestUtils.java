@@ -169,6 +169,8 @@ public class TestUtils {
   public static final String STUDENT7_ID = "student7_id";
   public static final String STUDENT8_ID = "student8_id";
 
+  public static final String NOT_EXISTING_ID = "not_existing_id";
+
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
     client.setScheme("http");
@@ -303,6 +305,27 @@ public class TestUtils {
         .courseId("course2_id")
         .groupId("group2_id")
         .mainTeacherId("teacher2_id");
+  }
+
+  public static AwardedCourse updatedAwardedCourse2() {
+    return new AwardedCourse()
+        .id(AWARDED_COURSE2_ID)
+        .course(course2())
+        .group(group2())
+        .mainTeacher(teacher2());
+  }
+
+  public static List<CreateAwardedCourse> someAwardedCoursesToCrupdate() {
+    return List.of(
+        new CreateAwardedCourse()
+            .id(AWARDED_COURSE2_ID)
+            .courseId("course2_id")
+            .groupId("group2_id")
+            .mainTeacherId("teacher2_id"),
+        new CreateAwardedCourse()
+            .courseId("course2_id")
+            .groupId("group1_id")
+            .mainTeacherId("teacher2_id"));
   }
 
   public static ExamInfo createExam() {
