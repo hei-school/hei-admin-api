@@ -25,7 +25,9 @@ public class ScholarshipCertificateDataProvider {
   }
 
   public String getAcademicYear(User student, Instant from) {
-    ZonedDateTime lastPromotionStartDatetime = ZonedDateTime.ofInstant(findLastStudentPromotion(student).getStartDatetime(), ZoneId.of("UTC+3"));
+    ZonedDateTime lastPromotionStartDatetime =
+        ZonedDateTime.ofInstant(
+            findLastStudentPromotion(student).getStartDatetime(), ZoneId.of("UTC+3"));
     ZonedDateTime zonedDateTimeNow = from.atZone(ZoneId.of("UTC+3"));
     int currentYear = zonedDateTimeNow.getYear();
     int lastPromotionYear = lastPromotionStartDatetime.getYear();
