@@ -52,7 +52,7 @@ public class AwardedCourseService {
       String groupId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return awardedCourseRepository.findByGroupId(groupId, pageable);
+    return awardedCourseRepository.findAllByGroupId(groupId, pageable);
   }
 
   public AwardedCourse getById(String id, String groupId) {
@@ -92,7 +92,7 @@ public class AwardedCourseService {
   public List<AwardedCourse> getAwardedCoursesByTeacherId(
       String teacherId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return awardedCourseRepository.findByMainTeacherId(teacherId, pageable);
+    return awardedCourseRepository.findAllByMainTeacherId(teacherId, pageable);
   }
 
   @Transactional

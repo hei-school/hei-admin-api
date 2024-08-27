@@ -3,7 +3,6 @@ package school.hei.haapi.endpoint.rest.controller;
 import static java.util.stream.Collectors.*;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -82,7 +81,7 @@ public class AwardedCourseController {
     List<school.hei.haapi.model.AwardedCourse> awardedCourses =
         createAwardedCourses.stream()
             .map(mapper::fromCreateAwardedCourseToAwardedCourse)
-            .collect(Collectors.toList());
+            .collect(toList());
     return service.createOrUpdateAwardedCoursesByTeacherId(teacherId, awardedCourses).stream()
         .map(mapper::toRest)
         .collect(toList());

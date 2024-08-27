@@ -415,7 +415,7 @@ public class SecurityConf {
                     .requestMatchers(new SelfMatcher(PUT, "/managers/*", "managers"))
                     .hasRole(MANAGER.getRole())
                     .requestMatchers("/managers/**")
-                    .hasAnyRole(MANAGER.getRole())
+                    .hasRole(MANAGER.getRole())
                     .requestMatchers(GET, "/groups")
                     .authenticated()
                     .requestMatchers(GET, "/groups/*")
