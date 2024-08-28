@@ -568,8 +568,7 @@ paths:
               schema:
                 type: array
                 items:
-                  allOf:
-                    - $ref: '#/components/schemas/Monitor'
+                  $ref: '#/components/schemas/Monitor'
         '400':
           $ref: '#/components/responses/400'
         '403':
