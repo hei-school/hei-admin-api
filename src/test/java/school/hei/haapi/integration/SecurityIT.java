@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.Whoami.RoleEnum.MONITOR;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
@@ -54,7 +55,7 @@ class SecurityIT extends MockedThirdParties {
     Whoami whoami = new Whoami();
     whoami.setId("monitor1_id");
     whoami.setBearer(MONITOR1_TOKEN);
-    whoami.setRole(Whoami.RoleEnum.MONITOR);
+    whoami.setRole(MONITOR);
     return whoami;
   }
 
