@@ -545,6 +545,40 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /monitors:
+    put:
+      tags:
+        - Users
+      summary: Create new monitors or update existing monitors
+      description: Update monitors when `id` are provided, create them otherwise.
+      operationId: createOrUpdateMonitors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateMonitor'
+      responses:
+        '200':
+          description: The created or updated monitors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Monitor'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/courses/{id}':
     get:
       tags:
@@ -4015,6 +4049,14 @@ components:
       properties:
         specialization_field:
           $ref: '#/components/schemas/SpecializationField'
+    CrupdateMonitor:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        students: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/UserIdentifier'
     CrupdateTeacher:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
@@ -4083,6 +4125,16 @@ components:
             $ref: '#/components/schemas/Group'
         is_repeating_year:
           type: boolean
+    Monitor:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
+        profile_picture:
+          type: string
     Teacher:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
