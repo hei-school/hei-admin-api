@@ -3269,6 +3269,190 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
+  '/letters':
+    get:
+      tags:
+        - Letters
+      summary: All letters paginated
+      operationId: getLetters
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+          required: false
+        - name: student_ref
+          in: query
+          description: Filter by student ref
+          schema:
+            type: string
+          required: false
+      responses:
+        '200':
+          description: Letters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/PagedLettersResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Letters
+      summary: Update letters status
+      operationId: updateLettersStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdateLettersStatus'
+      responses:
+        '200':
+          description: The letters updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UpdateLettersStatusResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/letters/{id}':
+    get:
+      tags:
+        - Letters
+      summary: Letter by the given id
+      operationId: getLetterById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The letters updated
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/Letter'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/letters':
+    get:
+      tags:
+        - Letters
+      summary: Letters by the given student id
+      operationId: getLettersByStudentId
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: All letters by the given student id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PagedLettersResponse'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Letters
+      summary: Create a letter for the given student id
+      operationId: createLetter
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: description
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UploadFile"
+      responses:
+        '200':
+          description: The letter by the given student id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Letter'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/announcements':
     get:
       tags:
@@ -4619,6 +4803,69 @@ components:
           type: integer
         suspended:
           type: integer
+    Letter:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+        approval_datetime:
+          type: string
+          format: date-time
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+        file_path:
+          type: string
+    PagedLettersResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PagedResponse'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Letter'
+    LetterStatus:
+      type: string
+      enum:
+        - PENDING
+        - RECEIVED
+    UpdateLetterStatus:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+    PagedResponse:
+      type: object
+      properties:
+        page_size:
+          type: integer
+        page_number:
+          type: integer
+        has_previous:
+          type: boolean
+        count:
+          type: integer
+    UpdateLettersStatus:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+    UpdateLettersStatusResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Letter'
     Exception:
       type: object
       properties:
