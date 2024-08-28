@@ -1,3 +1,19 @@
+# [1.44.0](https://github.com/hei-school/hei-admin-api/compare/v1.43.0...v1.44.0) (2024-08-28)
+
+
+### Bug Fixes
+
+* compute student repeating year by promotion start datetime first  ([1bf2297](https://github.com/hei-school/hei-admin-api/commit/1bf2297f6cbb5c1ea48b6972ab3bc019a47a5c94))
+
+
+### Features
+
+* awarded courses assigned to teacher   ([03ea738](https://github.com/hei-school/hei-admin-api/commit/03ea7387b92e757a4af38ec882f293934a1d55c5))
+* **not-implemented:** letterbox resources ([ca01759](https://github.com/hei-school/hei-admin-api/commit/ca01759ace1dc423492df616222b34d3736cee59))
+* restrict some resource for suspended student  ([72856f7](https://github.com/hei-school/hei-admin-api/commit/72856f7cb8513ab8dd6695d30056d67e6db2de9d))
+
+
+
 # [1.43.0](https://github.com/hei-school/hei-admin-api/compare/v1.42.0...v1.43.0) (2024-08-21)
 
 
@@ -112,22 +128,6 @@
 * filter students by exclude group id ([d26b542](https://github.com/hei-school/hei-admin-api/commit/d26b5426daeb3c521f29cc2fb6ead6b0b84da161))
 * **temporary:** fetch transaction from 2024-07-12T08:00:00Z from orange  ([74060c6](https://github.com/hei-school/hei-admin-api/commit/74060c676fa5a5a997c82d26fe789ce620cc00b9))
 * **temporary:** fetch transaction from 2024-07-12T08:00:00Z from orange  ([dbc7bd0](https://github.com/hei-school/hei-admin-api/commit/dbc7bd064835dc118f8f467d7a63abb9722eb7e7))
-
-
-
-# [1.34.0](https://github.com/hei-school/hei-admin-api/compare/v1.33.0...v1.34.0) (2024-07-11)
-
-
-### Bug Fixes
-
-* comment and fix the algorithm process to compute mpbs status  ([e2e4e5d](https://github.com/hei-school/hei-admin-api/commit/e2e4e5de486c9eb31106d8e4a58b9ab30f55315e))
-* computing mpbs status fail if the transaction details is null …  ([16497f7](https://github.com/hei-school/hei-admin-api/commit/16497f7ce57041879d7797858d2615d23a820a9a))
-
-
-### Features
-
-* filter group by ref and student ref ([3ff5b82](https://github.com/hei-school/hei-admin-api/commit/3ff5b82cfb13ba14f435412d9ac7b13cbdb90b3d))
-* payment by mobile money  ([09732dc](https://github.com/hei-school/hei-admin-api/commit/09732dc5333665160f3a7b3ea07705541acb65f5))
 
 
 
