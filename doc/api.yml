@@ -3869,6 +3869,11 @@ components:
     CrupdateMonitor:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        students: 
+          type: array
+          items: 
+            $ref: '#/components/schemas/UserIdentifier'
     CrupdateTeacher:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
@@ -3941,6 +3946,10 @@ components:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
       properties:
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
         profile_picture:
           type: string
     Teacher:
