@@ -1,3 +1,12 @@
+# [1.45.0](https://github.com/hei-school/hei-admin-api/compare/v1.44.0...v1.45.0) (2024-08-29)
+
+
+### Features
+
+* add new user role as MONITOR  ([29352cc](https://github.com/hei-school/hei-admin-api/commit/29352ccf101a481abac7877ab59767d2801f0a1f))
+
+
+
 # [1.44.0](https://github.com/hei-school/hei-admin-api/compare/v1.43.0...v1.44.0) (2024-08-28)
 
 
@@ -110,24 +119,6 @@
 ### Features
 
 * add student ref in fee payload and filter group student by firstname  ([47d2819](https://github.com/hei-school/hei-admin-api/commit/47d28192145581596c64067df285225b59488fbd))
-
-
-
-# [1.35.0](https://github.com/hei-school/hei-admin-api/compare/v1.34.0...v1.35.0) (2024-07-19)
-
-
-### Bug Fixes
-
-* amount value when saving payment is given from mobile transaction  ([ca7e5f6](https://github.com/hei-school/hei-admin-api/commit/ca7e5f638223aa4367b0d60f58811a6a767afd0c))
-* date validator when inserting work student file  ([38b918d](https://github.com/hei-school/hei-admin-api/commit/38b918d9a3029fa801ec199217cce4c8fbf6090a))
-* orange transaction is not stored when computing student ref  ([c8ecd0e](https://github.com/hei-school/hei-admin-api/commit/c8ecd0e77385303bbdf261447b4754014b8d7419))
-
-
-### Features
-
-* filter students by exclude group id ([d26b542](https://github.com/hei-school/hei-admin-api/commit/d26b5426daeb3c521f29cc2fb6ead6b0b84da161))
-* **temporary:** fetch transaction from 2024-07-12T08:00:00Z from orange  ([74060c6](https://github.com/hei-school/hei-admin-api/commit/74060c676fa5a5a997c82d26fe789ce620cc00b9))
-* **temporary:** fetch transaction from 2024-07-12T08:00:00Z from orange  ([dbc7bd0](https://github.com/hei-school/hei-admin-api/commit/dbc7bd064835dc118f8f467d7a63abb9722eb7e7))
 
 
 
