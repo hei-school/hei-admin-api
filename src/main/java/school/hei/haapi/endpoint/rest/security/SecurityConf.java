@@ -29,6 +29,7 @@ import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.service.UserService;
 
 @Configuration
 @Slf4j
@@ -38,6 +39,7 @@ public class SecurityConf {
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String STUDENT_COURSE = "/students/*/courses";
   private final AwardedCourseService awardedCourseService;
+  private final UserService userService;
   private final AuthProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
 
@@ -45,10 +47,12 @@ public class SecurityConf {
       AuthProvider authProvider,
       // InternalToExternalErrorHandler behind
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
-      AwardedCourseService awardedCourseService) {
+      AwardedCourseService awardedCourseService,
+      UserService userService) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
     this.awardedCourseService = awardedCourseService;
+    this.userService = userService;
   }
 
   @Bean
@@ -267,6 +271,10 @@ public class SecurityConf {
                     .hasRole(STUDENT.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/files/*", "students"))
                     .hasRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new StudentMonitorMatcher(
+                            GET, "/students/*/files", "students", userService))
+                    .hasRole(MONITOR.getRole())
                     .requestMatchers(GET, "/students/*/files")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     .requestMatchers(GET, "/students/*/files/*")

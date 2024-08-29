@@ -34,7 +34,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.UserValidator;
 import school.hei.haapi.repository.GroupRepository;
-import school.hei.haapi.repository.PromotionRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 import school.hei.haapi.service.aws.FileService;
@@ -50,7 +49,6 @@ public class UserService {
   private final FileService fileService;
   private final MultipartFileConverter fileConverter;
   private final GroupRepository groupRepository;
-  private final PromotionRepository promotionRepository;
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = findById(userId);
@@ -235,5 +233,9 @@ public class UserService {
         students.stream()
             .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
             .count();
+  }
+
+  public List<User> findMonitorsByStudentId(String studentId) {
+    return userRepository.findAllMonitorsByStudentId(studentId);
   }
 }
