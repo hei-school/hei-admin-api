@@ -1,6 +1,5 @@
 package school.hei.haapi.model;
 
-import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -111,14 +110,12 @@ public class User implements Serializable {
 
   // RELATION (MONITOR - STUDENT): Which Monitor follows which students or which student is
   // following by which monitor
-  @ManyToMany(
-      cascade = {MERGE},
-      fetch = LAZY)
+  @ManyToMany(fetch = LAZY)
   @JoinTable(
       name = "\"monitor_following_student\"",
       joinColumns = @JoinColumn(name = "\"monitor_id\""),
       inverseJoinColumns = @JoinColumn(name = "\"student_id\""))
-  private List<User> followingStudents;
+  private List<User> monitors;
 
   private Double longitude;
   private Double latitude;

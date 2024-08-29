@@ -234,4 +234,8 @@ public class UserService {
             .filter(student -> Objects.equals(student.getWorkStudyStatus(), workStudyStatus))
             .count();
   }
+
+  public List<User> findMonitorsByStudentId(String studentId) {
+    return userRepository.findAllMonitorsByStudentId(studentId);
+  }
 }
