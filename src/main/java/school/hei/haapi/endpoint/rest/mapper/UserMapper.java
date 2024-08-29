@@ -2,16 +2,13 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
 
-import java.util.Objects;
 import java.util.Optional;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.service.GroupService;
-import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.WorkDocumentService;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.IsStudentRepeatingYear;
@@ -25,7 +22,6 @@ public class UserMapper {
   private final FileService fileService;
   private final GroupService groupService;
   private final GroupMapper groupMapper;
-  private final UserService userService;
   private final IsStudentRepeatingYear isStudentRepeatingYear;
 
   public UserIdentifier toIdentifier(User user) {
@@ -106,8 +102,6 @@ public class UserMapper {
     monitor.setCoordinates(
         new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
     monitor.setHighSchoolOrigin(user.getHighSchoolOrigin());
-    monitor.setStudents(
-        user.getStudents().stream().map(this::toRestStudent).collect(Collectors.toList()));
     return monitor;
   }
 
@@ -258,10 +252,6 @@ public class UserMapper {
         .longitude(monitor.getCoordinates().getLongitude())
         .latitude(monitor.getCoordinates().getLatitude())
         .highSchoolOrigin(monitor.getHighSchoolOrigin())
-        .students(
-            userService.getAllById(
-                Objects.requireNonNull(
-                    monitor.getStudents().stream().map(UserIdentifier::getId).toList())))
         .build();
   }
 

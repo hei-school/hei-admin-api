@@ -4,7 +4,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import java.util.List;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toUnmodifiableList;
+
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
@@ -38,10 +39,9 @@ public class MonitorController {
   public List<Monitor> createOrUpdateMonitors(@RequestBody List<CrupdateMonitor> toWrite) {
     toWrite.forEach(monitor -> validator.accept(monitor.getCoordinates()));
     return userService
-        .saveAll(
-            toWrite.stream().map(userMapper::toDomain).collect(Collectors.toUnmodifiableList()))
+        .saveAll(toWrite.stream().map(userMapper::toDomain).collect(toUnmodifiableList()))
         .stream()
         .map(userMapper::toRestMonitor)
-        .collect(Collectors.toUnmodifiableList());
+        .collect(toUnmodifiableList());
   }
 }
