@@ -3464,6 +3464,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: filename
+          in: query
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -4869,9 +4874,13 @@ components:
         approval_datetime:
           type: string
           format: date-time
+        ref:
+          type: string
         status:
           $ref: '#/components/schemas/LetterStatus'
         file_path:
+          type: string
+        student_ref:
           type: string
     PagedLettersResponse:
       type: object
@@ -4887,13 +4896,6 @@ components:
       enum:
         - PENDING
         - RECEIVED
-    UpdateLetterStatus:
-      type: object
-      properties:
-        id:
-          type: string
-        status:
-          $ref: '#/components/schemas/LetterStatus'
     PagedResponse:
       type: object
       properties:
