@@ -27,7 +27,7 @@ public class OwnCloudService {
     User currentUser = getPrincipal().getUser();
     Integer permission =
         switch (currentUser.getRole()) {
-          case STUDENT, TEACHER -> 1;
+          case STUDENT, TEACHER, MONITOR -> 1;
           case MANAGER -> 15;
         };
 

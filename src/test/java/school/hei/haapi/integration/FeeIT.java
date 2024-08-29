@@ -207,6 +207,20 @@ class FeeIT extends MockedThirdParties {
   }
 
   @Test
+  void monitor_write_ko() {
+    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
+    PayingApi api = new PayingApi(monitor1Client);
+    Fee feeUpdated =
+        fee1().comment("nex comment").dueDatetime(Instant.parse("2021-11-09T10:10:10.00Z"));
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(feeUpdated)));
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.createStudentFees(STUDENT1_ID, List.of()));
+  }
+
+  @Test
   void student_write_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
