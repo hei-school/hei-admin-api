@@ -122,6 +122,9 @@ public class User implements Serializable {
 
   private String highSchoolOrigin;
 
+  @OneToMany(mappedBy = "student", fetch = LAZY)
+  private List<Letter> letters;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {
