@@ -1,8 +1,6 @@
 package school.hei.haapi.repository;
 
 import java.util.List;
-import java.util.Set;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -14,12 +12,12 @@ import school.hei.haapi.model.User;
 
 @Repository
 public interface UserRepository extends JpaRepository<User, String> {
-	@Query(
-			"SELECT m FROM User m JOIN m.monitors s WHERE s.id = :studentId AND m.role  'MONITOR' AND"
-					+ " s.role = 'STUDENT'")
-	List<User> findAllMonitorsByStudentId(@Param("studentId") String studentId);
+  @Query(
+      "SELECT m FROM User m JOIN m.monitors s WHERE s.id = :studentId AND m.role = 'MONITOR' AND"
+          + " s.role = 'STUDENT'")
+  List<User> findAllMonitorsByStudentId(@Param("studentId") String studentId);
 
-	User getByEmail(String email);
+  User getByEmail(String email);
 
   List<User> findAllByStatus(User.Status status);
 
