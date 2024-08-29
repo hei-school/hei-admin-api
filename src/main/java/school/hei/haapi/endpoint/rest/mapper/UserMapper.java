@@ -2,7 +2,9 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
 
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.*;
@@ -23,7 +25,7 @@ public class UserMapper {
   private final FileService fileService;
   private final GroupService groupService;
   private final GroupMapper groupMapper;
-  private final UserService service;
+  private final UserService userService;
   private final IsStudentRepeatingYear isStudentRepeatingYear;
 
   public UserIdentifier toIdentifier(User user) {
@@ -77,6 +79,36 @@ public class UserMapper {
         workDocumentService.defineStudentCommitmentEnd(studentLastWorkDocument));
     restStudent.setIsRepeatingYear(isStudentRepeatingYear.apply(user));
     return restStudent;
+  }
+
+  public Monitor toRestMonitor(User user) {
+    Monitor monitor = new Monitor();
+    String profilePictureKey = user.getProfilePictureKey();
+    String url =
+        profilePictureKey != null
+            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
+            : null;
+
+    monitor.setId(user.getId());
+    monitor.setFirstName(user.getFirstName());
+    monitor.setLastName(user.getLastName());
+    monitor.setEmail(user.getEmail());
+    monitor.setRef(user.getRef());
+    monitor.setStatus(statusEnumMapper.toRestStatus(user.getStatus()));
+    monitor.setPhone(user.getPhone());
+    monitor.setEntranceDatetime(user.getEntranceDatetime());
+    monitor.setBirthDate(user.getBirthDate());
+    monitor.setSex(sexEnumMapper.toRestSexEnum(user.getSex()));
+    monitor.setAddress(user.getAddress());
+    monitor.setBirthPlace(user.getBirthPlace());
+    monitor.setNic(user.getNic());
+    monitor.setProfilePicture(url);
+    monitor.setCoordinates(
+        new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
+    monitor.setHighSchoolOrigin(user.getHighSchoolOrigin());
+    monitor.setStudents(
+        user.getStudents().stream().map(this::toRestStudent).collect(Collectors.toList()));
+    return monitor;
   }
 
   public Teacher toRestTeacher(User user) {
@@ -204,6 +236,32 @@ public class UserMapper {
         .longitude(teacher.getCoordinates().getLongitude())
         .latitude(teacher.getCoordinates().getLatitude())
         .highSchoolOrigin(teacher.getHighSchoolOrigin())
+        .build();
+  }
+
+  public User toDomain(CrupdateMonitor monitor) {
+    return User.builder()
+        .role(User.Role.MONITOR)
+        .id(monitor.getId())
+        .firstName(monitor.getFirstName())
+        .lastName(monitor.getLastName())
+        .email(monitor.getEmail())
+        .ref(monitor.getRef())
+        .status(statusEnumMapper.toDomainStatus(monitor.getStatus()))
+        .phone(monitor.getPhone())
+        .entranceDatetime(monitor.getEntranceDatetime())
+        .birthDate(monitor.getBirthDate())
+        .sex(sexEnumMapper.toDomainSexEnum(monitor.getSex()))
+        .address(monitor.getAddress())
+        .nic(monitor.getNic())
+        .birthPlace(monitor.getBirthPlace())
+        .longitude(monitor.getCoordinates().getLongitude())
+        .latitude(monitor.getCoordinates().getLatitude())
+        .highSchoolOrigin(monitor.getHighSchoolOrigin())
+        .students(
+            userService.getAllById(
+                Objects.requireNonNull(
+                    monitor.getStudents().stream().map(UserIdentifier::getId).toList())))
         .build();
   }
 
