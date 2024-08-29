@@ -51,7 +51,7 @@ class UserServiceTest extends MockedThirdParties {
   }
 
   private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, PaymentServiceTest.ContextInitializer.SERVER_PORT);
+    return TestUtils.anApiClient(token, UserServiceTest.ContextInitializer.SERVER_PORT);
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

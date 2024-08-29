@@ -272,7 +272,7 @@ public class SecurityConf {
                     .requestMatchers(new SelfMatcher(GET, "/students/*/files/*", "students"))
                     .hasRole(STUDENT.getRole())
                     .requestMatchers(
-                        new FollowedByMonitorMatcher(
+                        new StudentMonitorMatcher(
                             GET, "/students/*/files", "students", userService))
                     .hasRole(MONITOR.getRole())
                     .requestMatchers(GET, "/students/*/files")

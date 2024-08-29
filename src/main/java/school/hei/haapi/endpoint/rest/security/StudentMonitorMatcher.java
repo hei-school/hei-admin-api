@@ -17,7 +17,7 @@ import school.hei.haapi.service.UserService;
 
 @Slf4j
 @AllArgsConstructor
-public class FollowedByMonitorMatcher implements RequestMatcher {
+public class StudentMonitorMatcher implements RequestMatcher {
   private final HttpMethod method;
   private final String antPattern;
   private final String stringBeforeId;
