@@ -1,3 +1,12 @@
+# [1.46.0](https://github.com/hei-school/hei-admin-api/compare/v1.45.0...v1.46.0) (2024-08-29)
+
+
+### Features
+
+* **not-implemented:** update letterbox resources model ([56b98da](https://github.com/hei-school/hei-admin-api/commit/56b98da43c589fe17987207315217a962a6a13ef))
+
+
+
 # [1.45.0](https://github.com/hei-school/hei-admin-api/compare/v1.44.0...v1.45.0) (2024-08-29)
 
 
@@ -110,15 +119,6 @@
 ### Features
 
 * filter fees by student ref ([c01cf7c](https://github.com/hei-school/hei-admin-api/commit/c01cf7c42bef5580408765dcc6cbeba55b3380de))
-
-
-
-# [1.36.0](https://github.com/hei-school/hei-admin-api/compare/v1.35.0...v1.36.0) (2024-07-19)
-
-
-### Features
-
-* add student ref in fee payload and filter group student by firstname  ([47d2819](https://github.com/hei-school/hei-admin-api/commit/47d28192145581596c64067df285225b59488fbd))
 
 
 
