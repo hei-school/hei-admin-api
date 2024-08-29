@@ -50,7 +50,6 @@ public class UserService {
   private final FileService fileService;
   private final MultipartFileConverter fileConverter;
   private final GroupRepository groupRepository;
-  private final PromotionRepository promotionRepository;
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = findById(userId);
