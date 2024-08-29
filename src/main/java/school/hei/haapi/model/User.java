@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.CascadeType.MERGE;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
@@ -11,6 +12,9 @@ import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import jakarta.validation.constraints.Email;
@@ -37,6 +41,7 @@ import school.hei.haapi.endpoint.rest.model.SpecializationField;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+// TODO: separate to a child table as MANAGER, TEACHER, STUDENT, MONITOR
 public class User implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -85,20 +90,35 @@ public class User implements Serializable {
 
   private String profilePictureKey;
 
+  // RELATION (TEACHER): Awarded Courses
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
   @ToString.Exclude
   private List<AwardedCourse> awardedCourses;
 
+  // RELATION (STUDENT): Group Flows
   @OneToMany(mappedBy = "student", fetch = LAZY)
   @ToString.Exclude
   private List<GroupFlow> groupFlows;
 
+  // RELATION (STUDENT): Grades
   @OneToMany(mappedBy = "student", fetch = LAZY)
   @ToString.Exclude
   private List<Grade> grades;
 
+  // RELATION (STUDENT): Work Documents
   @OneToMany(mappedBy = "student", fetch = LAZY)
   private List<WorkDocument> workDocuments;
+
+  // RELATION (MONITOR - STUDENT): Which Monitor follows which students or which student is
+  // following by which monitor
+  @ManyToMany(
+      cascade = {MERGE},
+      fetch = LAZY)
+  @JoinTable(
+      name = "\"monitor_following_student\"",
+      joinColumns = @JoinColumn(name = "\"monitor_id\""),
+      inverseJoinColumns = @JoinColumn(name = "\"student_id\""))
+  private List<User> followingStudents;
 
   private Double longitude;
   private Double latitude;
