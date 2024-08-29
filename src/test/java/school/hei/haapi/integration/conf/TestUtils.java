@@ -37,6 +37,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.Exception;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -978,8 +979,8 @@ public class TestUtils {
   }
 
   public static HttpResponse<InputStream> uploadLetter(
-      Integer serverPort, String token, String subjectId, String description, String filename)
-      throws IOException, InterruptedException {
+          Integer serverPort, String token, String subjectId, String description, String filename)
+          throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
     String basePath = "http://localhost:" + serverPort;
@@ -990,36 +991,32 @@ public class TestUtils {
     File file = getMockedFile("img", ".png");
 
     String requestBodyPrefix =
-        "--"
-            + boundary
-            + CRLF
-            + "Content-Disposition: form-data; name=\"file_to_upload\"; filename=\""
-            + file.getName()
-            + "\""
-            + CRLF
-            + "Content-Type: image/png"
-            + CRLF
-            + CRLF;
+            "--"
+                    + boundary
+                    + CRLF
+                    + "Content-Disposition: form-data; name=\"file_to_upload\"; filename=\""
+                    + file.getName()
+                    + "\""
+                    + CRLF
+                    + "Content-Type: image/png"
+                    + CRLF
+                    + CRLF;
     byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
     String requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
 
     byte[] requestBody =
-        Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
+            Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
     UriComponentsBuilder uriComponentsBuilder =
-        UriComponentsBuilder.fromUri(
-            URI.create(
-                basePath
-                    + String.format(
-                        "/students/%s/letters?description=%s&filename=%s",
-                        subjectId, description, filename)));
+            UriComponentsBuilder.fromUri(
+                    URI.create(basePath + String.format("/students/%s/letters?description=%s&filename=%s", subjectId, description, filename)));
     InputStream requestBodyStream = new ByteArrayInputStream(requestBody);
     HttpRequest request =
-        HttpRequest.newBuilder()
-            .uri(uriComponentsBuilder.build().toUri())
-            .header("Content-Type", contentTypeHeader)
-            .header("Authorization", "Bearer " + token)
-            .POST(HttpRequest.BodyPublishers.ofInputStream(() -> requestBodyStream))
-            .build();
+            HttpRequest.newBuilder()
+                    .uri(uriComponentsBuilder.build().toUri())
+                    .header("Content-Type", contentTypeHeader)
+                    .header("Authorization", "Bearer " + token)
+                    .POST(HttpRequest.BodyPublishers.ofInputStream(() -> requestBodyStream))
+                    .build();
 
     return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
   }
@@ -1362,40 +1359,40 @@ public class TestUtils {
         .groups(List.of());
   }
 
-  public static Letter letter1() {
+  public static Letter letter1(){
     return new Letter()
-        .id(LETTER1_ID)
-        .ref(LETTER1_REF)
-        .studentRef("STD21001")
-        .status(RECEIVED)
-        .approvalDatetime(Instant.parse("2021-12-08T08:25:24.00Z"))
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .filePath("/LETTERBOX/STD21001/file1.pdf")
-        .description("Certificat de residence");
+            .id(LETTER1_ID)
+            .ref(LETTER1_REF)
+            .studentRef("STD21001")
+            .status(RECEIVED)
+            .approvalDatetime(Instant.parse("2021-12-08T08:25:24.00Z"))
+            .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+            .filePath("/LETTERBOX/STD21001/file1.pdf")
+            .description("Certificat de residence");
   }
 
-  public static Letter letter2() {
+  public static Letter letter2(){
     return new Letter()
-        .id(LETTER2_ID)
-        .ref(LETTER2_REF)
-        .studentRef("STD21001")
-        .status(PENDING)
-        .approvalDatetime(null)
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .filePath("/LETTERBOX/STD21001/file2.pdf")
-        .description("Bordereau de versement");
+            .id(LETTER2_ID)
+            .ref(LETTER2_REF)
+            .studentRef("STD21001")
+            .status(PENDING)
+            .approvalDatetime(null)
+            .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+            .filePath("/LETTERBOX/STD21001/file2.pdf")
+            .description("Bordereau de versement");
   }
 
-  public static Letter letter3() {
+  public static Letter letter3(){
     return new Letter()
-        .id(LETTER3_ID)
-        .ref(LETTER3_REF)
-        .studentRef("STD21002")
-        .status(PENDING)
-        .approvalDatetime(null)
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .filePath("/LETTERBOX/STD21002/file3.pdf")
-        .description("CV");
+            .id(LETTER3_ID)
+            .ref(LETTER3_REF)
+            .studentRef("STD21002")
+            .status(PENDING)
+            .approvalDatetime(null)
+            .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+            .filePath("/LETTERBOX/STD21002/file3.pdf")
+            .description("CV");
   }
 
   public static UpdatePromotionSGroup addGroupToPromotion3() {
