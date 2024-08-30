@@ -83,6 +83,7 @@ import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
 import school.hei.haapi.endpoint.rest.model.Manager;
+import school.hei.haapi.endpoint.rest.model.Monitor;
 import school.hei.haapi.endpoint.rest.model.Observer;
 import school.hei.haapi.endpoint.rest.model.Promotion;
 import school.hei.haapi.endpoint.rest.model.Scope;
@@ -110,6 +111,7 @@ public class TestUtils {
   public static final String TEACHER2_ID = "teacher2_id";
   public static final String TEACHER3_ID = "teacher3_id";
   public static final String TEACHER4_ID = "teacher4_id";
+  public static final String MONITOR1_ID = "monitor1_id";
   public static final String MANAGER_ID = "manager1_id";
   public static final String GROUP1_ID = "group1_id";
   public static final String GROUP2_ID = "group2_id";
@@ -501,6 +503,25 @@ public class TestUtils {
         .birthPlace("")
         .address("Adr 5")
         .coordinates(coordinatesWithNullValues());
+  }
+
+  public static Monitor monitor1() {
+    return new Monitor()
+        .id(MONITOR1_ID)
+        .firstName("Monitor")
+        .lastName("One")
+        .email("test+monitor@hei.school")
+        .ref("MTR21001")
+        .phone("0322411123")
+        .status(EnableStatus.ENABLED)
+        .sex(Sex.M)
+        .birthDate(LocalDate.parse("2000-01-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .nic("")
+        .birthPlace("")
+        .address("Adr 1")
+        .coordinates(new Coordinates().longitude(-123.123).latitude(123.0))
+        .highSchoolOrigin("Lycée Andohalo");
   }
 
   public static Fee fee1() {
