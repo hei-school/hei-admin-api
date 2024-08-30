@@ -230,7 +230,7 @@ public class SecurityConf {
                     .requestMatchers(GET, "/teachers/announcements/*")
                     .hasRole(TEACHER.getRole())
                     .requestMatchers(GET, "/students/announcements")
-                    .hasRole(STUDENT.getRole())
+                    .hasAnyRole(STUDENT.getRole(), MONITOR.getRole())
                     .requestMatchers(GET, "/students/announcements/*")
                     .hasAnyRole(STUDENT.getRole(), MONITOR.getRole())
                     .requestMatchers(GET, "/announcements")
@@ -275,6 +275,10 @@ public class SecurityConf {
                         new StudentMonitorMatcher(
                             GET, "/students/*/files", "students", userService))
                     .hasRole(MONITOR.getRole())
+                    .requestMatchers(
+                        new StudentMonitorMatcher(
+                            GET, "/students/*/files/*", "students", userService))
+                    .hasRole(MONITOR.getRole())
                     .requestMatchers(GET, "/students/*/files")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     .requestMatchers(GET, "/students/*/files/*")
@@ -300,6 +304,10 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/mpbs", "students"))
                     .hasRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new StudentMonitorMatcher(
+                            GET, "/students/*/fees/*/mpbs", "students", userService))
+                    .hasRole(MONITOR.getRole())
                     .requestMatchers(new SelfMatcher(PUT, "/students/*/fees/*/mpbs", "students"))
                     .hasRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*/fees/*/mpbs")
@@ -313,6 +321,10 @@ public class SecurityConf {
                     .hasRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*", "students"))
                     .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new StudentMonitorMatcher(
+                            GET, "/students/*/fees/*", "students", userService))
+                    .hasRole(MONITOR.getRole())
                     .requestMatchers(DELETE, "/students/*/fees/*")
                     .hasRole(MANAGER.getRole())
                     .requestMatchers(GET, "/students/*/fees/*")
@@ -320,8 +332,15 @@ public class SecurityConf {
                     .requestMatchers(new SelfMatcher(GET, "/students/*/fees", "students"))
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(
+                        new StudentMonitorMatcher(GET, "/students/*/fees", "students", userService))
+                    .hasRole(MONITOR.getRole())
+                    .requestMatchers(
                         new SelfMatcher(GET, "/students/*/fees/*/payments", "students"))
                     .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new StudentMonitorMatcher(
+                            GET, "/students/*/fees/*/payments", "students", userService))
+                    .hasRole(MONITOR.getRole())
                     .requestMatchers(DELETE, "/students/*/fees/*/payments/*")
                     .hasRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*", "students"))

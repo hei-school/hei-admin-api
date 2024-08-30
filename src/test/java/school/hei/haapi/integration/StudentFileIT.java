@@ -107,9 +107,11 @@ public class StudentFileIT extends MockedThirdParties {
     FilesApi api = new FilesApi(monitor1Client);
 
     List<FileInfo> documents = api.getStudentFiles(STUDENT1_ID, 1, 15, null);
+    FileInfo document = api.getStudentFilesById(STUDENT1_ID, "file1_id");
 
     assertEquals(2, documents.size());
     assertTrue(documents.contains(file1()));
+    assertNotNull(document);
   }
 
   @Test
@@ -118,6 +120,7 @@ public class StudentFileIT extends MockedThirdParties {
     FilesApi api = new FilesApi(monitor1Client);
 
     assertThrowsForbiddenException(() -> api.getStudentFiles(STUDENT2_ID, 1, 15, null));
+    assertThrowsForbiddenException(() -> api.getStudentFilesById(STUDENT2_ID, "file_id"));
   }
 
   @Test

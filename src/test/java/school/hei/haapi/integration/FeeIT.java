@@ -120,6 +120,20 @@ class FeeIT extends MockedThirdParties {
   }
 
   @Test
+  void monitor_read_own_followed_student_ok() throws ApiException {
+    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
+    PayingApi api = new PayingApi(monitor1Client);
+
+    Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
+    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+
+    assertEquals(fee1(), actualFee);
+    assertTrue(actual.contains(fee1()));
+    assertTrue(actual.contains(fee2()));
+    assertTrue(actual.contains(fee3()));
+  }
+
+  @Test
   void manager_read_fee_paid_by_mpbs() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
@@ -167,6 +181,16 @@ class FeeIT extends MockedThirdParties {
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getFees(null, null, null, false, null));
+  }
+
+  @Test
+  void monitor_read_other_student_ko() {
+    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
+    PayingApi api = new PayingApi(monitor1Client);
+
+    assertThrowsForbiddenException(() -> api.getStudentFeeById(STUDENT2_ID, FEE2_ID));
+    assertThrowsForbiddenException(() -> api.getStudentFees(STUDENT2_ID, null, null, null));
+    assertThrowsForbiddenException(() -> api.getFees(null, null, null, false, null));
   }
 
   @Test
