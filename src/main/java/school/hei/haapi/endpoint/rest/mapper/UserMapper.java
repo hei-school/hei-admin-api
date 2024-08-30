@@ -77,34 +77,6 @@ public class UserMapper {
     return restStudent;
   }
 
-  public Monitor toRestMonitor(User user) {
-    Monitor monitor = new Monitor();
-    String profilePictureKey = user.getProfilePictureKey();
-    String url =
-        profilePictureKey != null
-            ? fileService.getPresignedUrl(profilePictureKey, ONE_DAY_DURATION_AS_LONG)
-            : null;
-
-    monitor.setId(user.getId());
-    monitor.setFirstName(user.getFirstName());
-    monitor.setLastName(user.getLastName());
-    monitor.setEmail(user.getEmail());
-    monitor.setRef(user.getRef());
-    monitor.setStatus(statusEnumMapper.toRestStatus(user.getStatus()));
-    monitor.setPhone(user.getPhone());
-    monitor.setEntranceDatetime(user.getEntranceDatetime());
-    monitor.setBirthDate(user.getBirthDate());
-    monitor.setSex(sexEnumMapper.toRestSexEnum(user.getSex()));
-    monitor.setAddress(user.getAddress());
-    monitor.setBirthPlace(user.getBirthPlace());
-    monitor.setNic(user.getNic());
-    monitor.setProfilePicture(url);
-    monitor.setCoordinates(
-        new Coordinates().longitude(user.getLongitude()).latitude(user.getLatitude()));
-    monitor.setHighSchoolOrigin(user.getHighSchoolOrigin());
-    return monitor;
-  }
-
   public Teacher toRestTeacher(User user) {
     Teacher teacher = new Teacher();
     String profilePictureKey = user.getProfilePictureKey();
@@ -230,28 +202,6 @@ public class UserMapper {
         .longitude(teacher.getCoordinates().getLongitude())
         .latitude(teacher.getCoordinates().getLatitude())
         .highSchoolOrigin(teacher.getHighSchoolOrigin())
-        .build();
-  }
-
-  public User toDomain(CrupdateMonitor monitor) {
-    return User.builder()
-        .role(User.Role.MONITOR)
-        .id(monitor.getId())
-        .firstName(monitor.getFirstName())
-        .lastName(monitor.getLastName())
-        .email(monitor.getEmail())
-        .ref(monitor.getRef())
-        .status(statusEnumMapper.toDomainStatus(monitor.getStatus()))
-        .phone(monitor.getPhone())
-        .entranceDatetime(monitor.getEntranceDatetime())
-        .birthDate(monitor.getBirthDate())
-        .sex(sexEnumMapper.toDomainSexEnum(monitor.getSex()))
-        .address(monitor.getAddress())
-        .nic(monitor.getNic())
-        .birthPlace(monitor.getBirthPlace())
-        .longitude(monitor.getCoordinates().getLongitude())
-        .latitude(monitor.getCoordinates().getLatitude())
-        .highSchoolOrigin(monitor.getHighSchoolOrigin())
         .build();
   }
 
