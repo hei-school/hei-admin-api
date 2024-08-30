@@ -3072,6 +3072,7 @@ paths:
         - Monitoring
       summary: Get all students linked to a monitor
       description: All students linked to a monitor order by Ref DESC
+      operationId: getLinkedStudentsByMonitorId
       parameters:
         - name: id
           in: path
@@ -3102,6 +3103,7 @@ paths:
         - Monitoring
       summary: Link students to monitor
       description: Link given students to a monitor
+      operationId: linkStudentsByMonitorId
       parameters:
         - name: id
           in: path
