@@ -1,3 +1,12 @@
+# [1.49.0](https://github.com/hei-school/hei-admin-api/compare/v1.48.0...v1.49.0) (2024-08-30)
+
+
+### Features
+
+* **not-implemented:** document monitoring of student  ([9cfda84](https://github.com/hei-school/hei-admin-api/commit/9cfda8423a8ce6f94442915c613133ab746475f3))
+
+
+
 # [1.48.0](https://github.com/hei-school/hei-admin-api/compare/v1.47.0...v1.48.0) (2024-08-30)
 
 
@@ -96,20 +105,6 @@
 ### Features
 
 * new type for professional experience and add new field on student information  ([66c383e](https://github.com/hei-school/hei-admin-api/commit/66c383e5f5b7d8b39adefe0d5347d4b6231f574b))
-
-
-
-# [1.39.0](https://github.com/hei-school/hei-admin-api/compare/v1.38.0...v1.39.0) (2024-07-25)
-
-
-### Bug Fixes
-
-* students alternating stats are now exact ([b21671f](https://github.com/hei-school/hei-admin-api/commit/b21671f900402c23e84578c179a4e62e087ae0c3))
-
-
-### Features
-
-* **not-implemented:** student professional experience status documentation  ([d05a6b9](https://github.com/hei-school/hei-admin-api/commit/d05a6b97ed7f4e2a1a78ac70bdc5e395d0bd0b95))
 
 
 
