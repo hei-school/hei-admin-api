@@ -142,6 +142,19 @@ public class UserService {
       String lastName,
       String ref,
       PageFromOne page,
+      BoundedPageSize pageSize) {
+    Pageable pageable =
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
+    return userManagerDao.findByCriteria(
+        role, ref, firstName, lastName, pageable, null, null, null, null, null, null, null);
+  }
+
+  public List<User> getByCriteria(
+      User.Role role,
+      String firstName,
+      String lastName,
+      String ref,
+      PageFromOne page,
       BoundedPageSize pageSize,
       User.Status status,
       User.Sex sex) {
