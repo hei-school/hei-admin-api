@@ -3328,6 +3328,12 @@ paths:
           schema:
             type: string
           required: false
+        - name: ref
+          in: query
+          description: Filter by letter ref
+          schema:
+            type: string
+          required: false
       responses:
         '200':
           description: Letters
@@ -3336,7 +3342,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/PagedLettersResponse'
+                  $ref: '#/components/schemas/Letter'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3368,7 +3374,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/UpdateLettersStatusResponse'
+                  $ref: '#/components/schemas/Letter'
         '400':
           $ref: '#/components/responses/400'
         '403':
