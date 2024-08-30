@@ -12,6 +12,7 @@ import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -126,6 +127,15 @@ public class AnnouncementIT extends MockedThirdParties {
   }
 
   @Test
+  void monitor_read_by_id_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(MONITOR1_TOKEN);
+    AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+    Announcement actual = api.getStudentsAnnouncementById(ANNOUNCEMENT3_ID);
+    assertEquals(announcementEspeciallyForG1(), actual);
+  }
+
+  @Test
   void read_by_id_ko() {
     ApiClient studentApiClient = anApiClient(STUDENT1_TOKEN);
     AnnouncementsApi apiStudent = new AnnouncementsApi(studentApiClient);
@@ -133,8 +143,12 @@ public class AnnouncementIT extends MockedThirdParties {
     ApiClient teacherApiClient = anApiClient(TEACHER1_TOKEN);
     AnnouncementsApi apiTeacher = new AnnouncementsApi(teacherApiClient);
 
+    ApiClient monitorApiClient = anApiClient(MONITOR1_TOKEN);
+    AnnouncementsApi apiMonitor = new AnnouncementsApi(monitorApiClient);
+
     assertThrowsForbiddenException(() -> apiStudent.getTeacherAnnouncementById(ANNOUNCEMENT2_ID));
     assertThrowsForbiddenException(() -> apiTeacher.getAnnouncementById(ANNOUNCEMENT4_ID));
+    assertThrowsForbiddenException(() -> apiMonitor.getTeacherAnnouncementById(ANNOUNCEMENT2_ID));
   }
 
   @Test
@@ -164,8 +178,28 @@ public class AnnouncementIT extends MockedThirdParties {
   }
 
   @Test
+  void monitor_read_only_announcement_for_student_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(MONITOR1_TOKEN);
+    AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+    List<Announcement> actual = api.getStudentsAnnouncements(1, 15, null, null, null, null);
+    assertTrue(actual.contains(announcementForAll()));
+    assertTrue(actual.contains(announcementEspeciallyForG1()));
+    assertFalse(actual.contains(announcementForTeacher()));
+  }
+
+  @Test
   void student_read_all_announcement_or_for_teacher_ko() throws ApiException {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
+    AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+    assertThrowsForbiddenException(() -> api.getAnnouncements(1, 15, null, null, null, null));
+    assertThrowsForbiddenException(() -> api.getTeachersAnnouncements(1, 15, null, null, null));
+  }
+
+  @Test
+  void monitor_read_all_announcement_or_for_teacher_ko() throws ApiException {
+    ApiClient apiClient = anApiClient(MONITOR1_TOKEN);
     AnnouncementsApi api = new AnnouncementsApi(apiClient);
 
     assertThrowsForbiddenException(() -> api.getAnnouncements(1, 15, null, null, null, null));
