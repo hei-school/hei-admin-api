@@ -1,3 +1,12 @@
+# [1.48.0](https://github.com/hei-school/hei-admin-api/compare/v1.47.0...v1.48.0) (2024-08-30)
+
+
+### Features
+
+* **not-implemented:** monitor resources  ([cb8ca97](https://github.com/hei-school/hei-admin-api/commit/cb8ca97d07e3ef126f3f7f9b3f691e18b21bd01a))
+
+
+
 # [1.47.0](https://github.com/hei-school/hei-admin-api/compare/v1.46.0...v1.47.0) (2024-08-30)
 
 
@@ -101,20 +110,6 @@
 ### Features
 
 * **not-implemented:** student professional experience status documentation  ([d05a6b9](https://github.com/hei-school/hei-admin-api/commit/d05a6b97ed7f4e2a1a78ac70bdc5e395d0bd0b95))
-
-
-
-# [1.38.0](https://github.com/hei-school/hei-admin-api/compare/v1.37.0...v1.38.0) (2024-07-25)
-
-
-### Bug Fixes
-
-* change basic auth encoding ([175a7cb](https://github.com/hei-school/hei-admin-api/commit/175a7cba50063a53b2a95051cf279edce9120783))
-
-
-### Features
-
-* **not-implemented:** upload new student work document file type  ([178a241](https://github.com/hei-school/hei-admin-api/commit/178a241590ce7941286d32bd8009ea445fb450ba))
 
 
 
