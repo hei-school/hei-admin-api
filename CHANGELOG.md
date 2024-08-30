@@ -1,3 +1,13 @@
+# [1.47.0](https://github.com/hei-school/hei-admin-api/compare/v1.46.0...v1.47.0) (2024-08-30)
+
+
+### Features
+
+* link a student to a monitor and then monitor follows many students  ([1f87bc3](https://github.com/hei-school/hei-admin-api/commit/1f87bc35b393ff818567f98f8631385461782924))
+* **not-implemented:** letterbox resources return list ([117d3e1](https://github.com/hei-school/hei-admin-api/commit/117d3e17935213f0657e06e257e10e3928604cae))
+
+
+
 # [1.46.0](https://github.com/hei-school/hei-admin-api/compare/v1.45.0...v1.46.0) (2024-08-29)
 
 
@@ -105,20 +115,6 @@
 ### Features
 
 * **not-implemented:** upload new student work document file type  ([178a241](https://github.com/hei-school/hei-admin-api/commit/178a241590ce7941286d32bd8009ea445fb450ba))
-
-
-
-# [1.37.0](https://github.com/hei-school/hei-admin-api/compare/v1.36.0...v1.37.0) (2024-07-24)
-
-
-### Bug Fixes
-
-* set up security conf properly for share link endpoint ([51cfeec](https://github.com/hei-school/hei-admin-api/commit/51cfeec48e98137baf4ffda1a817638440452148))
-
-
-### Features
-
-* filter fees by student ref ([c01cf7c](https://github.com/hei-school/hei-admin-api/commit/c01cf7c42bef5580408765dcc6cbeba55b3380de))
 
 
 
