@@ -11,18 +11,18 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
-import school.hei.haapi.service.UserService;
+import school.hei.haapi.service.MonitoringService;
 
 @RestController
 @AllArgsConstructor
 public class MonitoringController {
-  private final UserService userService;
+  private final MonitoringService monitoringService;
   private final UserMapper userMapper;
 
   @PutMapping(value = "/monitors/{id}/students")
   public List<Student> linkStudentsByMonitorId(
       @PathVariable String id, @RequestBody List<UserIdentifier> studentsIdentifier) {
-    return userService
+    return monitoringService
         .linkMonitorFollowingStudents(
             id,
             studentsIdentifier.stream()
