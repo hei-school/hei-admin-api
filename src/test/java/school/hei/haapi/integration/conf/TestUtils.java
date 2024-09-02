@@ -14,6 +14,8 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
+import static school.hei.haapi.endpoint.rest.model.LetterStatus.RECEIVED;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.AIRTEL_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
@@ -82,6 +84,7 @@ import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
+import school.hei.haapi.endpoint.rest.model.Letter;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Monitor;
 import school.hei.haapi.endpoint.rest.model.Observer;
@@ -173,6 +176,14 @@ public class TestUtils {
   public static final String STUDENT8_ID = "student8_id";
 
   public static final String NOT_EXISTING_ID = "not_existing_id";
+
+  public static final String LETTER1_ID = "letter1_id";
+  public static final String LETTER2_ID = "letter2_id";
+  public static final String LETTER3_ID = "letter3_id";
+
+  public static final String LETTER1_REF = "letter1_ref";
+  public static final String LETTER2_REF = "letter2_ref";
+  public static final String LETTER3_REF = "letter3_ref";
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -966,6 +977,53 @@ public class TestUtils {
     return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
   }
 
+  public static HttpResponse<InputStream> uploadLetter(
+      Integer serverPort, String token, String subjectId, String description, String filename)
+      throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+
+    String basePath = "http://localhost:" + serverPort;
+
+    String boundary = "---------------------------" + System.currentTimeMillis();
+    String contentTypeHeader = "multipart/form-data; boundary=" + boundary;
+
+    File file = getMockedFile("img", ".png");
+
+    String requestBodyPrefix =
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"file_to_upload\"; filename=\""
+            + file.getName()
+            + "\""
+            + CRLF
+            + "Content-Type: image/png"
+            + CRLF
+            + CRLF;
+    byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
+    String requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
+
+    byte[] requestBody =
+        Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
+    UriComponentsBuilder uriComponentsBuilder =
+        UriComponentsBuilder.fromUri(
+            URI.create(
+                basePath
+                    + String.format(
+                        "/students/%s/letters?description=%s&filename=%s",
+                        subjectId, description, filename)));
+    InputStream requestBodyStream = new ByteArrayInputStream(requestBody);
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(uriComponentsBuilder.build().toUri())
+            .header("Content-Type", contentTypeHeader)
+            .header("Authorization", "Bearer " + token)
+            .POST(HttpRequest.BodyPublishers.ofInputStream(() -> requestBodyStream))
+            .build();
+
+    return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+  }
+
   public static Coordinates coordinatesWithNullValues() {
     return new Coordinates().latitude(null).longitude(null);
   }
@@ -1302,6 +1360,42 @@ public class TestUtils {
         .name("Promotion 23-24")
         .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
         .groups(List.of());
+  }
+
+  public static Letter letter1() {
+    return new Letter()
+        .id(LETTER1_ID)
+        .ref(LETTER1_REF)
+        .studentRef("STD21001")
+        .status(RECEIVED)
+        .approvalDatetime(Instant.parse("2021-12-08T08:25:24.00Z"))
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .filePath("/LETTERBOX/STD21001/file1.pdf")
+        .description("Certificat de residence");
+  }
+
+  public static Letter letter2() {
+    return new Letter()
+        .id(LETTER2_ID)
+        .ref(LETTER2_REF)
+        .studentRef("STD21001")
+        .status(PENDING)
+        .approvalDatetime(null)
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .filePath("/LETTERBOX/STD21001/file2.pdf")
+        .description("Bordereau de versement");
+  }
+
+  public static Letter letter3() {
+    return new Letter()
+        .id(LETTER3_ID)
+        .ref(LETTER3_REF)
+        .studentRef("STD21002")
+        .status(PENDING)
+        .approvalDatetime(null)
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .filePath("/LETTERBOX/STD21002/file3.pdf")
+        .description("CV");
   }
 
   public static UpdatePromotionSGroup addGroupToPromotion3() {

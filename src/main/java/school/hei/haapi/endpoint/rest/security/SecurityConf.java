@@ -187,6 +187,11 @@ public class SecurityConf {
                     antMatcher(PUT, "/promotions/*/groups"),
                     antMatcher(GET, "/attendance"),
                     antMatcher(POST, "/attendance/movement"),
+                    antMatcher(GET, "/letters"),
+                    antMatcher(PUT, "/letters"),
+                    antMatcher(GET, "/letters/*"),
+                    antMatcher(GET, "/students/*/letters"),
+                    antMatcher(POST, "/students/*/letters"),
                     antMatcher(PUT, STUDENT_COURSE),
                     nonAccessibleBySuspendedUserPath)),
             AnonymousAuthenticationFilter.class)
@@ -550,11 +555,26 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     .requestMatchers(POST, "/students/*/comments")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
-
+                    //
+                    // Letter resources
+                    //
+                    .requestMatchers(GET, "/letters")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+                    .requestMatchers(PUT, "/letters")
+                    .hasAnyRole(MANAGER.getRole())
+                    .requestMatchers(GET, "/letters/*")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+                    .requestMatchers(new SelfMatcher(POST, "/students/*/letters", "students"))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(new SelfMatcher(GET, "/students/*/letters", "students"))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(GET, "/students/*/letters")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
+                    .requestMatchers(POST, "/students/*/letters")
+                    .hasAnyRole(MANAGER.getRole())
                     //
                     // Event resources
                     //
-
                     .requestMatchers(GET, "/events")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
                     .requestMatchers(PUT, "/events")
