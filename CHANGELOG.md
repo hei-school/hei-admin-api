@@ -1,3 +1,14 @@
+# [1.50.0](https://github.com/hei-school/hei-admin-api/compare/v1.49.0...v1.50.0) (2024-09-02)
+
+
+### Features
+
+* crupdate user monitor endpoint  ([8ca3508](https://github.com/hei-school/hei-admin-api/commit/8ca3508b5e86ad9701c2bbb7c6dbc0f10b2b4cb0))
+* letterbox resources implemented ([4bc6c5a](https://github.com/hei-school/hei-admin-api/commit/4bc6c5a8d103c15e1cd0208b7745975f7c6273d5))
+* monitor by id and update monitor endpoint  ([933af6b](https://github.com/hei-school/hei-admin-api/commit/933af6bee2fabb423a21a1b9b211c07ba7b3cf6b))
+
+
+
 # [1.49.0](https://github.com/hei-school/hei-admin-api/compare/v1.48.0...v1.49.0) (2024-08-30)
 
 
@@ -96,15 +107,6 @@
 * compute user status by mpbs ([3afce0b](https://github.com/hei-school/hei-admin-api/commit/3afce0b3a8846bed2d09232a50247d77e15e69ac))
 * **not-implemented:** add field for mpbs payload and add last verification  ([95c5193](https://github.com/hei-school/hei-admin-api/commit/95c51937e37d0cf52023478da7bdcdd3f5cdd1fe))
 * sort group and promotion by ref and creation datetime DESC  ([04e688a](https://github.com/hei-school/hei-admin-api/commit/04e688af52ba9053e3cc5634ca5d2b6c0c5baeea))
-
-
-
-# [1.40.0](https://github.com/hei-school/hei-admin-api/compare/v1.39.0...v1.40.0) (2024-07-25)
-
-
-### Features
-
-* new type for professional experience and add new field on student information  ([66c383e](https://github.com/hei-school/hei-admin-api/commit/66c383e5f5b7d8b39adefe0d5347d4b6231f574b))
 
 
 
