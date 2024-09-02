@@ -13,6 +13,7 @@ import java.io.File;
 import java.time.Instant;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -250,5 +251,15 @@ public class UserService {
 
   public List<User> findMonitorsByStudentId(String studentId) {
     return userRepository.findAllMonitorsByStudentId(studentId);
+  }
+
+  @Transactional
+  public List<User> linkMonitorFollowingStudents(String monitorId, List<User> studentsToFollow) {
+    List<String> studentIds =
+        studentsToFollow.stream().map(User::getId).collect(Collectors.toList());
+    for (String studentId : studentIds) {
+      userRepository.saveMonitorFollowingStudents(monitorId, studentId);
+    }
+    return userRepository.findAllById(studentIds);
   }
 }

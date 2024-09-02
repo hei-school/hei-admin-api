@@ -140,4 +140,13 @@ public interface UserRepository extends JpaRepository<User, String> {
   Integer countBySexAndRoleAndStatus(User.Sex sex, User.Role role, User.Status status);
 
   Integer countByRoleAndStatus(User.Role role, User.Status status);
+
+  @Modifying
+  @Query(
+      value =
+          "INSERT INTO monitor_following_student (student_id, monitor_id) VALUES (:studentId,"
+              + " :monitorId)",
+      nativeQuery = true)
+  void saveMonitorFollowingStudents(
+      @Param("monitorId") String monitorId, @Param("studentId") String studentId);
 }
