@@ -106,18 +106,18 @@ public class LetterService {
 
   public SendLetterEmail toSendLetterEmail(Letter letter) {
     return SendLetterEmail.builder()
-            .description(letter.getDescription())
-            .id(letter.getId())
-            .studentRef(letter.getStudent().getRef())
-            .build();
+        .description(letter.getDescription())
+        .id(letter.getId())
+        .studentRef(letter.getStudent().getRef())
+        .build();
   }
 
-  public UpdateLetterEmail toUpdateLetterEmail(Letter letter){
+  public UpdateLetterEmail toUpdateLetterEmail(Letter letter) {
     return UpdateLetterEmail.builder()
-            .id(letter.getId())
-            .description(letter.getDescription())
-            .ref(letter.getStudent().getRef())
-            .email(letter.getStudent().getEmail())
-            .build();
+        .id(letter.getId())
+        .description(letter.getDescription())
+        .ref(letter.getStudent().getRef())
+        .email(letter.getStudent().getEmail())
+        .build();
   }
 }

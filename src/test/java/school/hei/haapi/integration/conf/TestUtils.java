@@ -1364,12 +1364,12 @@ public class TestUtils {
 
   public static UserIdentifier toUserIdentifier(Student student) {
     return new UserIdentifier()
-            .id(student.getId())
-            .email(student.getEmail())
-            .ref(student.getRef())
-            .lastName(student.getLastName())
-            .firstName(student.getFirstName())
-            .nic(student.getNic());
+        .id(student.getId())
+        .email(student.getEmail())
+        .ref(student.getRef())
+        .lastName(student.getLastName())
+        .firstName(student.getFirstName())
+        .nic(student.getNic());
   }
 
   public static Letter letter1() {
@@ -1380,7 +1380,7 @@ public class TestUtils {
         .status(RECEIVED)
         .approvalDatetime(Instant.parse("2021-12-08T08:25:24.00Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .fileUrl("/LETTERBOX/STD21001/file1.pdf")
+        .fileUrl(null)
         .description("Certificat de residence");
   }
 
@@ -1392,7 +1392,7 @@ public class TestUtils {
         .status(PENDING)
         .approvalDatetime(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .fileUrl("/LETTERBOX/STD21001/file2.pdf")
+        .fileUrl(null)
         .description("Bordereau de versement");
   }
 
@@ -1404,7 +1404,7 @@ public class TestUtils {
         .status(PENDING)
         .approvalDatetime(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .fileUrl("/LETTERBOX/STD21002/file3.pdf")
+        .fileUrl(null)
         .description("CV");
   }
 

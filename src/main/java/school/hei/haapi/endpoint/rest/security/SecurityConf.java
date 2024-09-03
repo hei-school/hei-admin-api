@@ -239,7 +239,7 @@ public class SecurityConf {
                     .requestMatchers(GET, "/teachers/announcements/*")
                     .hasRole(TEACHER.getRole())
                     .requestMatchers(GET, "/students/announcements")
-                    .hasRole(STUDENT.getRole())
+                    .hasAnyRole(STUDENT.getRole(), MONITOR.getRole())
                     .requestMatchers(GET, "/students/announcements/*")
                     .hasAnyRole(STUDENT.getRole(), MONITOR.getRole())
                     .requestMatchers(GET, "/announcements")
