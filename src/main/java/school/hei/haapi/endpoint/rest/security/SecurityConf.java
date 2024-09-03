@@ -575,6 +575,7 @@ public class SecurityConf {
                     //
                     // Event resources
                     //
+
                     .requestMatchers(GET, "/events")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
                     .requestMatchers(PUT, "/events")

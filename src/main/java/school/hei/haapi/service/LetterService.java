@@ -13,6 +13,9 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.SendLetterEmail;
+import school.hei.haapi.endpoint.event.model.UpdateLetterEmail;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Letter;
@@ -32,6 +35,7 @@ public class LetterService {
   private final UserService userService;
   private final FileService fileService;
   private final MultipartFileConverter multipartFileConverter;
+  private final EventProducer eventProducer;
 
   public List<Letter> getLetters(
       String ref, String studentRef, PageFromOne page, BoundedPageSize pageSize) {
@@ -63,6 +67,8 @@ public class LetterService {
             .build();
     File fileToSave = multipartFileConverter.apply(file);
     fileService.uploadObjectToS3Bucket(bucketKey, fileToSave);
+
+    eventProducer.accept(List.of(toSendLetterEmail(letterToSave)));
     return letterRepository.save(letterToSave);
   }
 
@@ -80,6 +86,7 @@ public class LetterService {
               Letter letterToUpdate = getLetterById(lt.getId());
               letterToUpdate.setStatus(lt.getStatus());
               letterToUpdate.setApprovalDatetime(Instant.now());
+              eventProducer.accept(List.of(toUpdateLetterEmail(letterToUpdate)));
               return letterRepository.save(letterToUpdate);
             })
         .toList();
@@ -95,5 +102,22 @@ public class LetterService {
         + DateTimeFormatter.ofPattern("yyyyMMdd")
             .withZone(ZoneId.of("UTC+3"))
             .format(Instant.now());
+  }
+
+  public SendLetterEmail toSendLetterEmail(Letter letter) {
+    return SendLetterEmail.builder()
+        .description(letter.getDescription())
+        .id(letter.getId())
+        .studentRef(letter.getStudent().getRef())
+        .build();
+  }
+
+  public UpdateLetterEmail toUpdateLetterEmail(Letter letter) {
+    return UpdateLetterEmail.builder()
+        .id(letter.getId())
+        .description(letter.getDescription())
+        .ref(letter.getStudent().getRef())
+        .email(letter.getStudent().getEmail())
+        .build();
   }
 }
