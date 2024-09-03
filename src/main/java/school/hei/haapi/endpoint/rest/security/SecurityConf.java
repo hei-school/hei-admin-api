@@ -310,6 +310,8 @@ public class SecurityConf {
                     // MONITORS FOLLOWING STUDENTS
                     .requestMatchers(PUT, "/monitors/*/students")
                     .hasRole(MANAGER.getRole())
+                    .requestMatchers(new SelfMatcher(GET, "/monitors/*/students", "monitors"))
+                    .hasRole(MONITOR.getRole())
                     .requestMatchers(GET, "/monitors/*/students")
                     .hasRole(MANAGER.getRole())
                     //

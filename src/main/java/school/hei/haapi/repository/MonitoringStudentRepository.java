@@ -17,12 +17,15 @@ public interface MonitoringStudentRepository extends JpaRepository<User, String>
   List<User> findAllMonitorsByStudentId(@Param("studentId") String studentId);
 
 
-  @Query(value = """
-        SELECT u.* FROM "user" u 
-          LEFT JOIN monitor_following_student mfs ON u.id = mfs.student_id 
-          WHERE mfs.monitor_id = :monitorId 
-          AND u.role = 'STUDENT'
-                  """, nativeQuery = true)
+  @Query(
+      value =
+             """
+           SELECT u.* FROM "user" u 
+             LEFT JOIN monitor_following_student mfs ON u.id = mfs.student_id 
+             WHERE mfs.monitor_id = :monitorId 
+             AND u.role = 'STUDENT'
+                  """,
+      nativeQuery = true)
   List<User> findAllStudentsByMonitorId(@Param("monitorId") String monitorId, Pageable pageable);
 
   @Modifying
