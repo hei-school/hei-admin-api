@@ -3071,7 +3071,7 @@ paths:
       tags:
         - Monitoring
       summary: Get all students linked to a monitor
-      description: All students linked to a monitor order by Ref DESC
+      description: All students linked to a monitor order by Ref ASC
       operationId: getLinkedStudentsByMonitorId
       parameters:
         - name: id
@@ -3079,6 +3079,18 @@ paths:
           required: true
           schema:
             type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: true
+        - name: page_size
+          in: query
+          required: true
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
       responses:
         '200':
           description: List of student linked to a monitor
