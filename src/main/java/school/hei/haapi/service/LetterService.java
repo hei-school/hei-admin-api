@@ -1,6 +1,6 @@
 package school.hei.haapi.service;
 
-import static org.springframework.data.domain.Sort.Direction.ASC;
+import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
 
 import java.io.File;
@@ -40,7 +40,7 @@ public class LetterService {
   public List<Letter> getLetters(
       String ref, String studentRef, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "creationDatetime"));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
     return letterDao.findByCriteria(ref, studentRef, pageable);
   }
 
@@ -75,7 +75,7 @@ public class LetterService {
   public List<Letter> getLettersByStudentId(
       String studentId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "creationDatetime"));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
     return letterRepository.findAllByStudentId(studentId, pageable);
   }
 
