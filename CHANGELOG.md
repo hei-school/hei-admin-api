@@ -1,3 +1,12 @@
+# [1.51.0](https://github.com/hei-school/hei-admin-api/compare/v1.50.0...v1.51.0) (2024-09-03)
+
+
+### Features
+
+* update letter model and send email notification ([4aaf188](https://github.com/hei-school/hei-admin-api/commit/4aaf188b892a29cd1babc4a49829c39f2d9a0bd6))
+
+
+
 # [1.50.0](https://github.com/hei-school/hei-admin-api/compare/v1.49.0...v1.50.0) (2024-09-02)
 
 
@@ -96,17 +105,6 @@
 * **not-implemented:** add endpoint for courses with teacher ([adb454b](https://github.com/hei-school/hei-admin-api/commit/adb454b6292aba95fc29ae59369656e8df0409c5))
 * **not-implemented:** add field for repeating student  ([2b263cb](https://github.com/hei-school/hei-admin-api/commit/2b263cbc9e47b41264504b889902b5b08a1e3914))
 * notify user after fee is paid by mpbs  ([05ff9fb](https://github.com/hei-school/hei-admin-api/commit/05ff9fb9e2bc1429d1a132b17869a4a73046b23d))
-
-
-
-# [1.41.0](https://github.com/hei-school/hei-admin-api/compare/v1.40.0...v1.41.0) (2024-08-01)
-
-
-### Features
-
-* compute user status by mpbs ([3afce0b](https://github.com/hei-school/hei-admin-api/commit/3afce0b3a8846bed2d09232a50247d77e15e69ac))
-* **not-implemented:** add field for mpbs payload and add last verification  ([95c5193](https://github.com/hei-school/hei-admin-api/commit/95c51937e37d0cf52023478da7bdcdd3f5cdd1fe))
-* sort group and promotion by ref and creation datetime DESC  ([04e688a](https://github.com/hei-school/hei-admin-api/commit/04e688af52ba9053e3cc5634ca5d2b6c0c5baeea))
 
 
 
