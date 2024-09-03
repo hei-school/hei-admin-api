@@ -49,6 +49,7 @@ public class UserService {
   private final FileService fileService;
   private final MultipartFileConverter fileConverter;
   private final GroupRepository groupRepository;
+  private final MonitoringStudentService monitoringStudentService;
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = findById(userId);
@@ -249,6 +250,6 @@ public class UserService {
   }
 
   public List<User> findMonitorsByStudentId(String studentId) {
-    return userRepository.findAllMonitorsByStudentId(studentId);
+    return monitoringStudentService.getMonitorsByStudentId(studentId);
   }
 }
