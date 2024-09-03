@@ -10,7 +10,7 @@ import school.hei.haapi.repository.UserRepository;
 
 @Service
 @AllArgsConstructor
-public class MonitoringService {
+public class MonitoringStudentService {
   private final UserRepository userRepository;
 
   @Transactional
