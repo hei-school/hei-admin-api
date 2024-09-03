@@ -252,7 +252,7 @@ public class UserMapper {
         .build();
   }
 
-  public User IdentifierToUser(UserIdentifier userIdentifier) {
+  public User toDomain(UserIdentifier userIdentifier) {
     return userService.findById(userIdentifier.getId());
   }
 }

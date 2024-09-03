@@ -133,6 +133,7 @@ public class SecurityConf {
                     antMatcher(GET, "/monitors"),
                     antMatcher(PUT, "/monitors"),
                     antMatcher(PUT, "/monitors/*/students"),
+                    antMatcher(GET, "/monitors/*/students"),
                     antMatcher(GET, "/teachers"),
                     antMatcher(GET, "/teachers/*"),
                     antMatcher(GET, "/students/*/scholarship_certificate/raw"),
@@ -308,6 +309,8 @@ public class SecurityConf {
                     //
                     // MONITORS FOLLOWING STUDENTS
                     .requestMatchers(PUT, "/monitors/*/students")
+                    .hasRole(MANAGER.getRole())
+                    .requestMatchers(GET, "/monitors/*/students")
                     .hasRole(MANAGER.getRole())
                     //
                     // Fees resources
