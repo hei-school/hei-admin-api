@@ -312,6 +312,8 @@ public class SecurityConf {
                     .hasRole(MANAGER.getRole())
                     .requestMatchers(GET, "/monitors/*/students")
                     .hasRole(MANAGER.getRole())
+                    .requestMatchers(new SelfMatcher(GET, "/monitors/*/students", "monitors"))
+                    .hasRole(MONITOR.getRole())
                     //
                     // Fees resources
                     //
