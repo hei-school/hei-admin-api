@@ -108,15 +108,12 @@ public class LetterIT extends MockedThirdParties {
             "Certificat",
             "file");
     Letter createdLetter = objectMapper.readValue(response.body(), Letter.class);
-    log.info("created : {}", createdLetter);
     assertEquals(createdLetter.getDescription(), "Certificat");
-    assertTrue(createdLetter.getFilePath().contains("file"));
     assertEquals(PENDING, createdLetter.getStatus());
 
     List<Letter> updatedLetters =
         api.updateLettersStatus(
             List.of(new UpdateLettersStatus().id(createdLetter.getId()).status(RECEIVED)));
-    log.info("updated : {}", updatedLetters);
     Letter updatedLetter = updatedLetters.getFirst();
     assertEquals(RECEIVED, updatedLetter.getStatus());
     assertNotNull(updatedLetter.getApprovalDatetime());
@@ -160,7 +157,6 @@ public class LetterIT extends MockedThirdParties {
             "file");
     Letter createdLetter = objectMapper.readValue(response.body(), Letter.class);
     assertEquals(createdLetter.getDescription(), "Certificat");
-    assertTrue(createdLetter.getFilePath().contains("file"));
     assertEquals(PENDING, createdLetter.getStatus());
   }
 

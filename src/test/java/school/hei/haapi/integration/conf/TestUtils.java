@@ -1362,15 +1362,25 @@ public class TestUtils {
         .groups(List.of());
   }
 
+  public static UserIdentifier toUserIdentifier(Student student) {
+    return new UserIdentifier()
+            .id(student.getId())
+            .email(student.getEmail())
+            .ref(student.getRef())
+            .lastName(student.getLastName())
+            .firstName(student.getFirstName())
+            .nic(student.getNic());
+  }
+
   public static Letter letter1() {
     return new Letter()
         .id(LETTER1_ID)
         .ref(LETTER1_REF)
-        .studentRef("STD21001")
+        .student(toUserIdentifier(student1()))
         .status(RECEIVED)
         .approvalDatetime(Instant.parse("2021-12-08T08:25:24.00Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .filePath("/LETTERBOX/STD21001/file1.pdf")
+        .fileUrl("/LETTERBOX/STD21001/file1.pdf")
         .description("Certificat de residence");
   }
 
@@ -1378,11 +1388,11 @@ public class TestUtils {
     return new Letter()
         .id(LETTER2_ID)
         .ref(LETTER2_REF)
-        .studentRef("STD21001")
+        .student(toUserIdentifier(student1()))
         .status(PENDING)
         .approvalDatetime(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .filePath("/LETTERBOX/STD21001/file2.pdf")
+        .fileUrl("/LETTERBOX/STD21001/file2.pdf")
         .description("Bordereau de versement");
   }
 
@@ -1390,11 +1400,11 @@ public class TestUtils {
     return new Letter()
         .id(LETTER3_ID)
         .ref(LETTER3_REF)
-        .studentRef("STD21002")
+        .student(toUserIdentifier(student2()))
         .status(PENDING)
         .approvalDatetime(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .filePath("/LETTERBOX/STD21002/file3.pdf")
+        .fileUrl("/LETTERBOX/STD21002/file3.pdf")
         .description("CV");
   }
 

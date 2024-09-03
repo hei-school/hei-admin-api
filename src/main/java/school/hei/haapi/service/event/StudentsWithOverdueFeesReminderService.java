@@ -50,7 +50,7 @@ public class StudentsWithOverdueFeesReminderService
   }
 
   @SneakyThrows
-  private static InternetAddress internetAddress(String email) {
+  public static InternetAddress internetAddress(String email) {
     return new InternetAddress(email);
   }
 }

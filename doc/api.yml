@@ -5061,10 +5061,10 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/LetterStatus'
-        file_path:
+        file_url:
           type: string
-        student_ref:
-          type: string
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
     PagedLettersResponse:
       type: object
       allOf:
