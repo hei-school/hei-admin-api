@@ -1,3 +1,12 @@
+# [1.52.0](https://github.com/hei-school/hei-admin-api/compare/v1.51.0...v1.52.0) (2024-09-04)
+
+
+### Features
+
+* filter letters by status ([38d4b37](https://github.com/hei-school/hei-admin-api/commit/38d4b37e609c74ee42e9618036baabd5a58bc5a6))
+
+
+
 # [1.51.0](https://github.com/hei-school/hei-admin-api/compare/v1.50.0...v1.51.0) (2024-09-03)
 
 
@@ -93,18 +102,6 @@
 
 * filter for security conf to disable user suspended  ([4c8494b](https://github.com/hei-school/hei-admin-api/commit/4c8494bc1fe962267cb14abe508ee22c2d6ae81d))
 * implementation of repeating student of current year  ([bd6aa91](https://github.com/hei-school/hei-admin-api/commit/bd6aa91152d7f7d3e4e794f5ca8aa7109f925aa6))
-
-
-
-# [1.42.0](https://github.com/hei-school/hei-admin-api/compare/v1.41.0...v1.42.0) (2024-08-09)
-
-
-### Features
-
-* add mpbs field for the last verification datetime  ([f1c56e9](https://github.com/hei-school/hei-admin-api/commit/f1c56e90b86c8b0c4484ed40ec5c56dc236e7093))
-* **not-implemented:** add endpoint for courses with teacher ([adb454b](https://github.com/hei-school/hei-admin-api/commit/adb454b6292aba95fc29ae59369656e8df0409c5))
-* **not-implemented:** add field for repeating student  ([2b263cb](https://github.com/hei-school/hei-admin-api/commit/2b263cbc9e47b41264504b889902b5b08a1e3914))
-* notify user after fee is paid by mpbs  ([05ff9fb](https://github.com/hei-school/hei-admin-api/commit/05ff9fb9e2bc1429d1a132b17869a4a73046b23d))
 
 
 
