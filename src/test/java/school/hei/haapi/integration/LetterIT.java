@@ -53,20 +53,24 @@ public class LetterIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
 
-    List<Letter> actual = api.getLetters(1, 15, null, null);
+    List<Letter> actual = api.getLetters(1, 15, null, null, null);
     assertTrue(actual.contains(letter1()));
     assertTrue(actual.contains(letter2()));
     assertTrue(actual.contains(letter3()));
 
-    List<Letter> filteredByStudentRef = api.getLetters(1, 15, "STD21001", null);
+    List<Letter> filteredByStudentRef = api.getLetters(1, 15, "STD21001", null, null);
     assertTrue(filteredByStudentRef.contains(letter1()));
     assertTrue(filteredByStudentRef.contains(letter2()));
     assertFalse(filteredByStudentRef.contains(letter3()));
 
-    List<Letter> filteredByLetterRef = api.getLetters(1, 15, null, "letter1_ref");
+    List<Letter> filteredByLetterRef = api.getLetters(1, 15, null, "letter1_ref", null);
     assertTrue(filteredByLetterRef.contains(letter1()));
     assertFalse(filteredByLetterRef.contains(letter2()));
-    assertFalse(filteredByLetterRef.contains(letter3()));
+
+    List<Letter> actual3 = api.getLetters(1, 15, null, null, PENDING);
+    assertFalse(actual3.contains(letter1()));
+    assertTrue(actual3.contains(letter2()));
+    assertTrue(actual3.contains(letter3()));
   }
 
   @Test
@@ -83,15 +87,20 @@ public class LetterIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
 
-    List<Letter> actual = api.getLettersByStudentId(STUDENT1_ID, 1, 15);
+    List<Letter> actual = api.getLettersByStudentId(STUDENT1_ID, 1, 15, null);
     assertTrue(actual.contains(letter1()));
     assertTrue(actual.contains(letter2()));
     assertFalse(actual.contains(letter3()));
 
-    List<Letter> actual2 = api.getLettersByStudentId(STUDENT2_ID, 1, 15);
+    List<Letter> actual2 = api.getLettersByStudentId(STUDENT2_ID, 1, 15, null);
     assertFalse(actual2.contains(letter1()));
     assertFalse(actual2.contains(letter2()));
     assertTrue(actual2.contains(letter3()));
+
+    List<Letter> actual3 = api.getLettersByStudentId(STUDENT1_ID, 1, 15, PENDING);
+    assertFalse(actual3.contains(letter1()));
+    assertTrue(actual3.contains(letter2()));
+    assertFalse(actual3.contains(letter3()));
   }
 
   @Test
@@ -125,7 +134,7 @@ public class LetterIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
 
-    List<Letter> actual = api.getLettersByStudentId(STUDENT1_ID, 1, 15);
+    List<Letter> actual = api.getLettersByStudentId(STUDENT1_ID, 1, 15, null);
     assertTrue(actual.contains(letter1()));
     assertTrue(actual.contains(letter2()));
     assertFalse(actual.contains(letter3()));
@@ -136,7 +145,7 @@ public class LetterIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
 
-    assertThrowsForbiddenException(() -> api.getLettersByStudentId(STUDENT2_ID, 1, 15));
+    assertThrowsForbiddenException(() -> api.getLettersByStudentId(STUDENT2_ID, 1, 15, null));
     assertThrowsForbiddenException(
         () ->
             api.updateLettersStatus(

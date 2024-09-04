@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
+import school.hei.haapi.endpoint.rest.model.LetterStatus;
 import school.hei.haapi.model.Letter;
 import school.hei.haapi.model.User;
 
@@ -19,7 +20,8 @@ public class LetterDao {
 
   private final EntityManager entityManager;
 
-  public List<Letter> findByCriteria(String ref, String studentRef, Pageable pageable) {
+  public List<Letter> findByCriteria(
+      String ref, String studentRef, LetterStatus status, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Letter> query = builder.createQuery(Letter.class);
     Root<Letter> root = query.from(Letter.class);
@@ -38,6 +40,10 @@ public class LetterDao {
           builder.or(
               builder.like(builder.lower(root.get("ref")), "%" + ref + "%"),
               builder.like(root.get("ref"), "%" + ref + "%")));
+    }
+
+    if (status != null) {
+      predicates.add(builder.equal(root.get("status"), status));
     }
 
     if (!predicates.isEmpty()) {

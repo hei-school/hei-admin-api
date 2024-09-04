@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.LetterMapper;
 import school.hei.haapi.endpoint.rest.model.Letter;
+import school.hei.haapi.endpoint.rest.model.LetterStatus;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -23,8 +24,9 @@ public class LetterController {
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize,
       @RequestParam(name = "ref", required = false) String ref,
+      @RequestParam(name = "status", required = false) LetterStatus status,
       @RequestParam(name = "student_ref", required = false) String studentRef) {
-    return letterService.getLetters(ref, studentRef, page, pageSize).stream()
+    return letterService.getLetters(ref, studentRef, status, page, pageSize).stream()
         .map(letterMapper::toRest)
         .toList();
   }
@@ -42,9 +44,10 @@ public class LetterController {
   @GetMapping(value = "/students/{student_id}/letters")
   public List<Letter> getStudentLetters(
       @PathVariable(name = "student_id") String studentId,
+      @RequestParam(name = "status", required = false) LetterStatus status,
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize) {
-    return letterService.getLettersByStudentId(studentId, page, pageSize).stream()
+    return letterService.getLettersByStudentId(studentId, status, page, pageSize).stream()
         .map(letterMapper::toRest)
         .toList();
   }
