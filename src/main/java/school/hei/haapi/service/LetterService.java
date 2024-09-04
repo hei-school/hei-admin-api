@@ -8,6 +8,7 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.*;
@@ -16,6 +17,7 @@ import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.SendLetterEmail;
 import school.hei.haapi.endpoint.event.model.UpdateLetterEmail;
+import school.hei.haapi.endpoint.rest.model.LetterStatus;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Letter;
@@ -38,10 +40,14 @@ public class LetterService {
   private final EventProducer eventProducer;
 
   public List<Letter> getLetters(
-      String ref, String studentRef, PageFromOne page, BoundedPageSize pageSize) {
+      String ref,
+      String studentRef,
+      LetterStatus status,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return letterDao.findByCriteria(ref, studentRef, pageable);
+    return letterDao.findByCriteria(ref, studentRef, status, pageable);
   }
 
   public Letter getLetterById(String id) {
@@ -73,10 +79,12 @@ public class LetterService {
   }
 
   public List<Letter> getLettersByStudentId(
-      String studentId, PageFromOne page, BoundedPageSize pageSize) {
+      String studentId, LetterStatus status, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return letterRepository.findAllByStudentId(studentId, pageable);
+    return Objects.isNull(status)
+        ? letterRepository.findAllByStudentId(studentId, pageable)
+        : letterRepository.findAllByStudentIdAndStatus(studentId, status, pageable);
   }
 
   public List<Letter> updateLetter(List<UpdateLettersStatus> letters) {

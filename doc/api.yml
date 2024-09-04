@@ -3518,6 +3518,11 @@ paths:
           schema:
             type: string
           required: false
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            $ref: '#/components/schemas/LetterStatus'
       responses:
         '200':
           description: Letters
@@ -3621,6 +3626,11 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            $ref: '#/components/schemas/LetterStatus'
       responses:
         '200':
           description: All letters by the given student id
