@@ -9,6 +9,7 @@ import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.service.GroupService;
+import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.WorkDocumentService;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.IsStudentRepeatingYear;
@@ -23,6 +24,7 @@ public class UserMapper {
   private final GroupService groupService;
   private final GroupMapper groupMapper;
   private final IsStudentRepeatingYear isStudentRepeatingYear;
+  private final UserService userService;
 
   public UserIdentifier toIdentifier(User user) {
     return new UserIdentifier()
@@ -248,5 +250,9 @@ public class UserMapper {
         .latitude(monitor.getCoordinates().getLatitude())
         .highSchoolOrigin(monitor.getHighSchoolOrigin())
         .build();
+  }
+
+  public User toDomain(UserIdentifier userIdentifier) {
+    return userService.findById(userIdentifier.getId());
   }
 }
