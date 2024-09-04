@@ -6,12 +6,12 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
-import school.hei.haapi.repository.PromotionRepository;
+import school.hei.haapi.service.PromotionService;
 
 @AllArgsConstructor
 @Component
 public class IsStudentRepeatingYear implements Function<User, Boolean> {
-  private final PromotionRepository promotionRepository;
+  private final PromotionService promotionService;
 
   @Override
   public Boolean apply(User user) {
@@ -30,6 +30,6 @@ public class IsStudentRepeatingYear implements Function<User, Boolean> {
   }
 
   private LinkedHashSet<Promotion> getAllStudentPromotions(User user) {
-    return promotionRepository.findAllPromotionsByStudentId(user.getId());
+    return promotionService.getAllStudentPromotions(user.getId());
   }
 }

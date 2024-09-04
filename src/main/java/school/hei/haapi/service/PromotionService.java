@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -57,5 +58,9 @@ public class PromotionService {
     }
 
     return promotionRepository.save(promotion);
+  }
+
+  public LinkedHashSet<Promotion> getAllStudentPromotions(String userId) {
+    return promotionRepository.findAllPromotionsByStudentId(userId);
   }
 }
