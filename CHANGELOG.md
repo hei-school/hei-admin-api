@@ -1,3 +1,13 @@
+# [1.53.0](https://github.com/hei-school/hei-admin-api/compare/v1.52.0...v1.53.0) (2024-09-04)
+
+
+### Features
+
+* add repeating year concept to certificate  ([6bc296b](https://github.com/hei-school/hei-admin-api/commit/6bc296b0350402bd5f19bca2bcf9d54914537027))
+* link students to monitor  ([2243a9a](https://github.com/hei-school/hei-admin-api/commit/2243a9afdf2528a4d049766a2aa36780a769c02a))
+
+
+
 # [1.52.0](https://github.com/hei-school/hei-admin-api/compare/v1.51.0...v1.52.0) (2024-09-04)
 
 
@@ -86,22 +96,6 @@
 * awarded courses assigned to teacher   ([03ea738](https://github.com/hei-school/hei-admin-api/commit/03ea7387b92e757a4af38ec882f293934a1d55c5))
 * **not-implemented:** letterbox resources ([ca01759](https://github.com/hei-school/hei-admin-api/commit/ca01759ace1dc423492df616222b34d3736cee59))
 * restrict some resource for suspended student  ([72856f7](https://github.com/hei-school/hei-admin-api/commit/72856f7cb8513ab8dd6695d30056d67e6db2de9d))
-
-
-
-# [1.43.0](https://github.com/hei-school/hei-admin-api/compare/v1.42.0...v1.43.0) (2024-08-21)
-
-
-### Bug Fixes
-
-* group sorted by ref ordered ASC ([96faf97](https://github.com/hei-school/hei-admin-api/commit/96faf9702c7f365d2f090f6debb789aca74c054a))
-* template image won't load, fallback to background-image  ([168c76e](https://github.com/hei-school/hei-admin-api/commit/168c76ef1ddf431511bcf85ed7baba1c31a073e0))
-
-
-### Features
-
-* filter for security conf to disable user suspended  ([4c8494b](https://github.com/hei-school/hei-admin-api/commit/4c8494bc1fe962267cb14abe508ee22c2d6ae81d))
-* implementation of repeating student of current year  ([bd6aa91](https://github.com/hei-school/hei-admin-api/commit/bd6aa91152d7f7d3e4e794f5ca8aa7109f925aa6))
 
 
 
