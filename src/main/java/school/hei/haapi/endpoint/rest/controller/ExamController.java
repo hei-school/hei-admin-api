@@ -26,7 +26,7 @@ public class ExamController {
   private final ExamMapper examMapper;
 
   @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams")
-  public List<ExamInfo> getAwardedCourseExams(
+  public List<ExamInfo> getExamsByGroupIdAndAwardedCourse(
       @PathVariable("group_id") String groupId,
       @PathVariable("awarded_course_id") String awardedCourseId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,

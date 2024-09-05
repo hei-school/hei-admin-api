@@ -62,6 +62,8 @@ class ExamIT extends MockedThirdParties {
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsForbiddenException(
         () -> api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10));
+
+    assertThrowsForbiddenException(() -> api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID));
   }
 
   @Test
@@ -95,11 +97,11 @@ class ExamIT extends MockedThirdParties {
     assertEquals(examDetail1(), actual);
   }
 
+  @Test
   void student_create_or_update_exam_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsForbiddenException(
         () -> api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1())));
   }
 
@@ -120,11 +122,11 @@ class ExamIT extends MockedThirdParties {
     assertTrue(actualUpdateList.contains(exam1()));
   }
 
+  @Test
   void teacher_create_or_update_others_awarded_course_exam_ko() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+    assertThrowsForbiddenException(
         () -> api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE2_ID, List.of(exam2())));
   }
 
