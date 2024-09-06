@@ -1,13 +1,18 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import java.util.List;
+import java.util.stream.Collectors;
+
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.model.AwardedCourse;
@@ -19,6 +24,8 @@ import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+
 @RestController
 @AllArgsConstructor
 public class GradeController {
@@ -29,7 +36,20 @@ public class GradeController {
   private final GradeMapper gradeMapper;
   private final ExamService examService;
 
-  // todo: to review all class
+  @PostMapping("/groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/grades")
+  public List<ExamDetail> createStudentExamGrade(@PathVariable(name = "group_id") String groupId,
+                                                 @PathVariable(name = "awarded_course_id") String awardedCourseId,
+                                                 @PathVariable(name = "exam_id") String examId,
+                                                 @RequestBody List<CreateGrade> gradesToCreate) {
+    List<Grade> grades = gradesToCreate.stream()
+            .map(gradeMapper::toDomain)
+            .collect(toUnmodifiableList());
+    Exam correspondingExam = examService.findById(examId);
+    List<Grade> savedGrades = gradeService.saveAll(grades);
+
+    return gradeMapper.toRestExamDetail(correspondingExam, savedGrades);
+  }
+
   @GetMapping("/students/{student_id}/grades")
   public List<AwardedCourseExam> getAllGradesOfStudent(
       @PathVariable("student_id") String studentId) {
@@ -53,7 +73,6 @@ public class GradeController {
     return gradeMapper.toRestExamDetail(exam, grades);
   }
 
-  // TODO: change that if null
   @GetMapping(
       value =
           "/groups/{group_id}/awarded_courses/"
