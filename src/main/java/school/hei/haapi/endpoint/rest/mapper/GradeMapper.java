@@ -26,11 +26,12 @@ public class GradeMapper {
 
   public school.hei.haapi.model.Grade toDomain(CreateGrade restGrade) {
     return school.hei.haapi.model.Grade.builder()
-        .student(userService.findById(restGrade.getStudentId()))
-        .exam(examService.findById(restGrade.getExamId()))
-        .score(restGrade.getScore())
-        .creationDatetime(Instant.now())
-        .build();
+            .student(userService.findById(restGrade.getStudentId()))
+            .exam(examService.findById(restGrade.getExamId()))
+            .score(restGrade.getScore())
+            .creationDatetime(Instant.now())
+            .build();
+>>>>>>> e3c540d (feat: enable floating score number when inserting grade)
   }
 
   public school.hei.haapi.model.Grade toDomain(Grade grade) {
