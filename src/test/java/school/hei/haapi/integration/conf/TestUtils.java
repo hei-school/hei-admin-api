@@ -757,7 +757,7 @@ public class TestUtils {
   }
 
   public static Grade grade1() {
-    return new Grade().id(GRADE1_ID).score(8.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
+    return new Grade().id(GRADE1_ID).score(8.5).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade2() {
