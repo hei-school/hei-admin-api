@@ -82,6 +82,8 @@ public class MpbsVerificationService {
     // Update mpbs ...
     mpbs.setSuccessfullyVerifiedOn(now);
     mpbs.setStatus(defineMpbsStatusFromOrangeTransactionDetails(correspondingMobileTransaction));
+    mpbs.setPspOwnDatetimeVerification(
+        correspondingMobileTransaction.getPspOwnDatetimeVerification());
     var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
     log.info("Mpbs has successfully verified = {}", mpbs.toString());
 
