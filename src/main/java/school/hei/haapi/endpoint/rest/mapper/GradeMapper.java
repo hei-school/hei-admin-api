@@ -15,7 +15,6 @@ import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
-import school.hei.haapi.service.AwardedCourseService;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.UserService;
 
@@ -25,14 +24,13 @@ public class GradeMapper {
   private final UserService userService;
   private final ExamService examService;
 
-
   public school.hei.haapi.model.Grade toDomain(CreateGrade restGrade) {
     return school.hei.haapi.model.Grade.builder()
-            .student(userService.findById(restGrade.getStudentId()))
-            .exam(examService.findById(restGrade.getExamId()))
-            .score(restGrade.getScore())
-            .creationDatetime(Instant.now())
-            .build();
+        .student(userService.findById(restGrade.getStudentId()))
+        .exam(examService.findById(restGrade.getExamId()))
+        .score(restGrade.getScore())
+        .creationDatetime(Instant.now())
+        .build();
   }
 
   public school.hei.haapi.model.Grade toDomain(Grade grade) {

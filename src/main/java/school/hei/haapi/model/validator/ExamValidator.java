@@ -7,12 +7,15 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.service.ExamService;
 
 @Component
 @AllArgsConstructor
 public class ExamValidator implements Consumer<Exam> {
+  private final ExamService examService;
 
   public void accept(List<Exam> exams) {
     exams.forEach(this::accept);
@@ -32,6 +35,25 @@ public class ExamValidator implements Consumer<Exam> {
     }
     if (exam.getExaminationDate() == null) {
       violationMessages.add("Examination date is mandatory");
+    }
+    if (!violationMessages.isEmpty()) {
+      String formattedViolationMessages =
+          violationMessages.stream().map(String::toString).collect(Collectors.joining(". "));
+      throw new BadRequestException(formattedViolationMessages);
+    }
+  }
+
+  public void validateExamId(String examId, List<CreateGrade> createGrades) {
+    Set<String> violationMessages = new HashSet<>();
+    if (!examService.examExistsById(examId)) {
+      violationMessages.add("Exam with this id does not exist");
+    }
+    if (createGrades != null && !createGrades.isEmpty()) {
+      boolean allMatch =
+          createGrades.stream().allMatch(createGrade -> examId.equals(createGrade.getExamId()));
+      if (!allMatch) {
+        violationMessages.add("Exam ids in the payload do not match the id in the URL");
+      }
     }
     if (!violationMessages.isEmpty()) {
       String formattedViolationMessages =

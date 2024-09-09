@@ -1,8 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import static java.util.stream.Collectors.toUnmodifiableList;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,12 +19,11 @@ import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.validator.ExamValidator;
 import school.hei.haapi.service.AwardedCourseService;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
-
-import static java.util.stream.Collectors.toUnmodifiableList;
 
 @RestController
 @AllArgsConstructor
@@ -35,15 +34,17 @@ public class GradeController {
   private final GradeService gradeService;
   private final GradeMapper gradeMapper;
   private final ExamService examService;
+  private final ExamValidator examValidator;
 
   @PostMapping("/groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/grades")
-  public List<ExamDetail> createStudentExamGrade(@PathVariable(name = "group_id") String groupId,
-                                                 @PathVariable(name = "awarded_course_id") String awardedCourseId,
-                                                 @PathVariable(name = "exam_id") String examId,
-                                                 @RequestBody List<CreateGrade> gradesToCreate) {
-    List<Grade> grades = gradesToCreate.stream()
-            .map(gradeMapper::toDomain)
-            .collect(toUnmodifiableList());
+  public ExamDetail createStudentExamGrade(
+      @PathVariable(name = "group_id") String groupId,
+      @PathVariable(name = "awarded_course_id") String awardedCourseId,
+      @PathVariable(name = "exam_id") String examId,
+      @RequestBody List<CreateGrade> gradesToCreate) {
+    examValidator.validateExamId(examId, gradesToCreate);
+    List<Grade> grades =
+        gradesToCreate.stream().map(gradeMapper::toDomain).collect(toUnmodifiableList());
     Exam correspondingExam = examService.findById(examId);
     List<Grade> savedGrades = gradeService.saveAll(grades);
 
