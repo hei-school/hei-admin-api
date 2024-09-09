@@ -25,7 +25,6 @@ import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 @RestController
 @AllArgsConstructor
 public class GradeController {
