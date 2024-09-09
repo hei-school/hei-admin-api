@@ -1,4 +1,7 @@
 <<<<<<< HEAD
+<<<<<<< HEAD
+=======
+>>>>>>> 08b4e47 (feat: validate exam id in createStudentExamGrade)
 package school.hei.haapi.unit.validator;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
@@ -82,7 +85,10 @@ class ExamValidatorTest {
 
     assertDoesNotThrow(() -> examValidator.validateExamId(EXAM1_ID, gradesToCreate));
   }
+<<<<<<< HEAD
 =======
 package school.hei.haapi.unit.validator;public class ExamValidatorTest {
 >>>>>>> 46959d7 (refactor: change createStudentExamGrade to return single ExamDetail)
+=======
+>>>>>>> 08b4e47 (feat: validate exam id in createStudentExamGrade)
 }
