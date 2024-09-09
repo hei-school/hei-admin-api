@@ -21,8 +21,8 @@ public class ExamService {
 
   public Exam findById(String id) {
     return examRepository
-            .findById(id)
-            .orElseThrow(() -> new NotFoundException("Exam with id: " + id + " not found"));
+        .findById(id)
+        .orElseThrow(() -> new NotFoundException("Exam with id: " + id + " not found"));
   }
 
   public List<Exam> getExamsFromAwardedCourseIdAndGroupId(

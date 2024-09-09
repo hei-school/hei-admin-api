@@ -31,7 +31,6 @@ public class GradeMapper {
             .score(restGrade.getScore())
             .creationDatetime(Instant.now())
             .build();
->>>>>>> e3c540d (feat: enable floating score number when inserting grade)
   }
 
   public school.hei.haapi.model.Grade toDomain(Grade grade) {
