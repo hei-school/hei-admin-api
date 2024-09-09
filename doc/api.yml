@@ -1064,9 +1064,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExamDetail'
+                $ref: '#/components/schemas/ExamDetail'
         '400':
           $ref: '#/components/responses/400'
         '403':
