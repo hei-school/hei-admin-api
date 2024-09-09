@@ -21,8 +21,8 @@ public class ExamService {
 
   public Exam findById(String id) {
     return examRepository
-            .findById(id)
-            .orElseThrow(() -> new NotFoundException("Exam with id: " + id + " not found"));
+        .findById(id)
+        .orElseThrow(() -> new NotFoundException("Exam with id: " + id + " not found"));
   }
 
   public List<Exam> getExamsFromAwardedCourseIdAndGroupId(
@@ -43,5 +43,9 @@ public class ExamService {
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
     return examRepository.saveAll(exams);
+  }
+
+  public boolean examExistsById(String examId) {
+    return examRepository.existsById(examId);
   }
 }
