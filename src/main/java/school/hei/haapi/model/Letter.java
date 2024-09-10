@@ -43,4 +43,6 @@ public class Letter {
   private String ref;
 
   private String filePath;
+
+  private String reasonForRefusal;
 }

@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.event.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Duration;
 import lombok.*;
+import school.hei.haapi.endpoint.rest.model.LetterStatus;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,6 +24,12 @@ public class UpdateLetterEmail extends PojaEvent {
 
   @JsonProperty("description")
   private String description;
+
+  @JsonProperty("status")
+  private LetterStatus status;
+
+  @JsonProperty("reason")
+  private String reason;
 
   @Override
   public Duration maxConsumerDuration() {

@@ -43,6 +43,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.Exception;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -63,46 +64,7 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Announcement;
-import school.hei.haapi.endpoint.rest.model.AnnouncementAuthor;
-import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
-import school.hei.haapi.endpoint.rest.model.AwardedCourse;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
-import school.hei.haapi.endpoint.rest.model.Comment;
-import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CreateAnnouncement;
-import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
-import school.hei.haapi.endpoint.rest.model.CreateComment;
-import school.hei.haapi.endpoint.rest.model.CreateEvent;
-import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.CreateGrade;
-import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
-import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
-import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
-import school.hei.haapi.endpoint.rest.model.EnableStatus;
-import school.hei.haapi.endpoint.rest.model.Event;
-import school.hei.haapi.endpoint.rest.model.EventParticipant;
-import school.hei.haapi.endpoint.rest.model.ExamDetail;
-import school.hei.haapi.endpoint.rest.model.ExamInfo;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.FeeTemplate;
-import school.hei.haapi.endpoint.rest.model.Grade;
-import school.hei.haapi.endpoint.rest.model.Group;
-import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
-import school.hei.haapi.endpoint.rest.model.Letter;
-import school.hei.haapi.endpoint.rest.model.Manager;
-import school.hei.haapi.endpoint.rest.model.Monitor;
-import school.hei.haapi.endpoint.rest.model.Observer;
-import school.hei.haapi.endpoint.rest.model.Promotion;
-import school.hei.haapi.endpoint.rest.model.Scope;
-import school.hei.haapi.endpoint.rest.model.Sex;
-import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
-import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
-import school.hei.haapi.endpoint.rest.model.UserIdentifier;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.service.aws.FileService;
@@ -1047,7 +1009,7 @@ public class TestUtils {
 
     File file = getMockedFile("img", ".png");
 
-    String requestBodyPrefix =
+    String filePart =
         "--"
             + boundary
             + CRLF
@@ -1061,14 +1023,24 @@ public class TestUtils {
     byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
     String requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
 
+    String descriptionPart =
+            "--" + boundary + CRLF +
+                    "Content-Disposition: form-data; name=\"description\"" + CRLF + CRLF +
+                    description + CRLF;
+
+    String filenamePart =
+            "--" + boundary + CRLF +
+                    "Content-Disposition: form-data; name=\"filename\"" + CRLF + CRLF +
+                    filename + CRLF;
+
     byte[] requestBody =
-        Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
+        Bytes.concat( descriptionPart.getBytes(), filenamePart.getBytes(), filePart.getBytes(), fileBytes, requestBodySuffix.getBytes());
     UriComponentsBuilder uriComponentsBuilder =
         UriComponentsBuilder.fromUri(
             URI.create(
                 basePath
                     + String.format(
-                        "/students/%s/letters?description=%s&filename=%s",
+                        "/students/%s/letters",
                         subjectId, description, filename)));
     InputStream requestBodyStream = new ByteArrayInputStream(requestBody);
     HttpRequest request =
@@ -1420,21 +1392,22 @@ public class TestUtils {
         .groups(List.of());
   }
 
-  public static UserIdentifier toUserIdentifier(Student student) {
-    return new UserIdentifier()
+  public static LetterStudent toLetterStudent(Student student) {
+    return new LetterStudent()
         .id(student.getId())
         .email(student.getEmail())
         .ref(student.getRef())
         .lastName(student.getLastName())
         .firstName(student.getFirstName())
-        .nic(student.getNic());
+        .nic(student.getNic())
+            .profilePicture(student.getProfilePicture());
   }
 
   public static Letter letter1() {
     return new Letter()
         .id(LETTER1_ID)
         .ref(LETTER1_REF)
-        .student(toUserIdentifier(student1()))
+        .student(toLetterStudent(student1()))
         .status(RECEIVED)
         .approvalDatetime(Instant.parse("2021-12-08T08:25:24.00Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
@@ -1446,7 +1419,7 @@ public class TestUtils {
     return new Letter()
         .id(LETTER2_ID)
         .ref(LETTER2_REF)
-        .student(toUserIdentifier(student1()))
+        .student(toLetterStudent(student1()))
         .status(PENDING)
         .approvalDatetime(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
@@ -1458,7 +1431,7 @@ public class TestUtils {
     return new Letter()
         .id(LETTER3_ID)
         .ref(LETTER3_REF)
-        .student(toUserIdentifier(student2()))
+        .student(toLetterStudent(student2()))
         .status(PENDING)
         .approvalDatetime(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))

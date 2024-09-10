@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
+import static school.hei.haapi.endpoint.rest.model.LetterStatus.REJECTED;
 
 import java.io.File;
 import java.time.Instant;
@@ -17,12 +18,15 @@ import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.SendLetterEmail;
 import school.hei.haapi.endpoint.event.model.UpdateLetterEmail;
+import school.hei.haapi.endpoint.rest.mapper.LetterMapper;
 import school.hei.haapi.endpoint.rest.model.LetterStatus;
+import school.hei.haapi.endpoint.rest.model.PagedLettersResponse;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Letter;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.LetterRepository;
 import school.hei.haapi.repository.dao.LetterDao;
@@ -38,8 +42,9 @@ public class LetterService {
   private final FileService fileService;
   private final MultipartFileConverter multipartFileConverter;
   private final EventProducer eventProducer;
+  private final LetterMapper letterMapper;
 
-  public List<Letter> getLetters(
+  public PagedLettersResponse getLetters(
       String ref,
       String studentRef,
       LetterStatus status,
@@ -47,7 +52,12 @@ public class LetterService {
       BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return letterDao.findByCriteria(ref, studentRef, status, pageable);
+    List<Letter> letters = letterDao.findByCriteria(ref, studentRef, status, pageable);
+    return new PagedLettersResponse()
+            .pageNumber(page.getValue())
+            .pageSize(pageSize.getValue())
+            .pendingCount(letterRepository.countByStatus(PENDING))
+            .data(letters.stream().map(letterMapper::toRest).toList());
   }
 
   public Letter getLetterById(String id) {
@@ -94,7 +104,16 @@ public class LetterService {
               Letter letterToUpdate = getLetterById(lt.getId());
               letterToUpdate.setStatus(lt.getStatus());
               letterToUpdate.setApprovalDatetime(Instant.now());
-              eventProducer.accept(List.of(toUpdateLetterEmail(letterToUpdate)));
+
+              if(lt.getStatus() == REJECTED && Objects.isNull(lt.getReasonForRefusal())) {
+                throw new BadRequestException("Must provide a reason for refusal");
+              }
+              if(lt.getStatus() == PENDING){
+                throw new BadRequestException("Cannot update a status to pending");
+              }
+              letterToUpdate.setReasonForRefusal(lt.getReasonForRefusal());
+
+               eventProducer.accept(List.of(toUpdateLetterEmail(letterToUpdate)));
               return letterRepository.save(letterToUpdate);
             })
         .toList();
@@ -126,6 +145,8 @@ public class LetterService {
         .description(letter.getDescription())
         .ref(letter.getStudent().getRef())
         .email(letter.getStudent().getEmail())
+            .reason(letter.getReasonForRefusal())
+            .status(letter.getStatus())
         .build();
   }
 }

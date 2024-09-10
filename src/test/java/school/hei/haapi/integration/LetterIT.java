@@ -2,8 +2,7 @@ package school.hei.haapi.integration;
 
 import static org.junit.Assert.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
-import static school.hei.haapi.endpoint.rest.model.LetterStatus.RECEIVED;
+import static school.hei.haapi.endpoint.rest.model.LetterStatus.*;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -53,21 +52,21 @@ public class LetterIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
 
-    List<Letter> actual = api.getLetters(1, 15, null, null, null);
+    List<Letter> actual = api.getLetters(1, 15, null, null, null, null).getData();
     assertTrue(actual.contains(letter1()));
     assertTrue(actual.contains(letter2()));
     assertTrue(actual.contains(letter3()));
 
-    List<Letter> filteredByStudentRef = api.getLetters(1, 15, "STD21001", null, null);
+    List<Letter> filteredByStudentRef = api.getLetters(1, 15, "STD21001", null, null, null).getData();
     assertTrue(filteredByStudentRef.contains(letter1()));
     assertTrue(filteredByStudentRef.contains(letter2()));
     assertFalse(filteredByStudentRef.contains(letter3()));
 
-    List<Letter> filteredByLetterRef = api.getLetters(1, 15, null, "letter1_ref", null);
+    List<Letter> filteredByLetterRef = api.getLetters(1, 15, null, "letter1_ref", null, null).getData();
     assertTrue(filteredByLetterRef.contains(letter1()));
     assertFalse(filteredByLetterRef.contains(letter2()));
 
-    List<Letter> actual3 = api.getLetters(1, 15, null, null, PENDING);
+    List<Letter> actual3 = api.getLetters(1, 15, null, null, PENDING, null).getData();
     assertFalse(actual3.contains(letter1()));
     assertTrue(actual3.contains(letter2()));
     assertTrue(actual3.contains(letter3()));
@@ -109,24 +108,42 @@ public class LetterIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
 
-    HttpResponse<InputStream> response =
+    HttpResponse<InputStream> toBeReceived =
         uploadLetter(
             LetterIT.ContextInitializer.SERVER_PORT,
             MANAGER1_TOKEN,
             STUDENT1_ID,
             "Certificat",
             "file");
-    Letter createdLetter = objectMapper.readValue(response.body(), Letter.class);
-    assertEquals(createdLetter.getDescription(), "Certificat");
-    assertEquals(PENDING, createdLetter.getStatus());
+    Letter createdLetter1 = objectMapper.readValue(toBeReceived.body(), Letter.class);
+    assertEquals(createdLetter1.getDescription(), "Certificat");
+    assertEquals(PENDING, createdLetter1.getStatus());
+
+    HttpResponse<InputStream> toBeRejected =
+            uploadLetter(
+                    LetterIT.ContextInitializer.SERVER_PORT,
+                    MANAGER1_TOKEN,
+                    STUDENT1_ID,
+                    "A rejeter",
+                    "file");
+
+    Letter createdLetter2 = objectMapper.readValue(toBeRejected.body(), Letter.class);
+    assertEquals(createdLetter2.getDescription(), "A rejeter");
+    assertEquals(PENDING, createdLetter2.getStatus());
 
     List<Letter> updatedLetters =
         api.updateLettersStatus(
-            List.of(new UpdateLettersStatus().id(createdLetter.getId()).status(RECEIVED)));
-    Letter updatedLetter = updatedLetters.getFirst();
-    assertEquals(RECEIVED, updatedLetter.getStatus());
-    assertNotNull(updatedLetter.getApprovalDatetime());
-    assertEquals(createdLetter.getId(), updatedLetter.getId());
+            List.of(new UpdateLettersStatus().id(createdLetter1.getId()).status(RECEIVED), new UpdateLettersStatus().id(createdLetter2.getId()).status(REJECTED).reasonForRefusal("Mauvais format")));
+
+    Letter updatedLetter1 = updatedLetters.getFirst();
+    assertEquals(RECEIVED, updatedLetter1.getStatus());
+    assertNotNull(updatedLetter1.getApprovalDatetime());
+    assertEquals(createdLetter1.getId(), updatedLetter1.getId());
+
+    Letter updatedLetter2 = updatedLetters.get(1);
+    assertEquals(REJECTED, updatedLetter2.getStatus());
+    assertNotNull(updatedLetter2.getApprovalDatetime());
+    assertEquals(createdLetter2.getId(), updatedLetter2.getId());
   }
 
   @Test
