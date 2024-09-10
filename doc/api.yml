@@ -5105,6 +5105,10 @@ components:
                 $ref: '#/components/schemas/Letter'
             pending_count:
               type: integer
+            rejected_count:
+              type: integer
+            approved_count:
+              type: integer
     LetterStatus:
       type: string
       enum:

@@ -1,8 +1,7 @@
 package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
-import static school.hei.haapi.endpoint.rest.model.LetterStatus.REJECTED;
+import static school.hei.haapi.endpoint.rest.model.LetterStatus.*;
 
 import java.io.File;
 import java.time.Instant;
@@ -55,10 +54,13 @@ public class LetterService {
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
     List<Letter> letters = letterDao.findByCriteria(ref, studentRef, status, name, pageable);
     return new PagedLettersResponse()
-            .pageNumber(page.getValue())
-            .pageSize(pageSize.getValue())
-            .pendingCount(letterRepository.countByStatus(PENDING))
-            .data(letters.stream().map(letterMapper::toRest).toList());
+        .pageNumber(page.getValue())
+        .pageSize(pageSize.getValue())
+        .pendingCount(letterRepository.countByStatus(PENDING))
+        .rejectedCount(letterRepository.countByStatus(REJECTED))
+        .approvedCount(letterRepository.countByStatus(RECEIVED))
+        .count((int) letterRepository.count())
+        .data(letters.stream().map(letterMapper::toRest).toList());
   }
 
   public Letter getLetterById(String id) {
@@ -106,15 +108,15 @@ public class LetterService {
               letterToUpdate.setStatus(lt.getStatus());
               letterToUpdate.setApprovalDatetime(Instant.now());
 
-              if(lt.getStatus() == REJECTED && Objects.isNull(lt.getReasonForRefusal())) {
+              if (lt.getStatus() == REJECTED && Objects.isNull(lt.getReasonForRefusal())) {
                 throw new BadRequestException("Must provide a reason for refusal");
               }
-              if(lt.getStatus() == PENDING){
+              if (lt.getStatus() == PENDING) {
                 throw new BadRequestException("Cannot update a status to pending");
               }
               letterToUpdate.setReasonForRefusal(lt.getReasonForRefusal());
 
-               eventProducer.accept(List.of(toUpdateLetterEmail(letterToUpdate)));
+              eventProducer.accept(List.of(toUpdateLetterEmail(letterToUpdate)));
               return letterRepository.save(letterToUpdate);
             })
         .toList();
@@ -146,8 +148,8 @@ public class LetterService {
         .description(letter.getDescription())
         .ref(letter.getStudent().getRef())
         .email(letter.getStudent().getEmail())
-            .reason(letter.getReasonForRefusal())
-            .status(letter.getStatus())
+        .reason(letter.getReasonForRefusal())
+        .status(letter.getStatus())
         .build();
   }
 }

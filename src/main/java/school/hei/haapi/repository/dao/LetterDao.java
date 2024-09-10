@@ -35,14 +35,13 @@ public class LetterDao {
               builder.like(userJoin.get("ref"), "%" + studentRef + "%")));
     }
 
-    if( name!=null ) {
+    if (name != null) {
       predicates.add(
-              builder.or(
-                      builder.like(builder.lower(userJoin.get("firstName")), "%" + name + "%"),
-                      builder.like(userJoin.get("firstName"), "%" + name + "%"),
-                      builder.like(builder.lower(userJoin.get("lastName")), "%" + name + "%"),
-                      builder.like(userJoin.get("lastName"), "%" + name + "%"))
-      );
+          builder.or(
+              builder.like(builder.lower(userJoin.get("firstName")), "%" + name + "%"),
+              builder.like(userJoin.get("firstName"), "%" + name + "%"),
+              builder.like(builder.lower(userJoin.get("lastName")), "%" + name + "%"),
+              builder.like(userJoin.get("lastName"), "%" + name + "%")));
     }
 
     if (ref != null) {

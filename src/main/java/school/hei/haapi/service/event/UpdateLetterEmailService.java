@@ -38,7 +38,10 @@ public class UpdateLetterEmailService implements Consumer<UpdateLetterEmail> {
 
   @Override
   public void accept(UpdateLetterEmail updateLetterEmail) {
-    String htmlBody = htmlToString(updateLetterEmail.getStatus() == REJECTED ? "rejectLetterEmail" : "approveLetterEmail", getMailContext(updateLetterEmail));
+    String htmlBody =
+        htmlToString(
+            updateLetterEmail.getStatus() == REJECTED ? "rejectLetterEmail" : "approveLetterEmail",
+            getMailContext(updateLetterEmail));
     mailer.accept(
         new Email(
             internetAddress(updateLetterEmail.getEmail()),

@@ -57,7 +57,8 @@ public class LetterIT extends MockedThirdParties {
     assertTrue(actual.contains(letter2()));
     assertTrue(actual.contains(letter3()));
 
-    List<Letter> filteredByStudentRef = api.getLetters(1, 15, "STD21001", null, null, null).getData();
+    List<Letter> filteredByStudentRef =
+        api.getLetters(1, 15, "STD21001", null, null, null).getData();
     assertTrue(filteredByStudentRef.contains(letter1()));
     assertTrue(filteredByStudentRef.contains(letter2()));
     assertFalse(filteredByStudentRef.contains(letter3()));
@@ -67,7 +68,8 @@ public class LetterIT extends MockedThirdParties {
     assertTrue(filteredByStudentName.contains(letter2()));
     assertFalse(filteredByStudentName.contains(letter3()));
 
-    List<Letter> filteredByLetterRef = api.getLetters(1, 15, null, "letter1_ref", null, null).getData();
+    List<Letter> filteredByLetterRef =
+        api.getLetters(1, 15, null, "letter1_ref", null, null).getData();
     assertTrue(filteredByLetterRef.contains(letter1()));
     assertFalse(filteredByLetterRef.contains(letter2()));
 
@@ -125,12 +127,12 @@ public class LetterIT extends MockedThirdParties {
     assertEquals(PENDING, createdLetter1.getStatus());
 
     HttpResponse<InputStream> toBeRejected =
-            uploadLetter(
-                    LetterIT.ContextInitializer.SERVER_PORT,
-                    MANAGER1_TOKEN,
-                    STUDENT1_ID,
-                    "A rejeter",
-                    "file");
+        uploadLetter(
+            LetterIT.ContextInitializer.SERVER_PORT,
+            MANAGER1_TOKEN,
+            STUDENT1_ID,
+            "A rejeter",
+            "file");
 
     Letter createdLetter2 = objectMapper.readValue(toBeRejected.body(), Letter.class);
     assertEquals(createdLetter2.getDescription(), "A rejeter");
@@ -138,7 +140,12 @@ public class LetterIT extends MockedThirdParties {
 
     List<Letter> updatedLetters =
         api.updateLettersStatus(
-            List.of(new UpdateLettersStatus().id(createdLetter1.getId()).status(RECEIVED), new UpdateLettersStatus().id(createdLetter2.getId()).status(REJECTED).reasonForRefusal("Mauvais format")));
+            List.of(
+                new UpdateLettersStatus().id(createdLetter1.getId()).status(RECEIVED),
+                new UpdateLettersStatus()
+                    .id(createdLetter2.getId())
+                    .status(REJECTED)
+                    .reasonForRefusal("Mauvais format")));
 
     Letter updatedLetter1 = updatedLetters.getFirst();
     assertEquals(RECEIVED, updatedLetter1.getStatus());

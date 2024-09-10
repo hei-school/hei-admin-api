@@ -33,8 +33,6 @@ import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnu
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.StudentIT.student2;
 import static school.hei.haapi.integration.StudentIT.student3;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
@@ -43,7 +41,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.Exception;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -64,7 +61,47 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.Announcement;
+import school.hei.haapi.endpoint.rest.model.AnnouncementAuthor;
+import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
+import school.hei.haapi.endpoint.rest.model.AwardedCourse;
+import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.Comment;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CreateAnnouncement;
+import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
+import school.hei.haapi.endpoint.rest.model.CreateComment;
+import school.hei.haapi.endpoint.rest.model.CreateEvent;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CreateGrade;
+import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
+import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
+import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventParticipant;
+import school.hei.haapi.endpoint.rest.model.ExamDetail;
+import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeTemplate;
+import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
+import school.hei.haapi.endpoint.rest.model.Letter;
+import school.hei.haapi.endpoint.rest.model.LetterStudent;
+import school.hei.haapi.endpoint.rest.model.Manager;
+import school.hei.haapi.endpoint.rest.model.Monitor;
+import school.hei.haapi.endpoint.rest.model.Observer;
+import school.hei.haapi.endpoint.rest.model.Promotion;
+import school.hei.haapi.endpoint.rest.model.Scope;
+import school.hei.haapi.endpoint.rest.model.Sex;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
+import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.service.aws.FileService;
@@ -1024,24 +1061,37 @@ public class TestUtils {
     String requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
 
     String descriptionPart =
-            "--" + boundary + CRLF +
-                    "Content-Disposition: form-data; name=\"description\"" + CRLF + CRLF +
-                    description + CRLF;
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"description\""
+            + CRLF
+            + CRLF
+            + description
+            + CRLF;
 
     String filenamePart =
-            "--" + boundary + CRLF +
-                    "Content-Disposition: form-data; name=\"filename\"" + CRLF + CRLF +
-                    filename + CRLF;
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"filename\""
+            + CRLF
+            + CRLF
+            + filename
+            + CRLF;
 
     byte[] requestBody =
-        Bytes.concat( descriptionPart.getBytes(), filenamePart.getBytes(), filePart.getBytes(), fileBytes, requestBodySuffix.getBytes());
+        Bytes.concat(
+            descriptionPart.getBytes(),
+            filenamePart.getBytes(),
+            filePart.getBytes(),
+            fileBytes,
+            requestBodySuffix.getBytes());
     UriComponentsBuilder uriComponentsBuilder =
         UriComponentsBuilder.fromUri(
             URI.create(
                 basePath
-                    + String.format(
-                        "/students/%s/letters",
-                        subjectId, description, filename)));
+                    + String.format("/students/%s/letters", subjectId, description, filename)));
     InputStream requestBodyStream = new ByteArrayInputStream(requestBody);
     HttpRequest request =
         HttpRequest.newBuilder()
@@ -1400,7 +1450,7 @@ public class TestUtils {
         .lastName(student.getLastName())
         .firstName(student.getFirstName())
         .nic(student.getNic())
-            .profilePicture(student.getProfilePicture());
+        .profilePicture(student.getProfilePicture());
   }
 
   public static Letter letter1() {
