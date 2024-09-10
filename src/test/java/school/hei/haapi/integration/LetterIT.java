@@ -62,6 +62,11 @@ public class LetterIT extends MockedThirdParties {
     assertTrue(filteredByStudentRef.contains(letter2()));
     assertFalse(filteredByStudentRef.contains(letter3()));
 
+    List<Letter> filteredByStudentName = api.getLetters(1, 15, null, null, null, "Ryan").getData();
+    assertTrue(filteredByStudentName.contains(letter1()));
+    assertTrue(filteredByStudentName.contains(letter2()));
+    assertFalse(filteredByStudentName.contains(letter3()));
+
     List<Letter> filteredByLetterRef = api.getLetters(1, 15, null, "letter1_ref", null, null).getData();
     assertTrue(filteredByLetterRef.contains(letter1()));
     assertFalse(filteredByLetterRef.contains(letter2()));

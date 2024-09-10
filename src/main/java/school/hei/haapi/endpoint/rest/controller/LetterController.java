@@ -28,7 +28,7 @@ public class LetterController {
       @RequestParam(name = "name", required = false) String name,
       @RequestParam(name = "status", required = false) LetterStatus status,
       @RequestParam(name = "student_ref", required = false) String studentRef) {
-    return letterService.getLetters(ref, studentRef, status, page, pageSize);
+    return letterService.getLetters(ref, studentRef, status, name ,page, pageSize);
   }
 
   @PutMapping(value = "/letters")

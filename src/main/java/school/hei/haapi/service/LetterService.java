@@ -48,11 +48,12 @@ public class LetterService {
       String ref,
       String studentRef,
       LetterStatus status,
+      String name,
       PageFromOne page,
       BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    List<Letter> letters = letterDao.findByCriteria(ref, studentRef, status, pageable);
+    List<Letter> letters = letterDao.findByCriteria(ref, studentRef, status, name, pageable);
     return new PagedLettersResponse()
             .pageNumber(page.getValue())
             .pageSize(pageSize.getValue())

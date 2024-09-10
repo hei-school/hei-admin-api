@@ -21,7 +21,7 @@ public class LetterDao {
   private final EntityManager entityManager;
 
   public List<Letter> findByCriteria(
-      String ref, String studentRef, LetterStatus status, Pageable pageable) {
+      String ref, String studentRef, LetterStatus status, String name, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Letter> query = builder.createQuery(Letter.class);
     Root<Letter> root = query.from(Letter.class);
@@ -33,6 +33,16 @@ public class LetterDao {
           builder.or(
               builder.like(builder.lower(userJoin.get("ref")), "%" + studentRef + "%"),
               builder.like(userJoin.get("ref"), "%" + studentRef + "%")));
+    }
+
+    if( name!=null ) {
+      predicates.add(
+              builder.or(
+                      builder.like(builder.lower(userJoin.get("firstName")), "%" + name + "%"),
+                      builder.like(userJoin.get("firstName"), "%" + name + "%"),
+                      builder.like(builder.lower(userJoin.get("lastName")), "%" + name + "%"),
+                      builder.like(userJoin.get("lastName"), "%" + name + "%"))
+      );
     }
 
     if (ref != null) {
