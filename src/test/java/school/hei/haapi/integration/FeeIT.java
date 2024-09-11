@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.REMEDIAL_COSTS;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 
@@ -210,6 +211,31 @@ class FeeIT extends MockedThirdParties {
   }
 
   @Test
+  void student_write_only_remedial_costs() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    PayingApi api = new PayingApi(student1Client);
+
+    CreateFee createFee = creatableFee1();
+    createFee.setType(REMEDIAL_COSTS);
+
+    List<Fee> actualFee = api.createStudentFees(STUDENT1_ID, List.of(createFee));
+
+    assertEquals(REMEDIAL_COSTS, actualFee.getFirst().getType());
+  }
+
+  @Test
+  void student_write_other_ko() {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    PayingApi api = new PayingApi(student1Client);
+    CreateFee createFee = creatableFee1();
+    createFee.setType(REMEDIAL_COSTS);
+
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.createStudentFees(STUDENT2_ID, List.of(createFee)));
+  }
+
+  @Test
   void manager_write_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
@@ -254,8 +280,8 @@ class FeeIT extends MockedThirdParties {
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.updateStudentFees(STUDENT1_ID, List.of(feeUpdated)));
     assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createStudentFees(STUDENT1_ID, List.of()));
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Student is only allowed for REMEDIAL_COSTS\"}",
+        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1())));
   }
 
   @Test
