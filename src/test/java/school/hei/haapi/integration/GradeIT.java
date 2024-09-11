@@ -11,6 +11,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
@@ -118,28 +119,52 @@ class GradeIT extends MockedThirdParties {
         () -> api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID));
   }
 
+  @Test
+  @DirtiesContext
   void manager_create_grades_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    List<ExamDetail> actual =
+    ExamDetail actual =
         api.createStudentExamGrade(
             GROUP1_ID,
             AWARDED_COURSE1_ID,
-            EXAM1_ID,
-            List.of(createGrade(STUDENT1_ID, EXAM1_ID, AWARDED_COURSE1_ID)));
-    assertEquals(1, actual.size());
+            EXAM2_ID,
+            List.of(createGrade(18.0, STUDENT2_ID, EXAM2_ID, AWARDED_COURSE1_ID)));
+
+    assertEquals(1, actual.getParticipants().size());
+    assertEquals(STUDENT2_ID, actual.getParticipants().getFirst().getId());
+    assertEquals(18.0, actual.getParticipants().getFirst().getGrade().getScore());
   }
 
+  @Test
+  @DirtiesContext
   void teacher_create_his_exam_grades_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    List<ExamDetail> actual =
+    ExamDetail actual =
         api.createStudentExamGrade(
             GROUP1_ID,
             AWARDED_COURSE1_ID,
-            EXAM1_ID,
-            List.of(createGrade(STUDENT1_ID, EXAM1_ID, AWARDED_COURSE1_ID)));
-    assertEquals(1, actual.size());
+            EXAM2_ID,
+            List.of(createGrade(18.0, STUDENT2_ID, EXAM2_ID, AWARDED_COURSE1_ID)));
+
+    assertEquals(1, actual.getParticipants().size());
+    assertEquals(STUDENT2_ID, actual.getParticipants().getFirst().getId());
+    assertEquals(18.0, actual.getParticipants().getFirst().getGrade().getScore());
+  }
+
+  @Test
+  void teacher_create_other_exam_grades_ko() {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+
+    assertThrowsForbiddenException(
+        () ->
+            api.createStudentExamGrade(
+                GROUP1_ID,
+                AWARDED_COURSE2_ID,
+                EXAM2_ID,
+                List.of(createGrade(18.0, STUDENT2_ID, EXAM2_ID, AWARDED_COURSE2_ID))));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
