@@ -356,9 +356,10 @@ public class TestUtils {
         .awardedCourseId(AWARDED_COURSE1_ID);
   }
 
-  public static CreateGrade createGrade(String studentId, String examId, String awardedCourseId) {
+  public static CreateGrade createGrade(
+      Double score, String studentId, String examId, String awardedCourseId) {
     return new CreateGrade()
-        .score(20.0)
+        .score(score)
         .studentId(studentId)
         .examId(examId)
         .awardedCourseId(awardedCourseId);
