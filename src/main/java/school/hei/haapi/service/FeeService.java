@@ -89,17 +89,11 @@ public class FeeService {
       PageFromOne page,
       BoundedPageSize pageSize,
       school.hei.haapi.endpoint.rest.model.FeeStatusEnum status,
-      boolean isMpbs,
+      Boolean isMpbs,
       String studentRef) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
-    if (isMpbs) {
-      return feeRepository.findAllByMpbsIsNotNullOrderByMpbsCreationDatetimeDesc(pageable);
-    }
-    if (status != null || studentRef != null) {
-      return feeDao.getByCriteria(status, studentRef, pageable);
-    }
-    return feeRepository.getFeesByStatus(DEFAULT_STATUS, pageable);
+    return feeDao.getByCriteria(status, isMpbs, studentRef, pageable);
   }
 
   public List<Fee> getFeesByStudentId(
