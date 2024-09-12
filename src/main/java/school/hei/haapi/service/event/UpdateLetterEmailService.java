@@ -1,5 +1,6 @@
 package school.hei.haapi.service.event;
 
+import static school.hei.haapi.endpoint.rest.model.LetterStatus.REJECTED;
 import static school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService.internetAddress;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
@@ -31,12 +32,16 @@ public class UpdateLetterEmailService implements Consumer<UpdateLetterEmail> {
 
     initial.setVariable("emailSignature", base64Converter.apply(emailSignatureImage));
     initial.setVariable("description", letter.getDescription());
+    initial.setVariable("reason", letter.getReason());
     return initial;
   }
 
   @Override
   public void accept(UpdateLetterEmail updateLetterEmail) {
-    String htmlBody = htmlToString("updateLetterEmail", getMailContext(updateLetterEmail));
+    String htmlBody =
+        htmlToString(
+            updateLetterEmail.getStatus() == REJECTED ? "rejectLetterEmail" : "approveLetterEmail",
+            getMailContext(updateLetterEmail));
     mailer.accept(
         new Email(
             internetAddress(updateLetterEmail.getEmail()),
