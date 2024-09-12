@@ -1,3 +1,18 @@
+# [1.54.0](https://github.com/hei-school/hei-admin-api/compare/v1.53.0...v1.54.0) (2024-09-12)
+
+
+### Bug Fixes
+
+* psp own datetime verification not mapped during verification  ([ca7e567](https://github.com/hei-school/hei-admin-api/commit/ca7e5672b926453730598bedda3fd13e113bdaca))
+
+
+### Features
+
+* enable student create their own fee for remedial costs  ([1d6b843](https://github.com/hei-school/hei-admin-api/commit/1d6b843d9c17bd8bc324589ffccd236ca3476a30))
+* filter letters by student name ([d31632d](https://github.com/hei-school/hei-admin-api/commit/d31632de3db89059cf5b0bbe95d9d75f6ecd9fbc))
+
+
+
 # [1.53.0](https://github.com/hei-school/hei-admin-api/compare/v1.52.0...v1.53.0) (2024-09-04)
 
 
@@ -80,22 +95,6 @@
 ### Features
 
 * add new user role as MONITOR  ([29352cc](https://github.com/hei-school/hei-admin-api/commit/29352ccf101a481abac7877ab59767d2801f0a1f))
-
-
-
-# [1.44.0](https://github.com/hei-school/hei-admin-api/compare/v1.43.0...v1.44.0) (2024-08-28)
-
-
-### Bug Fixes
-
-* compute student repeating year by promotion start datetime first  ([1bf2297](https://github.com/hei-school/hei-admin-api/commit/1bf2297f6cbb5c1ea48b6972ab3bc019a47a5c94))
-
-
-### Features
-
-* awarded courses assigned to teacher   ([03ea738](https://github.com/hei-school/hei-admin-api/commit/03ea7387b92e757a4af38ec882f293934a1d55c5))
-* **not-implemented:** letterbox resources ([ca01759](https://github.com/hei-school/hei-admin-api/commit/ca01759ace1dc423492df616222b34d3736cee59))
-* restrict some resource for suspended student  ([72856f7](https://github.com/hei-school/hei-admin-api/commit/72856f7cb8513ab8dd6695d30056d67e6db2de9d))
 
 
 
