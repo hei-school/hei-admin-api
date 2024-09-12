@@ -139,6 +139,17 @@ public class SchoolFileIT extends MockedThirdParties {
   }
 
   @Test
+  void monitor_read_school_files_ok() throws ApiException {
+    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
+    FilesApi api = new FilesApi(monitor1Client);
+
+    List<FileInfo> schoolRegulations = api.getSchoolRegulations(1, 15);
+
+    assertTrue(schoolRegulations.contains(schoolFile()));
+    assertEquals(1, schoolRegulations.size());
+  }
+
+  @Test
   void teacher_read_school_files_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     FilesApi api = new FilesApi(teacher1Client);

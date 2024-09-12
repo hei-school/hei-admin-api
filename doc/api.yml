@@ -545,6 +545,152 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /monitors/{id}:
+    put:
+      tags:
+        - Users
+      summary: Update monitor by identifier
+      operationId: updateMonitorById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Monitor to update
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrupdateMonitor'
+      responses:
+          '200':
+            description: monitor updated.
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Monitor'
+          '400':
+            $ref: '#/components/responses/400'
+          '403':
+            $ref: '#/components/responses/403'
+          '404':
+            $ref: '#/components/responses/404'
+          '429':
+            $ref: '#/components/responses/429'
+          '500':
+            $ref: '#/components/responses/500'
+    get:
+      tags:
+        - Users
+      summary: Get monitor by identifier
+      operationId: getMonitorById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: monitor by identifier.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Monitor'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /monitors:
+    get:
+      tags:
+        - Users
+      summary: Get All monitors
+      operationId: getMonitors
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+        - name: page_size
+          in: query
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: ref
+          in: query
+          description: "Filter students by ref, case is ignored"
+          schema:
+            type: string
+        - name: first_name
+          in: query
+          description: "Filter students by first name, case is ignored"
+          schema:
+            type: string
+        - name: last_name
+          in: query
+          description: "Filter students by last name, case is ignored"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of monitors, ordered by ref.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Monitor'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Users
+      summary: Create new monitors or update existing monitors
+      description: Update monitors when `id` are provided, create them otherwise.
+      operationId: createOrUpdateMonitors
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateMonitor'
+      responses:
+        '200':
+          description: The created or updated monitors
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Monitor'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/courses/{id}':
     get:
       tags:
@@ -2920,6 +3066,90 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /monitors/{id}/students:
+    get:
+      tags:
+        - Monitoring
+      summary: Get all students linked to a monitor
+      description: All students linked to a monitor order by Ref ASC
+      operationId: getLinkedStudentsByMonitorId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: true
+        - name: page_size
+          in: query
+          required: true
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      responses:
+        '200':
+          description: List of student linked to a monitor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Monitoring
+      summary: Link students to monitor
+      description: Link given students to a monitor
+      operationId: linkStudentsByMonitorId
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        description: Students to be linked to a monitor
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UserIdentifier'
+      responses:
+        '200':
+          description: List of student linked to a monitor
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Student'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /events:
     get:
       tags:
@@ -3269,6 +3499,213 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
+  '/letters':
+    get:
+      tags:
+        - Letters
+      summary: All letters paginated
+      operationId: getLetters
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+          required: false
+        - name: student_ref
+          in: query
+          description: Filter by student ref
+          schema:
+            type: string
+          required: false
+        - name: ref
+          in: query
+          description: Filter by letter ref
+          schema:
+            type: string
+          required: false
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            $ref: '#/components/schemas/LetterStatus'
+      responses:
+        '200':
+          description: Letters
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Letter'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Letters
+      summary: Update letters status
+      operationId: updateLettersStatus
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdateLettersStatus'
+      responses:
+        '200':
+          description: The letters updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Letter'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/letters/{id}':
+    get:
+      tags:
+        - Letters
+      summary: Letter by the given id
+      operationId: getLetterById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: The letters updated
+          content:
+            application/json:
+              schema:
+               $ref: '#/components/schemas/Letter'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/students/{student_id}/letters':
+    get:
+      tags:
+        - Letters
+      summary: Letters by the given student id
+      operationId: getLettersByStudentId
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: status
+          in: query
+          description: Filter by status
+          schema:
+            $ref: '#/components/schemas/LetterStatus'
+      responses:
+        '200':
+          description: All letters by the given student id
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Letter'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    post:
+      tags:
+        - Letters
+      summary: Create a letter for the given student id
+      operationId: createLetter
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: description
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: filename
+          in: query
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              $ref: "#/components/schemas/UploadFile"
+      responses:
+        '200':
+          description: The letter by the given student id
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Letter'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/announcements':
     get:
       tags:
@@ -3694,6 +4131,7 @@ components:
         role:
           type: string
           enum:
+            - MONITOR
             - STUDENT
             - TEACHER
             - MANAGER
@@ -3830,6 +4268,9 @@ components:
       properties:
         specialization_field:
           $ref: '#/components/schemas/SpecializationField'
+    CrupdateMonitor:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
     CrupdateTeacher:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
@@ -3898,6 +4339,12 @@ components:
             $ref: '#/components/schemas/Group'
         is_repeating_year:
           type: boolean
+    Monitor:
+      allOf:
+        - $ref: '#/components/schemas/CrupdateUser'
+      properties:
+        profile_picture:
+          type: string
     Teacher:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
@@ -4619,6 +5066,66 @@ components:
           type: integer
         suspended:
           type: integer
+    Letter:
+      type: object
+      properties:
+        id:
+          type: string
+        description:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
+        approval_datetime:
+          type: string
+          format: date-time
+        ref:
+          type: string
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+        file_url:
+          type: string
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
+    PagedLettersResponse:
+      type: object
+      allOf:
+        - $ref: '#/components/schemas/PagedResponse'
+        - properties:
+            data:
+              type: array
+              items:
+                $ref: '#/components/schemas/Letter'
+    LetterStatus:
+      type: string
+      enum:
+        - PENDING
+        - RECEIVED
+    PagedResponse:
+      type: object
+      properties:
+        page_size:
+          type: integer
+        page_number:
+          type: integer
+        has_previous:
+          type: boolean
+        count:
+          type: integer
+    UpdateLettersStatus:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+    UpdateLettersStatusResponse:
+      type: object
+      properties:
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Letter'
     Exception:
       type: object
       properties:

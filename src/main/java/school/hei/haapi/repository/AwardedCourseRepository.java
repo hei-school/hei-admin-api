@@ -8,8 +8,9 @@ import school.hei.haapi.model.AwardedCourse;
 
 @Repository
 public interface AwardedCourseRepository extends JpaRepository<AwardedCourse, String> {
-  // todo: to review all class
   AwardedCourse getByIdAndGroupId(String Id, String groupId);
 
-  List<AwardedCourse> findByGroupId(String groupId, Pageable pageable);
+  List<AwardedCourse> findAllByGroupId(String groupId, Pageable pageable);
+
+  List<AwardedCourse> findAllByMainTeacherId(String teacherId, Pageable pageable);
 }

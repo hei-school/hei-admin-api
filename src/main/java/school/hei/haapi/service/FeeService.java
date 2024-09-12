@@ -149,7 +149,9 @@ public class FeeService {
     lateFees.forEach(lf -> feeRepository.updateFeeStatusById(LATE, lf.getId()));
     log.info("lateFees = {}", lateFees.stream().map(Fee::describe).toList());
     // Send list of late fees with student ref to contact
-    eventProducer.accept(List.of(toStudentsWithOverdueFeesReminder(lateFees)));
+    if (!lateFees.isEmpty()) {
+      eventProducer.accept(List.of(toStudentsWithOverdueFeesReminder(lateFees)));
+    }
     return lateFees;
   }
 

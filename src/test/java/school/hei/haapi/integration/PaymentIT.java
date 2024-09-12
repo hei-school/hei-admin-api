@@ -15,6 +15,7 @@ import static school.hei.haapi.integration.conf.TestUtils.FEE4_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE5_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.PAYMENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.PAYMENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.PAYMENT4_ID;
@@ -24,6 +25,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -183,6 +185,17 @@ class PaymentIT extends MockedThirdParties {
   }
 
   @Test
+  void monitor_read_own_followed_student_payment_ok() throws ApiException {
+    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
+    PayingApi api = new PayingApi(monitor1Client);
+
+    List<Payment> actual = api.getStudentPayments(STUDENT1_ID, FEE1_ID, 1, 5);
+
+    assertTrue(actual.contains(payment1()));
+    assertTrue(actual.contains(payment2()));
+  }
+
+  @Test
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
@@ -221,6 +234,14 @@ class PaymentIT extends MockedThirdParties {
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.getStudentPayments(STUDENT2_ID, FEE3_ID, null, null));
+  }
+
+  @Test
+  void monitor_read_other_student_payment_ko() {
+    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
+    PayingApi api = new PayingApi(monitor1Client);
+
+    assertThrowsForbiddenException(() -> api.getStudentPayments(STUDENT2_ID, FEE3_ID, null, null));
   }
 
   @Test

@@ -7,6 +7,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
+import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
 import static school.hei.haapi.endpoint.rest.model.EventType.SEMINAR;
@@ -14,15 +15,22 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
+import static school.hei.haapi.endpoint.rest.model.LetterStatus.RECEIVED;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.AIRTEL_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
+import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
 import static school.hei.haapi.endpoint.rest.model.Scope.GLOBAL;
 import static school.hei.haapi.endpoint.rest.model.Scope.STUDENT;
+import static school.hei.haapi.endpoint.rest.model.Sex.F;
+import static school.hei.haapi.endpoint.rest.model.Sex.M;
+import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.ADD;
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.REMOVE;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -82,7 +90,9 @@ import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
+import school.hei.haapi.endpoint.rest.model.Letter;
 import school.hei.haapi.endpoint.rest.model.Manager;
+import school.hei.haapi.endpoint.rest.model.Monitor;
 import school.hei.haapi.endpoint.rest.model.Observer;
 import school.hei.haapi.endpoint.rest.model.Promotion;
 import school.hei.haapi.endpoint.rest.model.Scope;
@@ -110,6 +120,7 @@ public class TestUtils {
   public static final String TEACHER2_ID = "teacher2_id";
   public static final String TEACHER3_ID = "teacher3_id";
   public static final String TEACHER4_ID = "teacher4_id";
+  public static final String MONITOR1_ID = "monitor1_id";
   public static final String MANAGER_ID = "manager1_id";
   public static final String GROUP1_ID = "group1_id";
   public static final String GROUP2_ID = "group2_id";
@@ -146,6 +157,7 @@ public class TestUtils {
   public static final String BAD_TOKEN = "bad_token";
   public static final String STUDENT1_TOKEN = "student1_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
+  public static final String MONITOR1_TOKEN = "monitor1_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
   public static final String SUSPENDED_TOKEN = "suspended_token";
   public static final String FEE_TEMPLATE1_ID = "fee_template1";
@@ -169,6 +181,16 @@ public class TestUtils {
   public static final String STUDENT7_ID = "student7_id";
   public static final String STUDENT8_ID = "student8_id";
 
+  public static final String NOT_EXISTING_ID = "not_existing_id";
+
+  public static final String LETTER1_ID = "letter1_id";
+  public static final String LETTER2_ID = "letter2_id";
+  public static final String LETTER3_ID = "letter3_id";
+
+  public static final String LETTER1_REF = "letter1_ref";
+  public static final String LETTER2_REF = "letter2_ref";
+  public static final String LETTER3_REF = "letter3_ref";
+
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
     client.setScheme("http");
@@ -190,6 +212,7 @@ public class TestUtils {
   public static void setUpCognito(CognitoComponent cognitoComponent) {
     when(cognitoComponent.getEmailByIdToken(BAD_TOKEN)).thenReturn(null);
     when(cognitoComponent.getEmailByIdToken(STUDENT1_TOKEN)).thenReturn("test+ryan@hei.school");
+    when(cognitoComponent.getEmailByIdToken(MONITOR1_TOKEN)).thenReturn("test+monitor@hei.school");
     when(cognitoComponent.getEmailByIdToken(STUDENT8_TOKEN))
         .thenReturn("test+repeating2@hei" + ".school");
     when(cognitoComponent.getEmailByIdToken(TEACHER1_TOKEN)).thenReturn("test+teacher1@hei.school");
@@ -305,6 +328,27 @@ public class TestUtils {
         .mainTeacherId("teacher2_id");
   }
 
+  public static AwardedCourse updatedAwardedCourse2() {
+    return new AwardedCourse()
+        .id(AWARDED_COURSE2_ID)
+        .course(course2())
+        .group(group2())
+        .mainTeacher(teacher2());
+  }
+
+  public static List<CreateAwardedCourse> someAwardedCoursesToCrupdate() {
+    return List.of(
+        new CreateAwardedCourse()
+            .id(AWARDED_COURSE2_ID)
+            .courseId("course2_id")
+            .groupId("group2_id")
+            .mainTeacherId("teacher2_id"),
+        new CreateAwardedCourse()
+            .courseId("course2_id")
+            .groupId("group1_id")
+            .mainTeacherId("teacher2_id"));
+  }
+
   public static ExamInfo createExam() {
     return new ExamInfo()
         .coefficient(10)
@@ -407,6 +451,58 @@ public class TestUtils {
         .size(0);
   }
 
+  public static Student student1() {
+    Student student = new Student();
+    student.setId("student1_id");
+    student.setFirstName("Ryan");
+    student.setLastName("Andria");
+    student.setEmail("test+ryan@hei.school");
+    student.setRef("STD21001");
+    student.setPhone("0322411123");
+    student.setStatus(ENABLED);
+    student.setSex(M);
+    student.setBirthDate(LocalDate.parse("2000-01-01"));
+    student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    student.setAddress("Adr 1");
+    student.setNic("");
+    student.setSpecializationField(COMMON_CORE);
+    student.setBirthPlace("");
+    student.setCoordinates(new Coordinates().longitude(-123.123).latitude(123.0));
+    student.setHighSchoolOrigin("Lycée Andohalo");
+    student.setWorkStudyStatus(WORKING);
+    student.setProfessionalExperience(WORKER_STUDENT);
+    student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24Z"));
+    student.setGroups(List.of(group1(), group2()));
+    student.setIsRepeatingYear(false);
+    return student;
+  }
+
+  public static Student student2() {
+    Student student = new Student();
+    student.setId("student2_id");
+    student.setFirstName("Two");
+    student.setLastName("Student");
+    student.setEmail("test+student2@hei.school");
+    student.setRef("STD21002");
+    student.setPhone("0322411124");
+    student.setStatus(ENABLED);
+    student.setSex(F);
+    student.setBirthDate(LocalDate.parse("2000-01-02"));
+    student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+    student.setAddress("Adr 2");
+    student.setBirthPlace("");
+    student.setNic("");
+    student.setSpecializationField(COMMON_CORE);
+    student.setCoordinates(new Coordinates().longitude(255.255).latitude(-255.255));
+    student.setHighSchoolOrigin("Lycée Andohalo");
+    student.setWorkStudyStatus(WORKING);
+    student.setProfessionalExperience(WORKER_STUDENT);
+    student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24.00Z"));
+    student.setGroups(List.of(group1()));
+    student.setIsRepeatingYear(false);
+    return student;
+  }
+
   public static Teacher teacher1() {
     return new Teacher()
         .id("teacher1_id")
@@ -476,6 +572,25 @@ public class TestUtils {
         .birthPlace("")
         .address("Adr 5")
         .coordinates(coordinatesWithNullValues());
+  }
+
+  public static Monitor monitor1() {
+    return new Monitor()
+        .id(MONITOR1_ID)
+        .firstName("Monitor")
+        .lastName("One")
+        .email("test+monitor@hei.school")
+        .ref("MTR21001")
+        .phone("0322411123")
+        .status(EnableStatus.ENABLED)
+        .sex(Sex.M)
+        .birthDate(LocalDate.parse("2000-01-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .nic("")
+        .birthPlace("")
+        .address("Adr 1")
+        .coordinates(new Coordinates().longitude(-123.123).latitude(123.0))
+        .highSchoolOrigin("Lycée Andohalo");
   }
 
   public static Fee fee1() {
@@ -920,6 +1035,53 @@ public class TestUtils {
     return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
   }
 
+  public static HttpResponse<InputStream> uploadLetter(
+      Integer serverPort, String token, String subjectId, String description, String filename)
+      throws IOException, InterruptedException {
+    HttpClient client = HttpClient.newHttpClient();
+
+    String basePath = "http://localhost:" + serverPort;
+
+    String boundary = "---------------------------" + System.currentTimeMillis();
+    String contentTypeHeader = "multipart/form-data; boundary=" + boundary;
+
+    File file = getMockedFile("img", ".png");
+
+    String requestBodyPrefix =
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"file_to_upload\"; filename=\""
+            + file.getName()
+            + "\""
+            + CRLF
+            + "Content-Type: image/png"
+            + CRLF
+            + CRLF;
+    byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
+    String requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
+
+    byte[] requestBody =
+        Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
+    UriComponentsBuilder uriComponentsBuilder =
+        UriComponentsBuilder.fromUri(
+            URI.create(
+                basePath
+                    + String.format(
+                        "/students/%s/letters?description=%s&filename=%s",
+                        subjectId, description, filename)));
+    InputStream requestBodyStream = new ByteArrayInputStream(requestBody);
+    HttpRequest request =
+        HttpRequest.newBuilder()
+            .uri(uriComponentsBuilder.build().toUri())
+            .header("Content-Type", contentTypeHeader)
+            .header("Authorization", "Bearer " + token)
+            .POST(HttpRequest.BodyPublishers.ofInputStream(() -> requestBodyStream))
+            .build();
+
+    return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
+  }
+
   public static Coordinates coordinatesWithNullValues() {
     return new Coordinates().latitude(null).longitude(null);
   }
@@ -1256,6 +1418,52 @@ public class TestUtils {
         .name("Promotion 23-24")
         .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
         .groups(List.of());
+  }
+
+  public static UserIdentifier toUserIdentifier(Student student) {
+    return new UserIdentifier()
+        .id(student.getId())
+        .email(student.getEmail())
+        .ref(student.getRef())
+        .lastName(student.getLastName())
+        .firstName(student.getFirstName())
+        .nic(student.getNic());
+  }
+
+  public static Letter letter1() {
+    return new Letter()
+        .id(LETTER1_ID)
+        .ref(LETTER1_REF)
+        .student(toUserIdentifier(student1()))
+        .status(RECEIVED)
+        .approvalDatetime(Instant.parse("2021-12-08T08:25:24.00Z"))
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .fileUrl(null)
+        .description("Certificat de residence");
+  }
+
+  public static Letter letter2() {
+    return new Letter()
+        .id(LETTER2_ID)
+        .ref(LETTER2_REF)
+        .student(toUserIdentifier(student1()))
+        .status(PENDING)
+        .approvalDatetime(null)
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .fileUrl(null)
+        .description("Bordereau de versement");
+  }
+
+  public static Letter letter3() {
+    return new Letter()
+        .id(LETTER3_ID)
+        .ref(LETTER3_REF)
+        .student(toUserIdentifier(student2()))
+        .status(PENDING)
+        .approvalDatetime(null)
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .fileUrl(null)
+        .description("CV");
   }
 
   public static UpdatePromotionSGroup addGroupToPromotion3() {

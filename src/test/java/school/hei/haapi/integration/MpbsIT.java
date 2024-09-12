@@ -10,6 +10,7 @@ import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
@@ -72,9 +73,27 @@ public class MpbsIT extends MockedThirdParties {
   }
 
   @Test
+  void monitor_read_own_followed_student_mobile_money_ok() throws ApiException {
+    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
+    PayingApi api = new PayingApi(monitor1Client);
+
+    Mpbs actual = api.getMpbs(STUDENT1_ID, FEE1_ID);
+
+    assertEquals(expectedMpbs1(), actual);
+  }
+
+  @Test
   void student_read_others_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
+
+    assertThrowsForbiddenException(() -> api.getMpbs(STUDENT2_ID, FEE2_ID));
+  }
+
+  @Test
+  void monitor_read_others_student_mobile_money_ko() throws ApiException {
+    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
+    PayingApi api = new PayingApi(monitor1Client);
 
     assertThrowsForbiddenException(() -> api.getMpbs(STUDENT2_ID, FEE2_ID));
   }
@@ -105,7 +124,11 @@ public class MpbsIT extends MockedThirdParties {
   }
 
   public static CreateMpbs createableMpbs1() {
-    return new CreateMpbs().studentId(STUDENT1_ID).feeId(FEE2_ID).pspType(MVOLA).pspId("psp1_id");
+    return new CreateMpbs()
+        .studentId(STUDENT1_ID)
+        .feeId(FEE2_ID)
+        .pspType(MVOLA)
+        .pspId("MP240726.1541.D88425");
   }
 
   public static CreateMpbs createableMpbsFromFeeIdWithStudent1(String feeId) {
@@ -113,7 +136,7 @@ public class MpbsIT extends MockedThirdParties {
         .studentId(STUDENT1_ID)
         .feeId(feeId)
         .pspType(ORANGE_MONEY)
-        .pspId("psp_test");
+        .pspId("MP240726.1541.D88425");
   }
 
   private static ApiClient anApiClient(String token) {
