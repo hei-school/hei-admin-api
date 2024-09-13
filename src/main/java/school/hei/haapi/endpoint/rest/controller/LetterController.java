@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -52,7 +54,7 @@ public class LetterController {
         .toList();
   }
 
-  @PostMapping(value = "/students/{student_id}/letters")
+  @PostMapping(value = "/students/{student_id}/letters", consumes = MULTIPART_FORM_DATA_VALUE)
   public Letter createLetter(
       @PathVariable String student_id,
       @RequestPart(name = "description") String description,
