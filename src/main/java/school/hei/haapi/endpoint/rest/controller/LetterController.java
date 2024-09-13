@@ -56,7 +56,7 @@ public class LetterController {
   public Letter createLetter(
       @PathVariable String student_id,
       @RequestPart(name = "description") String description,
-      @RequestPart String filename,
+      @RequestPart(name = "filename") String filename,
       @RequestPart(name = "file_to_upload") MultipartFile file) {
     return letterMapper.toRest(letterService.createLetter(student_id, description, filename, file));
   }
