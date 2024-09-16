@@ -1,3 +1,12 @@
+## [1.54.1](https://github.com/hei-school/hei-admin-api/compare/v1.54.0...v1.54.1) (2024-09-16)
+
+
+### Bug Fixes
+
+* create a student letter  ([4ea078d](https://github.com/hei-school/hei-admin-api/commit/4ea078d52b86c1d2ec7f89f00ba368891fe1123c))
+
+
+
 # [1.54.0](https://github.com/hei-school/hei-admin-api/compare/v1.53.0...v1.54.0) (2024-09-12)
 
 
@@ -86,15 +95,6 @@
 ### Features
 
 * **not-implemented:** update letterbox resources model ([56b98da](https://github.com/hei-school/hei-admin-api/commit/56b98da43c589fe17987207315217a962a6a13ef))
-
-
-
-# [1.45.0](https://github.com/hei-school/hei-admin-api/compare/v1.44.0...v1.45.0) (2024-08-29)
-
-
-### Features
-
-* add new user role as MONITOR  ([29352cc](https://github.com/hei-school/hei-admin-api/commit/29352ccf101a481abac7877ab59767d2801f0a1f))
 
 
 
