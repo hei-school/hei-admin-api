@@ -3677,19 +3677,22 @@ paths:
           required: true
           schema:
             type: string
+        - name: filename
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: description
+          in: query
+          required: true
+          schema:
+            type: string
       requestBody:
         required: true
         content:
           multipart/form-data:
             schema:
-              allOf:
-              - $ref: "#/components/schemas/UploadFile"
-              type: object
-              properties:
-                filename:
-                  type: string
-                description:
-                  type: string
+              $ref: "#/components/schemas/UploadFile"
       responses:
         '200':
           description: The letter by the given student id
