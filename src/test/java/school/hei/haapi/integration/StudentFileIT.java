@@ -29,6 +29,7 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.web.client.RestTemplate;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.FilesApi;
+import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
@@ -60,6 +61,34 @@ public class StudentFileIT extends MockedThirdParties {
     FilesApi api = new FilesApi(student1Client);
 
     assertThrowsForbiddenException(() -> api.getStudentScholarshipCertificate(STUDENT2_ID));
+  }
+
+  @Test
+  void student_load_other_fee_receipt_ko() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    PayingApi api = new PayingApi(student1Client);
+
+    assertThrowsForbiddenException(() -> api.getPaidFeeReceipt(STUDENT2_ID, FEE4_ID));
+  }
+
+  @Test
+  void student_load_fee_receipt_ok() throws IOException, InterruptedException {
+    String FEE_RECEIPT_RAW = "/students/" + STUDENT1_ID + "/fees/" + FEE1_ID + "/receipt/raw";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + SERVER_PORT;
+
+    HttpResponse response =
+        httpClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath + FEE_RECEIPT_RAW))
+                .GET()
+                .header("Authorization", "Bearer " + STUDENT1_TOKEN)
+                .build(),
+            HttpResponse.BodyHandlers.ofByteArray());
+
+    assertEquals(HttpStatus.OK.value(), response.statusCode());
+    assertNotNull(response.body());
+    assertNotNull(response);
   }
 
   @Test

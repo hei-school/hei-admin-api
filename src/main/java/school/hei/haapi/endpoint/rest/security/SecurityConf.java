@@ -120,6 +120,7 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/fees/*/mpbs"),
                     antMatcher(GET, "/students/*/fees/*/mpbs/verifications"),
                     antMatcher(GET, "/students/*/fees/*"),
+                    antMatcher(GET, "/students/*/fees/*/receipt/raw"),
                     antMatcher(DELETE, "/students/*/fees/*"),
                     antMatcher(GET, "/students/*/fees/*/payments"),
                     antMatcher(POST, "/students/*/fees/*/payments"),
@@ -361,6 +362,11 @@ public class SecurityConf {
                             GET, "/students/*/fees/*/payments", "students", userService))
                     .hasRole(MONITOR.getRole())
                     .requestMatchers(DELETE, "/students/*/fees/*/payments/*")
+                    .hasRole(MANAGER.getRole())
+                    .requestMatchers(
+                        new SelfMatcher(GET, "/students/*/fees/*/receipt/raw", "students"))
+                    .hasRole(STUDENT.getRole())
+                    .requestMatchers(GET, "/students/*/fees/*/receipt/raw")
                     .hasRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*", "students"))
                     .hasAnyRole(STUDENT.getRole())
