@@ -1745,6 +1745,42 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
+  /students/{student_id}/fees/{fee_id}/receipt/raw:
+    get:
+      tags:
+        - Paying
+      summary: Get receipt of paid fee
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getPaidFeeReceipt
+      responses:
+        '200':
+          description: Paid fee receipt
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: byte
+                example: PDF VERSION
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees/{fee_id}:
     get:
       tags:
