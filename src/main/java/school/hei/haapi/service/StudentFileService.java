@@ -6,7 +6,6 @@ import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
 
 import java.time.Instant;
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import org.springframework.core.io.Resource;
 import org.springframework.data.domain.PageRequest;
@@ -108,8 +107,10 @@ public class StudentFileService {
   private Context loadPaymentReceiptContext(Fee fee) {
     Resource logo = classPathResourceResolver.apply("HEI_logo", ".png");
     Context context = new Context();
-    Payment payment = paymentService.getByStudentIdAndFeeId(fee.getStudent().getId(), fee.getId()).getFirst();
-    PaidFeeReceiptDataProvider dataProvider = new PaidFeeReceiptDataProvider(fee.getStudent(), fee, payment);
+    Payment payment =
+        paymentService.getByStudentIdAndFeeId(fee.getStudent().getId(), fee.getId()).getFirst();
+    PaidFeeReceiptDataProvider dataProvider =
+        new PaidFeeReceiptDataProvider(fee.getStudent(), fee, payment);
 
     context.setVariable("paymentAuthorName", dataProvider.getEntirePaymentAuthorName());
     context.setVariable("receiptNumber", payment.getId());
