@@ -40,6 +40,13 @@ public class StudentFileController {
     return fileService.generatePdf(studentId, "scolarity");
   }
 
+  @GetMapping(
+          value = "/students/{student_id}/fees/{fee_id}/receipt/raw",
+          produces = APPLICATION_PDF_VALUE)
+  public byte[] getStudentReceiptFee(@PathVariable(name = "student_id") String studentId, @PathVariable(name = "fee_id") String feeId) {
+    return fileService.generatePaidFeeReceipt(feeId, "paidFeeReceipt");
+  }
+
   @PostMapping(value = "/students/{student_id}/files/raw", consumes = MULTIPART_FORM_DATA_VALUE)
   public FileInfo uploadStudentFile(
       @PathVariable(name = "student_id") String studentId,

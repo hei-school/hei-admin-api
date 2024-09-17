@@ -79,7 +79,12 @@ public class PaymentService {
       String studentId, String feeId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return paymentRepository.getByStudentIdAndFeeId(studentId, feeId, pageable);
+    return paymentRepository.getByStudentIdAndFeeIdWithPagination(studentId, feeId, pageable);
+  }
+
+  List<Payment> getByStudentIdAndFeeId(
+          String studentId, String feeId) {
+    return paymentRepository.getByStudentIdAndFeeId(studentId, feeId);
   }
 
   public void computeRemainingAmount(String feeId, int amount) {
