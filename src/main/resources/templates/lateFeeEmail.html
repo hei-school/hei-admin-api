@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Document</title>
     <style>
         body {
@@ -53,31 +54,42 @@
             color: rgb(164, 164, 164);
         }
 
+        .remark {
+            color: red;
+        }
+
     </style>
 </head>
 <body>
     <main>
-        <h1>Bonjour
-            <span th:text="${fullName + ' - SUSPENSION'}"></span> ,
-        </h1>
+        <section>
+            <p>Bonjour
+                <span th:text="${fullName}"></span>,
+            </p>
+        </section>
         <section>
             Sauf erreur de notre part, nous avons remarqué que vous n'avez pas encore effectué
             le paiement de <span th:text="${comment}"></span> qui devait être régler
-            au plus tard le <span th:text="${dueDatetime}"></span>, pour un montant de <span th:text="${remainingAmount}"></span> MGA.
+            au plus tard le <span th:text="${dueDatetime}"></span>, pour un montant de <span th:text="${remainingAmount}"></span> MGA,
             (<span th:text="${remainingAmWords}"></span> ARIARY).
-            Par conséquent vous allez être SUSPENDU. Pour plus d'information contacter <a href="mailto:contact@mail.hei.school">contact@mail.hei.school</a>
         </section>
         <section>
-            Veuillez régler vos impayés au plus vite afin de ne
-            pas écoper de pénalités de retard ou suspendu
-            des cours.
-            Vous pouvez contacter l’administration via l’adresse email en copie <a href="mailto:contact@mail.hei.school">contact@mail.hei.school</a>
-            ou par le numéro <a href="tel:+261349404116">+261 34 94 041 16</a> pour toute réclamation.
+            Si vous avez déjà effectué votre paiement, veuillez tout de suite remettre le bordereau de versement au bureau de HEI ou nous l'envoyer par mail avant la remise en version papier.
         </section>
         <section>
-            Veuillez respecter ces horaires pour l'envoi des e-mails : de 8h à 16h du lundi au vendredi. En dehors de cela, vos mails concernant les frais de scolarité ne seront pas pris en compte.
-
-            Heure de remise de bordereau : 10h - 12h et 14h - 16h.
+            Par conséquent, vous n'êtes autorisé ni à assister au cours ni à l'examen, jusqu'à ce que le paiement de vos frais de scolarité soit effectué.
+        </section>
+        <section>
+            Nous espérons que vous pourrez régler cette question dans les plus brefs délais afin de reprendre vos études sans interruption.
+        </section>
+        <section class="remark">
+            Remarques : Si votre paiement n'est pas effectué avant le <span th:text="${recoveryDate}"></span>, au-delà de cette date, des frais de recouvrement seront exigibles, dont le montant est fixé à 100 000 Ar.
+        </section>
+        <section>
+            Vous pouvez contacter l’administration via l’adresse email <a href="mailto:contact@hei.school">contact@hei.school</a> ou appeler le numéro <a href="tel:+261349404116">+261 34 94 041 16</a>.
+        </section>
+        <section>
+            Cordialement,
         </section>
     </main>
     <footer>
