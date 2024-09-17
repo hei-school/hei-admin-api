@@ -33,8 +33,6 @@ import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnu
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.StudentIT.student2;
 import static school.hei.haapi.integration.StudentIT.student3;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
@@ -91,6 +89,7 @@ import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
 import school.hei.haapi.endpoint.rest.model.Letter;
+import school.hei.haapi.endpoint.rest.model.LetterStudent;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Monitor;
 import school.hei.haapi.endpoint.rest.model.Observer;
@@ -1047,7 +1046,7 @@ public class TestUtils {
 
     File file = getMockedFile("img", ".png");
 
-    String requestBodyPrefix =
+    String filePart =
         "--"
             + boundary
             + CRLF
@@ -1061,15 +1060,38 @@ public class TestUtils {
     byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
     String requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
 
+    String descriptionPart =
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"description\""
+            + CRLF
+            + CRLF
+            + description
+            + CRLF;
+
+    String filenamePart =
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"filename\""
+            + CRLF
+            + CRLF
+            + filename
+            + CRLF;
+
     byte[] requestBody =
-        Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
+        Bytes.concat(
+            descriptionPart.getBytes(),
+            filenamePart.getBytes(),
+            filePart.getBytes(),
+            fileBytes,
+            requestBodySuffix.getBytes());
     UriComponentsBuilder uriComponentsBuilder =
         UriComponentsBuilder.fromUri(
             URI.create(
                 basePath
-                    + String.format(
-                        "/students/%s/letters?description=%s&filename=%s",
-                        subjectId, description, filename)));
+                    + String.format("/students/%s/letters", subjectId, description, filename)));
     InputStream requestBodyStream = new ByteArrayInputStream(requestBody);
     HttpRequest request =
         HttpRequest.newBuilder()
@@ -1420,21 +1442,22 @@ public class TestUtils {
         .groups(List.of());
   }
 
-  public static UserIdentifier toUserIdentifier(Student student) {
-    return new UserIdentifier()
+  public static LetterStudent toLetterStudent(Student student) {
+    return new LetterStudent()
         .id(student.getId())
         .email(student.getEmail())
         .ref(student.getRef())
         .lastName(student.getLastName())
         .firstName(student.getFirstName())
-        .nic(student.getNic());
+        .nic(student.getNic())
+        .profilePicture(student.getProfilePicture());
   }
 
   public static Letter letter1() {
     return new Letter()
         .id(LETTER1_ID)
         .ref(LETTER1_REF)
-        .student(toUserIdentifier(student1()))
+        .student(toLetterStudent(student1()))
         .status(RECEIVED)
         .approvalDatetime(Instant.parse("2021-12-08T08:25:24.00Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
@@ -1446,7 +1469,7 @@ public class TestUtils {
     return new Letter()
         .id(LETTER2_ID)
         .ref(LETTER2_REF)
-        .student(toUserIdentifier(student1()))
+        .student(toLetterStudent(student1()))
         .status(PENDING)
         .approvalDatetime(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
@@ -1458,7 +1481,7 @@ public class TestUtils {
     return new Letter()
         .id(LETTER3_ID)
         .ref(LETTER3_REF)
-        .student(toUserIdentifier(student2()))
+        .student(toLetterStudent(student2()))
         .status(PENDING)
         .approvalDatetime(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))

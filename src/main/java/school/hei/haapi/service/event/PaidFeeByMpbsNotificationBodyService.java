@@ -53,7 +53,7 @@ public class PaidFeeByMpbsNotificationBodyService
   @Override
   public void accept(PaidFeeByMpbsNotificationBody paidFeeByMpbsNotificationBody) {
     var body = htmlToString("paidFeeByMpbs", loadContext(paidFeeByMpbsNotificationBody));
-    String mailTitle = "Ecollage - [ Orange Money ]";
+    String mailTitle = "Ecolage - [ Orange Money ]";
     InternetAddress to =
         getInternetAdressFromEmail(paidFeeByMpbsNotificationBody.getMpbsAuthorEmail());
     mailer.accept(new Email(to, List.of(), List.of(), mailTitle, body, List.of()));

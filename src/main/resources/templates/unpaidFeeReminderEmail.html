@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Document</title>
     <style>
         body {
@@ -57,8 +58,9 @@
 </head>
 <body>
 <main>
-    <h1>Bonjour,
-    </h1>
+    <section>
+        <p>Bonjour,</p>
+    </section>
     <section>
         Nous tenons à vous rappeler que la date d'échéance du paiement des frais de scolarité est le <span th:text="${dueDatetime}"></span>,
     </section>
@@ -66,11 +68,9 @@
         Si vous avez déjà effectué vos paiements, veuillez déposer votre bordereau de versement au bureau de HEI.
     </section>
     <section>
-        Vous pouvez contacter l’administration via l’adresse email contact@mail.hei.school ou par le numéro +261 34 94 041 16 pour toute réclamation.
+        Vous pouvez contacter l’administration via l’adresse email <a href="mailto:contact@hei.school">contact@hei.school</a> ou par le numéro <a href="tel:+261349404116">+261 34 94 041 16</a> pour toute réclamation.
     </section>
     <section>
-        Veuillez respecter ces horaires pour l'envoi des e-mails : de 8h à 16h du lundi au vendredi. En dehors de cela, vos mails concernant les frais de scolarité ne seront pas pris en compte.
-
         Heure de remise de bordereau : 10h - 12h et 14h - 16h.
     </section>
 </main>

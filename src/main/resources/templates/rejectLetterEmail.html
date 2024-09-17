@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Letter</title>
+    <title>Title</title>
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
@@ -57,16 +57,16 @@
     </style>
 </head>
 <body>
-<main>
-    <section>
-        <p>Bonjour</p>
-    </section>
-    <section>
-        <span th:text="${studentRef} +' a déposé un document : '+ ${description}"></span>
-    </section>
-    <footer>
-        <div class="contacts" th:style="'background-image: url(data:image/png;base64,'+${emailSignature}+');'"></div>
-    </footer>
-</main>
+<h1>Bonjour</h1>
+<section>
+    <span th:text="'Nous avons le regret de vous informer que votre document: '+ ${description} +' a été bien rejeté : '+${reason}"></span>
+    <span th:text="'Veuillez renvoyer le document dans les plus brefs delais.'"></span>
+</section>
+<section>
+    <span th:text="'Cordialement, '"></span>
+</section>
+<footer>
+    <div class="contacts" th:style="'background-image: url(data:image/png;base64,'+${emailSignature}+');'"></div>
+</footer>
 </body>
 </html>

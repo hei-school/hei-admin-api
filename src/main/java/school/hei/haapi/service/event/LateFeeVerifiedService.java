@@ -22,6 +22,7 @@ import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
+import school.hei.haapi.service.utils.DateUtils;
 
 @Service
 @AllArgsConstructor
@@ -42,6 +43,9 @@ public class LateFeeVerifiedService implements Consumer<LateFeeVerified> {
 
   private Context getMailContext(LateFeeVerified lateFee) {
     Context initial = new Context();
+    String dueDateString = instantToCommonDate(lateFee.getDueDatetime());
+    String recoveryDate = DateUtils.getRecoveryDate(dueDateString);
+
     Resource emailSignatureImage = classPathResourceResolver.apply("HEI_signature", ".png");
 
     initial.setVariable("fullName", formatName(lateFee.getStudent()));
@@ -50,6 +54,7 @@ public class LateFeeVerifiedService implements Consumer<LateFeeVerified> {
     initial.setVariable("remainingAmount", numberToReadable(lateFee.getRemainingAmount()));
     initial.setVariable("remainingAmWords", numberToWords(lateFee.getRemainingAmount()));
     initial.setVariable("emailSignature", base64Converter.apply(emailSignatureImage));
+    initial.setVariable("recoveryDate", recoveryDate);
     return initial;
   }
 

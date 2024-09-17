@@ -3535,15 +3535,19 @@ paths:
           description: Filter by status
           schema:
             $ref: '#/components/schemas/LetterStatus'
+        - name: name
+          in: query
+          description: Filter by student name
+          schema:
+            type: string
+          required: false
       responses:
         '200':
           description: Letters
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/Letter'
+                $ref: '#/components/schemas/PagedLettersResponse'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3673,12 +3677,12 @@ paths:
           required: true
           schema:
             type: string
-        - name: description
+        - name: filename
           in: query
           required: true
           schema:
             type: string
-        - name: filename
+        - name: description
           in: query
           required: true
           schema:
@@ -5086,7 +5090,13 @@ components:
         file_url:
           type: string
         student:
-          $ref: '#/components/schemas/UserIdentifier'
+          allOf:
+            - $ref: '#/components/schemas/UserIdentifier'
+          properties:
+            profile_picture:
+              type: string
+        reason_for_refusal:
+          type: string
     PagedLettersResponse:
       type: object
       allOf:
@@ -5096,11 +5106,18 @@ components:
               type: array
               items:
                 $ref: '#/components/schemas/Letter'
+            pending_count:
+              type: integer
+            rejected_count:
+              type: integer
+            approved_count:
+              type: integer
     LetterStatus:
       type: string
       enum:
         - PENDING
         - RECEIVED
+        - REJECTED
     PagedResponse:
       type: object
       properties:
@@ -5119,6 +5136,8 @@ components:
           type: string
         status:
           $ref: '#/components/schemas/LetterStatus'
+        reason_for_refusal:
+          type: string
     UpdateLettersStatusResponse:
       type: object
       properties:

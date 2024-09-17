@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
+    <meta charset="UTF-8">
     <title>Document</title>
     <style>
         body {
@@ -53,17 +54,23 @@
 </head>
 <body>
 <main>
-    <h1>Bonjour
-        <span th:text="${mpbsAuthor + ' - PAIEMENT PAR ORANGE MONEY'}"></span> ,
-    </h1>
     <section>
-        La transaction sur votre écolage a bien été effectuée
-        pour un montant de <span th:text="${pspAmount}"></span> MGA,
-        (<span th:text="${pspAmountWord}"></span> ARIARY). Au nom de <span th:text="${mpbsAuthor}"></span>
-        Pour plus d'informations, contacter <a href="mailto:contact@mail.hei.school">contact@mail.hei.school</a>
+        <p>Bonjour
+            <span th:text="${mpbsAuthor + ' - PAIEMENT PAR ORANGE MONEY'}"></span> ,
+        </p>
     </section>
     <section>
-        Veuillez respecter ces horaires pour l'envoi des e-mails : de 8h à 16h du lundi au vendredi. En dehors de cela, vos mails concernant les frais de scolarité ne seront pas pris en compte.
+            Le paiement de vos frais de scolarité par Orange Money, pour un montant de <span th:text="${pspAmount}"></span> MGA,
+            (<span th:text="${pspAmountWord}"></span> ARIARY), au nom de <span th:text="${mpbsAuthor}"></span>, a été effectué avec succès.
+    </section>
+    <section>
+        Vous pouvez désormais télécharger votre reçu de paiement dans HEI Admin.
+    </section>
+    <section>
+        N'hésitez pas à contacter l’administration via l’adresse email  <a href="mailto:contact@hei.school">contact@hei.school</a>  pour toutes informations complémentaires.
+    </section>
+    <section>
+        Cordialement,
     </section>
 </main>
 <footer>
