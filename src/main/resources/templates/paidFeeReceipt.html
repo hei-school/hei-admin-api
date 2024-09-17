@@ -2,8 +2,8 @@
 
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <title>Document</title>
-</head>
+    <meta charset="UTF-8" />
+    <title>Reçu de paiement</title>
 <style>
     * {
         padding: 0;
@@ -44,6 +44,7 @@
         background-repeat: no-repeat;
     }
 </style>
+</head>
 <body>
 <header>
     <table class="table">
@@ -67,7 +68,7 @@
         <tr>
             <td>STAT : 85497 11 2022 0 11417</td>
             <td></td>
-            <td>ARIARY : <span th:text="${receiptNumber}"></span></td>
+            <td>ARIARY : <span th:text="${totalAmount}"></span></td>
         </tr>
         <tr>
             <td>RCS : 2022 B 01373</td>
@@ -101,8 +102,8 @@
         </tr>
         <tr>
             <td><img src="signature.png" alt="signature" class="signature" /></td>
-            <td th:text="${receiptNumber}"></td>
             <td th:text="${paymentType}"></td>
+            <td th:text="${paymentAuthorName}"></td>
         </tr>
     </table>
 </header>
