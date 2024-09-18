@@ -112,6 +112,7 @@ public class StudentFileService {
     PaidFeeReceiptDataProvider dataProvider =
         new PaidFeeReceiptDataProvider(fee.getStudent(), fee, payment);
 
+    context.setVariable("logo", logo);
     context.setVariable("paymentAuthorName", dataProvider.getEntirePaymentAuthorName());
     context.setVariable("receiptNumber", payment.getId());
     context.setVariable("totalAmount", dataProvider.getFeeTotalAmount());
