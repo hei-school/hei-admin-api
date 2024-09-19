@@ -3583,7 +3583,9 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/PagedLettersResponse'
+                type: array
+                items:
+                 $ref: '#/components/schemas/Letter'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3645,6 +3647,29 @@ paths:
             application/json:
               schema:
                $ref: '#/components/schemas/Letter'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/letters/stats':
+    get:
+      tags:
+        - Letters
+      summary: Get stats for letters
+      operationId: getLetterStats
+      responses:
+        '200':
+          description: Some stats for letters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LetterStats'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -5148,6 +5173,15 @@ components:
               type: integer
             approved_count:
               type: integer
+    LetterStats:
+      type: object
+      properties:
+        pending:
+          type: integer
+        received:
+          type: integer
+        rejected:
+          type: integer
     LetterStatus:
       type: string
       enum:
