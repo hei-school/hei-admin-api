@@ -7,10 +7,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.mapper.LetterMapper;
-import school.hei.haapi.endpoint.rest.model.Letter;
-import school.hei.haapi.endpoint.rest.model.LetterStatus;
-import school.hei.haapi.endpoint.rest.model.PagedLettersResponse;
-import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.LetterService;
@@ -23,14 +20,21 @@ public class LetterController {
   private final LetterMapper letterMapper;
 
   @GetMapping(value = "/letters")
-  public PagedLettersResponse getLetters(
+  public List<Letter> getLetters(
       @RequestParam(name = "page") PageFromOne page,
       @RequestParam(name = "page_size") BoundedPageSize pageSize,
       @RequestParam(name = "ref", required = false) String ref,
       @RequestParam(name = "name", required = false) String name,
       @RequestParam(name = "status", required = false) LetterStatus status,
       @RequestParam(name = "student_ref", required = false) String studentRef) {
-    return letterService.getLetters(ref, studentRef, status, name, page, pageSize);
+    return letterService.getLetters(ref, studentRef, status, name, page, pageSize).stream()
+        .map(letterMapper::toRest)
+        .toList();
+  }
+
+  @GetMapping(value = "/letters/stats")
+  public LetterStats getStats() {
+    return letterService.getStats();
   }
 
   @PutMapping(value = "/letters")
