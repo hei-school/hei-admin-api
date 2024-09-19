@@ -4,116 +4,116 @@
 <head>
     <meta charset="UTF-8" />
     <title>Reçu de paiement</title>
-<style>
-    * {
-        margin: 0;
-        padding: 0;
-        font-size: 16px;
-        font-family: Arial, Helvetica, sans-serif;
-        box-sizing: border-box;
-    }
-    header {
-        background: whitesmoke;
-        width: fit-content;
-        margin-left: 5px;
-        padding: 8px;
-    }
-    .table {
-        width: 700px;
-        padding: 5px;
-    }
-    td {
-        padding: 5px;
-        width: calc(100% / 3);
-    }
-    .signature {
-        height: 60px;
-        object-fit: contain;
-    }
-    th {
-        text-align: left;
-    }
-    .logo_content {
-        width: 500px;
-        height: 150px;
-        margin: 0 auto;
-        background-size: contain;
-        background-position: center;
-        background-repeat: no-repeat;
-    }
-    .certificat_title h1 {
-        text-align: center;
-        font-size: 1.1rem;
-        font-weight: 400;
-        position: absolute;
-        bottom: 0;
-        width: 100%;
-        margin: 0 auto;
-        margin-top: 10px;
-        font-family: "Times New Roman";
-    }
-    .certificat_title {
-        position: relative;
-        height: auto;
-    }
-</style>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            font-size: 16px;
+            font-family: Arial, Helvetica, sans-serif;
+            box-sizing: border-box;
+        }
+        header {
+            background: whitesmoke;
+            width: fit-content;
+            margin-left: 5px;
+            padding: 8px;
+        }
+        .table {
+            width: 700px;
+            padding: 5px;
+        }
+        td {
+            padding: 5px;
+            width: calc(100% / 3);
+        }
+        .signature {
+            height: 60px;
+            object-fit: contain;
+        }
+        th {
+            text-align: left;
+        }
+        .logo_content {
+            width: 500px;
+            height: 150px;
+            margin: 0 auto;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        .certificat_title h1 {
+            text-align: center;
+            font-size: 1.1rem;
+            font-weight: 400;
+            position: absolute;
+            bottom: 0;
+            width: 100%;
+            margin: 0 auto;
+            margin-top: 10px;
+            font-family: "Times New Roman";
+        }
+        .certificat_title {
+            position: relative;
+            height: auto;
+        }
+    </style>
 </head>
 <body>
 <div class="certificat_title">
     <div class="logo_content" th:style="'background-image: url(data:image/png;base64,'+${logo}+');'"></div>
     <h1>Haute École d’Informatique de Madagascar</h1>
 </div>
-    <table class="table">
-        <tr>
-            <td><h1 style="font-size: 18px">HEI Madagascar</h1></td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>NIF : 401 241 4843</td>
-            <td></td>
-            <td>N° : <span th:text="${receiptNumber}"></span></td>
-        </tr>
-        <tr>
-            <td>STAT : 85497 11 2022 0 11417</td>
-            <td></td>
-            <td>ARIARY : <span th:text="${totalAmount}"></span></td>
-        </tr>
-        <tr>
-            <td>RCS : 2022 B 01373</td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>+261(0) 34 94 041 16</td>
-            <td><h2 style="padding-left: 30%">REÇU</h2></td>
-            <td>Le : <span th:text="${paymentDate}"></span></td>
-        </tr>
-        <tr>
-            <td>Contact@hei.school</td>
-            <td></td>
-            <td></td>
-        </tr>
-        <tr>
-            <td>HAB n° 31 309 / 2023 - MESupRES</td>
-            <td></td>
-            <td></td>
-        </tr>
-    </table>
-    <p style="padding: 10px">De <span th:text="${paymentAuthorName}"></span></p>
-    <p style="padding: 10px">Pour la somme de <span th:text="${totalAmount}"></span></p>
-    <p style="padding: 10px">Pour <span th:text="${paymentAmount}"></span></p>
-    <table class="table">
-        <tr>
-            <th>payement</th>
-            <th>type</th>
-            <th>Client</th>
-        </tr>
-        <tr>
-            <td><img src="signature.png" alt="signature" class="signature" /></td>
-            <td th:text="${paymentType}"></td>
-            <td th:text="${paymentAuthorName}"></td>
-        </tr>
-    </table>
+<table class="table">
+    <tr>
+        <td><h1 style="font-size: 18px">HEI Madagascar</h1></td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td><span style="font-weight: bold;">NIF :</span> 401 241 4843</td>
+        <td></td>
+        <td><span style="font-weight: bold;">N° :</span> <span th:text="${receiptNumber}"></span></td>
+    </tr>
+    <tr>
+        <td><span style="font-weight: bold;">STAT :</span> 85497 11 2022 0 11417</td>
+        <td></td>
+        <td><span style="font-weight: bold;">ARIARY :</span><span th:text="${totalAmount}"></span></td>
+    </tr>
+    <tr>
+        <td><span style="font-weight: bold;">RCS :</span> 2022 B 01373</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>+261(0) 34 94 041 16</td>
+        <td><h2 style="padding-left: 30%">REÇU</h2></td>
+        <td><span style="font-weight: bold;"></span> Le : <span th:text="${paymentDate}"></span></td>
+    </tr>
+    <tr>
+        <td>Contact@hei.school</td>
+        <td></td>
+        <td></td>
+    </tr>
+    <tr>
+        <td>HAB n° 31 309 / 2023 - MESupRES</td>
+        <td></td>
+        <td></td>
+    </tr>
+</table>
+<p style="padding: 10px">De <span th:text="${paymentAuthorName}"></span></p>
+<p style="padding: 10px">Pour la somme de <span th:text="${totalAmount}"></span></p>
+<p style="padding: 10px">Pour <span th:text="${paymentAmount}"></span></p>
+<table class="table">
+    <tr>
+        <th>payement</th>
+        <th>type</th>
+        <th>Client</th>
+    </tr>
+    <tr>
+        <td><img src="signature.png" alt="signature" class="signature" /></td>
+        <td th:text="${paymentType}"></td>
+        <td th:text="${paymentAuthorName}"></td>
+    </tr>
+</table>
 </body>
 </html>
