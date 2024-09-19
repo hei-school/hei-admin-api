@@ -112,6 +112,27 @@ public class StudentFileIT extends MockedThirdParties {
   }
 
   @Test
+  void monitor_load_followed_student_certificate_via_http_client_ok()
+      throws IOException, InterruptedException {
+    String STUDENT_CERTIFICATE = "/students/" + STUDENT1_ID + "/scholarship_certificate/raw";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + SERVER_PORT;
+
+    HttpResponse response =
+        httpClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath + STUDENT_CERTIFICATE))
+                .GET()
+                .header("Authorization", "Bearer " + MONITOR1_TOKEN)
+                .build(),
+            HttpResponse.BodyHandlers.ofByteArray());
+
+    assertEquals(HttpStatus.OK.value(), response.statusCode());
+    assertNotNull(response.body());
+    assertNotNull(response);
+  }
+
+  @Test
   void student_load_other_files_ko() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     FilesApi api = new FilesApi(student1Client);

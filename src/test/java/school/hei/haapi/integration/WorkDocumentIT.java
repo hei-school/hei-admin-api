@@ -7,6 +7,7 @@ import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTyp
 import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -102,6 +103,17 @@ public class WorkDocumentIT extends MockedThirdParties {
   void student_read_own_work_document_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     FilesApi api = new FilesApi(student1Client);
+
+    List<WorkDocumentInfo> workDocuments = api.getStudentWorkDocuments(STUDENT1_ID, 1, 10, null);
+
+    assertEquals(3, workDocuments.size());
+    assertEquals(workDocument1(), workDocuments.get(0));
+  }
+
+  @Test
+  void monitor_read_own_student_followed_work_document_ok() throws ApiException {
+    ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
+    FilesApi api = new FilesApi(monitor1Client);
 
     List<WorkDocumentInfo> workDocuments = api.getStudentWorkDocuments(STUDENT1_ID, 1, 10, null);
 
