@@ -1,9 +1,7 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
     <title>Reçu</title>
     <style>
         body {
@@ -110,8 +108,8 @@
             <div class="logo_content" th:style="'background-image: url(data:image/png;base64,'+${logo}+');'"></div>
         </div>
         <div class="receipt-info">
-            <span class="receipt-number" th:text="'N°: ' + ${receiptNumber}"></span><br>
-            <span class="receipt-date" th:text="'Reçu le : ' + ${paymentDate}"></span>
+            <span class="receipt-number" th:text="'N°: ' + ${receiptNumber}"></span><br></br>
+            <span class="receipt-date" th:text="'Reçu le: ' + ${paymentDate}"></span>
         </div>
     </div>
 
