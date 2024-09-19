@@ -15,7 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsNotificationBody;
+import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
 import school.hei.haapi.endpoint.event.model.PojaEvent;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.http.mapper.ExternalResponseMapper;
@@ -148,8 +148,8 @@ public class MpbsVerificationService {
               .creationDatetime(Instant.now())
               .comment(correspondingFee.getComment())
               .build();
-      PaidFeeByMpbsNotificationBody notificationBody =
-          PaidFeeByMpbsNotificationBody.from(paymentFromMpbs);
+      PaidFeeByMpbsFailedNotificationBody notificationBody =
+          PaidFeeByMpbsFailedNotificationBody.from(paymentFromMpbs);
       eventProducer.accept(List.of(notificationBody));
       log.info(
           "Failed payment notification for user "
