@@ -54,7 +54,7 @@ public class PaidFeeByMpdsFailedNotificationBodyService
   public void accept(PaidFeeByMpbsFailedNotificationBody paidFeeByMpbsFailedNotificationBody) {
     var body =
         htmlToString("paidFeeByMpbsFailed", loadContext(paidFeeByMpbsFailedNotificationBody));
-    String mailTitle = "Ecolage - [ Orange Money ]";
+    String mailTitle = "[ Ecolage - PAIEMENT PAR ORANGE MONEY ÉCHOUÉ ]";
     InternetAddress to =
         getInternetAdressFromEmail(paidFeeByMpbsFailedNotificationBody.getMpbsAuthorEmail());
     mailer.accept(new Email(to, List.of(), List.of(), mailTitle, body, List.of()));

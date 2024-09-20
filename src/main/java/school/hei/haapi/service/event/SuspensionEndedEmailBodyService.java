@@ -14,7 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
-import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsNotificationBody;
+import school.hei.haapi.endpoint.event.model.SuspensionEndedEmailBody;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.exception.ApiException;
@@ -24,13 +24,12 @@ import school.hei.haapi.service.utils.ClassPathResourceResolver;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class PaidFeeByMpbsNotificationBodyService
-    implements Consumer<PaidFeeByMpbsNotificationBody> {
+public class SuspensionEndedEmailBodyService implements Consumer<SuspensionEndedEmailBody> {
   private final Mailer mailer;
   private final Base64Converter base64Converter;
   private final ClassPathResourceResolver classPathResourceResolver;
 
-  private InternetAddress getInternetAdressFromEmail(String email) {
+  private InternetAddress getInternetAddressFromEmail(String email) {
     try {
       return new InternetAddress(email);
     } catch (AddressException e) {
@@ -39,23 +38,22 @@ public class PaidFeeByMpbsNotificationBodyService
     }
   }
 
-  private Context loadContext(PaidFeeByMpbsNotificationBody mailBodyContent) {
+  private Context loadContext(SuspensionEndedEmailBody mailBodyContent) {
     Context initial = new Context();
     Resource emailSignatureImage = classPathResourceResolver.apply("HEI_signature", ".png");
 
-    initial.setVariable("pspAmount", numberToReadable(mailBodyContent.getAmount()));
-    initial.setVariable("pspAmountWord", numberToWords(mailBodyContent.getAmount()));
-    initial.setVariable("mpbsAuthor", mailBodyContent.getMpbsAuthor());
+    initial.setVariable("amountPaid", numberToReadable(mailBodyContent.getAmount()));
+    initial.setVariable("amountInWords", numberToWords(mailBodyContent.getAmount()));
+    initial.setVariable("fullName", mailBodyContent.getMpbsAuthor());
     initial.setVariable("emailSignature", base64Converter.apply(emailSignatureImage));
     return initial;
   }
 
   @Override
-  public void accept(PaidFeeByMpbsNotificationBody paidFeeByMpbsNotificationBody) {
-    var body = htmlToString("paidFeeByMpbs", loadContext(paidFeeByMpbsNotificationBody));
-    String mailTitle = "[ Ecolage - PAIEMENT PAR ORANGE MONEY RÉUSSI ]";
-    InternetAddress to =
-        getInternetAdressFromEmail(paidFeeByMpbsNotificationBody.getMpbsAuthorEmail());
+  public void accept(SuspensionEndedEmailBody suspensionEndedEmailBody) {
+    var body = htmlToString("suspensionEndedEmail", loadContext(suspensionEndedEmailBody));
+    String mailTitle = "[ FIN DE SUSPENSION ]";
+    InternetAddress to = getInternetAddressFromEmail(suspensionEndedEmailBody.getMpbsAuthorEmail());
     mailer.accept(new Email(to, List.of(), List.of(), mailTitle, body, List.of()));
     log.info("mail {} sent to {}", mailTitle, to);
   }

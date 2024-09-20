@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsNotificationBody;
+import school.hei.haapi.endpoint.event.model.SuspensionEndedEmailBody;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
@@ -92,8 +93,28 @@ public class PaymentService {
 
   public void computeRemainingAmount(String feeId, int amount) {
     Fee associatedFee = feeService.getById(feeId);
+    User student = associatedFee.getStudent();
+    User.Status[] statuses = new User.Status[2];
+    statuses[0] = student.getStatus();
+
     associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() - amount);
-    computeUserStatusAfterPayingFee(associatedFee.getStudent());
+    computeUserStatusAfterPayingFee(student);
+    statuses[1] = student.getStatus();
+    if (SUSPENDED.equals(statuses[0]) && ENABLED.equals(statuses[1])) {
+      Payment payment =
+          Payment.builder()
+              // TIPS: no need  .type()
+              .fee(associatedFee)
+              .amount(amount)
+              .creationDatetime(Instant.now())
+              .comment(associatedFee.getComment())
+              .build();
+      SuspensionEndedEmailBody suspensionEndedEmailBody = SuspensionEndedEmailBody.from(payment);
+      eventProducer.accept(List.of(suspensionEndedEmailBody));
+      log.info(
+          "End of suspension notification for user {} sent to Queue.",
+          suspensionEndedEmailBody.getMpbsAuthorEmail());
+    }
     if (associatedFee.getRemainingAmount() == 0) {
       associatedFee.setStatus(PAID);
     }

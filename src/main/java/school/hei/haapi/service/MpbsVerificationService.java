@@ -152,9 +152,8 @@ public class MpbsVerificationService {
           PaidFeeByMpbsFailedNotificationBody.from(paymentFromMpbs);
       eventProducer.accept(List.of(notificationBody));
       log.info(
-          "Failed payment notification for user "
-              + notificationBody.getMpbsAuthorEmail()
-              + " sent to Queue.");
+          "Failed payment notification for user {} sent to Queue.",
+          notificationBody.getMpbsAuthorEmail());
       return FAILED;
     }
     return PENDING;

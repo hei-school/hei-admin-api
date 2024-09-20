@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <title>Document</title>
@@ -49,24 +49,34 @@
         .motto {
             color: rgb(0, 0, 125);
         }
+
+        .hei {
+            color: rgb(164, 164, 164);
+        }
+
     </style>
 </head>
 <body>
 <main>
     <section>
         <p>Bonjour
-            <span th:text="${mpbsAuthor}"></span>,
+            <span th:text="${fullName}"></span>,
         </p>
     </section>
     <section>
-        Nous vous informons que le paiement de vos frais de scolarité par Orange Money, pour un montant de <span th:text="${pspAmount}"></span> MGA,
-        (<span th:text="${pspAmountWord}"></span> ARIARY), au nom de <span th:text="${mpbsAuthor}"></span>, a échoué.
+        Nous vous informons que nous avons bien reçu votre paiement de <span th:text="${amountPaid}"></span> MGA,
+        (<span th:text="${amountInWords}"></span> ARIARY) effectué pour vos frais de scolarité.
     </section>
     <section>
-        Merci de vérifier les fonds disponibles sur votre compte ou de réessayer le paiement.
+        Votre suspension académique est désormais levée, et vous êtes autorisé à reprendre vos cours ainsi que vos examens à compter de cette date.
     </section>
     <section>
-        N'hésitez pas à contacter l’administration via l’adresse email <a href="mailto:contact@hei.school">contact@hei.school</a> pour toute question éventuelle.
+        Nous vous encourageons à continuer de respecter les échéances de paiement afin d’éviter toute nouvelle suspension.
+    </section>
+    <section>
+        Si vous avez des questions supplémentaires, n'hésitez pas à nous contacter à l'adresse email
+        <a href="mailto:contact@hei.school">contact@hei.school</a> ou à appeler le numéro
+        <a href="tel:+261349404116">+261 34 94 041 16</a>.
     </section>
     <section>
         Cordialement,
