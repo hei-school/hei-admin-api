@@ -1,3 +1,28 @@
+# [1.56.0](https://github.com/hei-school/hei-admin-api/compare/v1.55.0...v1.56.0) (2024-09-19)
+
+
+### Bug Fixes
+
+* letter list for manager pov ([ffb105f](https://github.com/hei-school/hei-admin-api/commit/ffb105f723cb718cf3885edc2a5a27fff779e377))
+* logo is not loaded  ([607e3d2](https://github.com/hei-school/hei-admin-api/commit/607e3d28015e50aaf264d6adc30c2b67e9aae50f))
+* paid fee receipt html template  ([d1ed9c4](https://github.com/hei-school/hei-admin-api/commit/d1ed9c4ca3b242e1d5b2a3aab4278944aa47af80))
+
+
+### Features
+
+* generate payment of fee receipt  ([337cc56](https://github.com/hei-school/hei-admin-api/commit/337cc5617564c8f65edc3931630994374b2071f3))
+
+
+
+# [1.55.0](https://github.com/hei-school/hei-admin-api/compare/v1.54.1...v1.55.0) (2024-09-17)
+
+
+### Features
+
+* **not-implemented:** receipt on pdf version of paid fee  ([4a31588](https://github.com/hei-school/hei-admin-api/commit/4a31588616d668df3db8ee7ef6a212c9c0dfe323))
+
+
+
 ## [1.54.1](https://github.com/hei-school/hei-admin-api/compare/v1.54.0...v1.54.1) (2024-09-16)
 
 
@@ -76,25 +101,6 @@
 ### Features
 
 * **not-implemented:** monitor resources  ([cb8ca97](https://github.com/hei-school/hei-admin-api/commit/cb8ca97d07e3ef126f3f7f9b3f691e18b21bd01a))
-
-
-
-# [1.47.0](https://github.com/hei-school/hei-admin-api/compare/v1.46.0...v1.47.0) (2024-08-30)
-
-
-### Features
-
-* link a student to a monitor and then monitor follows many students  ([1f87bc3](https://github.com/hei-school/hei-admin-api/commit/1f87bc35b393ff818567f98f8631385461782924))
-* **not-implemented:** letterbox resources return list ([117d3e1](https://github.com/hei-school/hei-admin-api/commit/117d3e17935213f0657e06e257e10e3928604cae))
-
-
-
-# [1.46.0](https://github.com/hei-school/hei-admin-api/compare/v1.45.0...v1.46.0) (2024-08-29)
-
-
-### Features
-
-* **not-implemented:** update letterbox resources model ([56b98da](https://github.com/hei-school/hei-admin-api/commit/56b98da43c589fe17987207315217a962a6a13ef))
 
 
 

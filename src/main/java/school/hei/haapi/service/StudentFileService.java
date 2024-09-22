@@ -22,6 +22,7 @@ import school.hei.haapi.repository.dao.FileInfoDao;
 import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
 import school.hei.haapi.service.utils.HtmlParser;
+import school.hei.haapi.service.utils.PaidFeeReceiptDataProvider;
 import school.hei.haapi.service.utils.PdfRenderer;
 import school.hei.haapi.service.utils.ScholarshipCertificateDataProvider;
 
@@ -33,6 +34,8 @@ public class StudentFileService {
   private final HtmlParser htmlParser;
   private final PdfRenderer pdfRenderer;
   private final UserService userService;
+  private final PaymentService paymentService;
+  private final FeeService feeService;
   private final ScholarshipCertificateDataProvider certificateDataProvider;
   private final FileInfoRepository fileInfoRepository;
   private final FileInfoService fileInfoService;
@@ -92,6 +95,32 @@ public class StudentFileService {
     Context context = loadContext(studentId);
     String html = htmlParser.apply(template, context);
     return pdfRenderer.apply(html);
+  }
+
+  public byte[] generatePaidFeeReceipt(String feeId, String template) {
+    Fee fee = feeService.getById(feeId);
+    Context context = loadPaymentReceiptContext(fee);
+    String html = htmlParser.apply(template, context);
+    return pdfRenderer.apply(html);
+  }
+
+  private Context loadPaymentReceiptContext(Fee fee) {
+    Resource logo = classPathResourceResolver.apply("HEI_logo", ".png");
+    Context context = new Context();
+    Payment payment =
+        paymentService.getByStudentIdAndFeeId(fee.getStudent().getId(), fee.getId()).getFirst();
+    PaidFeeReceiptDataProvider dataProvider =
+        new PaidFeeReceiptDataProvider(fee.getStudent(), fee, payment);
+
+    context.setVariable("logo", base64Converter.apply(logo));
+    context.setVariable("paymentAuthorName", dataProvider.getEntirePaymentAuthorName());
+    context.setVariable("receiptNumber", payment.getId());
+    context.setVariable("totalAmount", dataProvider.getFeeTotalAmount());
+    context.setVariable("paymentDate", dataProvider.getPaymentDate());
+    context.setVariable("paymentAmount", dataProvider.getTotalPaymentAmount());
+    context.setVariable("paymentType", dataProvider.getPaymentType());
+
+    return context;
   }
 
   private Context loadContext(String studentId) {
