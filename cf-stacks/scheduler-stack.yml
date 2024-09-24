@@ -102,6 +102,22 @@ Resources:
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.model.SendUnpaidFeesReminderTriggered'
           Source: 'school.hei.haapi.event1'
+  UpdateUserStatusAfterPaidFees:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Description: Scheduler which triggers updateStatus function
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name: !Join [ '', [ !Ref Env, -UpdateUserStatusAfterPaidFees ] ]
+      ScheduleExpression: "cron(0 8 20 * ? *)"
+      Target:
+        Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
+        RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
+        DeadLetterConfig:
+          Arn: !Sub '{{resolve:ssm:/haapi/${Env}/1/sqs/dead-letter-queue-arn}}'
+        EventBridgeParameters:
+          DetailType: 'school.hei.haapi.endpoint.event.model.UpdateUserStatusAfterPaidFees'
+          Source: 'school.hei.haapi.event1'
   ScheduledEventExecutionRole:
     Type: AWS::IAM::Role
     Properties:
