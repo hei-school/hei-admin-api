@@ -1,3 +1,14 @@
+# [1.57.0](https://github.com/hei-school/hei-admin-api/compare/v1.56.0...v1.57.0) (2024-09-25)
+
+
+### Features
+
+* add some information for fee receipt  ([7cb2a1a](https://github.com/hei-school/hei-admin-api/commit/7cb2a1afdc2b8f5bd721588fbab43c9f0efd6cc1))
+* monitor access to Student comment and work file  ([ebbad76](https://github.com/hei-school/hei-admin-api/commit/ebbad761566e3067a33fc7861300907279a8b23c))
+* **not-implemented:** download fee corresponding payment receipt  ([a78c865](https://github.com/hei-school/hei-admin-api/commit/a78c86566ef60e1527179db86bbe94d004e5f75f))
+
+
+
 # [1.56.0](https://github.com/hei-school/hei-admin-api/compare/v1.55.0...v1.56.0) (2024-09-19)
 
 
@@ -92,15 +103,6 @@
 ### Features
 
 * **not-implemented:** document monitoring of student  ([9cfda84](https://github.com/hei-school/hei-admin-api/commit/9cfda8423a8ce6f94442915c613133ab746475f3))
-
-
-
-# [1.48.0](https://github.com/hei-school/hei-admin-api/compare/v1.47.0...v1.48.0) (2024-08-30)
-
-
-### Features
-
-* **not-implemented:** monitor resources  ([cb8ca97](https://github.com/hei-school/hei-admin-api/commit/cb8ca97d07e3ef126f3f7f9b3f691e18b21bd01a))
 
 
 
