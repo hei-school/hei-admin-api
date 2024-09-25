@@ -1745,7 +1745,7 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
-  /students/{student_id}/fees/{fee_id}/receipt/raw:
+  /students/{student_id}/fees/{fee_id}/payments/{payment_id}/receipt/raw:
     get:
       tags:
         - Paying
@@ -1757,6 +1757,11 @@ paths:
           schema:
             type: string
         - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: payment_id
           in: path
           required: true
           schema:

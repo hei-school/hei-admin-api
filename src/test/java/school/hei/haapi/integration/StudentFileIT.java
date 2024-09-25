@@ -68,7 +68,7 @@ public class StudentFileIT extends MockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
-    assertThrowsForbiddenException(() -> api.getPaidFeeReceipt(STUDENT2_ID, FEE4_ID));
+    assertThrowsForbiddenException(() -> api.getPaidFeeReceipt(STUDENT2_ID, FEE4_ID, PAYMENT1_ID));
   }
 
   @Test
