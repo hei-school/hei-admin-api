@@ -3753,6 +3753,11 @@ paths:
           required: true
           schema:
             type: string
+        - name: fee_id
+          in: query
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -5155,6 +5160,15 @@ components:
           $ref: '#/components/schemas/LetterStatus'
         file_url:
           type: string
+        fee:
+          type: object
+          properties:
+            comment:
+              type: string
+            amount:
+              type: integer
+            type:
+              $ref: '#/components/schemas/FeeTypeEnum'
         student:
           allOf:
             - $ref: '#/components/schemas/UserIdentifier'
