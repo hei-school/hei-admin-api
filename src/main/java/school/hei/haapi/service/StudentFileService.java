@@ -3,6 +3,8 @@ package school.hei.haapi.service;
 import static java.time.LocalDate.now;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
+import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
+import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
 
 import java.time.Instant;
 import java.util.List;
@@ -115,9 +117,13 @@ public class StudentFileService {
     context.setVariable("logo", base64Converter.apply(logo));
     context.setVariable("paymentAuthorName", dataProvider.getEntirePaymentAuthorName());
     context.setVariable("receiptNumber", payment.getId());
-    context.setVariable("totalAmount", dataProvider.getFeeTotalAmount());
+    context.setVariable("totalAmount", numberToReadable(dataProvider.getFeeTotalAmount()));
     context.setVariable("paymentDate", dataProvider.getPaymentDate());
-    context.setVariable("paymentAmount", dataProvider.getTotalPaymentAmount());
+    context.setVariable("paymentAmount", numberToReadable(dataProvider.getTotalPaymentAmount()));
+    context.setVariable("remainingAmount", numberToReadable(dataProvider.getRemainingAmount()));
+    context.setVariable(
+        "paymentAmountAsWords", numberToWords(dataProvider.getTotalPaymentAmount()));
+    context.setVariable("paymentReason", dataProvider.getFeeComment());
     context.setVariable("paymentType", dataProvider.getPaymentType());
 
     return context;

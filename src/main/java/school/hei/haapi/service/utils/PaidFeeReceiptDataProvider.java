@@ -29,6 +29,14 @@ public class PaidFeeReceiptDataProvider {
     return payment.getAmount();
   }
 
+  public String getFeeComment() {
+    return fee.getComment();
+  }
+
+  public int getRemainingAmount() {
+    return fee.getRemainingAmount();
+  }
+
   public String getPaymentDate() {
     return instantToCommonDate(payment.getCreationDatetime());
   }
