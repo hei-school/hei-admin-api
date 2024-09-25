@@ -1,3 +1,12 @@
+# [1.58.0](https://github.com/hei-school/hei-admin-api/compare/v1.57.0...v1.58.0) (2024-09-25)
+
+
+### Features
+
+* **not-implemented:** link letter and fee ([ddc857f](https://github.com/hei-school/hei-admin-api/commit/ddc857f400b7105ada665df8970d2363244fa817))
+
+
+
 # [1.57.0](https://github.com/hei-school/hei-admin-api/compare/v1.56.0...v1.57.0) (2024-09-25)
 
 
@@ -94,15 +103,6 @@
 * crupdate user monitor endpoint  ([8ca3508](https://github.com/hei-school/hei-admin-api/commit/8ca3508b5e86ad9701c2bbb7c6dbc0f10b2b4cb0))
 * letterbox resources implemented ([4bc6c5a](https://github.com/hei-school/hei-admin-api/commit/4bc6c5a8d103c15e1cd0208b7745975f7c6273d5))
 * monitor by id and update monitor endpoint  ([933af6b](https://github.com/hei-school/hei-admin-api/commit/933af6bee2fabb423a21a1b9b211c07ba7b3cf6b))
-
-
-
-# [1.49.0](https://github.com/hei-school/hei-admin-api/compare/v1.48.0...v1.49.0) (2024-08-30)
-
-
-### Features
-
-* **not-implemented:** document monitoring of student  ([9cfda84](https://github.com/hei-school/hei-admin-api/commit/9cfda8423a8ce6f94442915c613133ab746475f3))
 
 
 
