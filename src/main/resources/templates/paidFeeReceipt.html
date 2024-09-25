@@ -122,13 +122,15 @@
 
     <div class="details">
         <p><strong>De:</strong> <span th:text="${paymentAuthorName}"></span></p>
-        <p><strong>Pour la somme de:</strong> <span th:text="${totalAmount}"></span></p>
-        <p><strong>Pour:</strong> <span th:text="${paymentAmount}"></span></p>
+        <p><strong>Pour la somme de:</strong> <span th:text="${paymentAmount}+' Ariary'"></span></p>
+        <p><strong>Soit:</strong> <span th:text="${paymentAmountAsWords}+' Ariary'"></span></p>
+        <p><strong>Total à payer:</strong> <span th:text="${totalAmount}+' Ariary'"></span></p>
+        <p><strong>Reste à payer:</strong> <span th:text="${remainingAmount}+' Ariary'"></span></p>
     </div>
 
     <div class="payment-info">
-        <p><strong>Payement Type:</strong> <span>Client</span></p>
-        <p><strong th:text="${paymentType}">MOBILE_MONEY:</strong> <span th:text="${paymentAuthorName}">Andria Ryan</span></p>
+        <p><strong>Payement Type:</strong> <span>Motif</span></p>
+        <p><strong th:text="${paymentType}"></strong> <span th:text="${paymentReason}"></span></p>
     </div>
 
     <div class="contact-info">
