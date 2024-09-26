@@ -41,12 +41,13 @@ public class StudentFileController {
   }
 
   @GetMapping(
-      value = "/students/{student_id}/fees/{fee_id}/receipt/raw",
+      value = "/students/{student_id}/fees/{fee_id}/payments/{payment_id}/receipt/raw",
       produces = APPLICATION_PDF_VALUE)
   public byte[] getStudentReceiptFee(
       @PathVariable(name = "student_id") String studentId,
-      @PathVariable(name = "fee_id") String feeId) {
-    return fileService.generatePaidFeeReceipt(feeId, "paidFeeReceipt");
+      @PathVariable(name = "fee_id") String feeId,
+      @PathVariable(name = "payment_id") String paymentId) {
+    return fileService.generatePaidFeeReceipt(feeId, paymentId, "paidFeeReceipt");
   }
 
   @PostMapping(value = "/students/{student_id}/files/raw", consumes = MULTIPART_FORM_DATA_VALUE)

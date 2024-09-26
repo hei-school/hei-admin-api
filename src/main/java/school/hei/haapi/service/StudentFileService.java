@@ -99,18 +99,17 @@ public class StudentFileService {
     return pdfRenderer.apply(html);
   }
 
-  public byte[] generatePaidFeeReceipt(String feeId, String template) {
+  public byte[] generatePaidFeeReceipt(String feeId, String paymenId, String template) {
     Fee fee = feeService.getById(feeId);
-    Context context = loadPaymentReceiptContext(fee);
+    Payment payment = paymentService.getById(paymenId);
+    Context context = loadPaymentReceiptContext(fee, payment);
     String html = htmlParser.apply(template, context);
     return pdfRenderer.apply(html);
   }
 
-  private Context loadPaymentReceiptContext(Fee fee) {
+  private Context loadPaymentReceiptContext(Fee fee, Payment payment) {
     Resource logo = classPathResourceResolver.apply("HEI_logo", ".png");
     Context context = new Context();
-    Payment payment =
-        paymentService.getByStudentIdAndFeeId(fee.getStudent().getId(), fee.getId()).getFirst();
     PaidFeeReceiptDataProvider dataProvider =
         new PaidFeeReceiptDataProvider(fee.getStudent(), fee, payment);
 
