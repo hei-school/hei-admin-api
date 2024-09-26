@@ -11,6 +11,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.model.User.Sex.F;
 import static school.hei.haapi.model.User.Sex.M;
 import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.SUSPENDED;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -20,6 +21,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -49,7 +51,7 @@ public class PaymentServiceUnitTest extends MockedThirdParties {
     setUpEventBridge(eventBridgeClientMock);
   }
 
-  public static Fee associatedFee1() {
+  public static Fee student1UnpaidFee1() {
     Fee associatedFee = new Fee();
     associatedFee.setId("fee3_id");
     associatedFee.setStudent(student1());
@@ -80,21 +82,6 @@ public class PaymentServiceUnitTest extends MockedThirdParties {
     return student1;
   }
 
-  public static Fee associatedFee2() {
-    Fee associatedFee = new Fee();
-    associatedFee.setId("fee4_id");
-    associatedFee.setStudent(student2());
-    associatedFee.setType(TUITION);
-    associatedFee.setComment("Comment");
-    associatedFee.setRemainingAmount(5000);
-    associatedFee.setTotalAmount(5000);
-    associatedFee.setStatus(LATE);
-    associatedFee.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    associatedFee.setDueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"));
-    associatedFee.setUpdatedAt(Instant.parse("2021-12-09T08:25:25.00Z"));
-    return associatedFee;
-  }
-
   public static User student2() {
     User student2 = new User();
     student2.setId("student2_id");
@@ -111,19 +98,48 @@ public class PaymentServiceUnitTest extends MockedThirdParties {
     return student2;
   }
 
+  public static User student3() {
+    User student2 = new User();
+    student2.setId("student3_id");
+    student2.setFirstName("Three");
+    student2.setLastName("Student");
+    student2.setEmail("test+student3@hei.school");
+    student2.setRef("STD21003");
+    student2.setStatus(ENABLED);
+    student2.setSex(F);
+    student2.setBirthDate(LocalDate.parse("2000-01-02"));
+    student2.setEntranceDatetime(Instant.now());
+    student2.setPhone("0322411124");
+    student2.setAddress("Adr 2");
+    return student2;
+  }
+
   @Test
+  @DirtiesContext
   void compute_remaining_amount_ok() {
-    Fee associatedFee = associatedFee1();
-    User student1 = student1();
+    Fee associatedFee1 = student1UnpaidFee1();
 
-    paymentService.computeRemainingAmount(associatedFee.getId(), 5000);
+    paymentService.computeRemainingAmount(associatedFee1.getId(), 5000);
 
-    Fee updatedFee = feeService.getById(associatedFee.getId());
-    User updatedStudent = userService.findById(student1.getId());
+    Fee updatedFee = feeService.getById(associatedFee1.getId());
 
     assertEquals(0, updatedFee.getRemainingAmount());
     assertEquals(PAID, updatedFee.getStatus());
-    assertEquals(ENABLED, updatedStudent.getStatus());
+  }
+
+  @Test
+  @DirtiesContext
+  void compute_user_status_after_paying_fee_ok() {
+    User userWithUnpaidFees = student2();
+    User userWithoutUnpaidFees = student3();
+
+    paymentService.computeUserStatusAfterPayingFee(userWithUnpaidFees);
+    paymentService.computeUserStatusAfterPayingFee(userWithoutUnpaidFees);
+    User updatedUserWithUnpaidFees = userService.findById(userWithUnpaidFees.getId());
+    User updatedUserWithoutUnpaidFees = userService.findById(userWithoutUnpaidFees.getId());
+
+    assertEquals(SUSPENDED, updatedUserWithUnpaidFees.getStatus());
+    assertEquals(ENABLED, updatedUserWithoutUnpaidFees.getStatus());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

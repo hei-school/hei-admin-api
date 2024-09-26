@@ -32,6 +32,7 @@ import school.hei.haapi.model.validator.PaymentValidator;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.PaymentRepository;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.repository.dao.UserManagerDao;
 
 @Service
 @AllArgsConstructor
@@ -41,6 +42,7 @@ public class PaymentService {
   private final PaymentRepository paymentRepository;
   private final UserRepository userRepository;
   private final FeeService feeService;
+  private final UserManagerDao userManagerDao;
   private final PaymentValidator paymentValidator;
   private final EventProducer eventProducer;
 
@@ -94,40 +96,47 @@ public class PaymentService {
   public void computeRemainingAmount(String feeId, int amount) {
     Fee associatedFee = feeService.getById(feeId);
     User student = associatedFee.getStudent();
-    User.Status[] statuses = new User.Status[2];
-    statuses[0] = student.getStatus();
+    // Array to hold the student's status before and after the payment
+    User.Status[] studentStatusBetweenPayingFee = new User.Status[2];
+    studentStatusBetweenPayingFee[0] = student.getStatus();
 
     associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() - amount);
     computeUserStatusAfterPayingFee(student);
-    statuses[1] = student.getStatus();
-    if (SUSPENDED.equals(statuses[0]) && ENABLED.equals(statuses[1])) {
-      Payment payment =
-          Payment.builder()
-              // TIPS: no need  .type()
-              .fee(associatedFee)
-              .amount(amount)
-              .creationDatetime(Instant.now())
-              .comment(associatedFee.getComment())
-              .build();
-      SuspensionEndedEmailBody suspensionEndedEmailBody = SuspensionEndedEmailBody.from(payment);
-      eventProducer.accept(List.of(suspensionEndedEmailBody));
-      log.info(
-          "End of suspension notification for user {} sent to Queue.",
-          suspensionEndedEmailBody.getMpbsAuthorEmail());
+    studentStatusBetweenPayingFee[1] = student.getStatus();
+    log.info("User status is computed to {}", studentStatusBetweenPayingFee[1]);
+
+    // If the student's status changes from SUSPENDED to ENABLED, send a notification
+    if (SUSPENDED.equals(studentStatusBetweenPayingFee[0])
+        && ENABLED.equals(studentStatusBetweenPayingFee[1])) {
+      notifyStudentForEnabling(associatedFee, amount);
     }
     if (associatedFee.getRemainingAmount() == 0) {
       associatedFee.setStatus(PAID);
     }
   }
 
+  private void notifyStudentForEnabling(Fee associatedFee, int amount) {
+    // Build the payment object without unnecessary fields (type and comment fields are omitted
+    // since they are not used in the SuspensionEndedEmailBody)
+    Payment payment =
+        Payment.builder().fee(associatedFee).amount(amount).creationDatetime(Instant.now()).build();
+    SuspensionEndedEmailBody suspensionEndedEmailBody = SuspensionEndedEmailBody.from(payment);
+    eventProducer.accept(List.of(suspensionEndedEmailBody));
+    log.info(
+        "End of suspension notification for user {} sent to Queue.",
+        suspensionEndedEmailBody.getMpbsAuthorEmail());
+  }
+
+  @Transactional
   public void computeUserStatusAfterPayingFee(User userToResetStatus) {
     Instant now = Instant.now();
     List<Fee> unpaidFeesBeforeNow =
         feeRepository.getStudentFeesUnpaidOrLateFrom(now, userToResetStatus.getId(), LATE);
     if (!unpaidFeesBeforeNow.isEmpty()) {
-      userRepository.updateUserStatusById(SUSPENDED, userToResetStatus.getId());
+      userManagerDao.updateUserStatusById(SUSPENDED, userToResetStatus.getId());
+    } else {
+      userManagerDao.updateUserStatusById(ENABLED, userToResetStatus.getId());
     }
-    userRepository.updateUserStatusById(ENABLED, userToResetStatus.getId());
   }
 
   @Transactional

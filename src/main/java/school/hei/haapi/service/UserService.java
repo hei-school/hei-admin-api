@@ -64,7 +64,7 @@ public class UserService {
 
   @Transactional
   public void suspendStudentById(String suspendedStudentId) {
-    userRepository.updateUserStatusById(SUSPENDED, suspendedStudentId);
+    userManagerDao.updateUserStatusById(SUSPENDED, suspendedStudentId);
   }
 
   public User updateUser(User user, String userId) {

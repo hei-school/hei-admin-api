@@ -139,23 +139,27 @@ public class MpbsVerificationService {
   private MpbsStatus defineMpbsStatusWithoutOrangeTransactionDetails(Mpbs mpbs, Instant toCompare) {
     long dayValidity = mpbs.getCreationDatetime().until(toCompare, ChronoUnit.DAYS);
     if (dayValidity > 2) {
-      Fee correspondingFee = mpbs.getFee();
-      Payment paymentFromMpbs =
-          Payment.builder()
-              .type(MOBILE_MONEY)
-              .fee(correspondingFee)
-              .amount(mpbs.getAmount())
-              .creationDatetime(Instant.now())
-              .comment(correspondingFee.getComment())
-              .build();
-      PaidFeeByMpbsFailedNotificationBody notificationBody =
-          PaidFeeByMpbsFailedNotificationBody.from(paymentFromMpbs);
-      eventProducer.accept(List.of(notificationBody));
-      log.info(
-          "Failed payment notification for user {} sent to Queue.",
-          notificationBody.getMpbsAuthorEmail());
+      notifyStudentForFailedPayment(mpbs);
       return FAILED;
     }
     return PENDING;
+  }
+
+  private void notifyStudentForFailedPayment(Mpbs mpbs) {
+    Fee correspondingFee = mpbs.getFee();
+    Payment paymentFromMpbs =
+        Payment.builder()
+            .type(MOBILE_MONEY)
+            .fee(correspondingFee)
+            .amount(mpbs.getAmount())
+            .creationDatetime(Instant.now())
+            .comment(correspondingFee.getComment())
+            .build();
+    PaidFeeByMpbsFailedNotificationBody notificationBody =
+        PaidFeeByMpbsFailedNotificationBody.from(paymentFromMpbs);
+    eventProducer.accept(List.of(notificationBody));
+    log.info(
+        "Failed payment notification for user {} sent to Queue.",
+        notificationBody.getMpbsAuthorEmail());
   }
 }
