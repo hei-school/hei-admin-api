@@ -326,6 +326,12 @@ public class SecurityConf {
                     //
                     // Fees resources
                     //
+                    .requestMatchers(GET, "/fees/templates")
+                    .hasAnyRole(STUDENT.getRole(), MANAGER.getRole())
+                    .requestMatchers(PUT, "/fees/templates/*")
+                    .hasAnyRole(MANAGER.getRole())
+                    .requestMatchers(GET, "/fees/templates/*")
+                    .hasAnyRole(MANAGER.getRole(), STUDENT.getRole())
                     .requestMatchers(GET, "/fees/*")
                     .hasRole(MANAGER.getRole())
                     .requestMatchers(GET, "/fees")
@@ -474,12 +480,6 @@ public class SecurityConf {
                     .requestMatchers(GET, "/students/*/grades")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
                     .requestMatchers(GET, "/fees")
-                    .hasAnyRole(MANAGER.getRole())
-                    .requestMatchers(GET, "/fees/templates")
-                    .hasAnyRole(MANAGER.getRole())
-                    .requestMatchers(PUT, "/fees/templates/*")
-                    .hasAnyRole(MANAGER.getRole())
-                    .requestMatchers(GET, "/fees/templates/*")
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(GET, "/teachers")
                     .hasAnyRole(MANAGER.getRole())
