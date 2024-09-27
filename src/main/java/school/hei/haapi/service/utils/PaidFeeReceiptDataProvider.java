@@ -52,8 +52,12 @@ public class PaidFeeReceiptDataProvider {
   }
 
   private List<Payment> paymentsSinceActual(List<Payment> payments, Payment payment) {
-    int endIndex = payments.indexOf(payment);
-    return payments.subList(0, endIndex);
+    int indexOfPayment = payments.indexOf(payment);
+
+    if (indexOfPayment == 0) {
+      return List.of(payments.get(0));
+    }
+    return payments.subList(0, indexOfPayment);
   }
 
   private int defineRemainingAmountSinceActualPayment(List<Payment> payments, Fee fee) {
