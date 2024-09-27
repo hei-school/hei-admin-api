@@ -34,7 +34,7 @@ public class PaidFeeReceiptDataProvider {
   }
 
   public int getRemainingAmount() {
-    return fee.getRemainingAmount();
+    return fee.getTotalAmount() - payment.getAmount();
   }
 
   public String getPaymentDate() {
