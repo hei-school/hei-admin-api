@@ -82,6 +82,10 @@ public class PaymentService {
     return paymentRepository.getByStudentIdAndFeeIdWithPagination(studentId, feeId, pageable);
   }
 
+  public List<Payment> getByFeeIdOrderByCreationDatetimeAsc(String feeId) {
+    return paymentRepository.findAllByFee_IdOrderByCreationDatetimeAsc(feeId);
+  }
+
   List<Payment> getByStudentIdAndFeeId(String studentId, String feeId) {
     return paymentRepository.getByStudentIdAndFeeId(studentId, feeId);
   }
