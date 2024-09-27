@@ -126,7 +126,8 @@ public class LetterService {
   }
 
   public static String generateRef(String id) {
-    return id.substring(0, 6)
+    return "HEI-"
+        + id.substring(0, 6)
         + "-"
         + DateTimeFormatter.ofPattern("yyyyMMdd")
             .withZone(ZoneId.of("UTC+3"))
