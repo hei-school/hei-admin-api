@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -66,6 +67,35 @@ public class PaymentServiceUnitTest extends MockedThirdParties {
     return associatedFee;
   }
 
+  public static Fee student2UnpaidFee1() {
+    Fee associatedFee = new Fee();
+    associatedFee.setId("fee4_id");
+    associatedFee.setStudent(student2());
+    associatedFee.setType(TUITION);
+    associatedFee.setComment("Comment");
+    associatedFee.setRemainingAmount(5000);
+    associatedFee.setTotalAmount(5000);
+    associatedFee.setStatus(LATE);
+    associatedFee.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    associatedFee.setDueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"));
+    associatedFee.setUpdatedAt(Instant.parse("2021-12-09T08:25:25.00Z"));
+    return associatedFee;
+  }
+
+  public static Fee student2UnpaidFee2() {
+    Fee associatedFee = new Fee();
+    associatedFee.setId("fee5_id");
+    associatedFee.setStudent(student2());
+    associatedFee.setType(HARDWARE);
+    associatedFee.setComment("Comment");
+    associatedFee.setRemainingAmount(5000);
+    associatedFee.setTotalAmount(5000);
+    associatedFee.setStatus(LATE);
+    associatedFee.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+    associatedFee.setDueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"));
+    associatedFee.setUpdatedAt(Instant.parse("2021-12-08T08:25:25.00Z"));
+    return associatedFee;
+  }
   public static User student1() {
     User student1 = new User();
     student1.setId("student1_id");
@@ -140,6 +170,15 @@ public class PaymentServiceUnitTest extends MockedThirdParties {
 
     assertEquals(SUSPENDED, updatedUserWithUnpaidFees.getStatus());
     assertEquals(ENABLED, updatedUserWithoutUnpaidFees.getStatus());
+
+    // here student2 has paid all their fees late
+    paymentService.computeRemainingAmount(student2UnpaidFee1().getId(), 5000);
+    paymentService.computeRemainingAmount(student2UnpaidFee2().getId(), 5000);
+    paymentService.computeUserStatusAfterPayingFee(userWithUnpaidFees);
+    User userPaidAllLateFees = userService.findById(userWithUnpaidFees.getId());
+
+    assertEquals(ENABLED, userPaidAllLateFees.getStatus());
+
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
