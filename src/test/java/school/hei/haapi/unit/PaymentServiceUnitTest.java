@@ -96,6 +96,7 @@ public class PaymentServiceUnitTest extends MockedThirdParties {
     associatedFee.setUpdatedAt(Instant.parse("2021-12-08T08:25:25.00Z"));
     return associatedFee;
   }
+
   public static User student1() {
     User student1 = new User();
     student1.setId("student1_id");
@@ -178,7 +179,6 @@ public class PaymentServiceUnitTest extends MockedThirdParties {
     User userPaidAllLateFees = userService.findById(userWithUnpaidFees.getId());
 
     assertEquals(ENABLED, userPaidAllLateFees.getStatus());
-
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
