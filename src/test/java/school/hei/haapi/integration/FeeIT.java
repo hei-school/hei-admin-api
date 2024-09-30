@@ -8,8 +8,10 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.REMEDIAL_COSTS;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import jakarta.persistence.EntityManager;
@@ -211,16 +213,20 @@ class FeeIT extends MockedThirdParties {
   }
 
   @Test
-  void student_write_only_remedial_costs() throws ApiException {
+  void student_write_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
     CreateFee createFee = creatableFee1();
     createFee.setType(REMEDIAL_COSTS);
 
-    List<Fee> actualFee = api.createStudentFees(STUDENT1_ID, List.of(createFee));
+    List<Fee> actualFee0 = api.createStudentFees(STUDENT1_ID, List.of(createFee));
 
-    assertEquals(REMEDIAL_COSTS, actualFee.getFirst().getType());
+    assertEquals(REMEDIAL_COSTS, actualFee0.getFirst().getType());
+
+    List<Fee> actualFee1 = api.createStudentFees(STUDENT1_ID, List.of(creatableFee1()));
+
+    assertEquals(TUITION, actualFee1.getFirst().getType());
   }
 
   @Test
@@ -268,20 +274,6 @@ class FeeIT extends MockedThirdParties {
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createStudentFees(STUDENT1_ID, List.of()));
-  }
-
-  @Test
-  void student_write_ko() {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    PayingApi api = new PayingApi(student1Client);
-    Fee feeUpdated =
-        fee1().comment("nex comment").dueDatetime(Instant.parse("2021-11-09T10:10:10.00Z"));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(feeUpdated)));
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Student is only allowed for REMEDIAL_COSTS\"}",
-        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1())));
   }
 
   @Test
