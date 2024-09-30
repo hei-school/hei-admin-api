@@ -93,6 +93,7 @@ public class PaymentService {
     return paymentRepository.getByStudentIdAndFeeId(studentId, feeId);
   }
 
+  @Transactional
   public void computeRemainingAmount(String feeId, int amount) {
     Fee associatedFee = feeService.getById(feeId);
     User student = associatedFee.getStudent();
