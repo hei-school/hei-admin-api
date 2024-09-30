@@ -110,10 +110,10 @@ public class StudentFileService {
   private Context loadPaymentReceiptContext(Fee fee, Payment payment) {
     Resource logo = classPathResourceResolver.apply("HEI_logo", ".png");
     Context context = new Context();
-    List<Payment> paidPaymentBefore =
+    List<Payment> paidPaymentsBefore =
         paymentService.getByFeeIdOrderByCreationDatetimeAsc(fee.getId());
     PaidFeeReceiptDataProvider dataProvider =
-        new PaidFeeReceiptDataProvider(fee.getStudent(), fee, payment, paidPaymentBefore);
+        new PaidFeeReceiptDataProvider(fee.getStudent(), fee, payment, paidPaymentsBefore);
 
     context.setVariable("logo", base64Converter.apply(logo));
     context.setVariable("paymentAuthorName", dataProvider.getEntirePaymentAuthorName());
