@@ -38,9 +38,8 @@ public class PaidFeeReceiptDataProvider {
   }
 
   public int getRemainingAmount() {
-    List<Payment> paymentsSinceActual = paymentsSinceActual(paidPaymentsBefore, payment);
-    int actualRemainingAmount = defineTotalPaymentSinceActual(paymentsSinceActual, fee);
-    return fee.getTotalAmount() - actualRemainingAmount;
+    int actualTotalPaymentAmount = defineTotalPaymentSinceActual(paidPaymentsBefore);
+    return fee.getTotalAmount() - actualTotalPaymentAmount;
   }
 
   public String getPaymentDate() {
@@ -53,14 +52,10 @@ public class PaidFeeReceiptDataProvider {
 
   private List<Payment> paymentsSinceActual(List<Payment> payments, Payment payment) {
     int indexOfPayment = payments.indexOf(payment);
-
-    if (indexOfPayment == 0) {
-      return List.of(payments.get(0));
-    }
-    return payments.subList(0, indexOfPayment);
+    return payments.subList(0, indexOfPayment + 1);
   }
 
-  private int defineTotalPaymentSinceActual(List<Payment> payments, Fee fee) {
+  private int defineTotalPaymentSinceActual(List<Payment> payments) {
     return payments.stream().map(Payment::getAmount).reduce(0, Integer::sum);
   }
 }
