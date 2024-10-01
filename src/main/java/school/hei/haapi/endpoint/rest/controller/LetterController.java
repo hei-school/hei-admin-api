@@ -66,6 +66,7 @@ public class LetterController {
       @RequestParam(name = "description") String description,
       @RequestParam(name = "filename") String filename,
       @RequestPart(name = "file_to_upload") MultipartFile file) {
-    return letterMapper.toRest(letterService.createLetter(studentId, description, filename, file, feeId, amount));
+    return letterMapper.toRest(
+        letterService.createLetter(studentId, description, filename, file, feeId, amount));
   }
 }
