@@ -68,12 +68,19 @@ public class StudentFileIT extends MockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
-    assertThrowsForbiddenException(() -> api.getPaidFeeReceipt(STUDENT2_ID, FEE4_ID));
+    assertThrowsForbiddenException(() -> api.getPaidFeeReceipt(STUDENT2_ID, FEE4_ID, PAYMENT1_ID));
   }
 
   @Test
   void student_load_fee_receipt_ok() throws IOException, InterruptedException {
-    String FEE_RECEIPT_RAW = "/students/" + STUDENT1_ID + "/fees/" + FEE1_ID + "/receipt/raw";
+    String FEE_RECEIPT_RAW =
+        "/students/"
+            + STUDENT1_ID
+            + "/fees/"
+            + FEE1_ID
+            + "/payments/"
+            + PAYMENT1_ID
+            + "/receipt/raw";
     HttpClient httpClient = HttpClient.newBuilder().build();
     String basePath = "http://localhost:" + SERVER_PORT;
 

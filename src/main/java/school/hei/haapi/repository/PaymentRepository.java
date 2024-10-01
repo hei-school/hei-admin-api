@@ -17,6 +17,8 @@ public interface PaymentRepository extends JpaRepository<Payment, String> {
   List<Payment> getByStudentIdAndFeeIdWithPagination(
       @Param("student_id") String studentId, @Param("fee_id") String feeId, Pageable pageable);
 
+  List<Payment> findAllByFee_IdOrderByCreationDatetimeAsc(String feeId);
+
   @Query(
       value =
           "select p from Payment p join Fee f on f.id = p.fee.id"

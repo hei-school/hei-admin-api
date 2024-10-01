@@ -1745,7 +1745,7 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
-  /students/{student_id}/fees/{fee_id}/receipt/raw:
+  /students/{student_id}/fees/{fee_id}/payments/{payment_id}/receipt/raw:
     get:
       tags:
         - Paying
@@ -1757,6 +1757,11 @@ paths:
           schema:
             type: string
         - name: fee_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: payment_id
           in: path
           required: true
           schema:
@@ -3748,6 +3753,16 @@ paths:
           required: true
           schema:
             type: string
+        - name: fee_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: amount
+          in: query
+          required: false
+          schema:
+            type: integer
       requestBody:
         required: true
         content:
@@ -5150,6 +5165,17 @@ components:
           $ref: '#/components/schemas/LetterStatus'
         file_url:
           type: string
+        fee:
+          type: object
+          properties:
+            id:
+              type: string
+            comment:
+              type: string
+            amount:
+              type: integer
+            type:
+              $ref: '#/components/schemas/FeeTypeEnum'
         student:
           allOf:
             - $ref: '#/components/schemas/UserIdentifier'

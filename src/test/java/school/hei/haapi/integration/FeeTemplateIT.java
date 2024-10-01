@@ -4,18 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.FEE_TEMPLATE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE_TEMPLATE1_NAME;
-import static school.hei.haapi.integration.conf.TestUtils.FEE_TEMPLATE2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.createFeeTemplate2;
-import static school.hei.haapi.integration.conf.TestUtils.feeTemplate1;
-import static school.hei.haapi.integration.conf.TestUtils.feeTemplate2;
-import static school.hei.haapi.integration.conf.TestUtils.feeTemplate3;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.updateFeeTemplate1;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -61,6 +50,18 @@ public class FeeTemplateIT extends MockedThirdParties {
   }
 
   @Test
+  void student_get_fee_templates() throws ApiException {
+    ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
+    PayingApi api = new PayingApi(studentClient);
+
+    List<FeeTemplate> actual = api.getFeeTemplates(null, null, null, 1, 10);
+
+    assertEquals(2, actual.size());
+    assertTrue(actual.contains(feeTemplate1()));
+    assertTrue(actual.contains(feeTemplate3()));
+  }
+
+  @Test
   void manager_create_fee_templates() throws ApiException {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(managerClient);
@@ -88,6 +89,16 @@ public class FeeTemplateIT extends MockedThirdParties {
   @Test
   void get_fee_template_by_id_existing() throws ApiException {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(managerClient);
+
+    FeeTemplate actual = api.getFeeTemplateById(FEE_TEMPLATE1_ID);
+
+    assertEquals(feeTemplate1(), actual);
+  }
+
+  @Test
+  void student_get_fee_template_by_id_existing() throws ApiException {
+    ApiClient managerClient = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(managerClient);
 
     FeeTemplate actual = api.getFeeTemplateById(FEE_TEMPLATE1_ID);

@@ -5,6 +5,7 @@ import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURAT
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Letter;
+import school.hei.haapi.endpoint.rest.model.LetterFee;
 import school.hei.haapi.endpoint.rest.model.LetterStudent;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.FileService;
@@ -45,6 +46,14 @@ public class LetterMapper {
                 .nic(student.getNic())
                 .profilePicture(picUrl))
         .fileUrl(letterFileUrl)
-        .reasonForRefusal(domain.getReasonForRefusal());
+        .reasonForRefusal(domain.getReasonForRefusal())
+        .fee(
+            domain.getFee() != null
+                ? new LetterFee()
+                    .id(domain.getFee().getId())
+                    .comment(domain.getFee().getComment())
+                    .type(domain.getFee().getType())
+                    .amount(domain.getFee().getTotalAmount())
+                : null);
   }
 }

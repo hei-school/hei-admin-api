@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -34,6 +35,7 @@ import org.hibernate.annotations.Where;
 @NoArgsConstructor
 @SQLDelete(sql = "update \"payment\" set is_deleted = true where id = ?")
 @Where(clause = "is_deleted = false")
+@EqualsAndHashCode
 public class Payment implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
