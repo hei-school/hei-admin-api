@@ -60,13 +60,10 @@ public class LetterController {
 
   @PostMapping(value = "/students/{student_id}/letters", consumes = MULTIPART_FORM_DATA_VALUE)
   public Letter createLetter(
-      @PathVariable(name = "student_id") String studentId,
-      @RequestParam(name = "amount", required = false) Integer amount,
-      @RequestParam(name = "fee_id", required = false) String feeId,
+      @PathVariable String student_id,
       @RequestParam(name = "description") String description,
       @RequestParam(name = "filename") String filename,
       @RequestPart(name = "file_to_upload") MultipartFile file) {
-    return letterMapper.toRest(
-        letterService.createLetter(studentId, description, filename, file, feeId, amount));
+    return letterMapper.toRest(letterService.createLetter(student_id, description, filename, file));
   }
 }
