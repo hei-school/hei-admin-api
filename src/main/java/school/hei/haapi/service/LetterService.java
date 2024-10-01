@@ -21,10 +21,7 @@ import school.hei.haapi.endpoint.rest.mapper.LetterMapper;
 import school.hei.haapi.endpoint.rest.model.LetterStats;
 import school.hei.haapi.endpoint.rest.model.LetterStatus;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
-import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Letter;
-import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
+import school.hei.haapi.model.*;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.LetterRepository;
@@ -42,6 +39,7 @@ public class LetterService {
   private final MultipartFileConverter multipartFileConverter;
   private final EventProducer eventProducer;
   private final LetterMapper letterMapper;
+  private final FeeService feeService;
 
   public List<Letter> getLetters(
       String ref,
@@ -62,10 +60,12 @@ public class LetterService {
   }
 
   public Letter createLetter(
-      String studentId, String description, String filename, MultipartFile file) {
+      String studentId, String description, String filename, MultipartFile file, String feeId, Integer amount) {
     User user = userService.findById(studentId);
     String bucketKey = getBucketKey(user.getRef(), filename) + fileService.getFileExtension(file);
     final String uuid = UUID.randomUUID().toString();
+
+    Fee fee = feeService.getById(feeId);
 
     Letter letterToSave =
         Letter.builder()
@@ -75,6 +75,8 @@ public class LetterService {
             .student(user)
             .ref(generateRef(uuid))
             .filePath(bucketKey)
+                .fee(fee)
+                .amount(amount)
             .build();
     File fileToSave = multipartFileConverter.apply(file);
     fileService.uploadObjectToS3Bucket(bucketKey, fileToSave);
