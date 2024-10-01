@@ -1,3 +1,19 @@
+# [1.59.0](https://github.com/hei-school/hei-admin-api/compare/v1.58.0...v1.59.0) (2024-10-01)
+
+
+### Bug Fixes
+
+* remaining amount since actual payment  ([bd2d024](https://github.com/hei-school/hei-admin-api/commit/bd2d024441895c74af99c14984c841c7d83c796f))
+
+
+### Features
+
+* download the given payment by receipt ([79fb245](https://github.com/hei-school/hei-admin-api/commit/79fb245cfe231457370bdd66a8c4e485a7cbc065))
+* enable student pays own fees  ([924196a](https://github.com/hei-school/hei-admin-api/commit/924196a02964cd4f7d7ef2891b9e466b5ab810ee))
+* link fee and letter ([58f4242](https://github.com/hei-school/hei-admin-api/commit/58f42427d3f0b3e673a0e97f93971c4947c07766))
+
+
+
 # [1.58.0](https://github.com/hei-school/hei-admin-api/compare/v1.57.0...v1.58.0) (2024-09-25)
 
 
@@ -92,17 +108,6 @@
 ### Features
 
 * update letter model and send email notification ([4aaf188](https://github.com/hei-school/hei-admin-api/commit/4aaf188b892a29cd1babc4a49829c39f2d9a0bd6))
-
-
-
-# [1.50.0](https://github.com/hei-school/hei-admin-api/compare/v1.49.0...v1.50.0) (2024-09-02)
-
-
-### Features
-
-* crupdate user monitor endpoint  ([8ca3508](https://github.com/hei-school/hei-admin-api/commit/8ca3508b5e86ad9701c2bbb7c6dbc0f10b2b4cb0))
-* letterbox resources implemented ([4bc6c5a](https://github.com/hei-school/hei-admin-api/commit/4bc6c5a8d103c15e1cd0208b7745975f7c6273d5))
-* monitor by id and update monitor endpoint  ([933af6b](https://github.com/hei-school/hei-admin-api/commit/933af6bee2fabb423a21a1b9b211c07ba7b3cf6b))
 
 
 
