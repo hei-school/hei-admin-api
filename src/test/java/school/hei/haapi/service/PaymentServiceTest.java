@@ -7,6 +7,8 @@ import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
 import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdWithStudent1;
 import static school.hei.haapi.integration.StudentIT.someCreatableStudent;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
@@ -67,7 +69,6 @@ class PaymentServiceTest extends MockedThirdParties {
         usersApi.createOrUpdateStudents(List.of(correspondingCreateableStudent)).getFirst();
 
     assertEquals(ENABLED, correspondingStudent.getStatus());
-
     correspondingCreateableStudent.setId(correspondingStudent.getId());
     correspondingCreateableStudent.setStatus(SUSPENDED);
 
@@ -78,6 +79,12 @@ class PaymentServiceTest extends MockedThirdParties {
 
     var domainMpbs = mpbsService.getByPspId(correspondingMpbs.getPspId());
     subject.savePaymentFromMpbs(domainMpbs, 5000);
+
+    // here correspondingStudent has paid all their fees late (fee3_id, fee6_id and the created
+    // correspondingFee)
+    subject.computeRemainingAmount(FEE3_ID, 5000);
+    subject.computeRemainingAmount(FEE6_ID, 5000);
+    subject.computeRemainingAmount(correspondingFee.getId(), 5000);
 
     var actualStudent1 = usersApi.getStudentById(STUDENT1_ID);
     assertEquals(ENABLED, actualStudent1.getStatus());

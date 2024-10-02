@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
+import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
 
 import jakarta.transaction.Transactional;
 import java.time.Instant;
@@ -13,6 +14,9 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
+import school.hei.haapi.endpoint.event.model.PojaEvent;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.http.mapper.ExternalResponseMapper;
 import school.hei.haapi.http.model.TransactionDetails;
@@ -20,6 +24,7 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
+import school.hei.haapi.model.Payment;
 import school.hei.haapi.repository.MobileTransactionDetailsRepository;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
@@ -35,6 +40,7 @@ public class MpbsVerificationService {
   private final PaymentService paymentService;
   private final ExternalResponseMapper externalResponseMapper;
   private final MobileTransactionDetailsRepository mobileTransactionDetailsRepository;
+  private final EventProducer<PojaEvent> eventProducer;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
@@ -133,8 +139,27 @@ public class MpbsVerificationService {
   private MpbsStatus defineMpbsStatusWithoutOrangeTransactionDetails(Mpbs mpbs, Instant toCompare) {
     long dayValidity = mpbs.getCreationDatetime().until(toCompare, ChronoUnit.DAYS);
     if (dayValidity > 2) {
+      notifyStudentForFailedPayment(mpbs);
       return FAILED;
     }
     return PENDING;
+  }
+
+  private void notifyStudentForFailedPayment(Mpbs mpbs) {
+    Fee correspondingFee = mpbs.getFee();
+    Payment paymentFromMpbs =
+        Payment.builder()
+            .type(MOBILE_MONEY)
+            .fee(correspondingFee)
+            .amount(mpbs.getAmount())
+            .creationDatetime(Instant.now())
+            .comment(correspondingFee.getComment())
+            .build();
+    PaidFeeByMpbsFailedNotificationBody notificationBody =
+        PaidFeeByMpbsFailedNotificationBody.from(paymentFromMpbs);
+    eventProducer.accept(List.of(notificationBody));
+    log.info(
+        "Failed payment notification for user {} sent to Queue.",
+        notificationBody.getMpbsAuthorEmail());
   }
 }

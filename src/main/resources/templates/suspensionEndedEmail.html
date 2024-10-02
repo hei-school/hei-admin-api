@@ -2,13 +2,13 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Email</title>
+    <title>Document</title>
     <style>
         body {
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        h1,section, footer {
+        h1, section, footer {
             margin: 2vh 2vw;
         }
 
@@ -17,7 +17,7 @@
             font-weight: 500;
         }
 
-        section, footer{
+        section, footer {
             font-size: 1.1em;
             line-height: 1.5em;
         }
@@ -53,20 +53,31 @@
         .hei {
             color: rgb(164, 164, 164);
         }
+
     </style>
 </head>
 <body>
 <main>
-    <h1>[IMPORTANT]</h1>
     <section>
-        <span th:text="${fullName} + ' a récemment posté une annonce qui vous concerne de près ou de loin.'"></span>
+        <p>Bonjour
+            <span th:text="${fullName}"></span>,
+        </p>
     </section>
     <section>
-        <a th:href="@{'https://admin.hei.school/#/announcements/'+${id}+'/show'}">Cliquer ici pour voir l'annonce.</a>
-        <br/>
-        <p>Veuillez y prêter attention.</p>
-        <br/>
-        <p>N'hésitez pas à contacter l’administration via l’adresse email  <a href="mailto:contact@hei.school">contact@hei.school</a>  ou appeler le numéro <a href="tel:+261349404116">+261 34 94 041 16</a> pour toutes informations complémentaires. </p>
+        Nous vous informons que nous avons bien reçu votre paiement de <span th:text="${amountPaid}"></span> MGA,
+        (<span th:text="${amountInWords}"></span> ARIARY) effectué pour vos frais de scolarité.
+    </section>
+    <section>
+        Votre suspension académique est désormais levée, et vous êtes autorisé à reprendre vos cours ainsi que vos examens à compter de cette date.
+    </section>
+    <section>
+        Nous vous encourageons à continuer de respecter les échéances de paiement afin d’éviter toute nouvelle suspension.
+    </section>
+    <section>
+        N'hésitez pas à contacter l’administration via l’adresse email  <a href="mailto:contact@hei.school">contact@hei.school</a>  ou appeler le numéro <a href="tel:+261349404116">+261 34 94 041 16</a> pour toutes informations complémentaires.
+    </section>
+    <section>
+        Cordialement,
     </section>
 </main>
 <footer>
