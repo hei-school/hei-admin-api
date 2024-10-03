@@ -3758,11 +3758,6 @@ paths:
           required: false
           schema:
             type: string
-        - name: amount
-          in: query
-          required: false
-          schema:
-            type: integer
       requestBody:
         required: true
         content:
@@ -5168,8 +5163,6 @@ components:
         fee:
           type: object
           properties:
-            id:
-              type: string
             comment:
               type: string
             amount:

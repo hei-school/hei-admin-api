@@ -52,7 +52,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
@@ -1036,13 +1035,7 @@ public class TestUtils {
   }
 
   public static HttpResponse<InputStream> uploadLetter(
-      Integer serverPort,
-      String token,
-      String subjectId,
-      String description,
-      String filename,
-      String feeId,
-      Integer amount)
+      Integer serverPort, String token, String subjectId, String description, String filename)
       throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
@@ -1076,24 +1069,29 @@ public class TestUtils {
             + CRLF
             + description
             + CRLF;
+
+    String filenamePart =
+        "--"
+            + boundary
+            + CRLF
+            + "Content-Disposition: form-data; name=\"filename\""
+            + CRLF
+            + CRLF
+            + filename
+            + CRLF;
+
     byte[] requestBody =
         Bytes.concat(
             descriptionPart.getBytes(),
+            filenamePart.getBytes(),
             filePart.getBytes(),
             fileBytes,
             requestBodySuffix.getBytes());
-
-    String path = basePath + String.format("/students/%s/letters?filename=%s", subjectId, filename);
-
-    if (Objects.nonNull(feeId)) {
-      path = path + "&fee_id=" + feeId;
-    }
-
-    if (Objects.nonNull(amount)) {
-      path = path + "&amount=" + amount;
-    }
-
-    UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(URI.create(path));
+    UriComponentsBuilder uriComponentsBuilder =
+        UriComponentsBuilder.fromUri(
+            URI.create(
+                basePath
+                    + String.format("/students/%s/letters", subjectId, description, filename)));
     InputStream requestBodyStream = new ByteArrayInputStream(requestBody);
     HttpRequest request =
         HttpRequest.newBuilder()

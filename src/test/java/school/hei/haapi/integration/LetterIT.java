@@ -2,7 +2,6 @@ package school.hei.haapi.integration;
 
 import static org.junit.Assert.*;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.*;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.*;
@@ -23,10 +22,8 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.LettersApi;
-import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Letter;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -115,7 +112,6 @@ public class LetterIT extends MockedThirdParties {
       throws IOException, InterruptedException, ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
-    PayingApi payingApi = new PayingApi(apiClient);
 
     HttpResponse<InputStream> toBeReceived =
         uploadLetter(
@@ -123,9 +119,7 @@ public class LetterIT extends MockedThirdParties {
             MANAGER1_TOKEN,
             STUDENT1_ID,
             "Certificat",
-            "file",
-            null,
-            null);
+            "file");
     Letter createdLetter1 = objectMapper.readValue(toBeReceived.body(), Letter.class);
     assertEquals(createdLetter1.getDescription(), "Certificat");
     assertEquals(PENDING, createdLetter1.getStatus());
@@ -136,9 +130,7 @@ public class LetterIT extends MockedThirdParties {
             MANAGER1_TOKEN,
             STUDENT1_ID,
             "A rejeter",
-            "file",
-            null,
-            null);
+            "file");
 
     Letter createdLetter2 = objectMapper.readValue(toBeRejected.body(), Letter.class);
     assertEquals(createdLetter2.getDescription(), "A rejeter");
@@ -157,34 +149,11 @@ public class LetterIT extends MockedThirdParties {
     assertEquals(RECEIVED, updatedLetter1.getStatus());
     assertNotNull(updatedLetter1.getApprovalDatetime());
     assertEquals(createdLetter1.getId(), updatedLetter1.getId());
-    assertEquals(createdLetter1.getFee(), null);
 
     Letter updatedLetter2 = updatedLetters.get(1);
     assertEquals(REJECTED, updatedLetter2.getStatus());
     assertNotNull(updatedLetter2.getApprovalDatetime());
     assertEquals(createdLetter2.getId(), updatedLetter2.getId());
-
-    HttpResponse<InputStream> testFeePayment =
-        uploadLetter(
-            LetterIT.ContextInitializer.SERVER_PORT,
-            MANAGER1_TOKEN,
-            STUDENT1_ID,
-            "Test fee",
-            "file",
-            "fee7_id",
-            5000);
-
-    Letter createdLetter3 = objectMapper.readValue(testFeePayment.body(), Letter.class);
-    log.info(createdLetter3.toString());
-    Letter feeLetterUpdated =
-        api.updateLettersStatus(
-                List.of(new UpdateLettersStatus().id(createdLetter3.getId()).status(RECEIVED)))
-            .getFirst();
-
-    Fee actualFee = payingApi.getStudentFeeById(STUDENT1_ID, "fee7_id");
-    assertEquals(actualFee.getComment(), feeLetterUpdated.getFee().getComment());
-    assertEquals(actualFee.getType(), feeLetterUpdated.getFee().getType());
-    assertEquals(actualFee.getStatus(), PAID);
   }
 
   @Test
@@ -221,9 +190,7 @@ public class LetterIT extends MockedThirdParties {
             STUDENT1_TOKEN,
             STUDENT1_ID,
             "Certificat",
-            "file",
-            null,
-            null);
+            "file");
     Letter createdLetter = objectMapper.readValue(response.body(), Letter.class);
     assertEquals(createdLetter.getDescription(), "Certificat");
     assertEquals(PENDING, createdLetter.getStatus());

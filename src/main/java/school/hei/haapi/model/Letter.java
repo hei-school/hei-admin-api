@@ -45,10 +45,4 @@ public class Letter {
   private String filePath;
 
   private String reasonForRefusal;
-
-  private Integer amount;
-
-  @ManyToOne
-  @JoinColumn(name = "fee_id")
-  private Fee fee;
 }
