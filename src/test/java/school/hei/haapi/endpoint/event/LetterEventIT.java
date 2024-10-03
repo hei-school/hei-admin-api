@@ -40,6 +40,7 @@ public class LetterEventIT extends MockedThirdParties {
         .id("test_id")
         .studentRef("ref")
         .description("description")
+        .studentEmail("email")
         .build();
   }
 

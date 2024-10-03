@@ -164,6 +164,7 @@ public class LetterService {
         .description(letter.getDescription())
         .id(letter.getId())
         .studentRef(letter.getStudent().getRef())
+        .studentEmail(letter.getStudent().getEmail())
         .build();
   }
 
