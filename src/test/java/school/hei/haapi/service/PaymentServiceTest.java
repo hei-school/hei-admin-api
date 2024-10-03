@@ -43,6 +43,7 @@ class PaymentServiceTest extends MockedThirdParties {
   @Autowired private PaymentService subject;
   @Autowired private MpbsService mpbsService;
   @MockBean private EventBridgeClient eventBridgeClientMock;
+  private String FEE7_ID = "fee7_id";
 
   @BeforeEach
   void setUp() {
@@ -80,10 +81,12 @@ class PaymentServiceTest extends MockedThirdParties {
     var domainMpbs = mpbsService.getByPspId(correspondingMpbs.getPspId());
     subject.savePaymentFromMpbs(domainMpbs, 5000);
 
-    // here correspondingStudent has paid all their fees late (fee3_id, fee6_id and the created
+    // here correspondingStudent has paid all their fees late (fee3_id, fee6_id, fee7_id and the
+    // created
     // correspondingFee)
     subject.computeRemainingAmount(FEE3_ID, 5000);
     subject.computeRemainingAmount(FEE6_ID, 5000);
+    subject.computeRemainingAmount(FEE7_ID, 5000);
     subject.computeRemainingAmount(correspondingFee.getId(), 5000);
 
     var actualStudent1 = usersApi.getStudentById(STUDENT1_ID);
