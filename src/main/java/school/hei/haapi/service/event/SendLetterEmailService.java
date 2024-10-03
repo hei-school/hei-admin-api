@@ -41,7 +41,7 @@ public class SendLetterEmailService implements Consumer<SendLetterEmail> {
     mailer.accept(
         new Email(
             internetAddress("contact@mail.hei.school"),
-            List.of(),
+            List.of(internetAddress(sendLetterEmail.getStudentEmail())),
             List.of(),
             "HEI - Boîte aux lettres - " + sendLetterEmail.getStudentRef(),
             htmlBody,

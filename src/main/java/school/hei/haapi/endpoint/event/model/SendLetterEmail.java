@@ -18,6 +18,9 @@ public class SendLetterEmail extends PojaEvent {
   @JsonProperty("studentRef")
   private String studentRef;
 
+  @JsonProperty("studentEmail")
+  private String studentEmail;
+
   @JsonProperty("description")
   private String description;
 
