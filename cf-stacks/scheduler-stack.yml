@@ -102,6 +102,22 @@ Resources:
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.model.SendUnpaidFeesReminderTriggered'
           Source: 'school.hei.haapi.event1'
+  UpdateStudentsStatusScheduler:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Description: Scheduler that trigger updateStudentsStatus function
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name: !Join [ '', [ !Ref Env, -UpdateStudentsStatusScheduler ] ]
+      ScheduleExpression: "cron(0 0 * * ? *)"
+      Target:
+        Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
+        RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
+        DeadLetterConfig:
+          Arn: !Sub '{{resolve:ssm:/haapi/${Env}/1/sqs/dead-letter-queue-arn}}'
+        EventBridgeParameters:
+          DetailType: 'school.hei.haapi.endpoint.event.model.UpdateStudentsStatus'
+          Source: 'school.hei.haapi.event1'
   ScheduledEventExecutionRole:
     Type: AWS::IAM::Role
     Properties:

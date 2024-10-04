@@ -137,6 +137,10 @@ public class UserService {
     return userRepository.findAllByStatus(ENABLED);
   }
 
+  public List<User> getAllSuspendedUsers() {
+    return userRepository.findAllByStatus(SUSPENDED);
+  }
+
   public List<User> getByCriteria(
       User.Role role,
       String firstName,
