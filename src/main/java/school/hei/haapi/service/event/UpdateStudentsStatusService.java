@@ -16,7 +16,8 @@ public class UpdateStudentsStatusService implements Consumer<UpdateStudentsStatu
   private final UserService userService;
   private final PaymentService paymentService;
 
-  //If the student has no more overdue fees, their status will be set to ENABLED, otherwise it will remain SUSPENDED.
+  // If the student has no more overdue fees, their status will be set to ENABLED, otherwise it will
+  // remain SUSPENDED.
   public void checkSuspendedStudentsStatus() {
     List<User> suspendedStudents = userService.getAllSuspendedUsers();
     for (User student : suspendedStudents) {
@@ -24,7 +25,8 @@ public class UpdateStudentsStatusService implements Consumer<UpdateStudentsStatu
     }
   }
 
-  //If the student has no overdue fees, their status will remain ENABLED, otherwise it will be set to SUSPENDED.
+  // If the student has no overdue fees, their status will remain ENABLED, otherwise it will be set
+  // to SUSPENDED.
   public void checkEnabledStudentsStatus() {
     List<User> enabledStudents = userService.getAllEnabledUsers();
     for (User student : enabledStudents) {
