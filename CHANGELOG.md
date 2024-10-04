@@ -1,3 +1,18 @@
+# [1.60.0](https://github.com/hei-school/hei-admin-api/compare/v1.59.0...v1.60.0) (2024-10-04)
+
+
+### Bug Fixes
+
+* paid late fee fee7 for student1  ([3c7fa15](https://github.com/hei-school/hei-admin-api/commit/3c7fa1511026a9a3596d0abc07ce01887dc16bf5))
+
+
+### Features
+
+* add notification payment failed  ([bc62489](https://github.com/hei-school/hei-admin-api/commit/bc6248957993323210b9d3cf1fb03ef3709ab71a))
+* **not-implemented:** letter attribute in fee model ([5319943](https://github.com/hei-school/hei-admin-api/commit/5319943bc78d05aec6c3db4ed3a7cfad49e43b05))
+
+
+
 # [1.59.0](https://github.com/hei-school/hei-admin-api/compare/v1.58.0...v1.59.0) (2024-10-01)
 
 
@@ -99,15 +114,6 @@
 ### Features
 
 * filter letters by status ([38d4b37](https://github.com/hei-school/hei-admin-api/commit/38d4b37e609c74ee42e9618036baabd5a58bc5a6))
-
-
-
-# [1.51.0](https://github.com/hei-school/hei-admin-api/compare/v1.50.0...v1.51.0) (2024-09-03)
-
-
-### Features
-
-* update letter model and send email notification ([4aaf188](https://github.com/hei-school/hei-admin-api/commit/4aaf188b892a29cd1babc4a49829c39f2d9a0bd6))
 
 
 
