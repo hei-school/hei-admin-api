@@ -55,26 +55,26 @@ public class LetterIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
 
-    List<Letter> actual = api.getLetters(1, 15, null, null, null, null);
+    List<Letter> actual = api.getLetters(1, 15, null, null, null, null, null);
     assertTrue(actual.contains(letter1()));
     assertTrue(actual.contains(letter2()));
     assertTrue(actual.contains(letter3()));
 
-    List<Letter> filteredByStudentRef = api.getLetters(1, 15, "STD21001", null, null, null);
+    List<Letter> filteredByStudentRef = api.getLetters(1, 15, "STD21001", null, null, null, null);
     assertTrue(filteredByStudentRef.contains(letter1()));
     assertTrue(filteredByStudentRef.contains(letter2()));
     assertFalse(filteredByStudentRef.contains(letter3()));
 
-    List<Letter> filteredByStudentName = api.getLetters(1, 15, null, null, null, "Ryan");
+    List<Letter> filteredByStudentName = api.getLetters(1, 15, null, null, null, "Ryan", null);
     assertTrue(filteredByStudentName.contains(letter1()));
     assertTrue(filteredByStudentName.contains(letter2()));
     assertFalse(filteredByStudentName.contains(letter3()));
 
-    List<Letter> filteredByLetterRef = api.getLetters(1, 15, null, "letter1_ref", null, null);
+    List<Letter> filteredByLetterRef = api.getLetters(1, 15, null, "letter1_ref", null, null, null);
     assertTrue(filteredByLetterRef.contains(letter1()));
     assertFalse(filteredByLetterRef.contains(letter2()));
 
-    List<Letter> actual3 = api.getLetters(1, 15, null, null, PENDING, null);
+    List<Letter> actual3 = api.getLetters(1, 15, null, null, PENDING, null, null);
     assertFalse(actual3.contains(letter1()));
     assertTrue(actual3.contains(letter2()));
     assertTrue(actual3.contains(letter3()));

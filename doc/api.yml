@@ -3582,6 +3582,12 @@ paths:
           schema:
             type: string
           required: false
+        - name: fee_id
+          in: query
+          description: Filter letter by fee id
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: Letters
@@ -4712,6 +4718,23 @@ components:
           format: date-time
         mpbs:
           $ref: '#/components/schemas/Mpbs'
+        letter:
+          type: object
+          properties:
+            id:
+              type: string
+            approval_datetime:
+              type: string
+              format: date-time
+            creation_datetime:
+              type: string
+              format: date-time
+            ref:
+              type: string
+            status:
+              $ref: '#/components/schemas/LetterStatus'
+            file_url:
+              type: string
     CreateDelayPenaltyChange:
       type: object
       properties:
