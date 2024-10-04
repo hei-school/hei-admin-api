@@ -11,6 +11,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.LetterStatus;
+import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Letter;
 import school.hei.haapi.model.User;
 
@@ -21,7 +22,13 @@ public class LetterDao {
   private final EntityManager entityManager;
 
   public List<Letter> findByCriteria(
-      String ref, String studentRef, LetterStatus status, String name, Pageable pageable) {
+      String ref,
+      String studentRef,
+      LetterStatus status,
+      String name,
+      String feeId,
+      Boolean isLinkedWithFee,
+      Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Letter> query = builder.createQuery(Letter.class);
     Root<Letter> root = query.from(Letter.class);
@@ -42,6 +49,16 @@ public class LetterDao {
               builder.like(userJoin.get("firstName"), "%" + name + "%"),
               builder.like(builder.lower(userJoin.get("lastName")), "%" + name + "%"),
               builder.like(userJoin.get("lastName"), "%" + name + "%")));
+    }
+
+    if (isLinkedWithFee != null) {
+      predicates.add(
+          isLinkedWithFee ? builder.isNotNull(root.get("fee")) : builder.isNull(root.get("fee")));
+    }
+
+    if (feeId != null) {
+      Join<Letter, Fee> feeJoin = root.join("fee", INNER);
+      predicates.add(builder.equal(feeJoin.get("id"), feeId));
     }
 
     if (ref != null) {

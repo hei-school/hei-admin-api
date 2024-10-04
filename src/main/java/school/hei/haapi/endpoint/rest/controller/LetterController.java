@@ -26,8 +26,12 @@ public class LetterController {
       @RequestParam(name = "ref", required = false) String ref,
       @RequestParam(name = "name", required = false) String name,
       @RequestParam(name = "status", required = false) LetterStatus status,
-      @RequestParam(name = "student_ref", required = false) String studentRef) {
-    return letterService.getLetters(ref, studentRef, status, name, page, pageSize).stream()
+      @RequestParam(name = "student_ref", required = false) String studentRef,
+      @RequestParam(name = "fee_id", required = false) String feeId,
+      @RequestParam(name = "is_linked_with_fee", required = false) Boolean isLinkedWithFee) {
+    return letterService
+        .getLetters(ref, studentRef, status, name, feeId, isLinkedWithFee, page, pageSize)
+        .stream()
         .map(letterMapper::toRest)
         .toList();
   }

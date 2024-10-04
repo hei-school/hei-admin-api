@@ -1,6 +1,7 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
@@ -18,6 +19,8 @@ import school.hei.haapi.endpoint.rest.validator.CreateFeeValidator;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.service.LetterService;
+import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
 @Component
@@ -27,6 +30,8 @@ public class FeeMapper {
   private final CreateFeeValidator createFeeValidator;
   private PaymentMapper paymentMapper;
   private final MpbsMapper mpbsMapper;
+  private final LetterService letterService;
+  private final FileService fileService;
 
   public ModelFee toRestModelFee(school.hei.haapi.model.Fee fee) {
     var studentFee = fee.getStudent();
@@ -50,6 +55,8 @@ public class FeeMapper {
   public Fee toRestFee(school.hei.haapi.model.Fee fee) {
     Mpbs feeMpbs = fee.getMpbs() != null ? mpbsMapper.toRest(fee.getMpbs()) : null;
     var studentFee = fee.getStudent();
+    var letter = fee.getLetter();
+
     return new Fee()
         .id(fee.getId())
         .studentId(studentFee.getId())
@@ -62,7 +69,22 @@ public class FeeMapper {
         .mpbs(feeMpbs)
         .creationDatetime(fee.getCreationDatetime())
         .updatedAt(fee.getUpdatedAt())
-        .dueDatetime(fee.getDueDatetime());
+        .dueDatetime(fee.getDueDatetime())
+        .letter(letter == null ? null : toLetterFee(letter));
+  }
+
+  public FeeLetter toLetterFee(school.hei.haapi.model.Letter letter) {
+    String fileUrl =
+        letter.getFilePath() == null
+            ? null
+            : fileService.getPresignedUrl(letter.getFilePath(), ONE_DAY_DURATION_AS_LONG);
+    return new FeeLetter()
+        .id(letter.getId())
+        .ref(letter.getRef())
+        .status(letter.getStatus())
+        .approvalDatetime(letter.getApprovalDatetime())
+        .creationDatetime(letter.getCreationDatetime())
+        .fileUrl(fileUrl);
   }
 
   public school.hei.haapi.model.Fee toDomain(Fee fee, User student) {

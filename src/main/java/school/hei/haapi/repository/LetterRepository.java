@@ -15,4 +15,6 @@ public interface LetterRepository extends JpaRepository<Letter, String> {
       String studentId, LetterStatus status, Pageable pageable);
 
   Integer countByStatus(LetterStatus status);
+
+  Letter findByFeeId(String feeId);
 }
