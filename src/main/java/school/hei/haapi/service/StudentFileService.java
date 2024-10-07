@@ -125,9 +125,18 @@ public class StudentFileService {
     context.setVariable(
         "paymentAmountAsWords", numberToWords(dataProvider.getTotalPaymentAmount()));
     context.setVariable("paymentReason", dataProvider.getFeeComment());
-    context.setVariable("paymentType", dataProvider.getPaymentType());
+    context.setVariable("paymentType", paymentType(dataProvider.getPaymentType()));
 
     return context;
+  }
+
+  private String paymentType(school.hei.haapi.endpoint.rest.model.Payment.TypeEnum typeEnum) {
+    return switch (typeEnum) {
+      case BANK_TRANSFER -> "Virement bancaire";
+      case CASH -> "En espèce";
+      case MOBILE_MONEY -> "Mobile Money";
+      case SCHOLARSHIP, FIX -> null;
+    };
   }
 
   private Context loadContext(String studentId) {
