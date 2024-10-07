@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
@@ -72,7 +73,7 @@ public class Fee implements Serializable {
   @OneToMany(mappedBy = "fee", cascade = REMOVE)
   private List<Payment> payments;
 
-  @OneToOne(mappedBy = "fee", fetch = LAZY)
+  @OneToOne(mappedBy = "fee", fetch = LAZY, cascade = ALL, orphanRemoval = true)
   private Letter letter;
 
   @OneToOne(mappedBy = "fee")
