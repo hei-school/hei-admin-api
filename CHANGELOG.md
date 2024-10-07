@@ -1,3 +1,12 @@
+# [1.61.0](https://github.com/hei-school/hei-admin-api/compare/v1.60.0...v1.61.0) (2024-10-07)
+
+
+### Features
+
+* get letter by fee id ([7d4a717](https://github.com/hei-school/hei-admin-api/commit/7d4a717f24f0b645665c586331cf321feef8125b))
+
+
+
 # [1.60.0](https://github.com/hei-school/hei-admin-api/compare/v1.59.0...v1.60.0) (2024-10-04)
 
 
@@ -105,15 +114,6 @@
 
 * add repeating year concept to certificate  ([6bc296b](https://github.com/hei-school/hei-admin-api/commit/6bc296b0350402bd5f19bca2bcf9d54914537027))
 * link students to monitor  ([2243a9a](https://github.com/hei-school/hei-admin-api/commit/2243a9afdf2528a4d049766a2aa36780a769c02a))
-
-
-
-# [1.52.0](https://github.com/hei-school/hei-admin-api/compare/v1.51.0...v1.52.0) (2024-09-04)
-
-
-### Features
-
-* filter letters by status ([38d4b37](https://github.com/hei-school/hei-admin-api/commit/38d4b37e609c74ee42e9618036baabd5a58bc5a6))
 
 
 
