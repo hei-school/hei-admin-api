@@ -2,18 +2,11 @@ package school.hei.haapi.model;
 
 import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -78,6 +71,9 @@ public class Fee implements Serializable {
 
   @OneToMany(mappedBy = "fee", cascade = REMOVE)
   private List<Payment> payments;
+
+  @OneToOne(mappedBy = "fee", fetch = LAZY)
+  private Letter letter;
 
   @OneToOne(mappedBy = "fee")
   private Mpbs mpbs;

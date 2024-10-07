@@ -3588,6 +3588,11 @@ paths:
           required: false
           schema:
             type: string
+        - name: is_linked_with_fee
+          in: query
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: Letters
@@ -4719,22 +4724,24 @@ components:
         mpbs:
           $ref: '#/components/schemas/Mpbs'
         letter:
-          type: object
-          properties:
-            id:
-              type: string
-            approval_datetime:
-              type: string
-              format: date-time
-            creation_datetime:
-              type: string
-              format: date-time
-            ref:
-              type: string
-            status:
-              $ref: '#/components/schemas/LetterStatus'
-            file_url:
-              type: string
+         $ref: '#/components/schemas/FeeLetter'
+    FeeLetter:
+      type: object
+      properties:
+        id:
+          type: string
+        approval_datetime:
+          type: string
+          format: date-time
+        creation_datetime:
+          type: string
+          format: date-time
+        ref:
+          type: string
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+        file_url:
+          type: string
     CreateDelayPenaltyChange:
       type: object
       properties:
