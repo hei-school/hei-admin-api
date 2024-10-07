@@ -256,4 +256,8 @@ public class UserService {
   public List<User> findMonitorsByStudentId(String studentId) {
     return monitoringStudentService.getMonitorsByStudentId(studentId);
   }
+
+  public List<User> getStudentsWithUnpaidOrLateFee() {
+    return userRepository.getStudentsWithUnpaidOrLateFee();
+  }
 }

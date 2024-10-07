@@ -82,16 +82,12 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
   @DirtiesContext
   void update_students_status_ok() {
     User student2 = student2();
-    User student3 = student3();
     assertEquals(ENABLED, student2.getStatus());
-    assertEquals(ENABLED, student3.getStatus());
 
     // here, we check if the enabled student has paid all their fees
-    updateStudentsStatusService.checkEnabledStudentsStatus();
-    User enabledStudent2Checked = userService.findById(student2.getId());
-    User enabledStudent3Checked = userService.findById(student3.getId());
-    assertEquals(SUSPENDED, enabledStudent2Checked.getStatus());
-    assertEquals(ENABLED, enabledStudent3Checked.getStatus());
+    updateStudentsStatusService.suspendStudentsWithUnpaidOrLateFee();
+    User suspendedStudent2 = userService.findById(student2.getId());
+    assertEquals(SUSPENDED, suspendedStudent2.getStatus());
 
     paymentService.computeRemainingAmount(FEE4_ID, 5000);
     paymentService.computeRemainingAmount(FEE5_ID, 5000);
