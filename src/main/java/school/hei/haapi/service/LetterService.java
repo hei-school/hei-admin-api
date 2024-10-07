@@ -25,6 +25,7 @@ import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.model.*;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.model.validator.LetterValidator;
 import school.hei.haapi.repository.LetterRepository;
 import school.hei.haapi.repository.dao.LetterDao;
 import school.hei.haapi.service.aws.FileService;
@@ -42,6 +43,7 @@ public class LetterService {
   private final EventProducer eventProducer;
   private final FeeService feeService;
   private final PaymentService paymentService;
+  private final LetterValidator validator;
 
   public List<Letter> getLetters(
       String ref,
@@ -75,6 +77,7 @@ public class LetterService {
     String bucketKey = getBucketKey(user.getRef(), filename) + fileService.getFileExtension(file);
     final String uuid = UUID.randomUUID().toString();
 
+
     Letter letterToSave =
         Letter.builder()
             .id(uuid)
@@ -93,8 +96,9 @@ public class LetterService {
     File fileToSave = multipartFileConverter.apply(file);
     fileService.uploadObjectToS3Bucket(bucketKey, fileToSave);
 
+    validator.accept(letterToSave);
+
     eventProducer.accept(List.of(toSendLetterEmail(letterToSave)));
-    log.info("saved letter: {}", letterToSave.toString());
     return letterRepository.save(letterToSave);
   }
 
