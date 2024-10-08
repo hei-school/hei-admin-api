@@ -33,7 +33,7 @@ public class UpdateStudentsStatusService implements Consumer<UpdateStudentsStatu
   public void suspendStudentsWithUnpaidOrLateFee() {
     List<User> students = userService.getStudentsWithUnpaidOrLateFee();
     for (User student : students) {
-      if (student.getStatus() != SUSPENDED) {
+      if (!SUSPENDED.equals(student.getStatus())) {
         userManagerDao.updateUserStatusById(SUSPENDED, student.getId());
       }
     }
