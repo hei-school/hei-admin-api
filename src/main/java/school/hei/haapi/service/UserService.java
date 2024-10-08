@@ -137,6 +137,10 @@ public class UserService {
     return userRepository.findAllByStatus(ENABLED);
   }
 
+  public List<User> getAllSuspendedUsers() {
+    return userRepository.findAllByStatus(SUSPENDED);
+  }
+
   public List<User> getByCriteria(
       User.Role role,
       String firstName,
@@ -251,5 +255,9 @@ public class UserService {
 
   public List<User> findMonitorsByStudentId(String studentId) {
     return monitoringStudentService.getMonitorsByStudentId(studentId);
+  }
+
+  public List<User> getStudentsWithUnpaidOrLateFee() {
+    return userRepository.getStudentsWithUnpaidOrLateFee();
   }
 }
