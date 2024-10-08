@@ -30,7 +30,8 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.PaymentService;
 import school.hei.haapi.service.UserService;
-import school.hei.haapi.service.event.UpdateStudentsStatusService;
+import school.hei.haapi.service.event.CheckSuspendedStudentsStatusService;
+import school.hei.haapi.service.event.SuspendStudentsWithOverdueFeesService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -39,7 +40,8 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @AutoConfigureMockMvc
 @Transactional
 public class CheckStudentsStatusTest extends MockedThirdParties {
-  @Autowired private UpdateStudentsStatusService updateStudentsStatusService;
+  @Autowired private CheckSuspendedStudentsStatusService checkSuspendedStudentsStatusService;
+  @Autowired private SuspendStudentsWithOverdueFeesService suspendStudentsWithOverdueFeesService;
   @Autowired private PaymentService paymentService;
   @Autowired private UserService userService;
   @Autowired private UserRepository userRepository;
@@ -96,7 +98,7 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
     assertEquals(ENABLED, student2.getStatus());
 
     // here, we check if the enabled student has paid all their fees
-    updateStudentsStatusService.suspendStudentsWithUnpaidOrLateFee();
+    suspendStudentsWithOverdueFeesService.suspendStudentsWithUnpaidOrLateFee();
     User suspendedStudent2 = userService.findById(student2.getId());
     assertEquals(SUSPENDED, suspendedStudent2.getStatus());
 
@@ -104,7 +106,7 @@ public class CheckStudentsStatusTest extends MockedThirdParties {
     paymentService.computeRemainingAmount(FEE5_ID, 5000);
 
     // here, we check if the suspended student has paid all their fees
-    updateStudentsStatusService.checkSuspendedStudentsStatus();
+    checkSuspendedStudentsStatusService.updateStatusBasedOnPayment();
     User suspendedStudentChecked = userService.findById(student2.getId());
     assertEquals(ENABLED, suspendedStudentChecked.getStatus());
   }

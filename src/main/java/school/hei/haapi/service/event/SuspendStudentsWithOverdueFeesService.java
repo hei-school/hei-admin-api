@@ -5,43 +5,38 @@ import static school.hei.haapi.model.User.Status.SUSPENDED;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.endpoint.event.model.UpdateStudentsStatus;
+import school.hei.haapi.endpoint.event.model.SuspendStudentsWithOverdueFees;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.dao.UserManagerDao;
-import school.hei.haapi.service.PaymentService;
 import school.hei.haapi.service.UserService;
 
 @Service
 @AllArgsConstructor
-public class UpdateStudentsStatusService implements Consumer<UpdateStudentsStatus> {
+public class SuspendStudentsWithOverdueFeesService
+    implements Consumer<SuspendStudentsWithOverdueFees> {
 
-  private final UserService userService;
-  private final PaymentService paymentService;
+  private static final Logger log =
+      LoggerFactory.getLogger(SuspendStudentsWithOverdueFeesService.class);
   private final UserManagerDao userManagerDao;
-
-  // If the student has no more overdue fees, their status will be set to ENABLED, otherwise it will
-  // remain SUSPENDED.
-  public void checkSuspendedStudentsStatus() {
-    List<User> suspendedStudents = userService.getAllSuspendedUsers();
-    for (User student : suspendedStudents) {
-      paymentService.computeUserStatusAfterPayingFee(student);
-    }
-  }
+  private final UserService userService;
 
   // Suspends students with overdue fees if it hasn't been done already.
   public void suspendStudentsWithUnpaidOrLateFee() {
     List<User> students = userService.getStudentsWithUnpaidOrLateFee();
+    log.info("list of student with unpaid or late fee : {} ", students);
     for (User student : students) {
       if (!SUSPENDED.equals(student.getStatus())) {
         userManagerDao.updateUserStatusById(SUSPENDED, student.getId());
+        log.info("suspended student : {} ", userService.findById(student.getId()));
       }
     }
   }
 
   @Override
-  public void accept(UpdateStudentsStatus updateStudentsStatus) {
-    checkSuspendedStudentsStatus();
+  public void accept(SuspendStudentsWithOverdueFees suspendStudentsWithOverdueFees) {
     suspendStudentsWithUnpaidOrLateFee();
   }
 }

@@ -10,7 +10,7 @@ import lombok.ToString;
 @Builder
 @ToString
 @AllArgsConstructor
-public class UpdateStudentsStatus extends PojaEvent {
+public class SuspendStudentsWithOverdueFees extends PojaEvent {
   @Override
   public Duration maxConsumerDuration() {
     return Duration.ofSeconds(60);
