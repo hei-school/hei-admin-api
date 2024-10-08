@@ -55,7 +55,7 @@ public class FeeMapper {
   public Fee toRestFee(school.hei.haapi.model.Fee fee) {
     Mpbs feeMpbs = fee.getMpbs() != null ? mpbsMapper.toRest(fee.getMpbs()) : null;
     var studentFee = fee.getStudent();
-    var letter = fee.getLetter();
+    var letter = letterService.getByFeeId(fee.getId());
 
     return new Fee()
         .id(fee.getId())

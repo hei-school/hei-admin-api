@@ -64,6 +64,10 @@ public class LetterService {
         .orElseThrow(() -> new NotFoundException("Letter not found"));
   }
 
+  public Letter getByFeeId(String feeId) {
+    return letterRepository.findByFeeId(feeId).orElse(null);
+  }
+
   public Letter createLetter(
       String studentId,
       String description,
