@@ -674,6 +674,17 @@ public class StudentIT extends MockedThirdParties {
   }
 
   @Test
+  void monitor_read_students_ok() throws ApiException {
+    ApiClient monitorClient = anApiClient(MONITOR1_TOKEN);
+    UsersApi api = new UsersApi(monitorClient);
+    List<Student> actual =
+        api.getStudents(1, 20, null, null, null, null, null, null, null, null, null);
+
+    assertTrue(actual.contains(student1()));
+    assertTrue(actual.contains(student2()));
+  }
+
+  @Test
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);

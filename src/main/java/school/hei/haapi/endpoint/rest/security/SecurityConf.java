@@ -313,7 +313,7 @@ public class SecurityConf {
                     .hasRole(MANAGER.getRole())
                     // STUDENTS
                     .requestMatchers(GET, "/students")
-                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), MONITOR.getRole())
                     // STUDENTS
                     //
                     // MONITORS FOLLOWING STUDENTS
@@ -460,6 +460,7 @@ public class SecurityConf {
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+
                     // scholarship security conf
                     .requestMatchers(
                         new SelfMatcher(GET, "/students/*/scholarship_certificate/raw", "students"))
