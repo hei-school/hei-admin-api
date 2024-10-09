@@ -1981,6 +1981,39 @@ paths:
         '500':
           $ref: '#/components/responses/500'
   /fees:
+    put:
+      tags:
+        - Paying
+      summary: Crupdate student fees
+      operationId: crupdateStudentFees
+      requestBody:
+        description: Student fees to update if id is provided, create otherwise.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateStudentFee'
+      responses:
+        '200':
+          description: Created or updated student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     get:
       tags:
         - Paying
@@ -4695,6 +4728,14 @@ components:
         due_datetime:
           type: string
           format: date-time
+    CrupdateStudentFee:
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+      allOf:
+        - $ref: '#/components/schemas/CreateFee'      
     ModelFee:
       allOf:
         - $ref: '#/components/schemas/Fee'
