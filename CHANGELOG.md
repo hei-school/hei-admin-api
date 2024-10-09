@@ -1,3 +1,18 @@
+# [1.62.0](https://github.com/hei-school/hei-admin-api/compare/v1.61.0...v1.62.0) (2024-10-09)
+
+
+### Bug Fixes
+
+* more than one row error while fetching letter ([afe4c14](https://github.com/hei-school/hei-admin-api/commit/afe4c145fe86287ffe329c7072e1a5fd7a8bd338))
+
+
+### Features
+
+* **not implemented:** crupdate student fees ([598a7fd](https://github.com/hei-school/hei-admin-api/commit/598a7fd8803218e7a37f7c3be1e76c3eba29d1b5))
+* scheduled cron job to update student status  ([af972bd](https://github.com/hei-school/hei-admin-api/commit/af972bd3481ad3b24593ecbbb713dd4efb740870))
+
+
+
 # [1.61.0](https://github.com/hei-school/hei-admin-api/compare/v1.60.0...v1.61.0) (2024-10-07)
 
 
@@ -104,16 +119,6 @@
 
 * enable student create their own fee for remedial costs  ([1d6b843](https://github.com/hei-school/hei-admin-api/commit/1d6b843d9c17bd8bc324589ffccd236ca3476a30))
 * filter letters by student name ([d31632d](https://github.com/hei-school/hei-admin-api/commit/d31632de3db89059cf5b0bbe95d9d75f6ecd9fbc))
-
-
-
-# [1.53.0](https://github.com/hei-school/hei-admin-api/compare/v1.52.0...v1.53.0) (2024-09-04)
-
-
-### Features
-
-* add repeating year concept to certificate  ([6bc296b](https://github.com/hei-school/hei-admin-api/commit/6bc296b0350402bd5f19bca2bcf9d54914537027))
-* link students to monitor  ([2243a9a](https://github.com/hei-school/hei-admin-api/commit/2243a9afdf2528a4d049766a2aa36780a769c02a))
 
 
 
