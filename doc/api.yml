@@ -4148,6 +4148,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Promotion'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     put:
       tags:
         - Promotions
@@ -4168,6 +4178,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promotion'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/promotions/{id}':
     get:
       tags:
@@ -4187,7 +4207,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promotion'
-
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/promotions/{id}/students':
+    get:
+      tags:
+        - Promotions
+      operationId: getStudentsByPromotion
+      summary: Get students in the promotion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of students in a xlsx file
+          content:
+            application/xlsx:
+              schema:
+                type: string
+                format: byte
+                example: XLSX VERSION
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/promotions/{id}/groups':
     put:
       tags:
@@ -4213,6 +4273,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promotion'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
