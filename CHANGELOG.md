@@ -1,3 +1,13 @@
+# [1.65.0](https://github.com/hei-school/hei-admin-api/compare/v1.64.0...v1.65.0) (2024-10-11)
+
+
+### Features
+
+* change request body in monitor put endpoint ([37782c3](https://github.com/hei-school/hei-admin-api/commit/37782c305688ac4ac8dee765766f56e9da1b5b88))
+* **not-implemented:** generate xlsx file for students in promotion ([e439a83](https://github.com/hei-school/hei-admin-api/commit/e439a83ecc1500982ac0f6aeca91d971dbb36886))
+
+
+
 # [1.64.0](https://github.com/hei-school/hei-admin-api/compare/v1.63.0...v1.64.0) (2024-10-11)
 
 
@@ -104,15 +114,6 @@
 ### Features
 
 * generate payment of fee receipt  ([337cc56](https://github.com/hei-school/hei-admin-api/commit/337cc5617564c8f65edc3931630994374b2071f3))
-
-
-
-# [1.55.0](https://github.com/hei-school/hei-admin-api/compare/v1.54.1...v1.55.0) (2024-09-17)
-
-
-### Features
-
-* **not-implemented:** receipt on pdf version of paid fee  ([4a31588](https://github.com/hei-school/hei-admin-api/commit/4a31588616d668df3db8ee7ef6a212c9c0dfe323))
 
 
 
