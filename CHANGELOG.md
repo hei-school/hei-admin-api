@@ -1,3 +1,12 @@
+# [1.63.0](https://github.com/hei-school/hei-admin-api/compare/v1.62.0...v1.63.0) (2024-10-11)
+
+
+### Features
+
+* modify request body in linking students to monitor endpoint ([0de28a1](https://github.com/hei-school/hei-admin-api/commit/0de28a13e4504ed49d764990c419666b136cb3a1))
+
+
+
 # [1.62.0](https://github.com/hei-school/hei-admin-api/compare/v1.61.0...v1.62.0) (2024-10-09)
 
 
@@ -104,21 +113,6 @@
 ### Bug Fixes
 
 * create a student letter  ([4ea078d](https://github.com/hei-school/hei-admin-api/commit/4ea078d52b86c1d2ec7f89f00ba368891fe1123c))
-
-
-
-# [1.54.0](https://github.com/hei-school/hei-admin-api/compare/v1.53.0...v1.54.0) (2024-09-12)
-
-
-### Bug Fixes
-
-* psp own datetime verification not mapped during verification  ([ca7e567](https://github.com/hei-school/hei-admin-api/commit/ca7e5672b926453730598bedda3fd13e113bdaca))
-
-
-### Features
-
-* enable student create their own fee for remedial costs  ([1d6b843](https://github.com/hei-school/hei-admin-api/commit/1d6b843d9c17bd8bc324589ffccd236ca3476a30))
-* filter letters by student name ([d31632d](https://github.com/hei-school/hei-admin-api/commit/d31632de3db89059cf5b0bbe95d9d75f6ecd9fbc))
 
 
 
