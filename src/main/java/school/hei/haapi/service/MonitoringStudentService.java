@@ -3,7 +3,6 @@ package school.hei.haapi.service;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
 import java.util.List;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -21,13 +20,11 @@ public class MonitoringStudentService {
   private MonitoringStudentRepository monitoringStudentRepository;
 
   @Transactional
-  public List<User> linkMonitorFollowingStudents(String monitorId, List<User> studentsToFollow) {
-    List<String> studentIds =
-        studentsToFollow.stream().map(User::getId).collect(Collectors.toList());
-    for (String studentId : studentIds) {
+  public List<User> linkMonitorFollowingStudents(String monitorId, List<String> studentsIds) {
+    for (String studentId : studentsIds) {
       monitoringStudentRepository.saveMonitorFollowingStudents(monitorId, studentId);
     }
-    return monitoringStudentRepository.findAllById(studentIds);
+    return monitoringStudentRepository.findAllById(studentsIds);
   }
 
   public List<User> getMonitorsByStudentId(String studentId) {
