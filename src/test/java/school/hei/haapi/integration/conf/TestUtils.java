@@ -78,6 +78,7 @@ import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Event;
@@ -300,6 +301,26 @@ public class TestUtils {
         .totalAmount(5000)
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+  }
+
+  public static CrupdateStudentFee creatableStudentFee() {
+    return new CrupdateStudentFee()
+        .studentId(STUDENT1_ID)
+        .type(TUITION)
+        .totalAmount(5000)
+        .comment("Comment")
+        .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+  }
+
+  public static CrupdateStudentFee updatableStudentFee() {
+    return new CrupdateStudentFee()
+        .id(FEE3_ID)
+        .studentId(STUDENT1_ID)
+        .type(TUITION)
+        .totalAmount(5000)
+        .comment("Updated comment")
+        .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
+        .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
   }
 
   public static Group createGroup() {

@@ -95,6 +95,15 @@ public class FeeController {
         .collect(toUnmodifiableList());
   }
 
+  @PutMapping("/fees")
+  public List<Fee> crupdateStudentFees(@RequestBody List<CrupdateStudentFee> crupdateStudentFees) {
+    return feeService
+        .saveAll(crupdateStudentFees.stream().map(feeMapper::ToDomain).collect(toList()))
+        .stream()
+        .map(feeMapper::toRestFee)
+        .collect(toUnmodifiableList());
+  }
+
   @GetMapping("/fees/templates")
   public List<FeeTemplate> getFeeTemplates(
       @RequestParam(value = "name", required = false) String name,

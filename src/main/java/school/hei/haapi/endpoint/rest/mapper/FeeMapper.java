@@ -20,6 +20,7 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.LetterService;
+import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.DataFormatterUtils;
 
@@ -32,6 +33,7 @@ public class FeeMapper {
   private final MpbsMapper mpbsMapper;
   private final LetterService letterService;
   private final FileService fileService;
+  private final UserService userService;
 
   public ModelFee toRestModelFee(school.hei.haapi.model.Fee fee) {
     var studentFee = fee.getStudent();
@@ -102,6 +104,28 @@ public class FeeMapper {
         .creationDatetime(fee.getCreationDatetime())
         .dueDatetime(fee.getDueDatetime())
         .build();
+  }
+
+  public school.hei.haapi.model.Fee ToDomain(CrupdateStudentFee crupdateFee) {
+    User student = userService.findById(crupdateFee.getStudentId());
+    school.hei.haapi.model.Fee fee =
+        school.hei.haapi.model.Fee.builder()
+            .id(crupdateFee.getId())
+            .student(student)
+            .type(crupdateFee.getType())
+            .totalAmount(crupdateFee.getTotalAmount())
+            .remainingAmount(crupdateFee.getTotalAmount())
+            .comment(crupdateFee.getComment())
+            .creationDatetime(crupdateFee.getCreationDatetime())
+            .dueDatetime(crupdateFee.getDueDatetime())
+            .build();
+    if (crupdateFee.getId() != null) {
+      fee.setUpdatedAt(Instant.now());
+    }
+    if (crupdateFee.getDueDatetime() != null) {
+      fee.setStatus(DataFormatterUtils.isLate(crupdateFee.getDueDatetime()) ? LATE : UNPAID);
+    }
+    return fee;
   }
 
   private school.hei.haapi.model.Fee toDomainFee(User student, CreateFee createFee) {

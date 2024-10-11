@@ -114,6 +114,7 @@ public class SecurityConf {
                     antMatcher(POST, "/teachers/*/picture/raw"),
                     antMatcher(POST, "/managers/*/picture/raw"),
                     antMatcher(GET, "/students"),
+                    antMatcher(PUT, "/fees"),
                     antMatcher(GET, "/fees"),
                     antMatcher(GET, "/fees/*"),
                     antMatcher(PUT, "/students/*/fees/*/mpbs"),
@@ -332,6 +333,8 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(GET, "/fees/templates/*")
                     .hasAnyRole(MANAGER.getRole(), STUDENT.getRole())
+                    .requestMatchers(PUT, "/fees")
+                    .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(GET, "/fees/*")
                     .hasRole(MANAGER.getRole())
                     .requestMatchers(GET, "/fees")
