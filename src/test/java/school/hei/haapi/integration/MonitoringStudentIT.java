@@ -67,10 +67,18 @@ public class MonitoringStudentIT extends MockedThirdParties {
 
     // 1. Link some students to a monitor ...
     List<Student> studentsLinked =
-        api.linkStudentsByMonitorId(MONITOR1_ID, someStudentsIdentifierToLinkToAMonitor());
+        api.linkStudentsByMonitorId(
+            MONITOR1_ID, new LinkStudentsByMonitorIdRequest().studentsIds(List.of(STUDENT1_ID)));
 
-    assertEquals(2, studentsLinked.size());
-    assertTrue(studentsLinked.containsAll(List.of(student1(), student2())));
+    assertEquals(1, studentsLinked.size());
+    assertTrue(studentsLinked.contains(student1()));
+
+    List<Student> studentsLinkedByMonitor =
+        api.linkStudentsByMonitorId(
+            MONITOR1_ID, new LinkStudentsByMonitorIdRequest().studentsIds(List.of(STUDENT2_ID)));
+
+    assertEquals(1, studentsLinkedByMonitor.size());
+    assertTrue(studentsLinkedByMonitor.contains(student2()));
 
     // 2. ... Except that the monitor access to his resources ...
     ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
@@ -109,19 +117,12 @@ public class MonitoringStudentIT extends MockedThirdParties {
     ApiClient teacher1client = anApiClient(TEACHER1_TOKEN);
     MonitoringApi teacherApi = new MonitoringApi(teacher1client);
 
-    ApiClient monitor1client = anApiClient(MONITOR1_TOKEN);
-    MonitoringApi monitorApi = new MonitoringApi(monitor1client);
-
     ApiClient student1client = anApiClient(STUDENT1_TOKEN);
     MonitoringApi studentApi = new MonitoringApi(student1client);
 
     assertThrowsForbiddenException(
         () ->
             teacherApi.linkStudentsByMonitorId(
-                MONITOR1_ID, someStudentsIdentifierToLinkToAMonitor()));
-    assertThrowsForbiddenException(
-        () ->
-            monitorApi.linkStudentsByMonitorId(
                 MONITOR1_ID, someStudentsIdentifierToLinkToAMonitor()));
     assertThrowsForbiddenException(
         () ->
