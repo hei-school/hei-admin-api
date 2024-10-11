@@ -7,6 +7,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
@@ -34,7 +35,6 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -128,26 +128,8 @@ public class MonitoringStudentIT extends MockedThirdParties {
                 MONITOR1_ID, someStudentsIdentifierToLinkToAMonitor()));
   }
 
-  public static List<UserIdentifier> someStudentsIdentifierToLinkToAMonitor() {
-    UserIdentifier student1Identifier =
-        new UserIdentifier()
-            .id("student1_id")
-            .firstName("Ryan")
-            .lastName("Andria")
-            .email("test+ryan@hei.school")
-            .ref("STD21001")
-            .nic("");
-
-    UserIdentifier student2Identifier =
-        new UserIdentifier()
-            .id("student2_id")
-            .firstName("Two")
-            .lastName("Student")
-            .email("test+student2@hei.school")
-            .ref("STD21002")
-            .nic("");
-
-    return List.of(student1Identifier, student2Identifier);
+  public static List<String> someStudentsIdentifierToLinkToAMonitor() {
+    return List.of(STUDENT1_ID, STUDENT2_ID);
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

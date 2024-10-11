@@ -3204,7 +3204,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/UserIdentifier'
+                type: string
       responses:
         '200':
           description: List of student linked to a monitor
