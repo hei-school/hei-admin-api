@@ -34,6 +34,7 @@ import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.LinkStudentsByMonitorIdRequest;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
@@ -128,8 +129,8 @@ public class MonitoringStudentIT extends MockedThirdParties {
                 MONITOR1_ID, someStudentsIdentifierToLinkToAMonitor()));
   }
 
-  public static List<String> someStudentsIdentifierToLinkToAMonitor() {
-    return List.of(STUDENT1_ID, STUDENT2_ID);
+  public static LinkStudentsByMonitorIdRequest someStudentsIdentifierToLinkToAMonitor() {
+    return new LinkStudentsByMonitorIdRequest().studentsIds(List.of(STUDENT1_ID, STUDENT2_ID));
   }
 
   static class ContextInitializer extends AbstractContextInitializer {

@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.LinkStudentsByMonitorIdRequest;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -24,8 +25,10 @@ public class MonitoringStudentController {
 
   @PutMapping(value = "/monitors/{id}/students")
   public List<Student> linkStudentsByMonitorId(
-      @PathVariable String id, @RequestBody List<String> studentsIds) {
-    return monitoringStudentService.linkMonitorFollowingStudents(id, studentsIds).stream()
+      @PathVariable String id, @RequestBody LinkStudentsByMonitorIdRequest request) {
+    return monitoringStudentService
+        .linkMonitorFollowingStudents(id, request.getStudentsIds())
+        .stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
   }

@@ -3202,9 +3202,12 @@ paths:
         content:
           application/json:
             schema:
-              type: array
-              items:
-                type: string
+              type: object
+              properties:
+                students_ids:
+                  type: array
+                  items:
+                    type: string
       responses:
         '200':
           description: List of student linked to a monitor
@@ -4735,7 +4738,7 @@ components:
         student_id:
           type: string
       allOf:
-        - $ref: '#/components/schemas/CreateFee'      
+        - $ref: '#/components/schemas/CreateFee'
     ModelFee:
       allOf:
         - $ref: '#/components/schemas/Fee'
