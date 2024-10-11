@@ -1,3 +1,12 @@
+# [1.64.0](https://github.com/hei-school/hei-admin-api/compare/v1.63.0...v1.64.0) (2024-10-11)
+
+
+### Features
+
+* manager crupdate student fee endpoint ([af5a204](https://github.com/hei-school/hei-admin-api/commit/af5a2049db4d6b7ea65f25f56f347d7b38d2c815))
+
+
+
 # [1.63.0](https://github.com/hei-school/hei-admin-api/compare/v1.62.0...v1.63.0) (2024-10-11)
 
 
@@ -104,15 +113,6 @@
 ### Features
 
 * **not-implemented:** receipt on pdf version of paid fee  ([4a31588](https://github.com/hei-school/hei-admin-api/commit/4a31588616d668df3db8ee7ef6a212c9c0dfe323))
-
-
-
-## [1.54.1](https://github.com/hei-school/hei-admin-api/compare/v1.54.0...v1.54.1) (2024-09-16)
-
-
-### Bug Fixes
-
-* create a student letter  ([4ea078d](https://github.com/hei-school/hei-admin-api/commit/4ea078d52b86c1d2ec7f89f00ba368891fe1123c))
 
 
 
