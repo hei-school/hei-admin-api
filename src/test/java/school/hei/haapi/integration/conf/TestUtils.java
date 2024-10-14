@@ -378,9 +378,10 @@ public class TestUtils {
         .awardedCourseId(AWARDED_COURSE1_ID);
   }
 
-  public static CreateGrade createGrade(String studentId, String examId, String awardedCourseId) {
+  public static CreateGrade createGrade(
+      Double score, String studentId, String examId, String awardedCourseId) {
     return new CreateGrade()
-        .score(20.0)
+        .score(score)
         .studentId(studentId)
         .examId(examId)
         .awardedCourseId(awardedCourseId);
@@ -779,7 +780,7 @@ public class TestUtils {
   }
 
   public static Grade grade1() {
-    return new Grade().id(GRADE1_ID).score(8.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
+    return new Grade().id(GRADE1_ID).score(8.5).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade2() {

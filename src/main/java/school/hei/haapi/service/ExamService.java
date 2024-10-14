@@ -19,6 +19,12 @@ import school.hei.haapi.repository.ExamRepository;
 public class ExamService {
   private final ExamRepository examRepository;
 
+  public Exam findById(String id) {
+    return examRepository
+        .findById(id)
+        .orElseThrow(() -> new NotFoundException("Exam with id: " + id + " not found"));
+  }
+
   public List<Exam> getExamsFromAwardedCourseIdAndGroupId(
       String groupId, String awardedCourseId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
@@ -37,5 +43,9 @@ public class ExamService {
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
     return examRepository.saveAll(exams);
+  }
+
+  public boolean examExistsById(String examId) {
+    return examRepository.existsById(examId);
   }
 }

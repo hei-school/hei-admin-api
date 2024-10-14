@@ -2,25 +2,40 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import static java.util.stream.Collectors.toList;
 
+import java.time.Instant;
 import java.time.ZoneId;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.ExamDetail;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.ExamService;
+import school.hei.haapi.service.UserService;
 
 @Component
 @AllArgsConstructor
 public class GradeMapper {
-  // todo: to review all class
+  private final UserService userService;
+  private final ExamService examService;
+
+  public school.hei.haapi.model.Grade toDomain(CreateGrade restGrade) {
+    return school.hei.haapi.model.Grade.builder()
+            .student(userService.findById(restGrade.getStudentId()))
+            .exam(examService.findById(restGrade.getExamId()))
+            .score(restGrade.getScore())
+            .creationDatetime(Instant.now())
+            .build();
+  }
+
   public school.hei.haapi.model.Grade toDomain(Grade grade) {
     return school.hei.haapi.model.Grade.builder()
-        .score(grade.getScore().intValue())
+        .score(grade.getScore())
         .creationDatetime(grade.getCreatedAt())
         .build();
   }
@@ -33,9 +48,6 @@ public class GradeMapper {
   }
 
   public StudentGrade toRestStudentGrade(school.hei.haapi.model.Grade grade) {
-    if (grade == null) {
-      return null;
-    }
     return new StudentGrade()
         .id(grade.getStudent().getId())
         .ref(grade.getStudent().getRef())
