@@ -48,7 +48,7 @@ public class Letter {
 
   private Integer amount;
 
-  @ManyToOne
+  @OneToOne
   @JoinColumn(name = "fee_id")
   private Fee fee;
 }

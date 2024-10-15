@@ -64,7 +64,7 @@ public class UserService {
 
   @Transactional
   public void suspendStudentById(String suspendedStudentId) {
-    userRepository.updateUserStatusById(SUSPENDED, suspendedStudentId);
+    userManagerDao.updateUserStatusById(SUSPENDED, suspendedStudentId);
   }
 
   public User updateUser(User user, String userId) {
@@ -135,6 +135,10 @@ public class UserService {
 
   public List<User> getAllEnabledUsers() {
     return userRepository.findAllByStatus(ENABLED);
+  }
+
+  public List<User> getAllSuspendedUsers() {
+    return userRepository.findAllByStatus(SUSPENDED);
   }
 
   public List<User> getByCriteria(
@@ -251,5 +255,9 @@ public class UserService {
 
   public List<User> findMonitorsByStudentId(String studentId) {
     return monitoringStudentService.getMonitorsByStudentId(studentId);
+  }
+
+  public List<User> getStudentsWithUnpaidOrLateFee() {
+    return userRepository.getStudentsWithUnpaidOrLateFee();
   }
 }

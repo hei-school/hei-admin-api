@@ -1,3 +1,70 @@
+# [1.65.0](https://github.com/hei-school/hei-admin-api/compare/v1.64.0...v1.65.0) (2024-10-11)
+
+
+### Features
+
+* change request body in monitor put endpoint ([37782c3](https://github.com/hei-school/hei-admin-api/commit/37782c305688ac4ac8dee765766f56e9da1b5b88))
+* **not-implemented:** generate xlsx file for students in promotion ([e439a83](https://github.com/hei-school/hei-admin-api/commit/e439a83ecc1500982ac0f6aeca91d971dbb36886))
+
+
+
+# [1.64.0](https://github.com/hei-school/hei-admin-api/compare/v1.63.0...v1.64.0) (2024-10-11)
+
+
+### Features
+
+* manager crupdate student fee endpoint ([af5a204](https://github.com/hei-school/hei-admin-api/commit/af5a2049db4d6b7ea65f25f56f347d7b38d2c815))
+
+
+
+# [1.63.0](https://github.com/hei-school/hei-admin-api/compare/v1.62.0...v1.63.0) (2024-10-11)
+
+
+### Features
+
+* modify request body in linking students to monitor endpoint ([0de28a1](https://github.com/hei-school/hei-admin-api/commit/0de28a13e4504ed49d764990c419666b136cb3a1))
+
+
+
+# [1.62.0](https://github.com/hei-school/hei-admin-api/compare/v1.61.0...v1.62.0) (2024-10-09)
+
+
+### Bug Fixes
+
+* more than one row error while fetching letter ([afe4c14](https://github.com/hei-school/hei-admin-api/commit/afe4c145fe86287ffe329c7072e1a5fd7a8bd338))
+
+
+### Features
+
+* **not implemented:** crupdate student fees ([598a7fd](https://github.com/hei-school/hei-admin-api/commit/598a7fd8803218e7a37f7c3be1e76c3eba29d1b5))
+* scheduled cron job to update student status  ([af972bd](https://github.com/hei-school/hei-admin-api/commit/af972bd3481ad3b24593ecbbb713dd4efb740870))
+
+
+
+# [1.61.0](https://github.com/hei-school/hei-admin-api/compare/v1.60.0...v1.61.0) (2024-10-07)
+
+
+### Features
+
+* get letter by fee id ([7d4a717](https://github.com/hei-school/hei-admin-api/commit/7d4a717f24f0b645665c586331cf321feef8125b))
+
+
+
+# [1.60.0](https://github.com/hei-school/hei-admin-api/compare/v1.59.0...v1.60.0) (2024-10-04)
+
+
+### Bug Fixes
+
+* paid late fee fee7 for student1  ([3c7fa15](https://github.com/hei-school/hei-admin-api/commit/3c7fa1511026a9a3596d0abc07ce01887dc16bf5))
+
+
+### Features
+
+* add notification payment failed  ([bc62489](https://github.com/hei-school/hei-admin-api/commit/bc6248957993323210b9d3cf1fb03ef3709ab71a))
+* **not-implemented:** letter attribute in fee model ([5319943](https://github.com/hei-school/hei-admin-api/commit/5319943bc78d05aec6c3db4ed3a7cfad49e43b05))
+
+
+
 # [1.59.0](https://github.com/hei-school/hei-admin-api/compare/v1.58.0...v1.59.0) (2024-10-01)
 
 
@@ -47,67 +114,6 @@
 ### Features
 
 * generate payment of fee receipt  ([337cc56](https://github.com/hei-school/hei-admin-api/commit/337cc5617564c8f65edc3931630994374b2071f3))
-
-
-
-# [1.55.0](https://github.com/hei-school/hei-admin-api/compare/v1.54.1...v1.55.0) (2024-09-17)
-
-
-### Features
-
-* **not-implemented:** receipt on pdf version of paid fee  ([4a31588](https://github.com/hei-school/hei-admin-api/commit/4a31588616d668df3db8ee7ef6a212c9c0dfe323))
-
-
-
-## [1.54.1](https://github.com/hei-school/hei-admin-api/compare/v1.54.0...v1.54.1) (2024-09-16)
-
-
-### Bug Fixes
-
-* create a student letter  ([4ea078d](https://github.com/hei-school/hei-admin-api/commit/4ea078d52b86c1d2ec7f89f00ba368891fe1123c))
-
-
-
-# [1.54.0](https://github.com/hei-school/hei-admin-api/compare/v1.53.0...v1.54.0) (2024-09-12)
-
-
-### Bug Fixes
-
-* psp own datetime verification not mapped during verification  ([ca7e567](https://github.com/hei-school/hei-admin-api/commit/ca7e5672b926453730598bedda3fd13e113bdaca))
-
-
-### Features
-
-* enable student create their own fee for remedial costs  ([1d6b843](https://github.com/hei-school/hei-admin-api/commit/1d6b843d9c17bd8bc324589ffccd236ca3476a30))
-* filter letters by student name ([d31632d](https://github.com/hei-school/hei-admin-api/commit/d31632de3db89059cf5b0bbe95d9d75f6ecd9fbc))
-
-
-
-# [1.53.0](https://github.com/hei-school/hei-admin-api/compare/v1.52.0...v1.53.0) (2024-09-04)
-
-
-### Features
-
-* add repeating year concept to certificate  ([6bc296b](https://github.com/hei-school/hei-admin-api/commit/6bc296b0350402bd5f19bca2bcf9d54914537027))
-* link students to monitor  ([2243a9a](https://github.com/hei-school/hei-admin-api/commit/2243a9afdf2528a4d049766a2aa36780a769c02a))
-
-
-
-# [1.52.0](https://github.com/hei-school/hei-admin-api/compare/v1.51.0...v1.52.0) (2024-09-04)
-
-
-### Features
-
-* filter letters by status ([38d4b37](https://github.com/hei-school/hei-admin-api/commit/38d4b37e609c74ee42e9618036baabd5a58bc5a6))
-
-
-
-# [1.51.0](https://github.com/hei-school/hei-admin-api/compare/v1.50.0...v1.51.0) (2024-09-03)
-
-
-### Features
-
-* update letter model and send email notification ([4aaf188](https://github.com/hei-school/hei-admin-api/commit/4aaf188b892a29cd1babc4a49829c39f2d9a0bd6))
 
 
 

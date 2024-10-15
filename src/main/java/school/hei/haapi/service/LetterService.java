@@ -48,17 +48,24 @@ public class LetterService {
       String studentRef,
       LetterStatus status,
       String name,
+      String feeId,
+      Boolean isLinkedWithFee,
       PageFromOne page,
       BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
-    return letterDao.findByCriteria(ref, studentRef, status, name, pageable);
+    return letterDao.findByCriteria(
+        ref, studentRef, status, name, feeId, isLinkedWithFee, pageable);
   }
 
   public Letter getLetterById(String id) {
     return letterRepository
         .findById(id)
         .orElseThrow(() -> new NotFoundException("Letter not found"));
+  }
+
+  public Letter getByFeeId(String feeId) {
+    return letterRepository.findByFeeId(feeId).orElse(null);
   }
 
   public Letter createLetter(
@@ -86,12 +93,12 @@ public class LetterService {
     if (Objects.nonNull(feeId)) {
       letterToSave.setFee(feeService.getById(feeId));
     }
-    log.info(letterToSave.toString());
 
     File fileToSave = multipartFileConverter.apply(file);
     fileService.uploadObjectToS3Bucket(bucketKey, fileToSave);
 
     eventProducer.accept(List.of(toSendLetterEmail(letterToSave)));
+    log.info("saved letter: {}", letterToSave.toString());
     return letterRepository.save(letterToSave);
   }
 
@@ -164,6 +171,7 @@ public class LetterService {
         .description(letter.getDescription())
         .id(letter.getId())
         .studentRef(letter.getStudent().getRef())
+        .studentEmail(letter.getStudent().getEmail())
         .build();
   }
 

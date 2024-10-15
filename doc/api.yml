@@ -1981,6 +1981,39 @@ paths:
         '500':
           $ref: '#/components/responses/500'
   /fees:
+    put:
+      tags:
+        - Paying
+      summary: Crupdate student fees
+      operationId: crupdateStudentFees
+      requestBody:
+        description: Student fees to update if id is provided, create otherwise.
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateStudentFee'
+      responses:
+        '200':
+          description: Created or updated student fees
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fee'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     get:
       tags:
         - Paying
@@ -3169,9 +3202,12 @@ paths:
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/UserIdentifier'
+              type: object
+              properties:
+                students_ids:
+                  type: array
+                  items:
+                    type: string
       responses:
         '200':
           description: List of student linked to a monitor
@@ -3582,6 +3618,17 @@ paths:
           schema:
             type: string
           required: false
+        - name: fee_id
+          in: query
+          description: Filter letter by fee id
+          required: false
+          schema:
+            type: string
+        - name: is_linked_with_fee
+          in: query
+          required: false
+          schema:
+            type: boolean
       responses:
         '200':
           description: Letters
@@ -4101,6 +4148,16 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Promotion'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     put:
       tags:
         - Promotions
@@ -4121,6 +4178,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promotion'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/promotions/{id}':
     get:
       tags:
@@ -4140,7 +4207,47 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promotion'
-
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/promotions/{id}/students':
+    get:
+      tags:
+        - Promotions
+      operationId: getStudentsByPromotion
+      summary: Get students in the promotion
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of students in a xlsx file
+          content:
+            application/xlsx:
+              schema:
+                type: string
+                format: byte
+                example: XLSX VERSION
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/promotions/{id}/groups':
     put:
       tags:
@@ -4166,6 +4273,16 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promotion'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
@@ -4684,6 +4801,14 @@ components:
         due_datetime:
           type: string
           format: date-time
+    CrupdateStudentFee:
+      properties:
+        id:
+          type: string
+        student_id:
+          type: string
+      allOf:
+        - $ref: '#/components/schemas/CreateFee'
     ModelFee:
       allOf:
         - $ref: '#/components/schemas/Fee'
@@ -4712,6 +4837,25 @@ components:
           format: date-time
         mpbs:
           $ref: '#/components/schemas/Mpbs'
+        letter:
+         $ref: '#/components/schemas/FeeLetter'
+    FeeLetter:
+      type: object
+      properties:
+        id:
+          type: string
+        approval_datetime:
+          type: string
+          format: date-time
+        creation_datetime:
+          type: string
+          format: date-time
+        ref:
+          type: string
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+        file_url:
+          type: string
     CreateDelayPenaltyChange:
       type: object
       properties:

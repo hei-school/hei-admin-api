@@ -135,4 +135,7 @@ public interface UserRepository extends JpaRepository<User, String> {
   Integer countBySexAndRoleAndStatus(User.Sex sex, User.Role role, User.Status status);
 
   Integer countByRoleAndStatus(User.Role role, User.Status status);
+
+  @Query("select u from User u join Fee f on u.id = f.student.id where f.status = 'LATE' ")
+  List<User> getStudentsWithUnpaidOrLateFee();
 }

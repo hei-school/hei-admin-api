@@ -114,6 +114,7 @@ public class SecurityConf {
                     antMatcher(POST, "/teachers/*/picture/raw"),
                     antMatcher(POST, "/managers/*/picture/raw"),
                     antMatcher(GET, "/students"),
+                    antMatcher(PUT, "/fees"),
                     antMatcher(GET, "/fees"),
                     antMatcher(GET, "/fees/*"),
                     antMatcher(PUT, "/students/*/fees/*/mpbs"),
@@ -313,12 +314,12 @@ public class SecurityConf {
                     .hasRole(MANAGER.getRole())
                     // STUDENTS
                     .requestMatchers(GET, "/students")
-                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), MONITOR.getRole())
                     // STUDENTS
                     //
                     // MONITORS FOLLOWING STUDENTS
                     .requestMatchers(PUT, "/monitors/*/students")
-                    .hasRole(MANAGER.getRole())
+                    .hasAnyRole(MANAGER.getRole(), MONITOR.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/monitors/*/students", "monitors"))
                     .hasRole(MONITOR.getRole())
                     .requestMatchers(GET, "/monitors/*/students")
@@ -332,6 +333,8 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(GET, "/fees/templates/*")
                     .hasAnyRole(MANAGER.getRole(), STUDENT.getRole())
+                    .requestMatchers(PUT, "/fees")
+                    .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(GET, "/fees/*")
                     .hasRole(MANAGER.getRole())
                     .requestMatchers(GET, "/fees")
@@ -460,6 +463,7 @@ public class SecurityConf {
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+
                     // scholarship security conf
                     .requestMatchers(
                         new SelfMatcher(GET, "/students/*/scholarship_certificate/raw", "students"))

@@ -260,6 +260,15 @@ class FeeIT extends MockedThirdParties {
     assertEquals(actualUpdated.get(0).getComment(), updatedFee.getComment());
     assertEquals(actualUpdated.get(0).getDueDatetime(), updatedFee.getDueDatetime());
     assertTrue(expected.containsAll(actual));
+
+    List<Fee> crupdatedStudentFees =
+        api.crupdateStudentFees(List.of(creatableStudentFee(), updatableStudentFee()));
+
+    List<Fee> student1Fees = api.getStudentFees(STUDENT1_ID, 1, 10, null);
+
+    assertEquals(2, crupdatedStudentFees.size());
+    assertTrue(student1Fees.contains(crupdatedStudentFees.getFirst()));
+    assertEquals(crupdatedStudentFees.getLast().getComment(), updatableStudentFee().getComment());
   }
 
   @Test

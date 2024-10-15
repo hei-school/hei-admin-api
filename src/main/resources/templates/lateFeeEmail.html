@@ -69,12 +69,9 @@
         </section>
         <section>
             Sauf erreur de notre part, nous avons remarqué que vous n'avez pas encore effectué
-            le paiement de <span th:text="${comment}"></span> qui devait être régler
+            le paiement de <span th:text="${comment}"></span> , qui devait être régler
             au plus tard le <span th:text="${dueDatetime}"></span>, pour un montant de <span th:text="${remainingAmount}"></span> MGA,
             (<span th:text="${remainingAmWords}"></span> ARIARY).
-        </section>
-        <section>
-            Si vous avez déjà effectué votre paiement, veuillez tout de suite remettre le bordereau de versement au bureau de HEI ou nous l'envoyer par mail avant la remise en version papier.
         </section>
         <section>
             Par conséquent, vous n'êtes autorisé ni à assister au cours ni à l'examen, jusqu'à ce que le paiement de vos frais de scolarité soit effectué.
@@ -82,11 +79,14 @@
         <section>
             Nous espérons que vous pourrez régler cette question dans les plus brefs délais afin de reprendre vos études sans interruption.
         </section>
+        <section>
+            <em>Si vous avez déjà effectué votre paiement, veuillez insérer la référence de votre transaction dans Hei Admin.</em>
+        </section>
         <section class="remark">
             Remarques : Si votre paiement n'est pas effectué avant le <span th:text="${recoveryDate}"></span>, au-delà de cette date, des frais de recouvrement seront exigibles, dont le montant est fixé à 100 000 Ar.
         </section>
         <section>
-            Vous pouvez contacter l’administration via l’adresse email <a href="mailto:contact@hei.school">contact@hei.school</a> ou appeler le numéro <a href="tel:+261349404116">+261 34 94 041 16</a>.
+            N'hésitez pas à contacter l’administration via l’adresse email  <a href="mailto:contact@hei.school">contact@hei.school</a>  ou appeler le numéro <a href="tel:+261349404116">+261 34 94 041 16</a> pour toutes informations complémentaires.
         </section>
         <section>
             Cordialement,
