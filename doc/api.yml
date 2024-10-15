@@ -2618,7 +2618,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/attendance':
+  '/attendance/mouvement':
     get:
       tags:
         - Attendance
@@ -2633,22 +2633,6 @@ paths:
           in: query
           schema:
             $ref: '#/components/schemas/PageSize'
-        - name: courses_ids
-          required: false
-          in: query
-          description: Filter attendance by courses ids
-          schema:
-            type: array
-            items:
-              example: 'course1_id'
-        - name: teachers_ids
-          required: false
-          in: query
-          description: Filter attendance by teachers ids
-          schema:
-            type: array
-            items:
-              example: 'teacher1_id'
         - name: student_key_word
           in: query
           required: false
@@ -2669,14 +2653,6 @@ paths:
           schema:
             type: string
             format: date-time
-        - name: attendance_statuses
-          required: false
-          in: query
-          description: Filter attendance by attendance status value
-          schema:
-            type: array
-            items:
-              $ref: '#/components/schemas/AttendanceStatus'
       responses:
         '200':
           description: List of attendance by courses ids or student key word
@@ -2686,6 +2662,75 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/StudentAttendance'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/events/{event_id}/attendance':
+    put:
+      tags:
+        - Attendance
+      summary: Create or update attendance with event
+      operationId: crupdateEventAttendance
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: "#/components/schemas/CreateEventAttendance"
+      responses:
+        '200':
+          description: List of attendance event attendance
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventAttendance'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    get:
+      tags:
+        - Attendance
+      summary: Get event attendance
+      operationId: getEventAttendance
+      parameters:
+        - name: event_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of attendance event attendance
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/EventAttendance'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3202,12 +3247,9 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              properties:
-                students_ids:
-                  type: array
-                  items:
-                    type: string
+              type: array
+              items:
+                $ref: '#/components/schemas/UserIdentifier'
       responses:
         '200':
           description: List of student linked to a monitor
@@ -4148,16 +4190,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Promotion'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
     put:
       tags:
         - Promotions
@@ -4178,16 +4210,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promotion'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
   '/promotions/{id}':
     get:
       tags:
@@ -4207,47 +4229,7 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promotion'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  '/promotions/{id}/students':
-    get:
-      tags:
-        - Promotions
-      operationId: getStudentsByPromotion
-      summary: Get students in the promotion
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: List of students in a xlsx file
-          content:
-            application/xlsx:
-              schema:
-                type: string
-                format: byte
-                example: XLSX VERSION
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
+
   '/promotions/{id}/groups':
     put:
       tags:
@@ -4273,16 +4255,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Promotion'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
@@ -4432,18 +4404,13 @@ components:
       properties:
         id:
           type: string
+        attendance_movement_type:
+          $ref: '#/components/schemas/AttendanceMovementType'
         created_at:
           type: string
           format: date-time
-        late_of:
-          type: integer
-          description: if the student is late, that defines how late he or she is
         place:
           $ref: '#/components/schemas/PlaceEnum'
-        is_late:
-          type: boolean
-        course_session:
-          $ref: '#/components/schemas/CourseSession'
         student:
           $ref: '#/components/schemas/Student'
     CourseSession:
@@ -4808,7 +4775,7 @@ components:
         student_id:
           type: string
       allOf:
-        - $ref: '#/components/schemas/CreateFee'
+        - $ref: '#/components/schemas/CreateFee'      
     ModelFee:
       allOf:
         - $ref: '#/components/schemas/Fee'
@@ -5076,6 +5043,26 @@ components:
           $ref: '#/components/schemas/UserIdentifier'
         course:
           $ref: '#/components/schemas/Course'
+    CreateEventAttendance:
+      type: object
+      properties:
+        id:
+          type: string
+        status:
+          $ref: "#/components/schemas/AttendanceStatus"
+        studentId: 
+          type: string
+    EventAttendance:
+      type: object
+      properties:
+        id: 
+          type: string
+        event:
+          $ref: "#/components/schemas/Event"
+        status:
+          $ref: "#/components/schemas/AttendanceStatus"
+        student:
+          $ref: "#/components/schemas/Student"
     CrupdatePromotion:
       type: object
       properties:
