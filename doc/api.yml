@@ -497,17 +497,12 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams:
+  /awarded_courses/{awarded_course_id}/exams:
     get:
       tags:
         - Teaching
       summary: Get all exam infos of a specified awarded_course.
       parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
         - name: awarded_course_id
           in: path
           required: true
@@ -524,7 +519,7 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getExamsByGroupIdAndAwardedCourse
+      operationId: getExamsByAwardedCourse
       responses:
         '200':
           description: List of exam infos without the participants of the specified course
@@ -550,11 +545,6 @@ paths:
       summary: Create new exams or update existing exams
       description: Update exams when `id` are provided, create them otherwise.
       parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
         - name: awarded_course_id
           in: path
           required: true
@@ -589,18 +579,13 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}:
+  /awarded_courses/{awarded_course_id}/exams/{exam_id}:
     get:
       tags:
         - Teaching
       summary: Get a awarded_course exam.
       operationId: getExamById
       parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
         - name: awarded_course_id
           in: path
           required: true
@@ -628,18 +613,13 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/grades:
+  /awarded_courses/{awarded_course_id}/exams/{exam_id}/grades:
     get:
       tags:
         - Teaching
       summary: Get exam details with the participants and their grades in a specified awarded_course.
       operationId: getExamGrades
       parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
         - name: exam_id
           in: path
           required: true
@@ -672,11 +652,6 @@ paths:
         - Teaching
       summary: Create exam grades
       parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
         - name: awarded_course_id
           in: path
           required: true
