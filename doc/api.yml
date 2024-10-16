@@ -1014,10 +1014,7 @@ paths:
       responses:
         '200':
           description: Exam infos with the students participated and their grades
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/ExamDetail'
+
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1061,12 +1058,7 @@ paths:
       responses:
         '200':
           description: Exam with participants and grade
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExamDetail'
+
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1411,7 +1403,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/StudentGrade'
+                $ref: '#/components/schemas/GetStudentGrade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -4708,16 +4700,10 @@ components:
           format: date-time
         awarded_course_id:
           type: string
-    ExamDetail:
-      allOf:
-        - $ref: '#/components/schemas/ExamInfo'
-      properties:
-        participants:
-          type: array
-          items:
-            $ref: '#/components/schemas/StudentGrade'
     Grade:
       type: object
+      required:
+        - score
       properties:
         id:
           type: string
@@ -4726,6 +4712,9 @@ components:
           format: double
           example: 12.5
         created_at:
+          type: string
+          format: date-time
+        update_date:
           type: string
           format: date-time
     CreateGrade:
@@ -4741,19 +4730,32 @@ components:
           type: string
         awarded_course_id:
           type: string
-    StudentGrade:
-      allOf:
-        - $ref: '#/components/schemas/UserIdentifier'
-      type: object
-      properties:
-        grade:
-          $ref: '#/components/schemas/Grade'
-    StudentExamGrade:
+    GetStudentGrade:
       allOf:
         - $ref: '#/components/schemas/ExamInfo'
       properties:
         grade:
           $ref: '#/components/schemas/Grade'
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
+    CrupdateStudentExamGrade:
+      required:
+        - id
+        - student_id
+        - exam_id
+      properties:
+        id:
+          type: string
+          format: uuid
+        score:
+          type: number
+          default: 0.0
+        exam_id:
+          type: string
+          format: uuid
+        student_id:
+          type: string
+          format: uuid
     AwardedCourseExam:
       allOf:
         - $ref: '#/components/schemas/AwardedCourse'
@@ -4761,7 +4763,7 @@ components:
         exams:
           type: array
           items:
-            $ref: '#/components/schemas/StudentExamGrade'
+            $ref: '#/components/schemas/GetStudentGrade'
     CreateAttendanceMovement:
       type: object
       properties:
