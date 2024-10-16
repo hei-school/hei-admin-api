@@ -4465,6 +4465,8 @@ components:
       properties:
         specialization_field:
           $ref: '#/components/schemas/SpecializationField'
+        payment_frequency:
+          $ref: '#/components/schemas/PaymentFrequency'
     CrupdateMonitor:
       allOf:
         - $ref: '#/components/schemas/CrupdateUser'
@@ -5369,6 +5371,11 @@ components:
           type: boolean
         count:
           type: integer
+    PaymentFrequency:
+      type: string
+      enum:
+        - YEARLY
+        - MONTHLY
     UpdateLettersStatus:
       type: object
       properties:
