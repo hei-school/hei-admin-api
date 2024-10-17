@@ -271,6 +271,10 @@ public class UserService {
     return monitoringStudentService.getMonitorsByStudentId(studentId);
   }
 
+  public List<User> getStudentsByPromotionId(String promotionId) {
+    return userRepository.findAllStudentsByPromotionId(promotionId);
+  }
+
   public List<User> getStudentsWithUnpaidOrLateFee() {
     return userRepository.getStudentsWithUnpaidOrLateFee();
   }
