@@ -10,6 +10,7 @@ import school.hei.haapi.model.Exam;
 @AllArgsConstructor
 public class ExamMapper {
   private AwardedCourseMapper awardedCourseMapper;
+
   public ExamInfo toRest(Exam exam) {
     return new ExamInfo()
         .id(exam.getId())

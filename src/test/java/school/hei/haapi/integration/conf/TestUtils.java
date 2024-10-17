@@ -55,8 +55,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-
-import org.apache.commons.collections4.Get;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.core.io.ClassPathResource;
@@ -341,9 +339,7 @@ public class TestUtils {
   }
 
   public static CreateGrade createGrade(String studentId) {
-    return new CreateGrade()
-        .score(20.0)
-        .studentId(studentId);
+    return new CreateGrade().score(20.0).studentId(studentId);
   }
 
   public static List<CrupdateTeacher> someCreatableTeacherList(int nbOfTeacher) {
@@ -767,65 +763,51 @@ public class TestUtils {
   }
 
   public static GetStudentGrade studentExamGrade1() {
-    return new GetStudentGrade()
-        .grade(grade1())
-            .student(student2());
+    return new GetStudentGrade().grade(grade1()).student(student2());
   }
 
   public static GetStudentGrade studentExamGrade2() {
-    return new GetStudentGrade()
-        .grade(grade2());
+    return new GetStudentGrade().grade(grade2());
   }
 
   public static GetStudentGrade studentExamGrade3() {
-    return new GetStudentGrade()
-        .grade(grade3());
+    return new GetStudentGrade().grade(grade3());
   }
 
   public static GetStudentGrade studentExamGrade4() {
-    return new GetStudentGrade()
-        .grade(grade4());
+    return new GetStudentGrade().grade(grade4());
   }
 
   public static GetStudentGrade studentExamGrade5() {
-    return new GetStudentGrade()
-        .grade(grade5());
+    return new GetStudentGrade().grade(grade5());
   }
 
   public static GetStudentGrade studentGrade1() {
-    return new GetStudentGrade()
-        .grade(grade1())
-            .student(student1());
+    return new GetStudentGrade().grade(grade1()).student(student1());
   }
 
   public static GetStudentGrade studentGrade2() {
-    return new GetStudentGrade()
-        .grade(grade2());
+    return new GetStudentGrade().grade(grade2());
   }
 
   public static GetStudentGrade studentGrade3() {
-    return new GetStudentGrade()
-        .grade(grade3());
+    return new GetStudentGrade().grade(grade3());
   }
 
   public static GetStudentGrade studentGrade4() {
-    return new GetStudentGrade()
-        .grade(grade4());
+    return new GetStudentGrade().grade(grade4());
   }
 
   public static GetStudentGrade studentGrade5() {
-    return new GetStudentGrade()
-        .grade(grade5());
+    return new GetStudentGrade().grade(grade5());
   }
 
   public static GetStudentGrade studentGrade6() {
-    return new GetStudentGrade()
-        .grade(grade6());
+    return new GetStudentGrade().grade(grade6());
   }
 
   public static GetStudentGrade studentGrade7() {
-    return new GetStudentGrade()
-        .grade(grade7());
+    return new GetStudentGrade().grade(grade7());
   }
 
   public static FeeTemplate feeTemplate1() {
@@ -875,14 +857,14 @@ public class TestUtils {
         .type(TUITION);
   }
 
-//  public static ExamDetail examDetail1() {
-//    return new ExamDetail()
-//        .id(exam1().getId())
-//        .title(exam1().getTitle())
-//        .examinationDate(exam1().getExaminationDate())
-//        .coefficient(exam1().getCoefficient())
-//        .participants(List.of(studentGrade1(), studentGrade7()));
-//  }
+  //  public static ExamDetail examDetail1() {
+  //    return new ExamDetail()
+  //        .id(exam1().getId())
+  //        .title(exam1().getTitle())
+  //        .examinationDate(exam1().getExaminationDate())
+  //        .coefficient(exam1().getCoefficient())
+  //        .participants(List.of(studentGrade1(), studentGrade7()));
+  //  }
 
   public static AwardedCourseExam awardedCourseExam1() {
     return new AwardedCourseExam()
