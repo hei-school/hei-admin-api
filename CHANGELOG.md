@@ -1,3 +1,13 @@
+# [1.66.0](https://github.com/hei-school/hei-admin-api/compare/v1.65.0...v1.66.0) (2024-10-17)
+
+
+### Features
+
+* create student fees based on their payment frequency ([d40831f](https://github.com/hei-school/hei-admin-api/commit/d40831fcad9d8d04b1ec912cc0e829dc50b2ff10))
+* **not-implemented:** add payment_frequency ([8da7488](https://github.com/hei-school/hei-admin-api/commit/8da7488ea642117fd49bf520a00bd8dda53db5a1))
+
+
+
 # [1.65.0](https://github.com/hei-school/hei-admin-api/compare/v1.64.0...v1.65.0) (2024-10-11)
 
 
@@ -98,22 +108,6 @@
 * add some information for fee receipt  ([7cb2a1a](https://github.com/hei-school/hei-admin-api/commit/7cb2a1afdc2b8f5bd721588fbab43c9f0efd6cc1))
 * monitor access to Student comment and work file  ([ebbad76](https://github.com/hei-school/hei-admin-api/commit/ebbad761566e3067a33fc7861300907279a8b23c))
 * **not-implemented:** download fee corresponding payment receipt  ([a78c865](https://github.com/hei-school/hei-admin-api/commit/a78c86566ef60e1527179db86bbe94d004e5f75f))
-
-
-
-# [1.56.0](https://github.com/hei-school/hei-admin-api/compare/v1.55.0...v1.56.0) (2024-09-19)
-
-
-### Bug Fixes
-
-* letter list for manager pov ([ffb105f](https://github.com/hei-school/hei-admin-api/commit/ffb105f723cb718cf3885edc2a5a27fff779e377))
-* logo is not loaded  ([607e3d2](https://github.com/hei-school/hei-admin-api/commit/607e3d28015e50aaf264d6adc30c2b67e9aae50f))
-* paid fee receipt html template  ([d1ed9c4](https://github.com/hei-school/hei-admin-api/commit/d1ed9c4ca3b242e1d5b2a3aab4278944aa47af80))
-
-
-### Features
-
-* generate payment of fee receipt  ([337cc56](https://github.com/hei-school/hei-admin-api/commit/337cc5617564c8f65edc3931630994374b2071f3))
 
 
 
