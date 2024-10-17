@@ -1450,6 +1450,76 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /exams/{exam_id}/students/grades:
+    get:
+      tags:
+        - Teaching
+      summary: Return all participants with his exam grades
+      operationId: getParticipantsGradeForExam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: All students grades from an exam specific
+          content:
+            application/json:
+              schema:
+                items:
+                  - $ref: '#/components/schemas/GetStudentGrade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Teaching
+      summary: Create or update a participant exam grade
+      operationId: crupdateParticipantGrade
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Crupdate grade for a specific student
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Grade'
+      responses:
+        '200':
+          description: The specified participant with his grade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
   '/teachers/{id}':
     get:
@@ -4763,8 +4833,6 @@ components:
         related_course_id:
           type: string
     GetStudentGrade:
-      allOf:
-        - $ref: '#/components/schemas/ExamInfo'
       properties:
         grade:
           $ref: '#/components/schemas/Grade'
