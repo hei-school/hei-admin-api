@@ -11,6 +11,8 @@ import school.hei.haapi.model.User;
 @Component
 @AllArgsConstructor
 public class GradeMapper {
+  private final UserMapper userMapper;
+
   // todo: to review all class
   public school.hei.haapi.model.Grade toDomain(Grade grade) {
     return school.hei.haapi.model.Grade.builder()
@@ -30,7 +32,10 @@ public class GradeMapper {
     if (grade == null) {
       return null;
     }
-    return new GetStudentGrade().grade(toRest(grade));
+    var getStudentGrade =  new GetStudentGrade().grade(toRest(grade));
+    getStudentGrade.setStudent(userMapper.toRestStudent(grade.getStudent()));
+
+    return getStudentGrade;
   }
 
   public GetStudentGrade toRestStudentExamGrade(User student, Exam exam) {
