@@ -565,22 +565,22 @@ paths:
             schema:
               $ref: '#/components/schemas/CrupdateMonitor'
       responses:
-          '200':
-            description: monitor updated.
-            content:
-              application/json:
-                schema:
-                  $ref: '#/components/schemas/Monitor'
-          '400':
-            $ref: '#/components/responses/400'
-          '403':
-            $ref: '#/components/responses/403'
-          '404':
-            $ref: '#/components/responses/404'
-          '429':
-            $ref: '#/components/responses/429'
-          '500':
-            $ref: '#/components/responses/500'
+        '200':
+          description: monitor updated.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Monitor'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
     get:
       tags:
         - Users
@@ -1462,6 +1462,18 @@ paths:
           required: true
           schema:
             type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+          required: false
       responses:
         '200':
           description: All students grades from an exam specific
@@ -1469,47 +1481,7 @@ paths:
             application/json:
               schema:
                 items:
-                  - $ref: '#/components/schemas/GetStudentGrade'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    put:
-      tags:
-        - Teaching
-      summary: Create or update a participant exam grade
-      operationId: crupdateParticipantGrade
-      parameters:
-        - name: exam_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-      requestBody:
-        description: Crupdate grade for a specific student
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Grade'
-      responses:
-        '200':
-          description: The specified participant with his grade
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Grade'
+                  $ref: '#/components/schemas/GetStudentGrade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3735,7 +3707,7 @@ paths:
               schema:
                 type: array
                 items:
-                 $ref: '#/components/schemas/Letter'
+                  $ref: '#/components/schemas/Letter'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3796,7 +3768,7 @@ paths:
           content:
             application/json:
               schema:
-               $ref: '#/components/schemas/Letter'
+                $ref: '#/components/schemas/Letter'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -4934,7 +4906,7 @@ components:
         mpbs:
           $ref: '#/components/schemas/Mpbs'
         letter:
-         $ref: '#/components/schemas/FeeLetter'
+          $ref: '#/components/schemas/FeeLetter'
     FeeLetter:
       type: object
       properties:
