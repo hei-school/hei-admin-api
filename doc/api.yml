@@ -412,7 +412,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AwardedCourseExam'
+                  $ref: '#/components/schemas/RelatedCourseExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -824,30 +824,30 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}:
+  /groups/{group_id}/related_courses/{related_course_id}:
     get:
       tags:
         - Teaching
-      summary: Get a specific group awarded_course
+      summary: Get a specific group related_course
       parameters:
         - name: group_id
           in: path
           required: true
           schema:
             type: string
-        - name: awarded_course_id
+        - name: related_course_id
           in: path
           required: true
           schema:
             type: string
-      operationId: getAwardedCoursesByIdAndGroupId
+      operationId: getRelatedCoursesByIdAndGroupId
       responses:
         '200':
-          description: A spesific awarded_courses from a courses
+          description: A spesific related_courses from a courses
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AwardedCourse'
+                $ref: '#/components/schemas/RelatedCourse'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -858,18 +858,18 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams:
+  /groups/{group_id}/related_courses/{related_course_id}/exams:
     get:
       tags:
         - Teaching
-      summary: Get all exam infos of a specified awarded_course.
+      summary: Get all exam infos of a specified related_course.
       parameters:
         - name: group_id
           in: path
           required: true
           schema:
             type: string
-        - name: awarded_course_id
+        - name: related_course_id
           in: path
           required: true
           schema:
@@ -885,7 +885,7 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getExamsByGroupIdAndAwardedCourse
+      operationId: getExamsByGroupIdAndRelatedCourse
       responses:
         '200':
           description: List of exam infos without the participants of the specified course
@@ -916,7 +916,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: awarded_course_id
+        - name: related_course_id
           in: path
           required: true
           schema:
@@ -950,11 +950,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}:
+  /groups/{group_id}/related_courses/{related_course_id}/exams/{exam_id}:
     get:
       tags:
         - Teaching
-      summary: Get a awarded_course exam.
+      summary: Get a related_course exam.
       operationId: getExamById
       parameters:
         - name: group_id
@@ -962,7 +962,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: awarded_course_id
+        - name: related_course_id
           in: path
           required: true
           schema:
@@ -989,11 +989,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/grades:
+  /groups/{group_id}/related_courses/{related_course_id}/exams/{exam_id}/grades:
     get:
       tags:
         - Teaching
-      summary: Get exam details with the participants and their grades in a specified awarded_course.
+      summary: Get exam details with the participants and their grades in a specified related_course.
       operationId: getExamGrades
       parameters:
         - name: group_id
@@ -1006,7 +1006,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: awarded_course_id
+        - name: related_course_id
           in: path
           required: true
           schema:
@@ -1035,7 +1035,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: awarded_course_id
+        - name: related_course_id
           in: path
           required: true
           schema:
@@ -1069,11 +1069,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{id}/awarded_courses:
+  /groups/{id}/related_courses:
     get:
       tags:
         - Teaching
-      summary: Get all group awarded_courses
+      summary: Get all group related_courses
       parameters:
         - name: id
           in: path
@@ -1091,16 +1091,16 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getAllAwardedCourseByGroup
+      operationId: getAllRelatedCourseByGroup
       responses:
         '200':
-          description: List of all awarded_courses in specific group
+          description: List of all related_courses in specific group
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AwardedCourse'
+                  $ref: '#/components/schemas/RelatedCourse'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1114,15 +1114,15 @@ paths:
     put:
       tags:
         - Teaching
-      summary: Create new awarded_courses or update existing awarded_courses
-      description: Update awarded_courses when `id` are provided, create them otherwise.
+      summary: Create new related_courses or update existing related_courses
+      description: Update related_courses when `id` are provided, create them otherwise.
       parameters:
         - name: id
           in: path
           required: true
           schema:
             type: string
-      operationId: CreateOrUpdateAwardedCourses
+      operationId: CreateOrUpdateRelatedCourses
       requestBody:
         required: true
         description: Awarded_courses to update
@@ -1131,7 +1131,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/CreateAwardedCourse'
+                $ref: '#/components/schemas/CreateRelatedCourse'
       responses:
         '200':
           description: Exams infos without the students participated
@@ -1140,7 +1140,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AwardedCourse'
+                  $ref: '#/components/schemas/RelatedCourse'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1151,11 +1151,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /teachers/{teacher_id}/awarded_courses:
+  /teachers/{teacher_id}/related_courses:
     get:
       tags:
         - Teaching
-      summary: Get all awarded_courses assigned to a teacher
+      summary: Get all related_courses assigned to a teacher
       parameters:
         - name: teacher_id
           in: path
@@ -1173,16 +1173,16 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getAwardedCoursesAssignedToTeacher
+      operationId: getRelatedCoursesAssignedToTeacher
       responses:
         '200':
-          description: List of all awarded_courses assigned to a teacher
+          description: List of all related_courses assigned to a teacher
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AwardedCourse'
+                  $ref: '#/components/schemas/RelatedCourse'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1196,15 +1196,15 @@ paths:
     put:
       tags:
         - Teaching
-      summary: Create new awarded_courses or update existing awarded_courses assign to a teacher
-      description: Update awarded_courses when `id` are provided, create them otherwise.
+      summary: Create new related_courses or update existing related_courses assign to a teacher
+      description: Update related_courses when `id` are provided, create them otherwise.
       parameters:
         - name: teacher_id
           in: path
           required: true
           schema:
             type: string
-      operationId: CreateOrUpdateAwardedCoursesAssignToTeacher
+      operationId: CreateOrUpdateRelatedCoursesAssignToTeacher
       requestBody:
         required: true
         description: Awarded_courses to update
@@ -1213,16 +1213,16 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/CreateAwardedCourse'
+                $ref: '#/components/schemas/CreateRelatedCourse'
       responses:
         '200':
-          description: List of awarded_courses created or updated
+          description: List of related_courses created or updated
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AwardedCourse'
+                  $ref: '#/components/schemas/RelatedCourse'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1264,7 +1264,7 @@ paths:
       operationId: getStudentsByGroupId
       responses:
         '200':
-          description: List of all student in specific awarded_course and group
+          description: List of all student in specific related_course and group
           content:
             application/json:
               schema:
@@ -1322,11 +1322,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /awarded_courses:
+  /related_courses:
     get:
       tags:
         - Teaching
-      summary: Get all awarded_courses
+      summary: Get all related_courses
       parameters:
         - name: teacher_id
           in: query
@@ -1350,16 +1350,16 @@ paths:
           schema:
             $ref: '#/components/schemas/PageSize'
           required: false
-      operationId: getAllAwardedCourseByCriteria
+      operationId: getAllRelatedCourseByCriteria
       responses:
         '200':
-          description: List of all awarded_courses
+          description: List of all related_courses
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/AwardedCourse'
+                  $ref: '#/components/schemas/RelatedCourse'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1393,7 +1393,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetStudentGrade'
+                $ref: '#/components/schemas/Grade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1426,14 +1426,14 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CrupdateStudentExamGrade'
+              $ref: '#/components/schemas/Grade'
       responses:
         '200':
           description: The specified participant with his grade
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/GetStudentGrade'
+                $ref: '#/components/schemas/Grade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -4474,7 +4474,7 @@ components:
         id:
           type: string
         awareded_course:
-          $ref: '#/components/schemas/AwardedCourse'
+          $ref: '#/components/schemas/RelatedCourse'
         begin:
           type: string
           format: date-time
@@ -4652,7 +4652,7 @@ components:
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'
-    CreateAwardedCourse:
+    CreateRelatedCourse:
       type: object
       properties:
         id:
@@ -4705,7 +4705,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/OwnCloudPermission'
-    AwardedCourse:
+    RelatedCourse:
       type: object
       properties:
         id:
@@ -4728,8 +4728,8 @@ components:
         examination_date:
           type: string
           format: date-time
-        awarded_course:
-          $ref: '#/components/schemas/AwardedCourse'
+        related_course:
+          $ref: '#/components/schemas/RelatedCourse'
     Grade:
       type: object
       required:
@@ -4754,7 +4754,7 @@ components:
           type: number
           format: double
           example: 12.5
-        awarded_course_id:
+        related_course_id:
           type: string
     GetStudentGrade:
       allOf:
@@ -4776,9 +4776,9 @@ components:
         score:
           type: number
           default: 0.0
-    AwardedCourseExam:
+    RelatedCourseExam:
       allOf:
-        - $ref: '#/components/schemas/AwardedCourse'
+        - $ref: '#/components/schemas/RelatedCourse'
       properties:
         exams:
           type: array
