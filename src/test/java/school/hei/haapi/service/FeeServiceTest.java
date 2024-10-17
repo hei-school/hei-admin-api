@@ -19,11 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.Payment;
-import school.hei.haapi.model.User;
+import school.hei.haapi.model.*;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
@@ -37,6 +33,7 @@ class FeeServiceTest {
   UpdateFeeValidator updateFeeValidator;
   UserService userService;
   FeeDao feeDao;
+  FeeTemplateService feeTemplateService;
 
   static User student1() {
     return User.builder().id(TestUtils.STUDENT1_ID).build();
@@ -120,8 +117,15 @@ class FeeServiceTest {
     eventProducer = mock(EventProducer.class);
     userService = mock(UserService.class);
     feeDao = mock(FeeDao.class);
+    feeTemplateService = mock(FeeTemplateService.class);
     subject =
-        new FeeService(feeRepository, feeValidator, updateFeeValidator, eventProducer, feeDao);
+        new FeeService(
+            feeRepository,
+            feeValidator,
+            updateFeeValidator,
+            eventProducer,
+            feeDao,
+            feeTemplateService);
   }
 
   @Test

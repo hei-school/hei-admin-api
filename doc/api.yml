@@ -517,6 +517,13 @@ paths:
       summary: Create new students or update existing students
       description: Update students when `id` are provided, create them otherwise.
       operationId: createOrUpdateStudents
+      parameters:
+        - name: due_datetime
+          required: false
+          in: query
+          schema:
+            type: string
+            format: date-time
       requestBody:
         required: true
         content:

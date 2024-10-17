@@ -288,12 +288,12 @@ class PaymentIT extends MockedThirdParties {
     subject.setStatus(EnableStatus.ENABLED);
 
     // Assert before all that the actual student is SUSPENDED ...
-    Student student = usersApi.createOrUpdateStudents(List.of(subject)).getFirst();
+    Student student = usersApi.createOrUpdateStudents(List.of(subject), null).getFirst();
     assertEquals(EnableStatus.ENABLED, student.getStatus());
     // Update inserted user
     subject.setId(student.getId());
     subject.setStatus(EnableStatus.SUSPENDED);
-    Student actualSuspended = usersApi.createOrUpdateStudents(List.of(subject)).getFirst();
+    Student actualSuspended = usersApi.createOrUpdateStudents(List.of(subject), null).getFirst();
     assertEquals(EnableStatus.SUSPENDED, actualSuspended.getStatus());
 
     String subjectId = student.getId();
