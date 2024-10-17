@@ -2,6 +2,8 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -228,6 +230,14 @@ public class UserMapper {
         .latitude(student.getCoordinates().getLatitude())
         .highSchoolOrigin(student.getHighSchoolOrigin())
         .build();
+  }
+
+  public HashMap<User, PaymentFrequency> toMapDomain(List<CrupdateStudent> students) {
+    HashMap<User, PaymentFrequency> map = new HashMap<>();
+    for (CrupdateStudent student : students) {
+      map.put(toDomain(student), student.getPaymentFrequency());
+    }
+    return map;
   }
 
   public User toDomain(CrupdateMonitor monitor) {

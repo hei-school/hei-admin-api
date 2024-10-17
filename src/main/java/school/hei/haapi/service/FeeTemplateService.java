@@ -40,6 +40,12 @@ public class FeeTemplateService {
         .orElseThrow(() -> new NotFoundException("FeeTemplate with id: " + id + " not found"));
   }
 
+  public FeeTemplate getFeeTemplateByName(String name) {
+    return feeTemplateRepository
+        .findByName(name)
+        .orElseThrow(() -> new NotFoundException("FeeTemplate with name: " + name + " not found"));
+  }
+
   public FeeTemplate createOrUpdateFeeTemplate(FeeTemplate domain) {
     Optional<FeeTemplate> optionalFeeTemplate = feeTemplateRepository.findById(domain.getId());
     FeeTemplate feeTemplateToPersist =
