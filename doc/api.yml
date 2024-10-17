@@ -1370,18 +1370,13 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}/students/{student_id}/grade:
+  /exams/{exam_id}/students/{student_id}/grade:
     get:
       tags:
         - Teaching
       summary: Return a participant with his exam grades
       operationId: getParticipantGrade
       parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
         - name: exam_id
           in: path
           required: true
@@ -1392,11 +1387,46 @@ paths:
           required: true
           schema:
             type: string
-        - name: awarded_course_id
+      responses:
+        '200':
+          description: The specified participant with his grade
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GetStudentGrade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Teaching
+      summary: Create or update a participant exam grade
+      operationId: crupdateParticipantGrade
+      parameters:
+        - name: exam_id
           in: path
           required: true
           schema:
             type: string
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Crupdate grade for a specific student
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrupdateStudentExamGrade'
       responses:
         '200':
           description: The specified participant with his grade
@@ -4698,8 +4728,8 @@ components:
         examination_date:
           type: string
           format: date-time
-        awarded_course_id:
-          type: string
+        awarded_course:
+          $ref: '#/components/schemas/AwardedCourse'
     Grade:
       type: object
       required:
@@ -4724,10 +4754,6 @@ components:
           type: number
           format: double
           example: 12.5
-        student_id:
-          type: string
-        exam_id:
-          type: string
         awarded_course_id:
           type: string
     GetStudentGrade:
@@ -4750,12 +4776,6 @@ components:
         score:
           type: number
           default: 0.0
-        exam_id:
-          type: string
-          format: uuid
-        student_id:
-          type: string
-          format: uuid
     AwardedCourseExam:
       allOf:
         - $ref: '#/components/schemas/AwardedCourse'
