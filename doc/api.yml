@@ -1333,6 +1333,12 @@ paths:
           schema:
             type: string
           required: false
+        - name: group_id
+          required: false
+          in: query
+          schema:
+            type: string
+            format: uuid
         - name: course_id
           in: query
           schema:
