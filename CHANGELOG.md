@@ -1,3 +1,12 @@
+# [1.67.0](https://github.com/hei-school/hei-admin-api/compare/v1.66.0...v1.67.0) (2024-10-18)
+
+
+### Features
+
+* rearrange exams api and refactor code ([2d95115](https://github.com/hei-school/hei-admin-api/commit/2d9511594d32d39e6659128f70d2921bcf0baacc))
+
+
+
 # [1.66.0](https://github.com/hei-school/hei-admin-api/compare/v1.65.0...v1.66.0) (2024-10-17)
 
 
@@ -97,17 +106,6 @@
 ### Features
 
 * **not-implemented:** link letter and fee ([ddc857f](https://github.com/hei-school/hei-admin-api/commit/ddc857f400b7105ada665df8970d2363244fa817))
-
-
-
-# [1.57.0](https://github.com/hei-school/hei-admin-api/compare/v1.56.0...v1.57.0) (2024-09-25)
-
-
-### Features
-
-* add some information for fee receipt  ([7cb2a1a](https://github.com/hei-school/hei-admin-api/commit/7cb2a1afdc2b8f5bd721588fbab43c9f0efd6cc1))
-* monitor access to Student comment and work file  ([ebbad76](https://github.com/hei-school/hei-admin-api/commit/ebbad761566e3067a33fc7861300907279a8b23c))
-* **not-implemented:** download fee corresponding payment receipt  ([a78c865](https://github.com/hei-school/hei-admin-api/commit/a78c86566ef60e1527179db86bbe94d004e5f75f))
 
 
 
