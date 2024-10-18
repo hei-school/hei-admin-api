@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
-import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
+import school.hei.haapi.endpoint.rest.model.GetStudentGrade;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
@@ -40,7 +40,7 @@ public class AwardedCourseMapper {
 
   public AwardedCourseExam toRest(
       school.hei.haapi.model.AwardedCourse awardedCourse,
-      List<StudentExamGrade> studentExamGrades) {
+      List<GetStudentGrade> studentExamGrades) {
     return new AwardedCourseExam()
         .id(awardedCourse.getId())
         .exams(studentExamGrades)
@@ -53,7 +53,7 @@ public class AwardedCourseMapper {
       List<school.hei.haapi.model.AwardedCourse> awardedCourses, User student) {
     List<AwardedCourseExam> awardedCourseExams = new ArrayList<>();
     for (school.hei.haapi.model.AwardedCourse awardedCourse : awardedCourses) {
-      List<StudentExamGrade> studentExamGrades =
+      List<GetStudentGrade> studentExamGrades =
           awardedCourse.getExams().stream()
               .map(exam -> gradeMapper.toRestStudentExamGrade(student, exam))
               .collect(toList());
