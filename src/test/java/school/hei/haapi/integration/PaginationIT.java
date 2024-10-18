@@ -77,7 +77,7 @@ class PaginationIT extends MockedThirdParties {
     }
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    api.createOrUpdateStudents(newStudents);
+    api.createOrUpdateStudents(newStudents, null);
   }
 
   @Test

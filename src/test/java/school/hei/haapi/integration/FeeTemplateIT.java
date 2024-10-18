@@ -44,7 +44,7 @@ public class FeeTemplateIT extends MockedThirdParties {
 
     List<FeeTemplate> actual = api.getFeeTemplates(null, null, null, 1, 10);
 
-    assertEquals(2, actual.size());
+    assertEquals(4, actual.size());
     assertTrue(actual.contains(feeTemplate1()));
     assertTrue(actual.contains(feeTemplate3()));
   }
@@ -56,7 +56,7 @@ public class FeeTemplateIT extends MockedThirdParties {
 
     List<FeeTemplate> actual = api.getFeeTemplates(null, null, null, 1, 10);
 
-    assertEquals(2, actual.size());
+    assertEquals(4, actual.size());
     assertTrue(actual.contains(feeTemplate1()));
     assertTrue(actual.contains(feeTemplate3()));
   }

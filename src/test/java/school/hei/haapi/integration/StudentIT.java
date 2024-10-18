@@ -12,6 +12,8 @@ import static org.mockito.Mockito.when;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
+import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
+import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.YEARLY;
 import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
@@ -51,6 +53,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -70,7 +73,11 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsResultEntry;
 @ContextConfiguration(initializers = StudentIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class StudentIT extends MockedThirdParties {
+  public static final String STUDENT_WITH_PAYMENT_FREQUENCY_3 = "student_with_payment_frequency3";
   private static final Logger log = LoggerFactory.getLogger(StudentIT.class);
+  public static final String STUDENT_WITH_PAYMENT_FREQUENCY_2 = "student_with_payment_frequency2";
+  public static final String STUDENT_WITH_PAYMENT_FREQUENCY_1 = "student_with_payment_frequency1";
+  public static final Instant DUE_DATETIME = Instant.parse("2021-11-08T08:25:24.00Z");
   @MockBean private EventBridgeClient eventBridgeClientMock;
 
   @Autowired ObjectMapper objectMapper;
@@ -517,7 +524,7 @@ public class StudentIT extends MockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
 
-    assertThrowsForbiddenException(() -> api.createOrUpdateStudents(List.of()));
+    assertThrowsForbiddenException(() -> api.createOrUpdateStudents(List.of(), null));
   }
 
   @Test
@@ -525,7 +532,7 @@ public class StudentIT extends MockedThirdParties {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     UsersApi api = new UsersApi(teacher1Client);
 
-    assertThrowsForbiddenException(() -> api.createOrUpdateStudents(List.of()));
+    assertThrowsForbiddenException(() -> api.createOrUpdateStudents(List.of(), null));
   }
 
   @Test
@@ -689,7 +696,7 @@ public class StudentIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
     List<Student> toCreate =
-        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));
+        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()), null);
 
     Student created0 = toCreate.get(0);
     CrupdateStudent toUpdate0 =
@@ -773,7 +780,7 @@ public class StudentIT extends MockedThirdParties {
             .groups(List.of())
             .isRepeatingYear(false);
 
-    List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1));
+    List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1), null);
 
     assertEquals(2, updated.size());
     assertTrue(updated.contains(updated0));
@@ -805,7 +812,7 @@ public class StudentIT extends MockedThirdParties {
 
     assertThrowsApiException(
         "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":null}",
-        () -> api.createOrUpdateStudents(List.of(toCreate)));
+        () -> api.createOrUpdateStudents(List.of(toCreate), null));
 
     List<Student> actual =
         api.getStudents(1, 100, null, null, null, null, null, null, null, null, null);
@@ -823,7 +830,7 @@ public class StudentIT extends MockedThirdParties {
 
     assertThrowsApiException(
         "{\"type\":\"500 INTERNAL_SERVER_ERROR\",\"message\":\"Request entries must be <= 10\"}",
-        () -> api.createOrUpdateStudents(listToCreate));
+        () -> api.createOrUpdateStudents(listToCreate, null));
 
     List<Student> actual =
         api.getStudents(1, 100, null, null, null, null, null, null, null, null, null);
@@ -843,7 +850,8 @@ public class StudentIT extends MockedThirdParties {
             api.createOrUpdateStudents(
                 List.of(
                     someCreatableStudent()
-                        .coordinates(new Coordinates().longitude(null).latitude(12.0)))));
+                        .coordinates(new Coordinates().longitude(null).latitude(12.0))),
+                null));
   }
 
   @Test
@@ -858,7 +866,8 @@ public class StudentIT extends MockedThirdParties {
             api.createOrUpdateStudents(
                 List.of(
                     someCreatableStudent()
-                        .coordinates(new Coordinates().longitude(12.0).latitude(null)))));
+                        .coordinates(new Coordinates().longitude(12.0).latitude(null))),
+                null));
   }
 
   @Test
@@ -875,7 +884,7 @@ public class StudentIT extends MockedThirdParties {
                 .build());
 
     List<Student> created =
-        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()));
+        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()), null);
 
     ArgumentCaptor<PutEventsRequest> captor = ArgumentCaptor.forClass(PutEventsRequest.class);
     verify(eventBridgeClientMock, times(1)).putEvents(captor.capture());
@@ -948,7 +957,7 @@ public class StudentIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actual = api.createOrUpdateStudents(List.of(creatableSuspendedStudent()));
+    List<Student> actual = api.createOrUpdateStudents(List.of(creatableSuspendedStudent()), null);
     Student created = actual.get(0);
     List<Student> suspended =
         api.getStudents(1, 10, null, "Suspended", null, null, SUSPENDED, null, null, null, null);
@@ -963,7 +972,8 @@ public class StudentIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Student> actual = api.createOrUpdateStudents(List.of(createStudent2().status(SUSPENDED)));
+    List<Student> actual =
+        api.createOrUpdateStudents(List.of(createStudent2().status(SUSPENDED)), null);
     Student updated = actual.get(0);
     List<Student> suspended =
         api.getStudents(1, 10, null, null, null, null, SUSPENDED, null, null, null, null);
@@ -988,6 +998,53 @@ public class StudentIT extends MockedThirdParties {
     assertEquals(statistics.getWomen().getTotal(), women);
     assertEquals(statistics.getMen().getTotal(), men);
     assertEquals(statistics.getTotalStudents(), totalStudents);
+  }
+
+  @Test
+  void crupdate_students_with_payment_frequency() throws ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+    UsersApi usersApi = new UsersApi(apiClient);
+    PayingApi payingApi = new PayingApi(apiClient);
+
+    CrupdateStudent creatableStudent1 = someCreatableStudent();
+    creatableStudent1.setPaymentFrequency(MONTHLY);
+
+    CrupdateStudent creatableStudent2 = someCreatableStudent();
+    creatableStudent2.setPaymentFrequency(YEARLY);
+
+    CrupdateStudent creatableStudent3 = someCreatableStudent();
+    creatableStudent3.setPaymentFrequency(null);
+
+    List<Student> studentsCreated =
+        usersApi.createOrUpdateStudents(
+            List.of(creatableStudent1, creatableStudent2, creatableStudent3), DUE_DATETIME);
+
+    Student student1 =
+        usersApi
+            .getStudents(
+                1, 15, creatableStudent1.getRef(), null, null, null, null, null, null, null, null)
+            .getFirst();
+    Student student2 =
+        usersApi
+            .getStudents(
+                1, 15, creatableStudent2.getRef(), null, null, null, null, null, null, null, null)
+            .getFirst();
+    Student student3 =
+        usersApi
+            .getStudents(
+                1, 15, creatableStudent3.getRef(), null, null, null, null, null, null, null, null)
+            .getFirst();
+
+    assertTrue(studentsCreated.containsAll(List.of(student1, student2, student3)));
+
+    List<Fee> student1Fees = payingApi.getStudentFees(student1.getId(), 1, 15, null);
+    List<Fee> student2Fees = payingApi.getStudentFees(student2.getId(), 1, 15, null);
+    List<Fee> student3Fees = payingApi.getStudentFees(student3.getId(), 1, 15, null);
+
+    // Verify size
+    assertEquals(9, student1Fees.size());
+    assertEquals(1, student2Fees.size());
+    assertEquals(0, student3Fees.size());
   }
 
   @Test

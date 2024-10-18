@@ -99,11 +99,11 @@ public class StudentController {
   }
 
   @PutMapping("/students")
-  public List<Student> saveAll(@RequestBody List<CrupdateStudent> toWrite) {
+  public List<Student> saveAll(
+      @RequestBody List<CrupdateStudent> toWrite,
+      @RequestParam(name = "due_datetime", required = false) Instant dueDatetime) {
     toWrite.forEach(student -> validator.accept(student.getCoordinates()));
-    return userService
-        .saveAll(toWrite.stream().map(userMapper::toDomain).collect(toUnmodifiableList()))
-        .stream()
+    return userService.saveAll(userMapper.toMapDomain(toWrite), dueDatetime).stream()
         .map(userMapper::toRestStudent)
         .collect(toUnmodifiableList());
   }

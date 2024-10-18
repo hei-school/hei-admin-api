@@ -67,14 +67,14 @@ class PaymentServiceTest extends MockedThirdParties {
             correspondingFee.getId(),
             createableMpbsFromFeeIdWithStudent1(correspondingFee.getId()));
     var correspondingStudent =
-        usersApi.createOrUpdateStudents(List.of(correspondingCreateableStudent)).getFirst();
+        usersApi.createOrUpdateStudents(List.of(correspondingCreateableStudent), null).getFirst();
 
     assertEquals(ENABLED, correspondingStudent.getStatus());
     correspondingCreateableStudent.setId(correspondingStudent.getId());
     correspondingCreateableStudent.setStatus(SUSPENDED);
 
     var correspondingStudentAfterMakingSUSPENDED =
-        usersApi.createOrUpdateStudents(List.of(correspondingCreateableStudent)).getFirst();
+        usersApi.createOrUpdateStudents(List.of(correspondingCreateableStudent), null).getFirst();
 
     assertEquals(SUSPENDED, correspondingStudentAfterMakingSUSPENDED.getStatus());
 
