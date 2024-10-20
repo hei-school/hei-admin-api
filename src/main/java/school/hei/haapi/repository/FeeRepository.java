@@ -21,6 +21,14 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
 
   List<Fee> getFeesByStudentIdAndStatus(String studentId, FeeStatusEnum status, Pageable pageable);
 
+  @Query(
+      "select f from Fee f where f.student.id = :studentId "
+          + "order by case "
+          + "when f.status = 'UNPAID' then 1 "
+          + "when f.status = 'LATE' then 2 "
+          + "when f.status = 'PAID' then 3 "
+          + "end, "
+          + "f.creationDatetime DESC")
   List<Fee> getByStudentId(String studentId, Pageable pageable);
 
   List<Fee> findAllByMpbsIsNotNullOrderByMpbsCreationDatetimeDesc(Pageable pageable);

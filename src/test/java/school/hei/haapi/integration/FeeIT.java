@@ -114,7 +114,7 @@ class FeeIT extends MockedThirdParties {
     PayingApi api = new PayingApi(student1Client);
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 15, null);
 
     assertEquals(fee1(), actualFee);
     assertTrue(actual.contains(fee1()));
@@ -128,7 +128,7 @@ class FeeIT extends MockedThirdParties {
     PayingApi api = new PayingApi(monitor1Client);
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 15, null);
 
     assertEquals(fee1(), actualFee);
     assertTrue(actual.contains(fee1()));
@@ -152,7 +152,7 @@ class FeeIT extends MockedThirdParties {
     PayingApi api = new PayingApi(manager1Client);
 
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE1_ID);
-    List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 5, null);
+    List<Fee> actualFees1 = api.getStudentFees(STUDENT1_ID, 1, 15, null);
     List<Fee> actualFees2 = api.getFees(PAID.toString(), 1, 10, false, null);
 
     assertEquals(fee1(), actualFee);
