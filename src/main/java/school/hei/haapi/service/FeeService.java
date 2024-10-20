@@ -2,12 +2,15 @@ package school.hei.haapi.service;
 
 import static java.util.UUID.randomUUID;
 import static org.springframework.data.domain.Sort.Direction.DESC;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.*;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
+import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.YEARLY;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import jakarta.transaction.Transactional;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
@@ -22,9 +25,9 @@ import school.hei.haapi.endpoint.event.model.LateFeeVerified;
 import school.hei.haapi.endpoint.event.model.PojaEvent;
 import school.hei.haapi.endpoint.event.model.StudentsWithOverdueFeesReminder;
 import school.hei.haapi.endpoint.event.model.UnpaidFeesReminder;
-import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
+import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
+import school.hei.haapi.model.*;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
@@ -36,12 +39,15 @@ import school.hei.haapi.repository.dao.FeeDao;
 @Slf4j
 public class FeeService {
 
-  private static final school.hei.haapi.endpoint.rest.model.FeeStatusEnum DEFAULT_STATUS = LATE;
+  private static final FeeStatusEnum DEFAULT_STATUS = LATE;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
   private final UpdateFeeValidator updateFeeValidator;
   private final EventProducer<PojaEvent> eventProducer;
   private final FeeDao feeDao;
+  private final FeeTemplateService feeTemplateService;
+  private static final String MONTHLY_FEE_TEMPLATE_NAME = "Frais mensuel L1";
+  private static final String YEARLY_FEE_TEMPLATE_NAME = "Frais annuel L1";
 
   public Fee debitAmount(Fee toUpdate, int amountToDebit) {
     int remainingAmount = toUpdate.getRemainingAmount();
@@ -88,7 +94,7 @@ public class FeeService {
   public List<Fee> getFees(
       PageFromOne page,
       BoundedPageSize pageSize,
-      school.hei.haapi.endpoint.rest.model.FeeStatusEnum status,
+      FeeStatusEnum status,
       boolean isMpbs,
       String studentRef) {
     Pageable pageable =
@@ -103,10 +109,7 @@ public class FeeService {
   }
 
   public List<Fee> getFeesByStudentId(
-      String studentId,
-      PageFromOne page,
-      BoundedPageSize pageSize,
-      school.hei.haapi.endpoint.rest.model.FeeStatusEnum status) {
+      String studentId, PageFromOne page, BoundedPageSize pageSize, FeeStatusEnum status) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
     if (status != null) {
@@ -122,6 +125,50 @@ public class FeeService {
       initialFee.setStatus(LATE);
     }
     return feeRepository.save(initialFee);
+  }
+
+  @Transactional
+  public List<Fee> saveFromPaymentFrequency(
+      User user, PaymentFrequency frequency, Instant firstDueDatetime) {
+
+    List<Fee> feesToSave =
+        switch (frequency) {
+          case MONTHLY -> createFeesFromFeeTemplate(
+              MONTHLY_FEE_TEMPLATE_NAME, user, firstDueDatetime);
+          case YEARLY -> createFeesFromFeeTemplate(
+              YEARLY_FEE_TEMPLATE_NAME, user, firstDueDatetime);
+        };
+    return feeRepository.saveAll(feesToSave);
+  }
+
+  public List<Fee> createFeesFromFeeTemplate(String feeTemplateName, User user, Instant instant) {
+    FeeTemplate feeTemplate = feeTemplateService.getFeeTemplateByName(feeTemplateName);
+    List<Fee> fees = new ArrayList<>();
+    for (int i = 0; i < feeTemplate.getNumberOfPayments(); i++) {
+      Fee fee =
+          Fee.builder()
+              .id(randomUUID().toString())
+              .comment(feeTemplate.getName())
+              .totalAmount(feeTemplate.getAmount())
+              .remainingAmount(feeTemplate.getAmount())
+              .student(user)
+              .creationDatetime(Instant.now())
+              .status(UNPAID)
+              .updatedAt(Instant.now())
+              .dueDatetime(getDueDatetime(i, instant))
+              .isDeleted(false)
+              .type(TUITION)
+              .build();
+      fees.add(fee);
+    }
+    return fees;
+  }
+
+  public Instant getDueDatetime(Integer monthToAdd, Instant instant) {
+    return LocalDateTime.ofInstant(instant, ZoneId.of("UTC+3"))
+        .plusMonths(monthToAdd)
+        .atZone(ZoneId.of("UTC+3"))
+        .toInstant();
   }
 
   @Transactional

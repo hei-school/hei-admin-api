@@ -9,13 +9,14 @@ import school.hei.haapi.model.Exam;
 @Component
 @AllArgsConstructor
 public class ExamMapper {
+  private AwardedCourseMapper awardedCourseMapper;
   public ExamInfo toRest(Exam exam) {
     return new ExamInfo()
         .id(exam.getId())
         .coefficient(exam.getCoefficient())
         .title(exam.getTitle())
         .examinationDate(exam.getExaminationDate())
-        .awardedCourseId(exam.getAwardedCourse().getId());
+        .awardedCourse(awardedCourseMapper.toRest(exam.getAwardedCourse()));
   }
 
   public Exam toDomain(ExamInfo examInfo, AwardedCourse awardedCourse) {

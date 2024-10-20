@@ -11,8 +11,7 @@ import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
 import java.io.File;
 import java.time.Instant;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -23,11 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.UserUpserted;
-import school.hei.haapi.endpoint.rest.model.Statistics;
-import school.hei.haapi.endpoint.rest.model.StatisticsDetails;
-import school.hei.haapi.endpoint.rest.model.StatisticsStudentsAlternating;
-import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
@@ -50,6 +45,7 @@ public class UserService {
   private final MultipartFileConverter fileConverter;
   private final GroupRepository groupRepository;
   private final MonitoringStudentService monitoringStudentService;
+  private final FeeService feeService;
 
   public void uploadUserProfilePicture(MultipartFile profilePictureAsMultipartFile, String userId) {
     User user = findById(userId);
@@ -109,6 +105,24 @@ public class UserService {
     List<User> savedUsers = userRepository.saveAll(users);
     eventProducer.accept(
         users.stream().map(this::toUserUpsertedEvent).collect(toUnmodifiableList()));
+    return savedUsers;
+  }
+
+  @Transactional
+  public List<User> saveAll(
+      HashMap<User, PaymentFrequency> userPaymentFrequencyMap, Instant firstDueDatetime) {
+    List<User> users = new ArrayList<>(userPaymentFrequencyMap.keySet());
+    userValidator.accept(users);
+    List<User> savedUsers = userRepository.saveAll(users);
+    eventProducer.accept(
+        users.stream().map(this::toUserUpsertedEvent).collect(toUnmodifiableList()));
+
+    // TODO: handle existing users exception when creating fees automatically
+    for (Map.Entry<User, PaymentFrequency> entry : userPaymentFrequencyMap.entrySet()) {
+      if (entry.getValue() != null)
+        feeService.saveFromPaymentFrequency(entry.getKey(), entry.getValue(), firstDueDatetime);
+    }
+
     return savedUsers;
   }
 

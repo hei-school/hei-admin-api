@@ -48,13 +48,13 @@ class AwardedCourseIT extends MockedThirdParties {
     List<AwardedCourse> actuals = api.getAllAwardedCourseByGroup(GROUP1_ID, 1, 10);
 
     List<AwardedCourse> allAwardedCourse =
-        api.getAllAwardedCourseByCriteria(null, null, null, null);
+        api.getAllAwardedCourseByCriteria(null, null, null, null, null);
 
     List<AwardedCourse> awardedCoursesByTeacher =
-        api.getAllAwardedCourseByCriteria(TEACHER1_ID, null, null, null);
+        api.getAllAwardedCourseByCriteria(TEACHER1_ID, null, null, null, null);
 
     List<AwardedCourse> awardedCoursesByCourse =
-        api.getAllAwardedCourseByCriteria(null, COURSE1_ID, null, null);
+        api.getAllAwardedCourseByCriteria(null, COURSE1_ID, null, null, null);
 
     List<AwardedCourse> awardedCoursesAssignedToTeacher =
         api.getAwardedCoursesAssignedToTeacher(TEACHER2_ID, 1, 10);
@@ -128,13 +128,13 @@ class AwardedCourseIT extends MockedThirdParties {
     List<AwardedCourse> actuals = api.getAllAwardedCourseByGroup(GROUP1_ID, 1, 10);
 
     List<AwardedCourse> allAwardedCourse =
-        api.getAllAwardedCourseByCriteria(null, null, null, null);
+        api.getAllAwardedCourseByCriteria(null, null, null, null, null);
 
     List<AwardedCourse> awardedCoursesByTeacher =
-        api.getAllAwardedCourseByCriteria(TEACHER1_ID, null, null, null);
+        api.getAllAwardedCourseByCriteria(TEACHER1_ID, null, null, null, null);
 
     List<AwardedCourse> awardedCoursesByCourse =
-        api.getAllAwardedCourseByCriteria(null, COURSE1_ID, null, null);
+        api.getAllAwardedCourseByCriteria(null, COURSE1_ID, null, null, null);
 
     List<AwardedCourse> awardedCoursesAssignedToTeacher =
         api.getAwardedCoursesAssignedToTeacher(TEACHER2_ID, 1, 10);
