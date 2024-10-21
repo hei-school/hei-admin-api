@@ -98,7 +98,7 @@ public class FeeService {
       boolean isMpbs,
       String studentRef) {
     Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
     if (isMpbs) {
       return feeRepository.findAllByMpbsIsNotNullOrderByMpbsCreationDatetimeDesc(pageable);
     }
@@ -110,8 +110,7 @@ public class FeeService {
 
   public List<Fee> getFeesByStudentId(
       String studentId, PageFromOne page, BoundedPageSize pageSize, FeeStatusEnum status) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "dueDatetime"));
+    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     if (status != null) {
       return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
     }

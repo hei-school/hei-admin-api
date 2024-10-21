@@ -3,6 +3,8 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
@@ -111,7 +113,7 @@ class PaginationIT extends MockedThirdParties {
   }
 
   @Test
-  void fees_pages_are_ordered_by_due_datetime_desc() throws ApiException {
+  void fees_pages_are_ordered_by_status_and_creation_datetime_desc() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
     int pageSize = 2;
@@ -119,12 +121,14 @@ class PaginationIT extends MockedThirdParties {
     List<Fee> page1 = api.getStudentFees(STUDENT1_ID, 1, pageSize, null);
     List<Fee> page2 = api.getStudentFees(STUDENT1_ID, 2, pageSize, null);
     List<Fee> page3 = api.getStudentFees(STUDENT1_ID, 3, pageSize, null);
+    List<Fee> fees = api.getStudentFees(STUDENT1_ID, 1, 15, null);
 
     assertEquals(pageSize, page1.size());
     assertEquals(2, page2.size());
     assertEquals(2, page3.size());
-    assertTrue(isAfter(page1.get(0).getDueDatetime(), page1.get(1).getDueDatetime()));
-    assertTrue(isAfter(page1.get(1).getDueDatetime(), page2.get(0).getDueDatetime()));
+    assertTrue(isAfter(page1.get(0).getCreationDatetime(), page1.get(1).getCreationDatetime()));
+    assertEquals(UNPAID, fees.getFirst().getStatus());
+    assertEquals(PAID, fees.getLast().getStatus());
   }
 
   @Test
