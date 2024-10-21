@@ -83,10 +83,14 @@ public class AwardedCourseService {
   }
 
   public List<AwardedCourse> getByCriteria(
-      String teacherId, String courseId, PageFromOne page, BoundedPageSize pageSize) {
+      String teacherId,
+      String groupId,
+      String courseId,
+      PageFromOne page,
+      BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "name"));
-    return awardedCourseDao.findByCriteria(teacherId, courseId, pageable);
+    return awardedCourseDao.findByCriteria(teacherId, groupId, courseId, pageable);
   }
 
   public List<AwardedCourse> getAwardedCoursesByTeacherId(
