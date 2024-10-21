@@ -39,8 +39,7 @@ public class AwardedCourseMapper {
   }
 
   public AwardedCourseExam toRest(
-      school.hei.haapi.model.AwardedCourse awardedCourse,
-      List<GetStudentGrade> studentExamGrades) {
+      school.hei.haapi.model.AwardedCourse awardedCourse, List<GetStudentGrade> studentExamGrades) {
     return new AwardedCourseExam()
         .id(awardedCourse.getId())
         .exams(studentExamGrades)

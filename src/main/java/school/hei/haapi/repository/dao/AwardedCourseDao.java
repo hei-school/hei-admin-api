@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
 
 @Repository
@@ -21,11 +22,13 @@ import school.hei.haapi.model.User;
 public class AwardedCourseDao {
   private final EntityManager entityManager;
 
-  public List<AwardedCourse> findByCriteria(String teacherId, String courseId, Pageable pageable) {
+  public List<AwardedCourse> findByCriteria(
+      String teacherId, String groupId, String courseId, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<AwardedCourse> query = builder.createQuery(AwardedCourse.class);
     Root<AwardedCourse> root = query.from(AwardedCourse.class);
     Join<AwardedCourse, User> teacher = root.join("mainTeacher", JoinType.LEFT);
+    Join<AwardedCourse, Group> group = root.join("group", JoinType.LEFT);
     Join<AwardedCourse, Course> Courses = root.join("course", JoinType.LEFT);
 
     List<Predicate> predicates = new ArrayList<>();
@@ -35,6 +38,13 @@ public class AwardedCourseDao {
           builder.or(
               builder.like(builder.lower(teacher.get("id")), "%" + teacherId + "%"),
               builder.like(teacher.get("id"), "%" + teacherId + "%")));
+    }
+
+    if (groupId != null) {
+      predicates.add(
+          builder.or(
+              builder.like(builder.lower(group.get("id")), "%" + groupId + "%"),
+              builder.like(group.get("id"), "%" + teacherId + "%")));
     }
 
     if (courseId != null) {

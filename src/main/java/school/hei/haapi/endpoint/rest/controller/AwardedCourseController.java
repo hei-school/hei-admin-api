@@ -55,10 +55,11 @@ public class AwardedCourseController {
   @GetMapping("/awarded_courses")
   public List<AwardedCourse> getAllAwardedCourseByCriteria(
       @RequestParam(value = "teacher_id", required = false) String teacherId,
+      @RequestParam(value = "group_id", required = false) String groupId,
       @RequestParam(value = "course_id", required = false) String courseId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
-    return service.getByCriteria(teacherId, courseId, page, pageSize).stream()
+    return service.getByCriteria(teacherId, groupId, courseId, page, pageSize).stream()
         .map(mapper::toRest)
         .collect(toList());
   }
