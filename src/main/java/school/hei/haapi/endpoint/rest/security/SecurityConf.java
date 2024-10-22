@@ -164,6 +164,8 @@ public class SecurityConf {
                     antMatcher(GET, "/groups/*/awarded_courses/*/exams/*/grades"),
                     antMatcher(GET, "/groups/*/awarded_courses/*/exams/*/students/*/grade"),
                     antMatcher(GET, "/awarded_courses"),
+                    antMatcher(GET, "/awarded_courses/*/exams"),
+                    antMatcher(PUT, "/awarded_courses/*/exams"),
                     antMatcher(PUT, "/groups/*/awarded_courses/*/exams"),
                     antMatcher(GET, "/groups/*/students"),
                     antMatcher(GET, "/groups/**"),
@@ -536,6 +538,10 @@ public class SecurityConf {
                     .requestMatchers(GET, "/groups/*/awarded_courses/*/exams/*/students/*/grade")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
                     .requestMatchers(GET, "/awarded_courses")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/awarded_courses/*/exams")
+                    .authenticated()
+                    .requestMatchers(PUT, "/awarded_courses/*/exams")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
                     .requestMatchers(
                         new AwardedCourseOfTeacherMatcher(
