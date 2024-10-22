@@ -44,9 +44,9 @@ class ExamIT extends MockedThirdParties {
     TeachingApi api = new TeachingApi(manager1Client);
 
     List<ExamInfo> actual =
-        api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
+        api.getExamsByAwardedCourse(AWARDED_COURSE1_ID, 1, 10);
 
-    ExamInfo oneActualExam = api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
+    ExamInfo oneActualExam = api.getExamById(AWARDED_COURSE1_ID, EXAM1_ID);
 
     assertEquals(2, actual.size());
     assertTrue(actual.contains(exam1()));
@@ -60,7 +60,7 @@ class ExamIT extends MockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsForbiddenException(
-        () -> api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10));
+        () -> api.getExamsByAwardedCourse(AWARDED_COURSE1_ID, 1, 10));
   }
 
   @Test
@@ -68,8 +68,8 @@ class ExamIT extends MockedThirdParties {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
     List<ExamInfo> actual =
-        api.getExamsByGroupIdAndAwardedCourse(GROUP1_ID, AWARDED_COURSE1_ID, 1, 10);
-    ExamInfo oneActualExam = api.getExamById(GROUP1_ID, AWARDED_COURSE1_ID, EXAM1_ID);
+        api.getExamsByAwardedCourse(AWARDED_COURSE1_ID, 1, 10);
+    ExamInfo oneActualExam = api.getExamById(AWARDED_COURSE1_ID, EXAM1_ID);
 
     assertEquals(2, actual.size());
     assertTrue(actual.contains(exam1()));
@@ -109,12 +109,11 @@ class ExamIT extends MockedThirdParties {
     TeachingApi api = new TeachingApi(teacher1Client);
     int numberOfExamToAdd = 3;
     List<ExamInfo> actualCreatList =
-        api.createOrUpdateExams(
-            GROUP1_ID, AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
+        api.createOrUpdateExams(AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
     assertEquals(numberOfExamToAdd, actualCreatList.size());
 
     List<ExamInfo> actualUpdateList =
-        api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1()));
+        api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(exam1()));
     assertEquals(1, actualUpdateList.size());
     assertTrue(actualUpdateList.contains(exam1()));
   }
@@ -124,7 +123,7 @@ class ExamIT extends MockedThirdParties {
     TeachingApi api = new TeachingApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE2_ID, List.of(exam2())));
+        () -> api.createOrUpdateExams(AWARDED_COURSE2_ID, List.of(exam2())));
   }
 
   @Test
@@ -134,12 +133,11 @@ class ExamIT extends MockedThirdParties {
     TeachingApi api = new TeachingApi(manager1Client);
     int numberOfExamToAdd = 3;
     List<ExamInfo> actualCreatList =
-        api.createOrUpdateExams(
-            GROUP1_ID, AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
+        api.createOrUpdateExams(AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
     assertEquals(numberOfExamToAdd, actualCreatList.size());
 
     List<ExamInfo> actualUpdateList =
-        api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1()));
+        api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(exam1()));
     assertEquals(1, actualUpdateList.size());
     assertTrue(actualUpdateList.contains(exam1()));
   }
