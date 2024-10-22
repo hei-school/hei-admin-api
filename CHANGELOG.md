@@ -1,3 +1,17 @@
+# [1.68.0](https://github.com/hei-school/hei-admin-api/compare/v1.67.0...v1.68.0) (2024-10-22)
+
+
+### Bug Fixes
+
+* **docs-api:** exam api refactor ([f6eeda4](https://github.com/hei-school/hei-admin-api/commit/f6eeda447580aa479439ee809c32757165990da0))
+
+
+### Features
+
+* **not-implemented:** link letter and event participant ([3522088](https://github.com/hei-school/hei-admin-api/commit/352208894c4bf6dbcdb8ed77c154499b8402b339))
+
+
+
 # [1.67.0](https://github.com/hei-school/hei-admin-api/compare/v1.66.0...v1.67.0) (2024-10-18)
 
 
@@ -97,15 +111,6 @@
 * download the given payment by receipt ([79fb245](https://github.com/hei-school/hei-admin-api/commit/79fb245cfe231457370bdd66a8c4e485a7cbc065))
 * enable student pays own fees  ([924196a](https://github.com/hei-school/hei-admin-api/commit/924196a02964cd4f7d7ef2891b9e466b5ab810ee))
 * link fee and letter ([58f4242](https://github.com/hei-school/hei-admin-api/commit/58f42427d3f0b3e673a0e97f93971c4947c07766))
-
-
-
-# [1.58.0](https://github.com/hei-school/hei-admin-api/compare/v1.57.0...v1.58.0) (2024-09-25)
-
-
-### Features
-
-* **not-implemented:** link letter and fee ([ddc857f](https://github.com/hei-school/hei-admin-api/commit/ddc857f400b7105ada665df8970d2363244fa817))
 
 
 
