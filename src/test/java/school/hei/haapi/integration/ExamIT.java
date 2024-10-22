@@ -43,8 +43,7 @@ class ExamIT extends MockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<ExamInfo> actual =
-        api.getExamsByAwardedCourse(AWARDED_COURSE1_ID, 1, 10);
+    List<ExamInfo> actual = api.getExamsByAwardedCourse(AWARDED_COURSE1_ID, 1, 10);
 
     ExamInfo oneActualExam = api.getExamById(AWARDED_COURSE1_ID, EXAM1_ID);
 
@@ -59,16 +58,14 @@ class ExamIT extends MockedThirdParties {
   void student_read_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
-    assertThrowsForbiddenException(
-        () -> api.getExamsByAwardedCourse(AWARDED_COURSE1_ID, 1, 10));
+    assertThrowsForbiddenException(() -> api.getExamsByAwardedCourse(AWARDED_COURSE1_ID, 1, 10));
   }
 
   @Test
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
-    List<ExamInfo> actual =
-        api.getExamsByAwardedCourse(AWARDED_COURSE1_ID, 1, 10);
+    List<ExamInfo> actual = api.getExamsByAwardedCourse(AWARDED_COURSE1_ID, 1, 10);
     ExamInfo oneActualExam = api.getExamById(AWARDED_COURSE1_ID, EXAM1_ID);
 
     assertEquals(2, actual.size());
@@ -112,8 +109,7 @@ class ExamIT extends MockedThirdParties {
         api.createOrUpdateExams(AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
     assertEquals(numberOfExamToAdd, actualCreatList.size());
 
-    List<ExamInfo> actualUpdateList =
-        api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(exam1()));
+    List<ExamInfo> actualUpdateList = api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(exam1()));
     assertEquals(1, actualUpdateList.size());
     assertTrue(actualUpdateList.contains(exam1()));
   }
@@ -136,8 +132,7 @@ class ExamIT extends MockedThirdParties {
         api.createOrUpdateExams(AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
     assertEquals(numberOfExamToAdd, actualCreatList.size());
 
-    List<ExamInfo> actualUpdateList =
-        api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(exam1()));
+    List<ExamInfo> actualUpdateList = api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(exam1()));
     assertEquals(1, actualUpdateList.size());
     assertTrue(actualUpdateList.contains(exam1()));
   }
