@@ -9,11 +9,9 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
-import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -75,7 +73,7 @@ public class PromotionService {
     return promotionRepository.findAllPromotionsByStudentId(userId);
   }
 
-  public byte[] getStudentsPromotionInXlsx(String promotionId) throws IOException{
+  public byte[] getStudentsPromotionInXlsx(String promotionId) throws IOException {
     List<User> students = userService.getStudentsByPromotionId(promotionId);
     return generateSheetsOfStudentsPromotionById(students);
   }

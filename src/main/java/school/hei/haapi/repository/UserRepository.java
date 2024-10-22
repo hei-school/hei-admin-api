@@ -121,9 +121,9 @@ public interface UserRepository extends JpaRepository<User, String> {
   List<User> findAllRemainingStudentsByGroupId(String groupId);
 
   @Query(
-		  nativeQuery = true,
-		  value =
-				  """
+      nativeQuery = true,
+      value =
+          """
 	WITH student_group_flow AS (
      SELECT
          gf.student_id
@@ -145,9 +145,9 @@ public interface UserRepository extends JpaRepository<User, String> {
      "user" u
      INNER JOIN student_group_flow sgf ON sgf.student_id = u.id
  WHERE
-     u.status <> 'DISABLED'; 
+     u.status <> 'DISABLED';
 """)
-	List<User> findAllStudentsByPromotionId(String promotionId);
+  List<User> findAllStudentsByPromotionId(String promotionId);
 
   @Query(
       nativeQuery = true,
