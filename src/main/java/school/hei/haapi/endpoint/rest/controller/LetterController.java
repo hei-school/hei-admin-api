@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.controller;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import java.util.List;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -10,6 +11,7 @@ import school.hei.haapi.endpoint.rest.mapper.LetterMapper;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.LetterService;
 
 @RestController
@@ -67,10 +69,21 @@ public class LetterController {
       @PathVariable(name = "student_id") String studentId,
       @RequestParam(name = "amount", required = false) Integer amount,
       @RequestParam(name = "fee_id", required = false) String feeId,
+      @RequestParam(name = "event_participant_id", required = false) String eventParticipantId,
       @RequestParam(name = "description") String description,
       @RequestParam(name = "filename") String filename,
       @RequestPart(name = "file_to_upload") MultipartFile file) {
+
+    if (Objects.nonNull(feeId) && Objects.nonNull(eventParticipantId)) {
+      throw new BadRequestException("Cannot link letter with both fee and event participant");
+    }
+
+    if (Objects.nonNull(feeId) && Objects.isNull(amount)) {
+      throw new BadRequestException("Cannot create a letter for a fee without a given amount");
+    }
+
     return letterMapper.toRest(
-        letterService.createLetter(studentId, description, filename, file, feeId, amount));
+        letterService.createLetter(
+            studentId, description, filename, file, feeId, amount, eventParticipantId));
   }
 }

@@ -20,4 +20,10 @@ public interface LetterRepository extends JpaRepository<Letter, String> {
 
   @Query(value = "SELECT * FROM  letter where fee_id = ?1", nativeQuery = true)
   Optional<Letter> findByFeeId(String feeId);
+
+  @Query(
+      value =
+          "SELECT * FROM  letter where event_participant_id = ?1 ORDER BY creation_datetime DESC",
+      nativeQuery = true)
+  Optional<List<Letter>> findByEventParticipantId(String eventParticipantId);
 }

@@ -48,6 +48,10 @@ public class Letter {
 
   private Integer amount;
 
+  @ManyToOne
+  @JoinColumn(name = "event_participant_id")
+  private EventParticipant eventParticipant;
+
   @OneToOne
   @JoinColumn(name = "fee_id")
   private Fee fee;

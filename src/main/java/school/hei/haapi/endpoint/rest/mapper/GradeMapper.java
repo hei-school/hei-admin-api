@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -31,8 +30,7 @@ public class GradeMapper {
     if (grade == null) {
       return null;
     }
-    return new GetStudentGrade()
-        .grade(toRest(grade));
+    return new GetStudentGrade().grade(toRest(grade));
   }
 
   public GetStudentGrade toRestStudentExamGrade(User student, Exam exam) {
@@ -41,17 +39,16 @@ public class GradeMapper {
             .filter(grade -> grade.getStudent().getId().equals(student.getId()))
             .findFirst();
     school.hei.haapi.model.Grade grade = optionalGrade.get();
-    return new GetStudentGrade()
-        .grade(toRest(grade));
+    return new GetStudentGrade().grade(toRest(grade));
   }
 
-//  public ExamDetail toRestExamDetail(Exam exam, List<school.hei.haapi.model.Grade> grades) {
-//    return new ExamDetail()
-//        .id(exam.getId())
-//        .coefficient(exam.getCoefficient())
-//        .title(exam.getTitle())
-//        .examinationDate(exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
-//        .participants(
-//            grades.stream().map(grade -> this.toRestStudentGrade(grade)).collect(toList()));
-//  }
+  //  public ExamDetail toRestExamDetail(Exam exam, List<school.hei.haapi.model.Grade> grades) {
+  //    return new ExamDetail()
+  //        .id(exam.getId())
+  //        .coefficient(exam.getCoefficient())
+  //        .title(exam.getTitle())
+  //        .examinationDate(exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
+  //        .participants(
+  //            grades.stream().map(grade -> this.toRestStudentGrade(grade)).collect(toList()));
+  //  }
 }
