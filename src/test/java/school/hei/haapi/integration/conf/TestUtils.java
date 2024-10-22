@@ -41,6 +41,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.Exception;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -734,51 +735,79 @@ public class TestUtils {
   }
 
   public static Grade grade1() {
-    return new Grade().id(GRADE1_ID).score(8.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
+    return new Grade()
+        .id(GRADE1_ID)
+        .score(8.0)
+        .createdAt(Instant.parse("2022-10-09T08:25:24Z"))
+        .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade2() {
-    return new Grade().id(GRADE2_ID).score(5.0).createdAt(Instant.parse("2022-11-09T08:25:24Z"));
+    return new Grade()
+        .id(GRADE2_ID)
+        .score(5.0)
+        .createdAt(Instant.parse("2022-11-09T08:25:24Z"))
+        .updateDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
   public static Grade grade3() {
-    return new Grade().id(GRADE3_ID).score(11.0).createdAt(Instant.parse("2022-11-09T08:25:24Z"));
+    return new Grade()
+        .id(GRADE3_ID)
+        .score(11.0)
+        .createdAt(Instant.parse("2022-11-09T08:25:24Z"))
+        .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade4() {
-    return new Grade().id(GRADE4_ID).score(15.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
+    return new Grade()
+        .id(GRADE4_ID)
+        .score(15.0)
+        .createdAt(Instant.parse("2022-10-09T08:25:24Z"))
+        .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade5() {
-    return new Grade().id(GRADE5_ID).score(12.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
+    return new Grade()
+        .id(GRADE5_ID)
+        .score(12.0)
+        .createdAt(Instant.parse("2022-10-09T08:25:24Z"))
+        .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade6() {
-    return new Grade().id(GRADE6_ID).score(18.0).createdAt(Instant.parse("2022-11-09T08:25:24Z"));
+    return new Grade()
+        .id(GRADE6_ID)
+        .score(18.0)
+        .createdAt(Instant.parse("2022-11-09T08:25:24Z"))
+        .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade7() {
-    return new Grade().id(GRADE7_ID).score(20.0).createdAt(Instant.parse("2022-10-09T08:25:24Z"));
+    return new Grade()
+        .id(GRADE7_ID)
+        .score(20.0)
+        .createdAt(Instant.parse("2022-10-09T08:25:24Z"))
+        .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static GetStudentGrade studentExamGrade1() {
-    return new GetStudentGrade().grade(grade1()).student(student2());
+    return new GetStudentGrade().grade(grade1()).student(student1());
   }
 
   public static GetStudentGrade studentExamGrade2() {
-    return new GetStudentGrade().grade(grade2());
+    return new GetStudentGrade().grade(grade2()).student(student1());
   }
 
   public static GetStudentGrade studentExamGrade3() {
-    return new GetStudentGrade().grade(grade3());
+    return new GetStudentGrade().grade(grade3()).student(student1());
   }
 
   public static GetStudentGrade studentExamGrade4() {
-    return new GetStudentGrade().grade(grade4());
+    return new GetStudentGrade().grade(grade4()).student(student1());
   }
 
   public static GetStudentGrade studentExamGrade5() {
-    return new GetStudentGrade().grade(grade5());
+    return new GetStudentGrade().grade(grade5()).student(student1());
   }
 
   public static GetStudentGrade studentGrade1() {

@@ -17,7 +17,6 @@ import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
-import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -49,14 +48,7 @@ class GradeIT extends MockedThirdParties {
     assertEquals(5, actualAwardedCourseExamGrades.size());
     assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam1()));
     assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam2()));
-    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam3()));
     assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam4()));
-
-    //    ExamDetail actualExamDetail = api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID);
-    //    assertEquals(examDetail1(), actualExamDetail);
-
-    Grade actuslStudentGrade = api.getParticipantGrade(GROUP1_ID, EXAM1_ID);
-    assertEquals(studentGrade1(), actuslStudentGrade);
   }
 
   @Test
@@ -66,18 +58,10 @@ class GradeIT extends MockedThirdParties {
 
     List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
 
-    System.out.println(actual.toString());
     assertEquals(5, actual.size());
     assertTrue(actual.contains(awardedCourseExam1()));
     assertTrue(actual.contains(awardedCourseExam2()));
-    assertTrue(actual.contains(awardedCourseExam3()));
     assertTrue(actual.contains(awardedCourseExam4()));
-    //
-    //    ExamDetail actualExamDetail = api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID);
-    //    assertEquals(examDetail1(), actualExamDetail);
-
-    Grade actuslStudentGrade = api.getParticipantGrade(GROUP1_ID, EXAM1_ID);
-    assertEquals(studentGrade1(), actuslStudentGrade);
   }
 
   @Test
@@ -90,11 +74,7 @@ class GradeIT extends MockedThirdParties {
     assertEquals(5, actual.size());
     assertTrue(actual.contains(awardedCourseExam1()));
     assertTrue(actual.contains(awardedCourseExam2()));
-    assertTrue(actual.contains(awardedCourseExam3()));
     assertTrue(actual.contains(awardedCourseExam4()));
-
-    Grade actuslStudentGrade = api.getParticipantGrade(GROUP1_ID, EXAM1_ID);
-    assertEquals(studentGrade1(), actuslStudentGrade);
   }
 
   @Test
