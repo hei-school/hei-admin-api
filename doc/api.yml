@@ -3788,6 +3788,11 @@ paths:
           required: false
           schema:
             type: integer
+        - name: event_participant_id
+          in: query
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -5023,6 +5028,20 @@ components:
           $ref: '#/components/schemas/AttendanceStatus'
         group_id:
           type: string
+    EventParticipantLetter:
+      type: object
+      properties:
+        description:
+          type: string
+        file_url:
+          type: string
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+        ref:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
     EventParticipant:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
@@ -5032,6 +5051,10 @@ components:
           type: string
         event_status:
           $ref: '#/components/schemas/AttendanceStatus'
+        letter:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventParticipantLetter'
     Event:
       type: object
       properties:
