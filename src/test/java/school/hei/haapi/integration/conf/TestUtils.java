@@ -1207,6 +1207,7 @@ public class TestUtils {
       Student student, AttendanceStatus status, String id, String groupName) {
     return new EventParticipant()
         .id(id)
+            .studentId(student.getId())
         .firstName(student.getFirstName())
         .lastName(student.getLastName())
         .ref(student.getRef())
