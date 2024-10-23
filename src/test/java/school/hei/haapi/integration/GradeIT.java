@@ -17,6 +17,7 @@ import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
