@@ -2007,16 +2007,16 @@ paths:
               - UNPAID
               - LATE
               - PAID
-        - name: start_month
+        - name: month_from
           in: query
           schema:
             type: string
-            format: date
-        - name: end_month
+            format: date-time
+        - name: month_to
           in: query
           schema:
             type: string
-            format: date     
+            format: date-time    
         - name: page
           in: query
           schema:
@@ -2058,18 +2058,18 @@ paths:
     get:
       tags:
         - Paying
-      summary: Get monthly statistics on Fees
+      summary: Get monthly statistics on Fees, the actual month by default
       parameters:
-        - name: start_month
+        - name: month_from
           in: query
           schema:
             type: string
-            format: date
-        - name: end_month
+            format: date-time
+        - name: month_to
           in: query
           schema:
             type: string
-            format: date
+            format: date-time
       operationId: getFeesStats
       responses:
         '200':
