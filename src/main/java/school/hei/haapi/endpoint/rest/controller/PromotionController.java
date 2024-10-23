@@ -48,7 +48,7 @@ public class PromotionController {
   }
 
   @GetMapping(value = "/promotions/{id}/students", produces = "application/vnd.ms-excel")
-  public byte[] getStudentsByPromotion(@RequestParam(name = "id") String promotionId)
+  public byte[] getStudentsByPromotion(@PathVariable(name = "id") String promotionId)
       throws IOException {
     return promotionService.getStudentsPromotionInXlsx(promotionId);
   }
