@@ -1,3 +1,12 @@
+# [1.69.0](https://github.com/hei-school/hei-admin-api/compare/v1.68.0...v1.69.0) (2024-10-23)
+
+
+### Features
+
+* link letter and event participant for proof of absence ([36de3af](https://github.com/hei-school/hei-admin-api/commit/36de3afd5428e56f4ee7bcf6273eea62957c8f90))
+
+
+
 # [1.68.0](https://github.com/hei-school/hei-admin-api/compare/v1.67.0...v1.68.0) (2024-10-22)
 
 
@@ -95,22 +104,6 @@
 
 * add notification payment failed  ([bc62489](https://github.com/hei-school/hei-admin-api/commit/bc6248957993323210b9d3cf1fb03ef3709ab71a))
 * **not-implemented:** letter attribute in fee model ([5319943](https://github.com/hei-school/hei-admin-api/commit/5319943bc78d05aec6c3db4ed3a7cfad49e43b05))
-
-
-
-# [1.59.0](https://github.com/hei-school/hei-admin-api/compare/v1.58.0...v1.59.0) (2024-10-01)
-
-
-### Bug Fixes
-
-* remaining amount since actual payment  ([bd2d024](https://github.com/hei-school/hei-admin-api/commit/bd2d024441895c74af99c14984c841c7d83c796f))
-
-
-### Features
-
-* download the given payment by receipt ([79fb245](https://github.com/hei-school/hei-admin-api/commit/79fb245cfe231457370bdd66a8c4e485a7cbc065))
-* enable student pays own fees  ([924196a](https://github.com/hei-school/hei-admin-api/commit/924196a02964cd4f7d7ef2891b9e466b5ab810ee))
-* link fee and letter ([58f4242](https://github.com/hei-school/hei-admin-api/commit/58f42427d3f0b3e673a0e97f93971c4947c07766))
 
 
 
