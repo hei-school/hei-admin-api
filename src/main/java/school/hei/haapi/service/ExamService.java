@@ -19,20 +19,19 @@ import school.hei.haapi.repository.ExamRepository;
 public class ExamService {
   private final ExamRepository examRepository;
 
-  public List<Exam> getExamsFromAwardedCourseIdAndGroupId(
-      String groupId, String awardedCourseId, PageFromOne page, BoundedPageSize pageSize) {
+  public List<Exam> getExamsFromAwardedCourseIdAndGroupId(String awardedCourseId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "examinationDate"));
     return examRepository
-        .findExamsByGroupIdAndAwardedGroupId(groupId, awardedCourseId, pageable)
+        .findExamsByAwardedGroupId(awardedCourseId, pageable)
         .toList();
   }
 
-  public Exam getExamsByIdAndGroupIdAndAwardedCourseId(
-      String id, String awardedCourseId, String groupId) {
+  public Exam getExamsByIdAndAwardedCourseId(
+      String exam_id, String awardedCourseId) {
     return examRepository
-        .findById(id)
-        .orElseThrow(() -> new NotFoundException("Exam with id #" + id + " not found"));
+        .findByIdAndAwardedCourseId(exam_id, awardedCourseId)
+        .orElseThrow(() -> new NotFoundException("Exam with id #" + exam_id + " not found"));
   }
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {

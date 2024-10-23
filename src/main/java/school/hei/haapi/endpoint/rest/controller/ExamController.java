@@ -25,22 +25,20 @@ public class ExamController {
   private final AwardedCourseService awardedCourseService;
   private final ExamMapper examMapper;
 
-  @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams")
+  @GetMapping(value = "/awarded_courses/{awarded_course_id}/exams")
   public List<ExamInfo> getAwardedCourseExams(
-      @PathVariable("group_id") String groupId,
       @PathVariable("awarded_course_id") String awardedCourseId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return examService
-        .getExamsFromAwardedCourseIdAndGroupId(groupId, awardedCourseId, page, pageSize)
+        .getExamsFromAwardedCourseIdAndGroupId(awardedCourseId, page, pageSize)
         .stream()
         .map(examMapper::toRest)
         .collect(toList());
   }
 
-  @PutMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams")
+  @PutMapping(value = "/awarded_courses/{awarded_course_id}/exams")
   public List<ExamInfo> createOrUpdateExams(
-      @PathVariable("group_id") String groupId,
       @PathVariable("awarded_course_id") String awardedCourseId,
       @RequestBody List<ExamInfo> examInfos) {
     List<Exam> exams =
@@ -49,17 +47,16 @@ public class ExamController {
                 .map(
                     examInfo ->
                         examMapper.toDomain(
-                            examInfo, awardedCourseService.getById(awardedCourseId, groupId)))
+                            examInfo, awardedCourseService.getById(awardedCourseId)))
                 .collect(toList()));
     return exams.stream().map(examMapper::toRest).collect(toList());
   }
 
-  @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}")
+  @GetMapping(value = "/awarded_courses/{awarded_course_id}/exams/{exam_id}")
   public ExamInfo getExamById(
-      @PathVariable("group_id") String groupId,
       @PathVariable("awarded_course_id") String awardedCourseId,
       @PathVariable("exam_id") String examId) {
     return examMapper.toRest(
-        examService.getExamsByIdAndGroupIdAndAwardedCourseId(examId, awardedCourseId, groupId));
+        examService.getExamsByIdAndAwardedCourseId(examId, awardedCourseId));
   }
 }
