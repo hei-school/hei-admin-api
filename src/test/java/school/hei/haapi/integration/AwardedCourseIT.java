@@ -54,7 +54,7 @@ class AwardedCourseIT extends MockedThirdParties {
         api.getAllAwardedCourseByCriteria(TEACHER1_ID, null, null, null, null);
 
     List<AwardedCourse> awardedCoursesByCourse =
-        api.getAllAwardedCourseByCriteria(null, COURSE1_ID, null, null, null);
+        api.getAllAwardedCourseByCriteria(null, null, COURSE1_ID, null, null);
 
     List<AwardedCourse> awardedCoursesAssignedToTeacher =
         api.getAwardedCoursesAssignedToTeacher(TEACHER2_ID, 1, 10);
@@ -134,7 +134,7 @@ class AwardedCourseIT extends MockedThirdParties {
         api.getAllAwardedCourseByCriteria(TEACHER1_ID, null, null, null, null);
 
     List<AwardedCourse> awardedCoursesByCourse =
-        api.getAllAwardedCourseByCriteria(null, COURSE1_ID, null, null, null);
+        api.getAllAwardedCourseByCriteria(null, null, COURSE1_ID, null, null);
 
     List<AwardedCourse> awardedCoursesAssignedToTeacher =
         api.getAwardedCoursesAssignedToTeacher(TEACHER2_ID, 1, 10);
@@ -155,6 +155,7 @@ class AwardedCourseIT extends MockedThirdParties {
     assertEquals(1, awardedCoursesByTeacher.size());
     assertTrue(awardedCoursesByTeacher.contains(awardedCourse1()));
 
+    System.out.println(awardedCoursesByCourse.toString());
     assertEquals(3, awardedCoursesByCourse.size());
     assertTrue(awardedCoursesByCourse.contains(awardedCourse1()));
     assertTrue(awardedCoursesByCourse.contains(awardedCourse2()));

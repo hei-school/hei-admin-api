@@ -865,17 +865,12 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams:
+  /awarded_courses/{awarded_course_id}/exams:
     get:
       tags:
         - Teaching
       summary: Get all exam infos of a specified awarded_course.
       parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
         - name: awarded_course_id
           in: path
           required: true
@@ -892,7 +887,7 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getExamsByGroupIdAndAwardedCourse
+      operationId: getExamsByAwardedCourse
       responses:
         '200':
           description: List of exam infos without the participants of the specified course
@@ -918,11 +913,6 @@ paths:
       summary: Create new exams or update existing exams
       description: Update exams when `id` are provided, create them otherwise.
       parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
         - name: awarded_course_id
           in: path
           required: true
@@ -957,18 +947,13 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}:
+  /awarded_courses/{awarded_course_id}/exams/{exam_id}:
     get:
       tags:
         - Teaching
       summary: Get a awarded_course exam.
       operationId: getExamById
       parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
         - name: awarded_course_id
           in: path
           required: true
@@ -3803,6 +3788,11 @@ paths:
           required: false
           schema:
             type: integer
+        - name: event_participant_id
+          in: query
+          required: false
+          schema:
+            type: string
       requestBody:
         required: true
         content:
@@ -5038,6 +5028,20 @@ components:
           $ref: '#/components/schemas/AttendanceStatus'
         group_id:
           type: string
+    EventParticipantLetter:
+      type: object
+      properties:
+        description:
+          type: string
+        file_url:
+          type: string
+        status:
+          $ref: '#/components/schemas/LetterStatus'
+        ref:
+          type: string
+        creation_datetime:
+          type: string
+          format: date-time
     EventParticipant:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
@@ -5047,6 +5051,10 @@ components:
           type: string
         event_status:
           $ref: '#/components/schemas/AttendanceStatus'
+        letter:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventParticipantLetter'
     Event:
       type: object
       properties:
