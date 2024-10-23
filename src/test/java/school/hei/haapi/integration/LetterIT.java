@@ -22,13 +22,12 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.api.LettersApi;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.Letter;
-import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -128,6 +127,7 @@ public class LetterIT extends MockedThirdParties {
             "Certificat",
             "file",
             null,
+            null,
             null);
     Letter createdLetter1 = objectMapper.readValue(toBeReceived.body(), Letter.class);
     assertEquals(createdLetter1.getDescription(), "Certificat");
@@ -140,6 +140,7 @@ public class LetterIT extends MockedThirdParties {
             STUDENT1_ID,
             "A rejeter",
             "file",
+            null,
             null,
             null);
 
@@ -175,7 +176,8 @@ public class LetterIT extends MockedThirdParties {
             "Test fee",
             "file",
             "fee7_id",
-            5000);
+            5000,
+            null);
 
     Letter createdLetter3 = objectMapper.readValue(testFeePayment.body(), Letter.class);
     Letter feeLetterUpdated =
@@ -194,7 +196,6 @@ public class LetterIT extends MockedThirdParties {
     assertFalse(testFilterByFeeId.contains(updatedLetter2));
 
     List<Letter> testFilterByIsLinked = api.getLetters(1, 15, null, null, null, null, null, true);
-    log.info("IS LINKED ---------------" + testFilterByIsLinked.toString());
     assertEquals(testFilterByIsLinked.getFirst().getId(), feeLetterUpdated.getId());
     assertFalse(testFilterByFeeId.contains(updatedLetter1));
     assertFalse(testFilterByFeeId.contains(updatedLetter2));
@@ -203,6 +204,40 @@ public class LetterIT extends MockedThirdParties {
         api.getLetters(1, 15, null, null, null, null, null, false);
     assertTrue(testFilterByIsNotLinked.contains(letter1()));
     assertTrue(testFilterByIsNotLinked.contains(letter2()));
+  }
+
+  @Test
+  void test_letter_linked_with_event_participant()
+      throws IOException, InterruptedException, ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+
+    HttpResponse<InputStream> testEvent =
+        uploadLetter(
+            LetterIT.ContextInitializer.SERVER_PORT,
+            MANAGER1_TOKEN,
+            STUDENT3_ID,
+            "Test event 1",
+            "file",
+            null,
+            null,
+            EVENT_PARTICIPANT5_ID);
+
+    Letter createdLetter4 = objectMapper.readValue(testEvent.body(), Letter.class);
+
+    assertEquals("Test event 1", createdLetter4.getDescription());
+
+    EventParticipantLetter expectedEventParticipantLetter =
+        new EventParticipantLetter()
+            .creationDatetime(createdLetter4.getCreationDatetime())
+            .status(createdLetter4.getStatus())
+            .ref(createdLetter4.getRef())
+            .description(createdLetter4.getDescription());
+
+    EventsApi eventsApi = new EventsApi(apiClient);
+
+    List<EventParticipant> eventParticipants =
+        eventsApi.getEventParticipants(EVENT2_ID, 1, 15, null);
+    assertEquals(expectedEventParticipantLetter, eventParticipants.get(2).getLetter().getFirst());
   }
 
   @Test
@@ -240,6 +275,7 @@ public class LetterIT extends MockedThirdParties {
             STUDENT1_ID,
             "Certificat",
             "file",
+            null,
             null,
             null);
     Letter createdLetter = objectMapper.readValue(response.body(), Letter.class);

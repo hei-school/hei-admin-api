@@ -6,12 +6,18 @@ import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
 
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -21,7 +27,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 @ContextConfiguration(initializers = ExamIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 class ExamIT extends MockedThirdParties {
-  // TODO: some resources are not implemented yet then test failed
+  //TODO: some resources are not implemented yet then test failed
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, ExamIT.ContextInitializer.SERVER_PORT);
   }

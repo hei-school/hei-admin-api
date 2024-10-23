@@ -63,7 +63,46 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.Announcement;
+import school.hei.haapi.endpoint.rest.model.AnnouncementAuthor;
+import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
+import school.hei.haapi.endpoint.rest.model.AwardedCourse;
+import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.Comment;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CreateAnnouncement;
+import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
+import school.hei.haapi.endpoint.rest.model.CreateComment;
+import school.hei.haapi.endpoint.rest.model.CreateEvent;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CreateGrade;
+import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
+import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
+import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
+import school.hei.haapi.endpoint.rest.model.EnableStatus;
+import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventParticipant;
+import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeTemplate;
+import school.hei.haapi.endpoint.rest.model.GetStudentGrade;
+import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
+import school.hei.haapi.endpoint.rest.model.Letter;
+import school.hei.haapi.endpoint.rest.model.LetterStudent;
+import school.hei.haapi.endpoint.rest.model.Manager;
+import school.hei.haapi.endpoint.rest.model.Monitor;
+import school.hei.haapi.endpoint.rest.model.Observer;
+import school.hei.haapi.endpoint.rest.model.Promotion;
+import school.hei.haapi.endpoint.rest.model.Scope;
+import school.hei.haapi.endpoint.rest.model.Sex;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
+import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.service.aws.FileService;
@@ -151,6 +190,7 @@ public class TestUtils {
   public static final String LETTER1_REF = "letter1_ref";
   public static final String LETTER2_REF = "letter2_ref";
   public static final String LETTER3_REF = "letter3_ref";
+  public static final String EVENT_PARTICIPANT5_ID = "event_participant5_id";
 
   public static ApiClient anApiClient(String token, int serverPort) {
     ApiClient client = new ApiClient();
@@ -980,7 +1020,8 @@ public class TestUtils {
       String description,
       String filename,
       String feeId,
-      Integer amount)
+      Integer amount,
+      String eventParticipantId)
       throws IOException, InterruptedException {
     HttpClient client = HttpClient.newHttpClient();
 
@@ -1029,6 +1070,10 @@ public class TestUtils {
 
     if (Objects.nonNull(amount)) {
       path = path + "&amount=" + amount;
+    }
+
+    if (Objects.nonNull(eventParticipantId)) {
+      path = path + "&event_participant_id=" + eventParticipantId;
     }
 
     UriComponentsBuilder uriComponentsBuilder = UriComponentsBuilder.fromUri(URI.create(path));
@@ -1150,7 +1195,8 @@ public class TestUtils {
         .endDatetime(Instant.parse("2022-12-20T10:00:00.00Z"))
         .description("Prog1 course")
         .title("PROG1")
-        .planner(planner1());
+        .planner(planner1())
+        .groups(List.of(createGroupIdentifier(group1())));
   }
 
   public static Event event2() {
@@ -1162,7 +1208,8 @@ public class TestUtils {
         .endDatetime(Instant.parse("2022-12-08T12:00:00.00Z"))
         .course(null)
         .title("Integration Day")
-        .description("HEI students integration day");
+        .description("HEI students integration day")
+        .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
   }
 
   public static Event event3() {
@@ -1181,20 +1228,23 @@ public class TestUtils {
         .beginDatetime(Instant.parse("2022-12-09T08:00:00.00Z"))
         .endDatetime(Instant.parse("2022-12-09T12:00:00.00Z"))
         .title("December Seminar")
-        .course(null);
+        .course(null)
+        .groups(List.of());
   }
 
   public static EventParticipant createParticipant(
       Student student, AttendanceStatus status, String id, String groupName) {
     return new EventParticipant()
         .id(id)
+            .studentId(student.getId())
         .firstName(student.getFirstName())
         .lastName(student.getLastName())
         .ref(student.getRef())
         .nic(student.getNic())
         .email(student.getEmail())
         .groupName(groupName)
-        .eventStatus(status);
+        .eventStatus(status)
+        .letter(List.of());
   }
 
   public static GroupIdentifier createGroupIdentifier(Group group) {
@@ -1218,7 +1268,7 @@ public class TestUtils {
   }
 
   public static EventParticipant student3MissEvent2() {
-    return createParticipant(student3(), MISSING, "event_participant5_id", "GRP21001");
+    return createParticipant(student3(), MISSING, EVENT_PARTICIPANT5_ID, "GRP21001");
   }
 
   public static CreateEvent createEventCourse1() {

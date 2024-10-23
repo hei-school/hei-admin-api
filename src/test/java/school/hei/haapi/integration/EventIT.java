@@ -33,6 +33,8 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.annotation.DirtiesContext;
@@ -53,6 +55,8 @@ import school.hei.haapi.integration.conf.TestUtils;
 @ContextConfiguration(initializers = EventIT.ContextInitializer.class)
 @AutoConfigureMockMvc
 public class EventIT extends MockedThirdParties {
+
+  private static final Logger log = LoggerFactory.getLogger(EventIT.class);
 
   private static ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, EventIT.ContextInitializer.SERVER_PORT);

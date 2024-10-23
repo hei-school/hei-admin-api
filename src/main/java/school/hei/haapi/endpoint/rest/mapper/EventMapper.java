@@ -1,11 +1,13 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
 import school.hei.haapi.model.Event;
+import school.hei.haapi.model.Group;
 import school.hei.haapi.service.CourseService;
 import school.hei.haapi.service.GroupService;
 import school.hei.haapi.service.UserService;
@@ -18,6 +20,7 @@ public class EventMapper {
   private final UserService userService;
   private final CourseMapper courseMapper;
   private final UserMapper userMapper;
+  private final GroupMapper groupMapper;
 
   public school.hei.haapi.model.Event toDomain(CreateEvent createEvent) {
     return Event.builder()
@@ -38,6 +41,7 @@ public class EventMapper {
   }
 
   public school.hei.haapi.endpoint.rest.model.Event toRest(Event domain) {
+    List<Group> groups = domain.getGroups();
     return new school.hei.haapi.endpoint.rest.model.Event()
         .id(domain.getId())
         .endDatetime(domain.getEndDatetime())
@@ -46,6 +50,10 @@ public class EventMapper {
         .type(domain.getType())
         .course(Objects.isNull(domain.getCourse()) ? null : courseMapper.toRest(domain.getCourse()))
         .title(domain.getTitle())
-        .planner(userMapper.toIdentifier(domain.getPlanner()));
+        .planner(userMapper.toIdentifier(domain.getPlanner()))
+        .groups(
+            Objects.isNull(groups)
+                ? List.of()
+                : groups.stream().map(groupMapper::toRestGroupIdentifier).toList());
   }
 }

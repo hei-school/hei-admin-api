@@ -38,7 +38,8 @@ public class ExamController {
 
   @PutMapping("/awarded_courses/{awarded_course_id}/exams")
   public List<ExamInfo> getExamsByAwardedCourse(
-      @PathVariable(name = "awarded_course_id") String id, @RequestBody List<ExamInfo> examInfos) {
+          @PathVariable(name = "awarded_course_id") String id,
+          @RequestBody List<ExamInfo> examInfos) {
     // TODO: Review this part, why it has test and passed then now this resources disapeared and
     // test failed
     throw new NotImplementedException("Resources are not implemented yet");

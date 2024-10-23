@@ -1,6 +1,6 @@
 package school.hei.haapi.service;
 
-import static org.springframework.data.domain.Sort.Direction.DESC;
+import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class EventParticipantService {
       String eventId, PageFromOne page, BoundedPageSize pageSize, String groupRef) {
 
     Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "id"));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "participant.ref"));
 
     return Objects.isNull(groupRef)
         ? eventParticipantRepository.findAllByEventId(eventId, pageable)

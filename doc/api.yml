@@ -5051,6 +5051,8 @@ components:
           type: string
         event_status:
           $ref: '#/components/schemas/AttendanceStatus'
+        student_id:
+          type: string
         letter:
           type: array
           items:
@@ -5076,6 +5078,10 @@ components:
           $ref: '#/components/schemas/UserIdentifier'
         course:
           $ref: '#/components/schemas/Course'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupIdentifier'
     CrupdatePromotion:
       type: object
       properties:
