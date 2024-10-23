@@ -1,3 +1,12 @@
+# [1.70.0](https://github.com/hei-school/hei-admin-api/compare/v1.69.0...v1.70.0) (2024-10-23)
+
+
+### Features
+
+* add student id in event participant model ([afb4cb8](https://github.com/hei-school/hei-admin-api/commit/afb4cb8451b5c3d13e96d5aa899f1e697c527e67))
+
+
+
 # [1.69.0](https://github.com/hei-school/hei-admin-api/compare/v1.68.0...v1.69.0) (2024-10-23)
 
 
@@ -89,21 +98,6 @@
 ### Features
 
 * get letter by fee id ([7d4a717](https://github.com/hei-school/hei-admin-api/commit/7d4a717f24f0b645665c586331cf321feef8125b))
-
-
-
-# [1.60.0](https://github.com/hei-school/hei-admin-api/compare/v1.59.0...v1.60.0) (2024-10-04)
-
-
-### Bug Fixes
-
-* paid late fee fee7 for student1  ([3c7fa15](https://github.com/hei-school/hei-admin-api/commit/3c7fa1511026a9a3596d0abc07ce01887dc16bf5))
-
-
-### Features
-
-* add notification payment failed  ([bc62489](https://github.com/hei-school/hei-admin-api/commit/bc6248957993323210b9d3cf1fb03ef3709ab71a))
-* **not-implemented:** letter attribute in fee model ([5319943](https://github.com/hei-school/hei-admin-api/commit/5319943bc78d05aec6c3db4ed3a7cfad49e43b05))
 
 
 
