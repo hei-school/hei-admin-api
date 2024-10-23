@@ -43,7 +43,7 @@ class GradeIT extends MockedThirdParties {
     TeachingApi api = new TeachingApi(manager1Client);
 
     List<AwardedCourseExam> actualAwardedCourseExamGrades =
-            api.getStudentGrades(STUDENT1_ID, 1, 10);
+        api.getStudentGrades(STUDENT1_ID, 1, 10);
 
     assertEquals(5, actualAwardedCourseExamGrades.size());
     assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam1()));

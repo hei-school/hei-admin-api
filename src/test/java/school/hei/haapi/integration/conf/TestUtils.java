@@ -41,7 +41,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.Exception;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -1236,7 +1235,7 @@ public class TestUtils {
       Student student, AttendanceStatus status, String id, String groupName) {
     return new EventParticipant()
         .id(id)
-            .studentId(student.getId())
+        .studentId(student.getId())
         .firstName(student.getFirstName())
         .lastName(student.getLastName())
         .ref(student.getRef())
