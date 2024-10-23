@@ -75,7 +75,7 @@ class AwardedCourseIT extends MockedThirdParties {
     assertEquals(1, awardedCoursesByTeacher.size());
     assertTrue(awardedCoursesByTeacher.contains(awardedCourse1()));
 
-    assertEquals(3, awardedCoursesByCourse.size());
+    assertEquals(5, awardedCoursesByCourse.size());
     assertTrue(awardedCoursesByCourse.contains(awardedCourse1()));
     assertTrue(awardedCoursesByCourse.contains(awardedCourse2()));
     assertTrue(awardedCoursesByCourse.contains(awardedCourse3()));
@@ -155,7 +155,7 @@ class AwardedCourseIT extends MockedThirdParties {
     assertEquals(1, awardedCoursesByTeacher.size());
     assertTrue(awardedCoursesByTeacher.contains(awardedCourse1()));
 
-    assertEquals(3, awardedCoursesByCourse.size());
+    assertEquals(5, awardedCoursesByCourse.size());
     assertTrue(awardedCoursesByCourse.contains(awardedCourse1()));
     assertTrue(awardedCoursesByCourse.contains(awardedCourse2()));
     assertTrue(awardedCoursesByCourse.contains(awardedCourse3()));
