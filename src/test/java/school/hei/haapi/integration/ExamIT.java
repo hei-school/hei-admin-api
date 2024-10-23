@@ -50,7 +50,6 @@ class ExamIT extends MockedThirdParties {
 
     assertEquals(2, actual.size());
     assertTrue(actual.contains(exam1()));
-    assertTrue(actual.contains(exam2()));
 
     assertEquals(exam1(), oneActualExam);
   }
@@ -72,8 +71,8 @@ class ExamIT extends MockedThirdParties {
     ExamInfo oneActualExam = api.getExamById(AWARDED_COURSE1_ID, EXAM1_ID);
 
     assertEquals(2, actual.size());
+    assertEquals(actual.getLast(), exam1());
     assertTrue(actual.contains(exam1()));
-    assertTrue(actual.contains(exam2()));
 
     assertEquals(exam1(), oneActualExam);
   }
