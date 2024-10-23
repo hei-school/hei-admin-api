@@ -5076,6 +5076,10 @@ components:
           $ref: '#/components/schemas/UserIdentifier'
         course:
           $ref: '#/components/schemas/Course'
+        groups:
+          type: array
+          items:
+            $ref: '#/components/schemas/GroupIdentifier'
     CrupdatePromotion:
       type: object
       properties:

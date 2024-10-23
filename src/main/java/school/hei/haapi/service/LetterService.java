@@ -42,6 +42,7 @@ public class LetterService {
   private final EventProducer eventProducer;
   private final FeeService feeService;
   private final PaymentService paymentService;
+  private final EventParticipantService eventParticipantService;
 
   public List<Letter> getLetters(
       String ref,
@@ -56,6 +57,10 @@ public class LetterService {
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
     return letterDao.findByCriteria(
         ref, studentRef, status, name, feeId, isLinkedWithFee, pageable);
+  }
+
+  public List<Letter> getLettersByEventParticipantId(String eventParticipantId) {
+    return letterRepository.findByEventParticipantId(eventParticipantId).orElse(List.of());
   }
 
   public Letter getLetterById(String id) {
@@ -74,7 +79,8 @@ public class LetterService {
       String filename,
       MultipartFile file,
       String feeId,
-      Integer amount) {
+      Integer amount,
+      String eventParticipantId) {
     User user = userService.findById(studentId);
     String bucketKey = getBucketKey(user.getRef(), filename) + fileService.getFileExtension(file);
     final String uuid = UUID.randomUUID().toString();
@@ -88,6 +94,10 @@ public class LetterService {
             .ref(generateRef(uuid))
             .filePath(bucketKey)
             .amount(amount)
+            .eventParticipant(
+                Objects.isNull(eventParticipantId)
+                    ? null
+                    : eventParticipantService.findById(eventParticipantId))
             .build();
 
     if (Objects.nonNull(feeId)) {
@@ -98,7 +108,6 @@ public class LetterService {
     fileService.uploadObjectToS3Bucket(bucketKey, fileToSave);
 
     eventProducer.accept(List.of(toSendLetterEmail(letterToSave)));
-    log.info("saved letter: {}", letterToSave.toString());
     return letterRepository.save(letterToSave);
   }
 

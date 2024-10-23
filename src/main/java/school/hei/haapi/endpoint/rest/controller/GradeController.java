@@ -36,28 +36,26 @@ public class GradeController {
     return awardedCourseMapper.toRest(awardedCourses, student);
   }
 
-//  @GetMapping(
-//      value = "/groups/{group_id}/awarded_courses/" + "{awarded_course_id}/exams/{exam_id}/grades")
-//  public ExamDetail getExamGrades(
-//      @PathVariable("group_id") String groupId,
-//      @PathVariable("awarded_course_id") String awardedCourseId,
-//      @PathVariable("exam_id") String examId) {
-//    List<Grade> grades =
-//        examService
-//            .getExamsByIdAndGroupIdAndAwardedCourseId(examId, awardedCourseId, groupId)
-//            .getGrades();
-//    Exam exam =
-//        examService.getExamsByIdAndGroupIdAndAwardedCourseId(examId, awardedCourseId, groupId);
-//    return gradeMapper.toRestExamDetail(exam, grades);
-//  }
+  //  @GetMapping(
+  //      value = "/groups/{group_id}/awarded_courses/" +
+  // "{awarded_course_id}/exams/{exam_id}/grades")
+  //  public ExamDetail getExamGrades(
+  //      @PathVariable("group_id") String groupId,
+  //      @PathVariable("awarded_course_id") String awardedCourseId,
+  //      @PathVariable("exam_id") String examId) {
+  //    List<Grade> grades =
+  //        examService
+  //            .getExamsByIdAndGroupIdAndAwardedCourseId(examId, awardedCourseId, groupId)
+  //            .getGrades();
+  //    Exam exam =
+  //        examService.getExamsByIdAndGroupIdAndAwardedCourseId(examId, awardedCourseId, groupId);
+  //    return gradeMapper.toRestExamDetail(exam, grades);
+  //  }
 
   // TODO: change that if null
-  @GetMapping(
-      value =
-          "/exams/{exam_id}/students/{student_id}/grade")
+  @GetMapping(value = "/exams/{exam_id}/students/{student_id}/grade")
   public GetStudentGrade getGradeOfStudentInOneExam(
-      @PathVariable("exam_id") String examId,
-      @PathVariable("student_id") String studentId) {
+      @PathVariable("exam_id") String examId, @PathVariable("student_id") String studentId) {
     Grade grade = gradeService.getGradeByExamIdAndStudentId(examId, studentId);
     return gradeMapper.toRestStudentGrade(grade);
   }
