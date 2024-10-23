@@ -47,6 +47,7 @@ public class EventParticipantMapper {
         .firstName(participant.getFirstName())
         .lastName(participant.getLastName())
         .groupName(domain.getGroup().getName())
+            .studentId(participant.getId())
         .letter(letters);
   }
 

@@ -5051,6 +5051,8 @@ components:
           type: string
         event_status:
           $ref: '#/components/schemas/AttendanceStatus'
+        student_id:
+          type: string
         letter:
           type: array
           items:
