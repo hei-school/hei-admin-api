@@ -15,6 +15,7 @@ import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.service.AwardedCourseService;
 import school.hei.haapi.service.ExamService;
 
@@ -24,6 +25,24 @@ public class ExamController {
   private final ExamService examService;
   private final AwardedCourseService awardedCourseService;
   private final ExamMapper examMapper;
+
+  @GetMapping("/awarded_courses/{awarded_course_id}/exams")
+  public List<ExamInfo> getExamsByAwardedCourse(
+      @PathVariable(name = "awarded_course_id") String id,
+      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
+    // TODO: Review this part, why it has test and passed then now this resources disapeared and
+    // test failed
+    throw new NotImplementedException("Resources are not implemented yet");
+  }
+
+  @PutMapping("/awarded_courses/{awarded_course_id}/exams")
+  public List<ExamInfo> getExamsByAwardedCourse(
+      @PathVariable(name = "awarded_course_id") String id, @RequestBody List<ExamInfo> examInfos) {
+    // TODO: Review this part, why it has test and passed then now this resources disapeared and
+    // test failed
+    throw new NotImplementedException("Resources are not implemented yet");
+  }
 
   @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams")
   public List<ExamInfo> getAwardedCourseExams(
