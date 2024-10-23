@@ -40,7 +40,7 @@ public class AwardedCourseController {
   public AwardedCourse getById(
       @PathVariable("group_id") String groupId,
       @PathVariable("awarded_course_id") String awardedCourseId) {
-    return mapper.toRest(service.getById(awardedCourseId, groupId));
+    return mapper.toRest(service.getByIdAndGroupId(awardedCourseId, groupId));
   }
 
   @PutMapping("/groups/{group_id}/awarded_courses")
