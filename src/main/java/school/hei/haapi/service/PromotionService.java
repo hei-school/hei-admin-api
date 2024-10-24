@@ -1,10 +1,11 @@
 package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
+import static school.hei.haapi.service.utils.DataFormatterUtils.instantToOcsDateFormat;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.Date;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -115,9 +116,11 @@ public class PromotionService {
     correspondingRow.createCell(2).setCellValue(userToPrint.getFirstName());
     correspondingRow.createCell(3).setCellValue(userToPrint.getEmail());
     correspondingRow.createCell(4).setCellValue(userToPrint.getNic());
-    correspondingRow.createCell(5).setCellValue(userToPrint.getBirthDate());
+    correspondingRow.createCell(5).setCellValue(formatLocalDate(userToPrint.getBirthDate()));
     correspondingRow.createCell(6).setCellValue(userToPrint.getBirthPlace());
-    correspondingRow.createCell(7).setCellValue(Date.from(userToPrint.getEntranceDatetime()));
+    correspondingRow
+        .createCell(7)
+        .setCellValue(instantToOcsDateFormat(userToPrint.getEntranceDatetime()));
     correspondingRow.createCell(8).setCellValue(String.valueOf(userToPrint.getSex()));
   }
 }
