@@ -11,7 +11,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.ExamMapper;
-import school.hei.haapi.endpoint.rest.model.CreateExam;
+import school.hei.haapi.endpoint.rest.model.CrupdateExam;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Exam;
@@ -45,7 +45,7 @@ public class ExamController {
   }
 
   @PutMapping("/exams")
-  public ExamInfo createOrUpdateExamsInfos(@RequestBody CreateExam examInfo) {
+  public ExamInfo createOrUpdateExamsInfos(@RequestBody CrupdateExam examInfo) {
     return examMapper.toRest(examService.createOrUpdateExamsInfos(examMapper.toDomain(examInfo)));
   }
 

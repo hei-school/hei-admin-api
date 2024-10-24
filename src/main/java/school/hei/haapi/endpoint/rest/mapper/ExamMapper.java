@@ -3,7 +3,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.CreateExam;
+import school.hei.haapi.endpoint.rest.model.CrupdateExam;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Exam;
@@ -34,7 +34,7 @@ public class ExamMapper {
         .build();
   }
 
-  public Exam toDomain(CreateExam createExam) {
+  public Exam toDomain(CrupdateExam createExam) {
     AwardedCourse awardedCourse = awardedCourseService.findById(createExam.getAwardedCourseId());
     return Exam.builder()
         .id(createExam.getId())
