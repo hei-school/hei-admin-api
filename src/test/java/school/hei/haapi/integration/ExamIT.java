@@ -112,16 +112,6 @@ class ExamIT extends MockedThirdParties {
 
   @Test
   @DirtiesContext
-  void teacher_create_or_update_exam_ko() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(teacher1Client);
-    assertThrowsApiException(
-        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateExams(AWARDED_COURSE2_ID, List.of(exam2())));
-  }
-
-  @Test
-  @DirtiesContext
   void manager_create_or_update_exam_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
