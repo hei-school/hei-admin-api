@@ -3,7 +3,6 @@ package school.hei.haapi.endpoint.rest.controller;
 import static java.util.stream.Collectors.*;
 
 import java.util.List;
-
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -40,14 +39,13 @@ public class ExamController {
 
   @GetMapping("/exams")
   public List<ExamInfo> getAllExams(
-          @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
-          @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
+      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return examMapper.toDomainList(examService.getAllExams(page, pageSize));
   }
 
   @PutMapping("/exams")
-  public ExamInfo createOrUpdateExamsInfos(
-          @RequestBody CreateExam examInfo) {
+  public ExamInfo createOrUpdateExamsInfos(@RequestBody CreateExam examInfo) {
     return examMapper.toRest(examService.createOrUpdateExamsInfos(examMapper.toDomain(examInfo)));
   }
 

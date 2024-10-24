@@ -41,7 +41,6 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.Exception;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -692,11 +691,11 @@ public class TestUtils {
 
   public static CreateExam createExam1() {
     return new CreateExam()
-            .id(EXAM1_ID)
-            .coefficient(2)
-            .title("Algorithmics")
-            .awardedCourseId(awardedCourse1().getId())
-            .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
+        .id(EXAM1_ID)
+        .coefficient(2)
+        .title("Algorithmics")
+        .awardedCourseId(awardedCourse1().getId())
+        .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static ExamInfo exam1() {

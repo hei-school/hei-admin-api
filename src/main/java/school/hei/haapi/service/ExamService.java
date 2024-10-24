@@ -39,13 +39,13 @@ public class ExamService {
     return examRepository.saveAll(exams);
   }
 
-  public List<Exam> getAllExams(PageFromOne page, BoundedPageSize pageSize){
+  public List<Exam> getAllExams(PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =
-            PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "examinationDate"));
+        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "examinationDate"));
     return examRepository.findAll(pageable).stream().toList();
   }
 
-  public Exam createOrUpdateExamsInfos(Exam exam){
+  public Exam createOrUpdateExamsInfos(Exam exam) {
     return examRepository.save(exam);
   }
 }
