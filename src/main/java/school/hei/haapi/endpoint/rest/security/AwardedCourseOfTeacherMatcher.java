@@ -24,7 +24,8 @@ public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
     }
     Principal principal = AuthProvider.getPrincipal();
     String awardedCourseIdFromRequest = getSelfId(request, "awarded_courses");
-    return awardedCourseService.checkTeacherOfAwardedCourse(principal.getUserId(), awardedCourseIdFromRequest);
+    return awardedCourseService.checkTeacherOfAwardedCourse(
+        principal.getUserId(), awardedCourseIdFromRequest);
   }
 
   private String getSelfId(HttpServletRequest request, String stringBeforeId) {

@@ -56,7 +56,6 @@ public class ExamController {
   public ExamInfo getExamById(
       @PathVariable("awarded_course_id") String awardedCourseId,
       @PathVariable("exam_id") String examId) {
-    return examMapper.toRest(
-        examService.getExamsByIdAndAwardedCourseId(examId, awardedCourseId));
+    return examMapper.toRest(examService.getExamsByIdAndAwardedCourseId(examId, awardedCourseId));
   }
 }

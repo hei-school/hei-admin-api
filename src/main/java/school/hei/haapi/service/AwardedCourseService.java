@@ -5,9 +5,7 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.List;
-
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.hibernate.Hibernate;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -59,8 +57,7 @@ public class AwardedCourseService {
   }
 
   public AwardedCourse getByIdAndGroupId(String id, String groupId) {
-    return awardedCourseRepository
-            .getByIdAndGroupId(id, groupId);
+    return awardedCourseRepository.getByIdAndGroupId(id, groupId);
   }
 
   public AwardedCourse getById(String id) {
