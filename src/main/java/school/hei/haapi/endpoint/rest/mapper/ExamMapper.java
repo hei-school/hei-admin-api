@@ -2,14 +2,19 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.CreateExam;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Exam;
+import school.hei.haapi.service.AwardedCourseService;
+
+import java.util.List;
 
 @Component
 @AllArgsConstructor
 public class ExamMapper {
   private AwardedCourseMapper awardedCourseMapper;
+  private AwardedCourseService awardedCourseService;
 
   public ExamInfo toRest(Exam exam) {
     return new ExamInfo()
@@ -28,5 +33,22 @@ public class ExamMapper {
         .examinationDate(examInfo.getExaminationDate())
         .awardedCourse(awardedCourse)
         .build();
+  }
+
+  public Exam toDomain(CreateExam createExam) {
+    AwardedCourse awardedCourse = awardedCourseService.findById(createExam.getAwardedCourseId());
+    return Exam.builder()
+            .id(createExam.getId())
+            .coefficient(createExam.getCoefficient())
+            .title(createExam.getTitle())
+            .examinationDate(createExam.getExaminationDate())
+            .awardedCourse(awardedCourse)
+            .build();
+  }
+
+  public List<ExamInfo> toDomainList(List<Exam> examList){
+    return examList.stream()
+            .map(this::toRest)
+            .toList();
   }
 }
