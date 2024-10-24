@@ -8,26 +8,7 @@ import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.EVENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.EVENT_PARTICIPANT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.EVENT_PARTICIPANT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.createEventCourse1;
-import static school.hei.haapi.integration.conf.TestUtils.event1;
-import static school.hei.haapi.integration.conf.TestUtils.event2;
-import static school.hei.haapi.integration.conf.TestUtils.event3;
-import static school.hei.haapi.integration.conf.TestUtils.expectedCourseEventCreated;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.student1AttendEvent2;
-import static school.hei.haapi.integration.conf.TestUtils.student1MissEvent1;
-import static school.hei.haapi.integration.conf.TestUtils.student2AttendEvent2;
-import static school.hei.haapi.integration.conf.TestUtils.student3AttendEvent1;
-import static school.hei.haapi.integration.conf.TestUtils.student3MissEvent2;
+import static school.hei.haapi.integration.conf.TestUtils.*;
 
 import java.time.Instant;
 import java.util.List;
@@ -73,13 +54,20 @@ public class EventIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
 
-    List<Event> actual = api.crupdateEvents(List.of(createEventCourse1()));
+    List<Event> actual =
+        api.crupdateEvents(List.of(createEventCourse1(), createIntegrationEvent()));
 
-    Event event = actual.get(0);
+    Event event = actual.getFirst();
     assertEquals(expectedCourseEventCreated().getType(), event.getType());
     assertEquals(expectedCourseEventCreated().getEndDatetime(), event.getEndDatetime());
     assertEquals(expectedCourseEventCreated().getBeginDatetime(), event.getBeginDatetime());
     assertEquals(expectedCourseEventCreated().getDescription(), event.getDescription());
+
+    Event event2 = actual.getLast();
+    assertEquals(expectedIntegrationEventCreated().getType(), event2.getType());
+    assertEquals(expectedIntegrationEventCreated().getEndDatetime(), event2.getEndDatetime());
+    assertEquals(expectedIntegrationEventCreated().getBeginDatetime(), event2.getBeginDatetime());
+    assertEquals(expectedIntegrationEventCreated().getDescription(), event2.getDescription());
   }
 
   @Test
