@@ -118,9 +118,6 @@ public class PromotionService {
     correspondingRow.createCell(4).setCellValue(userToPrint.getNic());
     correspondingRow.createCell(5).setCellValue(formatLocalDate(userToPrint.getBirthDate()));
     correspondingRow.createCell(6).setCellValue(userToPrint.getBirthPlace());
-    correspondingRow
-        .createCell(7)
-        .setCellValue(instantToOcsDateFormat(userToPrint.getEntranceDatetime()));
     correspondingRow.createCell(8).setCellValue(String.valueOf(userToPrint.getSex()));
   }
 }
