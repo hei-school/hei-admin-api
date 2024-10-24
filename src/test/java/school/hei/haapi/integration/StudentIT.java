@@ -45,7 +45,6 @@ import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import org.junit.Assert;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -399,13 +398,13 @@ public class StudentIT extends MockedThirdParties {
     String basePath = "http://localhost:" + SERVER_PORT;
 
     HttpResponse response =
-            httpClient.send(
-                    HttpRequest.newBuilder()
-                            .uri(URI.create(basePath + STUDENTS_GROUP))
-                            .GET()
-                            .header("Authorization", "Bearer " + MANAGER1_TOKEN)
-                            .build(),
-                    HttpResponse.BodyHandlers.ofByteArray());
+        httpClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath + STUDENTS_GROUP))
+                .GET()
+                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
+                .build(),
+            HttpResponse.BodyHandlers.ofByteArray());
 
     Assert.assertEquals(HttpStatus.OK.value(), response.statusCode());
     assertNotNull(response.body());
@@ -438,8 +437,7 @@ public class StudentIT extends MockedThirdParties {
   void manager_upload_profile_picture() throws IOException, InterruptedException {
 
     HttpResponse<InputStream> response =
-        uploadProfilePicture(
-            SERVER_PORT, MANAGER1_TOKEN, STUDENT1_ID, "students");
+        uploadProfilePicture(SERVER_PORT, MANAGER1_TOKEN, STUDENT1_ID, "students");
 
     Student student = objectMapper.readValue(response.body(), Student.class);
 
