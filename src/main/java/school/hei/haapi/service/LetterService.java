@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.endpoint.rest.model.FileType.OTHER;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.*;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.BANK_TRANSFER;
 
@@ -25,6 +26,7 @@ import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.model.*;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.repository.FileInfoRepository;
 import school.hei.haapi.repository.LetterRepository;
 import school.hei.haapi.repository.dao.LetterDao;
 import school.hei.haapi.service.aws.FileService;
@@ -43,6 +45,7 @@ public class LetterService {
   private final FeeService feeService;
   private final PaymentService paymentService;
   private final EventParticipantService eventParticipantService;
+  private final FileInfoRepository fileInfoRepository;
 
   public List<Letter> getLetters(
       String ref,
@@ -135,6 +138,18 @@ public class LetterService {
                 throw new BadRequestException("Cannot update a status to pending");
               }
               letterToUpdate.setReasonForRefusal(lt.getReasonForRefusal());
+
+              if (lt.getStatus() == RECEIVED) {
+                FileInfo fileInfo =
+                    FileInfo.builder()
+                        .fileType(OTHER)
+                        .creationDatetime(Instant.now())
+                        .name(letterToUpdate.getDescription())
+                        .user(letterToUpdate.getStudent())
+                        .filePath(letterToUpdate.getFilePath())
+                        .build();
+                fileInfoRepository.save(fileInfo);
+              }
 
               if (lt.getStatus() == RECEIVED && Objects.nonNull(letterToUpdate.getFee())) {
                 Payment payment =
