@@ -953,6 +953,16 @@ paths:
         - Teaching
       summary: Get all exam infos.
       parameters:
+        - name: awarded_course_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: title
+          in: query
+          required: false
+          schema:
+            type: string
         - name: page
           in: query
           schema:
