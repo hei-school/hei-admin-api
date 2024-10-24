@@ -993,7 +993,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CreateExam'
+              $ref: '#/components/schemas/CrupdateExam'
       responses:
         '200':
           description: Exams infos without the students participated
@@ -4757,7 +4757,7 @@ components:
           format: date-time
         awarded_course:
           $ref: '#/components/schemas/AwardedCourse'
-    CreateExam:
+    CrupdateExam:
       type: object
       properties:
         id:
