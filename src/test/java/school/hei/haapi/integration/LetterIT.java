@@ -1,8 +1,12 @@
 package school.hei.haapi.integration;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FileType.OTHER;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.*;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.*;
@@ -22,11 +26,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.EventsApi;
+import school.hei.haapi.endpoint.rest.api.FilesApi;
 import school.hei.haapi.endpoint.rest.api.LettersApi;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.model.EventParticipant;
+import school.hei.haapi.endpoint.rest.model.EventParticipantLetter;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.Letter;
 import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
@@ -119,6 +128,7 @@ public class LetterIT extends MockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     LettersApi api = new LettersApi(apiClient);
     PayingApi payingApi = new PayingApi(apiClient);
+    FilesApi filesApi = new FilesApi(apiClient);
 
     HttpResponse<InputStream> toBeReceived =
         uploadLetter(
@@ -127,6 +137,7 @@ public class LetterIT extends MockedThirdParties {
             STUDENT1_ID,
             "Certificat",
             "file",
+            null,
             null,
             null);
     Letter createdLetter1 = objectMapper.readValue(toBeReceived.body(), Letter.class);
@@ -140,6 +151,7 @@ public class LetterIT extends MockedThirdParties {
             STUDENT1_ID,
             "A rejeter",
             "file",
+            null,
             null,
             null);
 
@@ -167,6 +179,11 @@ public class LetterIT extends MockedThirdParties {
     assertNotNull(updatedLetter2.getApprovalDatetime());
     assertEquals(createdLetter2.getId(), updatedLetter2.getId());
 
+    // Check if the file info is saved
+    List<FileInfo> fileInfos = filesApi.getStudentFiles(STUDENT1_ID, 1, 15, OTHER);
+    assertEquals(2, fileInfos.size());
+
+    // Test fee payment
     HttpResponse<InputStream> testFeePayment =
         uploadLetter(
             LetterIT.ContextInitializer.SERVER_PORT,
@@ -175,7 +192,8 @@ public class LetterIT extends MockedThirdParties {
             "Test fee",
             "file",
             "fee7_id",
-            5000);
+            5000,
+            null);
 
     Letter createdLetter3 = objectMapper.readValue(testFeePayment.body(), Letter.class);
     Letter feeLetterUpdated =
@@ -194,7 +212,6 @@ public class LetterIT extends MockedThirdParties {
     assertFalse(testFilterByFeeId.contains(updatedLetter2));
 
     List<Letter> testFilterByIsLinked = api.getLetters(1, 15, null, null, null, null, null, true);
-    log.info("IS LINKED ---------------" + testFilterByIsLinked.toString());
     assertEquals(testFilterByIsLinked.getFirst().getId(), feeLetterUpdated.getId());
     assertFalse(testFilterByFeeId.contains(updatedLetter1));
     assertFalse(testFilterByFeeId.contains(updatedLetter2));
@@ -203,6 +220,40 @@ public class LetterIT extends MockedThirdParties {
         api.getLetters(1, 15, null, null, null, null, null, false);
     assertTrue(testFilterByIsNotLinked.contains(letter1()));
     assertTrue(testFilterByIsNotLinked.contains(letter2()));
+  }
+
+  @Test
+  void test_letter_linked_with_event_participant()
+      throws IOException, InterruptedException, ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+
+    HttpResponse<InputStream> testEvent =
+        uploadLetter(
+            LetterIT.ContextInitializer.SERVER_PORT,
+            MANAGER1_TOKEN,
+            STUDENT3_ID,
+            "Test event 1",
+            "file",
+            null,
+            null,
+            EVENT_PARTICIPANT5_ID);
+
+    Letter createdLetter4 = objectMapper.readValue(testEvent.body(), Letter.class);
+
+    assertEquals("Test event 1", createdLetter4.getDescription());
+
+    EventParticipantLetter expectedEventParticipantLetter =
+        new EventParticipantLetter()
+            .creationDatetime(createdLetter4.getCreationDatetime())
+            .status(createdLetter4.getStatus())
+            .ref(createdLetter4.getRef())
+            .description(createdLetter4.getDescription());
+
+    EventsApi eventsApi = new EventsApi(apiClient);
+
+    List<EventParticipant> eventParticipants =
+        eventsApi.getEventParticipants(EVENT2_ID, 1, 15, null);
+    assertEquals(expectedEventParticipantLetter, eventParticipants.get(2).getLetter().getFirst());
   }
 
   @Test
@@ -233,6 +284,8 @@ public class LetterIT extends MockedThirdParties {
 
   @Test
   void student_upload_own_letter_ok() throws ApiException, IOException, InterruptedException {
+    ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
+
     HttpResponse<InputStream> response =
         uploadLetter(
             LetterIT.ContextInitializer.SERVER_PORT,
@@ -240,6 +293,7 @@ public class LetterIT extends MockedThirdParties {
             STUDENT1_ID,
             "Certificat",
             "file",
+            null,
             null,
             null);
     Letter createdLetter = objectMapper.readValue(response.body(), Letter.class);

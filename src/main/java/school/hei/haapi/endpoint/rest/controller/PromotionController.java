@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import java.io.IOException;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -44,6 +45,12 @@ public class PromotionController {
   @GetMapping("/promotions/{id}")
   public Promotion getPromotionById(@PathVariable String id) {
     return promotionMapper.toRest(promotionService.getPromotionById(id));
+  }
+
+  @GetMapping(value = "/promotions/{id}/students", produces = "application/vnd.ms-excel")
+  public byte[] getStudentsByPromotion(@PathVariable(name = "id") String promotionId)
+      throws IOException {
+    return promotionService.getStudentsPromotionInXlsx(promotionId);
   }
 
   @PutMapping("/promotions/{id}/groups")

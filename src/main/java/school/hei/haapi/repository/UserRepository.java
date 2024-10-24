@@ -124,6 +124,35 @@ public interface UserRepository extends JpaRepository<User, String> {
       nativeQuery = true,
       value =
           """
+	WITH student_group_flow AS (
+     SELECT
+         gf.student_id
+     FROM
+         group_flow gf
+         INNER JOIN "group" g ON g.id = gf.group_id  -- Join to get promotion info
+     WHERE
+         g.promotion_id = ?1  -- Filter by promotion_id from the Promotion table
+     GROUP BY
+         gf.student_id
+     HAVING
+         -- Join count > Leave count
+         SUM(CASE WHEN gf.group_flow_type = 'JOIN' THEN 1 ELSE 0 END) >
+         SUM(CASE WHEN gf.group_flow_type = 'LEAVE' THEN 1 ELSE 0 END)
+ )
+ SELECT
+     u.*
+ FROM
+     "user" u
+     INNER JOIN student_group_flow sgf ON sgf.student_id = u.id
+ WHERE
+     u.status <> 'DISABLED';
+""")
+  List<User> findAllStudentsByPromotionId(String promotionId);
+
+  @Query(
+      nativeQuery = true,
+      value =
+          """
 		SELECT * FROM "user" u WHERE u."role" = 'STUDENT' and u.status <> 'DISABLED'
 """)
   List<User> findAllStudentNotDisabled();

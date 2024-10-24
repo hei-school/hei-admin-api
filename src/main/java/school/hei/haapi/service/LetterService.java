@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.endpoint.rest.model.FileType.OTHER;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.*;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.BANK_TRANSFER;
 
@@ -25,6 +26,7 @@ import school.hei.haapi.endpoint.rest.model.UpdateLettersStatus;
 import school.hei.haapi.model.*;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.repository.FileInfoRepository;
 import school.hei.haapi.repository.LetterRepository;
 import school.hei.haapi.repository.dao.LetterDao;
 import school.hei.haapi.service.aws.FileService;
@@ -42,6 +44,8 @@ public class LetterService {
   private final EventProducer eventProducer;
   private final FeeService feeService;
   private final PaymentService paymentService;
+  private final EventParticipantService eventParticipantService;
+  private final FileInfoRepository fileInfoRepository;
 
   public List<Letter> getLetters(
       String ref,
@@ -56,6 +60,10 @@ public class LetterService {
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "creationDatetime"));
     return letterDao.findByCriteria(
         ref, studentRef, status, name, feeId, isLinkedWithFee, pageable);
+  }
+
+  public List<Letter> getLettersByEventParticipantId(String eventParticipantId) {
+    return letterRepository.findByEventParticipantId(eventParticipantId).orElse(List.of());
   }
 
   public Letter getLetterById(String id) {
@@ -74,7 +82,8 @@ public class LetterService {
       String filename,
       MultipartFile file,
       String feeId,
-      Integer amount) {
+      Integer amount,
+      String eventParticipantId) {
     User user = userService.findById(studentId);
     String bucketKey = getBucketKey(user.getRef(), filename) + fileService.getFileExtension(file);
     final String uuid = UUID.randomUUID().toString();
@@ -88,6 +97,10 @@ public class LetterService {
             .ref(generateRef(uuid))
             .filePath(bucketKey)
             .amount(amount)
+            .eventParticipant(
+                Objects.isNull(eventParticipantId)
+                    ? null
+                    : eventParticipantService.findById(eventParticipantId))
             .build();
 
     if (Objects.nonNull(feeId)) {
@@ -98,7 +111,6 @@ public class LetterService {
     fileService.uploadObjectToS3Bucket(bucketKey, fileToSave);
 
     eventProducer.accept(List.of(toSendLetterEmail(letterToSave)));
-    log.info("saved letter: {}", letterToSave.toString());
     return letterRepository.save(letterToSave);
   }
 
@@ -126,6 +138,18 @@ public class LetterService {
                 throw new BadRequestException("Cannot update a status to pending");
               }
               letterToUpdate.setReasonForRefusal(lt.getReasonForRefusal());
+
+              if (lt.getStatus() == RECEIVED) {
+                FileInfo fileInfo =
+                    FileInfo.builder()
+                        .fileType(OTHER)
+                        .creationDatetime(Instant.now())
+                        .name(letterToUpdate.getDescription())
+                        .user(letterToUpdate.getStudent())
+                        .filePath(letterToUpdate.getFilePath())
+                        .build();
+                fileInfoRepository.save(fileInfo);
+              }
 
               if (lt.getStatus() == RECEIVED && Objects.nonNull(letterToUpdate.getFee())) {
                 Payment payment =

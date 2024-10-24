@@ -164,6 +164,8 @@ public class SecurityConf {
                     antMatcher(GET, "/groups/*/awarded_courses/*/exams/*/grades"),
                     antMatcher(GET, "/groups/*/awarded_courses/*/exams/*/students/*/grade"),
                     antMatcher(GET, "/awarded_courses"),
+                    antMatcher(GET, "/awarded_courses/*/exams"),
+                    antMatcher(PUT, "/awarded_courses/*/exams"),
                     antMatcher(PUT, "/groups/*/awarded_courses/*/exams"),
                     antMatcher(GET, "/groups/*/students"),
                     antMatcher(GET, "/groups/**"),
@@ -188,6 +190,7 @@ public class SecurityConf {
                     antMatcher(GET, "/promotions"),
                     antMatcher(PUT, "/promotions"),
                     antMatcher(GET, "/promotions/*"),
+                    antMatcher(GET, "/promotions/*/students"),
                     antMatcher(PUT, "/promotions/*/groups"),
                     antMatcher(GET, "/attendance"),
                     antMatcher(POST, "/attendance/movement"),
@@ -537,6 +540,10 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
                     .requestMatchers(GET, "/awarded_courses")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
+                    .requestMatchers(GET, "/awarded_courses/*/exams")
+                    .authenticated()
+                    .requestMatchers(PUT, "/awarded_courses/*/exams")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole())
                     .requestMatchers(
                         new AwardedCourseOfTeacherMatcher(
                             awardedCourseService, PUT, "/groups/*" + "/awarded_courses/*/exams"))
@@ -634,6 +641,8 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole())
                     .requestMatchers("/promotions/*")
                     .hasAnyRole(MANAGER.getRole(), TEACHER.getRole(), STUDENT.getRole())
+                    .requestMatchers(GET, "/promotions/*/students")
+                    .hasAnyRole(MANAGER.getRole(), TEACHER.getRole())
                     .requestMatchers(PUT, "/promotions/*/groups")
                     .hasAnyRole(MANAGER.getRole())
                     //

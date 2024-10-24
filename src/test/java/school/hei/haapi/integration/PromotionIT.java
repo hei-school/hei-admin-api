@@ -2,8 +2,10 @@ package school.hei.haapi.integration;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
+import static school.hei.haapi.integration.PromotionIT.ContextInitializer.SERVER_PORT;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.PROMOTION1_ID;
@@ -23,11 +25,17 @@ import static school.hei.haapi.integration.conf.TestUtils.removeGroupToPromotion
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PromotionsApi;
@@ -46,13 +54,33 @@ import school.hei.haapi.integration.conf.TestUtils;
 public class PromotionIT extends MockedThirdParties {
 
   private static ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, PromotionIT.ContextInitializer.SERVER_PORT);
+    return TestUtils.anApiClient(token, SERVER_PORT);
   }
 
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
+  }
+
+  @Test
+  void manager_generate_promotion_students_ok() throws IOException, InterruptedException {
+    String STUDENTS_PROMOTION_PATH = "/promotions/" + PROMOTION1_ID + "/students";
+    HttpClient httpClient = HttpClient.newBuilder().build();
+    String basePath = "http://localhost:" + SERVER_PORT;
+
+    HttpResponse response =
+        httpClient.send(
+            HttpRequest.newBuilder()
+                .uri(URI.create(basePath + STUDENTS_PROMOTION_PATH))
+                .GET()
+                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
+                .build(),
+            HttpResponse.BodyHandlers.ofByteArray());
+
+    assertEquals(HttpStatus.OK.value(), response.statusCode());
+    assertNotNull(response.body());
+    assertNotNull(response);
   }
 
   @Test

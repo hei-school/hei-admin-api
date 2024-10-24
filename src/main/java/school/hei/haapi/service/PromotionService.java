@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
+import java.io.IOException;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Optional;
@@ -14,9 +15,11 @@ import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Promotion;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.PromotionRepository;
 import school.hei.haapi.repository.dao.PromotionDao;
+import school.hei.haapi.service.utils.XlsxCellsGenerator;
 
 @Service
 @AllArgsConstructor
@@ -24,6 +27,7 @@ public class PromotionService {
   private final PromotionRepository promotionRepository;
   private final PromotionDao promotionDao;
   private final GroupService groupService;
+  private final UserService userService;
 
   public List<Promotion> getPromotions(
       String name, String ref, String groupRef, PageFromOne page, BoundedPageSize pageSize) {
@@ -62,5 +66,15 @@ public class PromotionService {
 
   public LinkedHashSet<Promotion> getAllStudentPromotions(String userId) {
     return promotionRepository.findAllPromotionsByStudentId(userId);
+  }
+
+  public byte[] getStudentsPromotionInXlsx(String promotionId) throws IOException {
+    List<User> students = userService.getStudentsByPromotionId(promotionId);
+    return generateSheetsOfStudentsPromotionById(students);
+  }
+
+  private byte[] generateSheetsOfStudentsPromotionById(List<User> students) throws IOException {
+    XlsxCellsGenerator<User> xlsxCellsGenerator = new XlsxCellsGenerator<>();
+    return xlsxCellsGenerator.apply(students);
   }
 }

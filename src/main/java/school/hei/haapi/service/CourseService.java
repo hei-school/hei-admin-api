@@ -91,9 +91,6 @@ public class CourseService {
   public Course getById(String id) {
     return courseRepository
         .findById(id)
-        .orElseThrow(
-            () -> {
-              throw new NotFoundException("Course with id #" + id + " not found");
-            });
+        .orElseThrow(() -> new NotFoundException("Course with id #" + id + " not found"));
   }
 }
