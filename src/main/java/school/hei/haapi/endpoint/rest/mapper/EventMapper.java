@@ -28,7 +28,10 @@ public class EventMapper {
         .beginDatetime(createEvent.getBeginDatetime())
         .endDatetime(createEvent.getEndDatetime())
         .description(createEvent.getDescription())
-        .course(courseService.getById(createEvent.getCourseId()))
+        .course(
+            Objects.isNull(createEvent.getCourseId())
+                ? null
+                : courseService.getById(createEvent.getCourseId()))
         .groups(
             groupService.getAllById(
                 Objects.requireNonNull(createEvent.getGroups()).stream()
