@@ -971,9 +971,7 @@ paths:
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExamInfo'
+                $ref: '#/components/schemas/ExamInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -995,18 +993,14 @@ paths:
         content:
           application/json:
             schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateExam'
+              $ref: '#/components/schemas/CreateExam'
       responses:
         '200':
           description: Exams infos without the students participated
           content:
             application/json:
               schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ExamInfo'
+                $ref: '#/components/schemas/ExamInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
