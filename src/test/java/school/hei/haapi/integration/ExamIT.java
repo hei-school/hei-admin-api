@@ -5,16 +5,22 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.annotation.DirtiesContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
+import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+
+import java.util.List;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @Testcontainers
@@ -93,23 +99,21 @@ class ExamIT extends MockedThirdParties {
   //        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
   //        () -> api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1())));
   //  }
+*/
+  @Test
+  @DirtiesContext
+  void teacher_create_or_update_exam_ok() throws ApiException {
+    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+    TeachingApi api = new TeachingApi(teacher1Client);
+    ExamInfo actualCreat =
+        api.createOrUpdateExamsInfos(createExam1());
+
+    assertEquals(exam1(), actualCreat);
+  }
 
   @Test
   @DirtiesContext
-  void teacher_create_or_update_his_awarded_course_exam_ok() throws ApiException {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(teacher1Client);
-    int numberOfExamToAdd = 3;
-    List<ExamInfo> actualCreatList =
-        api.createOrUpdateExams(AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
-    assertEquals(numberOfExamToAdd, actualCreatList.size());
-
-    List<ExamInfo> actualUpdateList = api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(exam1()));
-    assertEquals(1, actualUpdateList.size());
-    assertTrue(actualUpdateList.contains(exam1()));
-  }
-
-  void teacher_create_or_update_others_awarded_course_exam_ko() throws ApiException {
+  void teacher_create_or_update_exam_ko() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
     assertThrowsApiException(
@@ -122,16 +126,12 @@ class ExamIT extends MockedThirdParties {
   void manager_create_or_update_exam_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
-    int numberOfExamToAdd = 3;
-    List<ExamInfo> actualCreatList =
-        api.createOrUpdateExams(AWARDED_COURSE1_ID, someCreatableExamInfoList(numberOfExamToAdd));
-    assertEquals(numberOfExamToAdd, actualCreatList.size());
+    ExamInfo actualCreat =
+            api.createOrUpdateExamsInfos(createExam1());
 
-    List<ExamInfo> actualUpdateList = api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(exam1()));
-    assertEquals(1, actualUpdateList.size());
-    assertTrue(actualUpdateList.contains(exam1()));
+    assertEquals(exam1(), actualCreat);
   }
-   */
+
 
   static class ContextInitializer extends AbstractContextInitializer {
     public static final int SERVER_PORT = anAvailableRandomPort();
