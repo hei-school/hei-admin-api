@@ -8289,7 +8289,7 @@ components:
       type: object
       allOf:
         - $ref: '#/components/schemas/CorCommentInfo'
-      properties: 
+      properties:
         creation_date:
           type: string
           format: date-time
