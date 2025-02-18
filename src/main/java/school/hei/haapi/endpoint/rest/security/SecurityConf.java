@@ -276,11 +276,11 @@ public class SecurityConf {
                             new AntPathRequestMatcher("/health/bucket", GET.name()),
                             // casdoor
                             new AntPathRequestMatcher(
-                                "/authentication/casdoor/signin", POST.name()),
+                                "/authentication/signin", POST.name()),
                             new AntPathRequestMatcher(
-                                "/authentication/casdoor/login-url", GET.name()),
+                                "/authentication/login-url", GET.name()),
                             new AntPathRequestMatcher(
-                                "/authentication/casdoor/userinfo", GET.name()),
+                                "/authentication/userinfo", GET.name()),
                             new AntPathRequestMatcher("/**", OPTIONS.toString())))
                     .permitAll()
                     .requestMatchers(GET, "/whoami")

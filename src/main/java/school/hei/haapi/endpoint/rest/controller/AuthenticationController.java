@@ -25,7 +25,7 @@ public class AuthenticationController {
     this.redirectUrl = redirectUrl;
   }
 
-  @GetMapping("/authentication/casdoor/login-url")
+  @GetMapping("/authentication/login-url")
   public Result getRedirectUrl() {
     try {
       String signinUrl = casdoorAuthService.getSigninUrl(redirectUrl);
@@ -36,7 +36,7 @@ public class AuthenticationController {
     }
   }
 
-  @PostMapping("/authentication/casdoor/signin")
+  @PostMapping("/authentication/signin")
   public Result signin(@RequestParam("code") String code, @RequestParam("state") String state) {
     try {
       String token = casdoorAuthService.getOAuthToken(code, state);
@@ -47,7 +47,7 @@ public class AuthenticationController {
     }
   }
 
-  @GetMapping("/authentication/casdoor/userinfo")
+  @GetMapping("/authentication/userinfo")
   public Result userinfo(Authentication authentication) {
     Principal customUserDetails = (Principal) authentication.getPrincipal();
     return Result.success(customUserDetails);
