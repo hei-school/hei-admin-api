@@ -29,6 +29,9 @@ jobs:
           java-version: '21'
           distribution: 'corretto'
 
+      - name: synchronise version with release 
+        run: git pull origin ${{ github.ref_name }}
+
       - name: Read gradle.properties file
         id: extract_version
         run: |
@@ -37,15 +40,6 @@ jobs:
 
       - name: Generate typescript client
         run: ./gradlew generateTsClient -Pargs=${{ steps.extract_version.outputs.version }}
-
-      - name: install-aws-cli
-        uses: unfor19/install-aws-cli-action@v1.0.3
-        with:
-          version: 2
-          verbose: false
-          arch: amd64
-          rootdir: ''
-          workdir: ''
 
       - uses: hei-school/aws-credentials-setter@v1.0.3
         with:

@@ -168,7 +168,7 @@ dependencies {
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'
 
-    implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot3:2.0.0-M2'
+    implementation 'com.amazonaws.serverless:aws-serverless-java-container-springboot3:2.1.0'
     implementation 'software.amazon.awssdk:aws-query-protocol:2.20.26'
 
     implementation 'com.amazonaws:aws-lambda-java-core:1.2.3'
