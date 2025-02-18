@@ -6,6 +6,7 @@ import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.model.User.Role.STUDENT;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -17,6 +18,8 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
@@ -41,6 +44,15 @@ class UserServiceTest extends FacadeITMockedThirdParties {
 
     assertEquals(1, actualMonitorsId.size());
     assertTrue(actualMonitorsId.contains(expectedMonitorId));
+  }
+
+  @Test
+  void dao_can_handle_null_value_in_params() {
+    List<User> students =
+        subject.getByCriteria(
+            STUDENT, null, null, null, new PageFromOne(1), new BoundedPageSize(15), null, null);
+    assertEquals(TestUtils.student1().getId(), students.getFirst().getId());
+    assertEquals(TestUtils.student2().getId(), students.get(1).getId());
   }
 
   private ApiClient anApiClient(String token) {

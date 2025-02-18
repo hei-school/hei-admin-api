@@ -25,9 +25,9 @@ public class UserManagerDao {
 
   public List<User> findByCriteria(
       User.Role role,
-      String ref,
-      String firstName,
-      String lastName,
+      String refNullable,
+      String firstNameNullable,
+      String lastNameNullable,
       Pageable pageable,
       User.Status status,
       User.Sex sex,
@@ -41,6 +41,10 @@ public class UserManagerDao {
     Root<User> root = query.from(User.class);
     Join<User, WorkDocument> workDocumentJoin = null;
     Predicate predicate = builder.conjunction();
+
+    String ref = refNullable != null ? refNullable : "";
+    String firstName = firstNameNullable != null ? firstNameNullable : "";
+    String lastName = lastNameNullable != null ? lastNameNullable : "";
 
     Predicate hasUserRef =
         builder.or(
