@@ -18,6 +18,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.model.CustomUserDetails;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.UserService;
 
 @Component
@@ -64,7 +65,7 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
     if (!hasRole) {
       log.error(
           "casdoor auth exception",
-          new Throwable("User with email " + casdoorUser.getEmail() + " don't have correct role"));
+          new BadRequestException("User with email " + casdoorUser.getEmail() + " doesn't have correct role"));
       throw new UsernameNotFoundException("Bad credentials");
     }
 
