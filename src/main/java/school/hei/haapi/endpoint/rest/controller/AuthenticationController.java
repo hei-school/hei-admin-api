@@ -5,6 +5,7 @@ import org.casbin.casdoor.exception.CasdoorAuthException;
 import org.casbin.casdoor.service.CasdoorAuthService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -48,8 +49,7 @@ public class AuthenticationController {
   }
 
   @GetMapping("/authentication/userinfo")
-  public Result userinfo(Authentication authentication) {
-    Principal customUserDetails = (Principal) authentication.getPrincipal();
-    return Result.success(customUserDetails);
+  public Result userinfo(@AuthenticationPrincipal Principal principal) {
+    return Result.success(principal);
   }
 }
