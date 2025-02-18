@@ -22,6 +22,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.model.CustomUserDetails;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.UserService;
 
 @Component
