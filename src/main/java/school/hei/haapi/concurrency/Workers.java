@@ -33,21 +33,19 @@ public class Workers {
                     (Callable<Void>)
                         () -> {
                           renameThread(
-                              currentThread(), getRandomSubThreadNamePrefixFrom(parentThread));
+                              parentThread, getRandomSubThreadNamePrefixFrom(parentThread));
                           return c.call();
                         })
             .toList();
-    // TODO: refactor properly
     List<Future<Void>> futures = executorService.invokeAll(callables);
-    return futures.stream()
-        .map(
-            future -> {
-              try {
-                return future.get();
-              } catch (InterruptedException | ExecutionException e) {
-                throw new RuntimeException(e);
-              }
-            })
-        .toList();
+    return futures.stream().map(this::handleFutureException).toList();
+  }
+
+  private Void handleFutureException(Future<Void> future) {
+    try {
+      return future.get();
+    } catch (InterruptedException | ExecutionException e) {
+      throw new RuntimeException(e);
+    }
   }
 }
