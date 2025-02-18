@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.security;
 
 import java.util.Arrays;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.casbin.casdoor.entity.CasdoorUser;
 import org.casbin.casdoor.exception.CasdoorAuthException;
 import org.casbin.casdoor.service.CasdoorAuthService;
@@ -21,7 +22,7 @@ import school.hei.haapi.service.UserService;
 
 @Component
 @RequiredArgsConstructor
-// @Slf4j
+@Slf4j
 public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvider {
   private static final String BEARER_PREFIX = "Bearer ";
   private final UserService userService;
@@ -40,7 +41,6 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
   protected UserDetails retrieveUser(
       String username, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
     String bearer = getBearer(usernamePasswordAuthenticationToken);
-
     if (bearer == null) {
       throw new UsernameNotFoundException("Bad credentials");
     }
@@ -49,7 +49,7 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
     try {
       casdoorUser = casdoorAuthService.parseJwtToken(bearer);
     } catch (CasdoorAuthException exception) {
-      logger.error("casdoor auth exception", exception);
+      log.error("casdoor auth exception", exception);
       throw new UsernameNotFoundException("Bad credentials"); // / TODO: custom error message
     }
     boolean hasRole =
@@ -62,7 +62,7 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
                                 role.getName().equalsIgnoreCase(userRole.name())
                                     && role.getOwner().equals(casdoorOrganizationName)));
     if (!hasRole) {
-      logger.error(
+      log.error(
           "casdoor auth exception",
           new Throwable("User with email " + casdoorUser.getEmail() + " don't have correct role"));
       throw new UsernameNotFoundException("Bad credentials");
