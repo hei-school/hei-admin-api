@@ -166,20 +166,28 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   }
 
   public boolean isWorkStudyStudentFee() {
-    return this.getComment().toLowerCase().contains("alternance") && TUITION.equals(this.getType());
+    return Optional.ofNullable(this.getComment())
+            .orElse("Unknown")
+            .toLowerCase()
+            .contains("alternance")
+        && TUITION.equals(this.getType());
   }
 
   public Optional<StudentGrade> getOwnerStudentGrade() {
-    if (this.getComment().toLowerCase().contains("l1")) {
-      return Optional.of(L1);
-    }
-    if (this.getComment().toLowerCase().contains("l2")) {
-      return Optional.of(L2);
-    }
-    if (this.getComment().toLowerCase().contains("l3")) {
-      return Optional.of(L3);
-    }
-    return Optional.empty();
+    Optional<String> optionalComment = Optional.ofNullable(this.getComment());
+    return optionalComment.map(
+        comment -> {
+          if (comment.toLowerCase().contains("l1")) {
+            return L1;
+          }
+          if (comment.toLowerCase().contains("l2")) {
+            return L2;
+          }
+          if (comment.toLowerCase().contains("l3")) {
+            return L3;
+          }
+          return null;
+        });
   }
 
   public PaymentType getPaymentType() {
@@ -191,12 +199,16 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   }
 
   public Optional<PaymentFrequency> getPaymentFrequency() {
-    if (this.getComment().toLowerCase().contains("mensuel")) {
-      return Optional.of(MONTHLY);
-    }
-    if (this.getComment().toLowerCase().contains("annuel")) {
-      return Optional.of(YEARLY);
-    }
-    return Optional.empty();
+    Optional<String> optionalComment = Optional.ofNullable(this.getComment());
+    return optionalComment.map(
+        comment -> {
+          if (comment.toLowerCase().contains("mensuel")) {
+            return MONTHLY;
+          }
+          if (comment.toLowerCase().contains("annuel")) {
+            return YEARLY;
+          }
+          return null;
+        });
   }
 }

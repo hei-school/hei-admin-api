@@ -322,9 +322,7 @@ public class FeeService {
   }
 
   private long countWorkStudyFees(List<Fee> fees) {
-    return fees.stream()
-        .filter(fee -> fee.getComment().toLowerCase().contains("alternance"))
-        .count();
+    return fees.stream().filter(Fee::isWorkStudyStudentFee).count();
   }
 
   private Map<FeeTypeEnum, List<Fee>> groupFeesByType(List<Fee> fees) {
