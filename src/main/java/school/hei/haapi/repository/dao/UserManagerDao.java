@@ -25,9 +25,9 @@ public class UserManagerDao {
 
   public List<User> findByCriteria(
       User.Role role,
-      String refNullable,
-      String firstNameNullable,
-      String lastNameNullable,
+      String ref,
+      String firstName,
+      String lastName,
       Pageable pageable,
       User.Status status,
       User.Sex sex,
@@ -42,26 +42,10 @@ public class UserManagerDao {
     Join<User, WorkDocument> workDocumentJoin = null;
     Predicate predicate = builder.conjunction();
 
-    String ref = refNullable != null ? refNullable : "";
-    String firstName = firstNameNullable != null ? firstNameNullable : "";
-    String lastName = lastNameNullable != null ? lastNameNullable : "";
-
-    Predicate hasUserRef =
-        builder.or(
-            builder.like(builder.lower(root.get("ref")), "%" + ref + "%"),
-            builder.like(root.get("ref"), "%" + ref + "%"));
-
     Predicate hasUserFirstName =
         builder.or(
             builder.like(builder.lower(root.get("firstName")), "%" + firstName + "%"),
             builder.like(root.get("firstName"), "%" + firstName + "%"));
-
-    Predicate hasUserLastName =
-        builder.or(
-            builder.like(builder.lower(root.get("lastName")), "%" + lastName + "%"),
-            builder.like(root.get("lastName"), "%" + lastName + "%"));
-
-    Predicate hasUserRole = builder.equal(root.get("role"), role);
 
     if (courseId != null && !courseId.isEmpty() && !courseId.isBlank()) {
       Join<User, AwardedCourse> awardedCourseJoin = root.join("awardedCourses", LEFT);
@@ -146,7 +130,27 @@ public class UserManagerDao {
       predicate = builder.and(predicate, builder.not(root.get("id").in(subquery)));
     }
 
-    predicate = builder.and(predicate, hasUserRole, hasUserRef, hasUserLastName);
+    if (role != null) {
+      predicate = builder.and(predicate, builder.equal(root.get("role"), role));
+    }
+
+    if (ref != null && !ref.isEmpty()) {
+      predicate =
+          builder.and(
+              predicate,
+              builder.or(
+                  builder.like(builder.lower(root.get("ref")), "%" + ref + "%"),
+                  builder.like(root.get("ref"), "%" + ref + "%")));
+    }
+
+    if (lastName != null && !lastName.isEmpty()) {
+      predicate =
+          builder.and(
+              predicate,
+              builder.or(
+                  builder.like(builder.lower(root.get("lastName")), "%" + lastName + "%"),
+                  builder.like(root.get("lastName"), "%" + lastName + "%")));
+    }
 
     if (pageable == null) {
       query.where(predicate);
