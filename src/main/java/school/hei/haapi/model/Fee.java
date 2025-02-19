@@ -7,6 +7,9 @@ import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.YEARLY;
+import static school.hei.haapi.model.fee.CommentKeyword.MONTHLY_FEE_KEYWORD;
+import static school.hei.haapi.model.fee.CommentKeyword.WORK_STUDY_FEE_COMMENT_KEYWORD;
+import static school.hei.haapi.model.fee.CommentKeyword.YEARLY_FEE_KEYWORD;
 import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
 import static school.hei.haapi.model.fee.StudentGrade.L1;
@@ -166,24 +169,26 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   }
 
   public boolean isWorkStudyStudentFee() {
-    return Optional.ofNullable(this.getComment())
-            .orElse("Unknown")
-            .toLowerCase()
-            .contains("alternance")
-        && TUITION.equals(this.getType());
+    return TUITION.equals(this.getType())
+        && Optional.ofNullable(this.getComment())
+            .map(
+                comment ->
+                    comment.toLowerCase().contains(WORK_STUDY_FEE_COMMENT_KEYWORD.getKeyword()))
+            .orElse(false);
   }
 
   public Optional<StudentGrade> getOwnerStudentGrade() {
     Optional<String> optionalComment = Optional.ofNullable(this.getComment());
     return optionalComment.map(
         comment -> {
-          if (comment.toLowerCase().contains("l1")) {
+          String lowerCaseComment = comment.toLowerCase();
+          if (lowerCaseComment.contains(L1.getName())) {
             return L1;
           }
-          if (comment.toLowerCase().contains("l2")) {
+          if (lowerCaseComment.contains(L2.getName())) {
             return L2;
           }
-          if (comment.toLowerCase().contains("l3")) {
+          if (lowerCaseComment.contains(L3.getName())) {
             return L3;
           }
           return null;
@@ -202,10 +207,10 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
     Optional<String> optionalComment = Optional.ofNullable(this.getComment());
     return optionalComment.map(
         comment -> {
-          if (comment.toLowerCase().contains("mensuel")) {
+          if (comment.toLowerCase().contains(MONTHLY_FEE_KEYWORD.getKeyword())) {
             return MONTHLY;
           }
-          if (comment.toLowerCase().contains("annuel")) {
+          if (comment.toLowerCase().contains(YEARLY_FEE_KEYWORD.getKeyword())) {
             return YEARLY;
           }
           return null;
