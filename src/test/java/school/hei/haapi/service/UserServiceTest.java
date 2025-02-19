@@ -2,10 +2,11 @@ package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.student1;
+import static school.hei.haapi.integration.conf.TestUtils.student2;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
 import java.util.List;
@@ -51,8 +52,8 @@ class UserServiceTest extends FacadeITMockedThirdParties {
     List<User> students =
         subject.getByCriteria(
             STUDENT, null, null, null, new PageFromOne(1), new BoundedPageSize(15), null, null);
-    assertEquals(TestUtils.student1().getId(), students.getFirst().getId());
-    assertEquals(TestUtils.student2().getId(), students.get(1).getId());
+    assertEquals(student1().getId(), students.getFirst().getId());
+    assertEquals(student2().getId(), students.get(1).getId());
   }
 
   private ApiClient anApiClient(String token) {
