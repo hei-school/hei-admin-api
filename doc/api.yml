@@ -6491,6 +6491,7 @@ components:
           enum:
             - MANAGER
             - TEACHER
+            - ADMIN
     CreateAnnouncement:
       type: object
       properties:
