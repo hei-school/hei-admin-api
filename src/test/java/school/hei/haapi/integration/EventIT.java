@@ -115,12 +115,11 @@ public class EventIT extends FacadeITMockedThirdParties {
     EventsApi api = new EventsApi(apiClient);
 
     CreateEvent eventCourse1 = createEventCourse1();
-    int eventToBeCreated = 5;
 
     List<Event> notSortedActual =
-        api.crupdateEvents(List.of(eventCourse1), WEDNESDAY, eventToBeCreated, "08:30", "12:00");
+        api.crupdateEvents(List.of(eventCourse1), WEDNESDAY, 3, "10:00", "12:00");
     // The count of the event must match
-    assertEquals(eventToBeCreated, notSortedActual.size());
+    assertEquals(4, notSortedActual.size());
 
     // Sort the result for better readability in the test
     List<Event> actual =
@@ -130,16 +129,20 @@ public class EventIT extends FacadeITMockedThirdParties {
 
     // The events are separated by 1 week
     Event eventWeek1 = actual.getFirst();
-    assertEquals(Instant.parse("2023-12-13T08:30:00Z"), eventWeek1.getBeginDatetime());
-    assertEquals(Instant.parse("2023-12-13T12:00:00Z"), eventWeek1.getEndDatetime());
+    assertEquals(eventCourse1.getBeginDatetime(), eventWeek1.getBeginDatetime());
+    assertEquals(eventCourse1.getEndDatetime(), eventWeek1.getEndDatetime());
 
     Event eventWeek2 = actual.get(1);
-    assertEquals(Instant.parse("2023-12-20T08:30:00Z"), eventWeek2.getBeginDatetime());
-    assertEquals(Instant.parse("2023-12-20T12:00:00Z"), eventWeek2.getEndDatetime());
+    assertEquals(Instant.parse("2023-12-13T10:00:00Z"), eventWeek2.getBeginDatetime());
+    assertEquals(Instant.parse("2023-12-13T12:00:00Z"), eventWeek2.getEndDatetime());
 
     Event eventWeek3 = actual.get(2);
-    assertEquals(Instant.parse("2023-12-27T08:30:00Z"), eventWeek3.getBeginDatetime());
-    assertEquals(Instant.parse("2023-12-27T12:00:00Z"), eventWeek3.getEndDatetime());
+    assertEquals(Instant.parse("2023-12-20T10:00:00Z"), eventWeek3.getBeginDatetime());
+    assertEquals(Instant.parse("2023-12-20T12:00:00Z"), eventWeek3.getEndDatetime());
+
+    Event eventWeek4 = actual.get(3);
+    assertEquals(Instant.parse("2023-12-27T10:00:00Z"), eventWeek4.getBeginDatetime());
+    assertEquals(Instant.parse("2023-12-27T12:00:00Z"), eventWeek4.getEndDatetime());
   }
 
   @Test
