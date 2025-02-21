@@ -117,7 +117,7 @@ public class EventIT extends FacadeITMockedThirdParties {
     CreateEvent eventCourse1 = createEventCourse1();
 
     List<Event> notSortedActual =
-        api.crupdateEvents(List.of(eventCourse1), WEDNESDAY, 3, "10:00", "12:00");
+        api.crupdateEvents(List.of(eventCourse1), WEDNESDAY, 3, "10:00", "11:00");
     // The count of the event must match
     assertEquals(4, notSortedActual.size());
 
@@ -133,16 +133,16 @@ public class EventIT extends FacadeITMockedThirdParties {
     assertEquals(eventCourse1.getEndDatetime(), eventWeek1.getEndDatetime());
 
     Event eventWeek2 = actual.get(1);
-    assertEquals(Instant.parse("2023-12-13T10:00:00Z"), eventWeek2.getBeginDatetime());
-    assertEquals(Instant.parse("2023-12-13T12:00:00Z"), eventWeek2.getEndDatetime());
+    assertEquals(Instant.parse("2023-12-13T10:00:00+03:00"), eventWeek2.getBeginDatetime());
+    assertEquals(Instant.parse("2023-12-13T11:00:00+03:00"), eventWeek2.getEndDatetime());
 
     Event eventWeek3 = actual.get(2);
-    assertEquals(Instant.parse("2023-12-20T10:00:00Z"), eventWeek3.getBeginDatetime());
-    assertEquals(Instant.parse("2023-12-20T12:00:00Z"), eventWeek3.getEndDatetime());
+    assertEquals(Instant.parse("2023-12-20T10:00:00+03:00"), eventWeek3.getBeginDatetime());
+    assertEquals(Instant.parse("2023-12-20T11:00:00+03:00"), eventWeek3.getEndDatetime());
 
     Event eventWeek4 = actual.get(3);
-    assertEquals(Instant.parse("2023-12-27T10:00:00Z"), eventWeek4.getBeginDatetime());
-    assertEquals(Instant.parse("2023-12-27T12:00:00Z"), eventWeek4.getEndDatetime());
+    assertEquals(Instant.parse("2023-12-27T10:00:00+03:00"), eventWeek4.getBeginDatetime());
+    assertEquals(Instant.parse("2023-12-27T11:00:00+03:00"), eventWeek4.getEndDatetime());
   }
 
   @Test
