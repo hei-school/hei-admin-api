@@ -351,7 +351,6 @@ public class TestUtils {
   public static void setUpCasdoor(CasdoorAuthService casdoorAuthService) {
     when(casdoorAuthService.parseJwtToken(TEACHER1_TOKEN)).thenReturn(getCasdoorUserTeacher1());
     when(casdoorAuthService.parseJwtToken(MANAGER1_TOKEN)).thenReturn(getCasdoorUserManager1());
-
     when(casdoorAuthService.parseJwtToken(STUDENT1_TOKEN)).thenReturn(getCasdoorUserStudent1());
     when(casdoorAuthService.parseJwtToken(STUDENT2_TOKEN)).thenReturn(getCasdoorUserStudent2());
     when(casdoorAuthService.parseJwtToken(STUDENT8_TOKEN)).thenReturn(getCasdoorUserStudent8());
