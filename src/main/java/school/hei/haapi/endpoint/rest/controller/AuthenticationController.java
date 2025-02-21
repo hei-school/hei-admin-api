@@ -32,9 +32,4 @@ public class AuthenticationController {
   public String signin(@RequestParam("code") String code, @RequestParam("state") String state) {
     return casdoorAuthService.getOAuthToken(code, state);
   }
-
-  @GetMapping("/authentication/userinfo")
-  public Principal userinfo(@AuthenticationPrincipal Principal principal) {
-    return principal;
-  }
 }
