@@ -405,7 +405,7 @@ class FeeIT extends FacadeITMockedThirdParties {
             10,
             false,
             null);
-    assertEquals(9, feeByMonth.getData().size());
+    assertEquals(10, feeByMonth.getData().size());
     assertTrue(feeByMonth.getData().contains(fee1()));
     assertTrue(feeByMonth.getData().contains(fee2()));
     assertTrue(feeByMonth.getData().contains(fee3()));
@@ -489,9 +489,9 @@ class FeeIT extends FacadeITMockedThirdParties {
     FeesStatistics stats =
         api.getFeesStats(
             Instant.parse("2021-12-01T00:00:00.00Z"), Instant.parse("2021-12-31T00:00:00.00Z"));
-    assertEquals(9, stats.getTotalFees());
+    assertEquals(10, stats.getTotalFees());
     assertEquals(2, stats.getPaidFees());
-    assertEquals(2, stats.getUnpaidFees());
+    assertEquals(3, stats.getUnpaidFees());
   }
 
   @Test

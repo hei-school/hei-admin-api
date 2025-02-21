@@ -7,6 +7,9 @@ import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.YEARLY;
+import static school.hei.haapi.model.fee.CommentKeyword.MONTHLY_FEE_KEYWORD;
+import static school.hei.haapi.model.fee.CommentKeyword.WORK_STUDY_FEE_COMMENT_KEYWORD;
+import static school.hei.haapi.model.fee.CommentKeyword.YEARLY_FEE_KEYWORD;
 import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
 import static school.hei.haapi.model.fee.StudentGrade.L1;
@@ -166,20 +169,30 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   }
 
   public boolean isWorkStudyStudentFee() {
-    return this.getComment().toLowerCase().contains("alternance") && TUITION.equals(this.getType());
+    return TUITION.equals(this.getType())
+        && Optional.ofNullable(this.getComment())
+            .map(
+                comment ->
+                    comment.toLowerCase().contains(WORK_STUDY_FEE_COMMENT_KEYWORD.getKeyword()))
+            .orElse(false);
   }
 
   public Optional<StudentGrade> getOwnerStudentGrade() {
-    if (this.getComment().toLowerCase().contains("l1")) {
-      return Optional.of(L1);
-    }
-    if (this.getComment().toLowerCase().contains("l2")) {
-      return Optional.of(L2);
-    }
-    if (this.getComment().toLowerCase().contains("l3")) {
-      return Optional.of(L3);
-    }
-    return Optional.empty();
+    Optional<String> optionalComment = Optional.ofNullable(this.getComment());
+    return optionalComment.map(
+        comment -> {
+          String lowerCaseComment = comment.toLowerCase();
+          if (lowerCaseComment.contains(L1.getName())) {
+            return L1;
+          }
+          if (lowerCaseComment.contains(L2.getName())) {
+            return L2;
+          }
+          if (lowerCaseComment.contains(L3.getName())) {
+            return L3;
+          }
+          return null;
+        });
   }
 
   public PaymentType getPaymentType() {
@@ -191,12 +204,16 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   }
 
   public Optional<PaymentFrequency> getPaymentFrequency() {
-    if (this.getComment().toLowerCase().contains("mensuel")) {
-      return Optional.of(MONTHLY);
-    }
-    if (this.getComment().toLowerCase().contains("annuel")) {
-      return Optional.of(YEARLY);
-    }
-    return Optional.empty();
+    Optional<String> optionalComment = Optional.ofNullable(this.getComment());
+    return optionalComment.map(
+        comment -> {
+          if (comment.toLowerCase().contains(MONTHLY_FEE_KEYWORD.getKeyword())) {
+            return MONTHLY;
+          }
+          if (comment.toLowerCase().contains(YEARLY_FEE_KEYWORD.getKeyword())) {
+            return YEARLY;
+          }
+          return null;
+        });
   }
 }
