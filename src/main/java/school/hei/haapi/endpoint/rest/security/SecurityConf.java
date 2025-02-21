@@ -273,10 +273,8 @@ public class SecurityConf {
                             new AntPathRequestMatcher("/health/event/uuids", POST.name()),
                             new AntPathRequestMatcher("/health/bucket", GET.name()),
                             // casdoor
-                            new AntPathRequestMatcher(
-                                "/authentication/signin", POST.name()),
-                            new AntPathRequestMatcher(
-                                "/authentication/login-url", GET.name()),
+                            new AntPathRequestMatcher("/authentication/signin", POST.name()),
+                            new AntPathRequestMatcher("/authentication/login-url", GET.name()),
                             new AntPathRequestMatcher("/**", OPTIONS.toString())))
                     .permitAll()
                     .requestMatchers(GET, "/whoami")

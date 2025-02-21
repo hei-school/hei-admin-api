@@ -1,8 +1,9 @@
 package school.hei.haapi.endpoint.rest.security;
 
+import static java.util.Optional.empty;
+
 import java.util.Arrays;
 import java.util.Optional;
-
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.casdoor.entity.CasdoorUser;
@@ -22,8 +23,6 @@ import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.UserService;
-
-import static java.util.Optional.empty;
 
 @Component
 @RequiredArgsConstructor
@@ -45,7 +44,9 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
   @Override
   protected UserDetails retrieveUser(
       String username, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
-    String bearer = getBearer(usernamePasswordAuthenticationToken).orElseThrow(()-> new UsernameNotFoundException("Bad credentials"));
+    String bearer =
+        getBearer(usernamePasswordAuthenticationToken)
+            .orElseThrow(() -> new UsernameNotFoundException("Bad credentials"));
 
     CasdoorUser casdoorUser = null;
     try {
@@ -66,7 +67,8 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
     if (!hasRole) {
       log.error(
           "casdoor auth exception",
-          new BadRequestException("User with email " + casdoorUser.getEmail() + " doesn't have correct role"));
+          new BadRequestException(
+              "User with email " + casdoorUser.getEmail() + " doesn't have correct role"));
       throw new UsernameNotFoundException("Bad credentials");
     }
 
@@ -74,7 +76,7 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
   }
 
   private static Optional<String> getBearer(
-          UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
+      UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
     Object tokenObject = usernamePasswordAuthenticationToken.getCredentials();
     if (!(tokenObject instanceof String) || !((String) tokenObject).startsWith(BEARER_PREFIX)) {
       return empty();
