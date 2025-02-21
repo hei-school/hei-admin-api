@@ -1,6 +1,8 @@
 package school.hei.haapi.endpoint.rest.security;
 
 import java.util.Arrays;
+import java.util.Optional;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.casdoor.entity.CasdoorUser;
@@ -20,6 +22,8 @@ import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.UserService;
+
+import static java.util.Optional.empty;
 
 @Component
 @RequiredArgsConstructor
@@ -41,10 +45,7 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
   @Override
   protected UserDetails retrieveUser(
       String username, UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
-    String bearer = getBearer(usernamePasswordAuthenticationToken);
-    if (bearer == null) {
-      throw new UsernameNotFoundException("Bad credentials");
-    }
+    String bearer = getBearer(usernamePasswordAuthenticationToken).orElseThrow(()-> new UsernameNotFoundException("Bad credentials"));
 
     CasdoorUser casdoorUser = null;
     try {
@@ -72,13 +73,13 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
     return new Principal(userService.getByEmail(casdoorUser.getEmail()), bearer);
   }
 
-  private String getBearer(
-      UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
+  private static Optional<String> getBearer(
+          UsernamePasswordAuthenticationToken usernamePasswordAuthenticationToken) {
     Object tokenObject = usernamePasswordAuthenticationToken.getCredentials();
     if (!(tokenObject instanceof String) || !((String) tokenObject).startsWith(BEARER_PREFIX)) {
-      return null;
+      return empty();
     }
-    return ((String) tokenObject).substring(BEARER_PREFIX.length()).trim();
+    return Optional.of(((String) tokenObject).substring(BEARER_PREFIX.length()).trim());
   }
 
   public static CustomUserDetails getPrincipal() {
