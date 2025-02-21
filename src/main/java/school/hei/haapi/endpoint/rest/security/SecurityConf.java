@@ -279,8 +279,6 @@ public class SecurityConf {
                     .permitAll()
                     .requestMatchers(GET, "/whoami")
                     .authenticated()
-                    .requestMatchers(GET, "/authentication/userinfo")
-                    .authenticated()
                     //
                     .requestMatchers(new SelfMatcher(GET, "/admins/*", "admins"))
                     .hasAnyRole(ADMIN.getRole())
