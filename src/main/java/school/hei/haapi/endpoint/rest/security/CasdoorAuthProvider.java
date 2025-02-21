@@ -25,6 +25,8 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.UserService;
 
+import static java.util.Optional.empty;
+
 @Component
 @Slf4j
 public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvider {
