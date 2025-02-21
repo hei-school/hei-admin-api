@@ -3,7 +3,9 @@ package school.hei.haapi.endpoint.rest.security;
 import static java.util.Optional.empty;
 
 import java.util.Arrays;
+import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.casdoor.entity.CasdoorUser;
@@ -31,6 +33,9 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
   private static final String BEARER_PREFIX = "Bearer ";
   private final UserService userService;
   private final CasdoorAuthService casdoorAuthService;
+  private static final Map<String, User.Role> ROLE_MAP =
+      Arrays.stream(User.Role.values())
+          .collect(Collectors.toMap(role -> role.name().toLowerCase(), role -> role));
 
   @Value("${CASDOOR_ORGANIZATION_NAME}")
   String casdoorOrganizationName;
@@ -59,11 +64,8 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
         casdoorUser.getRoles().stream()
             .anyMatch(
                 role ->
-                    Arrays.stream(User.Role.values())
-                        .anyMatch(
-                            userRole ->
-                                role.getName().equalsIgnoreCase(userRole.name())
-                                    && role.getOwner().equals(casdoorOrganizationName)));
+                    ROLE_MAP.containsKey(role.getName().toLowerCase())
+                        && role.getOwner().equals(casdoorOrganizationName));
     if (!hasRole) {
       log.error(
           "casdoor auth exception",
