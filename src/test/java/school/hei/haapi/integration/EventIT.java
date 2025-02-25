@@ -10,6 +10,7 @@ import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
+import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.FRIDAY;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.MONDAY;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.WEDNESDAY;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -110,6 +111,43 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void manager_create_event_and_event_participant_by_frequency_for_the_same_week_ok()
+      throws ApiException {
+    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
+    EventsApi api = new EventsApi(apiClient);
+
+    CreateEvent eventCourse1 = createEventCourse1();
+
+    List<Event> notSortedActual =
+        api.crupdateEvents(List.of(eventCourse1), FRIDAY, 3, "10:00", "11:00");
+    // The count of the event must match
+    assertEquals(4, notSortedActual.size());
+
+    // Sort the result for better readability in the test
+    List<Event> actual =
+        notSortedActual.stream()
+            .sorted(comparing(Event::getBeginDatetime))
+            .collect(toUnmodifiableList());
+
+    // The events are separated by 1 week
+    Event eventWeek1 = actual.getFirst();
+    assertEquals(eventCourse1.getBeginDatetime(), eventWeek1.getBeginDatetime());
+    assertEquals(eventCourse1.getEndDatetime(), eventWeek1.getEndDatetime());
+
+    Event eventWeek2 = actual.get(1);
+    assertEquals(Instant.parse("2023-12-15T10:00:00+03:00"), eventWeek2.getBeginDatetime());
+    assertEquals(Instant.parse("2023-12-15T11:00:00+03:00"), eventWeek2.getEndDatetime());
+
+    Event eventWeek3 = actual.get(2);
+    assertEquals(Instant.parse("2023-12-22T10:00:00+03:00"), eventWeek3.getBeginDatetime());
+    assertEquals(Instant.parse("2023-12-22T11:00:00+03:00"), eventWeek3.getEndDatetime());
+
+    Event eventWeek4 = actual.get(3);
+    assertEquals(Instant.parse("2023-12-29T10:00:00+03:00"), eventWeek4.getBeginDatetime());
+    assertEquals(Instant.parse("2023-12-29T11:00:00+03:00"), eventWeek4.getEndDatetime());
+  }
+
+  @Test
   void manager_create_event_and_event_participant_by_frequence_ok() throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
@@ -182,10 +220,14 @@ public class EventIT extends FacadeITMockedThirdParties {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
 
-    List<Event> actual = api.getEvents(1, 15, null, null, null, null, null);
+    List<Event> actual = api.getEvents(1, 500, null, null, null, null, null);
 
     System.out.println(actual);
-    assertTrue(actual.containsAll(List.of(event1(), event2(), event3())));
+    assertTrue(
+        actual.stream()
+            .map(Event::getId)
+            .collect(toUnmodifiableList())
+            .containsAll(List.of(event1().getId(), event2().getId(), event3().getId())));
 
     List<Event> eventsBeginAfterAnInstant =
         api.getEvents(1, 15, Instant.parse("2022-12-15T10:00:00.00Z"), null, null, null, null);
@@ -377,7 +419,7 @@ public class EventIT extends FacadeITMockedThirdParties {
   @Test
   void event_as_public_link() throws ApiException {
     EventsApi api = new EventsApi(anApiClient(null));
-    List<Event> actual = api.getEvents(1, 15, null, null, null, null, null);
+    List<Event> actual = api.getEvents(1, 500, null, null, null, null, null);
     assertTrue(actual.containsAll(List.of(event1(), event2(), event3())));
   }
 }
