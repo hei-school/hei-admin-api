@@ -216,8 +216,9 @@ public class TestUtils {
     client.setScheme("http");
     client.setHost("localhost");
     client.setPort(serverPort);
-    client.setRequestInterceptor(
-        httpRequestBuilder -> httpRequestBuilder.header("Authorization", "Bearer " + token));
+    if (token != null)
+      client.setRequestInterceptor(
+          httpRequestBuilder -> httpRequestBuilder.header("Authorization", "Bearer " + token));
     return client;
   }
 
@@ -711,7 +712,7 @@ public class TestUtils {
         .type(TUITION)
         .totalAmount(5000)
         .remainingAmount(0)
-        .comment("Comment")
+        .comment("Frais L1")
         .mpbs(expectedMpbs1())
         .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
@@ -744,7 +745,7 @@ public class TestUtils {
         .type(TUITION)
         .totalAmount(5000)
         .remainingAmount(5000)
-        .comment("Comment")
+        .comment("Frais Alternance")
         .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
         .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
         .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"))
@@ -760,7 +761,7 @@ public class TestUtils {
         .totalAmount(5000)
         .remainingAmount(5000)
         .studentRef("STD21002")
-        .comment("Comment")
+        .comment("Frais L3")
         .updatedAt(Instant.parse("2023-02-08T08:30:24.00Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .dueDatetime(Instant.parse("2021-12-09T08:25:25.00Z"))
@@ -1399,8 +1400,8 @@ public class TestUtils {
     return new CreateEvent()
         .id("event4_id")
         .courseId(COURSE1_ID)
-        .beginDatetime(Instant.parse("2023-12-08T08:00:00.00Z"))
-        .endDatetime(Instant.parse("2023-12-08T10:00:00.00Z"))
+        .beginDatetime(Instant.parse("2023-12-08T08:00:00.00+03:00"))
+        .endDatetime(Instant.parse("2023-12-08T10:00:00.00+03:00"))
         .description("Another Prog1 course")
         .eventType(COURSE)
         .plannerId(MANAGER_ID)
