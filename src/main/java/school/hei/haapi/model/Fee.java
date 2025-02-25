@@ -4,6 +4,17 @@ import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
+import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.YEARLY;
+import static school.hei.haapi.model.fee.CommentKeyword.MONTHLY_FEE_KEYWORD;
+import static school.hei.haapi.model.fee.CommentKeyword.WORK_STUDY_FEE_COMMENT_KEYWORD;
+import static school.hei.haapi.model.fee.CommentKeyword.YEARLY_FEE_KEYWORD;
+import static school.hei.haapi.model.fee.PaymentType.BANK;
+import static school.hei.haapi.model.fee.PaymentType.MPBS;
+import static school.hei.haapi.model.fee.StudentGrade.L1;
+import static school.hei.haapi.model.fee.StudentGrade.L2;
+import static school.hei.haapi.model.fee.StudentGrade.L3;
 
 import jakarta.persistence.*;
 import java.io.Serializable;
@@ -11,6 +22,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -24,7 +36,10 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
+import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
 import school.hei.haapi.model.Mpbs.Mpbs;
+import school.hei.haapi.model.fee.PaymentType;
+import school.hei.haapi.model.fee.StudentGrade;
 
 @Entity
 @Table(name = "\"fee\"")
@@ -151,5 +166,54 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   @Override
   public int hashCode() {
     return getClass().hashCode();
+  }
+
+  public boolean isWorkStudyStudentFee() {
+    return TUITION.equals(this.getType())
+        && Optional.ofNullable(this.getComment())
+            .map(
+                comment ->
+                    comment.toLowerCase().contains(WORK_STUDY_FEE_COMMENT_KEYWORD.getKeyword()))
+            .orElse(false);
+  }
+
+  public Optional<StudentGrade> getOwnerStudentGrade() {
+    Optional<String> optionalComment = Optional.ofNullable(this.getComment());
+    return optionalComment.map(
+        comment -> {
+          String lowerCaseComment = comment.toLowerCase();
+          if (lowerCaseComment.contains(L1.getName())) {
+            return L1;
+          }
+          if (lowerCaseComment.contains(L2.getName())) {
+            return L2;
+          }
+          if (lowerCaseComment.contains(L3.getName())) {
+            return L3;
+          }
+          return null;
+        });
+  }
+
+  public PaymentType getPaymentType() {
+    if (this.getMpbs() != null) {
+      return MPBS;
+    } else {
+      return BANK;
+    }
+  }
+
+  public Optional<PaymentFrequency> getPaymentFrequency() {
+    Optional<String> optionalComment = Optional.ofNullable(this.getComment());
+    return optionalComment.map(
+        comment -> {
+          if (comment.toLowerCase().contains(MONTHLY_FEE_KEYWORD.getKeyword())) {
+            return MONTHLY;
+          }
+          if (comment.toLowerCase().contains(YEARLY_FEE_KEYWORD.getKeyword())) {
+            return YEARLY;
+          }
+          return null;
+        });
   }
 }
