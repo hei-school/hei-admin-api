@@ -4254,13 +4254,19 @@ paths:
         - name: frequency_beginning_hour
           required: false
           in: query
-          description: what time does the frequency start, format HH:MM
+          description: |
+            what time does the frequency start, format HH:MM
+        
+            **IMPORTANT** The frequency_beginning_hour must be send as UTC+3
           schema:
             type: string
         - name: frequency_ending_hour
           required: false
           in: query
-          description: what time does the frequency end, format HH:MM
+          description: |
+            what time does the frequency end, format HH:MM
+            
+            **IMPORTANT** The frequency_beginning_hour must be send as UTC+3
           schema:
             type: string
       requestBody:
