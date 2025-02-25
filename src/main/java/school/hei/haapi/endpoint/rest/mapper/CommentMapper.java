@@ -62,6 +62,7 @@ public class CommentMapper {
     return switch (role) {
       case MANAGER -> Observer.RoleEnum.MANAGER;
       case TEACHER -> Observer.RoleEnum.TEACHER;
+      case ADMIN -> Observer.RoleEnum.ADMIN;
       default -> throw new BadRequestException("Unexpected type " + role);
     };
   }
