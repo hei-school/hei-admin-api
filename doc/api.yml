@@ -5169,6 +5169,35 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /announcements/{id}/reaction:
+    put:
+      tags:
+        - Announcements
+      summary: toggle reaction for an announcement
+      parameters:
+        - name: id
+          required: true
+          schema:
+            type: string
+          in: path
+      operationId: reactToAnnouncement
+      responses:
+        '200':
+          description: Announcement with reactions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Announcement'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 
   '/students/announcements':
     get:
@@ -6587,6 +6616,8 @@ components:
           format: date-time
         scope:
           $ref: '#/components/schemas/Scope'
+        reaction_count:
+          type: number
     GroupStatistics:
       type: object
       properties:
