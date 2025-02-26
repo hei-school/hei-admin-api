@@ -45,7 +45,7 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
     this.casdoorOrganizationName = casdoorOrganizationName;
   }
 
-  @Override
+    @Override
   protected void additionalAuthenticationChecks(
       UserDetails userDetails, UsernamePasswordAuthenticationToken token) {
     // nothing
