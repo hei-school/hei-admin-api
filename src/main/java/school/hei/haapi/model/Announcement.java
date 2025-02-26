@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
@@ -13,6 +14,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.util.List;
@@ -59,4 +61,7 @@ public class Announcement {
       joinColumns = @JoinColumn(name = "announcement_id"),
       inverseJoinColumns = @JoinColumn(name = "group_id"))
   private List<Group> groups;
+
+  @OneToMany(mappedBy = "announcement", cascade = REMOVE)
+  private List<AnnouncementReaction> reactions;
 }

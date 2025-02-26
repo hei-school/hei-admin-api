@@ -6681,6 +6681,7 @@ components:
           $ref: '#/components/schemas/Scope'
         reaction_count:
           type: number
+          default: 0
     ReactionEnum:
       type: string
       enum:

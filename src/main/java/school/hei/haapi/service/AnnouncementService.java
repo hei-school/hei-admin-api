@@ -11,15 +11,21 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.AnnouncementSendInit;
+import school.hei.haapi.endpoint.rest.mapper.AnnouncementReactionMapper;
+import school.hei.haapi.endpoint.rest.model.ReactToAnnouncementRequest;
 import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.model.Announcement;
+import school.hei.haapi.model.AnnouncementReaction;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.notEntity.Group;
+import school.hei.haapi.repository.AnnouncementReactionRepository;
 import school.hei.haapi.repository.AnnouncementRepository;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.AnnouncementDao;
 
 @Service
@@ -29,6 +35,9 @@ public class AnnouncementService {
   private final AnnouncementRepository announcementRepository;
   private final AnnouncementDao announcementDao;
   private final EventProducer eventProducer;
+  private final UserRepository userRepository;
+  private final AnnouncementReactionMapper announcementReactionMapper;
+  private final AnnouncementReactionRepository announcementReactionRepository;
 
   public Announcement findById(String id) {
     return announcementRepository
@@ -84,5 +93,22 @@ public class AnnouncementService {
       throw new ForbiddenException("You are not allowed to check this announcement");
     }
     return announcement;
+  }
+
+  public AnnouncementReaction reactToAnnouncement(
+      ReactToAnnouncementRequest reactToAnnouncement, String announcementId, String userId) {
+    // Get the announcement and the user
+    Announcement announcement = announcementRepository.findById(announcementId).orElseThrow();
+    User user = userRepository.findById(userId).orElseThrow();
+
+    // Do the reaction if it's not
+    AnnouncementReaction reaction =
+        announcementReactionRepository
+            .findByAnnouncement_IdAndUser_Id(announcementId, userId)
+            .orElse(AnnouncementReaction.builder().announcement(announcement).user(user).build());
+
+    // Save the new reaction
+    reaction.setReaction(announcementReactionMapper.toDomain(reactToAnnouncement.getReaction()));
+    return announcementReactionRepository.save(reaction);
   }
 }

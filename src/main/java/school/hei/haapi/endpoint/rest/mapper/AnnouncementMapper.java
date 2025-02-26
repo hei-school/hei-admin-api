@@ -1,7 +1,9 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
+import static school.hei.haapi.model.AnnouncementReaction.ReactionEnum.CHECK;
 
+import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -11,6 +13,7 @@ import school.hei.haapi.endpoint.rest.model.AnnouncementAuthor;
 import school.hei.haapi.endpoint.rest.model.CreateAnnouncement;
 import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
 import school.hei.haapi.model.User;
+import school.hei.haapi.repository.AnnouncementReactionRepository;
 import school.hei.haapi.service.GroupService;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.aws.FileService;
@@ -22,15 +25,21 @@ public class AnnouncementMapper {
   private final FileService fileService;
   private final UserService userService;
   private final GroupService groupService;
+  private final AnnouncementReactionRepository announcementReactionRepository;
 
   public Announcement toRest(school.hei.haapi.model.Announcement domain) {
+    BigDecimal reactionCount =
+        BigDecimal.valueOf(
+            announcementReactionRepository.countByAnnouncement_IdAndReaction(
+                domain.getId(), CHECK));
     return new Announcement()
         .id(domain.getId())
         .author(toRest(domain.getAuthor()))
         .content(domain.getContent())
         .title(domain.getTitle())
         .creationDatetime(domain.getCreationDatetime())
-        .scope(domain.getScope());
+        .scope(domain.getScope())
+        .reactionCount(reactionCount);
   }
 
   public school.hei.haapi.model.Announcement toDomain(CreateAnnouncement rest) {

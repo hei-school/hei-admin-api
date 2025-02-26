@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.Scope.TEACHER;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT3_ID;
@@ -24,6 +25,7 @@ import static school.hei.haapi.integration.conf.TestUtils.expectedAnnouncementCr
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -36,6 +38,8 @@ import school.hei.haapi.endpoint.rest.api.AnnouncementsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Announcement;
+import school.hei.haapi.endpoint.rest.model.ReactToAnnouncementRequest;
+import school.hei.haapi.endpoint.rest.model.ReactionEnum;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
@@ -210,6 +214,30 @@ public class AnnouncementIT extends FacadeITMockedThirdParties {
             List.of(
                 announcementForAll(), announcementForTeacher(), announcementEspeciallyForG1())));
     assertFalse(actual.contains(announcementForManager()));
+  }
+
+  @Test
+  void admin_react_announcement_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+    Announcement announcementBeforeReaction = api.getAnnouncementById(ANNOUNCEMENT4_ID);
+
+    // Check the announcement
+    Announcement announcementAfterReaction =
+        api.reactToAnnouncement(
+            ANNOUNCEMENT4_ID, new ReactToAnnouncementRequest().reaction(ReactionEnum.CHECK));
+    assertEquals(
+        announcementBeforeReaction.getReactionCount().add(BigDecimal.ONE),
+        announcementAfterReaction.getReactionCount());
+
+    // Uncheck the announcement
+    Announcement announcementAfterUnCheckReaction =
+        api.reactToAnnouncement(
+            ANNOUNCEMENT4_ID, new ReactToAnnouncementRequest().reaction(ReactionEnum.UNCHECK));
+    assertEquals(
+        announcementAfterReaction.getReactionCount().subtract(BigDecimal.ONE),
+        announcementAfterUnCheckReaction.getReactionCount());
   }
 
   @BeforeEach

@@ -5,6 +5,7 @@ import static school.hei.haapi.endpoint.rest.model.Scope.GLOBAL;
 import static school.hei.haapi.endpoint.rest.model.Scope.MANAGER;
 import static school.hei.haapi.endpoint.rest.model.Scope.STUDENT;
 import static school.hei.haapi.endpoint.rest.model.Scope.TEACHER;
+import static school.hei.haapi.endpoint.rest.security.AuthProvider.getPrincipal;
 
 import java.time.Instant;
 import java.util.List;
@@ -12,14 +13,17 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.AnnouncementMapper;
 import school.hei.haapi.endpoint.rest.model.Announcement;
 import school.hei.haapi.endpoint.rest.model.CreateAnnouncement;
+import school.hei.haapi.endpoint.rest.model.ReactToAnnouncementRequest;
 import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.endpoint.rest.validator.AnnouncementValidator;
+import school.hei.haapi.model.AnnouncementReaction;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.AnnouncementService;
@@ -108,5 +112,15 @@ public class AnnouncementController {
   @GetMapping("/teachers/announcements/{id}")
   public Announcement getTeachersAnnouncementById(@PathVariable String id) {
     return announcementMapper.toRest(announcementService.getById(id, TEACHER_READABLE_SCOPES));
+  }
+
+  @PutMapping("/announcements/{announcement_id}/reaction")
+  public Announcement reactToAnnouncement(
+      @PathVariable String announcement_id,
+      @RequestBody ReactToAnnouncementRequest reactToAnnouncement) {
+    AnnouncementReaction reaction =
+        announcementService.reactToAnnouncement(
+            reactToAnnouncement, announcement_id, getPrincipal().getUserId());
+    return announcementMapper.toRest(reaction.getAnnouncement());
   }
 }
