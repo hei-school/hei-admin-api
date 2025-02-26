@@ -1,5 +1,6 @@
 package school.hei.haapi.service.event;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
@@ -29,6 +30,7 @@ public class CheckSuspendedStudentsStatusService implements Consumer<CheckSuspen
   }
 
   @Override
+  @Transactional
   public void accept(CheckSuspendedStudentsStatus checkSuspendedStudentsStatus) {
     updateStatusBasedOnPayment();
   }
