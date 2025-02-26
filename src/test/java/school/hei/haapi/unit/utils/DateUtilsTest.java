@@ -1,5 +1,6 @@
 package school.hei.haapi.unit.utils;
 
+import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -45,7 +46,7 @@ public class DateUtilsTest extends FacadeITMockedThirdParties {
     LocalDate firstDayOfMonth = LocalDate.now().withDayOfMonth(1);
     LocalDate lastDayOfMonth = firstDayOfMonth.withDayOfMonth(firstDayOfMonth.lengthOfMonth());
 
-    DateUtils.RangedInstant defaultRange = dateUtils.getDefaultMonthRange(null, null);
+    DateUtils.RangedInstant defaultRange = dateUtils.getDefaultMonthRange(empty(), empty());
 
     assertEquals(firstDayOfMonth.atStartOfDay(ZoneOffset.UTC).toInstant(), defaultRange.from());
     assertEquals(
