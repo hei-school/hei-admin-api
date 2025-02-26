@@ -153,7 +153,7 @@ Resources:
   RefreshAdvancedFeeStats:
     Type: AWS::Scheduler::Schedule
     Properties:
-      Description: Scheduler that trigger an insert into AdvancedFeeStats for the current month
+      Description: Scheduler that trigger an insert into AdvancedFeeStats for the current day
       FlexibleTimeWindow:
         Mode: "OFF"
       Name: !Join [ '', [ !Ref Env, -RefreshAdvancedFeeStats ] ]

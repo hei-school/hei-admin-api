@@ -1,5 +1,8 @@
 package school.hei.haapi.service;
 
+import static java.time.LocalTime.MAX;
+import static java.time.ZoneOffset.UTC;
+import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.groupingByConcurrent;
@@ -21,10 +24,9 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.LocalTime;
 import java.time.ZoneId;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -205,14 +207,21 @@ public class FeeService {
     return FeesStats.to(getHandledNullDataStats(result));
   }
 
-  public AdvancedFeeStats getAdvancedFeeStats(Instant monthFrom, Instant monthTo) {
-    return advancesFeeStatsRepository.findFirstByOrderByInsertDatetimeDesc();
+  public AdvancedFeesStatistics getAdvancedFeeStats(Instant monthFrom, Instant monthTo) {
+    RangedInstant dateRange =
+        DateUtils.getDefaultMonthRange(
+            Optional.ofNullable(monthFrom), Optional.ofNullable(monthTo));
+    return advancedFeeStatsMapper.toRest(
+        feeDao.getAdvancedFeeStats(dateRange.from(), dateRange.to()));
   }
 
-  public AdvancedFeesStatistics generateAdvancedFeeStats() {
-    Instant startOfDay = LocalDate.now().atStartOfDay().toInstant(ZoneOffset.UTC);
-    Instant endOfDay = LocalDate.now().atTime(LocalTime.MAX).toInstant(ZoneOffset.UTC);
-    RangedInstant currentDayRange = new RangedInstant(startOfDay, endOfDay);
+  public AdvancedFeesStatistics generateAdvancedFeeStats(
+      Optional<Instant> fromInstant, Optional<Instant> toInstant) {
+    Instant startOfDay = LocalDate.now().atStartOfDay().toInstant(UTC);
+    Instant endOfDay = LocalDate.now().atTime(MAX).toInstant(UTC);
+
+    RangedInstant currentDayRange =
+        new RangedInstant(fromInstant.orElse(startOfDay), toInstant.orElse(endOfDay));
     List<Fee> allFees =
         feeRepository.findAllByDueDatetimeBetween(currentDayRange.from(), currentDayRange.to());
     return new AdvancedFeesStatistics()
@@ -293,8 +302,9 @@ public class FeeService {
 
   @Transactional
   public List<AdvancedFeeStats> updateAdvancedFeeStats() {
-    AdvancedFeesStatistics stats = generateAdvancedFeeStats();
-    List<AdvancedFeeStats> toSaveAdvancedFeeStats = advancedFeeStatsMapper.fromRest(stats);
+    AdvancedFeesStatistics stats = generateAdvancedFeeStats(empty(), empty());
+    Collection<AdvancedFeeStats> toSaveAdvancedFeeStats =
+        advancedFeeStatsMapper.fromRest(stats).values();
     return advancesFeeStatsRepository.saveAll(toSaveAdvancedFeeStats);
   }
 

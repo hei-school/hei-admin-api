@@ -6,7 +6,7 @@ import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStat
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.TOTAL_COUNT;
 
 import java.math.BigDecimal;
-import java.util.List;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 import org.springframework.stereotype.Component;
@@ -20,12 +20,13 @@ import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 
 @Component
 public class AdvancedFeeStatsMapper {
-  public List<AdvancedFeeStats> fromRest(AdvancedFeesStatistics restStat) {
-    return List.of(
-        getModelLateFeeStats(restStat.getLateFeesCount()),
-        getModelPaidFeeStats(restStat.getPaidFeesCount()),
-        getModelPendingFeeStats(restStat.getPendingFeesCount()),
-        getModelTotalFeeStats(restStat.getTotalExpectedFeesCount()));
+  public Map<AdvancedFeeStatsType, AdvancedFeeStats> fromRest(AdvancedFeesStatistics restStat) {
+    Map<AdvancedFeeStatsType, AdvancedFeeStats> statsModels = new HashMap<>();
+    statsModels.put(LATE_COUNT, getModelLateFeeStats(restStat.getLateFeesCount()));
+    statsModels.put(PAID_COUNT, getModelPaidFeeStats(restStat.getPaidFeesCount()));
+    statsModels.put(PENDING_COUNT, getModelPendingFeeStats(restStat.getPendingFeesCount()));
+    statsModels.put(TOTAL_COUNT, getModelTotalFeeStats(restStat.getTotalExpectedFeesCount()));
+    return statsModels;
   }
 
   private AdvancedFeeStats getModelTotalFeeStats(TotalExpectedFeesStats restStat) {
@@ -123,7 +124,7 @@ public class AdvancedFeeStatsMapper {
         .yearly(modelStat.getYearlyCount());
   }
 
-  private AdvancedFeesStatistics toRest(Map<AdvancedFeeStatsType, AdvancedFeeStats> modelStat) {
+  public AdvancedFeesStatistics toRest(Map<AdvancedFeeStatsType, AdvancedFeeStats> modelStat) {
     AdvancedFeesStatistics restStat = new AdvancedFeesStatistics();
     for (Entry<AdvancedFeeStatsType, AdvancedFeeStats> entry : modelStat.entrySet()) {
       switch (entry.getKey()) {

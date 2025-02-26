@@ -7,10 +7,13 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.Query;
 import jakarta.persistence.criteria.*;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -20,6 +23,8 @@ import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.statistics.AdvancedFeeStats;
+import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 import school.hei.haapi.repository.model.FeesStats;
 
 @Repository
@@ -349,5 +354,44 @@ public class FeeDao {
     query.orderBy(builder.desc(root.get("dueDatetime")));
 
     return entityManager.createQuery(query).getResultList();
+  }
+
+  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStats(Instant from, Instant to) {
+    Map<AdvancedFeeStatsType, AdvancedFeeStats> stats = new HashMap<>();
+    String query =
+        """
+select sum(first_grade), sum(second_grade), sum(third_grade), sum(remedial_cost), sum(work_study),
+sum(monthly_count), sum(yearly_count), sum(bank_transfer_count), sum(mpbs_count), stat_type from stats_advanced_fees
+where insert_datetime between :from and :to
+group by stat_type
+""";
+
+    Query nativeQuery = entityManager.createNativeQuery(query);
+    nativeQuery.setParameter("from", from);
+    nativeQuery.setParameter("to", to);
+
+    List<Object[]> result = nativeQuery.getResultList();
+
+    if (!result.isEmpty()) {
+      for (Object[] element : result) {
+        AdvancedFeeStatsType statType = AdvancedFeeStatsType.valueOf((String) element[9]);
+        AdvancedFeeStats stat =
+            AdvancedFeeStats.builder()
+                .firstGradeCount((long) element[0])
+                .secondGradeCount((long) element[1])
+                .thirdGradeCount((long) element[2])
+                .remedialFeesCount((long) element[3])
+                .workStudyCount((long) element[4])
+                .monthlyCount((long) element[5])
+                .yearlyCount((long) element[6])
+                .bankTransferCount((long) element[7])
+                .mpbsCount((long) element[8])
+                .statType(statType)
+                .build();
+        stats.put(statType, stat);
+      }
+    }
+
+    return stats;
   }
 }
