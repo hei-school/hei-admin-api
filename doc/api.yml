@@ -114,7 +114,7 @@ paths:
   '/authentication/login-url':
     get:
       tags:
-        - Authentication
+        - Security
       summary: Get login page URL
       operationId: getLoginPageURL
       responses:
@@ -131,7 +131,7 @@ paths:
   '/authentication/signin':
     post:
       tags:
-        - Authentication
+        - Security
       summary: Get token
       operationId: getToken
       parameters:

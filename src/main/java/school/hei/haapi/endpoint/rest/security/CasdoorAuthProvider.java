@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.casbin.casdoor.entity.CasdoorUser;
 import org.casbin.casdoor.exception.CasdoorAuthException;
@@ -23,7 +22,6 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.model.CustomUserDetails;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.UserService;
 
 @Component
@@ -37,13 +35,16 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
       Arrays.stream(User.Role.values())
           .collect(Collectors.toMap(role -> role.name().toLowerCase(), role -> role));
 
-    public CasdoorAuthProvider(UserService userService, CasdoorAuthService casdoorAuthService, @Value("${CASDOOR_ORGANIZATION_NAME}") String casdoorOrganizationName) {
-        this.userService = userService;
-        this.casdoorAuthService = casdoorAuthService;
-        this.casdoorOrganizationName = casdoorOrganizationName;
-    }
+  public CasdoorAuthProvider(
+      UserService userService,
+      CasdoorAuthService casdoorAuthService,
+      @Value("${CASDOOR_ORGANIZATION_NAME}") String casdoorOrganizationName) {
+    this.userService = userService;
+    this.casdoorAuthService = casdoorAuthService;
+    this.casdoorOrganizationName = casdoorOrganizationName;
+  }
 
-    @Override
+  @Override
   protected void additionalAuthenticationChecks(
       UserDetails userDetails, UsernamePasswordAuthenticationToken token) {
     // nothing
@@ -61,7 +62,7 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
       casdoorUser = casdoorAuthService.parseJwtToken(bearer);
     } catch (CasdoorAuthException exception) {
       log.error("casdoor auth exception", exception);
-      throw new UsernameNotFoundException("Bad credentials"); // / TODO: custom error message
+      throw new UsernameNotFoundException("Bad credentials");
     }
     boolean hasRole =
         casdoorUser.getRoles().stream()
@@ -70,14 +71,16 @@ public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvid
                     ROLE_MAP.containsKey(role.getName().toLowerCase())
                         && role.getOwner().equals(casdoorOrganizationName));
     if (!hasRole) {
-      log.error(
-          "casdoor auth exception",
-          new BadRequestException(
-              "User with email " + casdoorUser.getEmail() + " doesn't have correct role"));
+      String email = casdoorUser.getEmail();
+      log.error("Casdoor auth exception: User with email {} doesn't have the correct role", email);
       throw new UsernameNotFoundException("Bad credentials");
     }
-
-    return new Principal(userService.getByEmail(casdoorUser.getEmail()), bearer);
+    try {
+      return new Principal(userService.getByEmail(casdoorUser.getEmail()), bearer);
+    } catch (Exception e) {
+      log.error(e.getMessage());
+      throw new UsernameNotFoundException("Bad credentials");
+    }
   }
 
   private static Optional<String> getBearer(

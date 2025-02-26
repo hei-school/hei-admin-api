@@ -364,7 +364,6 @@ public class TestUtils {
     when(casdoorAuthService.parseJwtToken(STAFF_MEMBER1_TOKEN))
         .thenReturn(getCasdoorUserStaffMember1());
     when(casdoorAuthService.parseJwtToken(ADMIN1_TOKEN)).thenReturn(getCasdoorUserAdmin1());
-    // todo : setup suspended account
     when(casdoorAuthService.parseJwtToken(SUSPENDED_TOKEN)).thenReturn(getCasdoorUserSuspended());
   }
 

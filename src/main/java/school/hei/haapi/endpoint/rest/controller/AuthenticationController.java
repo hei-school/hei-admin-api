@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @Slf4j
 public class AuthenticationController {
-
   private final CasdoorAuthService casdoorAuthService;
   private final String redirectUrl;
 
