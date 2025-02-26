@@ -6,6 +6,7 @@ import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 
@@ -14,7 +15,8 @@ import lombok.ToString;
 @ToString
 @AllArgsConstructor
 @NoArgsConstructor
-public class AdvancedFeeStatsTriggered extends PojaEvent {
+@Getter
+public class AdvancedFeeStatsComputationTriggered extends PojaEvent {
   @JsonProperty("from_instant")
   private Instant fromInstant;
 

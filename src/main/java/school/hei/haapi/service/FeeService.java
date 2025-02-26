@@ -2,7 +2,6 @@ package school.hei.haapi.service;
 
 import static java.time.LocalTime.MAX;
 import static java.time.ZoneOffset.UTC;
-import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.groupingByConcurrent;
@@ -301,8 +300,9 @@ public class FeeService {
   }
 
   @Transactional
-  public List<AdvancedFeeStats> updateAdvancedFeeStats() {
-    AdvancedFeesStatistics stats = generateAdvancedFeeStats(empty(), empty());
+  public List<AdvancedFeeStats> updateAdvancedFeeStats(
+      Optional<Instant> from, Optional<Instant> to) {
+    AdvancedFeesStatistics stats = generateAdvancedFeeStats(from, to);
     Collection<AdvancedFeeStats> toSaveAdvancedFeeStats =
         advancedFeeStatsMapper.fromRest(stats).values();
     return advancesFeeStatsRepository.saveAll(toSaveAdvancedFeeStats);

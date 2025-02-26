@@ -1,22 +1,27 @@
 package school.hei.haapi.service.event;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.endpoint.event.model.AdvancedFeeStatsTriggered;
+import school.hei.haapi.endpoint.event.model.AdvancedFeeStatsComputationTriggered;
 import school.hei.haapi.service.FeeService;
 
 @Service
 @AllArgsConstructor
 @Slf4j
-public class AdvancedFeeStatService implements Consumer<AdvancedFeeStatsTriggered> {
+public class AdvancedFeeStatService implements Consumer<AdvancedFeeStatsComputationTriggered> {
   private final FeeService feeService;
 
   @Override
-  public void accept(AdvancedFeeStatsTriggered advancedFeeStatsTriggered) {
+  public void accept(AdvancedFeeStatsComputationTriggered advancedFeeStatsComputationTriggered) {
     log.info("Refresh advanced fee stats triggered at {}", Instant.now());
-    feeService.updateAdvancedFeeStats();
+    Optional<Instant> fromValue =
+        Optional.ofNullable(advancedFeeStatsComputationTriggered.getFromInstant());
+    Optional<Instant> toValue =
+        Optional.ofNullable(advancedFeeStatsComputationTriggered.getToInstant());
+    feeService.updateAdvancedFeeStats(fromValue, toValue);
   }
 }

@@ -22,7 +22,6 @@ import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.model.FeesStats;
 import school.hei.haapi.service.FeeService;
