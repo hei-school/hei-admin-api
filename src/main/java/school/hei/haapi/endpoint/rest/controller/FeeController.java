@@ -22,6 +22,7 @@ import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.model.FeesStats;
 import school.hei.haapi.service.FeeService;
@@ -141,7 +142,7 @@ public class FeeController {
   public AdvancedFeesStatistics getAdvancedFeesStats(
       @RequestParam(name = "month_from", required = false) Instant monthFrom,
       @RequestParam(name = "month_to", required = false) Instant monthTo) {
-    return feeService.getAdvancedFeesStats(monthFrom, monthTo);
+    throw new NotImplementedException("Not implemented");
   }
 
   @PutMapping("/fees")
