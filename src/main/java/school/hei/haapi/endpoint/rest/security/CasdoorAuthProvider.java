@@ -27,20 +27,23 @@ import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.UserService;
 
 @Component
-@RequiredArgsConstructor
 @Slf4j
 public class CasdoorAuthProvider extends AbstractUserDetailsAuthenticationProvider {
   private static final String BEARER_PREFIX = "Bearer ";
   private final UserService userService;
   private final CasdoorAuthService casdoorAuthService;
+  private final String casdoorOrganizationName;
   private static final Map<String, User.Role> ROLE_MAP =
       Arrays.stream(User.Role.values())
           .collect(Collectors.toMap(role -> role.name().toLowerCase(), role -> role));
 
-  @Value("${CASDOOR_ORGANIZATION_NAME}")
-  String casdoorOrganizationName;
+    public CasdoorAuthProvider(UserService userService, CasdoorAuthService casdoorAuthService, @Value("${CASDOOR_ORGANIZATION_NAME}") String casdoorOrganizationName) {
+        this.userService = userService;
+        this.casdoorAuthService = casdoorAuthService;
+        this.casdoorOrganizationName = casdoorOrganizationName;
+    }
 
-  @Override
+    @Override
   protected void additionalAuthenticationChecks(
       UserDetails userDetails, UsernamePasswordAuthenticationToken token) {
     // nothing
