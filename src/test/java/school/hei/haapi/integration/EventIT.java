@@ -223,11 +223,7 @@ public class EventIT extends FacadeITMockedThirdParties {
     List<Event> actual = api.getEvents(1, 500, null, null, null, null, null);
 
     System.out.println(actual);
-    assertTrue(
-        actual.stream()
-            .map(Event::getId)
-            .collect(toUnmodifiableList())
-            .containsAll(List.of(event1().getId(), event2().getId(), event3().getId())));
+    assertTrue(actual.containsAll(List.of(event1(), event2(), event3())));
 
     List<Event> eventsBeginAfterAnInstant =
         api.getEvents(1, 15, Instant.parse("2022-12-15T10:00:00.00Z"), null, null, null, null);
