@@ -9,12 +9,15 @@ import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import jakarta.persistence.criteria.*;
+
+import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
@@ -29,6 +32,7 @@ import school.hei.haapi.repository.model.FeesStats;
 
 @Repository
 @AllArgsConstructor
+@Slf4j
 public class FeeDao {
   private final EntityManager entityManager;
 
@@ -360,7 +364,7 @@ public class FeeDao {
     Map<AdvancedFeeStatsType, AdvancedFeeStats> stats = new HashMap<>();
     String query =
         """
-select sum(first_grade), sum(second_grade), sum(third_grade), sum(remedial_cost), sum(work_study),
+select sum(first_grade_count), sum(second_grade_count), sum(third_grade_count), sum(remedial_fees_count), sum(work_study_count),
 sum(monthly_count), sum(yearly_count), sum(bank_transfer_count), sum(mpbs_count), stat_type from stats_advanced_fees
 where insert_datetime between :from and :to
 group by stat_type
@@ -377,15 +381,15 @@ group by stat_type
         AdvancedFeeStatsType statType = AdvancedFeeStatsType.valueOf((String) element[9]);
         AdvancedFeeStats stat =
             AdvancedFeeStats.builder()
-                .firstGradeCount((long) element[0])
-                .secondGradeCount((long) element[1])
-                .thirdGradeCount((long) element[2])
-                .remedialFeesCount((long) element[3])
-                .workStudyCount((long) element[4])
-                .monthlyCount((long) element[5])
-                .yearlyCount((long) element[6])
-                .bankTransferCount((long) element[7])
-                .mpbsCount((long) element[8])
+                .firstGradeCount(((BigDecimal) element[0]).longValue())
+                .secondGradeCount(((BigDecimal) element[1]).longValue())
+                .thirdGradeCount(((BigDecimal) element[2]).longValue())
+                .remedialFeesCount(((BigDecimal) element[3]).longValue())
+                .workStudyCount(((BigDecimal) element[4]).longValue())
+                .monthlyCount(((BigDecimal) element[5]).longValue())
+                .yearlyCount(((BigDecimal) element[6]).longValue())
+                .bankTransferCount(((BigDecimal) element[7]).longValue())
+                .mpbsCount(((BigDecimal) element[8]).longValue())
                 .statType(statType)
                 .build();
         stats.put(statType, stat);

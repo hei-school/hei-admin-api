@@ -52,8 +52,6 @@ public class AdvancedFeeStats {
   private Long bankTransferCount;
   private Long mpbsCount;
 
-  private PaymentType paymentMethod;
-
   @CreationTimestamp private Instant insertDatetime;
 
   public enum AdvancedFeeStatsType {
