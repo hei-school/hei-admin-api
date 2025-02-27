@@ -6,28 +6,18 @@ import static java.time.LocalTime.MAX;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Duration;
 import java.time.LocalDateTime;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 
 @EqualsAndHashCode
-@Builder
 @ToString
-@AllArgsConstructor
-@NoArgsConstructor
 @Getter
 public class AdvancedFeeStatsComputationTriggered extends PojaEvent {
-  private final LocalDateTime now = now();
+  private final LocalDateTime now;
 
-  @JsonProperty("from_datetime")
-  private LocalDateTime fromDatetime;
-
-  public LocalDateTime getBeginDatetime() {
-    return fromDatetime.toLocalDate().atStartOfDay();
-  }
+  @JsonProperty("begin_datetime")
+  private LocalDateTime beginDatetime;
 
   public LocalDateTime getEndDatetime() {
     LocalDateTime endOfDay = now.toLocalDate().atTime(MAX);
@@ -42,5 +32,15 @@ public class AdvancedFeeStatsComputationTriggered extends PojaEvent {
   @Override
   public Duration maxConsumerBackoffBetweenRetries() {
     return Duration.ofMinutes(1);
+  }
+
+  public AdvancedFeeStatsComputationTriggered() {
+    this.beginDatetime = now().toLocalDate().atStartOfDay();
+    this.now = now();
+  }
+
+  public AdvancedFeeStatsComputationTriggered(LocalDateTime beginDatetime, LocalDateTime now) {
+    this.beginDatetime = beginDatetime.toLocalDate().atStartOfDay();
+    this.now = now;
   }
 }

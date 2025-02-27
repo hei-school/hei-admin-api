@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static java.time.LocalDateTime.now;
 import static java.time.ZoneOffset.UTC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -504,9 +505,8 @@ class FeeIT extends FacadeITMockedThirdParties {
     Instant fromInstant = Instant.parse("2021-12-01T00:00:00.00Z");
     Instant toInstant = Instant.parse("2021-12-31T00:00:00.00Z");
     AdvancedFeeStatsComputationTriggered event =
-        AdvancedFeeStatsComputationTriggered.builder()
-            .fromDatetime(LocalDateTime.ofInstant(Instant.parse("2021-12-13T00:00:00.00Z"), UTC))
-            .build();
+        new AdvancedFeeStatsComputationTriggered(
+            LocalDateTime.ofInstant(Instant.parse("2021-12-13T00:00:00.00Z"), UTC), now());
     advancedFeeStatService.accept(event);
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
