@@ -23,6 +23,3 @@ CREATE TABLE if not exists "stats_advanced_fees"
     creation_datetime   timestamp with time zone not null default now(),
     stat_type           advanced_fee_stats_type  NOT NULL DEFAULT 'TOTAL_COUNT'::advanced_fee_stats_type
 );
-
-
-
