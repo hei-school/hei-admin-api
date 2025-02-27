@@ -5,7 +5,6 @@ import static java.time.LocalTime.MAX;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Duration;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +20,8 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 public class AdvancedFeeStatsComputationTriggered extends PojaEvent {
+  private final LocalDateTime now = now();
+
   @JsonProperty("from_datetime")
   private LocalDateTime fromDatetime;
 
@@ -29,8 +30,8 @@ public class AdvancedFeeStatsComputationTriggered extends PojaEvent {
   }
 
   public LocalDateTime getEndDatetime() {
-    LocalDateTime endOfDay = LocalDate.now().atTime(MAX);
-    return now().isBefore(endOfDay) ? now() : endOfDay;
+    LocalDateTime endOfDay = now.toLocalDate().atTime(MAX);
+    return now.isBefore(endOfDay) ? now : endOfDay;
   }
 
   @Override
