@@ -15,7 +15,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
@@ -30,7 +29,6 @@ import school.hei.haapi.repository.model.FeesStats;
 
 @Repository
 @AllArgsConstructor
-@Slf4j
 public class FeeDao {
   private final EntityManager entityManager;
 
@@ -372,7 +370,6 @@ public class FeeDao {
     Expression<Long> yearlyCountSum = builder.sum(root.get("yearlyCount"));
     Expression<Long> bankTransferCountSum = builder.sum(root.get("bankTransferCount"));
     Expression<Long> mpbsCountSum = builder.sum(root.get("mpbsCount"));
-
     Expression<AdvancedFeeStatsType> statType = root.get("statType");
 
     query
