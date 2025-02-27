@@ -1,6 +1,7 @@
 package school.hei.haapi.repository.dao;
 
 import static java.lang.Boolean.TRUE;
+import static java.util.stream.Collectors.toMap;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
@@ -13,7 +14,6 @@ import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -394,7 +394,6 @@ public class FeeDao {
 
     List<AdvancedFeeStats> feeStats = typedQuery.getResultList();
     return feeStats.stream()
-        .collect(
-            Collectors.toMap(AdvancedFeeStats::getStatType, advancedFeeStats -> advancedFeeStats));
+        .collect(toMap(AdvancedFeeStats::getStatType, advancedFeeStats -> advancedFeeStats));
   }
 }
