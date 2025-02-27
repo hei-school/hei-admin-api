@@ -2,6 +2,7 @@ package school.hei.haapi.service.event;
 
 import static school.hei.haapi.model.User.Status.SUSPENDED;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
@@ -41,6 +42,7 @@ public class SuspendStudentsWithOverdueFeesService
   }
 
   @Override
+  @Transactional
   public void accept(SuspendStudentsWithOverdueFees suspendStudentsWithOverdueFees) {
     suspendStudentsWithUnpaidOrLateFee();
   }

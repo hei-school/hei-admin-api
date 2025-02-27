@@ -141,7 +141,7 @@ public class FeeController {
   public AdvancedFeesStatistics getAdvancedFeesStats(
       @RequestParam(name = "month_from", required = false) Instant monthFrom,
       @RequestParam(name = "month_to", required = false) Instant monthTo) {
-    return feeService.getAdvancedFeesStats(monthFrom, monthTo);
+    return feeService.getAdvancedFeeStats(monthFrom, monthTo);
   }
 
   @PutMapping("/fees")
