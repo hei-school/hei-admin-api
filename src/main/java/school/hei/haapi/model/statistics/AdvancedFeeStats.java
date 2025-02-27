@@ -38,15 +38,15 @@ public class AdvancedFeeStats {
   @Enumerated(STRING)
   private AdvancedFeeStatsType statType;
 
-  private Long firstGradeCount;
-  private Long secondGradeCount;
-  private Long thirdGradeCount;
+  private long firstGradeCount;
+  private long secondGradeCount;
+  private long thirdGradeCount;
 
-  private Long remedialFeesCount;
-  private Long workStudyCount;
+  private long remedialFeesCount;
+  private long workStudyCount;
 
-  private Long monthlyCount;
-  private Long yearlyCount;
+  private long monthlyCount;
+  private long yearlyCount;
 
   private Long bankTransferCount;
   private Long mpbsCount;

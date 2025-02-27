@@ -505,8 +505,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     Instant toInstant = Instant.parse("2021-12-31T00:00:00.00Z");
     AdvancedFeeStatsComputationTriggered event =
         AdvancedFeeStatsComputationTriggered.builder()
-            .fromDatetime(LocalDateTime.ofInstant(fromInstant, UTC))
-            .toDatetime(LocalDateTime.ofInstant(toInstant, UTC))
+            .fromDatetime(LocalDateTime.ofInstant(Instant.parse("2021-12-13T00:00:00.00Z"), UTC))
             .build();
     advancedFeeStatService.accept(event);
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
