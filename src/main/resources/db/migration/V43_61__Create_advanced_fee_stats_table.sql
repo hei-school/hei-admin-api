@@ -20,7 +20,7 @@ CREATE TABLE if not exists "stats_advanced_fees"
     yearly_count        bigint                   not null default 0,
     mpbs_count          bigint,
     bank_transfer_count bigint,
-    insert_datetime     timestamp with time zone not null default now(),
+    creation_datetime   timestamp with time zone not null default now(),
     stat_type           advanced_fee_stats_type  NOT NULL DEFAULT 'TOTAL_COUNT'::advanced_fee_stats_type
 );
 

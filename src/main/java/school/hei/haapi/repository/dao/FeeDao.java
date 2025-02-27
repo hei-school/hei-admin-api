@@ -7,15 +7,13 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.Query;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
-
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -361,41 +359,42 @@ public class FeeDao {
   }
 
   public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStats(Instant from, Instant to) {
-    Map<AdvancedFeeStatsType, AdvancedFeeStats> stats = new HashMap<>();
-    String query =
-        """
-select sum(first_grade_count), sum(second_grade_count), sum(third_grade_count), sum(remedial_fees_count), sum(work_study_count),
-sum(monthly_count), sum(yearly_count), sum(bank_transfer_count), sum(mpbs_count), stat_type from stats_advanced_fees
-where insert_datetime between :from and :to
-group by stat_type
-""";
+    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<AdvancedFeeStats> query = builder.createQuery(AdvancedFeeStats.class);
+    Root<AdvancedFeeStats> root = query.from(AdvancedFeeStats.class);
 
-    Query nativeQuery = entityManager.createNativeQuery(query);
-    nativeQuery.setParameter("from", from);
-    nativeQuery.setParameter("to", to);
+    Expression<Long> firstGradeCountSum = builder.sum(root.get("firstGradeCount"));
+    Expression<Long> secondGradeCountSum = builder.sum(root.get("secondGradeCount"));
+    Expression<Long> thirdGradeCountSum = builder.sum(root.get("thirdGradeCount"));
+    Expression<Long> remedialFeesCountSum = builder.sum(root.get("remedialFeesCount"));
+    Expression<Long> workStudyCountSum = builder.sum(root.get("workStudyCount"));
+    Expression<Long> monthlyCountSum = builder.sum(root.get("monthlyCount"));
+    Expression<Long> yearlyCountSum = builder.sum(root.get("yearlyCount"));
+    Expression<Long> bankTransferCountSum = builder.sum(root.get("bankTransferCount"));
+    Expression<Long> mpbsCountSum = builder.sum(root.get("mpbsCount"));
 
-    List<Object[]> result = nativeQuery.getResultList();
+    Expression<AdvancedFeeStatsType> statType = root.get("statType");
 
-    if (!result.isEmpty()) {
-      for (Object[] element : result) {
-        AdvancedFeeStatsType statType = AdvancedFeeStatsType.valueOf((String) element[9]);
-        AdvancedFeeStats stat =
-            AdvancedFeeStats.builder()
-                .firstGradeCount(((BigDecimal) element[0]).longValue())
-                .secondGradeCount(((BigDecimal) element[1]).longValue())
-                .thirdGradeCount(((BigDecimal) element[2]).longValue())
-                .remedialFeesCount(((BigDecimal) element[3]).longValue())
-                .workStudyCount(((BigDecimal) element[4]).longValue())
-                .monthlyCount(((BigDecimal) element[5]).longValue())
-                .yearlyCount(((BigDecimal) element[6]).longValue())
-                .bankTransferCount(((BigDecimal) element[7]).longValue())
-                .mpbsCount(((BigDecimal) element[8]).longValue())
-                .statType(statType)
-                .build();
-        stats.put(statType, stat);
-      }
-    }
+    query
+        .multiselect(
+            firstGradeCountSum,
+            secondGradeCountSum,
+            thirdGradeCountSum,
+            remedialFeesCountSum,
+            workStudyCountSum,
+            monthlyCountSum,
+            yearlyCountSum,
+            bankTransferCountSum,
+            mpbsCountSum,
+            statType)
+        .groupBy(statType);
+    query.where(builder.between(root.get("creationDatetime"), from, to));
 
-    return stats;
+    TypedQuery<AdvancedFeeStats> typedQuery = entityManager.createQuery(query);
+
+    List<AdvancedFeeStats> feeStats = typedQuery.getResultList();
+    return feeStats.stream()
+        .collect(
+            Collectors.toMap(AdvancedFeeStats::getStatType, advancedFeeStats -> advancedFeeStats));
   }
 }

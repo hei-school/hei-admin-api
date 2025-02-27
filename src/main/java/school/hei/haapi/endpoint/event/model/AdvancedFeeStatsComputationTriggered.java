@@ -1,8 +1,11 @@
 package school.hei.haapi.endpoint.event.model;
 
+import static java.time.LocalTime.MAX;
+
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Duration;
-import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -17,11 +20,20 @@ import lombok.ToString;
 @NoArgsConstructor
 @Getter
 public class AdvancedFeeStatsComputationTriggered extends PojaEvent {
-  @JsonProperty("from_instant")
-  private Instant fromInstant;
+  @JsonProperty("from_datetime")
+  private LocalDateTime fromDatetime;
 
-  @JsonProperty("to_instant")
-  private Instant toInstant;
+  @JsonProperty("to_datetime")
+  private LocalDateTime toDatetime;
+
+  public LocalDateTime getBeginDatetime() {
+    return fromDatetime.toLocalDate().atStartOfDay();
+  }
+
+  public LocalDateTime getEndDatetime() {
+    LocalDateTime endOfDay = LocalDate.now().atTime(MAX);
+    return endOfDay.isBefore(toDatetime) ? endOfDay : toDatetime;
+  }
 
   @Override
   public Duration maxConsumerDuration() {

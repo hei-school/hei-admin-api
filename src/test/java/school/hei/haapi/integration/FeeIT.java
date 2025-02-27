@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static java.time.ZoneOffset.UTC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -40,6 +41,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -501,15 +503,15 @@ class FeeIT extends FacadeITMockedThirdParties {
   void manager_get_advanced_fees_stats_ok() throws ApiException {
     Instant fromInstant = Instant.parse("2021-12-01T00:00:00.00Z");
     Instant toInstant = Instant.parse("2021-12-31T00:00:00.00Z");
-    AdvancedFeeStatsComputationTriggered event = AdvancedFeeStatsComputationTriggered.builder()
-        .fromInstant(fromInstant)
-        .toInstant(toInstant)
-        .build();
+    AdvancedFeeStatsComputationTriggered event =
+        AdvancedFeeStatsComputationTriggered.builder()
+            .fromDatetime(LocalDateTime.ofInstant(fromInstant, UTC))
+            .toDatetime(LocalDateTime.ofInstant(toInstant, UTC))
+            .build();
     advancedFeeStatService.accept(event);
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
-    AdvancedFeesStatistics advStats =
-        api.getAdvancedFeesStats(fromInstant, toInstant);
+    AdvancedFeesStatistics advStats = api.getAdvancedFeesStats(fromInstant, toInstant);
 
     assertEquals(1, advStats.getTotalExpectedFeesCount().getFirstGrade());
     assertEquals(1, advStats.getTotalExpectedFeesCount().getWorkStudy());

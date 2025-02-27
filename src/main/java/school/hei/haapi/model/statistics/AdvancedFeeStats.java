@@ -19,7 +19,6 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
-import school.hei.haapi.model.fee.PaymentType;
 
 @Entity
 @Table(name = "\"stats_advanced_fees\"")
@@ -52,12 +51,35 @@ public class AdvancedFeeStats {
   private Long bankTransferCount;
   private Long mpbsCount;
 
-  @CreationTimestamp private Instant insertDatetime;
+  @CreationTimestamp private Instant creationDatetime;
 
   public enum AdvancedFeeStatsType {
     TOTAL_COUNT,
     PAID_COUNT,
     LATE_COUNT,
     PENDING_COUNT
+  }
+
+  public AdvancedFeeStats(
+      Long firstGradeCount,
+      Long secondGradeCount,
+      Long thirdGradeCount,
+      Long remedialFeesCount,
+      Long workStudyCount,
+      Long monthlyCount,
+      Long yearlyCount,
+      Long bankTransferCount,
+      Long mpbsCount,
+      AdvancedFeeStatsType statType) {
+    this.statType = statType;
+    this.firstGradeCount = firstGradeCount;
+    this.secondGradeCount = secondGradeCount;
+    this.thirdGradeCount = thirdGradeCount;
+    this.remedialFeesCount = remedialFeesCount;
+    this.workStudyCount = workStudyCount;
+    this.monthlyCount = monthlyCount;
+    this.yearlyCount = yearlyCount;
+    this.bankTransferCount = bankTransferCount;
+    this.mpbsCount = mpbsCount;
   }
 }

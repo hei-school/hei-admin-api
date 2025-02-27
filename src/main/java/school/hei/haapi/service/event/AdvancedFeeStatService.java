@@ -1,5 +1,7 @@
 package school.hei.haapi.service.event;
 
+import static java.time.ZoneOffset.UTC;
+
 import java.time.Instant;
 import java.util.Optional;
 import java.util.function.Consumer;
@@ -19,9 +21,9 @@ public class AdvancedFeeStatService implements Consumer<AdvancedFeeStatsComputat
   public void accept(AdvancedFeeStatsComputationTriggered advancedFeeStatsComputationTriggered) {
     log.info("Refresh advanced fee stats triggered at {}", Instant.now());
     Optional<Instant> fromValue =
-        Optional.ofNullable(advancedFeeStatsComputationTriggered.getFromInstant());
+        Optional.ofNullable(advancedFeeStatsComputationTriggered.getBeginDatetime().toInstant(UTC));
     Optional<Instant> toValue =
-        Optional.ofNullable(advancedFeeStatsComputationTriggered.getToInstant());
+        Optional.ofNullable(advancedFeeStatsComputationTriggered.getEndDatetime().toInstant(UTC));
     feeService.updateAdvancedFeeStats(fromValue, toValue);
   }
 }
