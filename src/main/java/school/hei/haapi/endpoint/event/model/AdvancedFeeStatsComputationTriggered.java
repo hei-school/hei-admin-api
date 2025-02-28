@@ -1,7 +1,6 @@
 package school.hei.haapi.endpoint.event.model;
 
 import static java.time.LocalDateTime.now;
-import static java.time.LocalTime.MAX;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Duration;
@@ -20,7 +19,7 @@ public class AdvancedFeeStatsComputationTriggered extends PojaEvent {
   private LocalDateTime beginDatetime;
 
   public LocalDateTime getEndDatetime() {
-    LocalDateTime endOfDay = now.toLocalDate().atTime(MAX);
+    LocalDateTime endOfDay = now.toLocalDate().atTime(23, 59, 59);
     return now.isBefore(endOfDay) ? now : endOfDay;
   }
 
