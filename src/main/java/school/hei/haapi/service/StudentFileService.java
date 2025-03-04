@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import static java.time.LocalDate.now;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
@@ -47,7 +48,8 @@ import school.hei.haapi.service.utils.ScholarshipCertificateDataProvider;
 @Service
 @AllArgsConstructor
 public class StudentFileService {
-  private final int MAX_RECEIPT_PDF_IN_ZIP_FILE = 3_600; // if pdf=27.3Ko, approximately 98,280 Mo
+  public static final int MAX_RECEIPT_PDF_IN_ZIP_FILE =
+      3_600; // if pdf=27.3Ko, approximately 98,280 Mo
 
   private final Base64Converter base64Converter;
   private final ClassPathResourceResolver classPathResourceResolver;
@@ -61,8 +63,8 @@ public class StudentFileService {
   private final FileInfoService fileInfoService;
   private final WorkDocumentService workDocumentService;
   private final FileInfoDao fileInfoDao;
-  private final ListGrouper<File> dataFileGrouper;
-  private final EventProducer eventProducer;
+  private final ListGrouper<Payment> dataFileGrouper;
+  private final EventProducer<SendReceiptZipToEmail> sendReceiptZipToEmailEventProducer;
 
   public WorkDocument uploadStudentWorkFile(
       String studentId,
@@ -118,9 +120,9 @@ public class StudentFileService {
     return pdfRenderer.apply(html);
   }
 
-  public byte[] generatePaidFeeReceipt(String feeId, String paymenId, String template) {
+  public byte[] generatePaidFeeReceipt(String feeId, String paymentId, String template) {
     Fee fee = feeService.getById(feeId);
-    Payment payment = paymentService.getById(paymenId);
+    Payment payment = paymentService.getById(paymentId);
     Context context = loadPaymentReceiptContext(fee, payment);
     String html = htmlParser.apply(template, context);
     return pdfRenderer.apply(html);
@@ -130,41 +132,32 @@ public class StudentFileService {
     List<Payment> allPayementBetween =
         paymentService.getAllPayementBetween(
             zipReceiptsRequest.getFrom(), zipReceiptsRequest.getTo());
-    List<File> pdfs =
-        allPayementBetween.stream()
-            .map(
-                (payment) -> {
-                  byte[] paidFeeReceiptsData =
-                      generatePaidFeeReceipt(
-                          payment.getFee().getId(), payment.getId(), "paidFeeReceipt");
-                  File file = null;
-                  try {
-                    file = File.createTempFile(UUID.randomUUID().toString(), ".pdf");
-                    FileUtils.writeByteArrayToFile(file, paidFeeReceiptsData);
-                  } catch (IOException e) {
-                    throw new RuntimeException(e);
-                  }
-                  return file;
-                })
-            .toList();
 
-    sendReceiptZipToEmail(pdfs, zipReceiptsRequest.getDestinationEmail());
+    sendReceiptZipToEmail(allPayementBetween, zipReceiptsRequest.getDestinationEmail());
 
-    return new ZipReceiptsStatistic().fileCountInZip(pdfs.size());
+    return new ZipReceiptsStatistic().fileCountInZip(allPayementBetween.size());
   }
 
-  public void sendReceiptZipToEmail(List<File> pdfs, String destinationEmail) {
-    List<List<File>> groups = dataFileGrouper.apply(pdfs, MAX_RECEIPT_PDF_IN_ZIP_FILE);
+  public void sendReceiptZipToEmail(List<Payment> payments, String destinationEmail) {
+    List<List<Payment>> groups =
+        dataFileGrouper.apply(payments, StudentFileService.MAX_RECEIPT_PDF_IN_ZIP_FILE);
     for (int groupId = 0; groupId < groups.size(); groupId++) {
-      eventProducer.accept(
+      sendReceiptZipToEmailEventProducer.accept(
           Collections.singleton(
               SendReceiptZipToEmail.builder()
                   .startRequest(Instant.now())
                   .idWork(groupId)
-                  .fileToZip(groups.get(groupId))
+                  .fileToZip(
+                      groups.get(groupId).stream()
+                          .map(this::payementToReceiptPdfData)
+                          .collect(toUnmodifiableList()))
                   .emailRecipient(destinationEmail)
                   .build()));
     }
+  }
+
+  public byte[] payementToReceiptPdfData(Payment payment) {
+    return generatePaidFeeReceipt(payment.getFee().getId(), payment.getId(), "paidFeeReceipt");
   }
 
   private Context loadPaymentReceiptContext(Fee fee, Payment payment) {
@@ -216,5 +209,18 @@ public class StudentFileService {
     context.setVariable("signature", base64Converter.apply(signature));
 
     return context;
+  }
+
+  public File dataToPdf(byte[] data) {
+    {
+      File file = null;
+      try {
+        file = File.createTempFile(UUID.randomUUID().toString(), ".pdf");
+        FileUtils.writeByteArrayToFile(file, data);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      return file;
+    }
   }
 }

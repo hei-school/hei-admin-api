@@ -1,5 +1,6 @@
 package school.hei.haapi.service.event;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService.internetAddress;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
@@ -13,13 +14,15 @@ import school.hei.haapi.endpoint.event.model.SendReceiptZipToEmail;
 import school.hei.haapi.file.FileZipper;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
+import school.hei.haapi.service.StudentFileService;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEmail> {
   private final Mailer mailer;
-  private FileZipper fileZipper;
+  private final FileZipper fileZipper;
+  private final StudentFileService studentFileService;
 
   private Context getMailContext(SendReceiptZipToEmail sendReceiptZipToEmail) {
     Context initial = new Context();
@@ -41,7 +44,11 @@ public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEm
                 + " - Number - "
                 + sendReceiptZipToEmail.getIdWork(),
             htmlBody,
-            List.of(fileZipper.apply(sendReceiptZipToEmail.getFileToZip()))));
+            List.of(
+                fileZipper.apply(
+                    sendReceiptZipToEmail.getFileToZip().stream()
+                        .map(studentFileService::dataToPdf)
+                        .collect(toUnmodifiableList())))));
     log.info("Send email...");
   }
 }
