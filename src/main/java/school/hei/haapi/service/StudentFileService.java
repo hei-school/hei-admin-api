@@ -49,8 +49,8 @@ import school.hei.haapi.service.utils.ScholarshipCertificateDataProvider;
 @AllArgsConstructor
 public class StudentFileService {
   /*
-  if pdf=27.3Ko and take .38s to be created
-  => the total is approximately 42,588 Mo and 9 min 53 sec
+  if pdf=27.3Ko and take 0.38s to be created
+  => the total is approximately 43 Mo and 9 min 53 sec
   */
   public static final int MAX_RECEIPT_PDF_IN_ZIP_FILE = 1_560;
 
