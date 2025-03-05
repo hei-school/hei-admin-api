@@ -162,15 +162,12 @@ public class StudentFileService {
     Payment payment = paymentService.getById(paymentId);
     byte[] data =
         generatePaidFeeReceipt(payment.getFee().getId(), payment.getId(), "paidFeeReceipt");
-    {
-      File file = null;
-      try {
-        file = File.createTempFile(UUID.randomUUID().toString(), ".pdf");
-        FileUtils.writeByteArrayToFile(file, data);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
+    try {
+      File file = File.createTempFile(UUID.randomUUID().toString(), ".pdf");
+      FileUtils.writeByteArrayToFile(file, data);
       return file;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
     }
   }
 
