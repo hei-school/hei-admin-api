@@ -33,7 +33,7 @@ public class SendReceiptZipToEmail extends PojaEvent {
 
   @Override
   public Duration maxConsumerDuration() {
-    return Duration.ofSeconds(1800);
+    return Duration.ofSeconds(800);
   }
 
   @Override

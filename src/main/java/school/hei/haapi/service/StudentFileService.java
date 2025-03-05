@@ -48,8 +48,11 @@ import school.hei.haapi.service.utils.ScholarshipCertificateDataProvider;
 @Service
 @AllArgsConstructor
 public class StudentFileService {
-  public static final int MAX_RECEIPT_PDF_IN_ZIP_FILE =
-      3_600; // if pdf=27.3Ko, approximately 98,280 Mo
+  /*
+  if pdf=27.3Ko and take .38s to be created
+  => the total is approximately 42,588 Mo and 9 min 53 sec
+  */
+  public static final int MAX_RECEIPT_PDF_IN_ZIP_FILE = 1_560;
 
   private final Base64Converter base64Converter;
   private final ClassPathResourceResolver classPathResourceResolver;
