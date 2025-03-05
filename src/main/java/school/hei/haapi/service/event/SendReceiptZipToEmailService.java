@@ -27,7 +27,7 @@ public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEm
   private Context getMailContext(SendReceiptZipToEmail sendReceiptZipToEmail) {
     Context initial = new Context();
 
-    initial.setVariable("fileCount", sendReceiptZipToEmail.getFileToZip().size());
+    initial.setVariable("fileCount", sendReceiptZipToEmail.getIdPaymentToZip().size());
     return initial;
   }
 
@@ -46,8 +46,8 @@ public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEm
             htmlBody,
             List.of(
                 fileZipper.apply(
-                    sendReceiptZipToEmail.getFileToZip().stream()
-                        .map(studentFileService::dataToPdf)
+                    sendReceiptZipToEmail.getIdPaymentToZip().stream()
+                        .map(studentFileService::payementToReceiptPdf)
                         .collect(toUnmodifiableList())))));
     log.info("Send email...");
   }

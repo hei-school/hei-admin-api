@@ -63,7 +63,7 @@ public class StudentFileService {
   private final FileInfoService fileInfoService;
   private final WorkDocumentService workDocumentService;
   private final FileInfoDao fileInfoDao;
-  private final ListGrouper<Payment> dataFileGrouper;
+  private final ListGrouper<String> stringListGrouper;
   private final EventProducer<SendReceiptZipToEmail> sendReceiptZipToEmailEventProducer;
 
   public WorkDocument uploadStudentWorkFile(
@@ -139,25 +139,36 @@ public class StudentFileService {
   }
 
   public void sendReceiptZipToEmail(List<Payment> payments, String destinationEmail) {
-    List<List<Payment>> groups =
-        dataFileGrouper.apply(payments, StudentFileService.MAX_RECEIPT_PDF_IN_ZIP_FILE);
+    List<List<String>> groups =
+        stringListGrouper.apply(
+            payments.stream().map(Payment::getId).collect(toUnmodifiableList()),
+            StudentFileService.MAX_RECEIPT_PDF_IN_ZIP_FILE);
     for (int groupId = 0; groupId < groups.size(); groupId++) {
       sendReceiptZipToEmailEventProducer.accept(
           Collections.singleton(
               SendReceiptZipToEmail.builder()
                   .startRequest(Instant.now())
                   .idWork(groupId)
-                  .fileToZip(
-                      groups.get(groupId).stream()
-                          .map(this::payementToReceiptPdfData)
-                          .collect(toUnmodifiableList()))
+                  .idPaymentToZip(groups.get(groupId))
                   .emailRecipient(destinationEmail)
                   .build()));
     }
   }
 
-  public byte[] payementToReceiptPdfData(Payment payment) {
-    return generatePaidFeeReceipt(payment.getFee().getId(), payment.getId(), "paidFeeReceipt");
+  public File payementToReceiptPdf(String paymentId) {
+    Payment payment = paymentService.getById(paymentId);
+    byte[] data =
+        generatePaidFeeReceipt(payment.getFee().getId(), payment.getId(), "paidFeeReceipt");
+    {
+      File file = null;
+      try {
+        file = File.createTempFile(UUID.randomUUID().toString(), ".pdf");
+        FileUtils.writeByteArrayToFile(file, data);
+      } catch (IOException e) {
+        throw new RuntimeException(e);
+      }
+      return file;
+    }
   }
 
   private Context loadPaymentReceiptContext(Fee fee, Payment payment) {
@@ -209,18 +220,5 @@ public class StudentFileService {
     context.setVariable("signature", base64Converter.apply(signature));
 
     return context;
-  }
-
-  public File dataToPdf(byte[] data) {
-    {
-      File file = null;
-      try {
-        file = File.createTempFile(UUID.randomUUID().toString(), ".pdf");
-        FileUtils.writeByteArrayToFile(file, data);
-      } catch (IOException e) {
-        throw new RuntimeException(e);
-      }
-      return file;
-    }
   }
 }

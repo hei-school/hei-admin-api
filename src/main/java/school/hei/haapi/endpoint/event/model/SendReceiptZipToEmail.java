@@ -25,15 +25,15 @@ public class SendReceiptZipToEmail extends PojaEvent {
   @JsonProperty("startRequest")
   private Instant startRequest;
 
-  @JsonProperty("fileToZip")
-  private List<byte[]> fileToZip;
+  @JsonProperty("idPaymentToZip")
+  private List<String> idPaymentToZip;
 
   @JsonProperty("emailRecipient")
   private String emailRecipient;
 
   @Override
   public Duration maxConsumerDuration() {
-    return Duration.ofSeconds(60);
+    return Duration.ofSeconds(1800);
   }
 
   @Override
