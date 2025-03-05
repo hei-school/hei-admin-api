@@ -158,7 +158,7 @@ public class StudentFileService {
     }
   }
 
-  public File payementToReceiptPdf(String paymentId) {
+  public File paymentToReceiptPdf(String paymentId) {
     Payment payment = paymentService.getById(paymentId);
     byte[] data =
         generatePaidFeeReceipt(payment.getFee().getId(), payment.getId(), "paidFeeReceipt");

@@ -47,7 +47,7 @@ public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEm
             List.of(
                 fileZipper.apply(
                     sendReceiptZipToEmail.getPaymentIdsToZip().stream()
-                        .map(studentFileService::payementToReceiptPdf)
+                        .map(studentFileService::paymentToReceiptPdf)
                         .collect(toUnmodifiableList())))));
     log.info("Send email...");
   }
