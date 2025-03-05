@@ -25,8 +25,8 @@ public class SendReceiptZipToEmail extends PojaEvent {
   @JsonProperty("startRequest")
   private Instant startRequest;
 
-  @JsonProperty("idPaymentToZip")
-  private List<String> idPaymentToZip;
+  @JsonProperty("paymentIdsToZip")
+  private List<String> paymentIdsToZip;
 
   @JsonProperty("emailRecipient")
   private String emailRecipient;

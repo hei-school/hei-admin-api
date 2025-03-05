@@ -152,7 +152,7 @@ public class StudentFileService {
               SendReceiptZipToEmail.builder()
                   .startRequest(Instant.now())
                   .idWork(groupId)
-                  .idPaymentToZip(groups.get(groupId))
+                  .paymentIdsToZip(groups.get(groupId))
                   .emailRecipient(destinationEmail)
                   .build()));
     }
