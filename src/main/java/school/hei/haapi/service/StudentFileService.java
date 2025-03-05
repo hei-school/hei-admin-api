@@ -67,7 +67,7 @@ public class StudentFileService {
   private final WorkDocumentService workDocumentService;
   private final FileInfoDao fileInfoDao;
   private final ListGrouper<String> stringListGrouper;
-  private final EventProducer<SendReceiptZipToEmail> sendReceiptZipToEmailEventProducer;
+  private final EventProducer<SendReceiptZipToEmail> eventProducer;
 
   public WorkDocument uploadStudentWorkFile(
       String studentId,
@@ -147,7 +147,7 @@ public class StudentFileService {
             payments.stream().map(Payment::getId).collect(toUnmodifiableList()),
             StudentFileService.MAX_RECEIPT_PDF_IN_ZIP_FILE);
     for (int groupId = 0; groupId < groups.size(); groupId++) {
-      sendReceiptZipToEmailEventProducer.accept(
+      eventProducer.accept(
           Collections.singleton(
               SendReceiptZipToEmail.builder()
                   .startRequest(Instant.now())
