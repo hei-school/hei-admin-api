@@ -65,7 +65,7 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
-import school.hei.haapi.service.event.AdvancedFeeStatService;
+import school.hei.haapi.service.event.AdvancedFeeStatsComputationTriggeredService;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -74,7 +74,10 @@ class FeeIT extends FacadeITMockedThirdParties {
   @Autowired EventConsumer subject;
   @Autowired EntityManager entityManager;
   @Autowired FeeRepository feeRepository;
-  @Autowired AdvancedFeeStatService advancedFeeStatService;
+
+  @Autowired
+  AdvancedFeeStatsComputationTriggeredService advancedFeeStatsComputationTriggeredService;
+
   @Autowired FeeDao feeDao;
 
   /***
@@ -507,7 +510,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     AdvancedFeeStatsComputationTriggered event =
         new AdvancedFeeStatsComputationTriggered(
             LocalDateTime.ofInstant(Instant.parse("2021-12-13T00:00:00.00Z"), UTC), now());
-    advancedFeeStatService.accept(event);
+    advancedFeeStatsComputationTriggeredService.accept(event);
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
     AdvancedFeesStatistics advStats = api.getAdvancedFeesStats(fromInstant, toInstant);

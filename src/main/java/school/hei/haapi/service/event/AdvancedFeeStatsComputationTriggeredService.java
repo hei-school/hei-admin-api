@@ -14,7 +14,8 @@ import school.hei.haapi.service.FeeService;
 @Service
 @AllArgsConstructor
 @Slf4j
-public class AdvancedFeeStatService implements Consumer<AdvancedFeeStatsComputationTriggered> {
+public class AdvancedFeeStatsComputationTriggeredService
+    implements Consumer<AdvancedFeeStatsComputationTriggered> {
   private final FeeService feeService;
 
   @Override
