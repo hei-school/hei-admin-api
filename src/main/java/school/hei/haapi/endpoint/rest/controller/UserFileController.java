@@ -58,7 +58,7 @@ public class UserFileController {
       @PathVariable(name = "student_id") String studentId,
       @PathVariable(name = "fee_id") String feeId,
       @PathVariable(name = "payment_id") String paymentId) {
-    return fileService.generatePaidFeeReceipt(feeId, paymentId, "paidFeeReceipt");
+    return fileService.generatePaidFeeReceiptByPaymentId(paymentId, "paidFeeReceipt");
   }
 
   @PutMapping(value = "/fees/payments/receipts/raw")

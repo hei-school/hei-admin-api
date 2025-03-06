@@ -9,10 +9,11 @@ import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
 
 import java.io.File;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.UUID;
 import lombok.AllArgsConstructor;
 import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.Resource;
@@ -29,11 +30,13 @@ import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
 import school.hei.haapi.endpoint.rest.model.ZipReceiptsRequest;
 import school.hei.haapi.endpoint.rest.model.ZipReceiptsStatistic;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.PaymentNumberSequence;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.WorkDocument;
 import school.hei.haapi.repository.FileInfoRepository;
@@ -53,6 +56,7 @@ public class StudentFileService {
   => the total is approximately 43 Mo and 9 min 53 sec
   */
   public static final int MAX_RECEIPT_PDF_IN_ZIP_FILE = 1_560;
+  private final String RECEIPT_FILENAME_PREFIX = "reçu-";
 
   private final Base64Converter base64Converter;
   private final ClassPathResourceResolver classPathResourceResolver;
@@ -68,6 +72,8 @@ public class StudentFileService {
   private final FileInfoDao fileInfoDao;
   private final ListGrouper<String> stringListGrouper;
   private final EventProducer<SendReceiptZipToEmail> eventProducer;
+  private final BucketComponent bucketComponent;
+  private final PaymentNumberSequenceService paymentNumberSequenceService;
 
   public WorkDocument uploadStudentWorkFile(
       String studentId,
@@ -122,23 +128,65 @@ public class StudentFileService {
     String html = htmlParser.apply(template, context);
     return pdfRenderer.apply(html);
   }
-
-  public byte[] generatePaidFeeReceipt(String feeId, String paymentId, String template) {
-    Fee fee = feeService.getById(feeId);
+  public byte[] generatePaidFeeReceiptByPaymentId(String paymentId, String template) {
     Payment payment = paymentService.getById(paymentId);
-    Context context = loadPaymentReceiptContext(fee, payment);
+    File receipt = generatePaidFeeReceipt(payment, template);
+    try {
+      return Files.readAllBytes(receipt.toPath());
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private File generatePaidFeeReceipt(Payment payment, String template) {
+    Payment localPayment =
+        Payment.builder()
+            .id(payment.getId())
+            .type(payment.getType())
+            .fee(payment.getFee())
+            .amount(payment.getAmount())
+            .isDeleted(payment.isDeleted())
+            .creationDatetime(payment.getCreationDatetime())
+            .comment(payment.getComment())
+            .sequence(payment.getSequence())
+            .build();
+
+    if (localPayment.getSequence() == null) {
+      LocalDate localPaymentDate = LocalDate.from(localPayment.getCreationDatetime());
+      PaymentNumberSequence localPaymentSequence =
+          paymentNumberSequenceService.getNextSequence(localPaymentDate);
+      localPayment.setSequence(localPaymentSequence);
+    }
+    paymentService.saveAll(List.of(localPayment));
+
+    Context context = loadPaymentReceiptContext(localPayment.getFee(), localPayment);
     String html = htmlParser.apply(template, context);
-    return pdfRenderer.apply(html);
+    String filename = RECEIPT_FILENAME_PREFIX + localPayment.getSequence();
+    return createFileFromBytes(pdfRenderer.apply(html), filename, ".pdf");
+  }
+
+  private File createFileFromBytes(byte[] bytes, String filename, String suffix) {
+    try {
+      File file = File.createTempFile(filename, suffix);
+      FileUtils.writeByteArrayToFile(file, bytes);
+      return file;
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   public ZipReceiptsStatistic getZipFeeReceipts(ZipReceiptsRequest zipReceiptsRequest) {
     List<Payment> allPaymentBetween =
         paymentService.getAllPayementBetween(
             zipReceiptsRequest.getFrom(), zipReceiptsRequest.getTo());
+    List<File> pdfs =
+        allPayementBetween.stream()
+            .map(payment -> generatePaidFeeReceipt(payment, "paidFeeReceipt"))
+            .toList();
 
-    sendReceiptZipToEmail(allPaymentBetween, zipReceiptsRequest.getDestinationEmail());
+    sendReceiptZipToEmail(pdfs, zipReceiptsRequest.getDestinationEmail());
 
-    return new ZipReceiptsStatistic().fileCountInZip(allPaymentBetween.size());
+    return new ZipReceiptsStatistic().fileCountInZip(pdfs.size());
   }
 
   public void sendReceiptZipToEmail(List<Payment> payments, String destinationEmail) {
@@ -181,7 +229,7 @@ public class StudentFileService {
 
     context.setVariable("logo", base64Converter.apply(logo));
     context.setVariable("paymentAuthorName", dataProvider.getEntirePaymentAuthorName());
-    context.setVariable("receiptNumber", payment.getId());
+    context.setVariable("receiptNumber", payment.getSequence());
     context.setVariable("totalAmount", numberToReadable(dataProvider.getFeeTotalAmount()));
     context.setVariable("paymentDate", dataProvider.getPaymentDate());
     context.setVariable("paymentAmount", numberToReadable(dataProvider.getTotalPaymentAmount()));
