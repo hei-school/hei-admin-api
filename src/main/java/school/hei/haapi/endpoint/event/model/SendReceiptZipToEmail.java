@@ -1,7 +1,6 @@
 package school.hei.haapi.endpoint.event.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.List;
@@ -26,15 +25,15 @@ public class SendReceiptZipToEmail extends PojaEvent {
   @JsonProperty("startRequest")
   private Instant startRequest;
 
-  @JsonProperty("fileToZip")
-  private List<File> fileToZip;
+  @JsonProperty("paymentIdsToZip")
+  private List<String> paymentIdsToZip;
 
   @JsonProperty("emailRecipient")
   private String emailRecipient;
 
   @Override
   public Duration maxConsumerDuration() {
-    return Duration.ofSeconds(60);
+    return Duration.ofSeconds(800);
   }
 
   @Override
