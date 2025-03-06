@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
@@ -165,6 +166,15 @@ public class PaymentService {
     toCreate.forEach(
         payment -> computeRemainingAmount(payment.getFee().getId(), payment.getAmount()));
     return paymentRepository.saveAll(toCreate);
+  }
+
+  @Transactional
+  public List<Payment> crupdateSequence(List<Payment> toCreate) {
+    return toCreate.stream()
+        .map(
+            payment ->
+                paymentRepository.setSequenceIdOf(payment.getSequence().getId(), payment.getId()))
+        .collect(toUnmodifiableList());
   }
 
   public List<Payment> getAllPayementBetween(Instant from, Instant to) {

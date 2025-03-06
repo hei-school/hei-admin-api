@@ -188,7 +188,7 @@ public class StudentFileService {
           paymentNumberSequenceService.getNextSequence(localPaymentDate);
       localPayment.setSequence(localPaymentSequence);
     }
-    paymentService.saveAll(List.of(localPayment));
+    paymentService.crupdateSequence(List.of(localPayment));
 
     Context context = loadPaymentReceiptContext(localPayment.getFee(), localPayment);
     String html = htmlParser.apply(template, context);
