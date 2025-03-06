@@ -9,6 +9,7 @@ import jakarta.mail.internet.InternetAddress;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Consumer;
@@ -38,7 +39,7 @@ public class MissedEventEmailService implements Consumer<MissedEventEmail> {
   }
 
   private String formatDateFromInstant(Instant instant) {
-    LocalDate date = LocalDate.from(instant);
+    LocalDate date = instant.atZone(ZoneId.systemDefault()).toLocalDate();
     return date.format(ofLocalizedDate(LONG).withLocale(FRENCH));
   }
 

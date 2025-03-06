@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -148,7 +149,9 @@ public class StudentFileService {
         .map(
             payment -> {
               File paymentFile = generatePaidFeeReceipt(payment, "paidFeeReceipt");
-              saveReceipt(LocalDate.from(payment.getCreationDatetime()), paymentFile);
+              saveReceipt(
+                  payment.getCreationDatetime().atZone(ZoneId.systemDefault()).toLocalDate(),
+                  paymentFile);
               return paymentFile;
             })
         .collect(toUnmodifiableList());
@@ -179,7 +182,8 @@ public class StudentFileService {
             .build();
 
     if (localPayment.getSequence() == null) {
-      LocalDate localPaymentDate = LocalDate.from(localPayment.getCreationDatetime());
+      LocalDate localPaymentDate =
+          localPayment.getCreationDatetime().atZone(ZoneId.systemDefault()).toLocalDate();
       PaymentNumberSequence localPaymentSequence =
           paymentNumberSequenceService.getNextSequence(localPaymentDate);
       localPayment.setSequence(localPaymentSequence);
