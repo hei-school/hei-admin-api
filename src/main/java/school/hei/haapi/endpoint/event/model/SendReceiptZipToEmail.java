@@ -3,13 +3,13 @@ package school.hei.haapi.endpoint.event.model;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import school.hei.haapi.endpoint.rest.model.ZipReceiptsRequest;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -19,17 +19,11 @@ import lombok.ToString;
 @Getter
 public class SendReceiptZipToEmail extends PojaEvent {
 
-  @JsonProperty("idWork")
-  private int idWork;
-
   @JsonProperty("startRequest")
   private Instant startRequest;
 
-  @JsonProperty("paymentIdsToZip")
-  private List<String> paymentIdsToZip;
-
-  @JsonProperty("emailRecipient")
-  private String emailRecipient;
+  @JsonProperty("request")
+  private ZipReceiptsRequest request;
 
   @Override
   public Duration maxConsumerDuration() {

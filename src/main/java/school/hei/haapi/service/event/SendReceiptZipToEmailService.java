@@ -1,11 +1,9 @@
 package school.hei.haapi.service.event;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService.internetAddress;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
 import java.io.File;
-import java.time.LocalDate;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
@@ -13,7 +11,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.model.SendReceiptZipToEmail;
-import school.hei.haapi.file.FileZipper;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.service.StudentFileService;
@@ -24,47 +21,41 @@ import school.hei.haapi.service.aws.FileService;
 @Slf4j
 public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEmail> {
   private final Mailer mailer;
-  private final FileZipper fileZipper;
   private final StudentFileService studentFileService;
   private final FileService fileService;
 
-  private Context getMailContext(SendReceiptZipToEmail sendReceiptZipToEmail) {
+  private Context getMailContext(
+      SendReceiptZipToEmail sendReceiptZipToEmail, long fileCount, String presignedUrl) {
     Context initial = new Context();
 
-    initial.setVariable("fileCount", sendReceiptZipToEmail.getPaymentIdsToZip().size());
+    initial.setVariable("fileCount", fileCount);
+    initial.setVariable("resultUrl", presignedUrl);
     return initial;
   }
 
   @Override
   public void accept(SendReceiptZipToEmail sendReceiptZipToEmail) {
-    String htmlBody = htmlToString("feeReceiptEmail", getMailContext(sendReceiptZipToEmail));
+    List<File> files =
+        studentFileService.generatePaidFeeReceiptsBetween(
+            sendReceiptZipToEmail.getRequest().getFrom(),
+            sendReceiptZipToEmail.getRequest().getTo());
 
-    File zip =
-        fileZipper.apply(
-            sendReceiptZipToEmail.getPaymentIdsToZip().stream()
-                .map(studentFileService::paymentToReceiptPdf)
-                .collect(toUnmodifiableList()));
+    String presignedUrl =
+        fileService.getPresignedUrl(StudentFileService.RECEIPT_FOLDER, 60 * 60 * 24L);
 
-    saveFile(LocalDate.from(sendReceiptZipToEmail.getStartRequest()), zip);
+    String htmlBody =
+        htmlToString(
+            "feeReceiptEmail", getMailContext(sendReceiptZipToEmail, files.size(), presignedUrl));
 
     mailer.accept(
         new Email(
-            internetAddress("contact@mail.hei.school"),
-            List.of(internetAddress(sendReceiptZipToEmail.getEmailRecipient())),
+            internetAddress(sendReceiptZipToEmail.getRequest().getDestinationEmail()),
             List.of(),
-            "HEI - receipts of fee - start at "
-                + sendReceiptZipToEmail.getStartRequest()
-                + " - Number - "
-                + sendReceiptZipToEmail.getIdWork(),
+            List.of(),
+            "HEI - receipts of fee - started at "
+                + sendReceiptZipToEmail.getStartRequest(),
             htmlBody,
-            List.of(zip)));
+            List.of()));
     log.info("Send email...");
-  }
-
-  private void saveFile(LocalDate date, File toSave) {
-    String bucketKey =
-        String.format("RECEIPT/%s-%s/%s.zip", date.getYear(), date.getMonth(), toSave.getName());
-    fileService.uploadObjectToS3Bucket(bucketKey, toSave);
-    log.info("zip: '{}' saved successfully", bucketKey);
   }
 }
