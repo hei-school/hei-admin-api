@@ -132,13 +132,13 @@ public class StudentFileService {
   }
 
   public ZipReceiptsStatistic getZipFeeReceipts(ZipReceiptsRequest zipReceiptsRequest) {
-    List<Payment> allPayementBetween =
+    List<Payment> allPaymentBetween =
         paymentService.getAllPayementBetween(
             zipReceiptsRequest.getFrom(), zipReceiptsRequest.getTo());
 
-    sendReceiptZipToEmail(allPayementBetween, zipReceiptsRequest.getDestinationEmail());
+    sendReceiptZipToEmail(allPaymentBetween, zipReceiptsRequest.getDestinationEmail());
 
-    return new ZipReceiptsStatistic().fileCountInZip(allPayementBetween.size());
+    return new ZipReceiptsStatistic().fileCountInZip(allPaymentBetween.size());
   }
 
   public void sendReceiptZipToEmail(List<Payment> payments, String destinationEmail) {
