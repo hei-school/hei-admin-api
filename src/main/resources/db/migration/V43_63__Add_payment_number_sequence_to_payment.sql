@@ -1,0 +1,1 @@
+alter table "payment" add column number_id varchar constraint payment_number_id_fk references "payment_number_sequence"(id);
