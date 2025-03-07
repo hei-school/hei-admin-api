@@ -1,6 +1,6 @@
 package school.hei.haapi.service.event;
 
-import static school.hei.haapi.service.StudentFileService.RECEIPT_FOLDER;
+import static school.hei.haapi.service.ReceiptGenerationService.RECEIPT_FOLDER;
 import static school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService.internetAddress;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
@@ -15,7 +15,7 @@ import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.model.SendReceiptZipToEmail;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
-import school.hei.haapi.service.StudentFileService;
+import school.hei.haapi.service.ReceiptGenerationService;
 import school.hei.haapi.service.aws.FileService;
 
 @Service
@@ -23,7 +23,7 @@ import school.hei.haapi.service.aws.FileService;
 @Slf4j
 public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEmail> {
   private final Mailer mailer;
-  private final StudentFileService studentFileService;
+  private final ReceiptGenerationService receiptGenerationService;
   private final FileService fileService;
 
   private Context getMailContext(
@@ -39,7 +39,7 @@ public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEm
   @Override
   public void accept(SendReceiptZipToEmail sendReceiptZipToEmail) {
     long filesCount =
-        studentFileService.generatePaidFeeReceiptsBetween(
+        receiptGenerationService.generatePaidFeeReceiptsBetween(
             sendReceiptZipToEmail.getRequest().getFrom(),
             sendReceiptZipToEmail.getRequest().getTo());
 

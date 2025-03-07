@@ -29,6 +29,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.ScholarshipDataValidator;
+import school.hei.haapi.service.ReceiptGenerationService;
 import school.hei.haapi.service.StudentFileService;
 import school.hei.haapi.service.UserService;
 
@@ -36,6 +37,7 @@ import school.hei.haapi.service.UserService;
 @AllArgsConstructor
 public class UserFileController {
   private final StudentFileService fileService;
+  private final ReceiptGenerationService receiptGenerationService;
   private final FileInfoMapper fileInfoMapper;
   private final WorkDocumentMapper workDocumentMapper;
   private final CreateStudentWorkFileValidator createStudentWorkFileValidator;
@@ -58,13 +60,13 @@ public class UserFileController {
       @PathVariable(name = "student_id") String studentId,
       @PathVariable(name = "fee_id") String feeId,
       @PathVariable(name = "payment_id") String paymentId) {
-    return fileService.generatePaidFeeReceiptByPaymentId(paymentId, "paidFeeReceipt");
+    return receiptGenerationService.generatePaidFeeReceiptByPaymentId(paymentId, "paidFeeReceipt");
   }
 
   @PutMapping(value = "/fees/payments/receipts/raw")
   public ZipReceiptsStatistic getZipFeeReceipts(
       @RequestBody ZipReceiptsRequest zipReceiptsRequest) {
-    return fileService.getZipFeeReceipts(zipReceiptsRequest);
+    return receiptGenerationService.getZipFeeReceipts(zipReceiptsRequest);
   }
 
   @PostMapping(value = "/users/{user_id}/files/raw", consumes = MULTIPART_FORM_DATA_VALUE)
