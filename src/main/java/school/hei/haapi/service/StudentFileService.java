@@ -148,7 +148,7 @@ public class StudentFileService {
   }
 
   public long generatePaidFeeReceiptsBetween(Instant from, Instant to) throws IOException {
-    List<Payment> allPaymentBetween = paymentService.getAllPayementBetween(from, to);
+    List<Payment> allPaymentBetween = paymentService.getAllPaymentBetween(from, to);
 
     Path tempWorkingDirectory = Files.createTempDirectory(String.format("%s-%s", from, to));
 

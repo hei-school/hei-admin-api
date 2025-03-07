@@ -174,7 +174,7 @@ public class PaymentService {
     return paymentRepository.save(payment);
   }
 
-  public List<Payment> getAllPayementBetween(Instant from, Instant to) {
+  public List<Payment> getAllPaymentBetween(Instant from, Instant to) {
     return paymentRepository.getAllByCreationDatetimeBetweenOrderByCreationDatetimeAsc(from, to);
   }
 }
