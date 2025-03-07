@@ -39,7 +39,7 @@ public class MissedEventEmailService implements Consumer<MissedEventEmail> {
   }
 
   private String formatDateFromInstant(Instant instant) {
-    LocalDate date = instant.atZone(ZoneId.systemDefault()).toLocalDate();
+    LocalDate date = instant.atZone(ZoneId.of("UTC+3")).toLocalDate();
     return date.format(ofLocalizedDate(LONG).withLocale(FRENCH));
   }
 
