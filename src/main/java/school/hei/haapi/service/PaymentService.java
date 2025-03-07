@@ -25,6 +25,7 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.PaymentNumberSequence;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -167,12 +168,10 @@ public class PaymentService {
     return paymentRepository.saveAll(toCreate);
   }
 
-  @Transactional
-  public void updateSequence(List<Payment> toCreate) {
-    toCreate.forEach(
-        payment -> {
-          paymentRepository.updateSequenceIdOf(payment.getSequence().getId(), payment.getId());
-        });
+  public Payment updateSequence(String paymentId, PaymentNumberSequence sequence) {
+    Payment payment = getById(paymentId);
+    payment.setSequence(sequence);
+    return paymentRepository.save(payment);
   }
 
   public List<Payment> getAllPayementBetween(Instant from, Instant to) {

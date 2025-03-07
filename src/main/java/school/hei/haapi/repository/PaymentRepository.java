@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -31,8 +30,4 @@ public interface PaymentRepository extends JpaRepository<Payment, String> {
   List<Payment> getAllByCreationDatetimeBetweenOrderByCreationDatetimeAsc(Instant from, Instant to);
 
   Integer countByCreationDatetimeBetweenOrderByCreationDatetimeAsc(Instant from, Instant to);
-
-  @Modifying
-  @Query(value = "update \"payment\" set number_id = ?1 where id = ?2", nativeQuery = true)
-  void updateSequenceIdOf(String paymentNumberSequenceId, String paymentId);
 }

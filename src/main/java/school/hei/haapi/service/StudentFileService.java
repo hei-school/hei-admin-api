@@ -169,30 +169,17 @@ public class StudentFileService {
   }
 
   private File generatePaidFeeReceipt(Payment payment, String template) {
-    Payment localPayment =
-        Payment.builder()
-            .id(payment.getId())
-            .type(payment.getType())
-            .fee(payment.getFee())
-            .amount(payment.getAmount())
-            .isDeleted(payment.isDeleted())
-            .creationDatetime(payment.getCreationDatetime())
-            .comment(payment.getComment())
-            .sequence(payment.getSequence())
-            .build();
-
-    if (localPayment.getSequence() == null) {
+    if (payment.getSequence() == null) {
       LocalDate localPaymentDate =
-          localPayment.getCreationDatetime().atZone(ZoneId.systemDefault()).toLocalDate();
+          payment.getCreationDatetime().atZone(ZoneId.systemDefault()).toLocalDate();
       PaymentNumberSequence localPaymentSequence =
           paymentNumberSequenceService.getNextSequence(localPaymentDate);
-      localPayment.setSequence(localPaymentSequence);
+      paymentService.updateSequence(payment.getId(), localPaymentSequence);
     }
-    paymentService.updateSequence(List.of(localPayment));
 
-    Context context = loadPaymentReceiptContext(localPayment.getFee(), localPayment);
+    Context context = loadPaymentReceiptContext(payment.getFee(), payment);
     String html = htmlParser.apply(template, context);
-    String filename = RECEIPT_FILENAME_PREFIX + localPayment.getSequence();
+    String filename = RECEIPT_FILENAME_PREFIX + payment.getSequence();
     return createFileFromBytes(pdfRenderer.apply(html), filename, ".pdf");
   }
 
