@@ -52,8 +52,7 @@ public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEm
             internetAddress(sendReceiptZipToEmail.getRequest().getDestinationEmail()),
             List.of(),
             List.of(),
-            "HEI - receipts of fee - started at "
-                + sendReceiptZipToEmail.getStartRequest(),
+            "HEI - receipts of fee - started at " + sendReceiptZipToEmail.getStartRequest(),
             htmlBody,
             List.of()));
     log.info("Send email...");
