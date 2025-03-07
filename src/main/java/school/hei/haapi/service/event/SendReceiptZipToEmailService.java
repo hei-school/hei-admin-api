@@ -4,7 +4,6 @@ import static school.hei.haapi.service.StudentFileService.RECEIPT_FOLDER;
 import static school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService.internetAddress;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
-import java.io.File;
 import java.time.Duration;
 import java.util.List;
 import java.util.function.Consumer;
@@ -37,7 +36,7 @@ public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEm
 
   @Override
   public void accept(SendReceiptZipToEmail sendReceiptZipToEmail) {
-    List<File> files =
+    long filesCount =
         studentFileService.generatePaidFeeReceiptsBetween(
             sendReceiptZipToEmail.getRequest().getFrom(),
             sendReceiptZipToEmail.getRequest().getTo());
@@ -47,7 +46,7 @@ public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEm
 
     String htmlBody =
         htmlToString(
-            "feeReceiptEmail", getMailContext(sendReceiptZipToEmail, files.size(), presignedUrl));
+            "feeReceiptEmail", getMailContext(sendReceiptZipToEmail, filesCount, presignedUrl));
 
     mailer.accept(
         new Email(

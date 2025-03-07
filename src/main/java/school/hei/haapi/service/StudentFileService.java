@@ -1,7 +1,6 @@
 package school.hei.haapi.service;
 
 import static java.time.LocalDate.now;
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
@@ -142,19 +141,19 @@ public class StudentFileService {
     }
   }
 
-  public List<File> generatePaidFeeReceiptsBetween(Instant from, Instant to) {
+  public long generatePaidFeeReceiptsBetween(Instant from, Instant to) {
     List<Payment> allPaymentBetween = paymentService.getAllPayementBetween(from, to);
 
-    return allPaymentBetween.stream()
-        .map(
-            payment -> {
-              File paymentFile = generatePaidFeeReceipt(payment, "paidFeeReceipt");
-              saveReceipt(
-                  payment.getCreationDatetime().atZone(ZoneId.systemDefault()).toLocalDate(),
-                  paymentFile);
-              return paymentFile;
-            })
-        .collect(toUnmodifiableList());
+    allPaymentBetween.forEach(
+        payment -> {
+          File feeReceiptFile = generatePaidFeeReceipt(payment, "paidFeeReceipt");
+          saveReceipt(
+              payment.getCreationDatetime().atZone(ZoneId.systemDefault()).toLocalDate(),
+              feeReceiptFile);
+          feeReceiptFile.delete();
+        });
+
+    return allPaymentBetween.size();
   }
 
   private String getFormatedBucketKeyForReceipt(LocalDate date, File toSave) {
