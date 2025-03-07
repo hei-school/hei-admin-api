@@ -12,8 +12,10 @@ import java.time.temporal.TemporalAdjusters;
 public class InstantUtils {
   public static final ZoneId UTC0 = ZoneId.of("UTC+0");
 
+  public static final ZoneId UTC3 = ZoneId.of("UTC+3");
+
   public static Instant now() {
-    return LocalDateTime.now().atZone(ZoneId.of("UTC+3")).toInstant();
+    return LocalDateTime.now().atZone(UTC3).toInstant();
   }
 
   public static Instant getCurrentMondayOfTheWeek() {

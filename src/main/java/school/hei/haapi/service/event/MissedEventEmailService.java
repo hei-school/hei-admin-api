@@ -3,13 +3,13 @@ package school.hei.haapi.service.event;
 import static java.time.format.DateTimeFormatter.ofLocalizedDate;
 import static java.time.format.FormatStyle.LONG;
 import static java.util.Locale.FRENCH;
+import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
 import jakarta.mail.internet.InternetAddress;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.function.Consumer;
@@ -39,7 +39,7 @@ public class MissedEventEmailService implements Consumer<MissedEventEmail> {
   }
 
   private String formatDateFromInstant(Instant instant) {
-    LocalDate date = instant.atZone(ZoneId.of("UTC+3")).toLocalDate();
+    LocalDate date = instant.atZone(UTC3).toLocalDate();
     return date.format(ofLocalizedDate(LONG).withLocale(FRENCH));
   }
 

@@ -6,6 +6,7 @@ import static school.hei.haapi.file.FileZipper.ZIP_FILE_EXTENSION;
 import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
+import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
@@ -156,7 +156,7 @@ public class StudentFileService {
 
     for (Payment payment : allPaymentBetween) {
       LocalDate startOfThMonth =
-          payment.getCreationDatetime().atZone(ZoneId.of("UTC+3")).toLocalDate().withDayOfMonth(1);
+          payment.getCreationDatetime().atZone(UTC3).toLocalDate().withDayOfMonth(1);
       String yearMonthFolderName =
           String.format("%s-%s", startOfThMonth.getYear(), startOfThMonth.getMonth());
       Path yearMonthFolder = tempWorkingDirectory.resolve(yearMonthFolderName);
@@ -184,8 +184,7 @@ public class StudentFileService {
 
   private File generatePaidFeeReceipt(Payment payment, String template, Path tempWorkingDirectory) {
     if (payment.getSequence() == null) {
-      LocalDate localPaymentDate =
-          payment.getCreationDatetime().atZone(ZoneId.of("UTC+3")).toLocalDate();
+      LocalDate localPaymentDate = payment.getCreationDatetime().atZone(UTC3).toLocalDate();
       PaymentNumberSequence localPaymentSequence =
           paymentNumberSequenceService.getNextSequence(localPaymentDate);
       paymentService.updateSequence(payment.getId(), localPaymentSequence);
