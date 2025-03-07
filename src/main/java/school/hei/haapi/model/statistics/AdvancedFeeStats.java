@@ -53,8 +53,6 @@ public class AdvancedFeeStats {
 
   @CreationTimestamp private Instant creationDatetime;
 
-  private Instant statDatetime;
-
   public enum AdvancedFeeStatsType {
     TOTAL_COUNT,
     PAID_COUNT,

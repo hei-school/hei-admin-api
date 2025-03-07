@@ -33,6 +33,6 @@ public interface PaymentRepository extends JpaRepository<Payment, String> {
   Integer countByCreationDatetimeBetweenOrderByCreationDatetimeAsc(Instant from, Instant to);
 
   @Modifying
-  @Query("update \"payment\" set number_id = ?1 where id = ?2 returning *")
-  Payment setSequenceIdOf(String paymentNumberSequenceId, String paymentId);
+  @Query(value = "update \"payment\" set number_id = ?1 where id = ?2", nativeQuery = true)
+  void updateSequenceIdOf(String paymentNumberSequenceId, String paymentId);
 }
