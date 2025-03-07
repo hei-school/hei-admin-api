@@ -8,5 +8,5 @@ import school.hei.haapi.model.PaymentNumberSequence;
 @Repository
 public interface PaymentNumberSequenceRepository
     extends JpaRepository<PaymentNumberSequence, String> {
-  Optional<PaymentNumberSequence> findFirstByDatePartOrderBySequenceNumberDesc(String datePart);
+  Optional<PaymentNumberSequence> findFirstByYearMonthOrderBySequenceNumberDesc(String yearMonth);
 }

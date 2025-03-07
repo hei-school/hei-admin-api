@@ -15,7 +15,7 @@ public class PaymentNumberSequenceService {
   public PaymentNumberSequence getNextSequence(LocalDate date) {
     String yearMonth = getYearMonth(date);
     Optional<PaymentNumberSequence> sequence =
-        repository.findFirstByDatePartOrderBySequenceNumberDesc(yearMonth);
+        repository.findFirstByYearMonthOrderBySequenceNumberDesc(yearMonth);
 
     PaymentNumberSequence newSequence =
         PaymentNumberSequence.builder()
