@@ -25,7 +25,7 @@ public class PaymentNumberSequenceService {
     return repository.save(newSequence);
   }
 
-  private String getYearMonth(LocalDate date) {
+  private static String getYearMonth(LocalDate date) {
     return date.getYear() + "-" + date.getMonthValue();
   }
 }
