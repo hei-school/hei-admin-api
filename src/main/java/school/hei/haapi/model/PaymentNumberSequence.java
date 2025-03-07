@@ -26,11 +26,10 @@ public class PaymentNumberSequence {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  private String datePart;
-  private Integer sequenceNumber;
+  private String yearMonth;
+  private int sequenceNumber;
 
-  @Override
-  public String toString() {
-    return datePart + "-" + String.format("%04d", sequenceNumber);
+  public String getStringSequence() {
+    return yearMonth + "-" + String.format("%04d", sequenceNumber);
   }
 }

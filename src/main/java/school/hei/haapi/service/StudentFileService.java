@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -171,7 +172,7 @@ public class StudentFileService {
   private File generatePaidFeeReceipt(Payment payment, String template) {
     if (payment.getSequence() == null) {
       LocalDate localPaymentDate =
-          payment.getCreationDatetime().atZone(ZoneId.systemDefault()).toLocalDate();
+          payment.getCreationDatetime().atOffset(ZoneOffset.of("UTC+3")).toLocalDate();
       PaymentNumberSequence localPaymentSequence =
           paymentNumberSequenceService.getNextSequence(localPaymentDate);
       paymentService.updateSequence(payment.getId(), localPaymentSequence);
@@ -217,7 +218,7 @@ public class StudentFileService {
 
     context.setVariable("logo", base64Converter.apply(logo));
     context.setVariable("paymentAuthorName", dataProvider.getEntirePaymentAuthorName());
-    context.setVariable("receiptNumber", payment.getSequence());
+    context.setVariable("receiptNumber", payment.getSequence().getStringSequence());
     context.setVariable("totalAmount", numberToReadable(dataProvider.getFeeTotalAmount()));
     context.setVariable("paymentDate", dataProvider.getPaymentDate());
     context.setVariable("paymentAmount", numberToReadable(dataProvider.getTotalPaymentAmount()));

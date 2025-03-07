@@ -13,25 +13,19 @@ public class PaymentNumberSequenceService {
   private final PaymentNumberSequenceRepository repository;
 
   public PaymentNumberSequence getNextSequence(LocalDate date) {
-    String datePart = getDatePart(date);
+    String yearMonth = getYearMonth(date);
     Optional<PaymentNumberSequence> sequence =
-        repository.findFirstByDatePartOrderBySequenceNumberDesc(datePart);
-    if (sequence.isEmpty()) {
-      PaymentNumberSequence newSequence =
-          PaymentNumberSequence.builder().datePart(datePart).sequenceNumber(1).build();
-      return repository.save(newSequence);
-    } else {
-      Integer nextSequenceNumber = sequence.get().getSequenceNumber() + 1;
-      PaymentNumberSequence newSequence =
-          PaymentNumberSequence.builder()
-              .datePart(datePart)
-              .sequenceNumber(nextSequenceNumber)
-              .build();
-      return repository.save(newSequence);
-    }
+        repository.findFirstByDatePartOrderBySequenceNumberDesc(yearMonth);
+
+    PaymentNumberSequence newSequence =
+        PaymentNumberSequence.builder()
+            .yearMonth(yearMonth)
+            .sequenceNumber(sequence.map(s -> s.getSequenceNumber() + 1).orElse(1))
+            .build();
+    return repository.save(newSequence);
   }
 
-  private String getDatePart(LocalDate date) {
+  private String getYearMonth(LocalDate date) {
     return date.getYear() + "-" + date.getMonthValue();
   }
 }

@@ -1,9 +1,11 @@
 package school.hei.haapi.service.event;
 
+import static school.hei.haapi.service.StudentFileService.RECEIPT_FOLDER;
 import static school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService.internetAddress;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
 import java.io.File;
+import java.time.Duration;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
@@ -41,7 +43,7 @@ public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEm
             sendReceiptZipToEmail.getRequest().getTo());
 
     String presignedUrl =
-        fileService.getPresignedUrl(StudentFileService.RECEIPT_FOLDER, 60 * 60 * 24L);
+        fileService.getPresignedUrl(RECEIPT_FOLDER, Duration.ofDays(1).getSeconds());
 
     String htmlBody =
         htmlToString(
