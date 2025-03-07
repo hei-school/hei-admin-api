@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static java.time.LocalDate.now;
 import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.file.FileZipper.ZIP_FILE_EXTENSION;
 import static school.hei.haapi.service.utils.DataFormatterUtils.formatLocalDate;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
@@ -9,9 +10,12 @@ import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -30,6 +34,7 @@ import school.hei.haapi.endpoint.rest.model.FileType;
 import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
 import school.hei.haapi.endpoint.rest.model.ZipReceiptsRequest;
 import school.hei.haapi.endpoint.rest.model.ZipReceiptsStatistic;
+import school.hei.haapi.file.FileZipper;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FileInfo;
@@ -76,6 +81,7 @@ public class StudentFileService {
   private final PaymentNumberSequenceService paymentNumberSequenceService;
   private final FileService fileService;
   private final PaymentRepository paymentRepository;
+  private final FileZipper fileZipper;
 
   public WorkDocument uploadStudentWorkFile(
       String studentId,
@@ -133,41 +139,50 @@ public class StudentFileService {
 
   public byte[] generatePaidFeeReceiptByPaymentId(String paymentId, String template) {
     Payment payment = paymentService.getById(paymentId);
-    File receipt = generatePaidFeeReceipt(payment, template);
     try {
+      File receipt = generatePaidFeeReceipt(payment, template, Files.createTempDirectory("tmp"));
       return Files.readAllBytes(receipt.toPath());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  public long generatePaidFeeReceiptsBetween(Instant from, Instant to) {
+  public long generatePaidFeeReceiptsBetween(Instant from, Instant to) throws IOException {
     List<Payment> allPaymentBetween = paymentService.getAllPayementBetween(from, to);
 
-    allPaymentBetween.forEach(
-        payment -> {
-          File feeReceiptFile = generatePaidFeeReceipt(payment, "paidFeeReceipt");
-          saveReceipt(
-              payment.getCreationDatetime().atZone(ZoneId.systemDefault()).toLocalDate(),
-              feeReceiptFile);
-          feeReceiptFile.delete();
+    Path tempWorkingDirectory = Files.createTempDirectory(String.format("%s-%s", from, to));
+
+    List<Path> yearMonthFolders = new ArrayList<>();
+
+    for (Payment payment : allPaymentBetween) {
+      LocalDate startOfThMonth =
+          payment.getCreationDatetime().atZone(ZoneId.of("UTC+3")).toLocalDate().withDayOfMonth(1);
+      String yearMonthFolderName =
+          String.format("%s-%s", startOfThMonth.getYear(), startOfThMonth.getMonth());
+      Path yearMonthFolder = tempWorkingDirectory.resolve(yearMonthFolderName);
+      if (!yearMonthFolder.toFile().exists()) {
+        yearMonthFolders.add(Files.createDirectories(yearMonthFolder));
+      }
+      generatePaidFeeReceipt(payment, "paidFeeReceipt", yearMonthFolder);
+    }
+
+    yearMonthFolders.forEach(
+        folder -> {
+          File zip = fileZipper.apply(Arrays.stream(folder.toFile().listFiles()).toList());
+          zip.renameTo(new File(folder.toAbsolutePath() + ZIP_FILE_EXTENSION));
+          saveReceipt(zip);
         });
 
     return allPaymentBetween.size();
   }
 
-  private String getFormatedBucketKeyForReceipt(LocalDate date, File toSave) {
-    return String.format(
-        "%s/%s-%s/%s", RECEIPT_FOLDER, date.getYear(), date.getMonth(), toSave.getName());
-  }
-
-  private void saveReceipt(LocalDate date, File toSave) {
-    String bucketKey = getFormatedBucketKeyForReceipt(date, toSave);
+  private void saveReceipt(File toSave) {
+    String bucketKey = String.format("%s/%s", RECEIPT_FOLDER, toSave.getName());
     fileService.uploadObjectToS3Bucket(bucketKey, toSave);
     log.info("zip: '{}' saved successfully", bucketKey);
   }
 
-  private File generatePaidFeeReceipt(Payment payment, String template) {
+  private File generatePaidFeeReceipt(Payment payment, String template, Path tempWorkingDirectory) {
     if (payment.getSequence() == null) {
       LocalDate localPaymentDate =
           payment.getCreationDatetime().atZone(ZoneId.of("UTC+3")).toLocalDate();
@@ -179,12 +194,13 @@ public class StudentFileService {
     Context context = loadPaymentReceiptContext(payment.getFee(), payment);
     String html = htmlParser.apply(template, context);
     String filename = RECEIPT_FILENAME_PREFIX + payment.getSequence();
-    return createFileFromBytes(pdfRenderer.apply(html), filename, ".pdf");
+    return createFileFromBytes(pdfRenderer.apply(html), filename, tempWorkingDirectory);
   }
 
-  private File createFileFromBytes(byte[] bytes, String filename, String suffix) {
+  private File createFileFromBytes(byte[] bytes, String filename, Path tempWorkingDirectory) {
     try {
-      File file = File.createTempFile(filename, suffix);
+      File file = tempWorkingDirectory.resolve(filename).toFile();
+      file.createNewFile();
       FileUtils.writeByteArrayToFile(file, bytes);
       return file;
     } catch (IOException e) {

@@ -14,7 +14,7 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class FileZipper implements Function<List<File>, File> {
-  private static final String ZIP_FILE_EXTENSION = ".zip";
+  public static final String ZIP_FILE_EXTENSION = ".zip";
 
   @SneakyThrows
   @Override

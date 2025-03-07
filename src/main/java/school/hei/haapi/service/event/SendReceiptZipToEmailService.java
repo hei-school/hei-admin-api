@@ -8,6 +8,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -34,6 +35,7 @@ public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEm
     return initial;
   }
 
+  @SneakyThrows
   @Override
   public void accept(SendReceiptZipToEmail sendReceiptZipToEmail) {
     long filesCount =
