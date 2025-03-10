@@ -113,8 +113,9 @@ public class ReceiptGenerationService {
         folder -> {
           File zip = fileZipper.apply(Arrays.stream(folder.toFile().listFiles()).toList());
           zip.renameTo(new File(folder.toAbsolutePath() + ZIP_FILE_EXTENSION));
-          saveReceipt(zip);
         });
+
+    saveReceipt(tempWorkingDirectory.toFile());
 
     return allPaymentBetween.size();
   }
