@@ -1,8 +1,11 @@
 package school.hei.haapi.service;
 
+import static java.nio.file.Files.createDirectories;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static school.hei.haapi.file.FileZipper.ZIP_FILE_EXTENSION;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
+import static school.hei.haapi.service.utils.DateUtils.generateStartOfMonthRange;
 import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 
 import java.io.File;
@@ -11,7 +14,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -74,19 +76,38 @@ public class ReceiptGenerationService {
 
     Path tempWorkingDirectory = Files.createTempDirectory(String.format("%s-%s", from, to));
 
-    List<Path> yearMonthFolders = new ArrayList<>();
-
-    for (Payment payment : allPaymentBetween) {
-      LocalDate startOfThMonth =
-          payment.getCreationDatetime().atZone(UTC3).toLocalDate().withDayOfMonth(1);
-      String yearMonthFolderName =
-          String.format("%s-%s", startOfThMonth.getYear(), startOfThMonth.getMonth());
-      Path yearMonthFolder = tempWorkingDirectory.resolve(yearMonthFolderName);
-      if (!yearMonthFolder.toFile().exists()) {
-        yearMonthFolders.add(Files.createDirectories(yearMonthFolder));
-      }
-      generatePaidFeeReceipt(payment, "paidFeeReceipt", yearMonthFolder);
-    }
+    List<Path> yearMonthFolders =
+        generateStartOfMonthRange(from.atZone(UTC3).toLocalDate(), to.atZone(UTC3).toLocalDate())
+            .map(
+                startOfAMonth -> {
+                  String yearMonthFolderName =
+                      String.format("%s-%s", startOfAMonth.getYear(), startOfAMonth.getMonth());
+                  try {
+                    Path yearMonthFolder =
+                        createDirectories(tempWorkingDirectory.resolve(yearMonthFolderName));
+                    allPaymentBetween.stream()
+                        .filter(
+                            payment ->
+                                payment
+                                        .getCreationDatetime()
+                                        .atZone(UTC3)
+                                        .toLocalDate()
+                                        .isAfter(startOfAMonth)
+                                    && payment
+                                        .getCreationDatetime()
+                                        .atZone(UTC3)
+                                        .toLocalDate()
+                                        .isBefore(startOfAMonth.plusMonths(1)))
+                        .forEach(
+                            payment -> {
+                              generatePaidFeeReceipt(payment, "paidFeeReceipt", yearMonthFolder);
+                            });
+                    return yearMonthFolder;
+                  } catch (IOException e) {
+                    throw new RuntimeException(e);
+                  }
+                })
+            .collect(toUnmodifiableList());
 
     yearMonthFolders.forEach(
         folder -> {

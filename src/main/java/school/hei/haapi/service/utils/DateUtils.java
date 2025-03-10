@@ -3,11 +3,13 @@ package school.hei.haapi.service.utils;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.stream.Stream;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -52,4 +54,8 @@ public class DateUtils {
   }
 
   public record RangedInstant(Instant from, Instant to) {}
+
+  public static Stream<LocalDate> generateStartOfMonthRange(LocalDate from, LocalDate to) {
+    return from.withDayOfMonth(1).datesUntil(to.withDayOfMonth(1), Period.ofMonths(1));
+  }
 }
