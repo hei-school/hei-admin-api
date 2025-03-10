@@ -58,6 +58,10 @@ public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEm
             "HEI - receipts of fee - started at " + sendReceiptZipToEmail.getStartRequest(),
             htmlBody,
             List.of()));
-    log.info("Send email...");
+    log.info(
+        "{} file(s) are upload as zip in S3: {} and email has been sent to {}",
+        filesCount,
+        presignedUrl,
+        sendReceiptZipToEmail.getRequest().getDestinationEmail());
   }
 }
