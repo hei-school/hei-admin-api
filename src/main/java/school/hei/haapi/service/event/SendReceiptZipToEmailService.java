@@ -49,7 +49,6 @@ public class SendReceiptZipToEmailService implements Consumer<SendReceiptZipToEm
     String htmlBody =
         htmlToString(
             "feeReceiptEmail", getMailContext(sendReceiptZipToEmail, filesCount, presignedUrl));
-
     mailer.accept(
         new Email(
             internetAddress(sendReceiptZipToEmail.getRequest().getDestinationEmail()),
