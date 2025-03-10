@@ -13,7 +13,6 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -132,7 +131,7 @@ public class ReceiptGenerationService {
 
   public ZipReceiptsStatistic getZipFeeReceipts(ZipReceiptsRequest zipReceiptsRequest) {
     eventProducer.accept(
-        Collections.singleton(
+        List.of(
             SendReceiptZipToEmail.builder()
                 .startRequest(Instant.now())
                 .request(zipReceiptsRequest)
