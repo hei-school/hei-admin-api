@@ -192,7 +192,9 @@ public class ReceiptGenerationService {
       case BANK_TRANSFER -> "Virement bancaire";
       case CASH -> "En espèce";
       case MOBILE_MONEY -> "Mobile Money";
-      case SCHOLARSHIP, FIX -> null;
+      case SCHOLARSHIP, FIX ->
+          throw new IllegalArgumentException(
+              String.format("Payment type must not be %s", typeEnum));
     };
   }
 }
