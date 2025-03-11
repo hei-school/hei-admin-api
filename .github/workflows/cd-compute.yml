@@ -8,12 +8,30 @@ on:
 
   workflow_dispatch:
     inputs:
+      env_conf_id:
+        required: false
+        description: |
+          Env conf id.
+          Optional, if set then Deployment id must remain unset (as we will create a new Deployment id). If not set, then will retrieve latest conf.
+      deployment_id:
+        required: false
+        description: |
+          Deployment id.
+          Optional, if set then Env conf id must remain unset (as we already have an associated Env conf id).
+          Mainly used by JCloudify API: regular users does not have to use it under normal conditions.
       env_depl_conf_id:
         required: false
-        description: custom env depl conf id
+        description: |
+          Env depl conf id.
+          deprecated. Use Env Conf Id.
+          Optional, if set then Deployment id or deprecated equivalent must remain unset (as we will create a new Deployment id). If not set, then will retrieve latest conf.
       app_env_depl_id:
         required: false
-        description: custom app env depl id to deploy with conf
+        description: |
+          App env depl Id.
+          deprecated. Use Deployment id.
+          Optional, if set then env conf id or deprecated equivalent must remain unset (as we already have an associated Env conf id).
+          Mainly used by JCloudify API: regular users do not have to use it under normal conditions.
 jobs:
   initiate-deployment:
     runs-on: ubuntu-latest
@@ -31,14 +49,14 @@ jobs:
         run: |
           commit_message=$(git log -1 --pretty=%B)
           commit_author=$(git log -1 --pretty=%an)
+
           app_env_deployment_id_value=${{ env.app_env_deployment_id }}
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            app_env_deployment_id_value="${{ github.event.inputs.app_env_depl_id }}"
+            app_env_deployment_id_value="${{ github.event.inputs.deployment_id }}"
             if [ -z "$app_env_deployment_id_value" ]; then
-              app_env_deployment_id_value="null"
+              app_env_deployment_id_value="${{ github.event.inputs.app_env_depl_id }}"
             fi
           fi
-
           if [ -z "$app_env_deployment_id_value" ]; then
             app_env_deployment_id_value="null"
           fi
@@ -48,6 +66,8 @@ jobs:
             -H "Content-Type: application/json" \
             -d "$(jq -n \
                   --arg app_env_deployment_id "$app_env_deployment_id_value" \
+                  --arg workflow_run_id "${{ github.run_id }}" \
+                  --arg workflow_run_attempt "${{ github.run_attempt }}" \
                   --arg commit_sha "${{ github.sha }}" \
                   --arg commit_message "$commit_message" \
                   --arg commit_author "$commit_author" \
@@ -56,6 +76,8 @@ jobs:
                   '{
                     app_env_deployment_id: ($app_env_deployment_id | if . == "null" then null else . end),
                     commit_sha: $commit_sha,
+                    workflow_run_id: $workflow_run_id,
+                    workflow_run_attempt: $workflow_run_attempt,
                     commit_message: $commit_message,
                     commit_author_name: $commit_author,
                     status: $status,
@@ -102,26 +124,31 @@ jobs:
         id: trigger-deployment
         run: |
           app_env_deployment_id="${{ env.app_env_deployment_id }}"
-          env_depl_conf_id="${{ github.event.inputs.env_depl_conf_id }}"
+
+          input_conf_id="${{ github.event.inputs.env_conf_id }}"
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            if [ -z "$input_conf_id" ]; then
+              input_conf_id="${{ github.event.inputs.env_depl_conf_id }}"
+            fi
+          fi
+
           TAG_NAME="null"
           TAG_MESSAGE="null"
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "$env_depl_conf_id" ]]; then
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "$input_conf_id" ]]; then
             TAG_NAME="jc-depl-${app_env_deployment_id}"
             TAG_MESSAGE="jcloudify: deployment ID: ${app_env_deployment_id}"            
           fi
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
           echo "TAG_MESSAGE=$TAG_MESSAGE" >> $GITHUB_ENV
-          
-          if [ -z "$env_depl_conf_id" ]; then
-            env_depl_conf_id="null"
+
+          if [ -z "$input_conf_id" ]; then
+            input_conf_id="null"
           fi
-          echo "env_depl_conf_id=$env_depl_conf_id" >> $GITHUB_ENV
-      
-          curl --fail -X PUT "https://api.prod.jcloudify.com/gh-repos/${{ github.repository }}/env-deploys?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" \
+          response=$(curl --fail -X PUT "https://api.prod.jcloudify.com/gh-repos/${{ github.repository }}/env-deploys?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
-              --arg env_depl_conf_id "$env_depl_conf_id" \
+              --arg env_depl_conf_id "$input_conf_id" \
               --arg formatted_bucket_key "${{ env.to_upload_filename }}" \
               --arg id "${{ steps.generate-uuid.outputs.uuid }}" \
               --arg commit_sha "${{ github.sha }}" \
@@ -138,10 +165,11 @@ jobs:
                 environment_type: $environment_type,
                 tag_name: ($tag_name | if . == "null" then null else . end),
                 tag_message: ($tag_message | if . == "null" then null else . end)
-              }')"
+              }')")
+          echo $response
       
       - name: Tag commit if deployment with custom conf succeeded
-        if: ${{ github.event_name == 'workflow_dispatch' && github.event.inputs.app_env_depl_id != '' && github.event.inputs.env_depl_conf_id != '' && env.TAG_NAME != 'null' && env.TAG_MESSAGE != 'null' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.env_depl_conf_id != '' || github.event.inputs.env_conf_id != '' ) && env.TAG_NAME != 'null' && env.TAG_MESSAGE != 'null' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ env.TAG_NAME }}
@@ -157,8 +185,14 @@ jobs:
         run: |
           commit_message=$(git log -1 --pretty=%B)
           commit_author=$(git log -1 --pretty=%an)
-          app_env_deployment_id_value=${{ env.app_env_deployment_id }}
 
+          app_env_deployment_id_value=${{ env.app_env_deployment_id }}
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            app_env_deployment_id_value="${{ github.event.inputs.deployment_id }}"
+            if [ -z "$app_env_deployment_id_value" ]; then
+              app_env_deployment_id_value="${{ github.event.inputs.app_env_depl_id }}"
+            fi
+          fi
           if [ -z "$app_env_deployment_id_value" ]; then
             app_env_deployment_id_value=null
           fi
@@ -168,16 +202,21 @@ jobs:
             -H "Content-Type: application/json" \
             -d "$(jq -n \
                   --arg app_env_deployment_id "$app_env_deployment_id_value" \
+                  --arg workflow_run_id "${{ github.run_id }}" \
+                  --arg workflow_run_attempt "${{ github.run_attempt }}" \
                   --arg commit_sha "${{ github.sha }}" \
                   --arg commit_message "$commit_message" \
                   --arg commit_author "$commit_author" \
-                  --arg status "WORKFLOW_RUNNING" \
+                  --arg status "WORKFLOW_FAILED" \
                   --arg environment_type "$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" \
                   '{
                     app_env_deployment_id: ($app_env_deployment_id | if . == "null" then null else . end),
                     commit_sha: $commit_sha,
+                    workflow_run_id: $workflow_run_id,
+                    workflow_run_attempt: $workflow_run_attempt,
                     commit_message: $commit_message,
                     commit_author_name: $commit_author,
                     status: $status,
-                  environment_type: $environment_type
+                    environment_type: $environment_type
                 }')")
+          echo $response 
