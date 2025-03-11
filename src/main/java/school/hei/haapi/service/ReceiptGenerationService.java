@@ -25,8 +25,8 @@ import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.SendReceiptZipToEmail;
-import school.hei.haapi.endpoint.rest.model.ZipReceiptsRequest;
-import school.hei.haapi.endpoint.rest.model.ZipReceiptsStatistic;
+import school.hei.haapi.endpoint.rest.model.GeneratedReceiptsStatistic;
+import school.hei.haapi.endpoint.rest.model.GenerationReceiptsRequest;
 import school.hei.haapi.file.FileZipper;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Payment;
@@ -149,18 +149,19 @@ public class ReceiptGenerationService {
     }
   }
 
-  public ZipReceiptsStatistic getZipFeeReceipts(ZipReceiptsRequest zipReceiptsRequest) {
+  public GeneratedReceiptsStatistic getZipFeeReceipts(
+      GenerationReceiptsRequest generationReceiptsRequest) {
     eventProducer.accept(
         List.of(
             SendReceiptZipToEmail.builder()
                 .startRequest(Instant.now())
-                .request(zipReceiptsRequest)
+                .request(generationReceiptsRequest)
                 .build()));
 
-    return new ZipReceiptsStatistic()
-        .fileCountInZip(
+    return new GeneratedReceiptsStatistic()
+        .processedFileCount(
             paymentRepository.countByCreationDatetimeBetweenOrderByCreationDatetimeAsc(
-                zipReceiptsRequest.getFrom(), zipReceiptsRequest.getTo()));
+                generationReceiptsRequest.getFrom(), generationReceiptsRequest.getTo()));
   }
 
   private Context loadPaymentReceiptContext(Fee fee, Payment payment) {

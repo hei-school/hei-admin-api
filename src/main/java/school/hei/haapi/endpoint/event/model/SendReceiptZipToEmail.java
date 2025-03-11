@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import school.hei.haapi.endpoint.rest.model.ZipReceiptsRequest;
+import school.hei.haapi.endpoint.rest.model.GenerationReceiptsRequest;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -23,7 +23,7 @@ public class SendReceiptZipToEmail extends PojaEvent {
   private Instant startRequest;
 
   @JsonProperty("request")
-  private ZipReceiptsRequest request;
+  private GenerationReceiptsRequest request;
 
   @Override
   public Duration maxConsumerDuration() {

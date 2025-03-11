@@ -20,10 +20,10 @@ import school.hei.haapi.endpoint.rest.mapper.FileInfoMapper;
 import school.hei.haapi.endpoint.rest.mapper.WorkDocumentMapper;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.FileType;
+import school.hei.haapi.endpoint.rest.model.GeneratedReceiptsStatistic;
+import school.hei.haapi.endpoint.rest.model.GenerationReceiptsRequest;
 import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
 import school.hei.haapi.endpoint.rest.model.WorkDocumentInfo;
-import school.hei.haapi.endpoint.rest.model.ZipReceiptsRequest;
-import school.hei.haapi.endpoint.rest.model.ZipReceiptsStatistic;
 import school.hei.haapi.endpoint.rest.validator.CreateStudentWorkFileValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -64,9 +64,9 @@ public class UserFileController {
   }
 
   @PutMapping(value = "/fees/payments/receipts/raw")
-  public ZipReceiptsStatistic getZipFeeReceipts(
-      @RequestBody ZipReceiptsRequest zipReceiptsRequest) {
-    return receiptGenerationService.getZipFeeReceipts(zipReceiptsRequest);
+  public GeneratedReceiptsStatistic getZipFeeReceipts(
+      @RequestBody GenerationReceiptsRequest generationReceiptsRequest) {
+    return receiptGenerationService.getZipFeeReceipts(generationReceiptsRequest);
   }
 
   @PostMapping(value = "/users/{user_id}/files/raw", consumes = MULTIPART_FORM_DATA_VALUE)
