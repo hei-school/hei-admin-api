@@ -58,4 +58,8 @@ public class DateUtils {
   public static Stream<LocalDate> generateStartOfMonthRange(LocalDate from, LocalDate to) {
     return from.withDayOfMonth(1).datesUntil(to.withDayOfMonth(1), Period.ofMonths(1));
   }
+
+  public static LocalDate instantToLocalDate(Instant instant) {
+    return instant.atZone(ZoneOffset.UTC).toLocalDate();
+  }
 }

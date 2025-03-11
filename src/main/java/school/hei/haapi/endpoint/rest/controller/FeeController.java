@@ -24,6 +24,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.model.FeesStats;
+import school.hei.haapi.service.AdvancedFeeStatsService;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.FeeTemplateService;
 import school.hei.haapi.service.UserService;
@@ -37,6 +38,7 @@ public class FeeController {
   private final UpdateFeeValidator updateFeeValidator;
   private final FeeTemplateService feeTemplateService;
   private final FeeTemplateMapper feeTemplateMapper;
+  private final AdvancedFeeStatsService advancedFeeStatsService;
 
   @GetMapping("/fees/{fee_id}")
   public Fee getFeeById(@PathVariable(name = "fee_id") String id) {
@@ -141,7 +143,7 @@ public class FeeController {
   public AdvancedFeesStatistics getAdvancedFeesStats(
       @RequestParam(name = "month_from", required = false) Instant monthFrom,
       @RequestParam(name = "month_to", required = false) Instant monthTo) {
-    return feeService.getAdvancedFeeStats(monthFrom, monthTo);
+    return advancedFeeStatsService.getAdvancedFeeStats(monthFrom, monthTo);
   }
 
   @PutMapping("/fees")

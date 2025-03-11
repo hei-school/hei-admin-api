@@ -10,6 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.time.LocalDate;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -51,7 +53,8 @@ public class AdvancedFeeStats {
   private Long bankTransferCount;
   private Long mpbsCount;
 
-  @CreationTimestamp private Instant creationDatetime;
+  @CreationTimestamp private Instant updateDatetime;
+  private LocalDate statDate;
 
   public enum AdvancedFeeStatsType {
     TOTAL_COUNT,

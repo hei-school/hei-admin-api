@@ -11,10 +11,12 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
+import org.springframework.cglib.core.Local;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
@@ -356,7 +358,11 @@ public class FeeDao {
     return entityManager.createQuery(query).getResultList();
   }
 
-  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStats(Instant from, Instant to) {
+  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStats(LocalDate statDate) {
+    return getAdvancedFeeStats(statDate, statDate);
+  }
+
+  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStats(LocalDate from, LocalDate to) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<AdvancedFeeStats> query = builder.createQuery(AdvancedFeeStats.class);
     Root<AdvancedFeeStats> root = query.from(AdvancedFeeStats.class);
@@ -385,7 +391,7 @@ public class FeeDao {
             mpbsCountSum,
             statType)
         .groupBy(statType);
-    query.where(builder.between(root.get("creationDatetime"), from, to));
+    query.where(builder.between(root.get("statDate"), from, to));
 
     TypedQuery<AdvancedFeeStats> typedQuery = entityManager.createQuery(query);
 
