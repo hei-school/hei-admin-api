@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import school.hei.haapi.endpoint.rest.model.GenerationReceiptsRequest;
+import school.hei.haapi.model.Payment;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,13 +17,12 @@ import school.hei.haapi.endpoint.rest.model.GenerationReceiptsRequest;
 @Builder
 @ToString
 @Getter
-public class SendReceiptZipToEmail extends PojaEvent {
-
+public class RequestReceiptGeneration extends PojaEvent {
   @JsonProperty("startRequest")
   private Instant startRequest;
 
   @JsonProperty("request")
-  private GenerationReceiptsRequest request;
+  private Payment payments;
 
   @Override
   public Duration maxConsumerDuration() {

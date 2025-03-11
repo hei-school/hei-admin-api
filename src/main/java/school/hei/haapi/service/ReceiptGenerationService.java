@@ -1,22 +1,18 @@
 package school.hei.haapi.service;
 
-import static java.nio.file.Files.createDirectories;
-import static java.util.stream.Collectors.groupingBy;
-import static school.hei.haapi.file.FileZipper.ZIP_FILE_EXTENSION;
+import static java.util.stream.Collectors.toUnmodifiableList;
+import static school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService.internetAddress;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
 import static school.hei.haapi.service.utils.InstantUtils.UTC3;
+import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.io.FileUtils;
@@ -24,14 +20,14 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.SendReceiptZipToEmail;
+import school.hei.haapi.endpoint.event.model.RequestReceiptGeneration;
 import school.hei.haapi.endpoint.rest.model.GeneratedReceiptsStatistic;
 import school.hei.haapi.endpoint.rest.model.GenerationReceiptsRequest;
-import school.hei.haapi.file.FileZipper;
+import school.hei.haapi.mail.Email;
+import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.PaymentNumberSequence;
-import school.hei.haapi.repository.PaymentRepository;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
@@ -56,75 +52,39 @@ public class ReceiptGenerationService {
   private final HtmlParser htmlParser;
   private final PdfRenderer pdfRenderer;
   private final PaymentService paymentService;
-  private final EventProducer<SendReceiptZipToEmail> eventProducer;
+  private final EventProducer<RequestReceiptGeneration> eventProducer;
   private final PaymentNumberSequenceService paymentNumberSequenceService;
   private final FileService fileService;
-  private final PaymentRepository paymentRepository;
-  private final FileZipper fileZipper;
+  private final Mailer mailer;
 
-  public byte[] generatePaidFeeReceiptByPaymentId(String paymentId, String template) {
+  public byte[] generatePaidFeeReceiptByPaymentId(String paymentId) {
     Payment payment = paymentService.getById(paymentId);
     try {
-      File receipt = generatePaidFeeReceipt(payment, template, Files.createTempDirectory("tmp"));
+      File receipt = generatePaidFeeReceipt(payment);
       return Files.readAllBytes(receipt.toPath());
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
   }
 
-  private Map<LocalDate, List<Payment>> groupPaymentByMonthInDateRange(List<Payment> payments) {
-    return payments.stream()
-        .collect(
-            groupingBy(
-                payment ->
-                    payment.getCreationDatetime().atZone(UTC3).toLocalDate().withDayOfMonth(1)));
+  private LocalDate getStartOfTheMonthOf(Payment payment) {
+    return payment.getCreationDatetime().atZone(UTC3).toLocalDate().withDayOfMonth(1);
   }
 
-  public long generatePaidFeeReceiptsBetween(Instant from, Instant to) throws IOException {
-    // Create the main temp folder
-    Path tempWorkingDirectory = Files.createTempDirectory(String.format("%s-%s", from, to));
-
-    List<Payment> allPaymentBetween = paymentService.getAllPaymentBetween(from, to);
-    List<Path> yearMonthFolders = new ArrayList<>();
-
-    groupPaymentByMonthInDateRange(allPaymentBetween)
-        .forEach(
-            (startOfAMonth, payments) -> {
-              String yearMonthFolderName =
-                  String.format("%s-%s", startOfAMonth.getYear(), startOfAMonth.getMonth());
-              try {
-                // Create a sub folder for each month
-                Path yearMonthFolder =
-                    createDirectories(tempWorkingDirectory.resolve(yearMonthFolderName));
-                payments.forEach(
-                    payment -> {
-                      // Generation each pdf
-                      generatePaidFeeReceipt(payment, "paidFeeReceipt", yearMonthFolder);
-                    });
-                yearMonthFolders.add(yearMonthFolder);
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
-            });
-
-    yearMonthFolders.forEach(
-        folder -> {
-          File zip = fileZipper.apply(Arrays.stream(folder.toFile().listFiles()).toList());
-          zip.renameTo(new File(folder.toAbsolutePath() + ZIP_FILE_EXTENSION));
-        });
-
-    saveReceipt(tempWorkingDirectory.toFile());
-
-    return allPaymentBetween.size();
-  }
-
-  private void saveReceipt(File toSave) {
-    String bucketKey = String.format("%s/%s", RECEIPT_FOLDER, toSave.getName());
+  public void saveReceipt(File toSave, Payment payment) {
+    LocalDate startOfTheMonthOfPayment = getStartOfTheMonthOf(payment);
+    String bucketKey =
+        String.format(
+            "%s/%s-%s/%s",
+            RECEIPT_FOLDER,
+            startOfTheMonthOfPayment.getYear(),
+            startOfTheMonthOfPayment.getMonth(),
+            toSave.getName());
     fileService.uploadObjectToS3Bucket(bucketKey, toSave);
     log.info("zip: '{}' saved successfully", bucketKey);
   }
 
-  private File generatePaidFeeReceipt(Payment payment, String template, Path tempWorkingDirectory) {
+  public File generatePaidFeeReceipt(Payment payment) {
     if (payment.getSequence() == null) {
       LocalDate localPaymentDate = payment.getCreationDatetime().atZone(UTC3).toLocalDate();
       PaymentNumberSequence localPaymentSequence =
@@ -133,15 +93,14 @@ public class ReceiptGenerationService {
     }
 
     Context context = loadPaymentReceiptContext(payment.getFee(), payment);
-    String html = htmlParser.apply(template, context);
+    String html = htmlParser.apply("paidFeeReceipt", context);
     String filename = RECEIPT_FILENAME_PREFIX + payment.getSequence();
-    return createFileFromBytes(pdfRenderer.apply(html), filename, tempWorkingDirectory);
+    return createFileFromBytes(pdfRenderer.apply(html), filename, ".pdf");
   }
 
-  private File createFileFromBytes(byte[] bytes, String filename, Path tempWorkingDirectory) {
+  private File createFileFromBytes(byte[] bytes, String filename, String suffix) {
     try {
-      File file = tempWorkingDirectory.resolve(filename).toFile();
-      file.createNewFile();
+      File file = File.createTempFile(filename, suffix);
       FileUtils.writeByteArrayToFile(file, bytes);
       return file;
     } catch (IOException e) {
@@ -149,19 +108,52 @@ public class ReceiptGenerationService {
     }
   }
 
+  private void sendResultEmail(long fileCount, String presignedUrl, String destinationEmail) {
+    Context initial = new Context();
+
+    initial.setVariable("fileCount", fileCount);
+    initial.setVariable("resultUrl", presignedUrl);
+
+    mailer.accept(
+        new Email(
+            internetAddress(destinationEmail),
+            List.of(),
+            List.of(),
+            "HEI - receipts of fee - started at " + Instant.now(),
+            htmlToString("feeReceiptEmail", initial),
+            List.of()));
+
+    log.info(
+        "{} file(s) are upload as zip in S3: {} and email has been sent to {}",
+        fileCount,
+        presignedUrl,
+        destinationEmail);
+  }
+
   public GeneratedReceiptsStatistic getZipFeeReceipts(
       GenerationReceiptsRequest generationReceiptsRequest) {
-    eventProducer.accept(
-        List.of(
-            SendReceiptZipToEmail.builder()
-                .startRequest(Instant.now())
-                .request(generationReceiptsRequest)
-                .build()));
+    List<Payment> allPaymentBetween =
+        paymentService.getAllPaymentBetween(
+            generationReceiptsRequest.getFrom(), generationReceiptsRequest.getTo());
 
-    return new GeneratedReceiptsStatistic()
-        .processedFileCount(
-            paymentRepository.countByCreationDatetimeBetweenOrderByCreationDatetimeAsc(
-                generationReceiptsRequest.getFrom(), generationReceiptsRequest.getTo()));
+    eventProducer.accept(
+        allPaymentBetween.stream()
+            .map(
+                payment ->
+                    RequestReceiptGeneration.builder()
+                        .startRequest(Instant.now())
+                        .payments(payment)
+                        .build())
+            .collect(toUnmodifiableList()));
+
+    /*
+    sendResultEmail(
+        allPaymentBetween.size(),
+        fileService.getPresignedUrl(RECEIPT_FOLDER, Duration.ofDays(1).getSeconds()),
+        generationReceiptsRequest.getDestinationEmail());
+     */
+
+    return new GeneratedReceiptsStatistic().processedFileCount(allPaymentBetween.size());
   }
 
   private Context loadPaymentReceiptContext(Fee fee, Payment payment) {

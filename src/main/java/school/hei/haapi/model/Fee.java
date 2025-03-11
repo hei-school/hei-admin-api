@@ -16,6 +16,7 @@ import static school.hei.haapi.model.fee.StudentGrade.L1;
 import static school.hei.haapi.model.fee.StudentGrade.L2;
 import static school.hei.haapi.model.fee.StudentGrade.L3;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.io.Serializable;
 import java.time.Instant;
@@ -84,6 +85,7 @@ public class Fee implements Serializable {
   private Instant dueDatetime;
 
   @OneToMany(mappedBy = "fee", cascade = REMOVE)
+  @JsonIgnore
   private List<Payment> payments;
 
   @OneToOne(mappedBy = "fee")
