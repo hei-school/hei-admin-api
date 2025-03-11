@@ -10,8 +10,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
-
-import org.springframework.cglib.core.Local;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
 import school.hei.haapi.endpoint.rest.model.LateFeesStats;
@@ -23,16 +21,20 @@ import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 
 @Component
 public class AdvancedFeeStatsMapper {
-  public Map<AdvancedFeeStatsType, AdvancedFeeStats> fromRest(AdvancedFeesStatistics restStat, LocalDate statDate) {
+  public Map<AdvancedFeeStatsType, AdvancedFeeStats> fromRest(
+      AdvancedFeesStatistics restStat, LocalDate statDate) {
     Map<AdvancedFeeStatsType, AdvancedFeeStats> statsModels = new HashMap<>();
     statsModels.put(LATE_COUNT, getModelLateFeeStats(restStat.getLateFeesCount(), statDate));
     statsModels.put(PAID_COUNT, getModelPaidFeeStats(restStat.getPaidFeesCount(), statDate));
-    statsModels.put(PENDING_COUNT, getModelPendingFeeStats(restStat.getPendingFeesCount(), statDate));
-    statsModels.put(TOTAL_COUNT, getModelTotalFeeStats(restStat.getTotalExpectedFeesCount(), statDate));
+    statsModels.put(
+        PENDING_COUNT, getModelPendingFeeStats(restStat.getPendingFeesCount(), statDate));
+    statsModels.put(
+        TOTAL_COUNT, getModelTotalFeeStats(restStat.getTotalExpectedFeesCount(), statDate));
     return statsModels;
   }
 
-  private AdvancedFeeStats getModelTotalFeeStats(TotalExpectedFeesStats restStat, LocalDate statDate) {
+  private AdvancedFeeStats getModelTotalFeeStats(
+      TotalExpectedFeesStats restStat, LocalDate statDate) {
     return AdvancedFeeStats.builder()
         .statType(TOTAL_COUNT)
         .firstGradeCount(restStat.getFirstGrade())

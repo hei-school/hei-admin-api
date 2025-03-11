@@ -1,6 +1,33 @@
 package school.hei.haapi.service;
 
+import static java.time.LocalTime.MAX;
+import static java.time.ZoneOffset.UTC;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.groupingByConcurrent;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.REMEDIAL_COSTS;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
+import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.YEARLY;
+import static school.hei.haapi.model.fee.PaymentType.BANK;
+import static school.hei.haapi.model.fee.PaymentType.MPBS;
+import static school.hei.haapi.model.fee.StudentGrade.L1;
+import static school.hei.haapi.model.fee.StudentGrade.L2;
+import static school.hei.haapi.model.fee.StudentGrade.L3;
+import static school.hei.haapi.service.utils.DateUtils.instantToLocalDate;
+
 import jakarta.transaction.Transactional;
+import java.math.BigDecimal;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
@@ -21,34 +48,6 @@ import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 import school.hei.haapi.service.utils.DateUtils;
 
-import java.math.BigDecimal;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-
-import static java.time.LocalTime.MAX;
-import static java.time.ZoneOffset.UTC;
-import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.groupingByConcurrent;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
-import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.REMEDIAL_COSTS;
-import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
-import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
-import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.YEARLY;
-import static school.hei.haapi.model.fee.PaymentType.BANK;
-import static school.hei.haapi.model.fee.PaymentType.MPBS;
-import static school.hei.haapi.model.fee.StudentGrade.L1;
-import static school.hei.haapi.model.fee.StudentGrade.L2;
-import static school.hei.haapi.model.fee.StudentGrade.L3;
-import static school.hei.haapi.service.utils.DateUtils.instantToLocalDate;
-
 @Service
 @RequiredArgsConstructor
 public class AdvancedFeeStatsService {
@@ -63,8 +62,7 @@ public class AdvancedFeeStatsService {
             Optional.ofNullable(monthFrom), Optional.ofNullable(monthTo));
     return advancedFeeStatsMapper.toRest(
         feeDao.getAdvancedFeeStats(
-            instantToLocalDate(dateRange.from()),
-            instantToLocalDate(dateRange.to())));
+            instantToLocalDate(dateRange.from()), instantToLocalDate(dateRange.to())));
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
@@ -79,73 +77,80 @@ public class AdvancedFeeStatsService {
     LocalDate fromDate = currentDayRange.from().atZone(UTC).toLocalDate();
     LocalDate toDate = currentDayRange.to().atZone(UTC).toLocalDate();
 
-    fromDate.datesUntil(toDate.plusDays(1)).forEach(date -> {
-          Instant dayStart = date.atStartOfDay().toInstant(UTC);
-          Instant dayEnd = date.atTime(MAX).toInstant(UTC);
+    fromDate
+        .datesUntil(toDate.plusDays(1))
+        .forEach(
+            date -> {
+              Instant dayStart = date.atStartOfDay().toInstant(UTC);
+              Instant dayEnd = date.atTime(MAX).toInstant(UTC);
 
-          List<Fee> allFees =
-              feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
+              List<Fee> allFees = feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
 
-          AdvancedFeesStatistics restStats = new AdvancedFeesStatistics()
-              .lateFeesCount(getLateFeesStats(allFees))
-              .paidFeesCount(getPaidFeesStats(allFees))
-              .pendingFeesCount(getPendingFeesStats(allFees))
-              .totalExpectedFeesCount(getTotalExpectedFeesStats(allFees));
+              AdvancedFeesStatistics restStats =
+                  new AdvancedFeesStatistics()
+                      .lateFeesCount(getLateFeesStats(allFees))
+                      .paidFeesCount(getPaidFeesStats(allFees))
+                      .pendingFeesCount(getPendingFeesStats(allFees))
+                      .totalExpectedFeesCount(getTotalExpectedFeesStats(allFees));
 
-          Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> dayStat = advancedFeeStatsMapper
-              .fromRest(restStats, date);
+              Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> dayStat =
+                  advancedFeeStatsMapper.fromRest(restStats, date);
 
-          Collection<AdvancedFeeStats> stats = feeDao.getAdvancedFeeStats(date).values();
-          if (!stats.isEmpty()) {
-            stats.forEach(stat -> {
-              switch (stat.getStatType()) {
-                case PENDING_COUNT -> {
-                  PendingFeesStats pendingFeesCount = restStats.getPendingFeesCount();
-                  stat.setFirstGradeCount(pendingFeesCount.getFirstGrade());
-                  stat.setSecondGradeCount(pendingFeesCount.getSecondGrade());
-                  stat.setThirdGradeCount(pendingFeesCount.getThirdGrade());
-                  stat.setWorkStudyCount(pendingFeesCount.getWorkStudy());
-                  stat.setRemedialFeesCount(pendingFeesCount.getRemedialFeesCount().longValue());
-                  stat.setMonthlyCount(pendingFeesCount.getMonthly());
-                  stat.setYearlyCount(pendingFeesCount.getYearly());
-                }
-                case LATE_COUNT -> {
-                  LateFeesStats lateFeesCount = restStats.getLateFeesCount();
-                  stat.setFirstGradeCount(lateFeesCount.getFirstGrade());
-                  stat.setSecondGradeCount(lateFeesCount.getSecondGrade());
-                  stat.setThirdGradeCount(lateFeesCount.getThirdGrade());
-                  stat.setWorkStudyCount(lateFeesCount.getWorkStudy());
-                  stat.setRemedialFeesCount(lateFeesCount.getRemedialFeesCount().longValue());
-                  stat.setMonthlyCount(lateFeesCount.getMonthly());
-                  stat.setYearlyCount(lateFeesCount.getYearly());
-                }
-                case PAID_COUNT -> {
-                  PaidFeesStats paidFeesCount = restStats.getPaidFeesCount();
-                  stat.setFirstGradeCount(paidFeesCount.getFirstGrade());
-                  stat.setSecondGradeCount(paidFeesCount.getSecondGrade());
-                  stat.setThirdGradeCount(paidFeesCount.getThirdGrade());
-                  stat.setWorkStudyCount(paidFeesCount.getWorkStudy());
-                  stat.setRemedialFeesCount(paidFeesCount.getRemedialFeesCount().longValue());
-                  stat.setMonthlyCount(paidFeesCount.getMonthly());
-                  stat.setYearlyCount(paidFeesCount.getYearly());
-                  stat.setBankTransferCount(paidFeesCount.getBankFees().longValue());
-                  stat.setMpbsCount(paidFeesCount.getMobileMoney().longValue());
-                }
-                case TOTAL_COUNT -> {
-                  TotalExpectedFeesStats totalFeesCount = restStats.getTotalExpectedFeesCount();
-                  stat.setFirstGradeCount(totalFeesCount.getFirstGrade());
-                  stat.setSecondGradeCount(totalFeesCount.getSecondGrade());
-                  stat.setThirdGradeCount(totalFeesCount.getThirdGrade());
-                  stat.setWorkStudyCount(totalFeesCount.getWorkStudy());
-                  stat.setMonthlyCount(totalFeesCount.getMonthly());
-                  stat.setYearlyCount(totalFeesCount.getYearly());
-                }
+              Collection<AdvancedFeeStats> stats = feeDao.getAdvancedFeeStats(date).values();
+              if (!stats.isEmpty()) {
+                stats.forEach(
+                    stat -> {
+                      switch (stat.getStatType()) {
+                        case PENDING_COUNT -> {
+                          PendingFeesStats pendingFeesCount = restStats.getPendingFeesCount();
+                          stat.setFirstGradeCount(pendingFeesCount.getFirstGrade());
+                          stat.setSecondGradeCount(pendingFeesCount.getSecondGrade());
+                          stat.setThirdGradeCount(pendingFeesCount.getThirdGrade());
+                          stat.setWorkStudyCount(pendingFeesCount.getWorkStudy());
+                          stat.setRemedialFeesCount(
+                              pendingFeesCount.getRemedialFeesCount().longValue());
+                          stat.setMonthlyCount(pendingFeesCount.getMonthly());
+                          stat.setYearlyCount(pendingFeesCount.getYearly());
+                        }
+                        case LATE_COUNT -> {
+                          LateFeesStats lateFeesCount = restStats.getLateFeesCount();
+                          stat.setFirstGradeCount(lateFeesCount.getFirstGrade());
+                          stat.setSecondGradeCount(lateFeesCount.getSecondGrade());
+                          stat.setThirdGradeCount(lateFeesCount.getThirdGrade());
+                          stat.setWorkStudyCount(lateFeesCount.getWorkStudy());
+                          stat.setRemedialFeesCount(
+                              lateFeesCount.getRemedialFeesCount().longValue());
+                          stat.setMonthlyCount(lateFeesCount.getMonthly());
+                          stat.setYearlyCount(lateFeesCount.getYearly());
+                        }
+                        case PAID_COUNT -> {
+                          PaidFeesStats paidFeesCount = restStats.getPaidFeesCount();
+                          stat.setFirstGradeCount(paidFeesCount.getFirstGrade());
+                          stat.setSecondGradeCount(paidFeesCount.getSecondGrade());
+                          stat.setThirdGradeCount(paidFeesCount.getThirdGrade());
+                          stat.setWorkStudyCount(paidFeesCount.getWorkStudy());
+                          stat.setRemedialFeesCount(
+                              paidFeesCount.getRemedialFeesCount().longValue());
+                          stat.setMonthlyCount(paidFeesCount.getMonthly());
+                          stat.setYearlyCount(paidFeesCount.getYearly());
+                          stat.setBankTransferCount(paidFeesCount.getBankFees().longValue());
+                          stat.setMpbsCount(paidFeesCount.getMobileMoney().longValue());
+                        }
+                        case TOTAL_COUNT -> {
+                          TotalExpectedFeesStats totalFeesCount =
+                              restStats.getTotalExpectedFeesCount();
+                          stat.setFirstGradeCount(totalFeesCount.getFirstGrade());
+                          stat.setSecondGradeCount(totalFeesCount.getSecondGrade());
+                          stat.setThirdGradeCount(totalFeesCount.getThirdGrade());
+                          stat.setWorkStudyCount(totalFeesCount.getWorkStudy());
+                          stat.setMonthlyCount(totalFeesCount.getMonthly());
+                          stat.setYearlyCount(totalFeesCount.getYearly());
+                        }
+                      }
+                    });
               }
+              statistics.addAll(dayStat.values());
             });
-          }
-          statistics.addAll(dayStat.values());
-        }
-    );
 
     return statistics;
   }

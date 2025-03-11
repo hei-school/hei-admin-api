@@ -9,14 +9,12 @@ import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER
 import static school.hei.haapi.service.utils.InstantUtils.getFirstDayOfActualMonth;
 
 import jakarta.transaction.Transactional;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
@@ -225,8 +223,10 @@ public class FeeService {
 
     List<Fee> feesToSave =
         switch (frequency) {
-          case MONTHLY -> createFeesFromFeeTemplate(MONTHLY_FEE_TEMPLATE_NAME, user, firstDueDatetime);
-          case YEARLY -> createFeesFromFeeTemplate(YEARLY_FEE_TEMPLATE_NAME, user, firstDueDatetime);
+          case MONTHLY ->
+              createFeesFromFeeTemplate(MONTHLY_FEE_TEMPLATE_NAME, user, firstDueDatetime);
+          case YEARLY ->
+              createFeesFromFeeTemplate(YEARLY_FEE_TEMPLATE_NAME, user, firstDueDatetime);
         };
     return feeRepository.saveAll(feesToSave);
   }

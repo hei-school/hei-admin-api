@@ -9,14 +9,14 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.model.AdvancedFeeStatsComputationTriggered;
-import school.hei.haapi.service.FeeService;
+import school.hei.haapi.service.AdvancedFeeStatsService;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 public class AdvancedFeeStatsComputationTriggeredService
     implements Consumer<AdvancedFeeStatsComputationTriggered> {
-  private final FeeService feeService;
+  private final AdvancedFeeStatsService advancedFeeStatsService;
 
   @Override
   public void accept(AdvancedFeeStatsComputationTriggered advancedFeeStatsComputationTriggered) {
@@ -25,6 +25,6 @@ public class AdvancedFeeStatsComputationTriggeredService
         Optional.ofNullable(advancedFeeStatsComputationTriggered.getBeginDatetime().toInstant(UTC));
     Optional<Instant> toValue =
         Optional.ofNullable(advancedFeeStatsComputationTriggered.getEndDatetime().toInstant(UTC));
-    feeService.updateAdvancedFeeStats(fromValue, toValue);
+    advancedFeeStatsService.updateAdvancedFeeStats(fromValue, toValue);
   }
 }
