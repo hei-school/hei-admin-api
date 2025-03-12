@@ -6,21 +6,21 @@ import lombok.AllArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.endpoint.event.model.RequestReceiptGeneration;
+import school.hei.haapi.endpoint.event.model.SendRequestReceiptGeneration;
 import school.hei.haapi.service.ReceiptGenerationService;
 
 @Service
 @AllArgsConstructor
 @Slf4j
-public class SendReceiptGenerationService implements Consumer<RequestReceiptGeneration> {
+public class SendRequestReceiptGenerationService implements Consumer<SendRequestReceiptGeneration> {
   private final ReceiptGenerationService receiptGenerationService;
 
   @SneakyThrows
   @Override
-  public void accept(RequestReceiptGeneration requestReceiptGeneration) {
+  public void accept(SendRequestReceiptGeneration sendRequestReceiptGeneration) {
     File feeReceiptGenerated =
-        receiptGenerationService.generatePaidFeeReceipt(requestReceiptGeneration.getPayments());
+        receiptGenerationService.generatePaidFeeReceipt(sendRequestReceiptGeneration.getPayments());
     receiptGenerationService.saveReceipt(
-        feeReceiptGenerated, requestReceiptGeneration.getPayments());
+        feeReceiptGenerated, sendRequestReceiptGeneration.getPayments());
   }
 }

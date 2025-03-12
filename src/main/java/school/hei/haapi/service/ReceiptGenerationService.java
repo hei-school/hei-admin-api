@@ -20,7 +20,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.RequestReceiptGeneration;
+import school.hei.haapi.endpoint.event.model.SendRequestReceiptGeneration;
 import school.hei.haapi.endpoint.rest.model.GeneratedReceiptsStatistic;
 import school.hei.haapi.endpoint.rest.model.GenerationReceiptsRequest;
 import school.hei.haapi.mail.Email;
@@ -52,7 +52,7 @@ public class ReceiptGenerationService {
   private final HtmlParser htmlParser;
   private final PdfRenderer pdfRenderer;
   private final PaymentService paymentService;
-  private final EventProducer<RequestReceiptGeneration> eventProducer;
+  private final EventProducer<SendRequestReceiptGeneration> eventProducer;
   private final PaymentNumberSequenceService paymentNumberSequenceService;
   private final FileService fileService;
   private final Mailer mailer;
@@ -139,7 +139,7 @@ public class ReceiptGenerationService {
         allPaymentBetween.stream()
             .map(
                 payment ->
-                    RequestReceiptGeneration.builder()
+                    SendRequestReceiptGeneration.builder()
                         .startRequest(Instant.now())
                         .payments(payment)
                         .build())

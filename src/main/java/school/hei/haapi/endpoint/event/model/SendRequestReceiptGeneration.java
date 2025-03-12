@@ -17,7 +17,7 @@ import school.hei.haapi.model.Payment;
 @Builder
 @ToString
 @Getter
-public class RequestReceiptGeneration extends PojaEvent {
+public class SendRequestReceiptGeneration extends PojaEvent {
   @JsonProperty("startRequest")
   private Instant startRequest;
 
