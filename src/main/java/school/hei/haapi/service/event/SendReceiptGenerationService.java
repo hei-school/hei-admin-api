@@ -1,6 +1,5 @@
 package school.hei.haapi.service.event;
 
-
 import java.io.File;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
