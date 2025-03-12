@@ -110,7 +110,6 @@ public class ReceiptGenerationService {
 
   private void sendResultEmail(long fileCount, String presignedUrl, String destinationEmail) {
     Context initial = new Context();
-
     initial.setVariable("fileCount", fileCount);
     initial.setVariable("resultUrl", presignedUrl);
 
@@ -145,13 +144,6 @@ public class ReceiptGenerationService {
                         .payments(payment)
                         .build())
             .collect(toUnmodifiableList()));
-
-    /*
-    sendResultEmail(
-        allPaymentBetween.size(),
-        fileService.getPresignedUrl(RECEIPT_FOLDER, Duration.ofDays(1).getSeconds()),
-        generationReceiptsRequest.getDestinationEmail());
-     */
 
     return new GeneratedReceiptsStatistic().processedFileCount(allPaymentBetween.size());
   }
