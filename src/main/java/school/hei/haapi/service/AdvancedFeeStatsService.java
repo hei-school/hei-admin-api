@@ -100,51 +100,12 @@ public class AdvancedFeeStatsService {
                 stats.forEach(
                     stat -> {
                       switch (stat.getStatType()) {
-                        case PENDING_COUNT -> {
-                          PendingFeesStats pendingFeesCount = restStats.getPendingFeesCount();
-                          stat.setFirstGradeCount(pendingFeesCount.getFirstGrade());
-                          stat.setSecondGradeCount(pendingFeesCount.getSecondGrade());
-                          stat.setThirdGradeCount(pendingFeesCount.getThirdGrade());
-                          stat.setWorkStudyCount(pendingFeesCount.getWorkStudy());
-                          stat.setRemedialFeesCount(
-                              pendingFeesCount.getRemedialFeesCount().longValue());
-                          stat.setMonthlyCount(pendingFeesCount.getMonthly());
-                          stat.setYearlyCount(pendingFeesCount.getYearly());
-                        }
-                        case LATE_COUNT -> {
-                          LateFeesStats lateFeesCount = restStats.getLateFeesCount();
-                          stat.setFirstGradeCount(lateFeesCount.getFirstGrade());
-                          stat.setSecondGradeCount(lateFeesCount.getSecondGrade());
-                          stat.setThirdGradeCount(lateFeesCount.getThirdGrade());
-                          stat.setWorkStudyCount(lateFeesCount.getWorkStudy());
-                          stat.setRemedialFeesCount(
-                              lateFeesCount.getRemedialFeesCount().longValue());
-                          stat.setMonthlyCount(lateFeesCount.getMonthly());
-                          stat.setYearlyCount(lateFeesCount.getYearly());
-                        }
-                        case PAID_COUNT -> {
-                          PaidFeesStats paidFeesCount = restStats.getPaidFeesCount();
-                          stat.setFirstGradeCount(paidFeesCount.getFirstGrade());
-                          stat.setSecondGradeCount(paidFeesCount.getSecondGrade());
-                          stat.setThirdGradeCount(paidFeesCount.getThirdGrade());
-                          stat.setWorkStudyCount(paidFeesCount.getWorkStudy());
-                          stat.setRemedialFeesCount(
-                              paidFeesCount.getRemedialFeesCount().longValue());
-                          stat.setMonthlyCount(paidFeesCount.getMonthly());
-                          stat.setYearlyCount(paidFeesCount.getYearly());
-                          stat.setBankTransferCount(paidFeesCount.getBankFees().longValue());
-                          stat.setMpbsCount(paidFeesCount.getMobileMoney().longValue());
-                        }
-                        case TOTAL_COUNT -> {
-                          TotalExpectedFeesStats totalFeesCount =
-                              restStats.getTotalExpectedFeesCount();
-                          stat.setFirstGradeCount(totalFeesCount.getFirstGrade());
-                          stat.setSecondGradeCount(totalFeesCount.getSecondGrade());
-                          stat.setThirdGradeCount(totalFeesCount.getThirdGrade());
-                          stat.setWorkStudyCount(totalFeesCount.getWorkStudy());
-                          stat.setMonthlyCount(totalFeesCount.getMonthly());
-                          stat.setYearlyCount(totalFeesCount.getYearly());
-                        }
+                        case PENDING_COUNT ->
+                            handlePendingFeesCount(stat, restStats.getPendingFeesCount());
+                        case LATE_COUNT -> handleLateFeesCount(stat, restStats.getLateFeesCount());
+                        case PAID_COUNT -> handlePaidFeesCount(stat, restStats.getPaidFeesCount());
+                        case TOTAL_COUNT ->
+                            handleTotalFeesCount(stat, restStats.getTotalExpectedFeesCount());
                       }
                     });
                 statistics.addAll(stats);
@@ -154,6 +115,49 @@ public class AdvancedFeeStatsService {
             });
 
     return statistics;
+  }
+
+  private void handlePendingFeesCount(
+      AdvancedFeeStats feeStats, PendingFeesStats pendingFeesStats) {
+    feeStats.setFirstGradeCount(pendingFeesStats.getFirstGrade());
+    feeStats.setSecondGradeCount(pendingFeesStats.getSecondGrade());
+    feeStats.setThirdGradeCount(pendingFeesStats.getThirdGrade());
+    feeStats.setWorkStudyCount(pendingFeesStats.getWorkStudy());
+    feeStats.setRemedialFeesCount(pendingFeesStats.getRemedialFeesCount().longValue());
+    feeStats.setMonthlyCount(pendingFeesStats.getMonthly());
+    feeStats.setYearlyCount(pendingFeesStats.getYearly());
+  }
+
+  private void handleLateFeesCount(AdvancedFeeStats feeStats, LateFeesStats lateFeesStats) {
+    feeStats.setFirstGradeCount(lateFeesStats.getFirstGrade());
+    feeStats.setSecondGradeCount(lateFeesStats.getSecondGrade());
+    feeStats.setThirdGradeCount(lateFeesStats.getThirdGrade());
+    feeStats.setWorkStudyCount(lateFeesStats.getWorkStudy());
+    feeStats.setRemedialFeesCount(lateFeesStats.getRemedialFeesCount().longValue());
+    feeStats.setMonthlyCount(lateFeesStats.getMonthly());
+    feeStats.setYearlyCount(lateFeesStats.getYearly());
+  }
+
+  private void handlePaidFeesCount(AdvancedFeeStats feeStats, PaidFeesStats paidFeesStats) {
+    feeStats.setFirstGradeCount(paidFeesStats.getFirstGrade());
+    feeStats.setSecondGradeCount(paidFeesStats.getSecondGrade());
+    feeStats.setThirdGradeCount(paidFeesStats.getThirdGrade());
+    feeStats.setWorkStudyCount(paidFeesStats.getWorkStudy());
+    feeStats.setRemedialFeesCount(paidFeesStats.getRemedialFeesCount().longValue());
+    feeStats.setMonthlyCount(paidFeesStats.getMonthly());
+    feeStats.setYearlyCount(paidFeesStats.getYearly());
+    feeStats.setBankTransferCount(paidFeesStats.getBankFees().longValue());
+    feeStats.setMpbsCount(paidFeesStats.getMobileMoney().longValue());
+  }
+
+  private void handleTotalFeesCount(
+      AdvancedFeeStats feeStats, TotalExpectedFeesStats totalExpectedFeesStats) {
+    feeStats.setFirstGradeCount(totalExpectedFeesStats.getFirstGrade());
+    feeStats.setSecondGradeCount(totalExpectedFeesStats.getSecondGrade());
+    feeStats.setThirdGradeCount(totalExpectedFeesStats.getThirdGrade());
+    feeStats.setWorkStudyCount(totalExpectedFeesStats.getWorkStudy());
+    feeStats.setMonthlyCount(totalExpectedFeesStats.getMonthly());
+    feeStats.setYearlyCount(totalExpectedFeesStats.getYearly());
   }
 
   private LateFeesStats getLateFeesStats(List<Fee> fees) {
