@@ -22,5 +22,6 @@ public class SendRequestReceiptGenerationService implements Consumer<SendRequest
         receiptGenerationService.generatePaidFeeReceipt(sendRequestReceiptGeneration.getPayments());
     receiptGenerationService.saveReceipt(
         feeReceiptGenerated, sendRequestReceiptGeneration.getPayments());
+    log.info("Payment: {} are generated", sendRequestReceiptGeneration.getPayments());
   }
 }

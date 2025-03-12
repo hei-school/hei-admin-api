@@ -131,12 +131,12 @@ public class ReceiptGenerationService {
 
   public GeneratedReceiptsStatistic getZipFeeReceipts(
       GenerationReceiptsRequest generationReceiptsRequest) {
-    List<Payment> allPaymentBetween =
+    List<Payment> allPayments =
         paymentService.getAllPaymentBetween(
             generationReceiptsRequest.getFrom(), generationReceiptsRequest.getTo());
 
     eventProducer.accept(
-        allPaymentBetween.stream()
+        allPayments.stream()
             .map(
                 payment ->
                     SendRequestReceiptGeneration.builder()
@@ -145,7 +145,8 @@ public class ReceiptGenerationService {
                         .build())
             .collect(toUnmodifiableList()));
 
-    return new GeneratedReceiptsStatistic().processedFileCount(allPaymentBetween.size());
+    log.info("Pdf to be generated: {}", allPayments.size());
+    return new GeneratedReceiptsStatistic().processedFileCount(allPayments.size());
   }
 
   private Context loadPaymentReceiptContext(Fee fee, Payment payment) {
