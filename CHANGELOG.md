@@ -1,3 +1,13 @@
+## [1.99.1](https://github.com/hei-school/hei-admin-api/compare/v1.99.0...v1.99.1) (2025-03-12)
+
+
+### Bug Fixes
+
+* advanced fee statistics scheduler wrong event type sent ([7546133](https://github.com/hei-school/hei-admin-api/commit/754613334feb5a5a60ec0bd3f569b4913cf1b87e))
+* wrong event consumer class name ([2efd6e8](https://github.com/hei-school/hei-admin-api/commit/2efd6e81816589886d84e25908e1dc3fe7d71c34))
+
+
+
 # [1.99.0](https://github.com/hei-school/hei-admin-api/compare/v1.98.0...v1.99.0) (2025-03-04)
 
 
@@ -110,15 +120,6 @@
 * deny scholarship certificate on missing nic number  ([43b498b](https://github.com/hei-school/hei-admin-api/commit/43b498b74178e072a90891e45c17f9e90428e256))
 * filter fees by date range ([cc02eaa](https://github.com/hei-school/hei-admin-api/commit/cc02eaabdb3b9b724f8e0c99dab7b24db66f6eb8))
 * **not-implemented:** event has color from event type  ([c46aa49](https://github.com/hei-school/hei-admin-api/commit/c46aa497259d153502bbf7904f31ee77d323d4d5))
-
-
-
-# [1.90.0](https://github.com/hei-school/hei-admin-api/compare/v1.89.0...v1.90.0) (2025-01-16)
-
-
-### Features
-
-* **not-implemented:** attribute an event with a color ([d740ffa](https://github.com/hei-school/hei-admin-api/commit/d740ffa5d0a9eabdac8f5c6969aaf42d84ba23df))
 
 
 
