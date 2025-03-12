@@ -5,6 +5,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -141,8 +142,8 @@ public class FeeController {
 
   @GetMapping("/fees/advanced-stats")
   public AdvancedFeesStatistics getAdvancedFeesStats(
-      @RequestParam(name = "month_from", required = false) Instant monthFrom,
-      @RequestParam(name = "month_to", required = false) Instant monthTo) {
+      @RequestParam(name = "month_from", required = false) LocalDate monthFrom,
+      @RequestParam(name = "month_to", required = false) LocalDate monthTo) {
     return advancedFeeStatsService.getAdvancedFeeStats(monthFrom, monthTo);
   }
 

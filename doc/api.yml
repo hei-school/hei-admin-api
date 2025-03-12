@@ -2882,13 +2882,13 @@ paths:
           in: query
           schema:
             type: string
-            format: date-time
+            format: date
           required: false
         - name: month_to
           in: query
           schema:
             type: string
-            format: date-time
+            format: date
           required: false
       operationId: getAdvancedFeesStats
       responses:

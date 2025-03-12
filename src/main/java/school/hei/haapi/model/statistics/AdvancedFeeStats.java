@@ -20,6 +20,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "\"stats_advanced_fees\"")
@@ -52,7 +53,8 @@ public class AdvancedFeeStats {
   private Long bankTransferCount;
   private Long mpbsCount;
 
-  @CreationTimestamp private Instant updateDatetime;
+  @CreationTimestamp private Instant creationDatetime;
+  @UpdateTimestamp private Instant updateDatetime;
   private LocalDate statDate;
 
   public enum AdvancedFeeStatsType {

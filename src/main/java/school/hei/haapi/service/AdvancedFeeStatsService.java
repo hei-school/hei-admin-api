@@ -16,7 +16,6 @@ import static school.hei.haapi.model.fee.PaymentType.MPBS;
 import static school.hei.haapi.model.fee.StudentGrade.L1;
 import static school.hei.haapi.model.fee.StudentGrade.L2;
 import static school.hei.haapi.model.fee.StudentGrade.L3;
-import static school.hei.haapi.service.utils.DateUtils.instantToLocalDate;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
@@ -56,13 +55,13 @@ public class AdvancedFeeStatsService {
   private final AdvancedFeeStatsMapper advancedFeeStatsMapper;
   private final FeeRepository feeRepository;
 
-  public AdvancedFeesStatistics getAdvancedFeeStats(Instant monthFrom, Instant monthTo) {
-    DateUtils.RangedInstant dateRange =
-        DateUtils.getDefaultMonthRange(
-            Optional.ofNullable(monthFrom), Optional.ofNullable(monthTo));
-    return advancedFeeStatsMapper.toRest(
-        feeDao.getAdvancedFeeStats(
-            instantToLocalDate(dateRange.from()), instantToLocalDate(dateRange.to())));
+  public AdvancedFeesStatistics getAdvancedFeeStats(LocalDate dateFrom, LocalDate dateTo) {
+    LocalDate now = LocalDate.now();
+    LocalDate from = Optional.ofNullable(dateFrom).orElse(now.withDayOfMonth(1));
+    LocalDate to =
+        Optional.ofNullable(dateTo)
+            .orElse(now.withDayOfMonth(now.getMonth().length(now.isLeapYear())));
+    return advancedFeeStatsMapper.toRest(feeDao.getAdvancedFeeStats(from, to));
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
