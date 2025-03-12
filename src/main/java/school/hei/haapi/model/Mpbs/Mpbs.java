@@ -3,6 +3,7 @@ package school.hei.haapi.model.Mpbs;
 import static jakarta.persistence.EnumType.STRING;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -50,6 +51,7 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   @OneToOne
   @JoinColumn(name = "fee_id")
   @ToString.Exclude
+  @JsonIgnore
   private Fee fee;
 
   @Column(name = "\"status\"")

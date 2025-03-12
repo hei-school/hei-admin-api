@@ -2445,22 +2445,22 @@ paths:
     put:
       tags:
         - Paying
-      summary: Send email with a zip of fee receipts in a mandatory date range
+      summary: Send email with a S3 pre-sign link of fee receipts in a mandatory date range
       requestBody:
         description: fee receipts info to send
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/ZipReceiptsRequest'
-      operationId: getZipFeeReceipts
+              $ref: '#/components/schemas/GenerationReceiptsRequest'
+      operationId: generateFeeReceipts
       responses:
         '200':
-          description: statistic about fee receipts to send
+          description: statistic about fee receipts to process
           content:
-            application/zip:
+            application/json:
               schema:
-                $ref: '#/components/schemas/ZipReceiptsStatistic'
+                $ref: '#/components/schemas/GeneratedReceiptsStatistic'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -6938,7 +6938,7 @@ components:
           type: string
         degree:
           type: string
-    ZipReceiptsRequest:
+    GenerationReceiptsRequest:
       type: object
       properties:
         from:
@@ -6949,10 +6949,10 @@ components:
           format: date-time
         destinationEmail:
           type: string
-    ZipReceiptsStatistic:
+    GeneratedReceiptsStatistic:
       type: object
       properties:
-        fileCountInZip:
+        processedFileCount:
           type: integer
     Exception:
       type: object

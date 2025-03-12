@@ -20,15 +20,16 @@ import school.hei.haapi.endpoint.rest.mapper.FileInfoMapper;
 import school.hei.haapi.endpoint.rest.mapper.WorkDocumentMapper;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
 import school.hei.haapi.endpoint.rest.model.FileType;
+import school.hei.haapi.endpoint.rest.model.GeneratedReceiptsStatistic;
+import school.hei.haapi.endpoint.rest.model.GenerationReceiptsRequest;
 import school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum;
 import school.hei.haapi.endpoint.rest.model.WorkDocumentInfo;
-import school.hei.haapi.endpoint.rest.model.ZipReceiptsRequest;
-import school.hei.haapi.endpoint.rest.model.ZipReceiptsStatistic;
 import school.hei.haapi.endpoint.rest.validator.CreateStudentWorkFileValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.validator.ScholarshipDataValidator;
+import school.hei.haapi.service.ReceiptGenerationService;
 import school.hei.haapi.service.StudentFileService;
 import school.hei.haapi.service.UserService;
 
@@ -36,6 +37,7 @@ import school.hei.haapi.service.UserService;
 @AllArgsConstructor
 public class UserFileController {
   private final StudentFileService fileService;
+  private final ReceiptGenerationService receiptGenerationService;
   private final FileInfoMapper fileInfoMapper;
   private final WorkDocumentMapper workDocumentMapper;
   private final CreateStudentWorkFileValidator createStudentWorkFileValidator;
@@ -58,13 +60,13 @@ public class UserFileController {
       @PathVariable(name = "student_id") String studentId,
       @PathVariable(name = "fee_id") String feeId,
       @PathVariable(name = "payment_id") String paymentId) {
-    return fileService.generatePaidFeeReceipt(feeId, paymentId, "paidFeeReceipt");
+    return receiptGenerationService.generatePaidFeeReceiptByPaymentId(paymentId);
   }
 
   @PutMapping(value = "/fees/payments/receipts/raw")
-  public ZipReceiptsStatistic getZipFeeReceipts(
-      @RequestBody ZipReceiptsRequest zipReceiptsRequest) {
-    return fileService.getZipFeeReceipts(zipReceiptsRequest);
+  public GeneratedReceiptsStatistic getZipFeeReceipts(
+      @RequestBody GenerationReceiptsRequest generationReceiptsRequest) {
+    return receiptGenerationService.getZipFeeReceipts(generationReceiptsRequest);
   }
 
   @PostMapping(value = "/users/{user_id}/files/raw", consumes = MULTIPART_FORM_DATA_VALUE)

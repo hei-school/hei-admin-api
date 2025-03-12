@@ -28,4 +28,6 @@ public interface PaymentRepository extends JpaRepository<Payment, String> {
       @Param("student_id") String studentId, @Param("fee_id") String feeId);
 
   List<Payment> getAllByCreationDatetimeBetweenOrderByCreationDatetimeAsc(Instant from, Instant to);
+
+  Integer countByCreationDatetimeBetweenOrderByCreationDatetimeAsc(Instant from, Instant to);
 }
