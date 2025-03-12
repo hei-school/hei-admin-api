@@ -148,8 +148,10 @@ public class AdvancedFeeStatsService {
                         }
                       }
                     });
+                statistics.addAll(stats);
+              } else {
+                statistics.addAll(dayStat.values());
               }
-              statistics.addAll(dayStat.values());
             });
 
     return statistics;
