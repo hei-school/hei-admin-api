@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static school.hei.haapi.endpoint.rest.security.AuthProvider.getPrincipal;
 import static school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService.internetAddress;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
@@ -123,7 +124,7 @@ public class ReceiptGenerationService {
     eventProducer.accept(
         List.of(
             HandleReceiptGenerationRequest.builder()
-                .notifyEmail(generationReceiptsRequest.getDestinationEmail())
+                .notifyEmail(getPrincipal().getUser().getEmail())
                 // TODO: Put a limit on how many payment should be handled by each event
                 .payments(allPayments)
                 .build()));
