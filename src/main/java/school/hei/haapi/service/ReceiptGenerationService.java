@@ -130,9 +130,7 @@ public class ReceiptGenerationService {
             HandleReceiptGenerationRequest.builder()
                 .notifyEmail(generationReceiptsRequest.getDestinationEmail())
                 .payments(allPayments)
-                .build()
-        )
-    );
+                .build()));
 
     log.info("Pdf to be generated: {}", allPayments.size());
     return new GeneratedReceiptsStatistic().processedFileCount(allPayments.size());
