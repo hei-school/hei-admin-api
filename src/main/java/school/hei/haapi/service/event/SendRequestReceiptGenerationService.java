@@ -19,9 +19,9 @@ public class SendRequestReceiptGenerationService implements Consumer<SendRequest
   @Override
   public void accept(SendRequestReceiptGeneration sendRequestReceiptGeneration) {
     File feeReceiptGenerated =
-        receiptGenerationService.generatePaidFeeReceipt(sendRequestReceiptGeneration.getPayments());
+        receiptGenerationService.generatePaidFeeReceipt(sendRequestReceiptGeneration.getPayment());
     receiptGenerationService.saveReceipt(
-        feeReceiptGenerated, sendRequestReceiptGeneration.getPayments());
-    log.info("Payment: {} are generated", sendRequestReceiptGeneration.getPayments());
+        feeReceiptGenerated, sendRequestReceiptGeneration.getPayment());
+    log.info("Payment: {} are generated", sendRequestReceiptGeneration.getPayment());
   }
 }

@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService.internetAddress;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
@@ -20,14 +19,13 @@ import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.SendRequestReceiptGeneration;
+import school.hei.haapi.endpoint.event.model.HandleReceiptGenerationRequest;
 import school.hei.haapi.endpoint.rest.model.GeneratedReceiptsStatistic;
 import school.hei.haapi.endpoint.rest.model.GenerationReceiptsRequest;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Payment;
-import school.hei.haapi.model.PaymentNumberSequence;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
@@ -52,13 +50,12 @@ public class ReceiptGenerationService {
   private final HtmlParser htmlParser;
   private final PdfRenderer pdfRenderer;
   private final PaymentService paymentService;
-  private final EventProducer<SendRequestReceiptGeneration> eventProducer;
-  private final PaymentNumberSequenceService paymentNumberSequenceService;
+  private final EventProducer<HandleReceiptGenerationRequest> eventProducer;
   private final FileService fileService;
   private final Mailer mailer;
 
   public byte[] generatePaidFeeReceiptByPaymentId(String paymentId) {
-    Payment payment = paymentService.getById(paymentId);
+    Payment payment = paymentService.updateSequence(paymentService.getById(paymentId));
     try {
       File receipt = generatePaidFeeReceipt(payment);
       return Files.readAllBytes(receipt.toPath());
@@ -85,13 +82,6 @@ public class ReceiptGenerationService {
   }
 
   public File generatePaidFeeReceipt(Payment payment) {
-    if (payment.getSequence() == null) {
-      LocalDate localPaymentDate = payment.getCreationDatetime().atZone(UTC3).toLocalDate();
-      PaymentNumberSequence localPaymentSequence =
-          paymentNumberSequenceService.getNextSequence(localPaymentDate);
-      paymentService.updateSequence(payment.getId(), localPaymentSequence);
-    }
-
     Context context = loadPaymentReceiptContext(payment.getFee(), payment);
     String html = htmlParser.apply("paidFeeReceipt", context);
     String filename = RECEIPT_FILENAME_PREFIX + payment.getSequence();
@@ -136,14 +126,13 @@ public class ReceiptGenerationService {
             generationReceiptsRequest.getFrom(), generationReceiptsRequest.getTo());
 
     eventProducer.accept(
-        allPayments.stream()
-            .map(
-                payment ->
-                    SendRequestReceiptGeneration.builder()
-                        .startRequest(Instant.now())
-                        .payments(payment)
-                        .build())
-            .collect(toUnmodifiableList()));
+        List.of(
+            HandleReceiptGenerationRequest.builder()
+                .notifyEmail(generationReceiptsRequest.getDestinationEmail())
+                .payments(allPayments)
+                .build()
+        )
+    );
 
     log.info("Pdf to be generated: {}", allPayments.size());
     return new GeneratedReceiptsStatistic().processedFileCount(allPayments.size());

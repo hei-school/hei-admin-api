@@ -13,6 +13,7 @@ public class PaymentNumberSequenceService {
   private final PaymentNumberSequenceRepository repository;
 
   public PaymentNumberSequence getNextSequence(LocalDate date) {
+    // TODO: Make getNextSequence able to handle concurrent calls.
     String yearMonth = getYearMonth(date);
     Optional<PaymentNumberSequence> sequence =
         repository.findFirstByYearMonthOrderBySequenceNumberDesc(yearMonth);
