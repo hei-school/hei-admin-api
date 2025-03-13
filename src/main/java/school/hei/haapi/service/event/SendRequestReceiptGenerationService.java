@@ -3,7 +3,6 @@ package school.hei.haapi.service.event;
 import java.io.File;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
-import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.model.SendRequestReceiptGeneration;
@@ -15,13 +14,21 @@ import school.hei.haapi.service.ReceiptGenerationService;
 public class SendRequestReceiptGenerationService implements Consumer<SendRequestReceiptGeneration> {
   private final ReceiptGenerationService receiptGenerationService;
 
-  @SneakyThrows
   @Override
   public void accept(SendRequestReceiptGeneration sendRequestReceiptGeneration) {
-    File feeReceiptGenerated =
-        receiptGenerationService.generatePaidFeeReceipt(sendRequestReceiptGeneration.getPayments());
-    receiptGenerationService.saveReceipt(
-        feeReceiptGenerated, sendRequestReceiptGeneration.getPayments());
-    log.info("Payment: {} are generated", sendRequestReceiptGeneration.getPayments());
+    try {
+      File feeReceiptGenerated =
+          receiptGenerationService.generatePaidFeeReceipt(
+              sendRequestReceiptGeneration.getPayment());
+      receiptGenerationService.saveReceipt(
+          feeReceiptGenerated, sendRequestReceiptGeneration.getPayment());
+      log.info("Payment: {} are generated", sendRequestReceiptGeneration.getPayment());
+    } catch (Exception e) {
+      log.error(
+          "Receipt generation failed for {} with error : {}",
+          sendRequestReceiptGeneration.getPayment(),
+          e.getMessage());
+      throw e;
+    }
   }
 }
