@@ -69,14 +69,9 @@ public class ReceiptGenerationService {
   }
 
   public void saveReceipt(File toSave, Payment payment) {
-    LocalDate startOfTheMonthOfPayment = getStartOfTheMonthOf(payment);
+    String fileKey = RECEIPT_FILENAME_PREFIX + payment.getSequence().getStringSequence() + ".pdf";
     String bucketKey =
-        String.format(
-            "%s/%s-%s/%s",
-            RECEIPT_FOLDER,
-            startOfTheMonthOfPayment.getYear(),
-            startOfTheMonthOfPayment.getMonth(),
-            toSave.getName());
+        String.format("%s/%s/%s", RECEIPT_FOLDER, payment.getSequence().getYearMonth(), fileKey);
     fileService.uploadObjectToS3Bucket(bucketKey, toSave);
     log.info("zip: '{}' saved successfully", bucketKey);
   }
