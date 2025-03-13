@@ -129,6 +129,7 @@ public class ReceiptGenerationService {
         List.of(
             HandleReceiptGenerationRequest.builder()
                 .notifyEmail(generationReceiptsRequest.getDestinationEmail())
+                // TODO: Put a limit on how many payment should be handled by each event
                 .payments(allPayments)
                 .build()));
 

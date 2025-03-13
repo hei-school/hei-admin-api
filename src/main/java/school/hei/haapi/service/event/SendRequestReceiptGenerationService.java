@@ -28,6 +28,7 @@ public class SendRequestReceiptGenerationService implements Consumer<SendRequest
           "Receipt generation failed for {} with error : {}",
           sendRequestReceiptGeneration.getPayment(),
           e.getMessage());
+      throw e;
     }
   }
 }
