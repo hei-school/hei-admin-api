@@ -84,7 +84,7 @@ public class ReceiptGenerationService {
   public File generatePaidFeeReceipt(Payment payment) {
     Context context = loadPaymentReceiptContext(payment.getFee(), payment);
     String html = htmlParser.apply("paidFeeReceipt", context);
-    String filename = RECEIPT_FILENAME_PREFIX + payment.getSequence();
+    String filename = RECEIPT_FILENAME_PREFIX + payment.getSequence().getStringSequence();
     return createFileFromBytes(pdfRenderer.apply(html), filename, ".pdf");
   }
 
