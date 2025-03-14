@@ -20,10 +20,12 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.*;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
+import school.hei.haapi.repository.AdvancesFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 import school.hei.haapi.service.utils.DateUtils;
@@ -34,6 +36,8 @@ class FeeServiceTest {
   FeeValidator feeValidator;
   EventProducer eventProducer;
   UpdateFeeValidator updateFeeValidator;
+  AdvancesFeeStatsRepository advancesFeeStatsRepository;
+  AdvancedFeeStatsMapper advancedFeeStatsMapper;
   UserService userService;
   FeeDao feeDao;
   FeeTemplateService feeTemplateService;
@@ -122,8 +126,12 @@ class FeeServiceTest {
     userService = mock(UserService.class);
     feeDao = mock(FeeDao.class);
     feeTemplateService = mock(FeeTemplateService.class);
+    advancesFeeStatsRepository = mock(AdvancesFeeStatsRepository.class);
+    advancedFeeStatsMapper = mock(AdvancedFeeStatsMapper.class);
     subject =
         new FeeService(
+            advancedFeeStatsMapper,
+            advancesFeeStatsRepository,
             feeRepository,
             feeValidator,
             updateFeeValidator,

@@ -1,5 +1,7 @@
 package school.hei.haapi.service;
 
+import static java.time.LocalTime.MAX;
+import static java.time.ZoneOffset.UTC;
 import static java.util.UUID.randomUUID;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.groupingByConcurrent;
@@ -19,9 +21,11 @@ import static school.hei.haapi.service.utils.InstantUtils.getFirstDayOfActualMon
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -37,6 +41,7 @@ import school.hei.haapi.endpoint.event.model.LateFeeVerified;
 import school.hei.haapi.endpoint.event.model.PojaEvent;
 import school.hei.haapi.endpoint.event.model.StudentsWithOverdueFeesReminder;
 import school.hei.haapi.endpoint.event.model.UnpaidFeesReminder;
+import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
@@ -52,8 +57,10 @@ import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.fee.PaymentType;
 import school.hei.haapi.model.fee.StudentGrade;
+import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
+import school.hei.haapi.repository.AdvancesFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 import school.hei.haapi.repository.model.FeesStats;
@@ -66,6 +73,8 @@ import school.hei.haapi.service.utils.XlsxCellsGenerator;
 @Slf4j
 public class FeeService {
   private static final FeeStatusEnum DEFAULT_STATUS = LATE;
+  private final AdvancedFeeStatsMapper advancedFeeStatsMapper;
+  private final AdvancesFeeStatsRepository advancesFeeStatsRepository;
   private final FeeRepository feeRepository;
   private final FeeValidator feeValidator;
   private final UpdateFeeValidator updateFeeValidator;
@@ -197,11 +206,23 @@ public class FeeService {
     return FeesStats.to(getHandledNullDataStats(result));
   }
 
-  @Transactional
-  public AdvancedFeesStatistics getAdvancedFeesStats(Instant monthFrom, Instant monthTo) {
-    var instantRange = new RangedInstant(monthFrom, monthTo);
+  public AdvancedFeesStatistics getAdvancedFeeStats(Instant monthFrom, Instant monthTo) {
+    RangedInstant dateRange =
+        DateUtils.getDefaultMonthRange(
+            Optional.ofNullable(monthFrom), Optional.ofNullable(monthTo));
+    return advancedFeeStatsMapper.toRest(
+        feeDao.getAdvancedFeeStats(dateRange.from(), dateRange.to()));
+  }
+
+  public AdvancedFeesStatistics generateAdvancedFeeStats(
+      Optional<Instant> fromInstant, Optional<Instant> toInstant) {
+    Instant startOfDay = LocalDate.now().atStartOfDay().toInstant(UTC);
+    Instant endOfDay = LocalDate.now().atTime(MAX).toInstant(UTC);
+
+    RangedInstant currentDayRange =
+        new RangedInstant(fromInstant.orElse(startOfDay), toInstant.orElse(endOfDay));
     List<Fee> allFees =
-        feeRepository.findAllByDueDatetimeBetween(instantRange.from(), instantRange.to());
+        feeRepository.findAllByDueDatetimeBetween(currentDayRange.from(), currentDayRange.to());
     return new AdvancedFeesStatistics()
         .lateFeesCount(getLateFeesStats(allFees))
         .paidFeesCount(getPaidFeesStats(allFees))
@@ -276,6 +297,15 @@ public class FeeService {
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
         .workStudy(countWorkStudyFees(tuitionFees));
+  }
+
+  @Transactional
+  public List<AdvancedFeeStats> updateAdvancedFeeStats(
+      Optional<Instant> from, Optional<Instant> to) {
+    AdvancedFeesStatistics stats = generateAdvancedFeeStats(from, to);
+    Collection<AdvancedFeeStats> toSaveAdvancedFeeStats =
+        advancedFeeStatsMapper.fromRest(stats).values();
+    return advancesFeeStatsRepository.saveAll(toSaveAdvancedFeeStats);
   }
 
   private Map<StudentGrade, Long> countFeesByGrades(List<Fee> fees) {

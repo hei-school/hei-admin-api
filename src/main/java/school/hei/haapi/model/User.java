@@ -5,6 +5,7 @@ import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
@@ -107,15 +108,18 @@ public class User implements Serializable {
   // RELATION (STUDENT): Group Flows
   @OneToMany(mappedBy = "student", fetch = LAZY)
   @ToString.Exclude
+  @JsonIgnore
   private List<GroupFlow> groupFlows;
 
   // RELATION (STUDENT): Grades
   @OneToMany(mappedBy = "student", fetch = LAZY)
   @ToString.Exclude
+  @JsonIgnore
   private List<Grade> grades;
 
   // RELATION (STUDENT): Work Documents
   @OneToMany(mappedBy = "student", fetch = LAZY)
+  @JsonIgnore
   private List<WorkDocument> workDocuments;
 
   // RELATION (MONITOR - STUDENT): Which Monitor follows which students or which student is
@@ -133,6 +137,7 @@ public class User implements Serializable {
   private String highSchoolOrigin;
 
   @OneToMany(mappedBy = "user", fetch = LAZY)
+  @JsonIgnore
   private List<Letter> letters;
 
   @Override

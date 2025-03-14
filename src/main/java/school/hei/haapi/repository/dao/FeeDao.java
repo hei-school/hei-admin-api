@@ -1,16 +1,19 @@
 package school.hei.haapi.repository.dao;
 
 import static java.lang.Boolean.TRUE;
+import static java.util.stream.Collectors.toMap;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 
 import jakarta.persistence.EntityManager;
+import jakarta.persistence.TypedQuery;
 import jakarta.persistence.criteria.*;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
@@ -20,6 +23,8 @@ import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.statistics.AdvancedFeeStats;
+import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 import school.hei.haapi.repository.model.FeesStats;
 
 @Repository
@@ -349,5 +354,43 @@ public class FeeDao {
     query.orderBy(builder.desc(root.get("dueDatetime")));
 
     return entityManager.createQuery(query).getResultList();
+  }
+
+  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStats(Instant from, Instant to) {
+    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
+    CriteriaQuery<AdvancedFeeStats> query = builder.createQuery(AdvancedFeeStats.class);
+    Root<AdvancedFeeStats> root = query.from(AdvancedFeeStats.class);
+
+    Expression<Long> firstGradeCountSum = builder.sum(root.get("firstGradeCount"));
+    Expression<Long> secondGradeCountSum = builder.sum(root.get("secondGradeCount"));
+    Expression<Long> thirdGradeCountSum = builder.sum(root.get("thirdGradeCount"));
+    Expression<Long> remedialFeesCountSum = builder.sum(root.get("remedialFeesCount"));
+    Expression<Long> workStudyCountSum = builder.sum(root.get("workStudyCount"));
+    Expression<Long> monthlyCountSum = builder.sum(root.get("monthlyCount"));
+    Expression<Long> yearlyCountSum = builder.sum(root.get("yearlyCount"));
+    Expression<Long> bankTransferCountSum = builder.sum(root.get("bankTransferCount"));
+    Expression<Long> mpbsCountSum = builder.sum(root.get("mpbsCount"));
+    Expression<AdvancedFeeStatsType> statType = root.get("statType");
+
+    query
+        .multiselect(
+            firstGradeCountSum,
+            secondGradeCountSum,
+            thirdGradeCountSum,
+            remedialFeesCountSum,
+            workStudyCountSum,
+            monthlyCountSum,
+            yearlyCountSum,
+            bankTransferCountSum,
+            mpbsCountSum,
+            statType)
+        .groupBy(statType);
+    query.where(builder.between(root.get("creationDatetime"), from, to));
+
+    TypedQuery<AdvancedFeeStats> typedQuery = entityManager.createQuery(query);
+
+    List<AdvancedFeeStats> feeStats = typedQuery.getResultList();
+    return feeStats.stream()
+        .collect(toMap(AdvancedFeeStats::getStatType, advancedFeeStats -> advancedFeeStats));
   }
 }

@@ -7,8 +7,10 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
 import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.model.User.Status.SUSPENDED;
+import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -25,7 +27,9 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.PaymentNumberSequence;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.PaymentDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.PaymentValidator;
@@ -38,6 +42,7 @@ import school.hei.haapi.repository.dao.UserManagerDao;
 @AllArgsConstructor
 @Slf4j
 public class PaymentService {
+  private final PaymentNumberSequenceService sequenceService;
   private final FeeRepository feeRepository;
   private final PaymentRepository paymentRepository;
   private final UserRepository userRepository;
@@ -167,7 +172,19 @@ public class PaymentService {
     return paymentRepository.saveAll(toCreate);
   }
 
-  public List<Payment> getAllPayementBetween(Instant from, Instant to) {
+  @Transactional
+  public Payment updateSequence(PaymentDto paymentDto) {
+    Payment payment = getById(paymentDto.getId());
+    if (payment.getSequence() == null) {
+      LocalDate localPaymentDate = payment.getCreationDatetime().atZone(UTC3).toLocalDate();
+      PaymentNumberSequence localPaymentSequence =
+          sequenceService.getNextSequence(localPaymentDate);
+      payment.setSequence(localPaymentSequence);
+      return paymentRepository.save(payment);
+    } else return payment;
+  }
+
+  public List<Payment> getAllPaymentBetween(Instant from, Instant to) {
     return paymentRepository.getAllByCreationDatetimeBetweenOrderByCreationDatetimeAsc(from, to);
   }
 }

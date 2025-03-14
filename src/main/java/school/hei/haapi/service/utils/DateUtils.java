@@ -3,11 +3,13 @@ package school.hei.haapi.service.utils;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
-import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -30,18 +32,17 @@ public class DateUtils {
   }
 
   // Returns the start and end dates of the current month if the parameters are null
-  public static RangedInstant getDefaultMonthRange(Instant monthFrom, Instant monthTo) {
+  public static RangedInstant getDefaultMonthRange(
+      Optional<Instant> monthFrom, Optional<Instant> monthTo) {
     LocalDate firstDayOfMonth = LocalDate.now().withDayOfMonth(1);
     LocalDate lastDayOfMonth = firstDayOfMonth.withDayOfMonth(firstDayOfMonth.lengthOfMonth());
 
-    monthFrom =
-        Objects.requireNonNullElse(
-            monthFrom, firstDayOfMonth.atStartOfDay(ZoneOffset.UTC).toInstant());
-    monthTo =
-        Objects.requireNonNullElse(
-            monthTo, lastDayOfMonth.atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant());
+    Instant monthFromValue =
+        monthFrom.orElse(firstDayOfMonth.atStartOfDay(ZoneOffset.UTC).toInstant());
+    Instant monthToValue =
+        monthTo.orElse(lastDayOfMonth.atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant());
 
-    return new RangedInstant(monthFrom, monthTo);
+    return new RangedInstant(monthFromValue, monthToValue);
   }
 
   public static Instant convertStringToInstant(String dateString) {
@@ -53,4 +54,8 @@ public class DateUtils {
   }
 
   public record RangedInstant(Instant from, Instant to) {}
+
+  public static Stream<LocalDate> generateStartOfMonthRange(LocalDate from, LocalDate to) {
+    return from.withDayOfMonth(1).datesUntil(to.withDayOfMonth(1), Period.ofMonths(1));
+  }
 }

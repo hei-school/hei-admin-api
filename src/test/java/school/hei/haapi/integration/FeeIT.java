@@ -1,5 +1,7 @@
 package school.hei.haapi.integration;
 
+import static java.time.LocalDateTime.now;
+import static java.time.ZoneOffset.UTC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -40,6 +42,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
@@ -49,6 +52,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.http.HttpStatus;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.event.consumer.EventConsumer;
+import school.hei.haapi.endpoint.event.model.AdvancedFeeStatsComputationTriggered;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -61,6 +65,7 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
+import school.hei.haapi.service.event.AdvancedFeeStatsComputationTriggeredService;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -69,6 +74,10 @@ class FeeIT extends FacadeITMockedThirdParties {
   @Autowired EventConsumer subject;
   @Autowired EntityManager entityManager;
   @Autowired FeeRepository feeRepository;
+
+  @Autowired
+  AdvancedFeeStatsComputationTriggeredService advancedFeeStatsComputationTriggeredService;
+
   @Autowired FeeDao feeDao;
 
   /***
@@ -496,11 +505,15 @@ class FeeIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_get_advanced_fees_stats_ok() throws ApiException {
+    Instant fromInstant = Instant.parse("2021-12-01T00:00:00.00Z");
+    Instant toInstant = Instant.parse("2021-12-31T00:00:00.00Z");
+    AdvancedFeeStatsComputationTriggered event =
+        new AdvancedFeeStatsComputationTriggered(
+            LocalDateTime.ofInstant(Instant.parse("2021-12-13T00:00:00.00Z"), UTC), now());
+    advancedFeeStatsComputationTriggeredService.accept(event);
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
-    AdvancedFeesStatistics advStats =
-        api.getAdvancedFeesStats(
-            Instant.parse("2021-12-01T00:00:00.00Z"), Instant.parse("2021-12-31T00:00:00.00Z"));
+    AdvancedFeesStatistics advStats = api.getAdvancedFeesStats(fromInstant, toInstant);
 
     assertEquals(1, advStats.getTotalExpectedFeesCount().getFirstGrade());
     assertEquals(1, advStats.getTotalExpectedFeesCount().getWorkStudy());

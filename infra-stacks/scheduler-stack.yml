@@ -150,6 +150,22 @@ Resources:
         EventBridgeParameters:
           DetailType: 'school.hei.haapi.endpoint.event.model.CheckParticipantMissedEventServiceTriggered'
           Source: 'school.hei.haapi.event1'
+  RefreshAdvancedFeeStats:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      Description: Scheduler that trigger an insert into AdvancedFeeStats for the current day
+      FlexibleTimeWindow:
+        Mode: "OFF"
+      Name: !Join [ '', [ !Ref Env, -RefreshAdvancedFeeStats ] ]
+      ScheduleExpression: "cron(0 0,5,12,21 * * ? *)" # This scheduler will run every 00, 05AM, 12PM, 09PM everyday
+      Target:
+        Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
+        RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
+        DeadLetterConfig:
+          Arn: !Sub '{{resolve:ssm:/haapi/${Env}/1/sqs/dead-letter-queue-arn}}'
+        EventBridgeParameters:
+          DetailType: 'school.hei.haapi.endpoint.event.model.AdvancedFeeStatsComputationTriggered'
+          Source: 'school.hei.haapi.event1'
   ScheduledEventExecutionRole:
     Type: AWS::IAM::Role
     Properties:

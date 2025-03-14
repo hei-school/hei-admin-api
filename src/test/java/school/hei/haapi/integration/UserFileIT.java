@@ -54,9 +54,9 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.FileInfo;
+import school.hei.haapi.endpoint.rest.model.GeneratedReceiptsStatistic;
+import school.hei.haapi.endpoint.rest.model.GenerationReceiptsRequest;
 import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.ZipReceiptsRequest;
-import school.hei.haapi.endpoint.rest.model.ZipReceiptsStatistic;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.service.utils.ScholarshipCertificateDataProvider;
@@ -373,10 +373,9 @@ public class UserFileIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    ZipReceiptsStatistic zipReceiptsStatistic =
-        api.getZipFeeReceipts(
-            new ZipReceiptsRequest()
-                .destinationEmail("email")
+    GeneratedReceiptsStatistic zipReceiptsStatistic =
+        api.generateFeeReceipts(
+            new GenerationReceiptsRequest()
                 .from(Instant.parse("2021-11-08T08:25:24.00Z"))
                 .to(Instant.now()));
     assertNotNull(zipReceiptsStatistic);

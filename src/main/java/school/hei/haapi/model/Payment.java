@@ -11,6 +11,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
@@ -41,9 +42,14 @@ public class Payment implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
+  // TODO: Lazy fetch associations
   @ManyToOne
   @JoinColumn(name = "fee_id", nullable = false)
   private Fee fee;
+
+  @OneToOne
+  @JoinColumn(name = "number_id")
+  private PaymentNumberSequence sequence;
 
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)

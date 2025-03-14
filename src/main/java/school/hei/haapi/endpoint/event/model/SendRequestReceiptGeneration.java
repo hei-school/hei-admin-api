@@ -1,16 +1,15 @@
 package school.hei.haapi.endpoint.event.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import java.io.File;
 import java.time.Duration;
 import java.time.Instant;
-import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import school.hei.haapi.model.dto.PaymentDto;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -18,23 +17,16 @@ import lombok.ToString;
 @Builder
 @ToString
 @Getter
-public class SendReceiptZipToEmail extends PojaEvent {
-
-  @JsonProperty("idWork")
-  private int idWork;
-
+public class SendRequestReceiptGeneration extends PojaEvent {
   @JsonProperty("startRequest")
   private Instant startRequest;
 
-  @JsonProperty("fileToZip")
-  private List<File> fileToZip;
-
-  @JsonProperty("emailRecipient")
-  private String emailRecipient;
+  @JsonProperty("payment")
+  private PaymentDto payment;
 
   @Override
   public Duration maxConsumerDuration() {
-    return Duration.ofSeconds(60);
+    return Duration.ofSeconds(800);
   }
 
   @Override
