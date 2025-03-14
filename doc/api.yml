@@ -6947,8 +6947,6 @@ components:
         to:
           type: string
           format: date-time
-        destinationEmail:
-          type: string
     GeneratedReceiptsStatistic:
       type: object
       properties:

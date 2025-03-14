@@ -8,7 +8,7 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.ToString;
-import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.dto.PaymentDto;
 
 @AllArgsConstructor
 @EqualsAndHashCode
@@ -18,7 +18,7 @@ import school.hei.haapi.model.Payment;
 public class HandleReceiptGenerationRequest extends PojaEvent {
 
   @JsonProperty("payments")
-  private List<Payment> payments;
+  private List<PaymentDto> payments;
 
   @JsonProperty("notify_email")
   private String notifyEmail;

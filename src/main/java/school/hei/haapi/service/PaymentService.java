@@ -29,6 +29,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.PaymentNumberSequence;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.PaymentDto;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.PaymentValidator;
@@ -172,7 +173,8 @@ public class PaymentService {
   }
 
   @Transactional
-  public Payment updateSequence(Payment payment) {
+  public Payment updateSequence(PaymentDto paymentDto) {
+    Payment payment = getById(paymentDto.getId());
     if (payment.getSequence() == null) {
       LocalDate localPaymentDate = payment.getCreationDatetime().atZone(UTC3).toLocalDate();
       PaymentNumberSequence localPaymentSequence =

@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static school.hei.haapi.endpoint.rest.security.AuthProvider.getPrincipal;
 import static school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService.internetAddress;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
@@ -25,8 +26,8 @@ import school.hei.haapi.endpoint.rest.model.GeneratedReceiptsStatistic;
 import school.hei.haapi.endpoint.rest.model.GenerationReceiptsRequest;
 import school.hei.haapi.mail.Email;
 import school.hei.haapi.mail.Mailer;
-import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.dto.PaymentDto;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
@@ -56,9 +57,10 @@ public class ReceiptGenerationService {
   private final Mailer mailer;
 
   public byte[] generatePaidFeeReceiptByPaymentId(String paymentId) {
-    Payment payment = paymentService.updateSequence(paymentService.getById(paymentId));
+    Payment payment =
+        paymentService.updateSequence(PaymentDto.from(paymentService.getById(paymentId)));
     try {
-      File receipt = generatePaidFeeReceipt(payment);
+      File receipt = generatePaidFeeReceipt(PaymentDto.from(payment));
       return Files.readAllBytes(receipt.toPath());
     } catch (IOException e) {
       throw new RuntimeException(e);
@@ -69,18 +71,19 @@ public class ReceiptGenerationService {
     return payment.getCreationDatetime().atZone(UTC3).toLocalDate().withDayOfMonth(1);
   }
 
-  public void saveReceipt(File toSave, Payment payment) {
-    String fileKey = RECEIPT_FILENAME_PREFIX + payment.getSequence().getStringSequence() + ".pdf";
+  public void saveReceipt(File toSave, PaymentDto paymentDto) {
+    String fileKey =
+        RECEIPT_FILENAME_PREFIX + paymentDto.getSequence().getStringSequence() + ".pdf";
     String bucketKey =
-        String.format("%s/%s/%s", RECEIPT_FOLDER, payment.getSequence().getYearMonth(), fileKey);
+        String.format("%s/%s/%s", RECEIPT_FOLDER, paymentDto.getSequence().getYearMonth(), fileKey);
     fileService.uploadObjectToS3Bucket(bucketKey, toSave);
     log.info("zip: '{}' saved successfully", bucketKey);
   }
 
-  public File generatePaidFeeReceipt(Payment payment) {
-    Context context = loadPaymentReceiptContext(payment.getFee(), payment);
+  public File generatePaidFeeReceipt(PaymentDto paymentDto) {
+    Context context = loadPaymentReceiptContext(paymentDto);
     String html = htmlParser.apply("paidFeeReceipt", context);
-    String filename = RECEIPT_FILENAME_PREFIX + payment.getSequence().getStringSequence();
+    String filename = RECEIPT_FILENAME_PREFIX + paymentDto.getSequence().getStringSequence();
     return createFileFromBytes(pdfRenderer.apply(html), filename, ".pdf");
   }
 
@@ -117,9 +120,13 @@ public class ReceiptGenerationService {
 
   public GeneratedReceiptsStatistic getZipFeeReceipts(
       GenerationReceiptsRequest generationReceiptsRequest) {
-    List<Payment> allPayments =
-        paymentService.getAllPaymentBetween(
-            generationReceiptsRequest.getFrom(), generationReceiptsRequest.getTo());
+    List<PaymentDto> allPayments =
+        paymentService
+            .getAllPaymentBetween(
+                generationReceiptsRequest.getFrom(), generationReceiptsRequest.getTo())
+            .stream()
+            .map(PaymentDto::from)
+            .collect(toUnmodifiableList());
 
     eventProducer.accept(
         List.of(
@@ -133,17 +140,19 @@ public class ReceiptGenerationService {
     return new GeneratedReceiptsStatistic().processedFileCount(allPayments.size());
   }
 
-  private Context loadPaymentReceiptContext(Fee fee, Payment payment) {
+  private Context loadPaymentReceiptContext(PaymentDto paymentDto) {
     Resource logo = classPathResourceResolver.apply("HEI_logo", ".png");
     Context context = new Context();
-    List<Payment> paidPaymentsBefore =
-        paymentService.getByFeeIdOrderByCreationDatetimeAsc(fee.getId());
+    List<PaymentDto> paidPaymentsBefore =
+        paymentService.getByFeeIdOrderByCreationDatetimeAsc(paymentDto.getFee().getId()).stream()
+            .map(PaymentDto::from)
+            .collect(toUnmodifiableList());
     PaidFeeReceiptDataProvider dataProvider =
-        new PaidFeeReceiptDataProvider(fee.getStudent(), fee, payment, paidPaymentsBefore);
+        new PaidFeeReceiptDataProvider(paymentDto, paidPaymentsBefore);
 
     context.setVariable("logo", base64Converter.apply(logo));
     context.setVariable("paymentAuthorName", dataProvider.getEntirePaymentAuthorName());
-    context.setVariable("receiptNumber", payment.getSequence().getStringSequence());
+    context.setVariable("receiptNumber", paymentDto.getSequence().getStringSequence());
     context.setVariable("totalAmount", numberToReadable(dataProvider.getFeeTotalAmount()));
     context.setVariable("paymentDate", dataProvider.getPaymentDate());
     context.setVariable("paymentAmount", numberToReadable(dataProvider.getTotalPaymentAmount()));
