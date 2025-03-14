@@ -376,7 +376,6 @@ public class UserFileIT extends FacadeITMockedThirdParties {
     GeneratedReceiptsStatistic zipReceiptsStatistic =
         api.generateFeeReceipts(
             new GenerationReceiptsRequest()
-                .destinationEmail("email")
                 .from(Instant.parse("2021-11-08T08:25:24.00Z"))
                 .to(Instant.now()));
     assertNotNull(zipReceiptsStatistic);

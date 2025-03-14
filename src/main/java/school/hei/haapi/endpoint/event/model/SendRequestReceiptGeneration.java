@@ -9,7 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.dto.PaymentDto;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -22,7 +22,7 @@ public class SendRequestReceiptGeneration extends PojaEvent {
   private Instant startRequest;
 
   @JsonProperty("payment")
-  private Payment payment;
+  private PaymentDto payment;
 
   @Override
   public Duration maxConsumerDuration() {

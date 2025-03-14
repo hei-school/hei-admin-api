@@ -3,26 +3,25 @@ package school.hei.haapi.service.utils;
 import static school.hei.haapi.service.utils.DataFormatterUtils.instantToCommonDate;
 
 import java.util.List;
-import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.Payment;
-import school.hei.haapi.model.User;
+import school.hei.haapi.model.dto.FeeDto;
+import school.hei.haapi.model.dto.PaymentDto;
+import school.hei.haapi.model.dto.UserDto;
 
 public class PaidFeeReceiptDataProvider {
-  private final User student;
-  private final Fee fee;
-  private final Payment payment;
-  private final List<Payment> paidPaymentsBefore;
+  private final UserDto user;
+  private final FeeDto fee;
+  private final PaymentDto payment;
+  private final List<PaymentDto> paidPaymentsBefore;
 
-  public PaidFeeReceiptDataProvider(
-      User student, Fee fee, Payment payment, List<Payment> payments) {
-    this.student = student;
-    this.fee = fee;
-    this.payment = payment;
-    this.paidPaymentsBefore = paymentsSinceActual(payments, payment);
+  public PaidFeeReceiptDataProvider(PaymentDto paymentDto, List<PaymentDto> payments) {
+    this.user = paymentDto.getUser();
+    this.fee = paymentDto.getFee();
+    this.payment = paymentDto;
+    this.paidPaymentsBefore = paymentsSinceActual(payments, paymentDto);
   }
 
   public String getEntirePaymentAuthorName() {
-    return student.getLastName() + " " + student.getFirstName();
+    return user.getLastName() + " " + user.getFirstName();
   }
 
   public int getFeeTotalAmount() {
@@ -47,15 +46,15 @@ public class PaidFeeReceiptDataProvider {
   }
 
   public school.hei.haapi.endpoint.rest.model.Payment.TypeEnum getPaymentType() {
-    return payment.getType();
+    return payment.getPaymentType();
   }
 
-  private List<Payment> paymentsSinceActual(List<Payment> payments, Payment payment) {
+  private List<PaymentDto> paymentsSinceActual(List<PaymentDto> payments, PaymentDto payment) {
     int indexOfPayment = payments.indexOf(payment);
     return payments.subList(0, indexOfPayment + 1);
   }
 
-  private int defineTotalPaymentSinceActual(List<Payment> payments) {
-    return payments.stream().map(Payment::getAmount).reduce(0, Integer::sum);
+  private int defineTotalPaymentSinceActual(List<PaymentDto> payments) {
+    return payments.stream().map(PaymentDto::getAmount).reduce(0, Integer::sum);
   }
 }

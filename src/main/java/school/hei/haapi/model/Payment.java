@@ -42,6 +42,7 @@ public class Payment implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
+  // TODO: Lazy fetch associations
   @ManyToOne
   @JoinColumn(name = "fee_id", nullable = false)
   private Fee fee;
