@@ -25,7 +25,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 @Getter
 @Entity
 @Table(name = "\"announcement_reaction\"")
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 public class AnnouncementReaction {

@@ -25,7 +25,6 @@ import static school.hei.haapi.integration.conf.TestUtils.expectedAnnouncementCr
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -223,20 +222,18 @@ public class AnnouncementIT extends FacadeITMockedThirdParties {
 
     Announcement announcementBeforeReaction = api.getAnnouncementById(ANNOUNCEMENT4_ID);
 
-    // Check the announcement
     Announcement announcementAfterReaction =
         api.reactToAnnouncement(
             ANNOUNCEMENT4_ID, new ReactToAnnouncementRequest().reaction(ReactionEnum.CHECK));
     assertEquals(
-        announcementBeforeReaction.getReactionCount().add(BigDecimal.ONE),
+        announcementBeforeReaction.getReactionCount() + 1,
         announcementAfterReaction.getReactionCount());
 
-    // Uncheck the announcement
     Announcement announcementAfterUnCheckReaction =
         api.reactToAnnouncement(
             ANNOUNCEMENT4_ID, new ReactToAnnouncementRequest().reaction(ReactionEnum.UNCHECK));
     assertEquals(
-        announcementAfterReaction.getReactionCount().subtract(BigDecimal.ONE),
+        announcementAfterReaction.getReactionCount() - 1,
         announcementAfterUnCheckReaction.getReactionCount());
   }
 

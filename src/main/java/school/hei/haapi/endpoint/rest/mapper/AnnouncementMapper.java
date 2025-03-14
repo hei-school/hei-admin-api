@@ -3,7 +3,6 @@ package school.hei.haapi.endpoint.rest.mapper;
 import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
 import static school.hei.haapi.model.AnnouncementReaction.ReactionEnum.CHECK;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -28,10 +27,6 @@ public class AnnouncementMapper {
   private final AnnouncementReactionRepository announcementReactionRepository;
 
   public Announcement toRest(school.hei.haapi.model.Announcement domain) {
-    BigDecimal reactionCount =
-        BigDecimal.valueOf(
-            announcementReactionRepository.countByAnnouncement_IdAndReaction(
-                domain.getId(), CHECK));
     return new Announcement()
         .id(domain.getId())
         .author(toRest(domain.getAuthor()))
@@ -39,7 +34,9 @@ public class AnnouncementMapper {
         .title(domain.getTitle())
         .creationDatetime(domain.getCreationDatetime())
         .scope(domain.getScope())
-        .reactionCount(reactionCount);
+        .reactionCount(
+            announcementReactionRepository.countByAnnouncement_IdAndReaction(
+                domain.getId(), CHECK));
   }
 
   public school.hei.haapi.model.Announcement toDomain(CreateAnnouncement rest) {

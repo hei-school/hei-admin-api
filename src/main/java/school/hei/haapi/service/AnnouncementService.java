@@ -97,17 +97,14 @@ public class AnnouncementService {
 
   public AnnouncementReaction reactToAnnouncement(
       ReactToAnnouncementRequest reactToAnnouncement, String announcementId, String userId) {
-    // Get the announcement and the user
     Announcement announcement = announcementRepository.findById(announcementId).orElseThrow();
     User user = userRepository.findById(userId).orElseThrow();
 
-    // Do the reaction if it's not
     AnnouncementReaction reaction =
         announcementReactionRepository
             .findByAnnouncement_IdAndUser_Id(announcementId, userId)
             .orElse(AnnouncementReaction.builder().announcement(announcement).user(user).build());
 
-    // Save the new reaction
     reaction.setReaction(announcementReactionMapper.toDomain(reactToAnnouncement.getReaction()));
     return announcementReactionRepository.save(reaction);
   }

@@ -6680,7 +6680,7 @@ components:
         scope:
           $ref: '#/components/schemas/Scope'
         reaction_count:
-          type: number
+          type: integer
           default: 0
     ReactionEnum:
       type: string

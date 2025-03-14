@@ -11,6 +11,6 @@ public interface AnnouncementReactionRepository
   Optional<AnnouncementReaction> findByAnnouncement_IdAndUser_Id(
       String announcementId, String userId);
 
-  Long countByAnnouncement_IdAndReaction(
+  Integer countByAnnouncement_IdAndReaction(
       String announcementId, AnnouncementReaction.ReactionEnum reaction);
 }
