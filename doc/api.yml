@@ -6684,6 +6684,7 @@ components:
           default: 0
         haveReact:
           type: boolean
+          default: false
     ReactionEnum:
       type: string
       enum:

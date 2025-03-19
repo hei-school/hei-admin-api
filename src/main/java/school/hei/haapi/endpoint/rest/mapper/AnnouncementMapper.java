@@ -1,7 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
-import static school.hei.haapi.model.AnnouncementReaction.ReactionEnum.CHECK;
 
 import java.util.List;
 import java.util.Objects;
@@ -37,9 +36,7 @@ public class AnnouncementMapper {
         .creationDatetime(domain.getCreationDatetime())
         .scope(domain.getScope())
         .haveReact(announcementService.principalHaveReactToAnnouncement(domain))
-        .reactionCount(
-            announcementReactionRepository.countByAnnouncement_IdAndReaction(
-                domain.getId(), CHECK));
+        .reactionCount(announcementService.countCheckReactions(domain.getId()));
   }
 
   public school.hei.haapi.model.Announcement toDomain(CreateAnnouncement rest) {

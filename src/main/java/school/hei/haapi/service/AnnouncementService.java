@@ -112,6 +112,10 @@ public class AnnouncementService {
     return announcementReactionRepository.save(reaction);
   }
 
+  public Integer countCheckReactions(String announcementId) {
+    return announcementReactionRepository.countByAnnouncement_IdAndReaction(announcementId, CHECK);
+  }
+
   public boolean principalHaveReactToAnnouncement(Announcement announcement) {
     Optional<AnnouncementReaction> announcementReaction =
         announcementReactionRepository.findByAnnouncement_IdAndUser_Id(
