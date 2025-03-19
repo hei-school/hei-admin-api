@@ -1487,6 +1487,7 @@ public class TestUtils {
         .content("Le bureau est fermé pour ce weekend")
         .author(author1())
         .scope(GLOBAL)
+        .reactionCount(0)
         .creationDatetime(Instant.parse("2022-12-20T08:00:00.00Z"));
   }
 
@@ -1497,6 +1498,7 @@ public class TestUtils {
         .content("A tous les enseignants, vous êtes disposés à prendre des congés")
         .author(author1())
         .creationDatetime(Instant.parse("2022-12-21T08:00:00.00Z"))
+        .reactionCount(0)
         .scope(Scope.TEACHER);
   }
 
@@ -1513,6 +1515,7 @@ public class TestUtils {
                 .email(teacher1().getEmail())
                 .profilePicture(null))
         .creationDatetime(Instant.parse("2022-12-22T08:00:00.00Z"))
+        .reactionCount(0)
         .scope(STUDENT);
   }
 
@@ -1523,6 +1526,7 @@ public class TestUtils {
         .scope(Scope.MANAGER)
         .content("Veuillez vérifier nos comptes")
         .title("Comptabilité")
+        .reactionCount(0)
         .creationDatetime(Instant.parse("2022-12-15T08:00:00.00Z"));
   }
 
