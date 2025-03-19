@@ -11,6 +11,7 @@ public interface AnnouncementReactionRepository
   Optional<AnnouncementReaction> findByAnnouncement_IdAndUser_Id(
       String announcementId, String userId);
 
+  // TODO: use SQL to compute this operation in a single query
   Integer countByAnnouncement_IdAndReaction(
       String announcementId, AnnouncementReaction.ReactionEnum reaction);
 }
