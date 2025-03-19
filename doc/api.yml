@@ -6682,7 +6682,7 @@ components:
         reaction_count:
           type: integer
           default: 0
-        haveReact:
+        hasCurrentUserReaction:
           type: boolean
           default: false
     ReactionEnum:

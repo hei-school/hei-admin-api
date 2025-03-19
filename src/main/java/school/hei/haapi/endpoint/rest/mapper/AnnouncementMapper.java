@@ -35,7 +35,7 @@ public class AnnouncementMapper {
         .title(domain.getTitle())
         .creationDatetime(domain.getCreationDatetime())
         .scope(domain.getScope())
-        .haveReact(announcementService.principalHaveReactToAnnouncement(domain))
+        .hasCurrentUserReaction(announcementService.principalHaveReactToAnnouncement(domain))
         .reactionCount(announcementService.countCheckReactions(domain.getId()));
   }
 
