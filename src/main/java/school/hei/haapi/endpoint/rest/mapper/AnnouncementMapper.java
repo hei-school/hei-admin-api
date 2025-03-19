@@ -13,6 +13,7 @@ import school.hei.haapi.endpoint.rest.model.CreateAnnouncement;
 import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.AnnouncementReactionRepository;
+import school.hei.haapi.service.AnnouncementService;
 import school.hei.haapi.service.GroupService;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.aws.FileService;
@@ -25,6 +26,7 @@ public class AnnouncementMapper {
   private final UserService userService;
   private final GroupService groupService;
   private final AnnouncementReactionRepository announcementReactionRepository;
+  private final AnnouncementService announcementService;
 
   public Announcement toRest(school.hei.haapi.model.Announcement domain) {
     return new Announcement()
@@ -34,6 +36,7 @@ public class AnnouncementMapper {
         .title(domain.getTitle())
         .creationDatetime(domain.getCreationDatetime())
         .scope(domain.getScope())
+        .haveReact(announcementService.principalHaveReactToAnnouncement(domain))
         .reactionCount(
             announcementReactionRepository.countByAnnouncement_IdAndReaction(
                 domain.getId(), CHECK));

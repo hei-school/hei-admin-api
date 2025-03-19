@@ -228,6 +228,7 @@ public class AnnouncementIT extends FacadeITMockedThirdParties {
     assertEquals(
         announcementBeforeReaction.getReactionCount() + 1,
         announcementAfterReaction.getReactionCount());
+    assertTrue(api.getAnnouncementById(ANNOUNCEMENT4_ID).getHaveReact());
 
     Announcement announcementAfterUnCheckReaction =
         api.reactToAnnouncement(
@@ -235,6 +236,7 @@ public class AnnouncementIT extends FacadeITMockedThirdParties {
     assertEquals(
         announcementAfterReaction.getReactionCount() - 1,
         announcementAfterUnCheckReaction.getReactionCount());
+    assertFalse(announcementBeforeReaction.getHaveReact());
   }
 
   @BeforeEach

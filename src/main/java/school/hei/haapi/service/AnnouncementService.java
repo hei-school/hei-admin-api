@@ -1,9 +1,12 @@
 package school.hei.haapi.service;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.endpoint.rest.security.AuthProvider.getPrincipal;
+import static school.hei.haapi.model.AnnouncementReaction.ReactionEnum.CHECK;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -107,5 +110,12 @@ public class AnnouncementService {
 
     reaction.setReaction(announcementReactionMapper.toDomain(reactToAnnouncement.getReaction()));
     return announcementReactionRepository.save(reaction);
+  }
+
+  public boolean principalHaveReactToAnnouncement(Announcement announcement) {
+    Optional<AnnouncementReaction> announcementReaction =
+        announcementReactionRepository.findByAnnouncement_IdAndUser_Id(
+            announcement.getId(), getPrincipal().getUser().getId());
+    return announcementReaction.map(reaction -> reaction.getReaction().equals(CHECK)).orElse(false);
   }
 }
