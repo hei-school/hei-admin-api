@@ -1,0 +1,1 @@
+ALTER TYPE "attendance_status" add value 'UNCHECKED';

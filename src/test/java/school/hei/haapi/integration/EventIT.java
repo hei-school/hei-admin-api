@@ -389,7 +389,7 @@ public class EventIT extends FacadeITMockedThirdParties {
 
     // Notice :
     // Student 1 and Student 3 are in GROUP 1
-    EventStats expectedEventStats = new EventStats().late(0).present(0).missing(2).total(2);
+    EventStats expectedEventStats = new EventStats().late(0).present(0).missing(0).total(2);
 
     assertEquals(expectedEventStats, actualEventStats);
   }

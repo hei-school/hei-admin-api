@@ -2,6 +2,8 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.UNCHECKED;
+import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.integration.StudentIT.*;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.StudentIT.student2;
@@ -17,6 +19,7 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.event.model.CheckAttendanceTriggered;
 import school.hei.haapi.endpoint.rest.api.AttendanceApi;
+import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.*;
@@ -198,6 +201,33 @@ class AttendanceIT extends FacadeITMockedThirdParties {
         "{\"type\":\"404 NOT_FOUND\",\"message\":\"the student with #student_id_ko doesn't"
             + " exist\"}",
         () -> api.createAttendanceMovement(List.of(createAttendanceMovementKo())));
+  }
+
+  @Test
+  void default_attendance_unchecked() throws ApiException {
+    ApiClient teacher1Client = anApiClient(ORGANIZER1_TOKEN);
+    EventsApi api = new EventsApi(teacher1Client);
+
+    List<Event> events =
+        api.crupdateEvents(
+            List.of(
+                someCreatableEvent(
+                    COURSE, TEACHER1_ID, Instant.now(), Instant.now().plusSeconds(10))),
+            null,
+            null,
+            null,
+            null);
+    assertEquals(1, events.size());
+    Event createEvent = events.getFirst();
+
+    List<EventParticipant> eventParticipants =
+        api.getEventParticipants(
+            createEvent.getId(), null, null, group1().getRef(), null, null, null);
+    assertTrue(
+        eventParticipants.stream()
+            .allMatch(eventParticipant -> eventParticipant.getEventStatus().equals(UNCHECKED)));
+
+    api.deleteEventById(createEvent.getId());
   }
 
   public static AwardedCourse awardedCourse4() {

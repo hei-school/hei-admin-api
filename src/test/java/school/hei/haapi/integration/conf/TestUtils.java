@@ -179,6 +179,7 @@ public class TestUtils {
 
   public static final String EVENT1_ID = "event1_id";
   public static final String EVENT2_ID = "event2_id";
+  public static final String EVENT3_ID = "event3_id";
   public static final String EVENT_PARTICIPANT1_ID = "event_participant1_id";
   public static final String EVENT_PARTICIPANT2_ID = "event_participant2_id";
 
@@ -1337,7 +1338,7 @@ public class TestUtils {
 
   public static Event event3() {
     return new Event()
-        .id("event3_id")
+        .id(EVENT3_ID)
         .type(SEMINAR)
         .planner(
             new UserIdentifier()
