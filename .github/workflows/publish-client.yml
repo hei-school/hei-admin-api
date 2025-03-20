@@ -31,9 +31,6 @@ jobs:
           java-version: '21'
           distribution: 'corretto'
 
-      - name: synchronise version with release 
-        run: git pull origin ${{ github.ref_name }}
-
       - name: Read gradle.properties file
         id: extract_version
         run: |
