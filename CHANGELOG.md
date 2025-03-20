@@ -1,3 +1,24 @@
+# [1.100.0](https://github.com/hei-school/hei-admin-api/compare/v1.99.1...v1.100.0) (2025-03-20)
+
+
+### Bug Fixes
+
+* publish client workflow ([1c50fb1](https://github.com/hei-school/hei-admin-api/commit/1c50fb11c2fd71082bd17e8251ebe728b03ad745))
+* S3 bucket key to not include random numbers ([bd1a616](https://github.com/hei-school/hei-admin-api/commit/bd1a616cc489f89fad0a5255db50973ff48caaad))
+
+
+### Features
+
+* announcement react ([09a1d90](https://github.com/hei-school/hei-admin-api/commit/09a1d9095d3cf21dde55e822bbe23fe6b82d17a3))
+* **not-implemented:** update multiple student grade ([c94a35f](https://github.com/hei-school/hei-admin-api/commit/c94a35f89f3e0b67211e68c75b7e7f40fe5c4181))
+
+
+### Reverts
+
+* Revert "infra(to-revert): rm synchronisation with release" ([da03dc7](https://github.com/hei-school/hei-admin-api/commit/da03dc7fce99ca5dcf26931a6089c7af9206c38b))
+
+
+
 ## [1.99.1](https://github.com/hei-school/hei-admin-api/compare/v1.99.0...v1.99.1) (2025-03-12)
 
 
@@ -109,17 +130,6 @@
 ### Features
 
 * **not-implemented:** add event frequency number  ([41fc946](https://github.com/hei-school/hei-admin-api/commit/41fc94674cb01cfe847048e8ee51d096a3b4d5b9))
-
-
-
-# [1.91.0](https://github.com/hei-school/hei-admin-api/compare/v1.90.0...v1.91.0) (2025-01-17)
-
-
-### Features
-
-* deny scholarship certificate on missing nic number  ([43b498b](https://github.com/hei-school/hei-admin-api/commit/43b498b74178e072a90891e45c17f9e90428e256))
-* filter fees by date range ([cc02eaa](https://github.com/hei-school/hei-admin-api/commit/cc02eaabdb3b9b724f8e0c99dab7b24db66f6eb8))
-* **not-implemented:** event has color from event type  ([c46aa49](https://github.com/hei-school/hei-admin-api/commit/c46aa497259d153502bbf7904f31ee77d323d4d5))
 
 
 
