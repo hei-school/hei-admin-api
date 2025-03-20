@@ -1696,7 +1696,36 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/GetStudentGrade'
+                  $ref: '#/components/schemas/StudentGrade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Teaching
+      summary: Modify student grades in exam
+      operationId: updateParticipantsGradeForExam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: All students grades from an exam specific
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/StudentGrade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -6097,7 +6126,7 @@ components:
           type: number
           format: double
           example: 12.5
-    GetStudentGrade:
+    StudentGrade:
       properties:
         grade:
           $ref: '#/components/schemas/Grade'
@@ -6121,7 +6150,7 @@ components:
         exams:
           type: array
           items:
-            $ref: '#/components/schemas/GetStudentGrade'
+            $ref: '#/components/schemas/StudentGrade'
     CreateAttendanceMovement:
       type: object
       properties:
