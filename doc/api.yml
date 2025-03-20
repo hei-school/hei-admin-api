@@ -1696,7 +1696,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/GetStudentGrade'
+                  $ref: '#/components/schemas/StudentGrade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -6097,7 +6097,7 @@ components:
           type: number
           format: double
           example: 12.5
-    GetStudentGrade:
+    StudentGrade:
       properties:
         grade:
           $ref: '#/components/schemas/Grade'
@@ -6121,7 +6121,7 @@ components:
         exams:
           type: array
           items:
-            $ref: '#/components/schemas/GetStudentGrade'
+            $ref: '#/components/schemas/StudentGrade'
     CreateAttendanceMovement:
       type: object
       properties:
