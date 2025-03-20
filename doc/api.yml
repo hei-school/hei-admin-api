@@ -6417,6 +6417,7 @@ components:
         - MISSING
         - LATE
         - PRESENT
+        - UNCHECKED
     UpdateEventParticipant:
       type: object
       properties:

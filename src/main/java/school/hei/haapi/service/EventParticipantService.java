@@ -5,6 +5,7 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.LATE;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.UNCHECKED;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -74,7 +75,7 @@ public class EventParticipantService {
                     .participant(user)
                     .group(actualGroup)
                     .event(event)
-                    .status(MISSING)
+                    .status(UNCHECKED)
                     .build();
             eventParticipants.add(newEventParticipant);
           } else {
