@@ -226,6 +226,8 @@ class AttendanceIT extends FacadeITMockedThirdParties {
     assertTrue(
         eventParticipants.stream()
             .allMatch(eventParticipant -> eventParticipant.getEventStatus().equals(UNCHECKED)));
+
+    api.deleteEventById(createEvent.getId());
   }
 
   public static AwardedCourse awardedCourse4() {

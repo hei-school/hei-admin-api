@@ -173,7 +173,7 @@ public class EventParticipantService {
         .late(late)
         .missing(missing)
         .present(present)
-        .total(missing + present + late);
+        .total(eventParticipantRepository.countByEventId(eventId));
   }
 
   public EventStats getOverallEventParticipantsStats() {
