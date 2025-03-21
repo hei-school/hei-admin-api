@@ -1718,6 +1718,15 @@ paths:
           required: true
           schema:
             type: string
+      requestBody:
+        description: Update grades for a specific students in exam
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/UpdateGrade'
       responses:
         '200':
           description: All students grades from an exam specific
@@ -6132,6 +6141,12 @@ components:
           $ref: '#/components/schemas/Grade'
         student:
           $ref: '#/components/schemas/Student'
+    UpdateGrade:
+      properties:
+        grade:
+          $ref: '#/components/schemas/CrupdateGrade'
+        student_id:
+          type: string
     CrupdateStudentExamGrade:
       required:
         - id
