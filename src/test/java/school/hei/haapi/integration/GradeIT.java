@@ -18,6 +18,7 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenE
 import static school.hei.haapi.integration.conf.TestUtils.awardedCourseExam1;
 import static school.hei.haapi.integration.conf.TestUtils.awardedCourseExam2;
 import static school.hei.haapi.integration.conf.TestUtils.awardedCourseExam4;
+import static school.hei.haapi.integration.conf.TestUtils.exam1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.studentGrade1;
@@ -39,6 +40,7 @@ import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
@@ -153,6 +155,23 @@ class GradeIT extends FacadeITMockedThirdParties {
 
     Assertions.assertNotNull(actualGrade.getId());
     assertEquals(36.4, actualGrade.getScore());
+  }
+
+  @Test
+  void manager_crupdate_multiple_grade_ok() throws ApiException {
+    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(managerClient);
+
+    UpdateGrade updateGrade =
+        new UpdateGrade().grade(new CrupdateGrade().score(18.2)).studentId(STUDENT1_ID);
+    List<StudentGrade> studentGrades =
+        api.updateParticipantsGradeForExam(EXAM1_ID, List.of(updateGrade));
+
+    assertEquals(2, studentGrades.size());
+    assertEquals(updateGrade.getStudentId(), studentGrades.get(1).getStudent().getId());
+    assertEquals(
+        updateGrade.getGrade().getScore() * exam1().getCoefficient(),
+        studentGrades.get(1).getGrade().getScore());
   }
 
   @Test

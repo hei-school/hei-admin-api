@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,12 +15,14 @@ import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.validator.GradeValidator;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.AwardedCourseService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
@@ -82,6 +86,27 @@ public class GradeController {
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize) {
     return gradeService.getParticipantsGradeForExam(exam_id, page, pageSize).stream()
+        .map(gradeMapper::toRestStudentGrade)
+        .toList();
+  }
+
+  @PutMapping(value = "/exams/{exam_id}/grades")
+  public List<StudentGrade> updateParticipantsGradeForExam(
+      @PathVariable("exam_id") String examId, @RequestBody List<UpdateGrade> grades) {
+    gradeService.crupdateParticipantGrade(
+        grades.stream()
+            .map(
+                grade -> {
+                  CrupdateGrade crupdateGrade = grade.getGrade();
+                  if (crupdateGrade == null) {
+                    throw new BadRequestException(
+                        String.format("Grade list contain null %s", grade));
+                  }
+                  validator.accept(crupdateGrade);
+                  return gradeMapper.toDomain(crupdateGrade, examId, grade.getStudentId());
+                })
+            .collect(toUnmodifiableList()));
+    return gradeService.getParticipantsGradeForExam(examId, null, null).stream()
         .map(gradeMapper::toRestStudentGrade)
         .toList();
   }

@@ -67,7 +67,7 @@ public class GradeMapper {
 
   public school.hei.haapi.model.Grade toDomain(
       CrupdateGrade grade, String examId, String studentId) {
-    school.hei.haapi.model.Grade grade1 = service.getByStudentId(studentId);
+    school.hei.haapi.model.Grade grade1 = service.getGradeByExamIdAndStudentId(examId, studentId);
     Exam exam = examService.getExamById(examId);
     double scoreFinal = 0.0;
 
