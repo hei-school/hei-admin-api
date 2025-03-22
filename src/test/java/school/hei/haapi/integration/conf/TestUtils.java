@@ -89,7 +89,6 @@ import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
-import school.hei.haapi.endpoint.rest.model.GetStudentGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
@@ -102,6 +101,7 @@ import school.hei.haapi.endpoint.rest.model.Promotion;
 import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
@@ -179,6 +179,7 @@ public class TestUtils {
 
   public static final String EVENT1_ID = "event1_id";
   public static final String EVENT2_ID = "event2_id";
+  public static final String EVENT3_ID = "event3_id";
   public static final String EVENT_PARTICIPANT1_ID = "event_participant1_id";
   public static final String EVENT_PARTICIPANT2_ID = "event_participant2_id";
 
@@ -935,52 +936,52 @@ public class TestUtils {
         .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
-  public static GetStudentGrade studentExamGrade1() {
-    return new GetStudentGrade().grade(grade1()).student(student1());
+  public static StudentGrade studentExamGrade1() {
+    return new StudentGrade().grade(grade1()).student(student1());
   }
 
-  public static GetStudentGrade studentExamGrade2() {
-    return new GetStudentGrade().grade(grade2()).student(student1());
+  public static StudentGrade studentExamGrade2() {
+    return new StudentGrade().grade(grade2()).student(student1());
   }
 
-  public static GetStudentGrade studentExamGrade3() {
-    return new GetStudentGrade().grade(grade3()).student(student1());
+  public static StudentGrade studentExamGrade3() {
+    return new StudentGrade().grade(grade3()).student(student1());
   }
 
-  public static GetStudentGrade studentExamGrade4() {
-    return new GetStudentGrade().grade(grade4()).student(student1());
+  public static StudentGrade studentExamGrade4() {
+    return new StudentGrade().grade(grade4()).student(student1());
   }
 
-  public static GetStudentGrade studentExamGrade5() {
-    return new GetStudentGrade().grade(grade5()).student(student1());
+  public static StudentGrade studentExamGrade5() {
+    return new StudentGrade().grade(grade5()).student(student1());
   }
 
-  public static GetStudentGrade studentGrade1() {
-    return new GetStudentGrade().grade(grade1()).student(student1());
+  public static StudentGrade studentGrade1() {
+    return new StudentGrade().grade(grade1()).student(student1());
   }
 
-  public static GetStudentGrade studentGrade2() {
-    return new GetStudentGrade().grade(grade2());
+  public static StudentGrade studentGrade2() {
+    return new StudentGrade().grade(grade2());
   }
 
-  public static GetStudentGrade studentGrade3() {
-    return new GetStudentGrade().grade(grade3());
+  public static StudentGrade studentGrade3() {
+    return new StudentGrade().grade(grade3());
   }
 
-  public static GetStudentGrade studentGrade4() {
-    return new GetStudentGrade().grade(grade4());
+  public static StudentGrade studentGrade4() {
+    return new StudentGrade().grade(grade4());
   }
 
-  public static GetStudentGrade studentGrade5() {
-    return new GetStudentGrade().grade(grade5());
+  public static StudentGrade studentGrade5() {
+    return new StudentGrade().grade(grade5());
   }
 
-  public static GetStudentGrade studentGrade6() {
-    return new GetStudentGrade().grade(grade6());
+  public static StudentGrade studentGrade6() {
+    return new StudentGrade().grade(grade6());
   }
 
-  public static GetStudentGrade studentGrade7() {
-    return new GetStudentGrade().grade(grade7()).student(student3());
+  public static StudentGrade studentGrade7() {
+    return new StudentGrade().grade(grade7()).student(student3());
   }
 
   public static FeeTemplate feeTemplate1() {
@@ -1337,7 +1338,7 @@ public class TestUtils {
 
   public static Event event3() {
     return new Event()
-        .id("event3_id")
+        .id(EVENT3_ID)
         .type(SEMINAR)
         .planner(
             new UserIdentifier()
@@ -1487,6 +1488,7 @@ public class TestUtils {
         .content("Le bureau est fermé pour ce weekend")
         .author(author1())
         .scope(GLOBAL)
+        .reactionCount(0)
         .creationDatetime(Instant.parse("2022-12-20T08:00:00.00Z"));
   }
 
@@ -1497,6 +1499,7 @@ public class TestUtils {
         .content("A tous les enseignants, vous êtes disposés à prendre des congés")
         .author(author1())
         .creationDatetime(Instant.parse("2022-12-21T08:00:00.00Z"))
+        .reactionCount(0)
         .scope(Scope.TEACHER);
   }
 
@@ -1513,6 +1516,7 @@ public class TestUtils {
                 .email(teacher1().getEmail())
                 .profilePicture(null))
         .creationDatetime(Instant.parse("2022-12-22T08:00:00.00Z"))
+        .reactionCount(0)
         .scope(STUDENT);
   }
 
@@ -1523,6 +1527,7 @@ public class TestUtils {
         .scope(Scope.MANAGER)
         .content("Veuillez vérifier nos comptes")
         .title("Comptabilité")
+        .reactionCount(0)
         .creationDatetime(Instant.parse("2022-12-15T08:00:00.00Z"));
   }
 

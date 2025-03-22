@@ -37,8 +37,8 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
-import school.hei.haapi.endpoint.rest.model.GetStudentGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
@@ -202,7 +202,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   void teacher_get_all_grade_ok() throws ApiException {
     TeachingApi managerApi = new TeachingApi(anApiClient(MANAGER1_TOKEN));
 
-    List<GetStudentGrade> participantsGradeForExam =
+    List<StudentGrade> participantsGradeForExam =
         managerApi.getParticipantsGradeForExam(EXAM1_ID, 1, 2);
 
     assertNotNull(participantsGradeForExam);

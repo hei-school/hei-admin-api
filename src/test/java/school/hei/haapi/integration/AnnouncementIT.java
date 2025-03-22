@@ -3,9 +3,12 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.endpoint.rest.model.ReactionEnum.CHECK;
+import static school.hei.haapi.endpoint.rest.model.ReactionEnum.UNCHECK;
 import static school.hei.haapi.endpoint.rest.model.Scope.TEACHER;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.ANNOUNCEMENT3_ID;
@@ -36,6 +39,7 @@ import school.hei.haapi.endpoint.rest.api.AnnouncementsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Announcement;
+import school.hei.haapi.endpoint.rest.model.ReactToAnnouncementRequest;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
@@ -210,6 +214,29 @@ public class AnnouncementIT extends FacadeITMockedThirdParties {
             List.of(
                 announcementForAll(), announcementForTeacher(), announcementEspeciallyForG1())));
     assertFalse(actual.contains(announcementForManager()));
+  }
+
+  @Test
+  void admin_react_announcement_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    AnnouncementsApi api = new AnnouncementsApi(apiClient);
+
+    Announcement announcementBeforeReaction = api.getAnnouncementById(ANNOUNCEMENT4_ID);
+
+    Announcement announcementAfterReaction =
+        api.reactToAnnouncement(ANNOUNCEMENT4_ID, new ReactToAnnouncementRequest().reaction(CHECK));
+    assertEquals(
+        announcementBeforeReaction.getReactionCount() + 1,
+        announcementAfterReaction.getReactionCount());
+    assertTrue(api.getAnnouncementById(ANNOUNCEMENT4_ID).getHasCurrentUserReaction());
+
+    Announcement announcementAfterUnCheckReaction =
+        api.reactToAnnouncement(
+            ANNOUNCEMENT4_ID, new ReactToAnnouncementRequest().reaction(UNCHECK));
+    assertEquals(
+        announcementAfterReaction.getReactionCount() - 1,
+        announcementAfterUnCheckReaction.getReactionCount());
+    assertFalse(announcementBeforeReaction.getHasCurrentUserReaction());
   }
 
   @BeforeEach

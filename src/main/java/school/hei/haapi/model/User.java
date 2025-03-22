@@ -140,6 +140,9 @@ public class User implements Serializable {
   @JsonIgnore
   private List<Letter> letters;
 
+  @OneToMany(mappedBy = "user", fetch = LAZY)
+  private List<AnnouncementReaction> reactions;
+
   @Override
   public boolean equals(Object o) {
     if (this == o) {

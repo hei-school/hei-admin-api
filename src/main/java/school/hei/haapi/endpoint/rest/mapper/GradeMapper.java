@@ -4,8 +4,8 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
-import school.hei.haapi.endpoint.rest.model.GetStudentGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.ExamService;
@@ -34,23 +34,23 @@ public class GradeMapper {
         .updateDate(grade.getCreationDatetime());
   }
 
-  public GetStudentGrade toRestStudentGrade(school.hei.haapi.model.Grade grade) {
+  public StudentGrade toRestStudentGrade(school.hei.haapi.model.Grade grade) {
     if (grade == null) {
       return null;
     }
-    var getStudentGrade = new GetStudentGrade().grade(toRest(grade));
+    var getStudentGrade = new StudentGrade().grade(toRest(grade));
     getStudentGrade.setStudent(userMapper.toRestStudent(grade.getStudent()));
 
     return getStudentGrade;
   }
 
-  public GetStudentGrade toRestStudentExamGrade(User student, Exam exam) {
+  public StudentGrade toRestStudentExamGrade(User student, Exam exam) {
     Optional<school.hei.haapi.model.Grade> optionalGrade =
         exam.getGrades().stream()
             .filter(grade -> grade.getStudent().getId().equals(student.getId()))
             .findFirst();
     school.hei.haapi.model.Grade grade = optionalGrade.get();
-    var getStudentGrade = new GetStudentGrade().grade(toRest(grade));
+    var getStudentGrade = new StudentGrade().grade(toRest(grade));
     getStudentGrade.setStudent(userMapper.toRestStudent(student));
     return getStudentGrade;
   }
