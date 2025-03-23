@@ -918,7 +918,7 @@ paths:
           required: true
           schema:
             type: string
-      operationId: CreateOrUpdateExams
+      operationId: createOrUpdateExams
       requestBody:
         required: true
         description: Exams to update

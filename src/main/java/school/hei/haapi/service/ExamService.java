@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.time.Instant;
@@ -11,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.ExamRepository;
@@ -21,6 +23,8 @@ import school.hei.haapi.repository.dao.ExamDao;
 public class ExamService {
   private final ExamRepository examRepository;
   private final ExamDao examDao;
+  private final UserService userService;
+  private final GradeService gradeService;
 
   public List<Exam> getExamsFromAwardedCourseIdAndGroupId(
       String groupId, String awardedCourseId, PageFromOne page, BoundedPageSize pageSize) {
@@ -39,7 +43,24 @@ public class ExamService {
   }
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
-    return examRepository.saveAll(exams);
+    return examRepository.saveAll(
+        exams.stream().peek(this::initializeExamGrades).collect(toUnmodifiableList()));
+  }
+
+  private List<Grade> initializeExamGrades(Exam exam) {
+    if (exam.getId() == null || exam.getId().isEmpty()) return exam.getGrades();
+    return gradeService.crupdateParticipantGrade(
+        userService.getByGroupId(exam.getAwardedCourse().getGroup().getId()).stream()
+            .map(
+                student -> {
+                  Grade grade = new Grade();
+                  grade.setScore(0.0);
+                  grade.setStudent(student);
+                  // Todo: find solution to not crupdate Exam for every new grade
+                  grade.setExam(createOrUpdateExamsInfos(exam));
+                  return grade;
+                })
+            .collect(toUnmodifiableList()));
   }
 
   public Exam getExamById(String id) {

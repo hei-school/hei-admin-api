@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "\"grade\"")
@@ -41,5 +42,5 @@ public class Grade implements Serializable {
   private Exam exam;
 
   private Double score;
-  private Instant creationDatetime;
+  @CreationTimestamp private Instant creationDatetime;
 }

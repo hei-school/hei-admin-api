@@ -70,14 +70,6 @@ public class ExamController {
     return examMapper.toRest(examService.createOrUpdateExamsInfos(examMapper.toDomain(examInfo)));
   }
 
-  @PutMapping("/awarded_courses/{awarded_course_id}/exams")
-  public List<ExamInfo> getExamsByAwardedCourse(
-      @PathVariable(name = "awarded_course_id") String id, @RequestBody List<ExamInfo> examInfos) {
-    // TODO: Review this part, why it has test and passed then now this resources disapeared and
-    // test failed
-    throw new NotImplementedException("Resources are not implemented yet");
-  }
-
   @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams")
   public List<ExamInfo> getAwardedCourseExams(
       @PathVariable("group_id") String groupId,
@@ -91,9 +83,8 @@ public class ExamController {
         .collect(toList());
   }
 
-  @PutMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams")
+  @PutMapping(value = "/awarded_courses/{awarded_course_id}/exams")
   public List<ExamInfo> createOrUpdateExams(
-      @PathVariable("group_id") String groupId,
       @PathVariable("awarded_course_id") String awardedCourseId,
       @RequestBody List<ExamInfo> examInfos) {
     List<Exam> exams =
@@ -102,7 +93,7 @@ public class ExamController {
                 .map(
                     examInfo ->
                         examMapper.toDomain(
-                            examInfo, awardedCourseService.getById(awardedCourseId, groupId)))
+                            examInfo, awardedCourseService.findById(awardedCourseId)))
                 .collect(toList()));
     return exams.stream().map(examMapper::toRest).collect(toList());
   }
