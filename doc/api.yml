@@ -6259,6 +6259,15 @@ components:
           $ref: '#/components/schemas/FeeLetter'
         student_first_name:
           type: string
+    FeeCategory:
+      type: string
+      enum:
+        - L1
+        - L2
+        - L3
+        - UNKNOWN
+        - WORK_FEES
+        - REMEDIAL_COSTS
     FeeLetter:
       type: object
       properties:

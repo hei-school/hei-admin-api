@@ -35,6 +35,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import school.hei.haapi.endpoint.rest.model.FeeCategory;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
@@ -90,6 +91,10 @@ public class Fee implements Serializable {
 
   @OneToOne(mappedBy = "fee")
   private Mpbs mpbs;
+
+  @JdbcTypeCode(NAMED_ENUM)
+  @Enumerated(STRING)
+  private FeeCategory category;
 
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
