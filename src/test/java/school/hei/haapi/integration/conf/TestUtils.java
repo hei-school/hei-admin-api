@@ -11,6 +11,8 @@ import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
 import static school.hei.haapi.endpoint.rest.model.EventType.SEMINAR;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
@@ -88,6 +90,7 @@ import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
@@ -334,6 +337,8 @@ public class TestUtils {
     return new CreateFee()
         .type(TUITION)
         .totalAmount(5000)
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
@@ -342,6 +347,8 @@ public class TestUtils {
     return new CrupdateStudentFee()
         .studentId(STUDENT1_ID)
         .type(TUITION)
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
         .totalAmount(5000)
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
@@ -353,6 +360,8 @@ public class TestUtils {
         .studentId(STUDENT1_ID)
         .type(TUITION)
         .totalAmount(5000)
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
         .comment("Updated comment")
         .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
         .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
@@ -711,6 +720,8 @@ public class TestUtils {
         .studentRef("STD21001")
         .status(PAID)
         .type(TUITION)
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
         .totalAmount(5000)
         .remainingAmount(0)
         .comment("Frais L1")
@@ -727,6 +738,8 @@ public class TestUtils {
         .studentId(STUDENT1_ID)
         .studentRef("STD21001")
         .status(PAID)
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
         .type(HARDWARE)
         .totalAmount(5000)
         .remainingAmount(0)
@@ -742,6 +755,8 @@ public class TestUtils {
         .id(FEE3_ID)
         .studentId(STUDENT1_ID)
         .studentRef("STD21001")
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
         .status(LATE)
         .type(TUITION)
         .totalAmount(5000)
@@ -759,6 +774,8 @@ public class TestUtils {
         .studentId(STUDENT2_ID)
         .status(LATE)
         .type(TUITION)
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
         .totalAmount(5000)
         .remainingAmount(5000)
         .studentRef("STD21002")
@@ -988,6 +1005,8 @@ public class TestUtils {
     return new FeeTemplate()
         .id(FEE_TEMPLATE1_ID)
         .name(FEE_TEMPLATE1_NAME)
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
         .numberOfPayments(9)
         .amount(200000)
         .type(TUITION)
@@ -997,6 +1016,8 @@ public class TestUtils {
   public static FeeTemplate feeTemplate3() {
     return new FeeTemplate()
         .id("fee_template3")
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
         .name("Keyboard")
         .numberOfPayments(1)
         .amount(1000)
@@ -1009,6 +1030,8 @@ public class TestUtils {
         .id(FEE_TEMPLATE2_ID)
         .name("annuel x1")
         .numberOfPayments(1)
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
         .amount(10000)
         .type(TUITION);
   }
@@ -1017,6 +1040,8 @@ public class TestUtils {
     return new CrupdateFeeTemplate()
         .id(feeTemplate1().getId())
         .amount(1000)
+        .category(L1)
+        .frequency(FeeFrequency.MONTHLY)
         .numberOfPayments(1)
         .type(feeTemplate1().getType())
         .name(feeTemplate1().getName());
@@ -1434,6 +1459,8 @@ public class TestUtils {
     return new CreateFee()
         .comment("test")
         .totalAmount(5000)
+        .category(UNKNOWN)
+        .frequency(FeeFrequency.UNKNOWN)
         .creationDatetime(Instant.now())
         .dueDatetime(Instant.parse("2026-11-09T10:10:10.00Z"))
         .type(TUITION);

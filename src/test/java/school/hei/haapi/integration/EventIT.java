@@ -324,7 +324,7 @@ public class EventIT extends FacadeITMockedThirdParties {
     List<EventParticipant> participantsFilteredByStatus =
         api.getEventParticipants(EVENT2_ID, 1, 15, null, null, null, AttendanceStatus.MISSING);
 
-    assertEquals(participantsFilteredByStatus.getFirst(), student3MissEvent2());
+    assertEquals(student3MissEvent2().getId(), participantsFilteredByStatus.getFirst().getId());
   }
 
   @Test

@@ -14,6 +14,8 @@ public class FeeTemplateMapper {
         .id(rest.getId())
         .name(rest.getName())
         .amount(rest.getAmount())
+        .category(rest.getCategory())
+        .frequency(rest.getFrequency())
         .numberOfPayments(rest.getNumberOfPayments())
         .type(rest.getType())
         .build();
@@ -25,6 +27,8 @@ public class FeeTemplateMapper {
         .type(domain.getType())
         .amount(domain.getAmount())
         .name(domain.getName())
+        .category(domain.getCategory())
+        .frequency(domain.getFrequency())
         .creationDatetime(domain.getCreationDatetime())
         .numberOfPayments(domain.getNumberOfPayments());
   }

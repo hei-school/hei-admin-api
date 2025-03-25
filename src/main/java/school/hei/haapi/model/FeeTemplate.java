@@ -18,6 +18,8 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import school.hei.haapi.endpoint.rest.model.FeeCategory;
+import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 
 @Entity
@@ -44,4 +46,12 @@ public class FeeTemplate {
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
   private FeeTypeEnum type;
+
+  @JdbcTypeCode(NAMED_ENUM)
+  @Enumerated(STRING)
+  private FeeCategory category;
+
+  @JdbcTypeCode(NAMED_ENUM)
+  @Enumerated(STRING)
+  private FeeFrequency frequency;
 }
