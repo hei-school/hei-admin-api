@@ -56,6 +56,8 @@ public class FeeTemplateService {
                   feeTemplate.setNumberOfPayments(domain.getNumberOfPayments());
                   feeTemplate.setType(domain.getType());
                   feeTemplate.setName(domain.getName());
+                  feeTemplate.setCategory(domain.getCategory());
+                  feeTemplate.setFrequency(domain.getFrequency());
                   return feeTemplate;
                 })
             .orElseGet(() -> domain);

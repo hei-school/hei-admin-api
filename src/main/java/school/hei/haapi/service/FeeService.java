@@ -433,6 +433,8 @@ public class FeeService {
               .dueDatetime(getDueDatetime(i, instant))
               .isDeleted(false)
               .type(TUITION)
+              .category(feeTemplate.getCategory())
+              .frequency(feeTemplate.getFrequency())
               .build();
       fees.add(fee);
     }
