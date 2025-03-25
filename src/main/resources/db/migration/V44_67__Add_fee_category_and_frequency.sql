@@ -2,7 +2,7 @@ do
 $$
     begin
         if not exists(select from pg_type where typname = 'fee_category') then
-            create type "fee_category" as enum ('L1','L2','L3','REMEDIAL_COSTS', 'WORK_FEES', 'UNKNOWN', 'EMPTY_GF');
+            create type "fee_category" as enum ('L1','L2','L3','OTHER', 'WORK_FEES', 'UNKNOWN', 'EMPTY_GF');
         end if;
 
         if not exists(select from pg_type where typname = 'fee_frequency') then

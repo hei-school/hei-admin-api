@@ -6269,9 +6269,9 @@ components:
         - L1
         - L2
         - L3
+        - OTHER
         - UNKNOWN
         - WORK_FEES
-        - REMEDIAL_COSTS
     FeeLetter:
       type: object
       properties:
