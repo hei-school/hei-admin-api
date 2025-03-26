@@ -6211,6 +6211,10 @@ components:
         due_datetime:
           type: string
           format: date-time
+        category:
+          $ref: '#/components/schemas/FeeCategory'
+        frequency:
+          $ref: '#/components/schemas/FeeFrequency'
     CrupdateStudentFee:
       properties:
         id:
@@ -6259,6 +6263,15 @@ components:
           $ref: '#/components/schemas/FeeLetter'
         student_first_name:
           type: string
+    FeeCategory:
+      type: string
+      enum:
+        - L1
+        - L2
+        - L3
+        - OTHER
+        - UNKNOWN
+        - WORK_FEES
     FeeLetter:
       type: object
       properties:
@@ -6345,6 +6358,10 @@ components:
           type: string
         name:
           type: string
+        category:
+          $ref: "#/components/schemas/FeeCategory"
+        frequency:
+          $ref: "#/components/schemas/FeeFrequency"
         type:
           $ref: '#/components/schemas/FeeTypeEnum'
         amount:
@@ -6359,6 +6376,12 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    FeeFrequency:
+      type: string
+      enum:
+        - YEARLY
+        - MONTHLY
+        - UNKNOWN
     Payment:
       allOf:
         - $ref: '#/components/schemas/CreatePayment'

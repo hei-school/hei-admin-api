@@ -4,6 +4,7 @@ import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.YEARLY;
@@ -35,6 +36,8 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import school.hei.haapi.endpoint.rest.model.FeeCategory;
+import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
@@ -91,6 +94,14 @@ public class Fee implements Serializable {
   @OneToOne(mappedBy = "fee")
   private Mpbs mpbs;
 
+  @JdbcTypeCode(NAMED_ENUM)
+  @Enumerated(STRING)
+  private FeeCategory category = UNKNOWN;
+
+  @JdbcTypeCode(NAMED_ENUM)
+  @Enumerated(STRING)
+  private FeeFrequency frequency;
+
   public Instant getCreationDatetime() {
     return creationDatetime.truncatedTo(ChronoUnit.MILLIS);
   }
@@ -103,6 +114,8 @@ public class Fee implements Serializable {
     this.totalAmount = fee.getTotalAmount();
     this.remainingAmount = fee.getRemainingAmount();
     this.comment = fee.getComment();
+    this.category = fee.getCategory();
+    this.frequency = fee.getFrequency();
     this.mpbs = fee.getMpbs();
     this.creationDatetime = fee.getCreationDatetime();
     this.dueDatetime = fee.getDueDatetime();
@@ -179,6 +192,7 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
             .orElse(false);
   }
 
+  // This is now deprecated, should use Fee.category instead
   public Optional<StudentGrade> getOwnerStudentGrade() {
     Optional<String> optionalComment = Optional.ofNullable(this.getComment());
     return optionalComment.map(
@@ -205,6 +219,7 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
     }
   }
 
+  // This is now deprecated, should use Fee.frequency instead
   public Optional<PaymentFrequency> getPaymentFrequency() {
     Optional<String> optionalComment = Optional.ofNullable(this.getComment());
     return optionalComment.map(

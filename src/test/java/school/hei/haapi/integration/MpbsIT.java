@@ -2,6 +2,7 @@ package school.hei.haapi.integration;
 
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
@@ -56,6 +57,7 @@ import school.hei.haapi.endpoint.rest.mapper.MpbsMapper;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateMpbs;
 import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.Mpbs;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
@@ -255,6 +257,8 @@ public class MpbsIT extends FacadeITMockedThirdParties {
                     new CreateFee()
                         .totalAmount(5000)
                         .dueDatetime(Instant.parse("2030-11-08T08:25:24.00Z"))
+                        .category(UNKNOWN)
+                        .frequency(FeeFrequency.UNKNOWN)
                         .type(TUITION)
                         .creationDatetime(Instant.now())
                         .comment("test")))

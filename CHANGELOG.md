@@ -1,3 +1,12 @@
+# [1.101.0](https://github.com/hei-school/hei-admin-api/compare/v1.100.0...v1.101.0) (2025-03-26)
+
+
+### Features
+
+* add category and frequency to fees, c9d39277 ([459ddac](https://github.com/hei-school/hei-admin-api/commit/459ddac47a5e06e4cd3c321a8c4a11e9890c5a01))
+
+
+
 # [1.100.0](https://github.com/hei-school/hei-admin-api/compare/v1.99.1...v1.100.0) (2025-03-20)
 
 
@@ -121,15 +130,6 @@
 ### Features
 
 * group has color and mapp group color from event creation  ([55c3634](https://github.com/hei-school/hei-admin-api/commit/55c3634540e78f964760b018847b05db596bc72e))
-
-
-
-# [1.92.0](https://github.com/hei-school/hei-admin-api/compare/v1.91.0...v1.92.0) (2025-01-17)
-
-
-### Features
-
-* **not-implemented:** add event frequency number  ([41fc946](https://github.com/hei-school/hei-admin-api/commit/41fc94674cb01cfe847048e8ee51d096a3b4d5b9))
 
 
 
