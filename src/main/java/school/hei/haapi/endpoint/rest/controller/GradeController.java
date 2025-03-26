@@ -22,7 +22,6 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.AwardedCourseService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
@@ -94,16 +93,7 @@ public class GradeController {
       @PathVariable("exam_id") String examId, @RequestBody List<UpdateGrade> grades) {
     gradeService.crupdateParticipantGrade(
         grades.stream()
-            .map(
-                grade -> {
-                  CrupdateGrade crupdateGrade = grade.getGrade();
-                  if (crupdateGrade == null) {
-                    throw new BadRequestException(
-                        String.format("Grade list contain null %s", grade));
-                  }
-                  validator.accept(crupdateGrade);
-                  return gradeMapper.toDomain(crupdateGrade, examId, grade.getStudentId());
-                })
+            .map(grade -> gradeMapper.toDomain(grade.getGrade(), examId, grade.getStudentId()))
             .collect(toUnmodifiableList()));
     return gradeService.getParticipantsGradeForExam(examId, null, null).stream()
         .map(gradeMapper::toRestStudentGrade)

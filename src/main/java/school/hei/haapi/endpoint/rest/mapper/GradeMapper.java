@@ -6,8 +6,10 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.validator.GradeValidator;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeService;
@@ -20,6 +22,7 @@ public class GradeMapper {
   private final GradeService service;
   private final ExamService examService;
   private final UserService userService;
+  private final GradeValidator validator;
 
   // todo: to review all class
   public school.hei.haapi.model.Grade toDomain(Grade grade) {
@@ -70,6 +73,11 @@ public class GradeMapper {
 
   public school.hei.haapi.model.Grade toDomain(
       CrupdateGrade grade, String examId, String studentId) {
+    if (grade == null) {
+      throw new BadRequestException("Grade is null");
+    }
+    validator.accept(grade);
+
     Exam exam = examService.getExamById(examId);
     double scoreFinal = 0.0;
 
@@ -77,6 +85,7 @@ public class GradeMapper {
       scoreFinal = grade.getScore() * exam.getCoefficient();
     }
 
+    // Todo: should be done in the service
     school.hei.haapi.model.Grade resultGrade;
     try {
       resultGrade = service.getGradeByExamIdAndStudentId(examId, studentId);

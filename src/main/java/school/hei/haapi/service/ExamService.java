@@ -58,7 +58,6 @@ public class ExamService {
                   grade.setStudent(student);
                   // Todo: find solution to not crupdate Exam for every new grade
                   grade.setExam(createOrUpdateExamsInfos(exam));
-                  System.out.println("Save grade: " + grade);
                   return grade;
                 })
             .collect(toUnmodifiableList()));
