@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static java.util.stream.Collectors.toSet;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -74,7 +75,11 @@ class GradeIT extends FacadeITMockedThirdParties {
     List<AwardedCourseExam> actualAwardedCourseExamGrades =
         api.getStudentGrades(STUDENT1_ID, 1, 10);
 
-    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam1()));
+    assertTrue(
+        actualAwardedCourseExamGrades.stream()
+            .map(AwardedCourseExam::getId)
+            .collect(toSet())
+            .contains(awardedCourseExam1().getId()));
 
     assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam2()));
     assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam4()));
@@ -99,7 +104,11 @@ class GradeIT extends FacadeITMockedThirdParties {
 
     List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
 
-    assertTrue(actual.contains(awardedCourseExam1()));
+    assertTrue(
+        actual.stream()
+            .map(AwardedCourseExam::getId)
+            .collect(toSet())
+            .contains(awardedCourseExam1().getId()));
     assertTrue(actual.contains(awardedCourseExam2()));
     assertTrue(actual.contains(awardedCourseExam4()));
   }
