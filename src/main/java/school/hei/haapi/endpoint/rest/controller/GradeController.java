@@ -23,7 +23,6 @@ import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
-import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.AwardedCourseService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
@@ -66,10 +65,7 @@ public class GradeController {
   @GetMapping(value = "/exams/{exam_id}/students/{student_id}/grade")
   public StudentGrade getGradeOfStudentInOneExam(
       @PathVariable("exam_id") String examId, @PathVariable("student_id") String studentId) {
-    Grade grade =
-        gradeService
-            .getGradeByExamIdAndStudentId(examId, studentId)
-            .orElseThrow(() -> new NotFoundException("Grade not found"));
+    Grade grade = gradeService.getGradeByExamIdAndStudentId(examId, studentId);
     return gradeMapper.toRestStudentGrade(grade);
   }
 

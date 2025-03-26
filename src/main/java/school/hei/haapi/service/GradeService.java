@@ -21,9 +21,10 @@ public class GradeService {
   private final GradeRepository gradeRepository;
   private final GradeDao gradeDao;
 
-  public Optional<Grade> getGradeByExamIdAndStudentId(String examId, String studentId) {
-    return gradeRepository.getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(
-        examId, studentId);
+  public Grade getGradeByExamIdAndStudentId(String examId, String studentId) {
+    return gradeRepository
+        .getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(examId, studentId)
+        .orElseThrow(() -> new NotFoundException("Grade not found"));
   }
 
   public Grade getById(String id) {

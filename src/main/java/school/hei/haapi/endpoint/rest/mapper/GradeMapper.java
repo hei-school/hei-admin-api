@@ -8,6 +8,7 @@ import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
@@ -69,24 +70,27 @@ public class GradeMapper {
 
   public school.hei.haapi.model.Grade toDomain(
       CrupdateGrade grade, String examId, String studentId) {
-    school.hei.haapi.model.Grade grade1 =
-        service
-            .getGradeByExamIdAndStudentId(examId, studentId)
-            .orElse(
-                service.crupdateParticipantGrade(
-                    new school.hei.haapi.model.Grade()
-                        .builder()
-                        .student(userService.findById(studentId))
-                        .exam(examService.getExamById(examId))
-                        .score(0.0)
-                        .build()));
     Exam exam = examService.getExamById(examId);
     double scoreFinal = 0.0;
 
     if (exam.getCoefficient() > 0 && grade.getScore() != null && grade.getScore() >= 0) {
       scoreFinal = grade.getScore() * exam.getCoefficient();
     }
-    grade1.setScore(scoreFinal);
-    return grade1;
+
+    school.hei.haapi.model.Grade resultGrade;
+    try {
+      resultGrade = service.getGradeByExamIdAndStudentId(examId, studentId);
+      resultGrade.setScore(scoreFinal);
+    } catch (NotFoundException e) {
+      resultGrade =
+          service.crupdateParticipantGrade(
+              new school.hei.haapi.model.Grade()
+                  .builder()
+                  .student(userService.findById(studentId))
+                  .exam(examService.getExamById(examId))
+                  .score(scoreFinal)
+                  .build());
+    }
+    return resultGrade;
   }
 }
