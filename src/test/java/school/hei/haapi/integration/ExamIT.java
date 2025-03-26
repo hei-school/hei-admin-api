@@ -18,6 +18,7 @@ import static school.hei.haapi.integration.conf.TestUtils.exam2;
 import static school.hei.haapi.integration.conf.TestUtils.exam3;
 import static school.hei.haapi.integration.conf.TestUtils.exam4;
 import static school.hei.haapi.integration.conf.TestUtils.exam5;
+import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.studentGrade1;
@@ -75,7 +76,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void teacher_create_exam_and_initialize_grades_ko() throws ApiException {
+  void teacher_create_exam_and_initialize_grades_ok() throws ApiException {
     TeachingApi api = new TeachingApi(anApiClient(TEACHER1_TOKEN));
 
     List<ExamInfo> exams = api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(createExam()));
@@ -83,7 +84,8 @@ class ExamIT extends FacadeITMockedThirdParties {
     ExamInfo exam = exams.getFirst();
 
     List<StudentGrade> studentGrades = api.getParticipantsGradeForExam(exam.getId(), 1, 10);
-    assertEquals(2, studentGrades.size());
+    assertEquals(
+        api.getStudentsByGroupId(group1().getId(), 1, 10, null).size(), studentGrades.size());
     assertTrue(studentGrades.stream().allMatch(grade -> grade.getGrade().getScore() == 0));
   }
 

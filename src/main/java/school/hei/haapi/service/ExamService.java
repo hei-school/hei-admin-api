@@ -48,7 +48,7 @@ public class ExamService {
   }
 
   private List<Grade> initializeExamGrades(Exam exam) {
-    if (exam.getId() == null || exam.getId().isEmpty()) return exam.getGrades();
+    if (exam.getId() != null) if (!exam.getId().isEmpty()) return exam.getGrades();
     return gradeService.crupdateParticipantGrade(
         userService.getByGroupId(exam.getAwardedCourse().getGroup().getId()).stream()
             .map(
@@ -58,6 +58,7 @@ public class ExamService {
                   grade.setStudent(student);
                   // Todo: find solution to not crupdate Exam for every new grade
                   grade.setExam(createOrUpdateExamsInfos(exam));
+                  System.out.println("Save grade: " + grade);
                   return grade;
                 })
             .collect(toUnmodifiableList()));
