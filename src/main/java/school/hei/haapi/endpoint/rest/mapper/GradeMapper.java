@@ -74,12 +74,12 @@ public class GradeMapper {
             .getGradeByExamIdAndStudentId(examId, studentId)
             .orElse(
                 service.crupdateParticipantGrade(
-                    new school.hei.haapi.model.Grade(
-                        null,
-                        userService.findById(studentId),
-                        examService.getExamById(examId),
-                        0.0,
-                        null)));
+                    new school.hei.haapi.model.Grade()
+                        .builder()
+                        .student(userService.findById(studentId))
+                        .exam(examService.getExamById(examId))
+                        .score(0.0)
+                        .build()));
     Exam exam = examService.getExamById(examId);
     double scoreFinal = 0.0;
 
