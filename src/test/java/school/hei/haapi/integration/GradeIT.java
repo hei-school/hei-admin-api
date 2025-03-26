@@ -1,6 +1,6 @@
 package school.hei.haapi.integration;
 
-import static java.util.stream.Collectors.toSet;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -72,17 +72,14 @@ class GradeIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<AwardedCourseExam> actualAwardedCourseExamGrades =
-        api.getStudentGrades(STUDENT1_ID, 1, 10);
-
-    assertTrue(
-        actualAwardedCourseExamGrades.stream()
+    List<String> actualAwardedCourseExamGradesId =
+        api.getStudentGrades(STUDENT1_ID, 1, 10).stream()
             .map(AwardedCourseExam::getId)
-            .collect(toSet())
-            .contains(awardedCourseExam1().getId()));
+            .collect(toUnmodifiableList());
 
-    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam2()));
-    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam4()));
+    assertTrue(actualAwardedCourseExamGradesId.contains(awardedCourseExam1().getId()));
+    assertTrue(actualAwardedCourseExamGradesId.contains(awardedCourseExam2().getId()));
+    assertTrue(actualAwardedCourseExamGradesId.contains(awardedCourseExam4().getId()));
   }
 
   @Test
@@ -102,15 +99,14 @@ class GradeIT extends FacadeITMockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
 
-    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
-
-    assertTrue(
-        actual.stream()
+    List<String> actualIds =
+        api.getStudentGrades(STUDENT1_ID, 1, 10).stream()
             .map(AwardedCourseExam::getId)
-            .collect(toSet())
-            .contains(awardedCourseExam1().getId()));
-    assertTrue(actual.contains(awardedCourseExam2()));
-    assertTrue(actual.contains(awardedCourseExam4()));
+            .collect(toUnmodifiableList());
+
+    assertTrue(actualIds.contains(awardedCourseExam1().getId()));
+    assertTrue(actualIds.contains(awardedCourseExam2().getId()));
+    assertTrue(actualIds.contains(awardedCourseExam4().getId()));
   }
 
   @Test
