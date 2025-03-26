@@ -21,7 +21,7 @@ public class GradeService {
   private final GradeRepository gradeRepository;
   private final GradeDao gradeDao;
 
-  public Grade getGradeByExamIdAndStudentId(String examId, String studentId) {
+  public Optional<Grade> getGradeByExamIdAndStudentId(String examId, String studentId) {
     return gradeRepository.getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(
         examId, studentId);
   }

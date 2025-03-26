@@ -10,6 +10,7 @@ import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeService;
+import school.hei.haapi.service.UserService;
 
 @Component
 @AllArgsConstructor
@@ -17,6 +18,7 @@ public class GradeMapper {
   private final UserMapper userMapper;
   private final GradeService service;
   private final ExamService examService;
+  private final UserService userService;
 
   // todo: to review all class
   public school.hei.haapi.model.Grade toDomain(Grade grade) {
@@ -67,7 +69,17 @@ public class GradeMapper {
 
   public school.hei.haapi.model.Grade toDomain(
       CrupdateGrade grade, String examId, String studentId) {
-    school.hei.haapi.model.Grade grade1 = service.getGradeByExamIdAndStudentId(examId, studentId);
+    school.hei.haapi.model.Grade grade1 =
+        service
+            .getGradeByExamIdAndStudentId(examId, studentId)
+            .orElse(
+                service.crupdateParticipantGrade(
+                    new school.hei.haapi.model.Grade(
+                        null,
+                        userService.findById(studentId),
+                        examService.getExamById(examId),
+                        0.0,
+                        null)));
     Exam exam = examService.getExamById(examId);
     double scoreFinal = 0.0;
 
