@@ -1,7 +1,9 @@
 package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -54,6 +56,17 @@ class UserServiceTest extends FacadeITMockedThirdParties {
             STUDENT, null, null, null, new PageFromOne(1), new BoundedPageSize(15), null, null);
     assertEquals(student1().getId(), students.getFirst().getId());
     assertEquals(student2().getId(), students.get(1).getId());
+  }
+
+  @Test
+  void disabled_user_enable_ko() {
+    User student1 = subject.findById(STUDENT1_ID);
+    student1.setStatus(User.Status.DISABLED);
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> {
+          student1.setStatus(User.Status.ENABLED);
+        });
   }
 
   private ApiClient anApiClient(String token) {

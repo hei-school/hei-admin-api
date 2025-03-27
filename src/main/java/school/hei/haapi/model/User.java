@@ -4,6 +4,8 @@ import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
+import static school.hei.haapi.model.User.Status.DISABLED;
+import static school.hei.haapi.model.User.Status.ENABLED;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
@@ -24,6 +26,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Objects;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -63,6 +66,7 @@ public class User implements Serializable {
 
   @Enumerated(STRING)
   @JdbcTypeCode(NAMED_ENUM)
+  @Setter(AccessLevel.NONE)
   private Status status;
 
   private String phone;
@@ -142,6 +146,13 @@ public class User implements Serializable {
 
   @OneToMany(mappedBy = "user", fetch = LAZY)
   private List<AnnouncementReaction> reactions;
+
+  public void setStatus(Status newStatus) {
+    if (DISABLED.equals(this.getStatus()) && ENABLED.equals(newStatus)) {
+      throw new IllegalArgumentException("DISABLED User cannot be set back to ENABLED");
+    }
+    this.status = newStatus;
+  }
 
   @Override
   public boolean equals(Object o) {

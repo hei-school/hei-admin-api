@@ -5,6 +5,7 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
+import static school.hei.haapi.model.User.Status.DISABLED;
 import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.model.User.Status.SUSPENDED;
 import static school.hei.haapi.service.utils.InstantUtils.UTC3;
@@ -135,6 +136,9 @@ public class PaymentService {
 
   @Transactional
   public void computeUserStatusAfterPayingFee(User userToResetStatus) {
+    if (DISABLED.equals(userToResetStatus.getStatus())) {
+      return;
+    }
     Instant now = Instant.now();
     List<Fee> unpaidFeesBeforeNow =
         feeRepository.getStudentFeesUnpaidOrLateFrom(now, userToResetStatus.getId(), LATE);
