@@ -1,10 +1,15 @@
 package school.hei.haapi.integration;
 
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.ChronoUnit.HOURS;
+import static java.time.temporal.ChronoUnit.SECONDS;
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
+import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
@@ -15,6 +20,7 @@ import static school.hei.haapi.integration.conf.TestUtils.ORGANIZER2_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.event2;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableEvent;
@@ -137,9 +143,53 @@ public class OrganizerIT extends FacadeITMockedThirdParties {
   void read_events_ok() throws ApiException {
     ApiClient organizerClient = anApiClient(ORGANIZER1_TOKEN);
     EventsApi api = new EventsApi(organizerClient);
-    List<Event> events = api.getEvents(1, 10, null, null, null, null, null);
+    List<Event> events =
+        api.getEvents(
+            1,
+            10,
+            Instant.parse("2022-12-07T08:00:00.00Z"),
+            Instant.parse("2022-12-09T00:00:00.00Z"),
+            null,
+            null,
+            null);
 
-    assertFalse(events.isEmpty());
+    assertEquals(1, events.size());
+    assertEquals(event2(), events.getFirst());
+  }
+
+  @Test
+  void default_events_filter_ok() throws ApiException {
+    ApiClient organizerClient = anApiClient(ORGANIZER1_TOKEN);
+    EventsApi api = new EventsApi(organizerClient);
+
+    CreateEvent lastWeekEvent =
+        someCreatableEvent(
+            COURSE, ORGANIZER1_ID, Instant.now().minus(7, DAYS), Instant.now().minus(6, DAYS));
+    CreateEvent curentWeekEvent =
+        someCreatableEvent(COURSE, ORGANIZER1_ID, Instant.now(), Instant.now().plus(1, HOURS));
+
+    // Need to truncate seconds in date because of rounded seconds
+    List<Event> createdEvents =
+        api.crupdateEvents(List.of(lastWeekEvent, curentWeekEvent), null, null, null, null).stream()
+            .map(
+                event ->
+                    event
+                        .beginDatetime(event.getBeginDatetime().truncatedTo(SECONDS))
+                        .endDatetime(event.getEndDatetime().truncatedTo(SECONDS)))
+            .collect(toUnmodifiableList());
+
+    List<Event> events =
+        api.getEvents(1, 10, null, null, null, null, null).stream()
+            .map(
+                event ->
+                    event
+                        .beginDatetime(event.getBeginDatetime().truncatedTo(SECONDS))
+                        .endDatetime(event.getEndDatetime().truncatedTo(SECONDS)))
+            .collect(toUnmodifiableList());
+
+    assertEquals(1, events.size());
+    assertFalse(events.contains(createdEvents.getFirst()));
+    assertTrue(events.contains(createdEvents.get(1)));
   }
 
   @Test

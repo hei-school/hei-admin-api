@@ -1,6 +1,8 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.stream.Collectors.toUnmodifiableList;
+import static school.hei.haapi.service.utils.InstantUtils.getCurrentMondayOfTheWeek;
 
 import java.time.Instant;
 import java.util.List;
@@ -77,7 +79,16 @@ public class EventController {
       @RequestParam(required = false) String title,
       @RequestParam(required = false) Instant from,
       @RequestParam(required = false) Instant to) {
-    return eventService.getEvents(from, to, title, eventType, group, page, pageSize).stream()
+    return eventService
+        .getEvents(
+            Optional.ofNullable(from).orElse(getCurrentMondayOfTheWeek()),
+            Optional.ofNullable(to).orElse(getCurrentMondayOfTheWeek().plus(7, DAYS)),
+            title,
+            eventType,
+            group,
+            page,
+            pageSize)
+        .stream()
         .map(mapper::toRest)
         .collect(toUnmodifiableList());
   }
