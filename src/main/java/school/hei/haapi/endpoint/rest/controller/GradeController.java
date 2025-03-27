@@ -36,7 +36,6 @@ public class GradeController {
   private final GradeValidator validator;
   private final GradeService gradeService;
   private final GradeMapper gradeMapper;
-  private final UserMapper userMapper;
 
   // todo: to review all class
   @GetMapping("/students/{student_id}/grades")
