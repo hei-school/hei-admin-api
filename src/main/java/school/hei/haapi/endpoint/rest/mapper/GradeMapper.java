@@ -90,16 +90,15 @@ public class GradeMapper {
     try {
       resultGrade = service.getGradeByExamIdAndStudentId(examId, studentId);
       resultGrade.setScore(scoreFinal);
+      return resultGrade;
     } catch (NotFoundException e) {
-      resultGrade =
-          service.crupdateParticipantGrade(
-              new school.hei.haapi.model.Grade()
-                  .builder()
-                  .student(userService.findById(studentId))
-                  .exam(examService.getExamById(examId))
-                  .score(scoreFinal)
-                  .build());
+      return service.crupdateParticipantGrade(
+          new school.hei.haapi.model.Grade()
+              .builder()
+              .student(userService.findById(studentId))
+              .exam(examService.getExamById(examId))
+              .score(scoreFinal)
+              .build());
     }
-    return resultGrade;
   }
 }
