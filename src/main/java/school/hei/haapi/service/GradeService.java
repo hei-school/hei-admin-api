@@ -51,8 +51,10 @@ public class GradeService {
 
   public List<Grade> getParticipantsGradeForExam(
       String exam_id, PageFromOne page, BoundedPageSize pageSize) {
-    if (page == null || pageSize == null) return gradeDao.getGradesByExamId(exam_id, null);
-    Pageable pageable = PageRequest.of((page.getValue() - 1), pageSize.getValue());
-    return gradeDao.getGradesByExamId(exam_id, pageable);
+    return gradeDao.getGradesByExamId(
+        exam_id,
+        (page == null || pageSize == null)
+            ? Pageable.unpaged()
+            : PageRequest.of((page.getValue() - 1), pageSize.getValue()));
   }
 }

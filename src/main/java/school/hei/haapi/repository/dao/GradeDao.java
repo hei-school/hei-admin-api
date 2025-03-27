@@ -22,7 +22,7 @@ public class GradeDao {
 
     query.where(builder.equal(root.get("exam").get("id"), examId));
 
-    if (pageable == null) {
+    if (pageable == null || pageable.isUnpaged()) {
       return entityManager.createQuery(query).getResultList();
     }
 
