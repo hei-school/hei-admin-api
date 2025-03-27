@@ -1,7 +1,5 @@
 package school.hei.haapi.model;
 
-import static org.hibernate.annotations.CascadeType.PERSIST;
-
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -18,7 +16,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
@@ -37,15 +34,21 @@ public class Grade implements Serializable {
   private String id;
 
   @ManyToOne
-  @JoinColumn(name = "student_id")
+  @JoinColumn(name = "student_id", updatable = false)
   private User student;
 
-  // Todo: find solution to not crupdate Exam for every new grade
-  @Cascade(PERSIST)
   @ManyToOne
-  @JoinColumn(name = "exam_id")
+  @JoinColumn(name = "exam_id", updatable = false)
   private Exam exam;
 
   private Double score;
   @CreationTimestamp private Instant creationDatetime;
+
+  public static Grade initialize(Exam exam, User student) {
+    Grade grade = new Grade();
+    grade.setScore(0.0);
+    grade.setStudent(student);
+    grade.setExam(exam);
+    return grade;
+  }
 }

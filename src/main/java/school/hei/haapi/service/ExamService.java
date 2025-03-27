@@ -43,22 +43,16 @@ public class ExamService {
   }
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
-    return examRepository.saveAll(
-        exams.stream().peek(this::initializeExamGrades).collect(toUnmodifiableList()));
+    return examRepository.saveAll(exams).stream()
+        .peek(this::initializeExamGrades)
+        .collect(toUnmodifiableList());
   }
 
   private List<Grade> initializeExamGrades(Exam exam) {
     if (exam.getId() != null) if (!exam.getId().isEmpty()) return exam.getGrades();
     return gradeService.crupdateParticipantGrade(
         userService.getByGroupId(exam.getAwardedCourse().getGroup().getId()).stream()
-            .map(
-                student -> {
-                  Grade grade = new Grade();
-                  grade.setScore(0.0);
-                  grade.setStudent(student);
-                  grade.setExam(exam);
-                  return grade;
-                })
+            .map(student -> Grade.initialize(exam, student))
             .collect(toUnmodifiableList()));
   }
 
