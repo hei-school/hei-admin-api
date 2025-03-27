@@ -44,11 +44,9 @@ public class Grade implements Serializable {
   private Double score;
   @CreationTimestamp private Instant creationDatetime;
 
-  public static Grade initialize(Exam exam, User student) {
-    Grade grade = new Grade();
-    grade.setScore(0.0);
-    grade.setStudent(student);
-    grade.setExam(exam);
-    return grade;
+  public Grade(Exam exam, User student) {
+    this.score = 0.0;
+    this.student = student;
+    this.exam = exam;
   }
 }

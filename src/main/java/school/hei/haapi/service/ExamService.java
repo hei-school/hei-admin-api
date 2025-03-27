@@ -57,7 +57,7 @@ public class ExamService {
                 student ->
                     gradeRepository
                         .getGradeByExamIdAndStudentId(exam.getId(), student.getId())
-                        .orElse(Grade.initialize(exam, student)))
+                        .orElse(new Grade(exam, student)))
             .collect(toUnmodifiableList()));
   }
 

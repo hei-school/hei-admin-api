@@ -87,8 +87,7 @@ public class GradeMapper {
             .getGradeByExamIdAndStudentId(examId, studentId)
             .orElse(
                 service.crupdateParticipantGrade(
-                    school.hei.haapi.model.Grade.initialize(
-                        exam, userService.findById(studentId))));
+                    new school.hei.haapi.model.Grade(exam, userService.findById(studentId))));
 
     resultGrade.setScore(scoreFinal);
     return resultGrade;
