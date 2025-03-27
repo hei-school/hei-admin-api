@@ -172,11 +172,11 @@ class GradeIT extends FacadeITMockedThirdParties {
     List<StudentGrade> studentGrades =
         api.updateParticipantsGradeForExam(EXAM1_ID, List.of(updateGrade));
 
-    assertEquals(2, studentGrades.size());
-    assertEquals(updateGrade.getStudentId(), studentGrades.get(1).getStudent().getId());
+    assertEquals(1, studentGrades.size());
+    assertEquals(updateGrade.getStudentId(), studentGrades.getFirst().getStudent().getId());
     assertEquals(
         updateGrade.getGrade().getScore() * exam1().getCoefficient(),
-        studentGrades.get(1).getGrade().getScore());
+        studentGrades.getFirst().getGrade().getScore());
   }
 
   @Test

@@ -32,4 +32,8 @@ public class GradeDao {
         .setMaxResults(pageable.getPageSize())
         .getResultList();
   }
+
+  public List<Grade> getGradesByExamId(String examId) {
+    return getGradesByExamId(examId, Pageable.unpaged());
+  }
 }
