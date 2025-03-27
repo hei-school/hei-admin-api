@@ -11,6 +11,7 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.dao.GradeDao;
@@ -20,6 +21,7 @@ import school.hei.haapi.repository.dao.GradeDao;
 public class GradeService {
   private final GradeRepository gradeRepository;
   private final GradeDao gradeDao;
+  private final UserService userService;
 
   public Grade getGradeByExamIdAndStudentId(String examId, String studentId) {
     return gradeRepository
@@ -41,6 +43,13 @@ public class GradeService {
       Grade presentGrade = getGrade.get();
       presentGrade.setScore(grade.getScore());
       return gradeRepository.save(presentGrade);
+    }
+    if (!userService
+        .getByGroupId(grade.getExam().getAwardedCourse().getGroup().getId())
+        .contains(grade.getStudent())) {
+      throw new BadRequestException(
+          String.format(
+              "Student: {%s} not in the Exam: {%s}", grade.getStudent(), grade.getExam()));
     }
     return gradeRepository.save(grade);
   }

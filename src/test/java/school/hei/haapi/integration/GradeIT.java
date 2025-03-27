@@ -205,7 +205,7 @@ class GradeIT extends FacadeITMockedThirdParties {
 
     CrupdateGrade newGrade = new CrupdateGrade();
     newGrade.setScore(5.25);
-    Grade actualGrade = api.crupdateParticipantGrade(EXAM2_ID, STUDENT3_ID, newGrade);
+    Grade actualGrade = api.crupdateParticipantGrade(EXAM2_ID, STUDENT2_ID, newGrade);
 
     assertEquals(15.75, actualGrade.getScore());
   }

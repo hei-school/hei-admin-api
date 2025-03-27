@@ -10,7 +10,7 @@ import school.hei.haapi.endpoint.rest.validator.GradeValidator;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
-import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
@@ -23,6 +23,7 @@ public class GradeMapper {
   private final ExamService examService;
   private final UserService userService;
   private final GradeValidator validator;
+  private final GradeRepository gradeRepository;
 
   // todo: to review all class
   public school.hei.haapi.model.Grade toDomain(Grade grade) {
@@ -85,20 +86,15 @@ public class GradeMapper {
       scoreFinal = grade.getScore() * exam.getCoefficient();
     }
 
-    // Todo: should be done in the service
-    school.hei.haapi.model.Grade resultGrade;
-    try {
-      resultGrade = service.getGradeByExamIdAndStudentId(examId, studentId);
-      resultGrade.setScore(scoreFinal);
-      return resultGrade;
-    } catch (NotFoundException e) {
-      return service.crupdateParticipantGrade(
-          new school.hei.haapi.model.Grade()
-              .builder()
-              .student(userService.findById(studentId))
-              .exam(examService.getExamById(examId))
-              .score(scoreFinal)
-              .build());
-    }
+    school.hei.haapi.model.Grade resultGrade =
+        gradeRepository
+            .getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(examId, studentId)
+            .orElse(
+                service.crupdateParticipantGrade(
+                    school.hei.haapi.model.Grade.initialize(
+                        exam, userService.findById(studentId))));
+
+    resultGrade.setScore(scoreFinal);
+    return resultGrade;
   }
 }
