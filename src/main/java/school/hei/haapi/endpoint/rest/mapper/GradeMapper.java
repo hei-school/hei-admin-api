@@ -88,7 +88,7 @@ public class GradeMapper {
 
     school.hei.haapi.model.Grade resultGrade =
         gradeRepository
-            .getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(examId, studentId)
+            .getGradeByExamIdAndStudentId(examId, studentId)
             .orElse(
                 service.crupdateParticipantGrade(
                     school.hei.haapi.model.Grade.initialize(

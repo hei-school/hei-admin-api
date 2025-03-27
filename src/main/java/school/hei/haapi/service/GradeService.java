@@ -25,7 +25,7 @@ public class GradeService {
 
   public Grade getGradeByExamIdAndStudentId(String examId, String studentId) {
     return gradeRepository
-        .getGradeByExamIdAndStudentIdAndAwardedCourseIdAndGroupId(examId, studentId)
+        .getGradeByExamIdAndStudentId(examId, studentId)
         .orElseThrow(() -> new NotFoundException("Grade not found"));
   }
 

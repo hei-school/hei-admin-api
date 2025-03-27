@@ -16,6 +16,7 @@ import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.ExamRepository;
+import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.dao.ExamDao;
 
 @Service
@@ -25,6 +26,7 @@ public class ExamService {
   private final ExamDao examDao;
   private final UserService userService;
   private final GradeService gradeService;
+  private final GradeRepository gradeRepository;
 
   public List<Exam> getExamsFromAwardedCourseIdAndGroupId(
       String groupId, String awardedCourseId, PageFromOne page, BoundedPageSize pageSize) {
@@ -49,10 +51,13 @@ public class ExamService {
   }
 
   private List<Grade> initializeExamGrades(Exam exam) {
-    if (exam.getId() != null) if (!exam.getId().isEmpty()) return exam.getGrades();
     return gradeService.crupdateParticipantGrade(
         userService.getByGroupId(exam.getAwardedCourse().getGroup().getId()).stream()
-            .map(student -> Grade.initialize(exam, student))
+            .map(
+                student ->
+                    gradeRepository
+                        .getGradeByExamIdAndStudentId(exam.getId(), student.getId())
+                        .orElse(Grade.initialize(exam, student)))
             .collect(toUnmodifiableList()));
   }
 
