@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
+import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
@@ -35,6 +36,7 @@ public class GradeController {
   private final GradeValidator validator;
   private final GradeService gradeService;
   private final GradeMapper gradeMapper;
+  private final UserMapper userMapper;
 
   // todo: to review all class
   @GetMapping("/students/{student_id}/grades")
@@ -91,12 +93,13 @@ public class GradeController {
   @PutMapping(value = "/exams/{exam_id}/grades")
   public List<StudentGrade> updateParticipantsGradeForExam(
       @PathVariable("exam_id") String examId, @RequestBody List<UpdateGrade> grades) {
-    gradeService.crupdateParticipantGrade(
-        grades.stream()
-            .map(grade -> gradeMapper.toDomain(grade.getGrade(), examId, grade.getStudentId()))
-            .collect(toUnmodifiableList()));
-    return gradeService.getParticipantsGradeForExam(examId, null, null).stream()
+    return gradeService
+        .crupdateParticipantGrade(
+            grades.stream()
+                .map(grade -> gradeMapper.toDomain(grade.getGrade(), examId, grade.getStudentId()))
+                .collect(toUnmodifiableList()))
+        .stream()
         .map(gradeMapper::toRestStudentGrade)
-        .toList();
+        .collect(toUnmodifiableList());
   }
 }
