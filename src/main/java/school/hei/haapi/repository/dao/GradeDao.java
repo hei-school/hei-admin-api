@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Root;
+import jakarta.validation.constraints.NotNull;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -15,14 +16,14 @@ import school.hei.haapi.model.Grade;
 public class GradeDao {
   private final EntityManager entityManager;
 
-  public List<Grade> getGradesByExamId(String examId, Pageable pageable) {
+  public List<Grade> getGradesByExamId(String examId, @NotNull Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Grade> query = builder.createQuery(Grade.class);
     Root<Grade> root = query.from(Grade.class);
 
     query.where(builder.equal(root.get("exam").get("id"), examId));
 
-    if (pageable == null || pageable.isUnpaged()) {
+    if (pageable.isUnpaged()) {
       return entityManager.createQuery(query).getResultList();
     }
 
