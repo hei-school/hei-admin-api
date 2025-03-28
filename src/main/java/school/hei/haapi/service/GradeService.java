@@ -36,15 +36,14 @@ public class GradeService {
         .orElseThrow(() -> new NotFoundException("grade with id " + id + " not found"));
   }
 
-  @Transactional
-  public Grade crupdateParticipantGrade(Grade grade) {
+  private Grade checkAndCreateOrModifyGrade(Grade grade) {
     Optional<Grade> getGrade =
         gradeRepository.findByExamIdAndStudentId(
             grade.getExam().getId(), grade.getStudent().getId());
     if (getGrade.isPresent()) {
       Grade presentGrade = getGrade.get();
       presentGrade.setScore(grade.getScore());
-      return gradeRepository.save(presentGrade);
+      return presentGrade;
     }
     if (!userService
         .getByGroupId(grade.getExam().getAwardedCourse().getGroup().getId())
@@ -54,11 +53,13 @@ public class GradeService {
               "Student with id: %s not in the Exam: %s",
               grade.getStudent().getId(), grade.getExam().getId()));
     }
-    return gradeRepository.save(grade);
+    return grade;
   }
 
+  @Transactional
   public List<Grade> crupdateParticipantGrade(List<Grade> grades) {
-    return grades.stream().map(this::crupdateParticipantGrade).collect(toUnmodifiableList());
+    return gradeRepository.saveAll(
+        grades.stream().map(this::checkAndCreateOrModifyGrade).collect(toUnmodifiableList()));
   }
 
   public List<Grade> getParticipantsGradeForExam(

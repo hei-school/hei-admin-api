@@ -75,7 +75,7 @@ public class GradeController {
       @RequestBody CrupdateGrade grade) {
     validator.accept(grade);
     Grade toSave = gradeMapper.toDomain(grade, examId, studentId);
-    return gradeMapper.toRest(gradeService.crupdateParticipantGrade(toSave));
+    return gradeMapper.toRest(gradeService.crupdateParticipantGrade(List.of(toSave)).getFirst());
   }
 
   @GetMapping(value = "/exams/{exam_id}/grades")

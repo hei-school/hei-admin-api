@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -86,8 +87,12 @@ public class GradeMapper {
         gradeRepository
             .getGradeByExamIdAndStudentId(examId, studentId)
             .orElse(
-                service.crupdateParticipantGrade(
-                    new school.hei.haapi.model.Grade(exam, userService.findById(studentId))));
+                service
+                    .crupdateParticipantGrade(
+                        List.of(
+                            new school.hei.haapi.model.Grade(
+                                exam, userService.findById(studentId))))
+                    .getFirst());
 
     resultGrade.setScore(scoreFinal);
     return resultGrade;
