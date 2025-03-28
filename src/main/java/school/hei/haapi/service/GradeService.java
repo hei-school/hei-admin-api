@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -35,6 +36,7 @@ public class GradeService {
         .orElseThrow(() -> new NotFoundException("grade with id " + id + " not found"));
   }
 
+  @Transactional
   public Grade crupdateParticipantGrade(Grade grade) {
     Optional<Grade> getGrade =
         gradeRepository.findByExamIdAndStudentId(
