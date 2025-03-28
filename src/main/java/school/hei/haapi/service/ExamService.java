@@ -46,11 +46,11 @@ public class ExamService {
   }
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
-    List<Exam> examList = examRepository.saveAll(exams);
-    List<Grade> gradeToInitialize = new ArrayList<>();
-    examList.forEach(exam -> gradeToInitialize.addAll(initializeExamGrades(exam)));
-    gradeService.crupdateParticipantGrade(gradeToInitialize);
-    return examList;
+    List<Exam> savedExams = examRepository.saveAll(exams);
+    List<Grade> gradesToInitialize = new ArrayList<>();
+    savedExams.forEach(exam -> gradesToInitialize.addAll(initializeExamGrades(exam)));
+    gradeService.crupdateParticipantGrade(gradesToInitialize);
+    return savedExams;
   }
 
   private List<Grade> initializeExamGrades(Exam exam) {

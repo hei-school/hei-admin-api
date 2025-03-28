@@ -51,7 +51,8 @@ public class GradeService {
         .contains(grade.getStudent())) {
       throw new BadRequestException(
           String.format(
-              "Student: {%s} not in the Exam: {%s}", grade.getStudent(), grade.getExam()));
+              "Student with id: %s not in the Exam: %s",
+              grade.getStudent().getId(), grade.getExam().getId()));
     }
     return gradeRepository.save(grade);
   }
