@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -45,20 +46,21 @@ public class ExamService {
   }
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
-    return examRepository.saveAll(exams).stream()
-        .peek(this::initializeExamGrades)
-        .collect(toUnmodifiableList());
+    List<Exam> examList = examRepository.saveAll(exams);
+    List<Grade> gradeToInitialize = new ArrayList<>();
+    examList.forEach(exam -> gradeToInitialize.addAll(initializeExamGrades(exam)));
+    gradeService.crupdateParticipantGrade(gradeToInitialize);
+    return examList;
   }
 
   private List<Grade> initializeExamGrades(Exam exam) {
-    return gradeService.crupdateParticipantGrade(
-        userService.getByGroupId(exam.getAwardedCourse().getGroup().getId()).stream()
-            .map(
-                student ->
-                    gradeRepository
-                        .getGradeByExamIdAndStudentId(exam.getId(), student.getId())
-                        .orElse(new Grade(exam, student)))
-            .collect(toUnmodifiableList()));
+    return userService.getByGroupId(exam.getAwardedCourse().getGroup().getId()).stream()
+        .map(
+            student ->
+                gradeRepository
+                    .getGradeByExamIdAndStudentId(exam.getId(), student.getId())
+                    .orElse(new Grade(exam, student)))
+        .collect(toUnmodifiableList());
   }
 
   public Exam getExamById(String id) {
