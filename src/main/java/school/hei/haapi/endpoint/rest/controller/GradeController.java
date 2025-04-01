@@ -1,5 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
+
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +15,7 @@ import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.validator.GradeValidator;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.BoundedPageSize;
@@ -58,7 +61,6 @@ public class GradeController {
   //    return gradeMapper.toRestExamDetail(exam, grades);
   //  }
 
-  // TODO: change that if null
   @GetMapping(value = "/exams/{exam_id}/students/{student_id}/grade")
   public StudentGrade getGradeOfStudentInOneExam(
       @PathVariable("exam_id") String examId, @PathVariable("student_id") String studentId) {
@@ -73,7 +75,7 @@ public class GradeController {
       @RequestBody CrupdateGrade grade) {
     validator.accept(grade);
     Grade toSave = gradeMapper.toDomain(grade, examId, studentId);
-    return gradeMapper.toRest(gradeService.crupdateParticipantGrade(toSave));
+    return gradeMapper.toRest(gradeService.crupdateParticipantGrade(List.of(toSave)).getFirst());
   }
 
   @GetMapping(value = "/exams/{exam_id}/grades")
@@ -84,5 +86,18 @@ public class GradeController {
     return gradeService.getParticipantsGradeForExam(exam_id, page, pageSize).stream()
         .map(gradeMapper::toRestStudentGrade)
         .toList();
+  }
+
+  @PutMapping(value = "/exams/{exam_id}/grades")
+  public List<StudentGrade> updateParticipantsGradeForExam(
+      @PathVariable("exam_id") String examId, @RequestBody List<UpdateGrade> grades) {
+    return gradeService
+        .crupdateParticipantGrade(
+            grades.stream()
+                .map(grade -> gradeMapper.toDomain(grade.getGrade(), examId, grade.getStudentId()))
+                .collect(toUnmodifiableList()))
+        .stream()
+        .map(gradeMapper::toRestStudentGrade)
+        .collect(toUnmodifiableList());
   }
 }

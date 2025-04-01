@@ -4,19 +4,24 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.AWARDED_COURSE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.createExam;
 import static school.hei.haapi.integration.conf.TestUtils.createExam1;
 import static school.hei.haapi.integration.conf.TestUtils.exam1;
 import static school.hei.haapi.integration.conf.TestUtils.exam2;
 import static school.hei.haapi.integration.conf.TestUtils.exam3;
 import static school.hei.haapi.integration.conf.TestUtils.exam4;
 import static school.hei.haapi.integration.conf.TestUtils.exam5;
+import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.studentGrade1;
 
 import java.time.Instant;
 import java.util.List;
@@ -29,6 +34,7 @@ import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
@@ -46,33 +52,52 @@ class ExamIT extends FacadeITMockedThirdParties {
     setUpS3Service(fileService, student1());
   }
 
-  /*
+  @Test
+  void student_read_exam_grades_ko() {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    TeachingApi api = new TeachingApi(student1Client);
+    assertThrowsForbiddenException(() -> api.getExamById(AWARDED_COURSE1_ID, EXAM1_ID));
+  }
 
+  @Test
+  void manager_read_exam_details_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(manager1Client);
+    List<StudentGrade> studentGrades = api.getParticipantsGradeForExam(EXAM1_ID, 1, 1);
+    assertEquals(studentGrade1(), studentGrades.getFirst());
+  }
 
-    //  @Test
-    //  void student_read_exam_grades_ko() {
-    //    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    //    TeachingApi api = new TeachingApi(student1Client);
-    //    assertThrowsForbiddenException(
-    //        () -> api.get(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID));
-    //  }
+  @Test
+  void student_create_or_update_exam_ko() {
+    TeachingApi api = new TeachingApi(anApiClient(STUDENT1_TOKEN));
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(exam1())));
+  }
 
-    //  @Test
-    //  void manager_read_exam_details_ok() throws ApiException {
-    //    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    //    TeachingApi api = new TeachingApi(manager1Client);
-    //    ExamDetail actual = api.getExamGrades(GROUP1_ID, EXAM1_ID, AWARDED_COURSE1_ID);
-    //    assertEquals(examDetail1(), actual);
-    //  }
-    //
-    //  void student_create_or_update_exam_ko() throws ApiException {
-    //    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    //    TeachingApi api = new TeachingApi(student1Client);
-    //    assertThrowsApiException(
-    //        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-    //        () -> api.createOrUpdateExams(GROUP1_ID, AWARDED_COURSE1_ID, List.of(exam1())));
-    //  }
-  */
+  @Test
+  void teacher_create_exam_and_initialize_grades_ok() throws ApiException {
+    TeachingApi api = new TeachingApi(anApiClient(TEACHER1_TOKEN));
+
+    List<ExamInfo> exams = api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(createExam()));
+    assertEquals(1, exams.size());
+    ExamInfo exam = exams.getFirst();
+
+    List<StudentGrade> studentGrades = api.getParticipantsGradeForExam(exam.getId(), 1, 10);
+    assertEquals(
+        api.getStudentsByGroupId(group1().getId(), 1, 10, null).size(), studentGrades.size());
+    assertTrue(studentGrades.stream().allMatch(grade -> grade.getGrade().getScore() == 0));
+  }
+
+  @Test
+  void exam_creation_create_only_one_exam() throws ApiException {
+    TeachingApi api = new TeachingApi(anApiClient(TEACHER1_TOKEN));
+    int examCount = api.getAllExams(null, null, null, null, null, null, null, null).size();
+    api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(createExam()));
+    assertEquals(
+        examCount + 1, api.getAllExams(null, null, null, null, null, null, null, null).size());
+  }
+
   @Test
   void student_read_exam_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);

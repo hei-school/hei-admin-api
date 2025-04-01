@@ -16,6 +16,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "\"grade\"")
@@ -33,13 +34,19 @@ public class Grade implements Serializable {
   private String id;
 
   @ManyToOne
-  @JoinColumn(name = "student_id")
+  @JoinColumn(name = "student_id", updatable = false)
   private User student;
 
   @ManyToOne
-  @JoinColumn(name = "exam_id")
+  @JoinColumn(name = "exam_id", updatable = false)
   private Exam exam;
 
   private Double score;
-  private Instant creationDatetime;
+  @CreationTimestamp private Instant creationDatetime;
+
+  public Grade(Exam exam, User student) {
+    this.score = 0.0;
+    this.student = student;
+    this.exam = exam;
+  }
 }
