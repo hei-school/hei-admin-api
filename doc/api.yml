@@ -6825,6 +6825,12 @@ components:
         third_grade:
           type: integer
           format: int64
+        other:
+          type: integer
+          format: int64
+        unknown_grade:
+          type: integer
+          format: int64
         work_study:
           type: integer
           format: int64
@@ -6832,6 +6838,9 @@ components:
           type: integer
           format: int64
         yearly:
+          type: integer
+          format: int64
+        unknown_frequency:
           type: integer
           format: int64
     TotalExpectedFeesStats:

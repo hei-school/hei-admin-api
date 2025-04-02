@@ -43,12 +43,14 @@ public class AdvancedFeeStats {
   private long firstGradeCount;
   private long secondGradeCount;
   private long thirdGradeCount;
+  private long unknownGradeCount;
 
   private long remedialFeesCount;
   private long workStudyCount;
 
   private long monthlyCount;
   private long yearlyCount;
+  private long unknownFrequencyCount;
 
   private Long bankTransferCount;
   private Long mpbsCount;

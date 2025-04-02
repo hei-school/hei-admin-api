@@ -40,9 +40,11 @@ public class AdvancedFeeStatsMapper {
         .firstGradeCount(restStat.getFirstGrade())
         .secondGradeCount(restStat.getSecondGrade())
         .thirdGradeCount(restStat.getThirdGrade())
+        .unknownGradeCount(restStat.getUnknownGrade())
         .remedialFeesCount(0L)
         .monthlyCount(restStat.getMonthly())
         .yearlyCount(restStat.getYearly())
+        .unknownFrequencyCount(restStat.getUnknownFrequency())
         .workStudyCount(restStat.getWorkStudy())
         .statDate(statDate)
         .build();
@@ -54,9 +56,11 @@ public class AdvancedFeeStatsMapper {
         .firstGradeCount(restStat.getFirstGrade())
         .secondGradeCount(restStat.getSecondGrade())
         .thirdGradeCount(restStat.getThirdGrade())
+        .unknownGradeCount(restStat.getUnknownGrade())
         .remedialFeesCount(restStat.getRemedialFeesCount().longValue())
         .monthlyCount(restStat.getMonthly())
         .yearlyCount(restStat.getYearly())
+        .unknownFrequencyCount(restStat.getUnknownFrequency())
         .workStudyCount(restStat.getWorkStudy())
         .bankTransferCount(restStat.getBankFees().longValue())
         .mpbsCount(restStat.getMobileMoney().longValue())
@@ -70,9 +74,11 @@ public class AdvancedFeeStatsMapper {
         .firstGradeCount(restStat.getFirstGrade())
         .secondGradeCount(restStat.getSecondGrade())
         .thirdGradeCount(restStat.getThirdGrade())
+        .unknownGradeCount(restStat.getUnknownGrade())
         .remedialFeesCount(restStat.getRemedialFeesCount().longValue())
         .monthlyCount(restStat.getMonthly())
         .yearlyCount(restStat.getYearly())
+        .unknownFrequencyCount(restStat.getUnknownFrequency())
         .workStudyCount(restStat.getWorkStudy())
         .statDate(statDate)
         .build();
@@ -84,9 +90,11 @@ public class AdvancedFeeStatsMapper {
         .firstGradeCount(restStat.getFirstGrade())
         .secondGradeCount(restStat.getSecondGrade())
         .thirdGradeCount(restStat.getThirdGrade())
+        .unknownGradeCount(restStat.getUnknownGrade())
         .monthlyCount(restStat.getMonthly())
-        .remedialFeesCount(restStat.getRemedialFeesCount().longValue())
         .yearlyCount(restStat.getYearly())
+        .unknownFrequencyCount(restStat.getUnknownFrequency())
+        .remedialFeesCount(restStat.getRemedialFeesCount().longValue())
         .workStudyCount(restStat.getWorkStudy())
         .statDate(statDate)
         .build();
@@ -97,10 +105,12 @@ public class AdvancedFeeStatsMapper {
         .firstGrade(modelStat.getFirstGradeCount())
         .secondGrade(modelStat.getSecondGradeCount())
         .thirdGrade(modelStat.getThirdGradeCount())
+        .unknownGrade(modelStat.getUnknownGradeCount())
         .remedialFeesCount(BigDecimal.valueOf(modelStat.getRemedialFeesCount()))
         .workStudy(modelStat.getWorkStudyCount())
         .monthly(modelStat.getMonthlyCount())
-        .yearly(modelStat.getYearlyCount());
+        .yearly(modelStat.getYearlyCount())
+        .unknownFrequency(modelStat.getUnknownFrequencyCount());
   }
 
   private PendingFeesStats getRestPendingFeeStats(AdvancedFeeStats modelStat) {
@@ -108,10 +118,12 @@ public class AdvancedFeeStatsMapper {
         .firstGrade(modelStat.getFirstGradeCount())
         .secondGrade(modelStat.getSecondGradeCount())
         .thirdGrade(modelStat.getThirdGradeCount())
+        .unknownGrade(modelStat.getUnknownGradeCount())
         .remedialFeesCount(BigDecimal.valueOf(modelStat.getRemedialFeesCount()))
         .workStudy(modelStat.getWorkStudyCount())
         .monthly(modelStat.getMonthlyCount())
-        .yearly(modelStat.getYearlyCount());
+        .yearly(modelStat.getYearlyCount())
+        .unknownFrequency(modelStat.getUnknownFrequencyCount());
   }
 
   private PaidFeesStats getRestPaidFeeStats(AdvancedFeeStats modelStat) {
@@ -119,10 +131,12 @@ public class AdvancedFeeStatsMapper {
         .firstGrade(modelStat.getFirstGradeCount())
         .secondGrade(modelStat.getSecondGradeCount())
         .thirdGrade(modelStat.getThirdGradeCount())
+        .unknownGrade(modelStat.getUnknownGradeCount())
         .remedialFeesCount(BigDecimal.valueOf(modelStat.getRemedialFeesCount()))
         .workStudy(modelStat.getWorkStudyCount())
         .monthly(modelStat.getMonthlyCount())
         .yearly(modelStat.getYearlyCount())
+        .unknownFrequency(modelStat.getUnknownFrequencyCount())
         .mobileMoney(BigDecimal.valueOf(modelStat.getMpbsCount()))
         .bankFees(BigDecimal.valueOf(modelStat.getBankTransferCount()));
   }
@@ -132,9 +146,11 @@ public class AdvancedFeeStatsMapper {
         .firstGrade(modelStat.getFirstGradeCount())
         .secondGrade(modelStat.getSecondGradeCount())
         .thirdGrade(modelStat.getThirdGradeCount())
+        .unknownGrade(modelStat.getUnknownGradeCount())
         .workStudy(modelStat.getWorkStudyCount())
         .monthly(modelStat.getMonthlyCount())
-        .yearly(modelStat.getYearlyCount());
+        .yearly(modelStat.getYearlyCount())
+        .unknownFrequency(modelStat.getUnknownFrequencyCount());
   }
 
   public AdvancedFeesStatistics toRest(Map<AdvancedFeeStatsType, AdvancedFeeStats> modelStat) {
