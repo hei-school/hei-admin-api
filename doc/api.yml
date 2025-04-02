@@ -2872,6 +2872,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FeesStatistics'
+  /fees/advanced-stats-generate:
+    post:
+      tags:
+        - Paying
+      summary: Triggers a generation of the statistics of all the fees in the given date range to cache them
+      parameters:
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: true
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: true
+      operationId: generateAdvancedStats
+      responses:
+        '200':
+          description: Advanced Fees stats info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvancedFeeStatisticsGeneration'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /fees/advanced-stats:
     get:
       tags:
@@ -2882,13 +2918,13 @@ paths:
           in: query
           schema:
             type: string
-            format: date-time
+            format: date
           required: false
         - name: month_to
           in: query
           schema:
             type: string
-            format: date-time
+            format: date
           required: false
       operationId: getAdvancedFeesStats
       responses:
@@ -6802,6 +6838,11 @@ components:
           type: integer
         suspended:
           type: integer
+    AdvancedFeeStatisticsGeneration:
+      type: object
+      properties:
+        data:
+          type: string
     AdvancedFeesStatistics:
       type: object
       properties:
@@ -6825,6 +6866,12 @@ components:
         third_grade:
           type: integer
           format: int64
+        other:
+          type: integer
+          format: int64
+        unknown_grade:
+          type: integer
+          format: int64
         work_study:
           type: integer
           format: int64
@@ -6832,6 +6879,9 @@ components:
           type: integer
           format: int64
         yearly:
+          type: integer
+          format: int64
+        unknown_frequency:
           type: integer
           format: int64
     TotalExpectedFeesStats:
