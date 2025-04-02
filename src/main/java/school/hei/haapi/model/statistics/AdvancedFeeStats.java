@@ -11,6 +11,7 @@ import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.time.LocalDate;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -57,6 +58,8 @@ public class AdvancedFeeStats {
 
   @CreationTimestamp private Instant creationDatetime;
   @UpdateTimestamp private Instant updateDatetime;
+
+  @Setter(AccessLevel.NONE)
   private LocalDate statDate;
 
   public enum AdvancedFeeStatsType {
