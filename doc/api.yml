@@ -2872,6 +2872,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FeesStatistics'
+  /fees/advanced-stats-generate:
+    post:
+      tags:
+        - Paying
+      summary: Triggers a generation of the statistics of all the fees in the given date range to cache them
+      parameters:
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: true
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: true
+      operationId: generateAdvancedStats
+      responses:
+        '200':
+          description: Advanced Fees stats info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvancedFeeStatisticsGeneration'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /fees/advanced-stats:
     get:
       tags:
@@ -6802,6 +6838,11 @@ components:
           type: integer
         suspended:
           type: integer
+    AdvancedFeeStatisticsGeneration:
+      type: object
+      properties:
+        data:
+          type: string
     AdvancedFeesStatistics:
       type: object
       properties:

@@ -53,6 +53,10 @@ public class DateUtils {
     return Instant.from(temporalAccessor);
   }
 
+  public static Instant toInstant(LocalDate date) {
+    return date.atStartOfDay(ZoneOffset.UTC).toInstant();
+  }
+
   public record RangedInstant(Instant from, Instant to) {}
 
   public static Stream<LocalDate> generateStartOfMonthRange(LocalDate from, LocalDate to) {
