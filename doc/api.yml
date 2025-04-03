@@ -4587,6 +4587,56 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /event_participants:
+    get:
+      tags:
+        - Events
+      summary: All users events participations
+      operationId: getAllEventParticipants
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: from
+          in: query
+          description: Filter event participants from a given date
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: to
+          in: query
+          description: Filter event participants before a given date
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Filtered participants of all the events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventAttendance"
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /events/participants/{participant_id}/stats:
     get:
       tags:
@@ -6544,6 +6594,13 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    EventAttendance:
+      type: object
+      properties:
+        event_participant:
+          $ref: '#/components/schemas/EventParticipant'
+        event:
+          $ref: '#/components/schemas/Event'
     EventParticipant:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
