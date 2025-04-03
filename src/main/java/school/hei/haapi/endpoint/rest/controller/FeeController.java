@@ -3,7 +3,6 @@ package school.hei.haapi.endpoint.rest.controller;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
-import static school.hei.haapi.service.utils.DateUtils.toInstant;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -152,11 +151,10 @@ public class FeeController {
 
   @PostMapping("/fees/advanced-stats-generate")
   public AdvancedFeeStatisticsGeneration generateAdvancedStats(
-      @RequestParam(name = "date_from") LocalDate dateFrom,
-      @RequestParam(name = "date_to") LocalDate dateTo) {
+      @RequestParam(name = "date_from") Instant dateFrom,
+      @RequestParam(name = "date_to") Instant dateTo) {
     List<AdvancedFeeStats> stats =
-        advancedFeeStatsService.updateAdvancedFeeStats(
-            Optional.of(toInstant(dateFrom)), Optional.of(toInstant(dateTo)));
+        advancedFeeStatsService.updateAdvancedFeeStats(Optional.of(dateFrom), Optional.of(dateTo));
     return new AdvancedFeeStatisticsGeneration().data("Total stats generated: " + stats.size());
   }
 
