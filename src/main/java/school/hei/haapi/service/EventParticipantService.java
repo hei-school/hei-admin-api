@@ -30,6 +30,7 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.EventRepository;
 import school.hei.haapi.repository.dao.EventParticipantDao;
+import school.hei.haapi.service.utils.DateUtils;
 
 @Service
 @AllArgsConstructor
@@ -48,13 +49,14 @@ public class EventParticipantService {
       String groupRef,
       String name,
       String ref,
-      AttendanceStatus attendanceStatus) {
+      AttendanceStatus attendanceStatus,
+      DateUtils.RangedInstant eventBeginRange) {
 
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "participant.ref"));
 
     return eventParticipantDao.findByCriteria(
-        eventId, pageable, groupRef, name, ref, attendanceStatus);
+        eventId, pageable, groupRef, name, ref, attendanceStatus, eventBeginRange);
   }
 
   public List<EventParticipant> updateEventParticipants(List<EventParticipant> eventParticipants) {

@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.FRIDAY;
@@ -52,9 +53,9 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventAttendance;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.EventParticipantStats;
 import school.hei.haapi.endpoint.rest.model.EventStats;
@@ -322,7 +323,7 @@ public class EventIT extends FacadeITMockedThirdParties {
     // Test the status filter
 
     List<EventParticipant> participantsFilteredByStatus =
-        api.getEventParticipants(EVENT2_ID, 1, 15, null, null, null, AttendanceStatus.MISSING);
+        api.getEventParticipants(EVENT2_ID, 1, 15, null, null, null, MISSING);
 
     assertEquals(student3MissEvent2().getId(), participantsFilteredByStatus.getFirst().getId());
   }
@@ -417,5 +418,20 @@ public class EventIT extends FacadeITMockedThirdParties {
     EventsApi api = new EventsApi(anApiClient(null));
     List<Event> actual = api.getEvents(1, 500, null, null, null, null, null);
     assertTrue(actual.containsAll(List.of(event1(), event2(), event3())));
+  }
+
+  @Test
+  void get_event_attendance_for_specific_date_range() throws ApiException {
+    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
+    // Get Event2 in this range
+    List<EventAttendance> eventParticipantsInEventDateRange =
+        api.getAllEventParticipants(
+            null,
+            null,
+            Instant.parse("2022-12-08T07:59:59.00Z"),
+            Instant.parse("2022-12-08T08:00:01.00Z"),
+            MISSING);
+    assertEquals(
+        student3MissEvent2(), eventParticipantsInEventDateRange.getFirst().getEventParticipant());
   }
 }

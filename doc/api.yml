@@ -4618,6 +4618,12 @@ paths:
           schema:
             type: string
             format: date-time
+        - name: attendance_statuses
+          required: false
+          in: query
+          description: Filter event participants by attendance status value
+          schema:
+            $ref: '#/components/schemas/AttendanceStatus'
       responses:
         '200':
           description: Filtered participants of all the events
