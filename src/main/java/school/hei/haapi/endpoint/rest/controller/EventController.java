@@ -159,7 +159,7 @@ public class EventController {
       @RequestParam(name = "page_size", defaultValue = "15") BoundedPageSize pageSize,
       @RequestParam(name = "from", required = false) Instant from,
       @RequestParam(name = "to", required = false) Instant to,
-      @RequestParam(name = "attendance_statuses", required = false)
+      @RequestParam(name = "attendance_status", required = false)
           AttendanceStatus attendanceStatus) {
     return eventParticipantService
         .getEventParticipants(

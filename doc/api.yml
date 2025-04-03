@@ -4618,7 +4618,7 @@ paths:
           schema:
             type: string
             format: date-time
-        - name: attendance_statuses
+        - name: attendance_status
           required: false
           in: query
           description: Filter event participants by attendance status value
