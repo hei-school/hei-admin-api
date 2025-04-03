@@ -593,12 +593,15 @@ class FeeIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_request_advanced_fee_stats_generation_ok() {
-    Instant from = Instant.parse("2021-11-08T08:25:24.00Z");
-    Instant to = Instant.parse("2021-11-15T08:25:24.00Z");
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    assertDoesNotThrow(() -> api.generateAdvancedStats(from, to));
+    assertDoesNotThrow(
+        () -> {
+          Instant from = Instant.parse("2021-11-08T08:25:24.00Z");
+          Instant to = Instant.parse("2021-11-15T08:25:24.00Z");
+          api.generateAdvancedStats(from, to);
+        });
   }
 
   @Test
