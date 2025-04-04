@@ -74,7 +74,7 @@ public class GradeController {
       @PathVariable("student_id") String studentId,
       @RequestBody CrupdateGrade grade) {
     validator.accept(grade);
-    Grade toSave = gradeMapper.toDomain(grade, examId, studentId);
+    Grade toSave = gradeMapper.toDomain(grade, examId, userService.findById(studentId).getRef());
     return gradeMapper.toRest(gradeService.crupdateParticipantGrade(List.of(toSave)).getFirst());
   }
 
@@ -94,7 +94,7 @@ public class GradeController {
     return gradeService
         .crupdateParticipantGrade(
             grades.stream()
-                .map(grade -> gradeMapper.toDomain(grade.getGrade(), examId, grade.getStudentId()))
+                .map(grade -> gradeMapper.toDomain(grade.getGrade(), examId, grade.getStudentRef()))
                 .collect(toUnmodifiableList()))
         .stream()
         .map(gradeMapper::toRestStudentGrade)

@@ -6231,7 +6231,7 @@ components:
       properties:
         grade:
           $ref: '#/components/schemas/CrupdateGrade'
-        student_id:
+        student_ref:
           type: string
     CrupdateStudentExamGrade:
       required:

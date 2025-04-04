@@ -116,6 +116,12 @@ public class UserService {
         .orElseThrow(() -> new NotFoundException("User with id: " + userId + " not found"));
   }
 
+  public User findByRef(String userRef) {
+    return userRepository
+            .findByRef(userRef)
+            .orElseThrow(() -> new NotFoundException("User with ref: " + userRef + " not found"));
+  }
+
   public User getByEmail(String email) {
     return userRepository.getByEmail(email);
   }

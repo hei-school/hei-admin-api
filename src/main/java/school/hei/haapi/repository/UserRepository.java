@@ -2,6 +2,8 @@ package school.hei.haapi.repository;
 
 import jakarta.validation.constraints.NotBlank;
 import java.util.List;
+import java.util.Optional;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -165,5 +167,5 @@ public interface UserRepository extends JpaRepository<User, String> {
   @Query("select u from User u join Fee f on u.id = f.student.id where f.status = 'LATE' ")
   List<User> getStudentsWithUnpaidOrLateFee();
 
-  User findByRef(@NotBlank(message = "Reference is mandatory") String ref);
+  Optional<User> findByRef(@NotBlank(message = "Reference is mandatory") String ref);
 }
