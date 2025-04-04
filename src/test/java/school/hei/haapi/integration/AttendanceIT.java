@@ -27,6 +27,7 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.event.CheckAttendanceTriggeredService;
 
 @Testcontainers
@@ -36,6 +37,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
   private static final Instant DEFAULT_TO = Instant.parse("2021-11-09T07:30:00.00Z");
   @Autowired CheckAttendanceTriggeredService checkAttendanceTriggeredService;
   @Autowired UserRepository userRepository;
+  @Autowired UserService userService;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -47,7 +49,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
     checkAttendanceTriggeredService.accept(new CheckAttendanceTriggered());
     setUpS3Service(fileService, student1());
 
-    User student = userRepository.findByRef(student1().getRef());
+    User student = userService.findByRef(student1().getRef());
     student.setStatus(ENABLED);
     userRepository.save(student);
   }

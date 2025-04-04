@@ -73,7 +73,7 @@ public class GradeMapper {
   //  }
 
   public school.hei.haapi.model.Grade toDomain(
-      CrupdateGrade grade, String examId, String studentId) {
+      CrupdateGrade grade, String examId, String studentRef) {
     validator.accept(grade);
 
     Exam exam = examService.getExamById(examId);
@@ -85,13 +85,13 @@ public class GradeMapper {
 
     school.hei.haapi.model.Grade resultGrade =
         gradeRepository
-            .getGradeByExamIdAndStudentId(examId, studentId)
+            .getGradeByExamIdAndStudentRef(examId, studentRef)
             .orElse(
                 service
                     .crupdateParticipantGrade(
                         List.of(
                             new school.hei.haapi.model.Grade(
-                                exam, userService.findById(studentId))))
+                                exam, userService.findByRef(studentRef))))
                     .getFirst());
 
     resultGrade.setScore(scoreFinal);

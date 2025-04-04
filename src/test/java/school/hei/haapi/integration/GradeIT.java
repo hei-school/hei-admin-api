@@ -46,12 +46,14 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.UserService;
 
 @Slf4j
 @Testcontainers
 @AutoConfigureMockMvc
 class GradeIT extends FacadeITMockedThirdParties {
   @Autowired UserRepository userRepository;
+  @Autowired UserService userService;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -62,7 +64,7 @@ class GradeIT extends FacadeITMockedThirdParties {
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
 
-    User student = userRepository.findByRef(student1().getRef());
+    User student = userService.findByRef(student1().getRef());
     student.setStatus(ENABLED);
     userRepository.save(student);
   }
@@ -168,12 +170,12 @@ class GradeIT extends FacadeITMockedThirdParties {
     TeachingApi api = new TeachingApi(managerClient);
 
     UpdateGrade updateGrade =
-        new UpdateGrade().grade(new CrupdateGrade().score(18.2)).studentId(STUDENT1_ID);
+        new UpdateGrade().grade(new CrupdateGrade().score(18.2)).studentRef(student1().getRef());
     List<StudentGrade> studentGrades =
         api.updateParticipantsGradeForExam(EXAM1_ID, List.of(updateGrade));
 
     assertEquals(1, studentGrades.size());
-    assertEquals(updateGrade.getStudentId(), studentGrades.getFirst().getStudent().getId());
+    assertEquals(updateGrade.getStudentRef(), studentGrades.getFirst().getStudent().getRef());
     assertEquals(
         updateGrade.getGrade().getScore() * exam1().getCoefficient(),
         studentGrades.getFirst().getGrade().getScore());
