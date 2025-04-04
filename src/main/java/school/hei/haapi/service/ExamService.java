@@ -89,8 +89,4 @@ public class ExamService {
         examinationDateEnd,
         awardedCourseId);
   }
-
-  public Exam createOrUpdateExamsInfos(Exam exam) {
-    return examRepository.save(exam);
-  }
 }

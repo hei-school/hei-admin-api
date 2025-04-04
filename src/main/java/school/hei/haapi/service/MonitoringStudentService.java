@@ -60,7 +60,14 @@ public class MonitoringStudentService {
                   .collect(toUnmodifiableList());
 
           linkMonitorFollowingStudents(
-              userRepository.findByRef(monitor.getRef()).orElseThrow(() -> new NotFoundException("User with ref: " + monitor.getRef() + " not found")).getId(), studentsIds);
+              userRepository
+                  .findByRef(monitor.getRef())
+                  .orElseThrow(
+                      () ->
+                          new NotFoundException(
+                              "User with ref: " + monitor.getRef() + " not found"))
+                  .getId(),
+              studentsIds);
         });
 
     return savedMonitors;

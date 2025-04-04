@@ -118,8 +118,8 @@ public class UserService {
 
   public User findByRef(String userRef) {
     return userRepository
-            .findByRef(userRef)
-            .orElseThrow(() -> new NotFoundException("User with ref: " + userRef + " not found"));
+        .findByRef(userRef)
+        .orElseThrow(() -> new NotFoundException("User with ref: " + userRef + " not found"));
   }
 
   public User getByEmail(String email) {
@@ -330,6 +330,7 @@ public class UserService {
             .count();
   }
 
+  // Todo: try to move in MonitoringStudentService
   public List<User> findMonitorsByStudentId(String studentId) {
     return monitoringStudentService.getMonitorsByStudentId(studentId);
   }
