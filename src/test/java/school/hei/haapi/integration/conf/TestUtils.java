@@ -1,9 +1,12 @@
 package school.hei.haapi.integration.conf;
 
+import static java.time.ZoneOffset.UTC;
+import static java.time.temporal.ChronoUnit.YEARS;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
@@ -39,6 +42,7 @@ import static school.hei.haapi.integration.StudentIT.student3;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
+import com.github.javafaker.Faker;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -56,10 +60,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.stream.IntStream;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
+import org.mockito.stubbing.Answer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -98,7 +106,6 @@ import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
 import school.hei.haapi.endpoint.rest.model.Letter;
 import school.hei.haapi.endpoint.rest.model.LetterUser;
 import school.hei.haapi.endpoint.rest.model.Manager;
-import school.hei.haapi.endpoint.rest.model.Monitor;
 import school.hei.haapi.endpoint.rest.model.Observer;
 import school.hei.haapi.endpoint.rest.model.Promotion;
 import school.hei.haapi.endpoint.rest.model.Scope;
@@ -110,13 +117,20 @@ import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
+import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 
+@Component
 public class TestUtils {
+  private final Faker faker;
+
+  TestUtils() {
+    faker = new Faker();
+  }
 
   public static final String STAFF_MEMBER1_ID = "staff1_id";
   public static final String STUDENT1_ID = "student1_id";
@@ -259,6 +273,8 @@ public class TestUtils {
         .thenReturn("test+organizer+2@hei.school");
     when(cognitoComponent.getEmailByIdToken(SUSPENDED_TOKEN))
         .thenReturn("test+suspended@hei.school");
+    when(cognitoComponent.getEmailByIdToken(anyString()))
+        .thenAnswer((Answer<String>) invocation -> (String) invocation.getArguments()[0]);
   }
 
   public static void setUpS3Service(FileService fileService, Student user) {
@@ -354,24 +370,35 @@ public class TestUtils {
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
 
-  public static CrupdateStudentFee updatableStudentFee() {
-    return new CrupdateStudentFee()
-        .id(FEE3_ID)
-        .studentId(STUDENT1_ID)
-        .type(TUITION)
-        .totalAmount(5000)
-        .category(UNKNOWN)
-        .frequency(FeeFrequency.UNKNOWN)
-        .comment("Updated comment")
-        .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
-        .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
+  public User createSomeUser(User.Role role, User.Status status) {
+    var userBirthdate = faker.date().past(20, TimeUnit.of(YEARS));
+    return User.builder()
+        .firstName(faker.name().firstName())
+        .lastName(faker.name().lastName())
+        .email(faker.internet().emailAddress())
+        .phone(faker.phoneNumber().phoneNumber())
+        .latitude(faker.random().nextDouble())
+        .longitude(faker.random().nextDouble())
+        .address(faker.address().streetAddress())
+        .sex(Math.random() >= 0.3 ? User.Sex.M : User.Sex.F)
+        .status(status)
+        .role(role)
+        .ref(role + "-" + faker.number().randomNumber(5, true))
+        .nic(String.valueOf(faker.number().randomNumber(12, true)))
+        .birthDate(userBirthdate.toInstant().atOffset(UTC).toLocalDate())
+        .entranceDatetime(faker.date().future(1, TimeUnit.of(YEARS)).toInstant())
+        .build();
   }
 
-  public static Group createGroup() {
+  public List<User> createSomeUsers(int count, User.Role role, User.Status status) {
+    return IntStream.of(count).mapToObj(i -> createSomeUser(role, status)).toList();
+  }
+
+  public Group createSomeGroup() {
     return new Group()
-        .name("Collaborative work like GWSP")
-        .ref("created")
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+        .name(faker.lorem().sentence(3))
+        .ref("GRP" + faker.number().randomNumber(5, true))
+        .creationDatetime(faker.date().past(4, TimeUnit.of(YEARS)).toInstant());
   }
 
   public static Course createCourse(String code) {
@@ -434,10 +461,10 @@ public class TestUtils {
     return teacherList;
   }
 
-  public static List<Group> someCreatableGroupList(int nbOfGroup) {
+  public List<Group> createSomeGroupList(int nbOfGroup) {
     List<Group> groupList = new ArrayList<>();
     for (int i = 0; i < nbOfGroup; i++) {
-      groupList.add(createGroup());
+      groupList.add(createSomeGroup());
     }
     return groupList;
   }
@@ -633,44 +660,6 @@ public class TestUtils {
         .birthPlace("")
         .address("Adr 5")
         .coordinates(coordinatesWithNullValues());
-  }
-
-  public static Monitor monitor1() {
-    return new Monitor()
-        .id(MONITOR1_ID)
-        .firstName("Monitor")
-        .lastName("One")
-        .email("test+monitor@hei.school")
-        .ref("MTR21001")
-        .phone("0322411123")
-        .status(ENABLED)
-        .sex(Sex.M)
-        .birthDate(LocalDate.parse("2000-01-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .nic("")
-        .birthPlace("")
-        .address("Adr 1")
-        .coordinates(new Coordinates().longitude(-123.123).latitude(123.0))
-        .highSchoolOrigin("Lycée Andohalo");
-  }
-
-  public static Monitor monitor2() {
-    return new Monitor()
-        .id(MONITOR2_ID)
-        .firstName("Monitor2")
-        .lastName("two")
-        .email("test+monitor2@hei.school")
-        .ref("MTR21002")
-        .phone("0322411123")
-        .status(ENABLED)
-        .sex(Sex.M)
-        .birthDate(LocalDate.parse("2000-02-02"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .nic("")
-        .birthPlace("")
-        .address("Adr 2")
-        .coordinates(new Coordinates().longitude(-123.123).latitude(123.0))
-        .highSchoolOrigin("Lycée Andohalo");
   }
 
   public static CrupdateMonitor monitor1Link(List<String> studentRefs) {
@@ -975,26 +964,6 @@ public class TestUtils {
 
   public static StudentGrade studentGrade1() {
     return new StudentGrade().grade(grade1()).student(student1());
-  }
-
-  public static StudentGrade studentGrade2() {
-    return new StudentGrade().grade(grade2());
-  }
-
-  public static StudentGrade studentGrade3() {
-    return new StudentGrade().grade(grade3());
-  }
-
-  public static StudentGrade studentGrade4() {
-    return new StudentGrade().grade(grade4());
-  }
-
-  public static StudentGrade studentGrade5() {
-    return new StudentGrade().grade(grade5());
-  }
-
-  public static StudentGrade studentGrade6() {
-    return new StudentGrade().grade(grade6());
   }
 
   public static StudentGrade studentGrade7() {

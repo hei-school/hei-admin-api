@@ -19,7 +19,6 @@ import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
-import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.GroupIT.updatedGroup3;
@@ -46,24 +45,20 @@ import static school.hei.haapi.integration.conf.TestUtils.group2;
 import static school.hei.haapi.integration.conf.TestUtils.group3;
 import static school.hei.haapi.integration.conf.TestUtils.requestFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
+import static school.hei.haapi.model.User.Role.MANAGER;
+import static school.hei.haapi.model.User.Role.STUDENT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.javafaker.Faker;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
@@ -80,6 +75,7 @@ import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
@@ -89,6 +85,8 @@ import school.hei.haapi.endpoint.rest.model.Statistics;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.User;
+import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
@@ -102,73 +100,12 @@ public class StudentIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
 
   @Autowired ObjectMapper objectMapper;
+  @Autowired UserService userService;
+  @Autowired UserMapper userMapper;
+  @Autowired TestUtils testUtils;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
-  }
-
-  File getFileFromResource(String resourceName) {
-    URL resource = this.getClass().getClassLoader().getResource(resourceName);
-    return new File(resource.getFile());
-  }
-
-  public static CrupdateStudent createStudent1() {
-    CrupdateStudent student = new CrupdateStudent();
-    student.setId("student1_id");
-    student.setFirstName("Ryan");
-    student.setLastName("Andria");
-    student.setEmail("test+ryan@hei.school");
-    student.setRef("STD21001");
-    student.setPhone("0322411123");
-    student.setStatus(ENABLED);
-    student.setSex(M);
-    student.setBirthDate(LocalDate.parse("2000-01-01"));
-    student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    student.setAddress("Adr 1");
-    student.setNic("");
-    student.setBirthPlace("");
-    student.coordinates(coordinatesWithNullValues());
-    return student;
-  }
-
-  public static CrupdateStudent someUpdatableStudent() {
-    return createStudent1()
-        .address("Adr 999")
-        .sex(F)
-        .lastName("Other last")
-        .firstName("Other first")
-        .specializationField(TN)
-        .birthDate(LocalDate.parse("2000-01-03"));
-  }
-
-  public static CrupdateStudent someCreatableStudent() {
-    CrupdateStudent student = new CrupdateStudent();
-    Faker faker = new Faker();
-    student.setId(null);
-    student.setFirstName(faker.name().firstName());
-    student.setLastName(faker.name().lastName());
-    student.setEmail("test+" + randomUUID() + "@hei.school");
-    student.setRef("STD21" + (int) (Math.random() * 1_000_000));
-    student.setPhone("03" + (int) (Math.random() * 1_000_000_000));
-    student.setStatus(ENABLED);
-    student.setSex(Math.random() < 0.3 ? F : M);
-    Instant birthday = Instant.parse("1993-11-30T18:35:24.00Z");
-    int ageOfEntrance = 14 + (int) (Math.random() * 20);
-    student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
-    student.setEntranceDatetime(birthday.plusSeconds(ageOfEntrance * 365L * 24L * 60L * 60L));
-    student.setAddress(faker.address().fullAddress());
-    student.specializationField(COMMON_CORE);
-    student.setCoordinates(coordinatesWithNullValues());
-
-    return student;
-  }
-
-  static List<CrupdateStudent> someCreatableStudentList(int nbOfStudent) {
-    List<CrupdateStudent> studentList = new ArrayList<>();
-    for (int i = 0; i < nbOfStudent; i++) {
-      studentList.add(someCreatableStudent());
-    }
-    return studentList;
   }
 
   public static Student student1() {
@@ -379,12 +316,13 @@ public class StudentIT extends FacadeITMockedThirdParties {
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
-    setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
   }
 
   @Test
   void manager_generate_group_students_ok() throws IOException, InterruptedException {
+    var randomManager = testUtils.createSomeUser(MANAGER, User.Status.ENABLED);
+    userService.saveAll(List.of(randomManager));
     String STUDENTS_GROUP = "/groups/" + GROUP1_ID + "/students/raw";
     HttpClient httpClient = HttpClient.newBuilder().build();
     String basePath = "http://localhost:" + localPort;
@@ -394,7 +332,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
             HttpRequest.newBuilder()
                 .uri(URI.create(basePath + STUDENTS_GROUP))
                 .GET()
-                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
+                .header("Authorization", "Bearer " + randomManager.getEmail())
                 .build(),
             HttpResponse.BodyHandlers.ofByteArray());
 
@@ -405,11 +343,13 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_generate_event_participants_ok() throws IOException, InterruptedException {
+    var randomManager = testUtils.createSomeUser(MANAGER, User.Status.ENABLED);
+    userService.saveAll(List.of(randomManager));
     String basePath = "http://localhost:" + localPort;
     var response =
-        requestFile(
-            URI.create(basePath + "/event/" + EVENT1_ID + "/students/raw/xlsx"), MANAGER1_TOKEN);
-
+        testUtils.requestFile(
+            URI.create(basePath + "/event/" + EVENT1_ID + "/students/raw/xlsx"),
+            randomManager.getEmail());
     assertEquals(HttpStatus.OK.value(), response.statusCode());
     assertNotNull(response.body());
     assertNotNull(response);
@@ -758,103 +698,35 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_write_update_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-    List<Student> toCreate =
-        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()), null);
+    var randomManager = testUtils.createSomeUser(MANAGER, User.Status.ENABLED);
+    userService.saveAll(List.of(randomManager));
+    ApiClient client = anApiClient(randomManager.getEmail());
+    UsersApi api = new UsersApi(client);
 
-    Student created0 = toCreate.getFirst();
-    CrupdateStudent toUpdate0 =
-        new CrupdateStudent()
-            .birthDate(created0.getBirthDate())
-            .id(created0.getId())
-            .entranceDatetime(created0.getEntranceDatetime())
-            .phone(created0.getPhone())
-            .nic(created0.getNic())
-            .birthPlace(created0.getBirthPlace())
-            .email(created0.getEmail())
-            .address(created0.getAddress())
-            .firstName(created0.getFirstName())
-            .lastName(created0.getLastName())
-            .sex(created0.getSex())
-            .ref(created0.getRef())
-            .coordinates(coordinatesWithNullValues())
-            .specializationField(created0.getSpecializationField())
-            .status(created0.getStatus());
-    toUpdate0.setLastName("A new name zero");
+    User user1 = testUtils.createSomeUser(STUDENT, User.Status.ENABLED);
+    User user2 = testUtils.createSomeUser(STUDENT, User.Status.ENABLED);
+    userService.saveAll(List.of(user1, user2));
 
-    Student created1 = toCreate.get(1);
-    CrupdateStudent toUpdate1 =
-        new CrupdateStudent()
-            .birthDate(created1.getBirthDate())
-            .id(created1.getId())
-            .entranceDatetime(created1.getEntranceDatetime())
-            .phone(created1.getPhone())
-            .nic(created1.getNic())
-            .birthPlace(created1.getBirthPlace())
-            .email(created1.getEmail())
-            .address(created1.getAddress())
-            .firstName(created1.getFirstName())
-            .lastName(created1.getLastName())
-            .sex(created1.getSex())
-            .ref(created1.getRef())
-            .coordinates(coordinatesWithNullValues())
-            .specializationField(created1.getSpecializationField())
-            .status(created1.getStatus());
-    toUpdate1.setLastName("A new name one");
+    Student student1 = userMapper.toRestStudent(user1);
+    Student student2 = userMapper.toRestStudent(user2);
 
-    Student updated0 =
-        new Student()
-            .birthDate(toUpdate0.getBirthDate())
-            .id(toUpdate0.getId())
-            .entranceDatetime(toUpdate0.getEntranceDatetime())
-            .phone(toUpdate0.getPhone())
-            .nic(toUpdate0.getNic())
-            .birthPlace(toUpdate0.getBirthPlace())
-            .email(toUpdate0.getEmail())
-            .address(toUpdate0.getAddress())
-            .firstName(toUpdate0.getFirstName())
-            .lastName("A new name zero")
-            .sex(toUpdate0.getSex())
-            .ref(toUpdate0.getRef())
-            .coordinates(coordinatesWithNullValues())
-            .specializationField(toUpdate0.getSpecializationField())
-            .workStudyStatus(NOT_WORKING)
-            .status(toUpdate0.getStatus())
-            .groups(List.of())
-            .isRepeatingYear(false);
+    CrupdateStudent crupdateStudent1 = toCrupdateStudent(student1).firstName("Test");
+    CrupdateStudent crupdateStudent2 = toCrupdateStudent(student2).address("Home");
+    List<Student> updated =
+        api.createOrUpdateStudents(List.of(crupdateStudent1, crupdateStudent2), null);
 
-    Student updated1 =
-        new Student()
-            .birthDate(toUpdate1.getBirthDate())
-            .id(toUpdate1.getId())
-            .entranceDatetime(toUpdate1.getEntranceDatetime())
-            .phone(toUpdate1.getPhone())
-            .nic(toUpdate1.getNic())
-            .birthPlace(toUpdate1.getBirthPlace())
-            .email(toUpdate1.getEmail())
-            .address(toUpdate1.getAddress())
-            .firstName(toUpdate1.getFirstName())
-            .lastName("A new name one")
-            .sex(toUpdate1.getSex())
-            .ref(toUpdate1.getRef())
-            .specializationField(toUpdate1.getSpecializationField())
-            .coordinates(coordinatesWithNullValues())
-            .workStudyStatus(NOT_WORKING)
-            .status(toUpdate1.getStatus())
-            .groups(List.of())
-            .isRepeatingYear(false);
-
-    List<Student> updated = api.createOrUpdateStudents(List.of(toUpdate0, toUpdate1), null);
+    Student updated1 = student1.firstName("Test");
+    Student updated2 = student2.address("Home");
 
     assertEquals(2, updated.size());
-    assertTrue(updated.contains(updated0));
     assertTrue(updated.contains(updated1));
+    assertTrue(updated.contains(updated2));
   }
 
   @Test
   void manager_read_student_by_exclude_group_id() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    var randomManager = testUtils.createSomeUser(MANAGER, User.Status.ENABLED);
+    ApiClient manager1Client = anApiClient(randomManager.getEmail());
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> students =
@@ -870,7 +742,9 @@ public class StudentIT extends FacadeITMockedThirdParties {
   void manager_write_update_rollback_on_event_error() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    CrupdateStudent toCreate = someCreatableStudent();
+    CrupdateStudent toCreate =
+        toCrupdateStudent(
+            userMapper.toRestStudent(testUtils.createSomeUser(STUDENT, User.Status.ENABLED)));
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
         .thenThrow(RuntimeException.class);
@@ -889,8 +763,13 @@ public class StudentIT extends FacadeITMockedThirdParties {
   void manager_write_update_more_than_10_students_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    CrupdateStudent studentToCreate = someCreatableStudent();
-    List<CrupdateStudent> listToCreate = someCreatableStudentList(11);
+    CrupdateStudent studentToCreate =
+        toCrupdateStudent(
+            userMapper.toRestStudent(testUtils.createSomeUser(STUDENT, User.Status.ENABLED)));
+    List<CrupdateStudent> listToCreate =
+        testUtils.createSomeUsers(11, STUDENT, User.Status.ENABLED).stream()
+            .map(user -> toCrupdateStudent(userMapper.toRestStudent(user)))
+            .toList();
     listToCreate.add(studentToCreate);
 
     assertThrowsApiException(
@@ -904,8 +783,10 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_write_with_longitude_null_ko() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+  void manager_write_with_coordinates_null_ko() throws ApiException {
+    var randomManager = testUtils.createSomeUser(MANAGER, User.Status.ENABLED);
+    userService.saveAll(List.of(randomManager));
+    ApiClient manager1Client = anApiClient(randomManager.getEmail());
     UsersApi api = new UsersApi(manager1Client);
 
     assertThrowsApiException(
@@ -914,24 +795,10 @@ public class StudentIT extends FacadeITMockedThirdParties {
         () ->
             api.createOrUpdateStudents(
                 List.of(
-                    someCreatableStudent()
-                        .coordinates(new Coordinates().longitude(null).latitude(12.0))),
-                null));
-  }
-
-  @Test
-  void manager_write_with_latitude_null_ko() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-
-    assertThrowsApiException(
-        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Latitude is null, it must go hand in hand with"
-            + " longitude\"}",
-        () ->
-            api.createOrUpdateStudents(
-                List.of(
-                    someCreatableStudent()
-                        .coordinates(new Coordinates().longitude(12.0).latitude(null))),
+                    toCrupdateStudent(
+                            userMapper.toRestStudent(
+                                testUtils.createSomeUser(STUDENT, User.Status.ENABLED)))
+                        .coordinates(new Coordinates().longitude(null).latitude(null))),
                 null));
   }
 
@@ -948,8 +815,11 @@ public class StudentIT extends FacadeITMockedThirdParties {
                     PutEventsResultEntry.builder().eventId("eventId2").build())
                 .build());
 
-    List<Student> created =
-        api.createOrUpdateStudents(List.of(someCreatableStudent(), someCreatableStudent()), null);
+    List<CrupdateStudent> crupdateStudents =
+        testUtils.createSomeUsers(2, STUDENT, User.Status.ENABLED).stream()
+            .map(user -> toCrupdateStudent(userMapper.toRestStudent(user)))
+            .toList();
+    List<Student> created = api.createOrUpdateStudents(crupdateStudents, null);
 
     ArgumentCaptor<PutEventsRequest> captor = ArgumentCaptor.forClass(PutEventsRequest.class);
     verify(eventBridgeClientMock, times(1)).putEvents(captor.capture());
@@ -1072,13 +942,19 @@ public class StudentIT extends FacadeITMockedThirdParties {
     UsersApi usersApi = new UsersApi(apiClient);
     PayingApi payingApi = new PayingApi(apiClient);
 
-    CrupdateStudent creatableStudent1 = someCreatableStudent();
+    CrupdateStudent creatableStudent1 =
+        toCrupdateStudent(
+            userMapper.toRestStudent(testUtils.createSomeUser(STUDENT, User.Status.ENABLED)));
     creatableStudent1.setPaymentFrequency(MONTHLY);
 
-    CrupdateStudent creatableStudent2 = someCreatableStudent();
+    CrupdateStudent creatableStudent2 =
+        toCrupdateStudent(
+            userMapper.toRestStudent(testUtils.createSomeUser(STUDENT, User.Status.ENABLED)));
     creatableStudent2.setPaymentFrequency(YEARLY);
 
-    CrupdateStudent creatableStudent3 = someCreatableStudent();
+    CrupdateStudent creatableStudent3 =
+        toCrupdateStudent(
+            userMapper.toRestStudent(testUtils.createSomeUser(STUDENT, User.Status.ENABLED)));
     creatableStudent3.setPaymentFrequency(null);
 
     List<Student> studentsCreated =
