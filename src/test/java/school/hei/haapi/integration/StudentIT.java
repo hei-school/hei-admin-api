@@ -107,11 +107,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  File getFileFromResource(String resourceName) {
-    URL resource = this.getClass().getClassLoader().getResource(resourceName);
-    return new File(resource.getFile());
-  }
-
   public static CrupdateStudent createStudent1() {
     CrupdateStudent student = new CrupdateStudent();
     student.setId("student1_id");
@@ -379,7 +374,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   @BeforeEach
   public void setUp() {
     setUpCognito(cognitoComponentMock);
-    setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
   }
 
