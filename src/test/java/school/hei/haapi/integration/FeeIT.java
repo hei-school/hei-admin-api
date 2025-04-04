@@ -2,6 +2,8 @@ package school.hei.haapi.integration;
 
 import static java.time.LocalDateTime.now;
 import static java.time.ZoneOffset.UTC;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -587,5 +589,27 @@ class FeeIT extends FacadeITMockedThirdParties {
             Instant.parse("2022-12-08T08:25:24.00Z"));
 
     assertFalse(fees.isEmpty());
+  }
+
+  @Test
+  void manager_request_advanced_fee_stats_generation_ok() {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    assertDoesNotThrow(
+        () -> {
+          Instant from = Instant.parse("2021-11-08T08:25:24.00Z");
+          Instant to = Instant.parse("2021-11-15T08:25:24.00Z");
+          api.generateAdvancedStats(from, to);
+        });
+  }
+
+  @Test
+  void student_request_advanced_fee_stats_generation_ko() {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    PayingApi api = new PayingApi(student1Client);
+
+    assertThrowsForbiddenException(
+        () -> api.generateAdvancedStats(now().toInstant(UTC).minus(7, DAYS), now().toInstant(UTC)));
   }
 }
