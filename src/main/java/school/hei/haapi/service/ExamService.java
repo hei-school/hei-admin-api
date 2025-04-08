@@ -1,8 +1,10 @@
 package school.hei.haapi.service;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -11,9 +13,11 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.ExamRepository;
+import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.dao.ExamDao;
 
 @Service
@@ -21,6 +25,9 @@ import school.hei.haapi.repository.dao.ExamDao;
 public class ExamService {
   private final ExamRepository examRepository;
   private final ExamDao examDao;
+  private final UserService userService;
+  private final GradeService gradeService;
+  private final GradeRepository gradeRepository;
 
   public List<Exam> getExamsFromAwardedCourseIdAndGroupId(
       String groupId, String awardedCourseId, PageFromOne page, BoundedPageSize pageSize) {
@@ -39,7 +46,21 @@ public class ExamService {
   }
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
-    return examRepository.saveAll(exams);
+    List<Exam> savedExams = examRepository.saveAll(exams);
+    List<Grade> gradesToInitialize = new ArrayList<>();
+    savedExams.forEach(exam -> gradesToInitialize.addAll(initializeExamGrades(exam)));
+    gradeService.crupdateParticipantGrade(gradesToInitialize);
+    return savedExams;
+  }
+
+  private List<Grade> initializeExamGrades(Exam exam) {
+    return userService.getByGroupId(exam.getAwardedCourse().getGroup().getId()).stream()
+        .map(
+            student ->
+                gradeRepository
+                    .getGradeByExamIdAndStudentId(exam.getId(), student.getId())
+                    .orElse(new Grade(exam, student)))
+        .collect(toUnmodifiableList());
   }
 
   public Exam getExamById(String id) {
@@ -67,9 +88,5 @@ public class ExamService {
         examinationDateStart,
         examinationDateEnd,
         awardedCourseId);
-  }
-
-  public Exam createOrUpdateExamsInfos(Exam exam) {
-    return examRepository.save(exam);
   }
 }

@@ -918,7 +918,7 @@ paths:
           required: true
           schema:
             type: string
-      operationId: CreateOrUpdateExams
+      operationId: createOrUpdateExams
       requestBody:
         required: true
         description: Exams to update
@@ -2872,6 +2872,42 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/FeesStatistics'
+  /fees/advanced-stats-generate:
+    post:
+      tags:
+        - Paying
+      summary: Triggers a generation of the statistics of all the fees in the given date range to cache them
+      parameters:
+        - name: date_from
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: true
+        - name: date_to
+          in: query
+          schema:
+            type: string
+            format: date-time
+          required: true
+      operationId: generateAdvancedStats
+      responses:
+        '200':
+          description: Advanced Fees stats info
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AdvancedFeeStatisticsGeneration'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /fees/advanced-stats:
     get:
       tags:
@@ -2882,13 +2918,13 @@ paths:
           in: query
           schema:
             type: string
-            format: date-time
+            format: date
           required: false
         - name: month_to
           in: query
           schema:
             type: string
-            format: date-time
+            format: date
           required: false
       operationId: getAdvancedFeesStats
       responses:
@@ -4551,6 +4587,56 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /event_participants:
+    get:
+      tags:
+        - Events
+      summary: All users events participations
+      operationId: getAllEventParticipants
+      parameters:
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+        - name: from
+          in: query
+          description: Filter event participants from a given date
+          schema:
+            type: string
+            format: date-time
+          required: false
+        - name: to
+          in: query
+          description: Filter event participants before a given date
+          schema:
+            type: string
+            format: date-time
+      responses:
+        '200':
+          description: Filtered participants of all the events
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/EventAttendance"
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /events/participants/{participant_id}/stats:
     get:
       tags:
@@ -6145,7 +6231,7 @@ components:
       properties:
         grade:
           $ref: '#/components/schemas/CrupdateGrade'
-        student_id:
+        student_ref:
           type: string
     CrupdateStudentExamGrade:
       required:
@@ -6508,6 +6594,13 @@ components:
         creation_datetime:
           type: string
           format: date-time
+    EventAttendance:
+      type: object
+      properties:
+        event_participant:
+          $ref: '#/components/schemas/EventParticipant'
+        event:
+          $ref: '#/components/schemas/Event'
     EventParticipant:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
@@ -6802,6 +6895,11 @@ components:
           type: integer
         suspended:
           type: integer
+    AdvancedFeeStatisticsGeneration:
+      type: object
+      properties:
+        data:
+          type: string
     AdvancedFeesStatistics:
       type: object
       properties:
@@ -6825,6 +6923,12 @@ components:
         third_grade:
           type: integer
           format: int64
+        other:
+          type: integer
+          format: int64
+        unknown_grade:
+          type: integer
+          format: int64
         work_study:
           type: integer
           format: int64
@@ -6832,6 +6936,9 @@ components:
           type: integer
           format: int64
         yearly:
+          type: integer
+          format: int64
+        unknown_frequency:
           type: integer
           format: int64
     TotalExpectedFeesStats:

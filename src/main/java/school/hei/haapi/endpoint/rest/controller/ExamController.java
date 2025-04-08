@@ -15,7 +15,6 @@ import school.hei.haapi.endpoint.rest.mapper.ExamMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateExam;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
 import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.service.AwardedCourseService;
@@ -67,15 +66,8 @@ public class ExamController {
 
   @PutMapping("/exams")
   public ExamInfo createOrUpdateExamsInfos(@RequestBody CrupdateExam examInfo) {
-    return examMapper.toRest(examService.createOrUpdateExamsInfos(examMapper.toDomain(examInfo)));
-  }
-
-  @PutMapping("/awarded_courses/{awarded_course_id}/exams")
-  public List<ExamInfo> getExamsByAwardedCourse(
-      @PathVariable(name = "awarded_course_id") String id, @RequestBody List<ExamInfo> examInfos) {
-    // TODO: Review this part, why it has test and passed then now this resources disapeared and
-    // test failed
-    throw new NotImplementedException("Resources are not implemented yet");
+    return examMapper.toRest(
+        examService.updateOrSaveAll(List.of(examMapper.toDomain(examInfo))).getFirst());
   }
 
   @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams")
@@ -91,20 +83,21 @@ public class ExamController {
         .collect(toList());
   }
 
-  @PutMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams")
+  @PutMapping(value = "/awarded_courses/{awarded_course_id}/exams")
   public List<ExamInfo> createOrUpdateExams(
-      @PathVariable("group_id") String groupId,
       @PathVariable("awarded_course_id") String awardedCourseId,
       @RequestBody List<ExamInfo> examInfos) {
-    List<Exam> exams =
-        examService.updateOrSaveAll(
+    return examService
+        .updateOrSaveAll(
             examInfos.stream()
                 .map(
                     examInfo ->
                         examMapper.toDomain(
-                            examInfo, awardedCourseService.getById(awardedCourseId, groupId)))
-                .collect(toList()));
-    return exams.stream().map(examMapper::toRest).collect(toList());
+                            examInfo, awardedCourseService.findById(awardedCourseId)))
+                .collect(toList()))
+        .stream()
+        .map(examMapper::toRest)
+        .collect(toList());
   }
 
   @GetMapping(value = "/groups/{group_id}/awarded_courses/{awarded_course_id}/exams/{exam_id}")

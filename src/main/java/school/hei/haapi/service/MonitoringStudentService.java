@@ -17,6 +17,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
 
@@ -59,7 +60,14 @@ public class MonitoringStudentService {
                   .collect(toUnmodifiableList());
 
           linkMonitorFollowingStudents(
-              userRepository.findByRef(monitor.getRef()).getId(), studentsIds);
+              userRepository
+                  .findByRef(monitor.getRef())
+                  .orElseThrow(
+                      () ->
+                          new NotFoundException(
+                              "User with ref: " + monitor.getRef() + " not found"))
+                  .getId(),
+              studentsIds);
         });
 
     return savedMonitors;

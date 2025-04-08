@@ -25,7 +25,7 @@ import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.*;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
-import school.hei.haapi.repository.AdvancesFeeStatsRepository;
+import school.hei.haapi.repository.AdvancedFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 import school.hei.haapi.service.utils.DateUtils;
@@ -36,7 +36,7 @@ class FeeServiceTest {
   FeeValidator feeValidator;
   EventProducer eventProducer;
   UpdateFeeValidator updateFeeValidator;
-  AdvancesFeeStatsRepository advancesFeeStatsRepository;
+  AdvancedFeeStatsRepository advancedFeeStatsRepository;
   AdvancedFeeStatsMapper advancedFeeStatsMapper;
   UserService userService;
   FeeDao feeDao;
@@ -126,19 +126,16 @@ class FeeServiceTest {
     userService = mock(UserService.class);
     feeDao = mock(FeeDao.class);
     feeTemplateService = mock(FeeTemplateService.class);
-    advancesFeeStatsRepository = mock(AdvancesFeeStatsRepository.class);
+    advancedFeeStatsRepository = mock(AdvancedFeeStatsRepository.class);
     advancedFeeStatsMapper = mock(AdvancedFeeStatsMapper.class);
     subject =
         new FeeService(
-            advancedFeeStatsMapper,
-            advancesFeeStatsRepository,
             feeRepository,
             feeValidator,
             updateFeeValidator,
             eventProducer,
             feeDao,
-            feeTemplateService,
-            dateUtils);
+            feeTemplateService);
   }
 
   @Test

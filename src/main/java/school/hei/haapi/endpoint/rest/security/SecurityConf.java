@@ -124,6 +124,7 @@ public class SecurityConf {
                     antMatcher(GET, "/fees/raw"),
                     antMatcher(GET, "/fees/stats"),
                     antMatcher(GET, "/fees/advanced-stats"),
+                    antMatcher(POST, "/fees/advanced-stats-generate"),
                     antMatcher(PUT, "/fees/payments/receipts/raw"),
                     antMatcher(GET, "/fees/*"),
                     antMatcher(POST, "/mpbs/verify"),
@@ -182,6 +183,7 @@ public class SecurityConf {
                     antMatcher(GET, "/exams"),
                     antMatcher(GET, "/exams/*"),
                     antMatcher(GET, "/exams/*/grades"),
+                    antMatcher(PUT, "/exams/*/grades"),
                     antMatcher(PUT, "/exams"),
                     antMatcher(GET, "/exams/*/students/*/grade"),
                     antMatcher(PUT, "/exams/*/students/*/grade"),
@@ -421,6 +423,8 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/fees/advanced-stats")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(POST, "/fees/advanced-stats-generate")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/mpbs/verify")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/mpbs", "students"))
@@ -635,6 +639,8 @@ public class SecurityConf {
                     .requestMatchers(GET, "/exams/*")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/exams/*/grades")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PUT, "/exams/*/grades")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/exams")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())

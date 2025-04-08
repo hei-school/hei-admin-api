@@ -1,3 +1,27 @@
+## [1.102.1](https://github.com/hei-school/hei-admin-api/compare/v1.102.0...v1.102.1) (2025-04-04)
+
+
+### Bug Fixes
+
+* modify grade requirement ([703e1d1](https://github.com/hei-school/hei-admin-api/commit/703e1d1d4c73ed7705ccfe63fd4e9fb1ce41b17a))
+
+
+
+# [1.102.0](https://github.com/hei-school/hei-admin-api/compare/v1.101.0...v1.102.0) (2025-04-03)
+
+
+### Bug Fixes
+
+* disabled user re-enabled ([5ede7bb](https://github.com/hei-school/hei-admin-api/commit/5ede7bb2c95d867dc233ad32379fa54a91dd7c80))
+
+
+### Features
+
+* generate advanced fee stats  for given date range ([979fe44](https://github.com/hei-school/hei-admin-api/commit/979fe44c6248e5c326b665df9108760a6aeb21ce))
+* **not-implemented:** get all event attendances ([46a0826](https://github.com/hei-school/hei-admin-api/commit/46a0826d1a582c8cfe7d3f3b52cd3931c06749ec))
+
+
+
 # [1.101.0](https://github.com/hei-school/hei-admin-api/compare/v1.100.0...v1.101.0) (2025-03-26)
 
 
@@ -106,30 +130,6 @@
 
 * mail on participant missing event ([8ccff8d](https://github.com/hei-school/hei-admin-api/commit/8ccff8d218ce02db642ceeaca070432e15e1fd39))
 * **not-implemented:** delete events by id  ([ee8ff2c](https://github.com/hei-school/hei-admin-api/commit/ee8ff2cfa8162994ce6a92ebb35ac0ae29d5121f))
-
-
-
-# [1.94.0](https://github.com/hei-school/hei-admin-api/compare/v1.93.0...v1.94.0) (2025-01-22)
-
-
-### Bug Fixes
-
-* utc when generating datetime  ([8d14d3d](https://github.com/hei-school/hei-admin-api/commit/8d14d3df5f0b18683e8e197caa153708822c0630))
-
-
-### Features
-
-* create event with some days frequence  ([cfdc043](https://github.com/hei-school/hei-admin-api/commit/cfdc043f619cfad7f11a00e76285f7005afa8b16))
-* export students and teachers as xlsx  ([a61ddc5](https://github.com/hei-school/hei-admin-api/commit/a61ddc57d0f8d5060412f5084c4c51571fa3d598))
-
-
-
-# [1.93.0](https://github.com/hei-school/hei-admin-api/compare/v1.92.0...v1.93.0) (2025-01-17)
-
-
-### Features
-
-* group has color and mapp group color from event creation  ([55c3634](https://github.com/hei-school/hei-admin-api/commit/55c3634540e78f964760b018847b05db596bc72e))
 
 
 

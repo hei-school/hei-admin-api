@@ -5,7 +5,9 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -22,8 +24,10 @@ import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.model.FeesStats;
+import school.hei.haapi.service.AdvancedFeeStatsService;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.FeeTemplateService;
 import school.hei.haapi.service.UserService;
@@ -37,6 +41,7 @@ public class FeeController {
   private final UpdateFeeValidator updateFeeValidator;
   private final FeeTemplateService feeTemplateService;
   private final FeeTemplateMapper feeTemplateMapper;
+  private final AdvancedFeeStatsService advancedFeeStatsService;
 
   @GetMapping("/fees/{fee_id}")
   public Fee getFeeById(@PathVariable(name = "fee_id") String id) {
@@ -139,9 +144,18 @@ public class FeeController {
 
   @GetMapping("/fees/advanced-stats")
   public AdvancedFeesStatistics getAdvancedFeesStats(
-      @RequestParam(name = "month_from", required = false) Instant monthFrom,
-      @RequestParam(name = "month_to", required = false) Instant monthTo) {
-    return feeService.getAdvancedFeeStats(monthFrom, monthTo);
+      @RequestParam(name = "month_from", required = false) LocalDate monthFrom,
+      @RequestParam(name = "month_to", required = false) LocalDate monthTo) {
+    return advancedFeeStatsService.getAdvancedFeeStats(monthFrom, monthTo);
+  }
+
+  @PostMapping("/fees/advanced-stats-generate")
+  public AdvancedFeeStatisticsGeneration generateAdvancedStats(
+      @RequestParam(name = "date_from") Instant dateFrom,
+      @RequestParam(name = "date_to") Instant dateTo) {
+    List<AdvancedFeeStats> stats =
+        advancedFeeStatsService.updateAdvancedFeeStats(Optional.of(dateFrom), Optional.of(dateTo));
+    return new AdvancedFeeStatisticsGeneration().data("Total stats generated: " + stats.size());
   }
 
   @PutMapping("/fees")

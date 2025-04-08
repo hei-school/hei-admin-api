@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -18,6 +19,7 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenE
 import static school.hei.haapi.integration.conf.TestUtils.awardedCourseExam1;
 import static school.hei.haapi.integration.conf.TestUtils.awardedCourseExam2;
 import static school.hei.haapi.integration.conf.TestUtils.awardedCourseExam4;
+import static school.hei.haapi.integration.conf.TestUtils.exam1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.studentGrade1;
@@ -39,16 +41,19 @@ import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.UserService;
 
 @Slf4j
 @Testcontainers
 @AutoConfigureMockMvc
 class GradeIT extends FacadeITMockedThirdParties {
   @Autowired UserRepository userRepository;
+  @Autowired UserService userService;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -59,7 +64,7 @@ class GradeIT extends FacadeITMockedThirdParties {
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
 
-    User student = userRepository.findByRef(student1().getRef());
+    User student = userService.findByRef(student1().getRef());
     student.setStatus(ENABLED);
     userRepository.save(student);
   }
@@ -69,13 +74,14 @@ class GradeIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<AwardedCourseExam> actualAwardedCourseExamGrades =
-        api.getStudentGrades(STUDENT1_ID, 1, 10);
+    List<String> actualAwardedCourseExamGradesId =
+        api.getStudentGrades(STUDENT1_ID, 1, 10).stream()
+            .map(AwardedCourseExam::getId)
+            .collect(toUnmodifiableList());
 
-    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam1()));
-
-    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam2()));
-    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam4()));
+    assertTrue(actualAwardedCourseExamGradesId.contains(awardedCourseExam1().getId()));
+    assertTrue(actualAwardedCourseExamGradesId.contains(awardedCourseExam2().getId()));
+    assertTrue(actualAwardedCourseExamGradesId.contains(awardedCourseExam4().getId()));
   }
 
   @Test
@@ -95,11 +101,14 @@ class GradeIT extends FacadeITMockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
 
-    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
+    List<String> actualIds =
+        api.getStudentGrades(STUDENT1_ID, 1, 10).stream()
+            .map(AwardedCourseExam::getId)
+            .collect(toUnmodifiableList());
 
-    assertTrue(actual.contains(awardedCourseExam1()));
-    assertTrue(actual.contains(awardedCourseExam2()));
-    assertTrue(actual.contains(awardedCourseExam4()));
+    assertTrue(actualIds.contains(awardedCourseExam1().getId()));
+    assertTrue(actualIds.contains(awardedCourseExam2().getId()));
+    assertTrue(actualIds.contains(awardedCourseExam4().getId()));
   }
 
   @Test
@@ -149,10 +158,27 @@ class GradeIT extends FacadeITMockedThirdParties {
 
     CrupdateGrade newGrade = new CrupdateGrade();
     newGrade.setScore(18.2);
-    Grade actualGrade = api.crupdateParticipantGrade(EXAM1_ID, STUDENT3_ID, newGrade);
+    Grade actualGrade = api.crupdateParticipantGrade(EXAM1_ID, STUDENT2_ID, newGrade);
 
     Assertions.assertNotNull(actualGrade.getId());
     assertEquals(36.4, actualGrade.getScore());
+  }
+
+  @Test
+  void manager_crupdate_multiple_grade_ok() throws ApiException {
+    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
+    TeachingApi api = new TeachingApi(managerClient);
+
+    UpdateGrade updateGrade =
+        new UpdateGrade().grade(new CrupdateGrade().score(18.2)).studentRef(student1().getRef());
+    List<StudentGrade> studentGrades =
+        api.updateParticipantsGradeForExam(EXAM1_ID, List.of(updateGrade));
+
+    assertEquals(1, studentGrades.size());
+    assertEquals(updateGrade.getStudentRef(), studentGrades.getFirst().getStudent().getRef());
+    assertEquals(
+        updateGrade.getGrade().getScore() * exam1().getCoefficient(),
+        studentGrades.getFirst().getGrade().getScore());
   }
 
   @Test
@@ -181,7 +207,7 @@ class GradeIT extends FacadeITMockedThirdParties {
 
     CrupdateGrade newGrade = new CrupdateGrade();
     newGrade.setScore(5.25);
-    Grade actualGrade = api.crupdateParticipantGrade(EXAM2_ID, STUDENT3_ID, newGrade);
+    Grade actualGrade = api.crupdateParticipantGrade(EXAM2_ID, STUDENT2_ID, newGrade);
 
     assertEquals(15.75, actualGrade.getScore());
   }

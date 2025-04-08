@@ -2,6 +2,8 @@ package school.hei.haapi.integration;
 
 import static java.time.LocalDateTime.now;
 import static java.time.ZoneOffset.UTC;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -42,6 +44,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -505,15 +508,15 @@ class FeeIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_get_advanced_fees_stats_ok() throws ApiException {
-    Instant fromInstant = Instant.parse("2021-12-01T00:00:00.00Z");
-    Instant toInstant = Instant.parse("2021-12-31T00:00:00.00Z");
+    LocalDate fromDate = LocalDate.parse("2021-12-01");
+    LocalDate toDate = LocalDate.parse("2021-12-31");
     AdvancedFeeStatsComputationTriggered event =
         new AdvancedFeeStatsComputationTriggered(
             LocalDateTime.ofInstant(Instant.parse("2021-12-13T00:00:00.00Z"), UTC), now());
     advancedFeeStatsComputationTriggeredService.accept(event);
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
-    AdvancedFeesStatistics advStats = api.getAdvancedFeesStats(fromInstant, toInstant);
+    AdvancedFeesStatistics advStats = api.getAdvancedFeesStats(fromDate, toDate);
 
     assertEquals(1, advStats.getTotalExpectedFeesCount().getFirstGrade());
     assertEquals(1, advStats.getTotalExpectedFeesCount().getWorkStudy());
@@ -586,5 +589,27 @@ class FeeIT extends FacadeITMockedThirdParties {
             Instant.parse("2022-12-08T08:25:24.00Z"));
 
     assertFalse(fees.isEmpty());
+  }
+
+  @Test
+  void manager_request_advanced_fee_stats_generation_ok() {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    PayingApi api = new PayingApi(manager1Client);
+
+    assertDoesNotThrow(
+        () -> {
+          Instant from = Instant.parse("2021-11-08T08:25:24.00Z");
+          Instant to = Instant.parse("2021-11-15T08:25:24.00Z");
+          api.generateAdvancedStats(from, to);
+        });
+  }
+
+  @Test
+  void student_request_advanced_fee_stats_generation_ko() {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    PayingApi api = new PayingApi(student1Client);
+
+    assertThrowsForbiddenException(
+        () -> api.generateAdvancedStats(now().toInstant(UTC).minus(7, DAYS), now().toInstant(UTC)));
   }
 }

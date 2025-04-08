@@ -10,6 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.time.LocalDate;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -19,6 +21,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "\"stats_advanced_fees\"")
@@ -41,17 +44,23 @@ public class AdvancedFeeStats {
   private long firstGradeCount;
   private long secondGradeCount;
   private long thirdGradeCount;
+  private long unknownGradeCount;
 
   private long remedialFeesCount;
   private long workStudyCount;
 
   private long monthlyCount;
   private long yearlyCount;
+  private long unknownFrequencyCount;
 
   private Long bankTransferCount;
   private Long mpbsCount;
 
   @CreationTimestamp private Instant creationDatetime;
+  @UpdateTimestamp private Instant updateDatetime;
+
+  @Setter(AccessLevel.NONE)
+  private LocalDate statDate;
 
   public enum AdvancedFeeStatsType {
     TOTAL_COUNT,
