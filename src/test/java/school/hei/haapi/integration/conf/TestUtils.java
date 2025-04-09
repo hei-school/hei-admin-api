@@ -1,5 +1,6 @@
 package school.hei.haapi.integration.conf;
 
+import static java.time.temporal.ChronoUnit.YEARS;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -44,6 +45,7 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.Exception;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -53,73 +55,41 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.time.ZoneId;
+import java.util.*;
+import java.util.concurrent.TimeUnit;
+
+import com.github.javafaker.Faker;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.Announcement;
-import school.hei.haapi.endpoint.rest.model.AnnouncementAuthor;
-import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
-import school.hei.haapi.endpoint.rest.model.AwardedCourse;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
-import school.hei.haapi.endpoint.rest.model.Comment;
-import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CreateAnnouncement;
-import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
-import school.hei.haapi.endpoint.rest.model.CreateComment;
-import school.hei.haapi.endpoint.rest.model.CreateEvent;
-import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.CrupdateExam;
-import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
-import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
-import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
-import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
-import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
-import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
-import school.hei.haapi.endpoint.rest.model.Event;
-import school.hei.haapi.endpoint.rest.model.EventParticipant;
-import school.hei.haapi.endpoint.rest.model.EventStats;
-import school.hei.haapi.endpoint.rest.model.EventType;
-import school.hei.haapi.endpoint.rest.model.ExamInfo;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.FeeFrequency;
-import school.hei.haapi.endpoint.rest.model.FeeTemplate;
-import school.hei.haapi.endpoint.rest.model.Grade;
-import school.hei.haapi.endpoint.rest.model.Group;
-import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
-import school.hei.haapi.endpoint.rest.model.Letter;
-import school.hei.haapi.endpoint.rest.model.LetterUser;
-import school.hei.haapi.endpoint.rest.model.Manager;
-import school.hei.haapi.endpoint.rest.model.Monitor;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.endpoint.rest.model.Observer;
-import school.hei.haapi.endpoint.rest.model.Promotion;
-import school.hei.haapi.endpoint.rest.model.Scope;
-import school.hei.haapi.endpoint.rest.model.Sex;
-import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
-import school.hei.haapi.endpoint.rest.model.Teacher;
-import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
-import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 
+@Component
 public class TestUtils {
+  private final Faker faker;
+
+  TestUtils() {
+    faker = new Faker();
+  }
 
   public static final String STAFF_MEMBER1_ID = "staff1_id";
   public static final String STUDENT1_ID = "student1_id";
@@ -262,12 +232,7 @@ public class TestUtils {
         .thenReturn("test+organizer+2@hei.school");
     when(cognitoComponent.getEmailByIdToken(SUSPENDED_TOKEN))
         .thenReturn("test+suspended@hei.school");
-    when(cognitoComponent.getEmailByIdToken(anyString())).thenAnswer(new Answer<String>() {
-      @Override
-      public String answer(InvocationOnMock invocation) throws Throwable {
-        return String.format("test+%s@hei.school", invocation.getArguments()[0]);
-      }
-    });
+    when(cognitoComponent.getEmailByIdToken(anyString())).thenAnswer((Answer<String>) invocation ->  (String) invocation.getArguments()[0]);
   }
 
   public static void setUpS3Service(FileService fileService, Student user) {
@@ -361,6 +326,14 @@ public class TestUtils {
         .totalAmount(5000)
         .comment("Comment")
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
+  }
+
+
+  public User createSomeUser(
+          User.Role role,
+          User.Status status
+  ) {
+    throw new NotImplementedException("This is not implemented");
   }
 
   public static CrupdateStudentFee updatableStudentFee() {
