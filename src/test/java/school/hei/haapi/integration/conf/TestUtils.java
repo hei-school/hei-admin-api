@@ -55,14 +55,15 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import com.github.javafaker.Faker;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
-import org.mockito.invocation.InvocationOnMock;
 import org.mockito.stubbing.Answer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
@@ -71,12 +72,52 @@ import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.Announcement;
+import school.hei.haapi.endpoint.rest.model.AnnouncementAuthor;
+import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
+import school.hei.haapi.endpoint.rest.model.AwardedCourse;
+import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.Comment;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
+import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CreateAnnouncement;
+import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
+import school.hei.haapi.endpoint.rest.model.CreateComment;
+import school.hei.haapi.endpoint.rest.model.CreateEvent;
+import school.hei.haapi.endpoint.rest.model.CreateFee;
+import school.hei.haapi.endpoint.rest.model.CrupdateExam;
+import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
+import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
+import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
+import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
+import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
+import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventParticipant;
+import school.hei.haapi.endpoint.rest.model.EventStats;
+import school.hei.haapi.endpoint.rest.model.EventType;
+import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.Fee;
+import school.hei.haapi.endpoint.rest.model.FeeFrequency;
+import school.hei.haapi.endpoint.rest.model.FeeTemplate;
+import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
+import school.hei.haapi.endpoint.rest.model.Letter;
+import school.hei.haapi.endpoint.rest.model.LetterUser;
+import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Observer;
+import school.hei.haapi.endpoint.rest.model.Promotion;
+import school.hei.haapi.endpoint.rest.model.Scope;
+import school.hei.haapi.endpoint.rest.model.Sex;
+import school.hei.haapi.endpoint.rest.model.Student;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.Teacher;
+import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
+import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -328,32 +369,31 @@ public class TestUtils {
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
 
-
   public User createSomeUser(
           User.Role role,
           User.Status status
   ) {
-    throw new NotImplementedException("This is not implemented");
+    return User.builder()
+            .firstName(faker.name().firstName())
+            .lastName(faker.name().lastName())
+            .email(faker.internet().emailAddress())
+            .phone(faker.phoneNumber().phoneNumber())
+            .latitude(faker.random().nextDouble())
+            .longitude(faker.random().nextDouble())
+            .address(faker.address().streetAddress())
+            .sex(Math.random() >= 0.3 ? User.Sex.M : User.Sex.F)
+            .status(status)
+            .role(role)
+            .ref(role + "-" + faker.number().randomNumber(5, true))
+            .nic(String.valueOf(faker.number().randomNumber(12, true)))
+            .build();
   }
 
-  public static CrupdateStudentFee updatableStudentFee() {
-    return new CrupdateStudentFee()
-        .id(FEE3_ID)
-        .studentId(STUDENT1_ID)
-        .type(TUITION)
-        .totalAmount(5000)
-        .category(UNKNOWN)
-        .frequency(FeeFrequency.UNKNOWN)
-        .comment("Updated comment")
-        .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
-        .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
-  }
-
-  public static Group createGroup() {
+  public Group createSomeGroup() {
     return new Group()
-        .name("Collaborative work like GWSP")
-        .ref("created")
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+        .name(faker.lorem().sentence(3))
+        .ref("GRP" + faker.number().randomNumber(5, true))
+        .creationDatetime(faker.date().past(4, TimeUnit.of(YEARS)).toInstant());
   }
 
   public static Course createCourse(String code) {
@@ -416,10 +456,10 @@ public class TestUtils {
     return teacherList;
   }
 
-  public static List<Group> someCreatableGroupList(int nbOfGroup) {
+  public List<Group> createSomeGroupList(int nbOfGroup) {
     List<Group> groupList = new ArrayList<>();
     for (int i = 0; i < nbOfGroup; i++) {
-      groupList.add(createGroup());
+      groupList.add(createSomeGroup());
     }
     return groupList;
   }
@@ -615,44 +655,6 @@ public class TestUtils {
         .birthPlace("")
         .address("Adr 5")
         .coordinates(coordinatesWithNullValues());
-  }
-
-  public static Monitor monitor1() {
-    return new Monitor()
-        .id(MONITOR1_ID)
-        .firstName("Monitor")
-        .lastName("One")
-        .email("test+monitor@hei.school")
-        .ref("MTR21001")
-        .phone("0322411123")
-        .status(ENABLED)
-        .sex(Sex.M)
-        .birthDate(LocalDate.parse("2000-01-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .nic("")
-        .birthPlace("")
-        .address("Adr 1")
-        .coordinates(new Coordinates().longitude(-123.123).latitude(123.0))
-        .highSchoolOrigin("Lycée Andohalo");
-  }
-
-  public static Monitor monitor2() {
-    return new Monitor()
-        .id(MONITOR2_ID)
-        .firstName("Monitor2")
-        .lastName("two")
-        .email("test+monitor2@hei.school")
-        .ref("MTR21002")
-        .phone("0322411123")
-        .status(ENABLED)
-        .sex(Sex.M)
-        .birthDate(LocalDate.parse("2000-02-02"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .nic("")
-        .birthPlace("")
-        .address("Adr 2")
-        .coordinates(new Coordinates().longitude(-123.123).latitude(123.0))
-        .highSchoolOrigin("Lycée Andohalo");
   }
 
   public static CrupdateMonitor monitor1Link(List<String> studentRefs) {
@@ -957,26 +959,6 @@ public class TestUtils {
 
   public static StudentGrade studentGrade1() {
     return new StudentGrade().grade(grade1()).student(student1());
-  }
-
-  public static StudentGrade studentGrade2() {
-    return new StudentGrade().grade(grade2());
-  }
-
-  public static StudentGrade studentGrade3() {
-    return new StudentGrade().grade(grade3());
-  }
-
-  public static StudentGrade studentGrade4() {
-    return new StudentGrade().grade(grade4());
-  }
-
-  public static StudentGrade studentGrade5() {
-    return new StudentGrade().grade(grade5());
-  }
-
-  public static StudentGrade studentGrade6() {
-    return new StudentGrade().grade(grade6());
   }
 
   public static StudentGrade studentGrade7() {
@@ -1366,7 +1348,7 @@ public class TestUtils {
   }
 
   public static EventParticipant createParticipant(
-      Student student, AttendanceStatus status, String id, String groupName) {
+          Student student, AttendanceStatus status, String id, String groupName) {
     return new EventParticipant()
         .id(id)
         .studentId(student.getId())
