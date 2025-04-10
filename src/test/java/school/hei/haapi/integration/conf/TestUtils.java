@@ -1,5 +1,6 @@
 package school.hei.haapi.integration.conf;
 
+import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.YEARS;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -41,11 +42,11 @@ import static school.hei.haapi.integration.StudentIT.student3;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
+import com.github.javafaker.Faker;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.Exception;
 import java.net.ServerSocket;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -60,8 +61,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
-
-import com.github.javafaker.Faker;
+import java.util.stream.IntStream;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
 import org.mockito.stubbing.Answer;
@@ -273,7 +273,8 @@ public class TestUtils {
         .thenReturn("test+organizer+2@hei.school");
     when(cognitoComponent.getEmailByIdToken(SUSPENDED_TOKEN))
         .thenReturn("test+suspended@hei.school");
-    when(cognitoComponent.getEmailByIdToken(anyString())).thenAnswer((Answer<String>) invocation ->  (String) invocation.getArguments()[0]);
+    when(cognitoComponent.getEmailByIdToken(anyString()))
+        .thenAnswer((Answer<String>) invocation -> (String) invocation.getArguments()[0]);
   }
 
   public static void setUpS3Service(FileService fileService, Student user) {
@@ -369,24 +370,28 @@ public class TestUtils {
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
 
-  public User createSomeUser(
-          User.Role role,
-          User.Status status
-  ) {
+  public User createSomeUser(User.Role role, User.Status status) {
+    var userBirthdate = faker.date().past(20, TimeUnit.of(YEARS));
     return User.builder()
-            .firstName(faker.name().firstName())
-            .lastName(faker.name().lastName())
-            .email(faker.internet().emailAddress())
-            .phone(faker.phoneNumber().phoneNumber())
-            .latitude(faker.random().nextDouble())
-            .longitude(faker.random().nextDouble())
-            .address(faker.address().streetAddress())
-            .sex(Math.random() >= 0.3 ? User.Sex.M : User.Sex.F)
-            .status(status)
-            .role(role)
-            .ref(role + "-" + faker.number().randomNumber(5, true))
-            .nic(String.valueOf(faker.number().randomNumber(12, true)))
-            .build();
+        .firstName(faker.name().firstName())
+        .lastName(faker.name().lastName())
+        .email(faker.internet().emailAddress())
+        .phone(faker.phoneNumber().phoneNumber())
+        .latitude(faker.random().nextDouble())
+        .longitude(faker.random().nextDouble())
+        .address(faker.address().streetAddress())
+        .sex(Math.random() >= 0.3 ? User.Sex.M : User.Sex.F)
+        .status(status)
+        .role(role)
+        .ref(role + "-" + faker.number().randomNumber(5, true))
+        .nic(String.valueOf(faker.number().randomNumber(12, true)))
+        .birthDate(userBirthdate.toInstant().atOffset(UTC).toLocalDate())
+        .entranceDatetime(faker.date().future(1, TimeUnit.of(YEARS)).toInstant())
+        .build();
+  }
+
+  public List<User> createSomeUsers(int count, User.Role role, User.Status status) {
+    return IntStream.of(count).mapToObj(i -> createSomeUser(role, status)).toList();
   }
 
   public Group createSomeGroup() {
@@ -1348,7 +1353,7 @@ public class TestUtils {
   }
 
   public static EventParticipant createParticipant(
-          Student student, AttendanceStatus status, String id, String groupName) {
+      Student student, AttendanceStatus status, String id, String groupName) {
     return new EventParticipant()
         .id(id)
         .studentId(student.getId())
