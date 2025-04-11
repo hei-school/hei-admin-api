@@ -48,7 +48,6 @@ class UserServiceTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  // TODO:
   void dao_can_handle_null_value_in_params() {
     List<User> students =
         subject.getByCriteria(

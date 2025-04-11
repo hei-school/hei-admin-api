@@ -5,7 +5,9 @@ import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTyp
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
+import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
+import static school.hei.haapi.integration.conf.utils.TestUtils.coordinatesWithNullValues;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -62,6 +64,30 @@ public class MockObjects {
     student.setProfessionalExperience(WORKER_STUDENT);
     student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24.00Z"));
     student.setGroups(List.of(TestUtils.group1()));
+    student.setIsRepeatingYear(false);
+    return student;
+  }
+
+  public static Student student3() {
+    Student student = new Student();
+    student.setId("student3_id");
+    student.setFirstName("Three");
+    student.setLastName("Student");
+    student.setEmail("test+student3@hei.school");
+    student.setRef("STD21003");
+    student.setPhone("0322411124");
+    student.setStatus(ENABLED);
+    student.setSex(F);
+    student.setBirthDate(LocalDate.parse("2000-01-02"));
+    student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
+    student.setAddress("Adr 2");
+    student.setBirthPlace("Befelatanana");
+    student.setNic("0000000000");
+    student.setSpecializationField(COMMON_CORE);
+    student.setCoordinates(coordinatesWithNullValues());
+    student.setHighSchoolOrigin("Lycée Analamahitsy");
+    student.setWorkStudyStatus(NOT_WORKING);
+    student.setGroups(List.of());
     student.setIsRepeatingYear(false);
     return student;
   }

@@ -14,7 +14,6 @@ import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.MONTHLY;
 import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.YEARLY;
-import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
@@ -24,6 +23,8 @@ import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.GroupIT.updatedGroup3;
 import static school.hei.haapi.integration.GroupIT.updatedGroup5;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
+import static school.hei.haapi.integration.conf.utils.MockObjects.student2;
+import static school.hei.haapi.integration.conf.utils.MockObjects.student3;
 import static school.hei.haapi.integration.conf.utils.TestUtils.EVENT1_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.GROUP1_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
@@ -41,7 +42,6 @@ import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsForb
 import static school.hei.haapi.integration.conf.utils.TestUtils.coordinatesWithNullValues;
 import static school.hei.haapi.integration.conf.utils.TestUtils.coordinatesWithValues;
 import static school.hei.haapi.integration.conf.utils.TestUtils.getMockedFile;
-import static school.hei.haapi.integration.conf.utils.TestUtils.group1;
 import static school.hei.haapi.integration.conf.utils.TestUtils.group3;
 import static school.hei.haapi.integration.conf.utils.TestUtils.requestFile;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
@@ -104,25 +104,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
     return TestUtils.anApiClient(token, localPort);
   }
 
-  public static CrupdateStudent createStudent1() {
-    CrupdateStudent student = new CrupdateStudent();
-    student.setId("student1_id");
-    student.setFirstName("Ryan");
-    student.setLastName("Andria");
-    student.setEmail("test+ryan@hei.school");
-    student.setRef("STD21001");
-    student.setPhone("0322411123");
-    student.setStatus(ENABLED);
-    student.setSex(M);
-    student.setBirthDate(LocalDate.parse("2000-01-01"));
-    student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    student.setAddress("Adr 1");
-    student.setNic("");
-    student.setBirthPlace("");
-    student.coordinates(coordinatesWithNullValues());
-    return student;
-  }
-
   public static CrupdateStudent someCreatableStudent() {
     CrupdateStudent student = new CrupdateStudent();
     Faker faker = new Faker();
@@ -153,32 +134,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
     return studentList;
   }
 
-  public static Student student2() {
-    Student student = new Student();
-    student.setId("student2_id");
-    student.setFirstName("Two");
-    student.setLastName("Student");
-    student.setEmail("test+student2@hei.school");
-    student.setRef("STD21002");
-    student.setPhone("0322411124");
-    student.setStatus(ENABLED);
-    student.setSex(F);
-    student.setBirthDate(LocalDate.parse("2000-01-02"));
-    student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
-    student.setAddress("Adr 2");
-    student.setBirthPlace("");
-    student.setNic("");
-    student.setSpecializationField(COMMON_CORE);
-    student.setCoordinates(new Coordinates().longitude(255.255).latitude(-255.255));
-    student.setHighSchoolOrigin("Lycée Andohalo");
-    student.setWorkStudyStatus(WORKING);
-    student.setProfessionalExperience(WORKER_STUDENT);
-    student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24.00Z"));
-    student.setGroups(List.of(group1()));
-    student.setIsRepeatingYear(false);
-    return student;
-  }
-
   public static CrupdateStudent createStudent2() {
     CrupdateStudent student = new CrupdateStudent();
     student.setId("student2_id");
@@ -199,31 +154,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
     return student;
   }
 
-  public static Student student3() {
-    Student student = new Student();
-    student.setId("student3_id");
-    student.setFirstName("Three");
-    student.setLastName("Student");
-    student.setEmail("test+student3@hei.school");
-    student.setRef("STD21003");
-    student.setPhone("0322411124");
-    student.setStatus(ENABLED);
-    student.setSex(F);
-    student.setBirthDate(LocalDate.parse("2000-01-02"));
-    student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
-    student.setAddress("Adr 2");
-    student.setBirthPlace("Befelatanana");
-    student.setNic("0000000000");
-    student.setSpecializationField(COMMON_CORE);
-    student.setCoordinates(coordinatesWithNullValues());
-    student.setHighSchoolOrigin("Lycée Analamahitsy");
-    student.setWorkStudyStatus(NOT_WORKING);
-    student.setGroups(List.of());
-    student.setIsRepeatingYear(false);
-    return student;
-  }
-
-  public static Student disabledStudent1() {
+  static Student disabledStudent1() {
     return new Student()
         .id("student4_id")
         .firstName("Disable")
@@ -245,7 +176,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
         .isRepeatingYear(false);
   }
 
-  public static CrupdateStudent creatableSuspendedStudent() {
+  static CrupdateStudent creatableSuspendedStudent() {
     return new CrupdateStudent()
         .firstName("Suspended")
         .lastName("Two")
@@ -260,7 +191,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
         .coordinates(coordinatesWithNullValues());
   }
 
-  public static Student suspendedStudent1() {
+  static Student suspendedStudent1() {
     return new Student()
         .id("student6_id")
         .firstName("Suspended")
@@ -282,7 +213,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
         .isRepeatingYear(false);
   }
 
-  public static Student repeatingStudent1() {
+  static Student repeatingStudent1() {
     Group copyGroup3 = new Group();
     copyGroup3.setId(group3().getId());
     copyGroup3.setRef(group3().getRef());
@@ -310,7 +241,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
         .isRepeatingYear(Boolean.TRUE);
   }
 
-  public static Student repeatingStudent2() {
+  static Student repeatingStudent2() {
     return new Student()
         .id("student8_id")
         .firstName("Repeating")
@@ -450,7 +381,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO")
   void student_read_own_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
@@ -639,7 +569,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("")
   void manager_read_by_last_name_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);

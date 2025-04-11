@@ -19,9 +19,6 @@ import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.RECEIVED;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.AIRTEL_MONEY;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
 import static school.hei.haapi.endpoint.rest.model.Scope.GLOBAL;
@@ -30,7 +27,7 @@ import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnu
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.REMOVE;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
-import static school.hei.haapi.integration.StudentIT.student3;
+import static school.hei.haapi.integration.conf.utils.MockObjects.student3;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
@@ -106,7 +103,6 @@ import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.service.aws.FileService;
-import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -219,14 +215,6 @@ public class TestUtils {
       client.setRequestInterceptor(
           httpRequestBuilder -> httpRequestBuilder.header("Authorization", "Bearer " + token));
     return client;
-  }
-
-  public static void setUpMobilePaymentApi(MobileMoneyApiFacade mobilePaymentApi) {
-    when(mobilePaymentApi.getByTransactionRef(MVOLA, "psp2_id")).thenReturn(psp2Verification());
-    when(mobilePaymentApi.getByTransactionRef(ORANGE_MONEY, "psp2_id"))
-        .thenThrow(school.hei.haapi.model.exception.ApiException.class);
-    when(mobilePaymentApi.getByTransactionRef(AIRTEL_MONEY, "psp2_id"))
-        .thenThrow(school.hei.haapi.model.exception.ApiException.class);
   }
 
   public static void setUpCognito(CognitoComponent cognitoComponent) {

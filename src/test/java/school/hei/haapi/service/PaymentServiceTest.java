@@ -19,7 +19,6 @@ import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
 import static school.hei.haapi.model.User.Sex.F;
-import static school.hei.haapi.model.User.Sex.M;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -131,21 +130,6 @@ class PaymentServiceTest extends MockedThirdParties {
     assertEquals(User.Status.ENABLED, userPaidAllLateFees.getStatus());
   }
 
-  public static Fee student1UnpaidFee1() {
-    Fee associatedFee = new Fee();
-    associatedFee.setId("fee3_id");
-    associatedFee.setStudent(student1());
-    associatedFee.setType(TUITION);
-    associatedFee.setComment("Comment");
-    associatedFee.setRemainingAmount(5000);
-    associatedFee.setTotalAmount(5000);
-    associatedFee.setStatus(LATE);
-    associatedFee.setCreationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
-    associatedFee.setDueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"));
-    associatedFee.setUpdatedAt(Instant.parse("2021-12-09T08:25:24.00Z"));
-    return associatedFee;
-  }
-
   public static Fee student2UnpaidFee1() {
     Fee associatedFee = new Fee();
     associatedFee.setId("fee4_id");
@@ -174,22 +158,6 @@ class PaymentServiceTest extends MockedThirdParties {
     associatedFee.setDueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"));
     associatedFee.setUpdatedAt(Instant.parse("2021-12-08T08:25:25.00Z"));
     return associatedFee;
-  }
-
-  public static User student1() {
-    User student1 = new User();
-    student1.setId("student1_id");
-    student1.setFirstName("Ryan");
-    student1.setLastName("Andria");
-    student1.setEmail("test+ryan@hei.school");
-    student1.setRef("STD21001");
-    student1.setStatus(User.Status.ENABLED);
-    student1.setSex(M);
-    student1.setBirthDate(LocalDate.parse("2000-01-01"));
-    student1.setEntranceDatetime(Instant.now());
-    student1.setPhone("0123456789");
-    student1.setAddress("Example Address");
-    return student1;
   }
 
   public static User student2() {
