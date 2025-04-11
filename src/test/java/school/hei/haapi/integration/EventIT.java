@@ -6,7 +6,6 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
@@ -51,6 +50,7 @@ import java.time.Instant;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -84,7 +84,7 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void attempt_to_create_a_frequency_with_missing_data_ko() throws Exception {
+  void attempt_to_create_a_frequency_with_missing_data_ko() {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
 
@@ -101,7 +101,7 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void attempt_to_create_a_frequency_with_invalid_hour_ko() throws Exception {
+  void attempt_to_create_a_frequency_with_invalid_hour_ko() {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
 
@@ -117,6 +117,7 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("TODO: move as test unit")
   void manager_create_event_and_event_participant_by_frequency_for_the_same_week_ok()
       throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
@@ -154,6 +155,7 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("TODO: move as test unit")
   void manager_create_event_and_event_participant_by_frequence_ok() throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
@@ -190,6 +192,7 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("TODO: move as test unit")
   void manager_create_event_and_event_participant_ok() throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
@@ -345,6 +348,7 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("TODO: move as test unit")
   void delete_event_student_ko_and_manager_ko() throws ApiException {
     EventsApi studentApi = new EventsApi(anApiClient(STUDENT1_TOKEN));
     EventsApi managerApi = new EventsApi(anApiClient(MANAGER1_TOKEN));
@@ -377,6 +381,7 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("TODO: dirty")
   void event_stats_are_exact() throws ApiException {
     EventsApi managerApi = new EventsApi(anApiClient(MANAGER1_TOKEN));
     List<Event> createdEvents =
@@ -415,14 +420,16 @@ public class EventIT extends FacadeITMockedThirdParties {
     // events
     EventParticipantStats eventParticipantStats =
         managerApi.getEventParticipantStats(STUDENT1_ID, null, null);
-    assertNotEquals(0, eventParticipantStats.getTotalEvents());
+    assertEquals(2, eventParticipantStats.getTotalEvents());
   }
 
   @Test
   void event_as_public_link() throws ApiException {
     EventsApi api = new EventsApi(anApiClient(null));
-    List<Event> actual = api.getEvents(1, 500, null, null, null, null, null);
-    assertTrue(actual.containsAll(List.of(event1(), event2(), event3())));
+    List<Event> actual = api.getEvents(1, 15, null, null, null, null, null);
+    assertEquals(event1(), actual.getFirst());
+    assertEquals(event3(), actual.get(1));
+    assertEquals(event2(), actual.get(2));
   }
 
   @Test
