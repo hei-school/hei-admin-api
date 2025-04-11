@@ -315,13 +315,12 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO: move as test unit")
-  void delete_event_student_ko_and_manager_ko() throws ApiException {
+  void delete_event_student_ko_and_manager_ok() throws ApiException {
     EventsApi studentApi = new EventsApi(anApiClient(STUDENT1_TOKEN));
     EventsApi managerApi = new EventsApi(anApiClient(MANAGER1_TOKEN));
     List<Event> events =
         managerApi.crupdateEvents(
-            List.of(someCreatableEventByManager1(INTEGRATION)), MONDAY, 1, "09:00", "12:00");
+            List.of(someCreatableEventByManager1(INTEGRATION)), null, null, null, null);
 
     assertThrowsForbiddenException(() -> studentApi.deleteEventById(events.getFirst().getId()));
 
