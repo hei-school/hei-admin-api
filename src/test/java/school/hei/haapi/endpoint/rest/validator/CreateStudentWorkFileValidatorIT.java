@@ -4,10 +4,10 @@ import static org.junit.Assert.assertThrows;
 import static org.junit.Assert.assertTrue;
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
+import static school.hei.haapi.integration.conf.utils.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
 
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;
@@ -20,7 +20,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.utils.TestUtils;
 import school.hei.haapi.model.exception.ApiException;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)

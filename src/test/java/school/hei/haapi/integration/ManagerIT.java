@@ -2,15 +2,15 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithValues;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
+import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.utils.TestUtils.coordinatesWithValues;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.utils.TestUtils.uploadProfilePicture;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import java.io.IOException;
@@ -33,7 +33,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateManager;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.utils.TestUtils;
 
 @Testcontainers
 @AutoConfigureMockMvc

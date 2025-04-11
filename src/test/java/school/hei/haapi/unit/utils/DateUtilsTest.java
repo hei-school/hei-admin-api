@@ -2,8 +2,8 @@ package school.hei.haapi.unit.utils;
 
 import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpEventBridge;
 
 import java.time.LocalDate;
 import java.time.ZoneOffset;

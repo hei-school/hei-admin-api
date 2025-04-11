@@ -1,10 +1,10 @@
 package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
 
 import java.time.Instant;
 import org.junit.jupiter.api.BeforeEach;

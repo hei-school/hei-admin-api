@@ -2,8 +2,8 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
+import static school.hei.haapi.integration.conf.utils.TestUtils.*;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +15,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourse;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.utils.TestUtils;
 
 @Testcontainers
 @AutoConfigureMockMvc

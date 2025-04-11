@@ -2,20 +2,20 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.course1;
-import static school.hei.haapi.integration.conf.TestUtils.course2;
-import static school.hei.haapi.integration.conf.TestUtils.course3;
-import static school.hei.haapi.integration.conf.TestUtils.createCourse;
-import static school.hei.haapi.integration.conf.TestUtils.isBefore;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.someCreatableCourseList;
+import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
+import static school.hei.haapi.integration.conf.utils.TestUtils.COURSE1_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.utils.TestUtils.course1;
+import static school.hei.haapi.integration.conf.utils.TestUtils.course2;
+import static school.hei.haapi.integration.conf.utils.TestUtils.course3;
+import static school.hei.haapi.integration.conf.utils.TestUtils.createCourse;
+import static school.hei.haapi.integration.conf.utils.TestUtils.isBefore;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.utils.TestUtils.someCreatableCourseList;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -29,7 +29,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseDirection;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.utils.TestUtils;
 
 @Testcontainers
 @AutoConfigureMockMvc

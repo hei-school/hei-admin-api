@@ -2,19 +2,19 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.FEE_TEMPLATE1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE_TEMPLATE1_NAME;
-import static school.hei.haapi.integration.conf.TestUtils.FEE_TEMPLATE2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.createFeeTemplate2;
-import static school.hei.haapi.integration.conf.TestUtils.feeTemplate1;
-import static school.hei.haapi.integration.conf.TestUtils.feeTemplate2;
-import static school.hei.haapi.integration.conf.TestUtils.feeTemplate3;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.updateFeeTemplate1;
+import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
+import static school.hei.haapi.integration.conf.utils.TestUtils.FEE_TEMPLATE1_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.FEE_TEMPLATE1_NAME;
+import static school.hei.haapi.integration.conf.utils.TestUtils.FEE_TEMPLATE2_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.createFeeTemplate2;
+import static school.hei.haapi.integration.conf.utils.TestUtils.feeTemplate1;
+import static school.hei.haapi.integration.conf.utils.TestUtils.feeTemplate2;
+import static school.hei.haapi.integration.conf.utils.TestUtils.feeTemplate3;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.utils.TestUtils.updateFeeTemplate1;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -26,7 +26,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.utils.TestUtils;
 
 @Testcontainers
 @AutoConfigureMockMvc

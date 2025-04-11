@@ -9,15 +9,15 @@ import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdWithStudent1;
 import static school.hei.haapi.integration.StudentIT.someCreatableStudent;
-import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.anAvailableRandomPort;
-import static school.hei.haapi.integration.conf.TestUtils.creatableFee1;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.utils.TestUtils.FEE3_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.FEE6_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.anAvailableRandomPort;
+import static school.hei.haapi.integration.conf.utils.TestUtils.creatableFee1;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
 import static school.hei.haapi.model.User.Sex.F;
 import static school.hei.haapi.model.User.Sex.M;
 
@@ -41,7 +41,8 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.utils.MockObjects;
+import school.hei.haapi.integration.conf.utils.TestUtils;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -62,7 +63,7 @@ class PaymentServiceTest extends MockedThirdParties {
   @BeforeEach
   void setUp() {
     setUpCognito(cognitoComponentMock);
-    setUpS3Service(fileService, TestUtils.student1());
+    setUpS3Service(fileService, MockObjects.student1());
     setUpEventBridge(eventBridgeClientMock);
   }
 

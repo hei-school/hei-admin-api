@@ -14,7 +14,7 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.utils.TestUtils;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;

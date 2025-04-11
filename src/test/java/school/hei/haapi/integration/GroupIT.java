@@ -5,20 +5,20 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.BAD_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.group3;
-import static school.hei.haapi.integration.conf.TestUtils.group5;
-import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
+import static school.hei.haapi.integration.conf.utils.TestUtils.BAD_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.GROUP1_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT2_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.utils.TestUtils.group3;
+import static school.hei.haapi.integration.conf.utils.TestUtils.group5;
+import static school.hei.haapi.integration.conf.utils.TestUtils.isValidUUID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -34,7 +34,7 @@ import school.hei.haapi.endpoint.rest.model.CreateGroup;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.utils.TestUtils;
 
 @Testcontainers
 @AutoConfigureMockMvc

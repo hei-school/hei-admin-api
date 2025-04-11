@@ -11,7 +11,7 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
-import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.FEE1_ID;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
@@ -21,7 +21,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.utils.TestUtils;
 import school.hei.haapi.model.*;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;

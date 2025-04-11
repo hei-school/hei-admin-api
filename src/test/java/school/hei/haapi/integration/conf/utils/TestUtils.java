@@ -1,4 +1,4 @@
-package school.hei.haapi.integration.conf;
+package school.hei.haapi.integration.conf.utils;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -24,15 +24,10 @@ import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
-import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
 import static school.hei.haapi.endpoint.rest.model.Scope.GLOBAL;
 import static school.hei.haapi.endpoint.rest.model.Scope.STUDENT;
-import static school.hei.haapi.endpoint.rest.model.Sex.F;
-import static school.hei.haapi.endpoint.rest.model.Sex.M;
-import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.ADD;
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.REMOVE;
-import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
 import static school.hei.haapi.integration.StudentIT.student3;
@@ -512,58 +507,6 @@ public class TestUtils {
         .size(0);
   }
 
-  public static Student student1() {
-    Student student = new Student();
-    student.setId("student1_id");
-    student.setFirstName("Ryan");
-    student.setLastName("Andria");
-    student.setEmail("test+ryan@hei.school");
-    student.setRef("STD21001");
-    student.setPhone("0322411123");
-    student.setStatus(ENABLED);
-    student.setSex(M);
-    student.setBirthDate(LocalDate.parse("2000-01-01"));
-    student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    student.setAddress("Adr 1");
-    student.setNic("");
-    student.setSpecializationField(COMMON_CORE);
-    student.setBirthPlace("");
-    student.setCoordinates(new Coordinates().longitude(-123.123).latitude(123.0));
-    student.setHighSchoolOrigin("Lycée Andohalo");
-    student.setWorkStudyStatus(WORKING);
-    student.setProfessionalExperience(WORKER_STUDENT);
-    student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24Z"));
-    student.setGroups(List.of(group1(), group2()));
-    student.setIsRepeatingYear(false);
-    return student;
-  }
-
-  public static Student student2() {
-    Student student = new Student();
-    student.setId("student2_id");
-    student.setFirstName("Two");
-    student.setLastName("Student");
-    student.setEmail("test+student2@hei.school");
-    student.setRef("STD21002");
-    student.setPhone("0322411124");
-    student.setStatus(ENABLED);
-    student.setSex(F);
-    student.setBirthDate(LocalDate.parse("2000-01-02"));
-    student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
-    student.setAddress("Adr 2");
-    student.setBirthPlace("");
-    student.setNic("");
-    student.setSpecializationField(COMMON_CORE);
-    student.setCoordinates(new Coordinates().longitude(255.255).latitude(-255.255));
-    student.setHighSchoolOrigin("Lycée Andohalo");
-    student.setWorkStudyStatus(WORKING);
-    student.setProfessionalExperience(WORKER_STUDENT);
-    student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24.00Z"));
-    student.setGroups(List.of(group1()));
-    student.setIsRepeatingYear(false);
-    return student;
-  }
-
   public static Teacher teacher1() {
     return new Teacher()
         .id("teacher1_id")
@@ -954,27 +897,27 @@ public class TestUtils {
   }
 
   public static StudentGrade studentExamGrade1() {
-    return new StudentGrade().grade(grade1()).student(student1());
+    return new StudentGrade().grade(grade1()).student(MockObjects.student1());
   }
 
   public static StudentGrade studentExamGrade2() {
-    return new StudentGrade().grade(grade2()).student(student1());
+    return new StudentGrade().grade(grade2()).student(MockObjects.student1());
   }
 
   public static StudentGrade studentExamGrade3() {
-    return new StudentGrade().grade(grade3()).student(student1());
+    return new StudentGrade().grade(grade3()).student(MockObjects.student1());
   }
 
   public static StudentGrade studentExamGrade4() {
-    return new StudentGrade().grade(grade4()).student(student1());
+    return new StudentGrade().grade(grade4()).student(MockObjects.student1());
   }
 
   public static StudentGrade studentExamGrade5() {
-    return new StudentGrade().grade(grade5()).student(student1());
+    return new StudentGrade().grade(grade5()).student(MockObjects.student1());
   }
 
   public static StudentGrade studentGrade1() {
-    return new StudentGrade().grade(grade1()).student(student1());
+    return new StudentGrade().grade(grade1()).student(MockObjects.student1());
   }
 
   public static StudentGrade studentGrade2() {
@@ -1232,7 +1175,7 @@ public class TestUtils {
     return new Comment()
         .id("comment1_id")
         .content("Good student")
-        .subject(student1())
+        .subject(MockObjects.student1())
         .observer(observerTeacher1())
         .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
   }
@@ -1241,7 +1184,7 @@ public class TestUtils {
     return new Comment()
         .id("comment2_id")
         .content("Disruptive student")
-        .subject(student1())
+        .subject(MockObjects.student1())
         .observer(observerManager1())
         .creationDatetime(Instant.parse("2021-11-09T09:26:24.00Z"));
   }
@@ -1250,7 +1193,7 @@ public class TestUtils {
     return new Comment()
         .id("comment3_id")
         .content("Nothing to say here")
-        .subject(student2())
+        .subject(MockObjects.student2())
         .observer(observerTeacher1())
         .creationDatetime(Instant.parse("2021-11-09T10:26:24.00Z"));
   }
@@ -1272,7 +1215,7 @@ public class TestUtils {
         .id("comment4_id")
         .content("Comment about student 1")
         .observer(observerManager1())
-        .subject(student1());
+        .subject(MockObjects.student1());
   }
 
   public static Comment commentCreatedByTeacher() {
@@ -1403,7 +1346,7 @@ public class TestUtils {
   }
 
   public static EventParticipant student1MissEvent1() {
-    return createParticipant(student1(), MISSING, "event_participant1_id", "GRP21001");
+    return createParticipant(MockObjects.student1(), MISSING, "event_participant1_id", "GRP21001");
   }
 
   public static EventParticipant student3AttendEvent1() {
@@ -1411,11 +1354,11 @@ public class TestUtils {
   }
 
   public static EventParticipant student1AttendEvent2() {
-    return createParticipant(student1(), PRESENT, "event_participant3_id", "GRP21001");
+    return createParticipant(MockObjects.student1(), PRESENT, "event_participant3_id", "GRP21001");
   }
 
   public static EventParticipant student2AttendEvent2() {
-    return createParticipant(student2(), PRESENT, "event_participant4_id", "GRP21002");
+    return createParticipant(MockObjects.student2(), PRESENT, "event_participant4_id", "GRP21002");
   }
 
   public static EventParticipant student3MissEvent2() {
@@ -1656,7 +1599,7 @@ public class TestUtils {
     return new Letter()
         .id(LETTER1_ID)
         .ref(LETTER1_REF)
-        .user(toLetterStudent(student1()))
+        .user(toLetterStudent(MockObjects.student1()))
         .status(RECEIVED)
         .approvalDatetime(Instant.parse("2021-12-08T08:25:24.00Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
@@ -1668,7 +1611,7 @@ public class TestUtils {
     return new Letter()
         .id(LETTER2_ID)
         .ref(LETTER2_REF)
-        .user(toLetterStudent(student1()))
+        .user(toLetterStudent(MockObjects.student1()))
         .status(PENDING)
         .approvalDatetime(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
@@ -1680,7 +1623,7 @@ public class TestUtils {
     return new Letter()
         .id(LETTER3_ID)
         .ref(LETTER3_REF)
-        .user(toLetterStudent(student2()))
+        .user(toLetterStudent(MockObjects.student2()))
         .status(PENDING)
         .approvalDatetime(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))

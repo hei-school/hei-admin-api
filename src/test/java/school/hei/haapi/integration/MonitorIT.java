@@ -4,16 +4,16 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithValues;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.MONITOR1_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.MONITOR1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.utils.TestUtils.coordinatesWithNullValues;
+import static school.hei.haapi.integration.conf.utils.TestUtils.coordinatesWithValues;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpEventBridge;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -31,7 +31,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
 import school.hei.haapi.endpoint.rest.model.Monitor;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.utils.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers

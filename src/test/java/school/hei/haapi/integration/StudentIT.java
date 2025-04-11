@@ -19,44 +19,41 @@ import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
-import static school.hei.haapi.endpoint.rest.model.SpecializationField.TN;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.GroupIT.updatedGroup3;
 import static school.hei.haapi.integration.GroupIT.updatedGroup5;
-import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.MONITOR1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.PROMOTION1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT8_ID;
-import static school.hei.haapi.integration.conf.TestUtils.STUDENT8_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
-import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithValues;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
-import static school.hei.haapi.integration.conf.TestUtils.group1;
-import static school.hei.haapi.integration.conf.TestUtils.group2;
-import static school.hei.haapi.integration.conf.TestUtils.group3;
-import static school.hei.haapi.integration.conf.TestUtils.requestFile;
-import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
+import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
+import static school.hei.haapi.integration.conf.utils.TestUtils.EVENT1_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.GROUP1_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.MONITOR1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.PROMOTION1_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT2_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT3_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT8_ID;
+import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT8_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.utils.TestUtils.coordinatesWithNullValues;
+import static school.hei.haapi.integration.conf.utils.TestUtils.coordinatesWithValues;
+import static school.hei.haapi.integration.conf.utils.TestUtils.getMockedFile;
+import static school.hei.haapi.integration.conf.utils.TestUtils.group1;
+import static school.hei.haapi.integration.conf.utils.TestUtils.group3;
+import static school.hei.haapi.integration.conf.utils.TestUtils.requestFile;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpEventBridge;
+import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.utils.TestUtils.uploadProfilePicture;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.javafaker.Faker;
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URL;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -88,7 +85,7 @@ import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Statistics;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.utils.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequestEntry;
@@ -105,11 +102,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
-  }
-
-  File getFileFromResource(String resourceName) {
-    URL resource = this.getClass().getClassLoader().getResource(resourceName);
-    return new File(resource.getFile());
   }
 
   public static CrupdateStudent createStudent1() {
@@ -129,16 +121,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
     student.setBirthPlace("");
     student.coordinates(coordinatesWithNullValues());
     return student;
-  }
-
-  public static CrupdateStudent someUpdatableStudent() {
-    return createStudent1()
-        .address("Adr 999")
-        .sex(F)
-        .lastName("Other last")
-        .firstName("Other first")
-        .specializationField(TN)
-        .birthDate(LocalDate.parse("2000-01-03"));
   }
 
   public static CrupdateStudent someCreatableStudent() {
@@ -169,32 +151,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
       studentList.add(someCreatableStudent());
     }
     return studentList;
-  }
-
-  public static Student student1() {
-    Student student = new Student();
-    student.setId("student1_id");
-    student.setFirstName("Ryan");
-    student.setLastName("Andria");
-    student.setEmail("test+ryan@hei.school");
-    student.setRef("STD21001");
-    student.setPhone("0322411123");
-    student.setStatus(ENABLED);
-    student.setSex(M);
-    student.setBirthDate(LocalDate.parse("2000-01-01"));
-    student.setEntranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    student.setAddress("Adr 1");
-    student.setNic("");
-    student.setSpecializationField(COMMON_CORE);
-    student.setBirthPlace("");
-    student.setCoordinates(new Coordinates().longitude(-123.123).latitude(123.0));
-    student.setHighSchoolOrigin("Lycée Andohalo");
-    student.setWorkStudyStatus(WORKING);
-    student.setProfessionalExperience(WORKER_STUDENT);
-    student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24Z"));
-    student.setGroups(List.of(group1(), group2()));
-    student.setIsRepeatingYear(false);
-    return student;
   }
 
   public static Student student2() {
