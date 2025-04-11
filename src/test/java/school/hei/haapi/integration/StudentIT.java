@@ -402,7 +402,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
     Student actual = api.getStudentById(STUDENT8_ID);
 
     assertEquals(repeatingStudent2(), actual);
-    assertEquals(Boolean.TRUE, actual.getIsRepeatingYear());
+    assertEquals(true, actual.getIsRepeatingYear());
   }
 
   @Test

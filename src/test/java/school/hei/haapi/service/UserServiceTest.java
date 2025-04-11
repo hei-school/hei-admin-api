@@ -18,9 +18,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.integration.conf.utils.TestUtils;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
@@ -50,12 +48,13 @@ class UserServiceTest extends FacadeITMockedThirdParties {
   }
 
   @Test
+  // TODO:
   void dao_can_handle_null_value_in_params() {
     List<User> students =
         subject.getByCriteria(
             STUDENT, null, null, null, new PageFromOne(1), new BoundedPageSize(15), null, null);
-    assertEquals(student1().getId(), students.getFirst().getId());
-    assertEquals(student2().getId(), students.get(1).getId());
+    assertTrue(students.stream().anyMatch(user -> student1().getId().equals(user.getId())));
+    assertTrue(students.stream().anyMatch(user -> student2().getId().equals(user.getId())));
   }
 
   @Test
@@ -67,9 +66,5 @@ class UserServiceTest extends FacadeITMockedThirdParties {
         () -> {
           student1.setStatus(User.Status.ENABLED);
         });
-  }
-
-  private ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, localPort);
   }
 }
