@@ -164,7 +164,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
     return student;
   }
 
-  static List<CrupdateStudent> someCreatableStudentList(int nbOfStudent) {
+  public static List<CrupdateStudent> someCreatableStudentList(int nbOfStudent) {
     List<CrupdateStudent> studentList = new ArrayList<>();
     for (int i = 0; i < nbOfStudent; i++) {
       studentList.add(someCreatableStudent());

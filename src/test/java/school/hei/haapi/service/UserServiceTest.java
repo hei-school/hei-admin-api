@@ -51,7 +51,7 @@ class UserServiceTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("Affected by other tests, should be re-enabled after tests refactoring")
+  @Disabled("Todo: Affected by other tests, should be re-enabled after tests refactoring")
   void dao_can_handle_null_value_in_params() {
     List<User> students =
         subject.getByCriteria(

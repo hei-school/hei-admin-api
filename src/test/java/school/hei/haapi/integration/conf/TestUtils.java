@@ -1600,6 +1600,15 @@ public class TestUtils {
 
   public static CreateEvent someCreatableEvent(
       EventType eventType, String planerId, Instant beginDatetime, Instant endDatetime) {
+    return someCreatableEvent(eventType, planerId, beginDatetime, endDatetime, List.of(group1()));
+  }
+
+  public static CreateEvent someCreatableEvent(
+      EventType eventType,
+      String planerId,
+      Instant beginDatetime,
+      Instant endDatetime,
+      List<Group> groups) {
     return new CreateEvent()
         .id("event" + randomUUID() + "_id")
         .courseId(COURSE1_ID)
@@ -1608,7 +1617,7 @@ public class TestUtils {
         .description("Another event")
         .eventType(eventType)
         .plannerId(planerId)
-        .groups(List.of(createGroupIdentifier(group1())));
+        .groups(groups.stream().map(TestUtils::createGroupIdentifier).toList());
   }
 
   public static CreateFee createFeeForTest() {

@@ -192,39 +192,6 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO: move as test unit")
-  void manager_create_event_and_event_participant_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    EventsApi api = new EventsApi(apiClient);
-
-    List<Event> actual =
-        api.crupdateEvents(
-            List.of(createEventCourse1(), createIntegrationEvent()), null, null, null, null);
-    Event event = actual.getFirst();
-    assertEquals(expectedCourseEventCreated().getType(), event.getType());
-    assertEquals(expectedCourseEventCreated().getEndDatetime(), event.getEndDatetime());
-    assertEquals(expectedCourseEventCreated().getBeginDatetime(), event.getBeginDatetime());
-    assertEquals(expectedCourseEventCreated().getDescription(), event.getDescription());
-
-    Event event2 = actual.getLast();
-    assertEquals(expectedIntegrationEventCreated().getType(), event2.getType());
-    assertEquals(expectedIntegrationEventCreated().getEndDatetime(), event2.getEndDatetime());
-    assertEquals(expectedIntegrationEventCreated().getBeginDatetime(), event2.getBeginDatetime());
-    assertEquals(expectedIntegrationEventCreated().getDescription(), event2.getDescription());
-
-    List<EventParticipant> actualEventParticipant0 =
-        api.getEventParticipants(event2.getId(), 1, 15, null, null, null, null);
-    assertEquals(3, actualEventParticipant0.size());
-
-    // Assert that participant is not duplicated
-    api.crupdateEvents(
-        List.of(createEventCourse1(), createIntegrationEvent()), null, null, null, null);
-    List<EventParticipant> actualEventParticipant1 =
-        api.getEventParticipants(event2.getId(), 1, 15, null, null, null, null);
-    assertEquals(3, actualEventParticipant1.size());
-  }
-
-  @Test
   void manager_read_event_ok() throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     EventsApi api = new EventsApi(apiClient);
