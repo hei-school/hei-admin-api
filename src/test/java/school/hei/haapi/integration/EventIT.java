@@ -42,7 +42,6 @@ import java.time.Instant;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -230,17 +229,18 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO: create dirty data")
-  void delete_event_student_ko_and_manager_ok() throws ApiException {
-    EventsApi studentApi = new EventsApi(anApiClient(STUDENT1_TOKEN));
-    EventsApi managerApi = new EventsApi(anApiClient(MANAGER1_TOKEN));
+  void student_delete_event_ko() {
+    EventsApi api = new EventsApi(anApiClient(STUDENT1_TOKEN));
+    assertThrowsForbiddenException(() -> api.deleteEventById(EVENT1_ID));
+  }
+
+  @Test
+  void manager_delete_event_ok() throws ApiException {
+    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
     List<Event> events =
-        managerApi.crupdateEvents(
+        api.crupdateEvents(
             List.of(someCreatableEventByManager1(INTEGRATION)), null, null, null, null);
-
-    assertThrowsForbiddenException(() -> studentApi.deleteEventById(events.getFirst().getId()));
-
-    Event deletedEvent = managerApi.deleteEventById(events.getFirst().getId());
+    Event deletedEvent = api.deleteEventById(events.getFirst().getId());
     assertEquals(events.getFirst().getId(), deletedEvent.getId());
   }
 
