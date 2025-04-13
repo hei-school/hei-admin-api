@@ -19,8 +19,11 @@ public class InstantUtils {
   }
 
   public static Instant getCurrentMondayOfTheWeek() {
-    return LocalDate.now()
-        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    return getCurrentMondayOfTheWeek(LocalDate.now());
+  }
+
+  public static Instant getCurrentMondayOfTheWeek(LocalDate date) {
+    return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         .atStartOfDay()
         .atZone(UTC0)
         .toInstant();

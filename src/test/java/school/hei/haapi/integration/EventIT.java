@@ -1,8 +1,6 @@
 package school.hei.haapi.integration;
 
 import static java.time.temporal.ChronoUnit.HOURS;
-import static java.util.Comparator.comparing;
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -11,9 +9,7 @@ import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
-import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.FRIDAY;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.MONDAY;
-import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.WEDNESDAY;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.StudentIT.student2;
 import static school.hei.haapi.integration.StudentIT.student3;
@@ -57,7 +53,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventAttendance;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
@@ -114,81 +109,6 @@ public class EventIT extends FacadeITMockedThirdParties {
                 2,
                 "9:00",
                 "12:00"));
-  }
-
-  @Test
-  @Disabled("TODO: move as test unit")
-  void manager_create_event_and_event_participant_by_frequency_for_the_same_week_ok()
-      throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    EventsApi api = new EventsApi(apiClient);
-
-    CreateEvent eventCourse1 = createEventCourse1();
-
-    List<Event> notSortedActual =
-        api.crupdateEvents(List.of(eventCourse1), FRIDAY, 3, "10:00", "11:00");
-    // The count of the event must match
-    assertEquals(4, notSortedActual.size());
-
-    // Sort the result for better readability in the test
-    List<Event> actual =
-        notSortedActual.stream()
-            .sorted(comparing(Event::getBeginDatetime))
-            .collect(toUnmodifiableList());
-
-    // The events are separated by 1 week
-    Event eventWeek1 = actual.getFirst();
-    assertEquals(eventCourse1.getBeginDatetime(), eventWeek1.getBeginDatetime());
-    assertEquals(eventCourse1.getEndDatetime(), eventWeek1.getEndDatetime());
-
-    Event eventWeek2 = actual.get(1);
-    assertEquals(Instant.parse("2023-12-15T10:00:00+03:00"), eventWeek2.getBeginDatetime());
-    assertEquals(Instant.parse("2023-12-15T11:00:00+03:00"), eventWeek2.getEndDatetime());
-
-    Event eventWeek3 = actual.get(2);
-    assertEquals(Instant.parse("2023-12-22T10:00:00+03:00"), eventWeek3.getBeginDatetime());
-    assertEquals(Instant.parse("2023-12-22T11:00:00+03:00"), eventWeek3.getEndDatetime());
-
-    Event eventWeek4 = actual.get(3);
-    assertEquals(Instant.parse("2023-12-29T10:00:00+03:00"), eventWeek4.getBeginDatetime());
-    assertEquals(Instant.parse("2023-12-29T11:00:00+03:00"), eventWeek4.getEndDatetime());
-  }
-
-  @Test
-  @Disabled("TODO: move as test unit")
-  void manager_create_event_and_event_participant_by_frequence_ok() throws ApiException {
-    ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
-    EventsApi api = new EventsApi(apiClient);
-
-    CreateEvent eventCourse1 = createEventCourse1();
-
-    List<Event> notSortedActual =
-        api.crupdateEvents(List.of(eventCourse1), WEDNESDAY, 3, "10:00", "11:00");
-    // The count of the event must match
-    assertEquals(4, notSortedActual.size());
-
-    // Sort the result for better readability in the test
-    List<Event> actual =
-        notSortedActual.stream()
-            .sorted(comparing(Event::getBeginDatetime))
-            .collect(toUnmodifiableList());
-
-    // The events are separated by 1 week
-    Event eventWeek1 = actual.getFirst();
-    assertEquals(eventCourse1.getBeginDatetime(), eventWeek1.getBeginDatetime());
-    assertEquals(eventCourse1.getEndDatetime(), eventWeek1.getEndDatetime());
-
-    Event eventWeek2 = actual.get(1);
-    assertEquals(Instant.parse("2023-12-13T10:00:00+03:00"), eventWeek2.getBeginDatetime());
-    assertEquals(Instant.parse("2023-12-13T11:00:00+03:00"), eventWeek2.getEndDatetime());
-
-    Event eventWeek3 = actual.get(2);
-    assertEquals(Instant.parse("2023-12-20T10:00:00+03:00"), eventWeek3.getBeginDatetime());
-    assertEquals(Instant.parse("2023-12-20T11:00:00+03:00"), eventWeek3.getEndDatetime());
-
-    Event eventWeek4 = actual.get(3);
-    assertEquals(Instant.parse("2023-12-27T10:00:00+03:00"), eventWeek4.getBeginDatetime());
-    assertEquals(Instant.parse("2023-12-27T11:00:00+03:00"), eventWeek4.getEndDatetime());
   }
 
   @Test
