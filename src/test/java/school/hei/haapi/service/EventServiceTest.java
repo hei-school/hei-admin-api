@@ -2,11 +2,11 @@ package school.hei.haapi.service;
 
 import static java.util.Comparator.comparing;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.MONDAY;
 import static school.hei.haapi.integration.StudentIT.someCreatableStudentList;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
-import static school.hei.haapi.integration.conf.TestUtils.createGroup;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableEvent;
@@ -24,8 +24,10 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.mapper.EventMapper;
 import school.hei.haapi.endpoint.rest.mapper.GroupMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.http.model.CreateEventFrequency;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventFrequencyNumber;
@@ -47,6 +49,7 @@ class EventServiceTest extends FacadeITMockedThirdParties {
   @Autowired private GroupMapper groupMapper;
   @Autowired private UserMapper userMapper;
   @MockBean private EventBridgeClient eventBridgeClientMock;
+  @Autowired private TestUtils testUtils;
 
   @BeforeEach
   void setUp() {
@@ -63,7 +66,7 @@ class EventServiceTest extends FacadeITMockedThirdParties {
         groupService.saveAll(
             List.of(
                 new CreateGroup(
-                    groupMapper.toDomain(createGroup()),
+                    groupMapper.toDomain(testUtils.createGroup()),
                     randomUsers.stream().map(User::getId).toList())));
 
     Event creatableEvent =
@@ -137,5 +140,47 @@ class EventServiceTest extends FacadeITMockedThirdParties {
     Event eventWeek4 = sortedEvent.get(3);
     assertEquals(Instant.parse("2023-12-25T10:00:00+03:00"), eventWeek4.getBeginDatetime());
     assertEquals(Instant.parse("2023-12-25T11:00:00+03:00"), eventWeek4.getEndDatetime());
+  }
+
+  @Test
+  void event_stats_are_exact() {
+    List<User> randomUsers =
+        userService.saveAll(
+            someCreatableStudentList(1).stream().map(userMapper::toDomain).toList());
+    List<Group> randomGroups =
+        groupService.saveAll(
+            List.of(
+                new CreateGroup(
+                    groupMapper.toDomain(testUtils.createGroup()),
+                    randomUsers.stream().map(User::getId).toList())));
+
+    Event creatableEvent =
+        eventMapper.toDomain(
+            someCreatableEvent(
+                COURSE,
+                MANAGER_ID,
+                Instant.now(),
+                Instant.now().plusSeconds(60),
+                randomGroups.stream().map(groupMapper::toRest).toList()));
+    List<Event> createdEvent =
+        subject.createOrUpdateEvent(
+            List.of(creatableEvent), CreateEventFrequency.builder().build());
+
+    List<EventParticipant> eventParticipants =
+        participantService.getEventParticipants(
+            createdEvent.getFirst().getId(),
+            new PageFromOne(1),
+            new BoundedPageSize(10),
+            null,
+            null,
+            null,
+            null,
+            null);
+
+    eventParticipants.getFirst().setStatus(PRESENT);
+    participantService.updateEventParticipants(eventParticipants);
+
+    EventStats stats = subject.getStats(createdEvent.getFirst().getId(), null, null);
+    assertEquals(new EventStats().late(0).missing(0).total(1).present(1), stats);
   }
 }

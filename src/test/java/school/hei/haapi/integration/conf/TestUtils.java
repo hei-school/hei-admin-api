@@ -40,6 +40,7 @@ import static school.hei.haapi.integration.StudentIT.student3;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
+import com.github.javafaker.Faker;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -57,6 +58,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
 import org.apache.commons.io.FileUtils;
 import org.casbin.casdoor.entity.CasdoorRole;
 import org.casbin.casdoor.entity.CasdoorUser;
@@ -64,6 +66,7 @@ import org.casbin.casdoor.service.CasdoorAuthService;
 import org.junit.jupiter.api.function.Executable;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -121,6 +124,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 
+@Component
 public class TestUtils {
 
   public static final String STAFF_MEMBER1_ID = "staff1_id";
@@ -219,6 +223,12 @@ public class TestUtils {
   public static final String ORGANIZER2_ID = "organizer2_id";
   public static final String ORGANIZER1_TOKEN = "organizer1_token";
   public static final String ORGANIZER2_TOKEN = "organizer2_token";
+
+  private final Faker faker;
+
+  public TestUtils() {
+    this.faker = new Faker();
+  }
 
   public static CasdoorUser getCasdoorUserStudent1() {
     CasdoorUser user = new CasdoorUser();
@@ -523,11 +533,11 @@ public class TestUtils {
         .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
   }
 
-  public static Group createGroup() {
+  public Group createGroup() {
     return new Group()
-        .name("Collaborative work like GWSP")
-        .ref("created")
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
+        .name(faker.lorem().sentence(10))
+        .ref(faker.lorem().characters(10))
+        .creationDatetime(faker.date().past(30, TimeUnit.DAYS).toInstant());
   }
 
   public static Course createCourse(String code) {
@@ -590,7 +600,7 @@ public class TestUtils {
     return teacherList;
   }
 
-  public static List<Group> someCreatableGroupList(int nbOfGroup) {
+  public List<Group> someCreatableGroupList(int nbOfGroup) {
     List<Group> groupList = new ArrayList<>();
     for (int i = 0; i < nbOfGroup; i++) {
       groupList.add(createGroup());
@@ -881,7 +891,7 @@ public class TestUtils {
         .totalAmount(5000)
         .remainingAmount(0)
         .comment("Frais L1")
-        .mpbs(List.of(expectedMpbs1()))
+        .mpbs(expectedMpbs1())
         .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"))
