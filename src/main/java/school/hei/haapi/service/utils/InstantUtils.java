@@ -5,7 +5,6 @@ import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 
@@ -13,10 +12,6 @@ public class InstantUtils {
   public static final ZoneId UTC0 = ZoneId.of("UTC+0");
 
   public static final ZoneId UTC3 = ZoneId.of("UTC+3");
-
-  public static Instant now() {
-    return LocalDateTime.now().atZone(UTC3).toInstant();
-  }
 
   public static Instant getCurrentMondayOfTheWeek() {
     return getCurrentMondayOfTheWeek(LocalDate.now());
@@ -30,16 +25,14 @@ public class InstantUtils {
   }
 
   public static Instant getCurrentSaturdayOfTheWeek() {
-    return LocalDate.now()
-        .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+    return getCurrentSaturdayOfTheWeek(LocalDate.now());
+  }
+
+  public static Instant getCurrentSaturdayOfTheWeek(LocalDate date) {
+    return date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
         .atStartOfDay()
         .atZone(UTC0)
         .toInstant();
-  }
-
-  public static Instant getToDay() {
-    LocalDate now = LocalDate.now();
-    return now.atStartOfDay(ZoneId.of("UTC")).plusHours(8).toInstant();
   }
 
   public static Instant getYesterday() {
