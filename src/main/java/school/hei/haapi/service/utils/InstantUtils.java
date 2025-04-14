@@ -29,7 +29,7 @@ public class InstantUtils {
   }
 
   public static Instant getCurrentSaturdayOfTheWeek(LocalDate date) {
-    return date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+    return date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY))
         .atStartOfDay()
         .atZone(UTC0)
         .toInstant();
