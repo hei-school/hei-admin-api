@@ -80,13 +80,13 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
                 Instant.now(),
                 Instant.now().plusSeconds(60),
                 randomGroups.stream().map(groupMapper::toRest).toList()));
-    List<Event> createdEvent =
+    List<Event> randomCourseEvent =
         subject.createOrUpdateEvent(
             List.of(creatableEvent), CreateEventFrequency.builder().build());
 
     List<EventParticipant> eventParticipants =
         participantService.getEventParticipants(
-            createdEvent.getFirst().getId(),
+            randomCourseEvent.getFirst().getId(),
             new PageFromOne(1),
             new BoundedPageSize(10),
             null,
@@ -157,21 +157,21 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
                     groupMapper.toDomain(testUtils.createGroup()),
                     randomUsers.stream().map(User::getId).toList())));
 
-    Event creatableEvent =
-        eventMapper.toDomain(
-            someCreatableEvent(
-                COURSE,
-                MANAGER_ID,
-                Instant.now(),
-                Instant.now().plusSeconds(60),
-                randomGroups.stream().map(groupMapper::toRest).toList()));
-    List<Event> createdEvent =
+    List<Event> randomCourseEvent =
         subject.createOrUpdateEvent(
-            List.of(creatableEvent), CreateEventFrequency.builder().build());
+            List.of(
+                eventMapper.toDomain(
+                    someCreatableEvent(
+                        COURSE,
+                        MANAGER_ID,
+                        Instant.now(),
+                        Instant.now().plusSeconds(60),
+                        randomGroups.stream().map(groupMapper::toRest).toList()))),
+            CreateEventFrequency.builder().build());
 
     List<EventParticipant> eventParticipants =
         participantService.getEventParticipants(
-            createdEvent.getFirst().getId(),
+            randomCourseEvent.getFirst().getId(),
             new PageFromOne(1),
             new BoundedPageSize(10),
             null,
@@ -183,7 +183,7 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
     eventParticipants.getFirst().setStatus(PRESENT);
     participantService.updateEventParticipants(eventParticipants);
 
-    EventStats stats = subject.getStats(createdEvent.getFirst().getId(), null, null);
+    EventStats stats = subject.getStats(randomCourseEvent.getFirst().getId(), null, null);
     assertEquals(new EventStats().late(0).missing(0).total(1).present(1), stats);
   }
 }
