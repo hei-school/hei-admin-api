@@ -23,14 +23,19 @@ import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
 import static school.hei.haapi.endpoint.rest.model.Scope.GLOBAL;
 import static school.hei.haapi.endpoint.rest.model.Scope.STUDENT;
+import static school.hei.haapi.endpoint.rest.model.Sex.F;
+import static school.hei.haapi.endpoint.rest.model.Sex.M;
+import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.ADD;
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.REMOVE;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
+import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student3;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
+import com.github.javafaker.Faker;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -44,6 +49,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -74,6 +80,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
 import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.Event;
@@ -885,27 +892,27 @@ public class TestUtils {
   }
 
   public static StudentGrade studentExamGrade1() {
-    return new StudentGrade().grade(grade1()).student(MockObjects.student1());
+    return new StudentGrade().grade(grade1()).student(student1());
   }
 
   public static StudentGrade studentExamGrade2() {
-    return new StudentGrade().grade(grade2()).student(MockObjects.student1());
+    return new StudentGrade().grade(grade2()).student(student1());
   }
 
   public static StudentGrade studentExamGrade3() {
-    return new StudentGrade().grade(grade3()).student(MockObjects.student1());
+    return new StudentGrade().grade(grade3()).student(student1());
   }
 
   public static StudentGrade studentExamGrade4() {
-    return new StudentGrade().grade(grade4()).student(MockObjects.student1());
+    return new StudentGrade().grade(grade4()).student(student1());
   }
 
   public static StudentGrade studentExamGrade5() {
-    return new StudentGrade().grade(grade5()).student(MockObjects.student1());
+    return new StudentGrade().grade(grade5()).student(student1());
   }
 
   public static StudentGrade studentGrade1() {
-    return new StudentGrade().grade(grade1()).student(MockObjects.student1());
+    return new StudentGrade().grade(grade1()).student(student1());
   }
 
   public static StudentGrade studentGrade2() {
@@ -1163,7 +1170,7 @@ public class TestUtils {
     return new Comment()
         .id("comment1_id")
         .content("Good student")
-        .subject(MockObjects.student1())
+        .subject(student1())
         .observer(observerTeacher1())
         .creationDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
   }
@@ -1172,7 +1179,7 @@ public class TestUtils {
     return new Comment()
         .id("comment2_id")
         .content("Disruptive student")
-        .subject(MockObjects.student1())
+        .subject(student1())
         .observer(observerManager1())
         .creationDatetime(Instant.parse("2021-11-09T09:26:24.00Z"));
   }
@@ -1203,7 +1210,7 @@ public class TestUtils {
         .id("comment4_id")
         .content("Comment about student 1")
         .observer(observerManager1())
-        .subject(MockObjects.student1());
+        .subject(student1());
   }
 
   public static Comment commentCreatedByTeacher() {
@@ -1334,7 +1341,7 @@ public class TestUtils {
   }
 
   public static EventParticipant student1MissEvent1() {
-    return createParticipant(MockObjects.student1(), MISSING, "event_participant1_id", "GRP21001");
+    return createParticipant(student1(), MISSING, "event_participant1_id", "GRP21001");
   }
 
   public static EventParticipant student3AttendEvent1() {
@@ -1342,7 +1349,7 @@ public class TestUtils {
   }
 
   public static EventParticipant student1AttendEvent2() {
-    return createParticipant(MockObjects.student1(), PRESENT, "event_participant3_id", "GRP21001");
+    return createParticipant(student1(), PRESENT, "event_participant3_id", "GRP21001");
   }
 
   public static EventParticipant student2AttendEvent2() {
@@ -1587,7 +1594,7 @@ public class TestUtils {
     return new Letter()
         .id(LETTER1_ID)
         .ref(LETTER1_REF)
-        .user(toLetterStudent(MockObjects.student1()))
+        .user(toLetterStudent(student1()))
         .status(RECEIVED)
         .approvalDatetime(Instant.parse("2021-12-08T08:25:24.00Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
@@ -1599,7 +1606,7 @@ public class TestUtils {
     return new Letter()
         .id(LETTER2_ID)
         .ref(LETTER2_REF)
-        .user(toLetterStudent(MockObjects.student1()))
+        .user(toLetterStudent(student1()))
         .status(PENDING)
         .approvalDatetime(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
@@ -1667,5 +1674,27 @@ public class TestUtils {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static CrupdateStudent someCreatableStudent() {
+    CrupdateStudent student = new CrupdateStudent();
+    Faker faker = new Faker();
+    student.setId(null);
+    student.setFirstName(faker.name().firstName());
+    student.setLastName(faker.name().lastName());
+    student.setEmail("test+" + randomUUID() + "@hei.school");
+    student.setRef("STD21" + (int) (Math.random() * 1_000_000));
+    student.setPhone("03" + (int) (Math.random() * 1_000_000_000));
+    student.setStatus(ENABLED);
+    student.setSex(Math.random() < 0.3 ? F : M);
+    Instant birthday = Instant.parse("1993-11-30T18:35:24.00Z");
+    int ageOfEntrance = 14 + (int) (Math.random() * 20);
+    student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
+    student.setEntranceDatetime(birthday.plusSeconds(ageOfEntrance * 365L * 24L * 60L * 60L));
+    student.setAddress(faker.address().fullAddress());
+    student.specializationField(COMMON_CORE);
+    student.setCoordinates(coordinatesWithNullValues());
+
+    return student;
   }
 }

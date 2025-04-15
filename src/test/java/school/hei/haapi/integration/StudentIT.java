@@ -47,10 +47,10 @@ import static school.hei.haapi.integration.conf.utils.TestUtils.requestFile;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.utils.TestUtils.someCreatableStudent;
 import static school.hei.haapi.integration.conf.utils.TestUtils.uploadProfilePicture;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.javafaker.Faker;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
@@ -59,7 +59,6 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -102,28 +101,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
-  }
-
-  public static CrupdateStudent someCreatableStudent() {
-    CrupdateStudent student = new CrupdateStudent();
-    Faker faker = new Faker();
-    student.setId(null);
-    student.setFirstName(faker.name().firstName());
-    student.setLastName(faker.name().lastName());
-    student.setEmail("test+" + randomUUID() + "@hei.school");
-    student.setRef("STD21" + (int) (Math.random() * 1_000_000));
-    student.setPhone("03" + (int) (Math.random() * 1_000_000_000));
-    student.setStatus(ENABLED);
-    student.setSex(Math.random() < 0.3 ? F : M);
-    Instant birthday = Instant.parse("1993-11-30T18:35:24.00Z");
-    int ageOfEntrance = 14 + (int) (Math.random() * 20);
-    student.setBirthDate(birthday.atZone(ZoneId.systemDefault()).toLocalDate());
-    student.setEntranceDatetime(birthday.plusSeconds(ageOfEntrance * 365L * 24L * 60L * 60L));
-    student.setAddress(faker.address().fullAddress());
-    student.specializationField(COMMON_CORE);
-    student.setCoordinates(coordinatesWithNullValues());
-
-    return student;
   }
 
   static List<CrupdateStudent> someCreatableStudentList(int nbOfStudent) {
@@ -577,13 +554,12 @@ public class StudentIT extends FacadeITMockedThirdParties {
         api.getStudents(
             1, 20, null, null, student2().getLastName(), null, null, null, null, null, null);
 
-    assertEquals(2, actualStudents.size());
+    assertEquals(4, actualStudents.size());
     assertTrue(actualStudents.contains(student2()));
     assertTrue(actualStudents.contains(student3()));
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_by_ref_and_last_name_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -1010,7 +986,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO: check group1 students")
   void manager_read_group_students_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);

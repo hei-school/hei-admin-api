@@ -8,7 +8,6 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdWithStudent1;
-import static school.hei.haapi.integration.StudentIT.someCreatableStudent;
 import static school.hei.haapi.integration.conf.utils.TestUtils.FEE3_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.FEE6_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
@@ -18,6 +17,7 @@ import static school.hei.haapi.integration.conf.utils.TestUtils.creatableFee1;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.utils.TestUtils.someCreatableStudent;
 import static school.hei.haapi.model.User.Sex.F;
 
 import java.time.Instant;

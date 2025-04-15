@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.integration.StudentIT.someCreatableStudent;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
 import static school.hei.haapi.integration.conf.utils.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.FEE3_ID;
@@ -30,6 +29,7 @@ import static school.hei.haapi.integration.conf.utils.TestUtils.creatableFee1;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.utils.TestUtils.someCreatableStudent;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import jakarta.persistence.EntityManager;

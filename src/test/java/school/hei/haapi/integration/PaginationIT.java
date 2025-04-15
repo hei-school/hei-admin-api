@@ -13,6 +13,7 @@ import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsApiE
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.utils.TestUtils.someCreatableStudent;
 import static school.hei.haapi.integration.conf.utils.TestUtils.teacher1;
 
 import java.time.Instant;
@@ -56,7 +57,7 @@ class PaginationIT extends FacadeITMockedThirdParties {
   private void someCreatableStudentList(int nbOfNewStudents) throws ApiException {
     List<CrupdateStudent> newStudents = new ArrayList<>();
     for (int i = 0; i < nbOfNewStudents; i++) {
-      newStudents.add(StudentIT.someCreatableStudent());
+      newStudents.add(someCreatableStudent());
     }
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);

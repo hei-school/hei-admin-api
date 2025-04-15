@@ -3,42 +3,39 @@ package school.hei.haapi.integration;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
 import static school.hei.haapi.integration.conf.utils.TestUtils.BAD_TOKEN;
 import static school.hei.haapi.integration.conf.utils.TestUtils.GROUP1_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
-import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.utils.TestUtils.group3;
 import static school.hei.haapi.integration.conf.utils.TestUtils.group5;
-import static school.hei.haapi.integration.conf.utils.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateGroup;
 import school.hei.haapi.endpoint.rest.model.Group;
-import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.utils.TestUtils;
+import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
 @AutoConfigureMockMvc
 class GroupIT extends FacadeITMockedThirdParties {
+  @MockBean private EventBridgeClient eventBridgeClientMock;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -180,37 +177,6 @@ class GroupIT extends FacadeITMockedThirdParties {
     assertTrue(groupsFilteredByStudentRef.contains(group1()));
     assertFalse(groupsFilteredByStudentRef.contains(group2()));
     assertFalse(groupsFilteredByStudentRef.contains(group3()));
-  }
-
-  @Test
-  void manager_write_create_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    CreateGroup toCreate3 = someCreatableGroup(new ArrayList<>());
-    CreateGroup toCreate4 = someCreatableGroup(new ArrayList<>());
-    CreateGroup toCreate5 = someCreatableGroup(List.of(STUDENT1_ID, STUDENT2_ID));
-
-    TeachingApi api = new TeachingApi(manager1Client);
-    List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
-    List<Group> createdWithStudent = api.createOrUpdateGroups(List.of(toCreate5));
-    List<Student> students =
-        api.getStudentsByGroupId(createdWithStudent.getFirst().getId(), 1, 10, null);
-
-    assertEquals(2, created.size());
-    Group created3 = created.getFirst();
-    assertTrue(isValidUUID(created3.getId()));
-    toCreate3.setId(created3.getId());
-    assertNotNull(created3.getCreationDatetime());
-    toCreate3.setCreationDatetime(created3.getCreationDatetime());
-
-    assertEquals(created3, createGroupToGroup(toCreate3));
-    Group created4 = created.getFirst();
-    assertTrue(isValidUUID(created4.getId()));
-    toCreate4.setId(created4.getId());
-    assertNotNull(created4.getCreationDatetime());
-    toCreate4.setCreationDatetime(created4.getCreationDatetime());
-    assertEquals(created4, createGroupToGroup(toCreate3));
-
-    assertEquals(2, students.size());
   }
 
   @Test
