@@ -108,6 +108,7 @@ public class EventParticipantDao {
       predicates.add(builder.equal(root.get("status"), attendanceStatus));
     }
 
+    predicates.add(builder.isNotNull(root.get("event").get("beginDatetime")));
     if (eventBeginRange != null) {
       if (eventBeginRange.from() != null) {
         predicates.add(
