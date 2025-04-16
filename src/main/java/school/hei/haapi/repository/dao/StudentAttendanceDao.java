@@ -1,5 +1,8 @@
 package school.hei.haapi.repository.dao;
 
+import static school.hei.haapi.service.utils.InstantUtils.currentMondayOfTheWeek;
+import static school.hei.haapi.service.utils.InstantUtils.currentSaturdayOfTheWeek;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
@@ -19,7 +22,6 @@ import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseSession;
 import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.model.User;
-import school.hei.haapi.service.utils.InstantUtils;
 
 @Repository
 @AllArgsConstructor
@@ -116,14 +118,14 @@ public class StudentAttendanceDao {
                 builder.or(
                     builder.between(
                         studentAttendanceRoot.get("createdAt"),
-                        InstantUtils.currentMondayOfTheWeek(),
-                        InstantUtils.currentSaturdayOfTheWeek()),
+                        currentMondayOfTheWeek(),
+                        currentSaturdayOfTheWeek()),
                     builder.isNull(studentAttendanceRoot.get("createdAt"))),
                 builder.or(
                     builder.between(
                         courseSessionJoin.get("begin"),
-                        InstantUtils.currentMondayOfTheWeek(),
-                        InstantUtils.currentSaturdayOfTheWeek()),
+                        currentMondayOfTheWeek(),
+                        currentSaturdayOfTheWeek()),
                     builder.isNull(studentAttendanceRoot.get("courseSession")))));
         break;
       default:

@@ -159,8 +159,6 @@ class AttendanceIT extends FacadeITMockedThirdParties {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     AttendanceApi api = new AttendanceApi(teacher1Client);
 
-    // GET
-    // /attendance?page=1&page_size=10&from={DEFAULT_FROM}&to={DEFAULT_TO}&student_key_word=tw&attendance_statuses=LATE&teachers_ids=teacher1_id
     List<StudentAttendance> actualWithStudentKeyowrdAndTeacher1AndAttendanceLate =
         api.getStudentsAttendance(
             1,
@@ -172,6 +170,42 @@ class AttendanceIT extends FacadeITMockedThirdParties {
             DEFAULT_TO,
             List.of(AttendanceStatus.LATE));
     assertEquals(1, actualWithStudentKeyowrdAndTeacher1AndAttendanceLate.size());
+
+    List<StudentAttendance> attendanceWithoutTo =
+        api.getStudentsAttendance(
+            1,
+            10,
+            null,
+            List.of(teacher1().getId()),
+            "tw",
+            DEFAULT_FROM,
+            null,
+            List.of(AttendanceStatus.LATE));
+    assertEquals(1, attendanceWithoutTo.size());
+
+    List<StudentAttendance> attendanceWithoutFrom =
+        api.getStudentsAttendance(
+            1,
+            10,
+            null,
+            List.of(teacher1().getId()),
+            "tw",
+            null,
+            DEFAULT_TO,
+            List.of(AttendanceStatus.LATE));
+    assertEquals(1, attendanceWithoutFrom.size());
+
+    List<StudentAttendance> attendanceWithoutDateRange =
+        api.getStudentsAttendance(
+            1,
+            10,
+            null,
+            List.of(teacher1().getId()),
+            "tw",
+            null,
+            null,
+            List.of(AttendanceStatus.LATE));
+    assertEquals(0, attendanceWithoutDateRange.size());
   }
 
   @Test
