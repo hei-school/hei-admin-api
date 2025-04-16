@@ -13,22 +13,22 @@ public class InstantUtils {
 
   public static final ZoneId UTC3 = ZoneId.of("UTC+3");
 
-  public static Instant getCurrentMondayOfTheWeek() {
-    return getCurrentMondayOfTheWeek(LocalDate.now());
+  public static Instant currentMondayOfTheWeek() {
+    return mondayOfTheWeek(LocalDate.now());
   }
 
-  public static Instant getCurrentMondayOfTheWeek(LocalDate date) {
+  public static Instant mondayOfTheWeek(LocalDate date) {
     return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
         .atStartOfDay()
         .atZone(UTC0)
         .toInstant();
   }
 
-  public static Instant getCurrentSaturdayOfTheWeek() {
-    return getCurrentSaturdayOfTheWeek(LocalDate.now());
+  public static Instant currentSaturdayOfTheWeek() {
+    return saturdayOfTheWeek(LocalDate.now());
   }
 
-  public static Instant getCurrentSaturdayOfTheWeek(LocalDate date) {
+  public static Instant saturdayOfTheWeek(LocalDate date) {
     return date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY))
         .atStartOfDay()
         .atZone(UTC0)

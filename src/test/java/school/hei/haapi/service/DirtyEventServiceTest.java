@@ -11,7 +11,6 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableEvent;
-import static school.hei.haapi.service.utils.InstantUtils.getCurrentMondayOfTheWeek;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -38,6 +37,7 @@ import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.notEntity.CreateGroup;
+import school.hei.haapi.service.utils.InstantUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
@@ -105,7 +105,7 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void create_event_by_frequence_ok() {
-    Instant eventBeginDate = getCurrentMondayOfTheWeek(LocalDate.of(2023, 12, 8));
+    Instant eventBeginDate = InstantUtils.mondayOfTheWeek(LocalDate.of(2023, 12, 8));
     Event creatableEvent =
         eventMapper.toDomain(
             someCreatableEvent(

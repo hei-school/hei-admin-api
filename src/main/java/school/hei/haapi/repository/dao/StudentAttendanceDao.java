@@ -116,14 +116,14 @@ public class StudentAttendanceDao {
                 builder.or(
                     builder.between(
                         studentAttendanceRoot.get("createdAt"),
-                        InstantUtils.getCurrentMondayOfTheWeek(),
-                        InstantUtils.getCurrentSaturdayOfTheWeek()),
+                        InstantUtils.currentMondayOfTheWeek(),
+                        InstantUtils.currentSaturdayOfTheWeek()),
                     builder.isNull(studentAttendanceRoot.get("createdAt"))),
                 builder.or(
                     builder.between(
                         courseSessionJoin.get("begin"),
-                        InstantUtils.getCurrentMondayOfTheWeek(),
-                        InstantUtils.getCurrentSaturdayOfTheWeek()),
+                        InstantUtils.currentMondayOfTheWeek(),
+                        InstantUtils.currentSaturdayOfTheWeek()),
                     builder.isNull(studentAttendanceRoot.get("courseSession")))));
         break;
       default:
