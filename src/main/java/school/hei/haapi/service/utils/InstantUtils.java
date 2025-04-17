@@ -1,8 +1,8 @@
 package school.hei.haapi.service.utils;
 
+import static java.time.DayOfWeek.*;
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 
-import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
@@ -18,18 +18,18 @@ public class InstantUtils {
   }
 
   public static Instant mondayOfTheWeek(LocalDate date) {
-    return date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+    return date.with(TemporalAdjusters.previousOrSame(MONDAY))
         .atStartOfDay()
         .atZone(UTC0)
         .toInstant();
   }
 
-  public static Instant currentSaturdayOfTheWeek() {
-    return saturdayOfTheWeek(LocalDate.now());
+  public static Instant currentSaturdayOfTheWeekOrNext() {
+    return saturdayOfTheWeekOrNext(LocalDate.now());
   }
 
-  public static Instant saturdayOfTheWeek(LocalDate date) {
-    return date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SATURDAY))
+  public static Instant saturdayOfTheWeekOrNext(LocalDate date) {
+    return date.with(TemporalAdjusters.nextOrSame(SATURDAY))
         .atStartOfDay()
         .atZone(UTC0)
         .toInstant();

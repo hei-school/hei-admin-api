@@ -22,7 +22,7 @@ class InstantUtilsTest {
   void get_correct_current_saturday_of_the_week() {
     var wednesday8January2020 = LocalDate.of(2020, 1, 8);
     Instant saturday11January2020 = Instant.parse("2020-01-11T00:00:00Z");
-    Instant currentMondayOfTheWeek = InstantUtils.saturdayOfTheWeek(wednesday8January2020);
+    Instant currentMondayOfTheWeek = InstantUtils.saturdayOfTheWeekOrNext(wednesday8January2020);
     assertEquals(saturday11January2020, currentMondayOfTheWeek);
   }
 
@@ -34,7 +34,7 @@ class InstantUtilsTest {
 
   @Test
   void get_correct_current_saturday_of_the_actual_week() {
-    Instant currentMondayOfTheWeek = InstantUtils.currentSaturdayOfTheWeek();
-    assertEquals(InstantUtils.saturdayOfTheWeek(LocalDate.now()), currentMondayOfTheWeek);
+    Instant currentMondayOfTheWeek = InstantUtils.currentSaturdayOfTheWeekOrNext();
+    assertEquals(InstantUtils.saturdayOfTheWeekOrNext(LocalDate.now()), currentMondayOfTheWeek);
   }
 }
