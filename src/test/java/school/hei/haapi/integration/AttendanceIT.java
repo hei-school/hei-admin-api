@@ -2,12 +2,27 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.LATE;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.UNCHECKED;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
-import static school.hei.haapi.integration.StudentIT.*;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.StudentIT.student2;
-import static school.hei.haapi.integration.conf.TestUtils.*;
+import static school.hei.haapi.integration.StudentIT.student3;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.ORGANIZER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
+import static school.hei.haapi.integration.conf.TestUtils.awardedCourse1;
+import static school.hei.haapi.integration.conf.TestUtils.course1;
+import static school.hei.haapi.integration.conf.TestUtils.course2;
+import static school.hei.haapi.integration.conf.TestUtils.group1;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.someCreatableEvent;
+import static school.hei.haapi.integration.conf.TestUtils.teacher1;
+import static school.hei.haapi.integration.conf.TestUtils.teacher4;
 import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.time.Instant;
@@ -23,7 +38,15 @@ import school.hei.haapi.endpoint.rest.api.AttendanceApi;
 import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.AttendanceMovementType;
+import school.hei.haapi.endpoint.rest.model.AwardedCourse;
+import school.hei.haapi.endpoint.rest.model.CourseSession;
+import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
+import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventParticipant;
+import school.hei.haapi.endpoint.rest.model.PlaceEnum;
+import school.hei.haapi.endpoint.rest.model.StudentAttendance;
+import school.hei.haapi.endpoint.rest.model.StudentAttendanceMovement;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
@@ -82,7 +105,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
             null,
             DEFAULT_FROM,
             DEFAULT_TO,
-            List.of(AttendanceStatus.MISSING, AttendanceStatus.LATE));
+            List.of(MISSING, LATE));
     assertEquals(2, actualWithCourse2IdAndMissingAndLate.size());
     assertTrue(
         actualWithCourse2IdAndMissingAndLate.containsAll(
@@ -99,7 +122,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
             null,
             DEFAULT_FROM,
             DEFAULT_TO,
-            List.of(AttendanceStatus.MISSING));
+            List.of(MISSING));
     assertEquals(2, actualWithCourse1Idand2IdAndMissing.size());
     assertTrue(
         actualWithCourse1Idand2IdAndMissing.containsAll(
@@ -115,7 +138,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
     // /attendance?page=1&page_size=10&attendance_statuses=MISSING&from={DEFAULT_FROM}&to={DEFAULT_TO}
     List<StudentAttendance> actualWithStudentMissing =
         api.getStudentsAttendance(
-            1, 10, null, null, null, DEFAULT_FROM, DEFAULT_TO, List.of(AttendanceStatus.MISSING));
+            1, 10, null, null, null, DEFAULT_FROM, DEFAULT_TO, List.of(MISSING));
     assertEquals(2, actualWithStudentMissing.size());
     assertTrue(
         actualWithStudentMissing.containsAll(List.of(attendance6Missing(), attendance5Missing())));
@@ -124,14 +147,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
     // /attendance?page=1&page_size=10&attendance_statuses=LATE,MISSING&from={DEFAULT_FROM}&to={DEFAULT_TO}
     List<StudentAttendance> actualWithStudentMissingAndLate =
         api.getStudentsAttendance(
-            1,
-            10,
-            null,
-            null,
-            null,
-            DEFAULT_FROM,
-            DEFAULT_TO,
-            List.of(AttendanceStatus.MISSING, AttendanceStatus.LATE));
+            1, 10, null, null, null, DEFAULT_FROM, DEFAULT_TO, List.of(MISSING, LATE));
     assertEquals(4, actualWithStudentMissingAndLate.size());
     assertTrue(
         actualWithStudentMissingAndLate.containsAll(
@@ -149,7 +165,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
             null,
             DEFAULT_FROM,
             DEFAULT_TO,
-            List.of(AttendanceStatus.MISSING));
+            List.of(MISSING));
     assertEquals(1, actualWithCourse2IdAndMissing.size());
     assertTrue(actualWithCourse2IdAndMissing.contains(attendance6Missing()));
   }
@@ -168,43 +184,22 @@ class AttendanceIT extends FacadeITMockedThirdParties {
             "tw",
             DEFAULT_FROM,
             DEFAULT_TO,
-            List.of(AttendanceStatus.LATE));
+            List.of(LATE));
     assertEquals(1, actualWithStudentKeyowrdAndTeacher1AndAttendanceLate.size());
 
     List<StudentAttendance> attendanceWithoutTo =
         api.getStudentsAttendance(
-            1,
-            10,
-            null,
-            List.of(teacher1().getId()),
-            "tw",
-            DEFAULT_FROM,
-            null,
-            List.of(AttendanceStatus.LATE));
+            1, 10, null, List.of(teacher1().getId()), "tw", DEFAULT_FROM, null, List.of(LATE));
     assertEquals(1, attendanceWithoutTo.size());
 
     List<StudentAttendance> attendanceWithoutFrom =
         api.getStudentsAttendance(
-            1,
-            10,
-            null,
-            List.of(teacher1().getId()),
-            "tw",
-            null,
-            DEFAULT_TO,
-            List.of(AttendanceStatus.LATE));
+            1, 10, null, List.of(teacher1().getId()), "tw", null, DEFAULT_TO, List.of(LATE));
     assertEquals(1, attendanceWithoutFrom.size());
 
     List<StudentAttendance> attendanceWithoutDateRange =
         api.getStudentsAttendance(
-            1,
-            10,
-            null,
-            List.of(teacher1().getId()),
-            "tw",
-            null,
-            null,
-            List.of(AttendanceStatus.LATE));
+            1, 10, null, List.of(teacher1().getId()), "tw", null, null, List.of(LATE));
     assertEquals(0, attendanceWithoutDateRange.size());
   }
 

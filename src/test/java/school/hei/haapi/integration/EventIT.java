@@ -25,8 +25,6 @@ import static school.hei.haapi.integration.conf.TestUtils.createIntegrationEvent
 import static school.hei.haapi.integration.conf.TestUtils.event1;
 import static school.hei.haapi.integration.conf.TestUtils.event2;
 import static school.hei.haapi.integration.conf.TestUtils.event3;
-import static school.hei.haapi.integration.conf.TestUtils.expectedCourseEventCreated;
-import static school.hei.haapi.integration.conf.TestUtils.expectedIntegrationEventCreated;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
