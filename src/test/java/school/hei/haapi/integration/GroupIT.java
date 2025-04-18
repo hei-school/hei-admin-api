@@ -4,6 +4,8 @@ import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.integration.conf.utils.MockObjects.group3;
+import static school.hei.haapi.integration.conf.utils.MockObjects.group5;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
 import static school.hei.haapi.integration.conf.utils.TestUtils.BAD_TOKEN;
 import static school.hei.haapi.integration.conf.utils.TestUtils.GROUP1_ID;
@@ -11,8 +13,6 @@ import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.utils.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.utils.TestUtils.group3;
-import static school.hei.haapi.integration.conf.utils.TestUtils.group5;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
 

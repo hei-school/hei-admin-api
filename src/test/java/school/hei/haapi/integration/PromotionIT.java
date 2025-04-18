@@ -4,6 +4,7 @@ import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.integration.conf.utils.MockObjects.group5;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
 import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.utils.TestUtils.PROMOTION1_ID;
@@ -14,7 +15,6 @@ import static school.hei.haapi.integration.conf.utils.TestUtils.addGroupToPromot
 import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.utils.TestUtils.createGroupIdentifier;
 import static school.hei.haapi.integration.conf.utils.TestUtils.createPromotion4;
-import static school.hei.haapi.integration.conf.utils.TestUtils.group5;
 import static school.hei.haapi.integration.conf.utils.TestUtils.promotion21;
 import static school.hei.haapi.integration.conf.utils.TestUtils.promotion22;
 import static school.hei.haapi.integration.conf.utils.TestUtils.promotion23;

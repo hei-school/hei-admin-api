@@ -31,6 +31,7 @@ import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnu
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
+import static school.hei.haapi.integration.conf.utils.MockObjects.student2;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student3;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
@@ -387,7 +388,7 @@ public class TestUtils {
     return new AwardedCourse()
         .id(AWARDED_COURSE2_ID)
         .course(course2())
-        .group(group2())
+        .group(MockObjects.group2())
         .mainTeacher(teacher2());
   }
 
@@ -455,51 +456,6 @@ public class TestUtils {
       examInfoList.add(createExam());
     }
     return examInfoList;
-  }
-
-  public static Group group1() {
-    return new Group()
-        .id(GROUP1_ID)
-        .ref("G1")
-        .name("GRP21001")
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .size(2);
-  }
-
-  public static Group group2() {
-    return new Group()
-        .id(GROUP2_ID)
-        .ref("G2")
-        .name("GRP21002")
-        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
-        .size(1);
-  }
-
-  public static Group group3() {
-    return new Group()
-        .id("group3_id")
-        .ref("H1")
-        .name("GRP22001")
-        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
-        .size(0);
-  }
-
-  public static Group group4() {
-    return new Group()
-        .id("group4_id")
-        .ref("H2")
-        .name("GRP22002")
-        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
-        .size(0);
-  }
-
-  public static Group group5() {
-    return new Group()
-        .id("group5_id")
-        .ref("J1")
-        .name("GRP23001")
-        .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
-        .size(0);
   }
 
   public static Teacher teacher1() {
@@ -754,7 +710,7 @@ public class TestUtils {
     return new AwardedCourse()
         .id(AWARDED_COURSE1_ID)
         .course(course1())
-        .group(group1())
+        .group(MockObjects.group1())
         .mainTeacher(teacher1());
   }
 
@@ -762,7 +718,7 @@ public class TestUtils {
     return new AwardedCourse()
         .id(AWARDED_COURSE2_ID)
         .course(course1())
-        .group(group1())
+        .group(MockObjects.group1())
         .mainTeacher(teacher2());
   }
 
@@ -770,7 +726,7 @@ public class TestUtils {
     return new AwardedCourse()
         .id(AWARDED_COURSE3_ID)
         .course(course1())
-        .group(group2())
+        .group(MockObjects.group2())
         .mainTeacher(teacher2());
   }
 
@@ -778,7 +734,7 @@ public class TestUtils {
     return new AwardedCourse()
         .id(AWARDED_COURSE4_ID)
         .course(course2())
-        .group(group1())
+        .group(MockObjects.group1())
         .mainTeacher(teacher4());
   }
 
@@ -994,15 +950,6 @@ public class TestUtils {
         .type(TUITION);
   }
 
-  //  public static ExamDetail examDetail1() {
-  //    return new ExamDetail()
-  //        .id(exam1().getId())
-  //        .title(exam1().getTitle())
-  //        .examinationDate(exam1().getExaminationDate())
-  //        .coefficient(exam1().getCoefficient())
-  //        .participants(List.of(studentGrade1(), studentGrade7()));
-  //  }
-
   public static AwardedCourseExam awardedCourseExam1() {
     return new AwardedCourseExam()
         .id(AWARDED_COURSE1_ID)
@@ -1188,7 +1135,7 @@ public class TestUtils {
     return new Comment()
         .id("comment3_id")
         .content("Nothing to say here")
-        .subject(MockObjects.student2())
+        .subject(student2())
         .observer(observerTeacher1())
         .creationDatetime(Instant.parse("2021-11-09T10:26:24.00Z"));
   }
@@ -1267,7 +1214,7 @@ public class TestUtils {
         .title("PROG1")
         .planner(planner1())
         .count(new EventStats().late(0).missing(1).present(1).total(2))
-        .groups(List.of(createGroupIdentifier(group1())));
+        .groups(List.of(createGroupIdentifier(MockObjects.group1())));
   }
 
   public static CreateEvent creatableEvent1() {
@@ -1296,7 +1243,10 @@ public class TestUtils {
         .title("Integration Day")
         .count(new EventStats().total(3).missing(1).present(2).late(0))
         .description("HEI students integration day")
-        .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
+        .groups(
+            List.of(
+                createGroupIdentifier(MockObjects.group1()),
+                createGroupIdentifier(MockObjects.group2())));
   }
 
   public static Event event3() {
@@ -1353,7 +1303,7 @@ public class TestUtils {
   }
 
   public static EventParticipant student2AttendEvent2() {
-    return createParticipant(MockObjects.student2(), PRESENT, "event_participant4_id", "GRP21002");
+    return createParticipant(student2(), PRESENT, "event_participant4_id", "GRP21002");
   }
 
   public static EventParticipant student3MissEvent2() {
@@ -1369,7 +1319,7 @@ public class TestUtils {
         .description("Another Prog1 course")
         .eventType(COURSE)
         .plannerId(MANAGER_ID)
-        .groups(List.of(createGroupIdentifier(group1())));
+        .groups(List.of(createGroupIdentifier(MockObjects.group1())));
   }
 
   public static CreateEvent someCreatableEventByManager1(EventType eventType) {
@@ -1390,7 +1340,7 @@ public class TestUtils {
         .description("Another event")
         .eventType(eventType)
         .plannerId(planerId)
-        .groups(List.of(createGroupIdentifier(group1())));
+        .groups(List.of(createGroupIdentifier(MockObjects.group1())));
   }
 
   public static CreateFee createFeeForTest() {
@@ -1413,7 +1363,10 @@ public class TestUtils {
         .description("Another Prog1 course")
         .eventType(INTEGRATION)
         .plannerId(MANAGER_ID)
-        .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
+        .groups(
+            List.of(
+                createGroupIdentifier(MockObjects.group1()),
+                createGroupIdentifier(MockObjects.group2())));
   }
 
   public static Event expectedCourseEventCreated() {
@@ -1502,7 +1455,7 @@ public class TestUtils {
         .title("Cours de PROG1")
         .authorId(MANAGER_ID)
         .content("Cours prévu pour la semaine prochaine")
-        .targetGroupList(List.of(createGroupIdentifier(group1())));
+        .targetGroupList(List.of(createGroupIdentifier(MockObjects.group1())));
   }
 
   public static CreateAnnouncement teacherCreateAnnouncementForManager() {
@@ -1536,7 +1489,10 @@ public class TestUtils {
         .ref("PROM21")
         .name("Promotion 2021-2022")
         .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
-        .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
+        .groups(
+            List.of(
+                createGroupIdentifier(MockObjects.group1()),
+                createGroupIdentifier(MockObjects.group2())));
   }
 
   public static Promotion promotion22() {
@@ -1545,7 +1501,10 @@ public class TestUtils {
         .ref("PROM22")
         .name("Promotion 2022-2023")
         .creationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"))
-        .groups(List.of(createGroupIdentifier(group3()), createGroupIdentifier(group4())));
+        .groups(
+            List.of(
+                createGroupIdentifier(MockObjects.group3()),
+                createGroupIdentifier(MockObjects.group4())));
   }
 
   public static Promotion promotion23() {
@@ -1618,7 +1577,7 @@ public class TestUtils {
     return new Letter()
         .id(LETTER3_ID)
         .ref(LETTER3_REF)
-        .user(toLetterStudent(MockObjects.student2()))
+        .user(toLetterStudent(student2()))
         .status(PENDING)
         .approvalDatetime(null)
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
@@ -1627,11 +1586,11 @@ public class TestUtils {
   }
 
   public static UpdatePromotionSGroup addGroupToPromotion3() {
-    return new UpdatePromotionSGroup().type(ADD).groupIds(List.of(group5().getId()));
+    return new UpdatePromotionSGroup().type(ADD).groupIds(List.of(MockObjects.group5().getId()));
   }
 
   public static UpdatePromotionSGroup removeGroupToPromotion3() {
-    return new UpdatePromotionSGroup().type(REMOVE).groupIds(List.of(group5().getId()));
+    return new UpdatePromotionSGroup().type(REMOVE).groupIds(List.of(MockObjects.group5().getId()));
   }
 
   public static CrupdatePromotion createPromotion4() {

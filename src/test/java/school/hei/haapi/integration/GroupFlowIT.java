@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.CreateGroupFlow.MoveTypeEnum.JOIN;
 import static school.hei.haapi.endpoint.rest.model.CreateGroupFlow.MoveTypeEnum.LEAVE;
+import static school.hei.haapi.integration.conf.utils.MockObjects.group1;
+import static school.hei.haapi.integration.conf.utils.MockObjects.group2;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student2;
 import static school.hei.haapi.integration.conf.utils.TestUtils.GROUP1_ID;
@@ -13,14 +15,13 @@ import static school.hei.haapi.integration.conf.utils.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.utils.TestUtils.group1;
-import static school.hei.haapi.integration.conf.utils.TestUtils.group2;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpS3Service;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -101,6 +102,7 @@ public class GroupFlowIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("TODO: Move to dirty")
   void manager_moves_student2_to_group2_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);

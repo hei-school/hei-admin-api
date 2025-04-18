@@ -17,11 +17,11 @@ import static school.hei.haapi.endpoint.rest.model.PaymentFrequency.YEARLY;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
-import static school.hei.haapi.endpoint.rest.model.SpecializationField.EL;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.NOT_WORKING;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.GroupIT.updatedGroup3;
 import static school.hei.haapi.integration.GroupIT.updatedGroup5;
+import static school.hei.haapi.integration.conf.utils.MockObjects.group3;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student1;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student2;
 import static school.hei.haapi.integration.conf.utils.MockObjects.student3;
@@ -32,7 +32,6 @@ import static school.hei.haapi.integration.conf.utils.TestUtils.MONITOR1_TOKEN;
 import static school.hei.haapi.integration.conf.utils.TestUtils.PROMOTION1_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT1_TOKEN;
-import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT3_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT8_ID;
 import static school.hei.haapi.integration.conf.utils.TestUtils.STUDENT8_TOKEN;
@@ -40,9 +39,7 @@ import static school.hei.haapi.integration.conf.utils.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.utils.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.utils.TestUtils.coordinatesWithNullValues;
-import static school.hei.haapi.integration.conf.utils.TestUtils.coordinatesWithValues;
 import static school.hei.haapi.integration.conf.utils.TestUtils.getMockedFile;
-import static school.hei.haapi.integration.conf.utils.TestUtils.group3;
 import static school.hei.haapi.integration.conf.utils.TestUtils.requestFile;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.utils.TestUtils.setUpEventBridge;
@@ -111,26 +108,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
     return studentList;
   }
 
-  public static CrupdateStudent createStudent2() {
-    CrupdateStudent student = new CrupdateStudent();
-    student.setId("student2_id");
-    student.setFirstName("Two");
-    student.setLastName("Student");
-    student.setEmail("test+student2@hei.school");
-    student.setRef("STD21002");
-    student.setPhone("0322411124");
-    student.setStatus(ENABLED);
-    student.setSex(F);
-    student.setBirthDate(LocalDate.parse("2000-01-02"));
-    student.setEntranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"));
-    student.setAddress("Adr 2");
-    student.setBirthPlace("");
-    student.setNic("");
-    student.setCoordinates(coordinatesWithNullValues());
-
-    return student;
-  }
-
   static Student disabledStudent1() {
     return new Student()
         .id("student4_id")
@@ -151,21 +128,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
         .address("Adr 1")
         .groups(List.of())
         .isRepeatingYear(false);
-  }
-
-  static CrupdateStudent creatableSuspendedStudent() {
-    return new CrupdateStudent()
-        .firstName("Suspended")
-        .lastName("Two")
-        .email("test+suspended2@hei.school")
-        .ref("STD29004")
-        .status(SUSPENDED)
-        .sex(F)
-        .birthDate(LocalDate.parse("2000-12-02"))
-        .entranceDatetime(Instant.parse("2021-11-09T08:26:24.00Z"))
-        .phone("0322411124")
-        .address("Adr 3")
-        .coordinates(coordinatesWithNullValues());
   }
 
   static Student suspendedStudent1() {
@@ -379,7 +341,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO")
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     UsersApi api = new UsersApi(teacher1Client);
@@ -406,7 +367,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_by_suspended_status_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -418,7 +378,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_by_work_status_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -457,7 +416,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -495,7 +453,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_by_ref_and_name_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -519,7 +476,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_by_ref_ignoring_case_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -533,7 +489,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO")
   void manager_read_by_ref_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -606,7 +561,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("TODO")
   void monitor_read_students_ok() throws ApiException {
     ApiClient monitorClient = anApiClient(MONITOR1_TOKEN);
     UsersApi api = new UsersApi(monitorClient);
@@ -828,34 +782,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("dirty")
-  void manager_update_student_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-
-    CrupdateStudent student2ToUpdate = createStudent2();
-    student2ToUpdate.setAddress("updated address");
-    student2ToUpdate.setNic("updated nic");
-    student2ToUpdate.setBirthPlace("updated birthplace");
-    student2ToUpdate.setCoordinates(coordinatesWithValues());
-    student2ToUpdate.setSpecializationField(EL);
-    student2ToUpdate.setHighSchoolOrigin("Lycée Saint Gabriel Mahajanga");
-
-    Student updatedStudent2 = student2();
-    updatedStudent2.setBirthPlace("updated birthplace");
-    updatedStudent2.setNic("updated nic");
-    updatedStudent2.setSpecializationField(EL);
-    updatedStudent2.setAddress("updated address");
-    updatedStudent2.setCoordinates(coordinatesWithValues());
-    updatedStudent2.setHighSchoolOrigin("Lycée Saint Gabriel Mahajanga");
-
-    Student actualUpdated = api.updateStudent(STUDENT2_ID, student2ToUpdate);
-
-    assertEquals(updatedStudent2, actualUpdated);
-  }
-
-  @Test
-  @Disabled("TODO")
   void manager_read_students_by_commitment_begin() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
@@ -876,37 +802,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
     assertEquals(2, actual.size());
     assertTrue(actual.containsAll(List.of(student1(), student2())));
-  }
-
-  @Test
-  @Disabled("dirty")
-  void manager_write_suspended_student() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-
-    List<Student> actual = api.createOrUpdateStudents(List.of(creatableSuspendedStudent()), null);
-    Student created = actual.get(0);
-    List<Student> suspended =
-        api.getStudents(1, 10, null, "Suspended", null, null, SUSPENDED, null, null, null, null);
-
-    assertTrue(suspended.contains(created));
-    assertEquals(1, actual.size());
-  }
-
-  @Test
-  @Disabled("dirty")
-  void manager_update_student_to_suspended() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    UsersApi api = new UsersApi(manager1Client);
-
-    List<Student> actual =
-        api.createOrUpdateStudents(List.of(createStudent2().status(SUSPENDED)), null);
-    Student updated = actual.getFirst();
-    List<Student> suspended =
-        api.getStudents(1, 10, null, null, null, null, SUSPENDED, null, null, null, null);
-
-    assertTrue(suspended.contains(updated));
-    assertEquals(1, actual.size());
   }
 
   @Test
