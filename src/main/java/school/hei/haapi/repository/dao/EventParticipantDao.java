@@ -27,7 +27,6 @@ import school.hei.haapi.model.User;
 @AllArgsConstructor
 public class EventParticipantDao {
   private final EntityManager entityManager;
-  private static final String EVENT_BEGIN_DATETIME = "beginDatetime";
 
   public List<EventParticipant> findByCriteria(
       String eventId,
@@ -111,7 +110,7 @@ public class EventParticipantDao {
       predicates.add(builder.equal(root.get("status"), attendanceStatus));
     }
 
-    Path<Instant> eventBeginDateTime = root.get("event").get(EVENT_BEGIN_DATETIME);
+    Path<Instant> eventBeginDateTime = root.get("event").get(Event.BEGIN_DATETIME);
     predicates.add(builder.isNotNull(eventBeginDateTime));
     if (eventBeginRange != null) {
       if (eventBeginRange.from() != null) {
