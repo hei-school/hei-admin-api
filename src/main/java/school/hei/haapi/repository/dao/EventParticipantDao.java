@@ -7,8 +7,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -109,17 +111,14 @@ public class EventParticipantDao {
       predicates.add(builder.equal(root.get("status"), attendanceStatus));
     }
 
-    predicates.add(builder.isNotNull(root.get("event").get(EVENT_BEGIN_DATETIME)));
+    Path<Instant> eventBeginDateTime = root.get("event").get(EVENT_BEGIN_DATETIME);
+    predicates.add(builder.isNotNull(eventBeginDateTime));
     if (eventBeginRange != null) {
       if (eventBeginRange.from() != null) {
-        predicates.add(
-            builder.greaterThanOrEqualTo(
-                root.get("event").get(EVENT_BEGIN_DATETIME), eventBeginRange.from()));
+        predicates.add(builder.greaterThanOrEqualTo(eventBeginDateTime, eventBeginRange.from()));
       }
       if (eventBeginRange.to() != null) {
-        predicates.add(
-            builder.lessThanOrEqualTo(
-                root.get("event").get(EVENT_BEGIN_DATETIME), eventBeginRange.to()));
+        predicates.add(builder.lessThanOrEqualTo(eventBeginDateTime, eventBeginRange.to()));
       }
     }
 
