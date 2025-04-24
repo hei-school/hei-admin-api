@@ -421,6 +421,16 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void get_event_attendance() throws ApiException {
+    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
+    List<EventAttendance> eventParticipantsInEventDateRange =
+        api.getAllEventParticipants(1, 10, null, null, MISSING);
+    assertTrue(
+        eventParticipantsInEventDateRange.contains(
+            new EventAttendance().event(event2()).eventParticipant(student3MissEvent2())));
+  }
+
+  @Test
   void get_event_attendance_for_specific_date_range() throws ApiException {
     EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
     // Get Event2 in this range
