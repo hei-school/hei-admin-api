@@ -159,20 +159,22 @@ public class EventController {
       @RequestParam(name = "page_size", defaultValue = "15") BoundedPageSize pageSize,
       @RequestParam(name = "from", required = false) Instant from,
       @RequestParam(name = "to", required = false) Instant to,
-      @RequestParam(name = "attendance_status", required = false)
-          AttendanceStatus attendanceStatus) {
+      @RequestParam(name = "attendance_status", required = false) AttendanceStatus attendanceStatus,
+      @RequestParam(name = "group_ref", required = false) String groupRef,
+      @RequestParam(name = "student_ref", required = false) String studentRef,
+      @RequestParam(name = "student_name", required = false) String studentName) {
     return eventParticipantService
         .getEventParticipants(
             null,
             page,
             pageSize,
-            null,
-            null,
-            null,
+            groupRef,
+            studentName,
+            studentRef,
             attendanceStatus,
             new DateUtils.RangedInstant(from, to))
         .stream()
         .map(eventAttendanceMapper::toRest)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 }

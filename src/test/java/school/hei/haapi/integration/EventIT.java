@@ -424,7 +424,7 @@ public class EventIT extends FacadeITMockedThirdParties {
   void get_event_attendance() throws ApiException {
     EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
     List<EventAttendance> eventParticipantsInEventDateRange =
-        api.getAllEventParticipants(1, 10, null, null, MISSING);
+        api.getAllEventParticipants(1, 10, null, null, MISSING, null, null, null);
     assertTrue(
         eventParticipantsInEventDateRange.contains(
             new EventAttendance().event(event2()).eventParticipant(student3MissEvent2())));
@@ -440,7 +440,10 @@ public class EventIT extends FacadeITMockedThirdParties {
             null,
             Instant.parse("2022-12-08T07:59:59.00Z"),
             Instant.parse("2022-12-08T08:00:01.00Z"),
-            MISSING);
+            MISSING,
+            null,
+            student3MissEvent2().getRef(),
+            student3MissEvent2().getFirstName());
     assertEquals(
         student3MissEvent2(), eventParticipantsInEventDateRange.getFirst().getEventParticipant());
   }
