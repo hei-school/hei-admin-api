@@ -9,6 +9,7 @@ import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
+import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
 import static school.hei.haapi.endpoint.rest.model.EventType.INTEGRATION;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.FRIDAY;
@@ -16,6 +17,7 @@ import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.MONDAY;
 import static school.hei.haapi.endpoint.rest.model.FrequencyScopeDay.WEDNESDAY;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.StudentIT.student2;
+import static school.hei.haapi.integration.StudentIT.student3;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT2_ID;
@@ -32,6 +34,7 @@ import static school.hei.haapi.integration.conf.TestUtils.event2;
 import static school.hei.haapi.integration.conf.TestUtils.event3;
 import static school.hei.haapi.integration.conf.TestUtils.expectedCourseEventCreated;
 import static school.hei.haapi.integration.conf.TestUtils.expectedIntegrationEventCreated;
+import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableEvent;
@@ -431,20 +434,61 @@ public class EventIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void get_event_attendance_for_specific_date_range() throws ApiException {
+  void get_event_attendance_with_all_filters() throws ApiException {
     EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
-    // Get Event2 in this range
+
+    List<EventAttendance> filteredEventParticipants =
+        api.getAllEventParticipants(
+            null,
+            null,
+            Instant.parse("2022-12-08T07:59:59.00Z"),
+            Instant.parse("2022-12-08T08:00:01.00Z"),
+            PRESENT,
+            student1().getGroups().getFirst().getRef(),
+            student1().getRef(),
+            student1().getFirstName());
+    assertEquals(
+        student1AttendEvent2(), filteredEventParticipants.getFirst().getEventParticipant());
+  }
+
+  @Test
+  void get_event_attendance_with_filter() throws ApiException {
+    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
+
     List<EventAttendance> eventParticipantsInEventDateRange =
         api.getAllEventParticipants(
             null,
             null,
             Instant.parse("2022-12-08T07:59:59.00Z"),
             Instant.parse("2022-12-08T08:00:01.00Z"),
-            MISSING,
             null,
-            student3MissEvent2().getRef(),
-            student3MissEvent2().getFirstName());
+            null,
+            null,
+            null);
     assertEquals(
-        student3MissEvent2(), eventParticipantsInEventDateRange.getFirst().getEventParticipant());
+        student1AttendEvent2(), eventParticipantsInEventDateRange.getFirst().getEventParticipant());
+
+    List<EventAttendance> statusFilteredEventParticipants =
+        api.getAllEventParticipants(null, null, null, null, MISSING, null, null, null);
+    assertEquals(
+        student1MissEvent1(), statusFilteredEventParticipants.getFirst().getEventParticipant());
+
+    List<EventAttendance> groupFilteredEventParticipants =
+        api.getAllEventParticipants(null, null, null, null, null, group1().getRef(), null, null);
+    assertEquals(
+        student1MissEvent1(), groupFilteredEventParticipants.getFirst().getEventParticipant());
+
+    List<EventAttendance> studentRefFilteredEventParticipants =
+        api.getAllEventParticipants(null, null, null, null, null, null, student3().getRef(), null);
+    assertEquals(
+        student3AttendEvent1(),
+        studentRefFilteredEventParticipants.getFirst().getEventParticipant());
+
+    List<EventAttendance> studentNameFilteredEventParticipants =
+        api.getAllEventParticipants(
+            null, null, null, null, null, null, null, student3().getFirstName());
+    assertEquals(
+        student3AttendEvent1(),
+        studentNameFilteredEventParticipants.getFirst().getEventParticipant());
   }
 }
