@@ -18,20 +18,7 @@ on:
         description: |
           Deployment id.
           Optional, if set then Env conf id must remain unset (as we already have an associated Env conf id).
-          Mainly used by JCloudify API: regular users does not have to use it under normal conditions.
-      env_depl_conf_id:
-        required: false
-        description: |
-          Env depl conf id.
-          deprecated. Use Env Conf Id.
-          Optional, if set then Deployment id or deprecated equivalent must remain unset (as we will create a new Deployment id). If not set, then will retrieve latest conf.
-      app_env_depl_id:
-        required: false
-        description: |
-          App env depl Id.
-          deprecated. Use Deployment id.
-          Optional, if set then env conf id or deprecated equivalent must remain unset (as we already have an associated Env conf id).
-          Mainly used by JCloudify API: regular users do not have to use it under normal conditions.
+          Mainly used by Poja API: regular users does not have to use it under normal conditions.
 jobs:
   initiate-deployment:
     runs-on: ubuntu-latest
@@ -53,15 +40,12 @@ jobs:
           app_env_deployment_id_value=${{ env.app_env_deployment_id }}
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             app_env_deployment_id_value="${{ github.event.inputs.deployment_id }}"
-            if [ -z "$app_env_deployment_id_value" ]; then
-              app_env_deployment_id_value="${{ github.event.inputs.app_env_depl_id }}"
-            fi
           fi
           if [ -z "$app_env_deployment_id_value" ]; then
             app_env_deployment_id_value="null"
           fi
 
-          response=$(curl --fail -X POST "https://api.prod.jcloudify.com/gh-repos/${{ github.repository }}/github-workflow-state" \
+          response=$(curl --fail -X POST "https://api.prod.poja.io/gh-repos/${{ github.repository }}/github-workflow-state" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
@@ -95,7 +79,7 @@ jobs:
         run: |
           chmod +x ./gradlew
           chmod +x .shell/publish_gen_to_maven_local.sh
-          response=$(curl -X GET "https://api.prod.jcloudify.com/gh-repos/${{ github.repository }}/upload-build-uri?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/json")
+          response=$(curl -X GET "https://api.prod.poja.io/gh-repos/${{ github.repository }}/upload-build-uri?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/json")
           echo "upload_build_file_uri=$(echo $response | jq -r '.uri')" >> $GITHUB_ENV
           echo "to_upload_filename=$(echo $response | jq -r '.filename')" >> $GITHUB_ENV
           curl -X GET -o template.yml "$(echo $response | jq -r '.build_template_file_uri')"
@@ -126,17 +110,12 @@ jobs:
           app_env_deployment_id="${{ env.app_env_deployment_id }}"
 
           input_conf_id="${{ github.event.inputs.env_conf_id }}"
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            if [ -z "$input_conf_id" ]; then
-              input_conf_id="${{ github.event.inputs.env_depl_conf_id }}"
-            fi
-          fi
 
           TAG_NAME="null"
           TAG_MESSAGE="null"
           if [[ "${{ github.event_name }}" == "workflow_dispatch" && -n "$input_conf_id" ]]; then
-            TAG_NAME="jc-depl-${app_env_deployment_id}"
-            TAG_MESSAGE="jcloudify: deployment ID: ${app_env_deployment_id}"            
+            TAG_NAME="poja-depl-${app_env_deployment_id}"
+            TAG_MESSAGE="poja: deployment ID: ${app_env_deployment_id}"            
           fi
           echo "TAG_NAME=$TAG_NAME" >> $GITHUB_ENV
           echo "TAG_MESSAGE=$TAG_MESSAGE" >> $GITHUB_ENV
@@ -144,7 +123,7 @@ jobs:
           if [ -z "$input_conf_id" ]; then
             input_conf_id="null"
           fi
-          response=$(curl --fail -X PUT "https://api.prod.jcloudify.com/gh-repos/${{ github.repository }}/env-deploys?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" \
+          response=$(curl --fail -X PUT "https://api.prod.poja.io/gh-repos/${{ github.repository }}/env-deploys?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
@@ -169,14 +148,14 @@ jobs:
           echo $response
       
       - name: Tag commit if deployment with custom conf succeeded
-        if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.env_depl_conf_id != '' || github.event.inputs.env_conf_id != '' ) && env.TAG_NAME != 'null' && env.TAG_MESSAGE != 'null' }}
+        if: ${{ github.event_name == 'workflow_dispatch' && (github.event.inputs.env_conf_id != '' ) && env.TAG_NAME != 'null' && env.TAG_MESSAGE != 'null' }}
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           TAG_NAME: ${{ env.TAG_NAME }}
           TAG_MESSAGE: ${{ env.TAG_MESSAGE }}
         run: |
-          git config user.name "jcloudify[bot]"
-          git config user.email "jcloudifybot@noreply.com"
+          git config user.name "poja[bot]"
+          git config user.email "bot@poja.io"
           git tag -a "$TAG_NAME" -m "$TAG_MESSAGE"
           git push origin "$TAG_NAME"
           
@@ -189,15 +168,12 @@ jobs:
           app_env_deployment_id_value=${{ env.app_env_deployment_id }}
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             app_env_deployment_id_value="${{ github.event.inputs.deployment_id }}"
-            if [ -z "$app_env_deployment_id_value" ]; then
-              app_env_deployment_id_value="${{ github.event.inputs.app_env_depl_id }}"
-            fi
           fi
           if [ -z "$app_env_deployment_id_value" ]; then
             app_env_deployment_id_value=null
           fi
 
-          response=$(curl --fail -X POST "https://api.prod.jcloudify.com/gh-repos/${{ github.repository }}/github-workflow-state" \
+          response=$(curl --fail -X POST "https://api.prod.poja.io/gh-repos/${{ github.repository }}/github-workflow-state" \
             -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
