@@ -465,28 +465,25 @@ public class EventIT extends FacadeITMockedThirdParties {
             null,
             null,
             null);
-    assertEquals(
-        student1AttendEvent2(), eventParticipantsInEventDateRange.getFirst().getEventParticipant());
-
     List<EventAttendance> statusFilteredEventParticipants =
         api.getAllEventParticipants(null, null, null, null, MISSING, null, null, null);
-    assertEquals(
-        student1MissEvent1(), statusFilteredEventParticipants.getFirst().getEventParticipant());
-
     List<EventAttendance> groupFilteredEventParticipants =
         api.getAllEventParticipants(null, null, null, null, null, group1().getRef(), null, null);
-    assertEquals(
-        student1MissEvent1(), groupFilteredEventParticipants.getFirst().getEventParticipant());
-
     List<EventAttendance> studentRefFilteredEventParticipants =
         api.getAllEventParticipants(null, null, null, null, null, null, student3().getRef(), null);
-    assertEquals(
-        student3AttendEvent1(),
-        studentRefFilteredEventParticipants.getFirst().getEventParticipant());
-
     List<EventAttendance> studentNameFilteredEventParticipants =
         api.getAllEventParticipants(
             null, null, null, null, null, null, null, student3().getFirstName());
+
+    assertEquals(
+        student1AttendEvent2(), eventParticipantsInEventDateRange.getFirst().getEventParticipant());
+    assertEquals(
+        student1MissEvent1(), statusFilteredEventParticipants.getFirst().getEventParticipant());
+    assertEquals(
+        student1MissEvent1(), groupFilteredEventParticipants.getFirst().getEventParticipant());
+    assertEquals(
+        student3AttendEvent1(),
+        studentRefFilteredEventParticipants.getFirst().getEventParticipant());
     assertEquals(
         student3AttendEvent1(),
         studentNameFilteredEventParticipants.getFirst().getEventParticipant());
