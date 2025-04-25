@@ -426,18 +426,10 @@ public class EventIT extends FacadeITMockedThirdParties {
   @Test
   void get_event_attendance() throws ApiException {
     EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
-    List<EventAttendance> eventParticipantsInEventDateRange =
-        api.getAllEventParticipants(1, 10, null, null, MISSING, null, null, null);
-    assertTrue(
-        eventParticipantsInEventDateRange.contains(
-            new EventAttendance().event(event2()).eventParticipant(student3MissEvent2())));
-  }
 
-  @Test
-  void get_event_attendance_with_all_filters() throws ApiException {
-    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
-
-    List<EventAttendance> filteredEventParticipants =
+    List<EventAttendance> eventParticipants =
+        api.getAllEventParticipants(1, 10, null, null, null, null, null, null);
+    List<EventAttendance> eventParticipantsWithAllFilter =
         api.getAllEventParticipants(
             null,
             null,
@@ -447,14 +439,6 @@ public class EventIT extends FacadeITMockedThirdParties {
             student1().getGroups().getFirst().getRef(),
             student1().getRef(),
             student1().getFirstName());
-    assertEquals(
-        student1AttendEvent2(), filteredEventParticipants.getFirst().getEventParticipant());
-  }
-
-  @Test
-  void get_event_attendance_with_filter() throws ApiException {
-    EventsApi api = new EventsApi(anApiClient(MANAGER1_TOKEN));
-
     List<EventAttendance> eventParticipantsInEventDateRange =
         api.getAllEventParticipants(
             null,
@@ -475,6 +459,11 @@ public class EventIT extends FacadeITMockedThirdParties {
         api.getAllEventParticipants(
             null, null, null, null, null, null, null, student3().getFirstName());
 
+    assertTrue(
+        eventParticipants.contains(
+            new EventAttendance().event(event2()).eventParticipant(student3MissEvent2())));
+    assertEquals(
+        student1AttendEvent2(), eventParticipantsWithAllFilter.getFirst().getEventParticipant());
     assertEquals(
         student1AttendEvent2(), eventParticipantsInEventDateRange.getFirst().getEventParticipant());
     assertEquals(
