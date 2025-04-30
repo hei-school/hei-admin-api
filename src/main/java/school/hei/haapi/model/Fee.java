@@ -91,8 +91,8 @@ public class Fee implements Serializable {
   @JsonIgnore
   private List<Payment> payments;
 
-  @OneToOne(mappedBy = "fee")
-  private Mpbs mpbs;
+  @OneToMany(mappedBy = "fee")
+  private List<Mpbs> mpbsList;
 
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
@@ -116,7 +116,7 @@ public class Fee implements Serializable {
     this.comment = fee.getComment();
     this.category = fee.getCategory();
     this.frequency = fee.getFrequency();
-    this.mpbs = fee.getMpbs();
+    this.mpbsList = fee.getMpbsList();
     this.creationDatetime = fee.getCreationDatetime();
     this.dueDatetime = fee.getDueDatetime();
     this.payments = fee.getPayments();
@@ -212,7 +212,7 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   }
 
   public PaymentType getPaymentType() {
-    if (this.getMpbs() != null) {
+    if (this.getMpbsList() != null) {
       return MPBS;
     } else {
       return BANK;

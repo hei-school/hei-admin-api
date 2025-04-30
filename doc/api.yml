@@ -6366,7 +6366,9 @@ components:
           type: string
           format: date-time
         mpbs:
-          $ref: '#/components/schemas/Mpbs'
+          type: array
+          items:
+            $ref: '#/components/schemas/Mpbs'
         letter:
           $ref: '#/components/schemas/FeeLetter'
         student_first_name:
