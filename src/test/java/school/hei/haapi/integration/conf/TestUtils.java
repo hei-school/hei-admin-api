@@ -1,12 +1,9 @@
 package school.hei.haapi.integration.conf;
 
-import static java.time.ZoneOffset.UTC;
-import static java.time.temporal.ChronoUnit.YEARS;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
@@ -42,7 +39,6 @@ import static school.hei.haapi.integration.StudentIT.student3;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
-import com.github.javafaker.Faker;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -60,14 +56,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.IntStream;
 import org.apache.commons.io.FileUtils;
 import org.junit.jupiter.api.function.Executable;
-import org.mockito.stubbing.Answer;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.stereotype.Component;
 import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
@@ -90,6 +82,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
 import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
+import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.Event;
@@ -117,21 +110,13 @@ import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
-import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.FileService;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
 
-@Component
 public class TestUtils {
-  private final Faker faker;
-
-  TestUtils() {
-    faker = new Faker();
-  }
-
   public static final String STAFF_MEMBER1_ID = "staff1_id";
   public static final String STUDENT1_ID = "student1_id";
   public static final String STUDENT2_ID = "student2_id";
@@ -273,8 +258,6 @@ public class TestUtils {
         .thenReturn("test+organizer+2@hei.school");
     when(cognitoComponent.getEmailByIdToken(SUSPENDED_TOKEN))
         .thenReturn("test+suspended@hei.school");
-    when(cognitoComponent.getEmailByIdToken(anyString()))
-        .thenAnswer((Answer<String>) invocation -> (String) invocation.getArguments()[0]);
   }
 
   public static void setUpS3Service(FileService fileService, Student user) {
@@ -370,37 +353,6 @@ public class TestUtils {
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"));
   }
 
-  public User createSomeUser(User.Role role, User.Status status) {
-    var userBirthdate = faker.date().past(20, TimeUnit.of(YEARS));
-    return User.builder()
-        .firstName(faker.name().firstName())
-        .lastName(faker.name().lastName())
-        .email(faker.internet().emailAddress())
-        .phone(faker.phoneNumber().phoneNumber())
-        .latitude(faker.random().nextDouble())
-        .longitude(faker.random().nextDouble())
-        .address(faker.address().streetAddress())
-        .sex(Math.random() >= 0.3 ? User.Sex.M : User.Sex.F)
-        .status(status)
-        .role(role)
-        .ref(role + "-" + faker.number().randomNumber(5, true))
-        .nic(String.valueOf(faker.number().randomNumber(12, true)))
-        .birthDate(userBirthdate.toInstant().atOffset(UTC).toLocalDate())
-        .entranceDatetime(faker.date().future(1, TimeUnit.of(YEARS)).toInstant())
-        .build();
-  }
-
-  public List<User> createSomeUsers(int count, User.Role role, User.Status status) {
-    return IntStream.of(count).mapToObj(i -> createSomeUser(role, status)).toList();
-  }
-
-  public Group createSomeGroup() {
-    return new Group()
-        .name(faker.lorem().sentence(3))
-        .ref("GRP" + faker.number().randomNumber(5, true))
-        .creationDatetime(faker.date().past(4, TimeUnit.of(YEARS)).toInstant());
-  }
-
   public static Course createCourse(String code) {
     return new Course().code(code).name("Collaborative work like GWSP").credits(12).totalHours(5);
   }
@@ -459,14 +411,6 @@ public class TestUtils {
       teacherList.add(someCreatableTeacher());
     }
     return teacherList;
-  }
-
-  public List<Group> createSomeGroupList(int nbOfGroup) {
-    List<Group> groupList = new ArrayList<>();
-    for (int i = 0; i < nbOfGroup; i++) {
-      groupList.add(createSomeGroup());
-    }
-    return groupList;
   }
 
   public static List<Course> someCreatableCourseList(int nbOfCourse) {
@@ -1024,15 +968,6 @@ public class TestUtils {
         .amount(10000)
         .type(TUITION);
   }
-
-  //  public static ExamDetail examDetail1() {
-  //    return new ExamDetail()
-  //        .id(exam1().getId())
-  //        .title(exam1().getTitle())
-  //        .examinationDate(exam1().getExaminationDate())
-  //        .coefficient(exam1().getCoefficient())
-  //        .participants(List.of(studentGrade1(), studentGrade7()));
-  //  }
 
   public static AwardedCourseExam awardedCourseExam1() {
     return new AwardedCourseExam()
@@ -1705,5 +1640,25 @@ public class TestUtils {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static CrupdateStudent toCrupdateStudent(Student student) {
+    return new CrupdateStudent()
+        .id(student.getId())
+        .birthDate(student.getBirthDate())
+        .id(student.getId())
+        .entranceDatetime(student.getEntranceDatetime())
+        .phone(student.getPhone())
+        .nic(student.getNic())
+        .birthPlace(student.getBirthPlace())
+        .email(student.getEmail())
+        .address(student.getAddress())
+        .firstName(student.getFirstName())
+        .lastName(student.getLastName())
+        .sex(student.getSex())
+        .ref(student.getRef())
+        .specializationField(student.getSpecializationField())
+        .coordinates(student.getCoordinates())
+        .status(student.getStatus());
   }
 }

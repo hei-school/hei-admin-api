@@ -8,7 +8,6 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.SUSPENDED;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
-import static school.hei.haapi.integration.StudentIT.someCreatableStudent;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
@@ -53,6 +52,7 @@ import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.Payment;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.MockUtils;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
@@ -61,6 +61,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 class PaymentIT extends FacadeITMockedThirdParties {
   @Autowired EntityManager entityManager;
   @MockBean private EventBridgeClient eventBridgeClientMock;
+  @Autowired private MockUtils mockUtils;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -278,7 +279,7 @@ class PaymentIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi payingApi = new PayingApi(manager1Client);
     UsersApi usersApi = new UsersApi(manager1Client);
-    CrupdateStudent subject = someCreatableStudent();
+    CrupdateStudent subject = mockUtils.someCreatableStudent();
     subject.setStatus(ENABLED);
 
     // Assert before all that the actual student is SUSPENDED ...
@@ -365,7 +366,7 @@ class PaymentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_write_with_non_given_creation_datetime_ko() throws ApiException {
+  void manager_write_with_non_given_creation_datetime_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
@@ -376,7 +377,7 @@ class PaymentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_write_with_creation_datetime_after_current_time_ko() throws ApiException {
+  void manager_write_with_creation_datetime_after_current_time_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 

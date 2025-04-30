@@ -8,7 +8,6 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.integration.MpbsIT.createableMpbsFromFeeIdWithStudent1;
-import static school.hei.haapi.integration.StudentIT.someCreatableStudent;
 import static school.hei.haapi.integration.conf.TestUtils.FEE3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE6_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -26,8 +25,6 @@ import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -40,6 +37,7 @@ import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
+import school.hei.haapi.integration.conf.MockUtils;
 import school.hei.haapi.integration.conf.MockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.Fee;
@@ -51,12 +49,12 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @ContextConfiguration(initializers = PaymentServiceTest.ContextInitializer.class)
 @AutoConfigureMockMvc
 class PaymentServiceTest extends MockedThirdParties {
-  private static final Logger log = LoggerFactory.getLogger(PaymentServiceTest.class);
   @Autowired private PaymentService subject;
   @Autowired private MpbsService mpbsService;
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired private FeeService feeService;
   @Autowired private UserService userService;
+  @Autowired private MockUtils mockUtils;
   private String FEE7_ID = "fee7_id";
 
   @BeforeEach
@@ -72,7 +70,7 @@ class PaymentServiceTest extends MockedThirdParties {
     UsersApi usersApi = new UsersApi(manager1Client);
     PayingApi payingApi = new PayingApi(manager1Client);
 
-    var correspondingCreateableStudent = someCreatableStudent();
+    var correspondingCreateableStudent = mockUtils.someCreatableStudent();
     var correspondingFee =
         payingApi.createStudentFees(STUDENT1_ID, List.of(creatableFee1())).getFirst();
     var correspondingMpbs =

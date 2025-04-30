@@ -45,9 +45,9 @@ import static school.hei.haapi.integration.conf.TestUtils.group2;
 import static school.hei.haapi.integration.conf.TestUtils.group3;
 import static school.hei.haapi.integration.conf.TestUtils.requestFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
-import static school.hei.haapi.model.User.Role.MANAGER;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -84,6 +84,7 @@ import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Statistics;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.MockUtils;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.UserService;
@@ -102,7 +103,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
   @Autowired ObjectMapper objectMapper;
   @Autowired UserService userService;
   @Autowired UserMapper userMapper;
-  @Autowired TestUtils testUtils;
+  @Autowired MockUtils mockUtils;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -314,25 +315,24 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     setUpCognito(cognitoComponentMock);
+    setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
   }
 
   @Test
   void manager_generate_group_students_ok() throws IOException, InterruptedException {
-    var randomManager = testUtils.createSomeUser(MANAGER, User.Status.ENABLED);
-    userService.saveAll(List.of(randomManager));
-    String STUDENTS_GROUP = "/groups/" + GROUP1_ID + "/students/raw";
+    String studentsGroupPath = "/groups/" + GROUP1_ID + "/students/raw";
     HttpClient httpClient = HttpClient.newBuilder().build();
     String basePath = "http://localhost:" + localPort;
 
     HttpResponse<byte[]> response =
         httpClient.send(
             HttpRequest.newBuilder()
-                .uri(URI.create(basePath + STUDENTS_GROUP))
+                .uri(URI.create(basePath + studentsGroupPath))
                 .GET()
-                .header("Authorization", "Bearer " + randomManager.getEmail())
+                .header("Authorization", "Bearer " + MANAGER1_TOKEN)
                 .build(),
             HttpResponse.BodyHandlers.ofByteArray());
 
@@ -343,13 +343,11 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_generate_event_participants_ok() throws IOException, InterruptedException {
-    var randomManager = testUtils.createSomeUser(MANAGER, User.Status.ENABLED);
-    userService.saveAll(List.of(randomManager));
     String basePath = "http://localhost:" + localPort;
     var response =
-        testUtils.requestFile(
-            URI.create(basePath + "/event/" + EVENT1_ID + "/students/raw/xlsx"),
-            randomManager.getEmail());
+        requestFile(
+            URI.create(basePath + "/event/" + EVENT1_ID + "/students/raw/xlsx"), MANAGER1_TOKEN);
+
     assertEquals(HttpStatus.OK.value(), response.statusCode());
     assertNotNull(response.body());
     assertNotNull(response);
@@ -414,9 +412,8 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled
-  // TODO: Same here
-  void student_update_other_profile_picture_ko() throws ApiException {
+  @Disabled("TODO: Same here")
+  void student_update_other_profile_picture_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
     assertThrowsForbiddenException(
@@ -424,9 +421,8 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled
-  // TODO: Check why this returns null while a Forbidden Exception is thrown
-  void student_update_own_ko() throws ApiException {
+  @Disabled("TODO: Check why this returns null while a Forbidden Exception is thrown")
+  void student_update_own_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     UsersApi api = new UsersApi(student1Client);
     assertThrowsForbiddenException(
@@ -548,7 +544,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_read_displayed_commitment_date() throws ApiException, InterruptedException {
+  void manager_read_displayed_commitment_date() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
@@ -698,20 +694,18 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_write_update_ok() throws ApiException {
-    var randomManager = testUtils.createSomeUser(MANAGER, User.Status.ENABLED);
-    userService.saveAll(List.of(randomManager));
-    ApiClient client = anApiClient(randomManager.getEmail());
+    ApiClient client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(client);
 
-    User user1 = testUtils.createSomeUser(STUDENT, User.Status.ENABLED);
-    User user2 = testUtils.createSomeUser(STUDENT, User.Status.ENABLED);
+    User user1 = mockUtils.createSomeUser(STUDENT, User.Status.ENABLED);
+    User user2 = mockUtils.createSomeUser(STUDENT, User.Status.ENABLED);
     userService.saveAll(List.of(user1, user2));
 
     Student student1 = userMapper.toRestStudent(user1);
     Student student2 = userMapper.toRestStudent(user2);
 
-    CrupdateStudent crupdateStudent1 = toCrupdateStudent(student1).firstName("Test");
-    CrupdateStudent crupdateStudent2 = toCrupdateStudent(student2).address("Home");
+    CrupdateStudent crupdateStudent1 = TestUtils.toCrupdateStudent(student1).firstName("Test");
+    CrupdateStudent crupdateStudent2 = TestUtils.toCrupdateStudent(student2).address("Home");
     List<Student> updated =
         api.createOrUpdateStudents(List.of(crupdateStudent1, crupdateStudent2), null);
 
@@ -725,8 +719,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_read_student_by_exclude_group_id() throws ApiException {
-    var randomManager = testUtils.createSomeUser(MANAGER, User.Status.ENABLED);
-    ApiClient manager1Client = anApiClient(randomManager.getEmail());
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
     List<Student> students =
@@ -742,9 +735,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
   void manager_write_update_rollback_on_event_error() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    CrupdateStudent toCreate =
-        toCrupdateStudent(
-            userMapper.toRestStudent(testUtils.createSomeUser(STUDENT, User.Status.ENABLED)));
+    CrupdateStudent toCreate = mockUtils.someCreatableStudent();
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
         .thenThrow(RuntimeException.class);
@@ -763,12 +754,10 @@ public class StudentIT extends FacadeITMockedThirdParties {
   void manager_write_update_more_than_10_students_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    CrupdateStudent studentToCreate =
-        toCrupdateStudent(
-            userMapper.toRestStudent(testUtils.createSomeUser(STUDENT, User.Status.ENABLED)));
+    CrupdateStudent studentToCreate = mockUtils.someCreatableStudent();
     List<CrupdateStudent> listToCreate =
-        testUtils.createSomeUsers(11, STUDENT, User.Status.ENABLED).stream()
-            .map(user -> toCrupdateStudent(userMapper.toRestStudent(user)))
+        mockUtils.createSomeUsers(11, STUDENT, User.Status.ENABLED).stream()
+            .map(user -> TestUtils.toCrupdateStudent(userMapper.toRestStudent(user)))
             .toList();
     listToCreate.add(studentToCreate);
 
@@ -783,23 +772,35 @@ public class StudentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_write_with_coordinates_null_ko() throws ApiException {
-    var randomManager = testUtils.createSomeUser(MANAGER, User.Status.ENABLED);
-    userService.saveAll(List.of(randomManager));
-    ApiClient manager1Client = anApiClient(randomManager.getEmail());
+  void manager_write_with_coordinates_null_ko() {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Longitude is null, it must go hand in hand"
             + " with latitude\"}",
-        () ->
-            api.createOrUpdateStudents(
-                List.of(
-                    toCrupdateStudent(
-                            userMapper.toRestStudent(
-                                testUtils.createSomeUser(STUDENT, User.Status.ENABLED)))
-                        .coordinates(new Coordinates().longitude(null).latitude(null))),
-                null));
+        () -> {
+          api.createOrUpdateStudents(
+              List.of(
+                  TestUtils.toCrupdateStudent(
+                          userMapper.toRestStudent(
+                              mockUtils.createSomeUser(STUDENT, User.Status.ENABLED)))
+                      .coordinates(new Coordinates().longitude(null).latitude(0.))),
+              null);
+        });
+
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Latitude is null, it must go hand in hand with"
+            + " longitude\"}",
+        () -> {
+          api.createOrUpdateStudents(
+              List.of(
+                  TestUtils.toCrupdateStudent(
+                          userMapper.toRestStudent(
+                              mockUtils.createSomeUser(STUDENT, User.Status.ENABLED)))
+                      .coordinates(new Coordinates().longitude(0.).latitude(null))),
+              null);
+        });
   }
 
   @Test
@@ -815,11 +816,12 @@ public class StudentIT extends FacadeITMockedThirdParties {
                     PutEventsResultEntry.builder().eventId("eventId2").build())
                 .build());
 
-    List<CrupdateStudent> crupdateStudents =
-        testUtils.createSomeUsers(2, STUDENT, User.Status.ENABLED).stream()
-            .map(user -> toCrupdateStudent(userMapper.toRestStudent(user)))
-            .toList();
-    List<Student> created = api.createOrUpdateStudents(crupdateStudents, null);
+    List<Student> created =
+        api.createOrUpdateStudents(
+            mockUtils.createSomeUsers(2, STUDENT, User.Status.ENABLED).stream()
+                .map(user -> TestUtils.toCrupdateStudent(userMapper.toRestStudent(user)))
+                .toList(),
+            null);
 
     ArgumentCaptor<PutEventsRequest> captor = ArgumentCaptor.forClass(PutEventsRequest.class);
     verify(eventBridgeClientMock, times(1)).putEvents(captor.capture());
@@ -942,19 +944,13 @@ public class StudentIT extends FacadeITMockedThirdParties {
     UsersApi usersApi = new UsersApi(apiClient);
     PayingApi payingApi = new PayingApi(apiClient);
 
-    CrupdateStudent creatableStudent1 =
-        toCrupdateStudent(
-            userMapper.toRestStudent(testUtils.createSomeUser(STUDENT, User.Status.ENABLED)));
+    CrupdateStudent creatableStudent1 = mockUtils.someCreatableStudent();
     creatableStudent1.setPaymentFrequency(MONTHLY);
 
-    CrupdateStudent creatableStudent2 =
-        toCrupdateStudent(
-            userMapper.toRestStudent(testUtils.createSomeUser(STUDENT, User.Status.ENABLED)));
+    CrupdateStudent creatableStudent2 = mockUtils.someCreatableStudent();
     creatableStudent2.setPaymentFrequency(YEARLY);
 
-    CrupdateStudent creatableStudent3 =
-        toCrupdateStudent(
-            userMapper.toRestStudent(testUtils.createSomeUser(STUDENT, User.Status.ENABLED)));
+    CrupdateStudent creatableStudent3 = mockUtils.someCreatableStudent();
     creatableStudent3.setPaymentFrequency(null);
 
     List<Student> studentsCreated =
@@ -995,7 +991,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
     UsersApi api = new UsersApi(student1Client);
     Student currentStudent1 = api.getStudentById(STUDENT1_ID);
     Student expectedStudent1AfterUpdate = randomizeStudentUpdatableValues(currentStudent1);
-    CrupdateStudent payload = toCrupdateStudent(expectedStudent1AfterUpdate);
+    CrupdateStudent payload = TestUtils.toCrupdateStudent(expectedStudent1AfterUpdate);
 
     assertThrowsForbiddenException(() -> api.updateStudent(STUDENT1_ID, payload));
   }
@@ -1017,25 +1013,6 @@ public class StudentIT extends FacadeITMockedThirdParties {
         api.getStudentsByGroupId(GROUP1_ID, 1, 10, "ryan");
     assertEquals(1, actualGroupStudentsByFirstName.size());
     assertEquals(student1(), actualGroupStudentsByFirstName.getFirst());
-  }
-
-  private CrupdateStudent toCrupdateStudent(Student student) {
-    return new CrupdateStudent()
-        .id(student.getId())
-        .birthDate(student.getBirthDate())
-        .id(student.getId())
-        .entranceDatetime(student.getEntranceDatetime())
-        .phone(student.getPhone())
-        .nic(student.getNic())
-        .birthPlace(student.getBirthPlace())
-        .email(student.getEmail())
-        .address(student.getAddress())
-        .firstName(student.getFirstName())
-        .lastName(student.getLastName())
-        .sex(student.getSex())
-        .ref(student.getRef())
-        .specializationField(student.getSpecializationField())
-        .status(student.getStatus());
   }
 
   private Student randomizeStudentUpdatableValues(Student student) {
