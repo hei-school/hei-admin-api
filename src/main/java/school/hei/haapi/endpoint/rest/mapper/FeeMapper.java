@@ -32,7 +32,7 @@ public class FeeMapper {
     List<Mpbs> feeMpbs =
         fee.getMpbsList() != null
             ? fee.getMpbsList().stream().map(mpbsMapper::toRest).toList()
-            : null;
+            : List.of();
     var studentFee = fee.getStudent();
     var letter = letterService.getByFeeId(fee.getId());
 

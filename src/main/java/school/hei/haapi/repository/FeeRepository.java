@@ -23,8 +23,6 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
 
   List<Fee> getByStudentId(String studentId, Pageable pageable);
 
-  List<Fee> findAllByMpbsIsNotNullOrderByMpbsCreationDatetimeDesc(Pageable pageable);
-
   List<Fee> findAllByDueDatetimeBetween(Instant from, Instant to);
 
   @Query(
