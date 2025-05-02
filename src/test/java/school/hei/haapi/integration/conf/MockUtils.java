@@ -2,6 +2,7 @@ package school.hei.haapi.integration.conf;
 
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.YEARS;
+import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
 import com.github.javafaker.Faker;
@@ -16,7 +17,9 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
+import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.model.User;
 
 @Component
@@ -28,10 +31,54 @@ public class MockUtils {
     faker = new Faker();
   }
 
-  public User createSomeUser(User.Role role, User.Status status) {
+  private Date createSomeEntranceDateTime(Date userBirthdate, int minimumAge) {
+    return faker
+        .date()
+        .between(
+            Date.from(
+                userBirthdate
+                    .toInstant()
+                    .atZone(ZoneOffset.UTC)
+                    .toLocalDateTime()
+                    .plusYears(minimumAge)
+                    .toInstant(UTC)),
+            DateTime.now().toDate());
+  }
+
+  private Date createSomeBirthDateBetween(int minimumAge, int maximumAge) {
     DateTime now = DateTime.now();
-    var userBirthdate =
-        faker.date().between(now.minusYears(25).toDate(), now.minusYears(18).toDate());
+    return faker
+        .date()
+        .between(now.minusYears(maximumAge).toDate(), now.minusYears(minimumAge).toDate());
+  }
+
+  public List<CrupdateTeacher> someCreatableTeacherList(int nbOfTeacher) {
+    List<CrupdateTeacher> teacherList = new ArrayList<>();
+    for (int i = 0; i < nbOfTeacher; i++) {
+      teacherList.add(someCreatableTeacher());
+    }
+    return teacherList;
+  }
+
+  public CrupdateTeacher someCreatableTeacher() {
+    var firstName = faker.name().firstName();
+    Date birthDate = createSomeBirthDateBetween(20, 35);
+    return new CrupdateTeacher()
+        .firstName(firstName)
+        .lastName(faker.name().lastName())
+        .email("%s%d@hei.school".formatted(firstName, faker.number().randomNumber(10, true)))
+        .ref("TCR" + faker.number().randomNumber(5, true))
+        .phone(faker.phoneNumber().phoneNumber())
+        .status(ENABLED)
+        .sex(Sex.valueOf(faker.options().option(Sex.M.getValue(), Sex.F.getValue())))
+        .birthDate(birthDate.toInstant().atOffset(UTC).toLocalDate())
+        .entranceDatetime(createSomeEntranceDateTime(birthDate, 20).toInstant())
+        .coordinates(TestUtils.coordinatesWithNullValues())
+        .address("Adr X");
+  }
+
+  public User createSomeUser(User.Role role, User.Status status) {
+    var userBirthdate = createSomeBirthDateBetween(18, 25);
     return User.builder()
         .firstName(faker.name().firstName())
         .lastName(faker.name().lastName())
@@ -46,19 +93,7 @@ public class MockUtils {
         .ref(role + "-" + faker.number().randomNumber(5, true))
         .nic(String.valueOf(faker.number().randomNumber(12, true)))
         .birthDate(userBirthdate.toInstant().atOffset(UTC).toLocalDate())
-        .entranceDatetime(
-            faker
-                .date()
-                .between(
-                    Date.from(
-                        userBirthdate
-                            .toInstant()
-                            .atZone(ZoneOffset.UTC)
-                            .toLocalDateTime()
-                            .plusYears(18)
-                            .toInstant(UTC)),
-                    now.toDate())
-                .toInstant())
+        .entranceDatetime(createSomeEntranceDateTime(userBirthdate, 18).toInstant())
         .build();
   }
 

@@ -84,7 +84,6 @@ import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
 import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
-import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.EventStats;
@@ -317,21 +316,6 @@ public class TestUtils {
         .build();
   }
 
-  public static CrupdateTeacher someCreatableTeacher() {
-    return new CrupdateTeacher()
-        .firstName("Some")
-        .lastName("User")
-        .email(randomUUID() + "@hei.school")
-        .ref("TCR21-" + randomUUID())
-        .phone("0332511129")
-        .status(ENABLED)
-        .sex(Sex.M)
-        .birthDate(LocalDate.parse("2000-01-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .coordinates(coordinatesWithNullValues())
-        .address("Adr X");
-  }
-
   public static CreateFee creatableFee1() {
     return new CreateFee()
         .type(TUITION)
@@ -403,14 +387,6 @@ public class TestUtils {
 
   public static CrupdateGrade createGrade() {
     return new CrupdateGrade().score(20.0);
-  }
-
-  public static List<CrupdateTeacher> someCreatableTeacherList(int nbOfTeacher) {
-    List<CrupdateTeacher> teacherList = new ArrayList<>();
-    for (int i = 0; i < nbOfTeacher; i++) {
-      teacherList.add(someCreatableTeacher());
-    }
-    return teacherList;
   }
 
   public static List<Course> someCreatableCourseList(int nbOfCourse) {

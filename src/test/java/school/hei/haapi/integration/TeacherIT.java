@@ -23,8 +23,6 @@ import static school.hei.haapi.integration.conf.TestUtils.isValidUUID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacher;
-import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacherList;
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
 import static school.hei.haapi.integration.conf.TestUtils.teacher2;
 import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
@@ -56,6 +54,7 @@ import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.MockUtils;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -65,6 +64,7 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 class TeacherIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired private ObjectMapper objectMapper;
+  @Autowired private MockUtils mockUtils;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -147,7 +147,7 @@ class TeacherIT extends FacadeITMockedThirdParties {
   void manager_write_update_rollback_on_event_error() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    CrupdateTeacher toCreate = someCreatableTeacher();
+    CrupdateTeacher toCreate = mockUtils.someCreatableTeacher();
     reset(eventBridgeClientMock);
     when(eventBridgeClientMock.putEvents((PutEventsRequest) any()))
         .thenThrow(RuntimeException.class);
@@ -163,7 +163,7 @@ class TeacherIT extends FacadeITMockedThirdParties {
   @Test
   void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    CrupdateTeacher toCreate = someCreatableTeacher();
+    CrupdateTeacher toCreate = mockUtils.someCreatableTeacher();
     Teacher expected = expectedCreatedTeacher();
 
     UsersApi api = new UsersApi(manager1Client);
@@ -183,8 +183,8 @@ class TeacherIT extends FacadeITMockedThirdParties {
   void manager_write_update_more_than_10_teachers_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    CrupdateTeacher teacherToCreate = someCreatableTeacher();
-    List<CrupdateTeacher> listToCreate = someCreatableTeacherList(11);
+    CrupdateTeacher teacherToCreate = mockUtils.someCreatableTeacher();
+    List<CrupdateTeacher> listToCreate = mockUtils.someCreatableTeacherList(11);
     listToCreate.add(teacherToCreate);
 
     assertThrowsApiException(
@@ -200,7 +200,7 @@ class TeacherIT extends FacadeITMockedThirdParties {
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
-    CrupdateTeacher toUpdate = someCreatableTeacher();
+    CrupdateTeacher toUpdate = mockUtils.someCreatableTeacher();
 
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toUpdate));
     toUpdate.setId(created.getFirst().getId());
@@ -224,14 +224,15 @@ class TeacherIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
     CrupdateTeacher toCreate1 =
-        someCreatableTeacher()
+        mockUtils
+            .someCreatableTeacher()
             .firstName(null)
             .lastName(null)
             .email(null)
             .address(null)
             .phone(null)
             .ref(null);
-    CrupdateTeacher toCreate2 = someCreatableTeacher().email("bademail");
+    CrupdateTeacher toCreate2 = mockUtils.someCreatableTeacher().email("bademail");
 
     ApiException exception1 =
         assertThrows(ApiException.class, () -> api.createOrUpdateTeachers(List.of(toCreate1)));
