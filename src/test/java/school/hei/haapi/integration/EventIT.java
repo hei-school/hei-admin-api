@@ -37,8 +37,6 @@ import static school.hei.haapi.integration.conf.TestUtils.expectedIntegrationEve
 import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.someCreatableEvent;
-import static school.hei.haapi.integration.conf.TestUtils.someCreatableEventByManager1;
 import static school.hei.haapi.integration.conf.TestUtils.student1AttendEvent2;
 import static school.hei.haapi.integration.conf.TestUtils.student1MissEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student2AttendEvent2;
@@ -51,6 +49,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.EventsApi;
@@ -64,12 +63,14 @@ import school.hei.haapi.endpoint.rest.model.EventParticipantStats;
 import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.endpoint.rest.model.UpdateEventParticipant;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.MockUtils;
 import school.hei.haapi.integration.conf.TestUtils;
 
 @Slf4j
 @Testcontainers
 @AutoConfigureMockMvc
 public class EventIT extends FacadeITMockedThirdParties {
+  @Autowired MockUtils mockUtils;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -348,7 +349,16 @@ public class EventIT extends FacadeITMockedThirdParties {
     EventsApi managerApi = new EventsApi(anApiClient(MANAGER1_TOKEN));
     List<Event> events =
         managerApi.crupdateEvents(
-            List.of(someCreatableEventByManager1(INTEGRATION)), MONDAY, 1, "09:00", "12:00");
+            List.of(
+                mockUtils.someCreatableEvent(
+                    INTEGRATION,
+                    MANAGER_ID,
+                    Instant.parse("2023-12-08T08:00:00.00Z"),
+                    Instant.parse("2023-12-08T10:00:00.00Z"))),
+            MONDAY,
+            1,
+            "09:00",
+            "12:00");
 
     assertThrowsForbiddenException(() -> studentApi.deleteEventById(events.getFirst().getId()));
 
@@ -380,7 +390,7 @@ public class EventIT extends FacadeITMockedThirdParties {
     List<Event> createdEvents =
         managerApi.crupdateEvents(
             List.of(
-                someCreatableEvent(
+                mockUtils.someCreatableEvent(
                     COURSE, MANAGER_ID, Instant.now(), Instant.now().plus(Duration.of(4, HOURS)))),
             null,
             null,

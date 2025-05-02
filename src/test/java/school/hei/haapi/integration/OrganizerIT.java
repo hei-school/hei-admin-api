@@ -17,7 +17,6 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.someCreatableEvent;
 import static school.hei.haapi.integration.conf.TestUtils.student1MissEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student3AttendEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;
@@ -47,6 +46,7 @@ import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.Organizer;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.MockUtils;
 import school.hei.haapi.integration.conf.TestUtils;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
@@ -56,6 +56,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 public class OrganizerIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired ObjectMapper objectMapper;
+  @Autowired MockUtils mockUtils;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -148,7 +149,7 @@ public class OrganizerIT extends FacadeITMockedThirdParties {
     EventsApi api = new EventsApi(organizerClient);
 
     CreateEvent createEvent =
-        someCreatableEvent(
+        mockUtils.someCreatableEvent(
             EventType.EXAM, ORGANIZER1_ID, Instant.now(), Instant.now().plus(1, HOURS));
 
     List<Event> events = api.crupdateEvents(List.of(createEvent), null, null, null, null);

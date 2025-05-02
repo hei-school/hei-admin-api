@@ -2,10 +2,12 @@ package school.hei.haapi.integration.conf;
 
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.YEARS;
+import static java.util.UUID.randomUUID;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
 import com.github.javafaker.Faker;
+import java.time.Instant;
 import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.Date;
@@ -16,8 +18,10 @@ import org.joda.time.DateTime;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
+import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudent;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
+import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.model.User;
@@ -29,6 +33,19 @@ public class MockUtils {
 
   MockUtils() {
     faker = new Faker();
+  }
+
+  public CreateEvent someCreatableEvent(
+      EventType eventType, String planerId, Instant beginDatetime, Instant endDatetime) {
+    return new CreateEvent()
+        .id("event" + randomUUID() + "_id")
+        .courseId(TestUtils.COURSE1_ID)
+        .beginDatetime(beginDatetime)
+        .endDatetime(endDatetime)
+        .description("Another event")
+        .eventType(eventType)
+        .plannerId(planerId)
+        .groups(List.of(TestUtils.createGroupIdentifier(TestUtils.group1())));
   }
 
   private Date createSomeEntranceDateTime(Date userBirthdate, int minimumAge) {

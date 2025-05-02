@@ -12,6 +12,7 @@ import static school.hei.haapi.integration.conf.TestUtils.student2;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,6 +29,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
 @AutoConfigureMockMvc
+@Slf4j
 class UserServiceTest extends FacadeITMockedThirdParties {
   @Autowired private UserService subject;
   @MockBean private EventBridgeClient eventBridgeClientMock;
@@ -54,6 +56,9 @@ class UserServiceTest extends FacadeITMockedThirdParties {
     List<User> students =
         subject.getByCriteria(
             STUDENT, null, null, null, new PageFromOne(1), new BoundedPageSize(15), null, null);
+
+    // Todo: remove this log.info, test doesn't pass due to other test
+    log.info("students: {}", students);
     assertEquals(student1().getId(), students.getFirst().getId());
     assertEquals(student2().getId(), students.get(1).getId());
   }
@@ -67,9 +72,5 @@ class UserServiceTest extends FacadeITMockedThirdParties {
         () -> {
           student1.setStatus(User.Status.ENABLED);
         });
-  }
-
-  private ApiClient anApiClient(String token) {
-    return TestUtils.anApiClient(token, localPort);
   }
 }

@@ -25,6 +25,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.MockUtils;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.UserRepository;
@@ -39,6 +40,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
   @Autowired CheckAttendanceTriggeredService checkAttendanceTriggeredService;
   @Autowired UserRepository userRepository;
   @Autowired UserService userService;
+  @Autowired MockUtils mockUtils;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -215,7 +217,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
     List<Event> events =
         api.crupdateEvents(
             List.of(
-                someCreatableEvent(
+                mockUtils.someCreatableEvent(
                     COURSE, TEACHER1_ID, Instant.now(), Instant.now().plusSeconds(10))),
             null,
             null,

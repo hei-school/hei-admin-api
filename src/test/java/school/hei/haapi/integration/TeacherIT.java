@@ -49,6 +49,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -65,6 +66,7 @@ class TeacherIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired private ObjectMapper objectMapper;
   @Autowired private MockUtils mockUtils;
+  @Autowired private UserMapper userMapper;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -164,18 +166,15 @@ class TeacherIT extends FacadeITMockedThirdParties {
   void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     CrupdateTeacher toCreate = mockUtils.someCreatableTeacher();
-    Teacher expected = expectedCreatedTeacher();
+    Teacher expected = userMapper.toRestTeacher(userMapper.toDomain(toCreate));
 
     UsersApi api = new UsersApi(manager1Client);
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toCreate));
 
     assertEquals(1, created.size());
-    Teacher created0 = created.getFirst();
-    assertTrue(isValidUUID(created0.getId()));
-    expected.setId(created0.getId());
-    expected.setRef(toCreate.getRef());
-    expected.setEmail(toCreate.getEmail());
-    assertEquals(expected, created0);
+    Teacher firstTeacher = created.getFirst();
+    assertTrue(isValidUUID(firstTeacher.getId()));
+    assertEquals(expected, firstTeacher.id(null));
   }
 
   @Test
@@ -205,13 +204,8 @@ class TeacherIT extends FacadeITMockedThirdParties {
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toUpdate));
     toUpdate.setId(created.getFirst().getId());
 
-    Teacher expected = expectedCreatedTeacher();
-    expected.setId(created.getFirst().getId());
-    expected.setLastName("New last name");
-    expected.setEmail(toUpdate.getEmail());
-    expected.setRef(toUpdate.getRef());
-
     toUpdate.setLastName("New last name");
+    Teacher expected = userMapper.toRestTeacher(userMapper.toDomain(toUpdate));
 
     List<Teacher> updated = api.createOrUpdateTeachers(List.of(toUpdate));
 
