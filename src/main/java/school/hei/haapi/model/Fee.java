@@ -92,7 +92,7 @@ public class Fee implements Serializable {
   private List<Payment> payments;
 
   @OneToMany(mappedBy = "fee", cascade = REMOVE)
-  private List<Mpbs> mpbsList;
+  private List<Mpbs> mobilePayments;
 
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
@@ -116,7 +116,7 @@ public class Fee implements Serializable {
     this.comment = fee.getComment();
     this.category = fee.getCategory();
     this.frequency = fee.getFrequency();
-    this.mpbsList = fee.getMpbsList();
+    this.mobilePayments = fee.getMobilePayments();
     this.creationDatetime = fee.getCreationDatetime();
     this.dueDatetime = fee.getDueDatetime();
     this.payments = fee.getPayments();
@@ -212,7 +212,7 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   }
 
   public PaymentType getPaymentType() {
-    if (this.getMpbsList() != null) {
+    if (this.getMobilePayments() != null) {
       return MPBS;
     } else {
       return BANK;

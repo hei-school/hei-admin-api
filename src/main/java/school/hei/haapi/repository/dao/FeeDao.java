@@ -196,11 +196,11 @@ public class FeeDao {
     addDatePredicates(builder, root, predicates, monthFrom, monthTo);
 
     if (TRUE.equals(isMpbs)) {
-      predicates.add(builder.isNotEmpty(root.get("mpbsList")));
+      predicates.add(builder.isNotEmpty(root.get("mobilePayments")));
     }
 
     if (mpbsStatus != null) {
-      predicates.add(builder.equal(root.get("mpbsList").get("status"), mpbsStatus));
+      predicates.add(builder.equal(root.get("mobilePayments").get("status"), mpbsStatus));
     }
     return predicates;
   }
@@ -233,12 +233,12 @@ public class FeeDao {
     addDatePredicates(builder, root, predicates, monthFrom, monthTo);
 
     if (TRUE.equals(isMpbs)) {
-      predicates.add(builder.isNotEmpty(root.get("mpbsList")));
-      query.orderBy(builder.desc(root.get("mpbsList").get("creationDatetime")));
+      predicates.add(builder.isNotEmpty(root.get("mobilePayments")));
+      query.orderBy(builder.desc(root.get("mobilePayments").get("creationDatetime")));
     }
 
     if (mpbsStatus != null) {
-      predicates.add(builder.equal(root.get("mpbsList").get("status"), mpbsStatus));
+      predicates.add(builder.equal(root.get("mobilePayments").get("status"), mpbsStatus));
     }
     return predicates;
   }

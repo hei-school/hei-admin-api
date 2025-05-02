@@ -488,6 +488,8 @@ public class SecurityConf {
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*/fees/*/mpbs")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(PUT, "/students/*/fees/*/mpbs", "students")
+                    .hasAnyRole(MANAGER.getRole())
                     .requestMatchers(new SelfMatcher(PUT, "/students/*/fees/*/mpbs", "students"))
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(

@@ -30,8 +30,8 @@ public class FeeMapper {
 
   public Fee toRestFee(school.hei.haapi.model.Fee fee) {
     List<Mpbs> feeMpbs =
-        fee.getMpbsList() != null
-            ? fee.getMpbsList().stream().map(mpbsMapper::toRest).toList()
+        fee.getMobilePayments() != null
+            ? fee.getMobilePayments().stream().map(mpbsMapper::toRest).toList()
             : List.of();
     var studentFee = fee.getStudent();
     var letter = letterService.getByFeeId(fee.getId());

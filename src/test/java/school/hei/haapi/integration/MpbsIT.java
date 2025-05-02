@@ -1,5 +1,7 @@
 package school.hei.haapi.integration;
 
+import static java.time.Instant.now;
+import static java.time.Month.APRIL;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
@@ -22,6 +24,9 @@ import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.model.User.Role.STUDENT;
+import static school.hei.haapi.model.User.Sex.M;
+import static school.hei.haapi.model.User.Status.ENABLED;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
 import com.fasterxml.jackson.core.type.TypeReference;
@@ -38,6 +43,7 @@ import java.net.http.HttpResponse;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
@@ -54,15 +60,12 @@ import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.MpbsMapper;
-import school.hei.haapi.endpoint.rest.model.CreateFee;
-import school.hei.haapi.endpoint.rest.model.CrupdateMpbs;
-import school.hei.haapi.endpoint.rest.model.Fee;
-import school.hei.haapi.endpoint.rest.model.FeeFrequency;
-import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
-import school.hei.haapi.endpoint.rest.model.Mpbs;
+import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.User;
 import school.hei.haapi.service.MpbsVerificationService;
+import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
@@ -75,6 +78,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
   static final String FEE_TEST_ID = "test_id";
   @Autowired MpbsVerificationService verificationService;
   @Autowired MpbsMapper mpbsMapper;
+  @Autowired private UserService userService;
 
   @BeforeEach
   public void setUp() {
@@ -92,7 +96,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
-    Mpbs actual = api.getMpbs(STUDENT1_ID, FEE1_ID);
+    Mpbs actual = api.getMpbs(STUDENT1_ID, FEE1_ID).getFirst();
 
     assertEquals(expectedMpbs1(), actual);
   }
@@ -102,7 +106,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
-    Mpbs actual = api.getMpbs(STUDENT1_ID, FEE1_ID);
+    Mpbs actual = api.getMpbs(STUDENT1_ID, FEE1_ID).getFirst();
 
     assertEquals(expectedMpbs1(), actual);
   }
@@ -112,7 +116,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
     PayingApi api = new PayingApi(monitor1Client);
 
-    Mpbs actual = api.getMpbs(STUDENT1_ID, FEE1_ID);
+    Mpbs actual = api.getMpbs(STUDENT1_ID, FEE1_ID).getFirst();
 
     assertEquals(expectedMpbs1(), actual);
   }
@@ -139,7 +143,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
-    Mpbs actual0 = api.getMpbs(STUDENT1_ID, FEE1_ID);
+    Mpbs actual0 = api.getMpbs(STUDENT1_ID, FEE1_ID).getFirst();
     assertEquals(expectedMpbs1(), actual0);
 
     Mpbs inUpdate = api.crupdateMpbs(STUDENT1_ID, FEE1_ID, updatableMpbs1());
@@ -152,7 +156,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     assertEquals(updated.getPspType(), inUpdate.getPspType());
 
     // Assert that one fee has only one mpbs
-    Mpbs actual1 = api.getMpbs(STUDENT1_ID, FEE1_ID);
+    Mpbs actual1 = api.getMpbs(STUDENT1_ID, FEE1_ID).getFirst();
     actual1.setCreationDatetime(actual1.getCreationDatetime().truncatedTo(MINUTES));
     inUpdate.setCreationDatetime(inUpdate.getCreationDatetime().truncatedTo(MINUTES));
     assertEquals(actual1, inUpdate);
@@ -168,7 +172,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     PayingApi api = new PayingApi(managerClient);
 
     // Check if the Mpbs exists
-    Mpbs fee3BeforeVerification = api.getMpbs(STUDENT1_ID, FEE8_ID);
+    Mpbs fee3BeforeVerification = api.getMpbs(STUDENT1_ID, FEE8_ID).getFirst();
 
     assertEquals(PENDING, fee3BeforeVerification.getStatus());
     assertEquals(MPBS_FEE4_REF, fee3BeforeVerification.getPspId());
@@ -260,7 +264,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
                         .category(UNKNOWN)
                         .frequency(FeeFrequency.UNKNOWN)
                         .type(TUITION)
-                        .creationDatetime(Instant.now())
+                        .creationDatetime(now())
                         .comment("test")))
             .getFirst();
     assertEquals(actualFee.getStudentId(), STUDENT1_ID);
@@ -276,6 +280,62 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     Fee updatedFee = api.getStudentFeeById(STUDENT1_ID, actualFee.getId());
 
     assertEquals(FeeStatusEnum.PENDING, updatedFee.getStatus());
+  }
+
+  @Test
+  void student_create_mobile_payments_ok() throws ApiException {
+    var apiClient = anApiClient(MANAGER1_TOKEN);
+    var payingApi = new PayingApi(apiClient);
+
+    var randomStudent =
+        User.builder()
+            .email("test_student_sreate_mobile_payments@test.com")
+            .firstName("Test")
+            .lastName("Payment_multiple_mpbs")
+            .address("Address")
+            .birthDate(LocalDate.of(2004, APRIL, 20))
+            .phone("+261 00 00 000 00")
+            .ref("STD-mpbs-multiple")
+            .sex(M)
+            .entranceDatetime(now())
+            .birthPlace("Birthplace")
+            .highSchoolOrigin("High School Origin")
+            .status(ENABLED)
+            .role(STUDENT)
+            .build();
+
+    var toCreateStudentFee =
+        new CreateFee()
+            .type(TUITION)
+            .totalAmount(5000)
+            .category(UNKNOWN)
+            .frequency(FeeFrequency.UNKNOWN)
+            .comment("Comment")
+            .dueDatetime(now());
+
+    var savedStudent = userService.saveAll(List.of(randomStudent)).getFirst();
+    var savedStudentFee =
+        payingApi.createStudentFees(savedStudent.getId(), List.of(toCreateStudentFee)).getFirst();
+
+    var toInsertUserMpbs1 =
+        new CrupdateMpbs()
+            .studentId(savedStudent.getId())
+            .feeId(savedStudentFee.getId())
+            .pspId("MP290226.1541.D85226")
+            .pspType(ORANGE_MONEY);
+
+    var toInsertUserMpbs2 =
+        new CrupdateMpbs()
+            .studentId(savedStudent.getId())
+            .feeId(savedStudentFee.getId())
+            .pspId("MP220746.1241.D28426")
+            .pspType(ORANGE_MONEY);
+
+    payingApi.crupdateMpbs(savedStudent.getId(), savedStudentFee.getId(), toInsertUserMpbs1);
+    payingApi.crupdateMpbs(savedStudent.getId(), savedStudentFee.getId(), toInsertUserMpbs2);
+
+    Fee studentFee = payingApi.getStudentFeeById(savedStudent.getId(), savedStudentFee.getId());
+    assertEquals(2, studentFee.getMpbs().size());
   }
 
   public static CrupdateMpbs updatableMpbs1() {
