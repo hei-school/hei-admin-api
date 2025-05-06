@@ -1,5 +1,6 @@
 package school.hei.haapi.repository.dao;
 
+import static jakarta.persistence.criteria.JoinType.LEFT;
 import static school.hei.haapi.service.utils.InstantUtils.currentMondayOfTheWeek;
 import static school.hei.haapi.service.utils.InstantUtils.currentSaturdayOfTheWeekOrNext;
 
@@ -8,7 +9,6 @@ import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Expression;
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.time.Instant;
@@ -27,10 +27,6 @@ import school.hei.haapi.model.User;
 @AllArgsConstructor
 public class StudentAttendanceDao {
   private EntityManager entityManager;
-  private static final String COURSE_SESSION = "courseSession";
-  private static final String AWARDED_COURSE = "awardedCourse";
-  private static final String CREATED_AT = "createdAt";
-  private static final String BEGIN = "begin";
 
   public List<StudentAttendance> findByStudentKeyWordAndCourseSessionCriteria(
       String studentKeyword,
@@ -43,16 +39,13 @@ public class StudentAttendanceDao {
     CriteriaQuery query = builder.createQuery(StudentAttendance.class);
     Root<StudentAttendance> studentAttendanceRoot = query.from(StudentAttendance.class);
     Join<StudentAttendance, CourseSession> courseSessionJoin =
-        studentAttendanceRoot.join(COURSE_SESSION, JoinType.LEFT);
+        studentAttendanceRoot.join(StudentAttendance.COURSE_SESSION, LEFT);
     Join<CourseSession, AwardedCourse> awardedCourseJoin =
-        courseSessionJoin.join(AWARDED_COURSE, JoinType.LEFT);
-    Join<AwardedCourse, Course> courseJoin = awardedCourseJoin.join("course", JoinType.LEFT);
-    Join<StudentAttendance, User> userJoin = studentAttendanceRoot.join("student", JoinType.LEFT);
-    Join<AwardedCourse, User> teacherJoin = awardedCourseJoin.join("mainTeacher", JoinType.LEFT);
+        courseSessionJoin.join(CourseSession.AWARDED_COURSE, LEFT);
+    Join<AwardedCourse, Course> courseJoin = awardedCourseJoin.join("course", LEFT);
+    Join<StudentAttendance, User> userJoin = studentAttendanceRoot.join("student", LEFT);
+    Join<AwardedCourse, User> teacherJoin = awardedCourseJoin.join("mainTeacher", LEFT);
     List<Predicate> predicates = new ArrayList<>();
-
-    // sorting attendance by created_at ASC
-    Expression studentAttendanceCreatedAtExpression = studentAttendanceRoot.get(CREATED_AT);
 
     if (studentKeyword != null && !studentKeyword.isEmpty()) {
       predicates.add(
@@ -90,47 +83,50 @@ public class StudentAttendanceDao {
         predicates.add(
             builder.and(
                 builder.or(
-                    builder.greaterThanOrEqualTo(studentAttendanceRoot.get(CREATED_AT), from),
-                    builder.isNull(studentAttendanceRoot.get(CREATED_AT))),
+                    builder.greaterThanOrEqualTo(
+                        studentAttendanceRoot.get(StudentAttendance.CREATED_AT), from),
+                    builder.isNull(studentAttendanceRoot.get(StudentAttendance.CREATED_AT))),
                 builder.or(
-                    builder.greaterThanOrEqualTo(courseSessionJoin.get(BEGIN), from),
-                    builder.isNull(studentAttendanceRoot.get(COURSE_SESSION)))));
+                    builder.greaterThanOrEqualTo(courseSessionJoin.get(CourseSession.BEGIN), from),
+                    builder.isNull(studentAttendanceRoot.get(StudentAttendance.COURSE_SESSION)))));
         break;
       case 2:
         predicates.add(
             builder.and(
                 builder.or(
-                    builder.lessThanOrEqualTo(studentAttendanceRoot.get(CREATED_AT), to),
-                    builder.isNull(studentAttendanceRoot.get(CREATED_AT))),
+                    builder.lessThanOrEqualTo(
+                        studentAttendanceRoot.get(StudentAttendance.CREATED_AT), to),
+                    builder.isNull(studentAttendanceRoot.get(StudentAttendance.CREATED_AT))),
                 builder.or(
-                    builder.lessThanOrEqualTo(courseSessionJoin.get(BEGIN), to),
-                    builder.isNull(studentAttendanceRoot.get(COURSE_SESSION)))));
+                    builder.lessThanOrEqualTo(courseSessionJoin.get(CourseSession.BEGIN), to),
+                    builder.isNull(studentAttendanceRoot.get(StudentAttendance.COURSE_SESSION)))));
         break;
       case 3:
         predicates.add(
             builder.and(
                 builder.or(
-                    builder.between(studentAttendanceRoot.get(CREATED_AT), from, to),
-                    builder.isNull(studentAttendanceRoot.get(CREATED_AT))),
+                    builder.between(
+                        studentAttendanceRoot.get(StudentAttendance.CREATED_AT), from, to),
+                    builder.isNull(studentAttendanceRoot.get(StudentAttendance.CREATED_AT))),
                 builder.or(
-                    builder.between(courseSessionJoin.get(BEGIN), from, to),
-                    builder.isNull(studentAttendanceRoot.get(COURSE_SESSION)))));
+                    builder.between(courseSessionJoin.get(CourseSession.BEGIN), from, to),
+                    builder.isNull(studentAttendanceRoot.get(StudentAttendance.COURSE_SESSION)))));
         break;
       case 4:
         predicates.add(
             builder.and(
                 builder.or(
                     builder.between(
-                        studentAttendanceRoot.get(CREATED_AT),
+                        studentAttendanceRoot.get(StudentAttendance.CREATED_AT),
                         currentMondayOfTheWeek(),
                         currentSaturdayOfTheWeekOrNext()),
-                    builder.isNull(studentAttendanceRoot.get(CREATED_AT))),
+                    builder.isNull(studentAttendanceRoot.get(StudentAttendance.CREATED_AT))),
                 builder.or(
                     builder.between(
-                        courseSessionJoin.get(BEGIN),
+                        courseSessionJoin.get(CourseSession.BEGIN),
                         currentMondayOfTheWeek(),
                         currentSaturdayOfTheWeekOrNext()),
-                    builder.isNull(studentAttendanceRoot.get(COURSE_SESSION)))));
+                    builder.isNull(studentAttendanceRoot.get(StudentAttendance.COURSE_SESSION)))));
         break;
       default:
         // No specific case
@@ -139,7 +135,7 @@ public class StudentAttendanceDao {
 
     query
         .distinct(true)
-        .orderBy(builder.asc(studentAttendanceCreatedAtExpression))
+        .orderBy(builder.asc(studentAttendanceRoot.get(StudentAttendance.CREATED_AT)))
         .where(predicates.toArray(new Predicate[0]));
 
     return entityManager
