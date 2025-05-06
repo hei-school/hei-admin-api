@@ -45,11 +45,10 @@ import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Random;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -71,17 +70,15 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @Testcontainers
 @AutoConfigureMockMvc
 public class MpbsIT extends FacadeITMockedThirdParties {
-  private static final Logger log = LoggerFactory.getLogger(MpbsIT.class);
   public static final String MPBS_FEE4_REF = "MP241210.0817.B36568";
   public static final String FEE8_ID = "fee8_id";
   @MockBean private EventBridgeClient eventBridgeClientMock;
-  static final String FEE_TEST_ID = "test_id";
   @Autowired MpbsVerificationService verificationService;
   @Autowired MpbsMapper mpbsMapper;
   @Autowired private UserService userService;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
@@ -122,7 +119,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void student_read_others_ko() throws ApiException {
+  void student_read_others_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
 
@@ -130,7 +127,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void monitor_read_others_student_mobile_money_ko() throws ApiException {
+  void monitor_read_others_student_mobile_money_ko() {
     ApiClient monitor1Client = anApiClient(MONITOR1_TOKEN);
     PayingApi api = new PayingApi(monitor1Client);
 
@@ -155,7 +152,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     assertEquals(updated.getFeeId(), inUpdate.getFeeId());
     assertEquals(updated.getPspType(), inUpdate.getPspType());
 
-    // Assert that one fee has only one mpbs
+    // Assert that one fee has mpbs
     Mpbs actual1 = api.getMpbs(STUDENT1_ID, FEE1_ID).getFirst();
     actual1.setCreationDatetime(actual1.getCreationDatetime().truncatedTo(MINUTES));
     inUpdate.setCreationDatetime(inUpdate.getCreationDatetime().truncatedTo(MINUTES));
@@ -167,7 +164,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void verify_mpbs_via_xls() throws ApiException, IOException, InterruptedException {
+  void verify_mpbs_via_xls() throws ApiException, IOException {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(managerClient);
 
@@ -267,7 +264,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
                         .creationDatetime(now())
                         .comment("test")))
             .getFirst();
-    assertEquals(actualFee.getStudentId(), STUDENT1_ID);
+    assertEquals(STUDENT1_ID, actualFee.getStudentId());
 
     Mpbs actual =
         api.crupdateMpbs(
@@ -289,26 +286,23 @@ public class MpbsIT extends FacadeITMockedThirdParties {
 
     var savedStudent = createStudentForMobilePayments();
     var savedStudentFee = createFeeForMobilePayments(savedStudent);
-
-    var toInsertUserMpbs1 =
-        new CrupdateMpbs()
-            .studentId(savedStudent.getId())
-            .feeId(savedStudentFee.getId())
-            .pspId("MP290226.1541.D85226")
-            .pspType(ORANGE_MONEY);
-
-    var toInsertUserMpbs2 =
-        new CrupdateMpbs()
-            .studentId(savedStudent.getId())
-            .feeId(savedStudentFee.getId())
-            .pspId("MP220746.1241.D28426")
-            .pspType(ORANGE_MONEY);
+    var toInsertUserMpbs1 = createRandomMpbs(savedStudent.getId(), savedStudentFee.getId());
+    var toInsertUserMpbs2 = createRandomMpbs(savedStudent.getId(), savedStudentFee.getId());
 
     payingApi.crupdateMpbs(savedStudent.getId(), savedStudentFee.getId(), toInsertUserMpbs1);
     payingApi.crupdateMpbs(savedStudent.getId(), savedStudentFee.getId(), toInsertUserMpbs2);
 
     Fee studentFee = payingApi.getStudentFeeById(savedStudent.getId(), savedStudentFee.getId());
     assertEquals(2, studentFee.getMpbs().size());
+  }
+
+  private CrupdateMpbs createRandomMpbs(String studentId, String feeId) {
+    var random = new Random();
+    String pspId =
+        String.format(
+            "MP%06d.%04d.D%05d",
+            random.nextInt(1_000_000), random.nextInt(10000), random.nextInt(100_000));
+    return new CrupdateMpbs().studentId(studentId).feeId(feeId).pspId(pspId).pspType(ORANGE_MONEY);
   }
 
   private Fee createFeeForMobilePayments(User student) throws ApiException {
