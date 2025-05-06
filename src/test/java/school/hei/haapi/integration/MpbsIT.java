@@ -287,35 +287,8 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     var apiClient = anApiClient(MANAGER1_TOKEN);
     var payingApi = new PayingApi(apiClient);
 
-    var randomStudent =
-        User.builder()
-            .email("test_student_sreate_mobile_payments@test.com")
-            .firstName("Test")
-            .lastName("Payment_multiple_mpbs")
-            .address("Address")
-            .birthDate(LocalDate.of(2004, APRIL, 20))
-            .phone("+261 00 00 000 00")
-            .ref("STD-mpbs-multiple")
-            .sex(M)
-            .entranceDatetime(now())
-            .birthPlace("Birthplace")
-            .highSchoolOrigin("High School Origin")
-            .status(ENABLED)
-            .role(STUDENT)
-            .build();
-
-    var toCreateStudentFee =
-        new CreateFee()
-            .type(TUITION)
-            .totalAmount(5000)
-            .category(UNKNOWN)
-            .frequency(FeeFrequency.UNKNOWN)
-            .comment("Comment")
-            .dueDatetime(now());
-
-    var savedStudent = userService.saveAll(List.of(randomStudent)).getFirst();
-    var savedStudentFee =
-        payingApi.createStudentFees(savedStudent.getId(), List.of(toCreateStudentFee)).getFirst();
+    var savedStudent = createStudentForMobilePayments();
+    var savedStudentFee = createFeeForMobilePayments(savedStudent);
 
     var toInsertUserMpbs1 =
         new CrupdateMpbs()
@@ -336,6 +309,43 @@ public class MpbsIT extends FacadeITMockedThirdParties {
 
     Fee studentFee = payingApi.getStudentFeeById(savedStudent.getId(), savedStudentFee.getId());
     assertEquals(2, studentFee.getMpbs().size());
+  }
+
+  private Fee createFeeForMobilePayments(User student) throws ApiException {
+    var apiClient = anApiClient(MANAGER1_TOKEN);
+    var payingApi = new PayingApi(apiClient);
+
+    var toCreateStudentFee =
+        new CreateFee()
+            .type(TUITION)
+            .totalAmount(5000)
+            .category(UNKNOWN)
+            .frequency(FeeFrequency.UNKNOWN)
+            .comment("Comment")
+            .dueDatetime(now());
+
+    return payingApi.createStudentFees(student.getId(), List.of(toCreateStudentFee)).getFirst();
+  }
+
+  private User createStudentForMobilePayments() {
+    var randomStudent =
+        User.builder()
+            .email("test_student_create_mobile_payments@test.com")
+            .firstName("Test")
+            .lastName("Payment_multiple_mpbs")
+            .address("Address")
+            .birthDate(LocalDate.of(2004, APRIL, 20))
+            .phone("+261 00 00 000 00")
+            .ref("STD-mpbs-multiple")
+            .sex(M)
+            .entranceDatetime(now())
+            .birthPlace("Birthplace")
+            .highSchoolOrigin("High School Origin")
+            .status(ENABLED)
+            .role(STUDENT)
+            .build();
+
+    return userService.saveAll(List.of(randomStudent)).getFirst();
   }
 
   public static CrupdateMpbs updatableMpbs1() {
