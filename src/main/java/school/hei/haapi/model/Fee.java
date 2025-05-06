@@ -212,7 +212,7 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   }
 
   public PaymentType getPaymentType() {
-    if (this.getMobilePayments() != null) {
+    if (!this.getMobilePayments().isEmpty()) {
       return MPBS;
     } else {
       return BANK;
