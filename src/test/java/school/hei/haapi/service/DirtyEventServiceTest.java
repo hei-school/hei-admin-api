@@ -28,7 +28,7 @@ import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.http.model.CreateEventFrequency;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
-import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.integration.conf.MockUtils;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventFrequencyNumber;
@@ -52,7 +52,7 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
   @Autowired private GroupMapper groupMapper;
   @Autowired private UserMapper userMapper;
   @MockBean private EventBridgeClient eventBridgeClientMock;
-  @Autowired private TestUtils testUtils;
+  @Autowired private MockUtils mockUtils;
 
   @BeforeEach
   void setUp() {
@@ -69,7 +69,7 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
         groupService.saveAll(
             List.of(
                 new CreateGroup(
-                    groupMapper.toDomain(testUtils.createGroup()),
+                    groupMapper.toDomain(mockUtils.createGroup()),
                     randomUsers.stream().map(User::getId).toList())));
 
     Event creatableEvent =
@@ -154,7 +154,7 @@ class DirtyEventServiceTest extends FacadeITMockedThirdParties {
         groupService.saveAll(
             List.of(
                 new CreateGroup(
-                    groupMapper.toDomain(testUtils.createGroup()),
+                    groupMapper.toDomain(mockUtils.createGroup()),
                     randomUsers.stream().map(User::getId).toList())));
 
     List<Event> randomCourseEvent =
