@@ -3103,7 +3103,7 @@ paths:
     get:
       tags:
         - Paying
-      summary: Get, if exists, the Mobile Payment By Student - (MPBS) associated to the fee.
+      summary: Get, if exists, all Mobile Payment By Student - All (MPBS) associated to the fee.
       operationId: getMpbs
       parameters:
         - name: student_id
@@ -3118,11 +3118,13 @@ paths:
             type: string
       responses:
         '200':
-          description: The MPBS
+          description: List of all MPBS
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Mpbs'
+                type: array
+                items:
+                  $ref: '#/components/schemas/Mpbs'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -6366,7 +6368,9 @@ components:
           type: string
           format: date-time
         mpbs:
-          $ref: '#/components/schemas/Mpbs'
+          type: array
+          items:
+            $ref: '#/components/schemas/Mpbs'
         letter:
           $ref: '#/components/schemas/FeeLetter'
         student_first_name:
