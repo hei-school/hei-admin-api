@@ -1,3 +1,12 @@
+## [1.103.1](https://github.com/hei-school/hei-admin-api/compare/v1.103.0...v1.103.1) (2025-05-07)
+
+
+### Bug Fixes
+
+* fee having list of mpbs ([074b6d2](https://github.com/hei-school/hei-admin-api/commit/074b6d2372cb0ad4e6bc99c2da3c22d694f0bcc0))
+
+
+
 # [1.103.0](https://github.com/hei-school/hei-admin-api/compare/v1.102.1...v1.103.0) (2025-04-25)
 
 
@@ -118,18 +127,6 @@
 
 * crupdate organizers ([a7fe681](https://github.com/hei-school/hei-admin-api/commit/a7fe681a3fa1230d3026f7257ebff95e43d73780))
 * role organizer ([9cf27fd](https://github.com/hei-school/hei-admin-api/commit/9cf27fd7e3785988b873424ec750f3675c104917))
-
-
-
-# [1.96.0](https://github.com/hei-school/hei-admin-api/compare/v1.95.0...v1.96.0) (2025-02-06)
-
-
-### Features
-
-* GET /event/participants/{participant_id}/stats ([6c752a5](https://github.com/hei-school/hei-admin-api/commit/6c752a53611a27bb3dabae8372d26ea28b8332cb))
-* get event stats ([eb7bd48](https://github.com/hei-school/hei-admin-api/commit/eb7bd48b5a0d0108ad1f8715e5572a14edef1516))
-* get students exam grades  ([0fe0c42](https://github.com/hei-school/hei-admin-api/commit/0fe0c426bec33b7b68ddd960b65503a098f47cd5))
-* mail student on failed mpbs  ([aebd92c](https://github.com/hei-school/hei-admin-api/commit/aebd92c8d6d9b8e1f64ef58308cb09244da2b4da))
 
 
 
