@@ -92,16 +92,7 @@ public class FeeDao {
     Root<Fee> root = query.from(Fee.class);
     List<Predicate> predicates =
         getStatPredicate(
-            root,
-            query,
-            mpbsStatus,
-            feeType,
-            status,
-            studentRef,
-            monthFrom,
-            monthTo,
-            isMpbs,
-            builder);
+            root, mpbsStatus, feeType, status, studentRef, monthFrom, monthTo, isMpbs, builder);
 
     Subquery<Long> pendingSubquery = query.subquery(Long.class);
     Root<Mpbs> pendingRoot = pendingSubquery.from(Mpbs.class);
@@ -188,8 +179,7 @@ public class FeeDao {
       String studentRef,
       Instant monthFrom,
       Instant monthTo,
-      Boolean isMpbs,
-      CriteriaQuery<FeesStats> query) {
+      Boolean isMpbs) {
     if (feeType != null) {
       predicates.add(builder.equal(root.get("type"), feeType));
     }
@@ -206,13 +196,11 @@ public class FeeDao {
     addDatePredicates(builder, root, predicates, monthFrom, monthTo);
 
     if (TRUE.equals(isMpbs)) {
-      Join<Fee, Mpbs> mpbsJoin = root.join("mpbs");
-      predicates.add(builder.isNotNull(mpbsJoin));
+      predicates.add(builder.isNotEmpty(root.get("mobilePayments")));
     }
 
     if (mpbsStatus != null) {
-      Join<Fee, Mpbs> mpbsJoin = root.join("mpbs");
-      predicates.add(builder.equal(mpbsJoin.get("status"), mpbsStatus));
+      predicates.add(builder.equal(root.get("mobilePayments").get("status"), mpbsStatus));
     }
     return predicates;
   }
@@ -245,21 +233,18 @@ public class FeeDao {
     addDatePredicates(builder, root, predicates, monthFrom, monthTo);
 
     if (TRUE.equals(isMpbs)) {
-      Join<Fee, Mpbs> mpbsJoin = root.join("mpbs");
-      predicates.add(builder.isNotNull(mpbsJoin));
-      query.orderBy(builder.desc(mpbsJoin.get("creationDatetime")));
+      predicates.add(builder.isNotEmpty(root.get("mobilePayments")));
+      query.orderBy(builder.desc(root.get("mobilePayments").get("creationDatetime")));
     }
 
     if (mpbsStatus != null) {
-      Join<Fee, Mpbs> mpbsJoin = root.join("mpbs");
-      predicates.add(builder.equal(mpbsJoin.get("status"), mpbsStatus));
+      predicates.add(builder.equal(root.get("mobilePayments").get("status"), mpbsStatus));
     }
     return predicates;
   }
 
   private List<Predicate> getStatPredicate(
       Root<Fee> root,
-      CriteriaQuery<FeesStats> query,
       MpbsStatus mpbsStatus,
       FeeTypeEnum feeType,
       FeeStatusEnum status,
@@ -279,8 +264,7 @@ public class FeeDao {
         studentRef,
         monthFrom,
         monthTo,
-        isMpbs,
-        query);
+        isMpbs);
 
     return predicates;
   }

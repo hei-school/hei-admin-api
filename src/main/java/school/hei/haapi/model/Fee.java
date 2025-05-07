@@ -91,8 +91,8 @@ public class Fee implements Serializable {
   @JsonIgnore
   private List<Payment> payments;
 
-  @OneToOne(mappedBy = "fee")
-  private Mpbs mpbs;
+  @OneToMany(mappedBy = "fee", cascade = REMOVE)
+  private List<Mpbs> mobilePayments;
 
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
@@ -116,7 +116,7 @@ public class Fee implements Serializable {
     this.comment = fee.getComment();
     this.category = fee.getCategory();
     this.frequency = fee.getFrequency();
-    this.mpbs = fee.getMpbs();
+    this.mobilePayments = fee.getMobilePayments();
     this.creationDatetime = fee.getCreationDatetime();
     this.dueDatetime = fee.getDueDatetime();
     this.payments = fee.getPayments();
@@ -187,8 +187,8 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
     return TUITION.equals(this.getType())
         && Optional.ofNullable(this.getComment())
             .map(
-                comment ->
-                    comment.toLowerCase().contains(WORK_STUDY_FEE_COMMENT_KEYWORD.getKeyword()))
+                feeComment ->
+                    feeComment.toLowerCase().contains(WORK_STUDY_FEE_COMMENT_KEYWORD.getKeyword()))
             .orElse(false);
   }
 
@@ -196,8 +196,8 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   public Optional<StudentGrade> getOwnerStudentGrade() {
     Optional<String> optionalComment = Optional.ofNullable(this.getComment());
     return optionalComment.map(
-        comment -> {
-          String lowerCaseComment = comment.toLowerCase();
+        feeComment -> {
+          String lowerCaseComment = feeComment.toLowerCase();
           if (lowerCaseComment.contains(L1.getName())) {
             return L1;
           }
@@ -212,7 +212,7 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   }
 
   public PaymentType getPaymentType() {
-    if (this.getMpbs() != null) {
+    if (!this.getMobilePayments().isEmpty()) {
       return MPBS;
     } else {
       return BANK;
@@ -223,11 +223,11 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   public Optional<PaymentFrequency> getPaymentFrequency() {
     Optional<String> optionalComment = Optional.ofNullable(this.getComment());
     return optionalComment.map(
-        comment -> {
-          if (comment.toLowerCase().contains(MONTHLY_FEE_KEYWORD.getKeyword())) {
+        feeComment -> {
+          if (feeComment.toLowerCase().contains(MONTHLY_FEE_KEYWORD.getKeyword())) {
             return MONTHLY;
           }
-          if (comment.toLowerCase().contains(YEARLY_FEE_KEYWORD.getKeyword())) {
+          if (feeComment.toLowerCase().contains(YEARLY_FEE_KEYWORD.getKeyword())) {
             return YEARLY;
           }
           return null;
