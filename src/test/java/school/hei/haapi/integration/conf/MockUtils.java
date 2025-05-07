@@ -1,9 +1,10 @@
 package school.hei.haapi.integration.conf;
 
+import static java.util.concurrent.TimeUnit.DAYS;
+
 import com.github.javafaker.Faker;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Group;
 
@@ -19,7 +20,7 @@ public class MockUtils {
     return new Group()
         .name(faker.lorem().sentence(10))
         .ref(faker.lorem().characters(10))
-        .creationDatetime(faker.date().past(30, TimeUnit.DAYS).toInstant());
+        .creationDatetime(faker.date().past(30, DAYS).toInstant());
   }
 
   public List<Group> someCreatableGroupList(int nbOfGroup) {
