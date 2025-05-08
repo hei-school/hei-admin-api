@@ -36,7 +36,6 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.PaymentValidator;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.PaymentRepository;
-import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.UserManagerDao;
 
 @Service
@@ -46,7 +45,6 @@ public class PaymentService {
   private final PaymentNumberSequenceService sequenceService;
   private final FeeRepository feeRepository;
   private final PaymentRepository paymentRepository;
-  private final UserRepository userRepository;
   private final FeeService feeService;
   private final UserManagerDao userManagerDao;
   private final PaymentValidator paymentValidator;
