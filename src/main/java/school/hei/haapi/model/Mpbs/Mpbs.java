@@ -9,6 +9,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
@@ -47,7 +48,7 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   @ToString.Exclude
   private User student;
 
-  @ManyToOne
+  @OneToOne
   @JoinColumn(name = "fee_id")
   @ToString.Exclude
   @JsonIgnore
