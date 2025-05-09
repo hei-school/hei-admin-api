@@ -1,5 +1,6 @@
 package school.hei.haapi.service.event;
 
+import static school.hei.haapi.model.User.Status.DISABLED;
 import static school.hei.haapi.model.User.Status.SUSPENDED;
 
 import jakarta.transaction.Transactional;
@@ -27,11 +28,12 @@ public class SuspendStudentsWithOverdueFeesService
   private final MpbsService mpbsService;
 
   // Suspends students with overdue fees if it hasn't been done already.
+  @Transactional
   public void suspendStudentsWithUnpaidOrLateFee() {
     List<User> students = userService.getStudentsWithUnpaidOrLateFee();
     log.info("list of student with unpaid or late fee : {} ", students);
     for (User student : students) {
-      if (!SUSPENDED.equals(student.getStatus())) {
+      if (!SUSPENDED.equals(student.getStatus()) && !DISABLED.equals(student.getStatus())) {
         Long studentMpbsPendingCount = mpbsService.countPendingOfStudent(student.getId());
         if (studentMpbsPendingCount == 0) {
           userManagerDao.updateUserStatusById(SUSPENDED, student.getId());

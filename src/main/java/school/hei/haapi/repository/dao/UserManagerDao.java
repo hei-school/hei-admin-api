@@ -9,6 +9,7 @@ import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
+import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -187,6 +188,7 @@ public class UserManagerDao {
         .getResultList();
   }
 
+  @Transactional
   public void updateUserStatusById(User.Status status, String userId) {
     User user = entityManager.find(User.class, userId);
     if (user != null) {
