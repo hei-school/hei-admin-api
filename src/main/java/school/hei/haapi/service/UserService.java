@@ -352,12 +352,11 @@ public class UserService {
     return eventParticipantXlsxCellsGenerator.apply(
         students,
         List.of(
-            "participant.ref",
-            "participant.lastName",
             "participant.firstName",
+            "participant.lastName",
+            "status",
             "participant.email",
-            "group.ref",
-            "status"));
+            "participant.sex"));
   }
 
   public byte[] generateStudentsInPromotionXlsx(String promotionId) {

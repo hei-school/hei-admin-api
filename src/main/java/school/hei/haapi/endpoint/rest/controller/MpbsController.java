@@ -45,12 +45,10 @@ public class MpbsController {
   }
 
   @GetMapping(value = "/students/{student_id}/fees/{fee_id}/mpbs")
-  public List<Mpbs> getMpbs(
+  public Mpbs getMpbs(
       @PathVariable(name = "student_id") String studentId,
       @PathVariable(name = "fee_id") String feeId) {
-    return mpbsService.getStudentMobilePaymentByFeeId(studentId, feeId).stream()
-        .map(mapper::toRest)
-        .toList();
+    return mapper.toRest(mpbsService.getStudentMobilePaymentByFeeId(studentId, feeId));
   }
 
   @PostMapping(value = "/mpbs/verify", consumes = MULTIPART_FORM_DATA_VALUE)

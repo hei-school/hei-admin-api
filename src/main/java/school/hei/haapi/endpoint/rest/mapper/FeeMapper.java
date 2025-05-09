@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import static java.util.stream.Collectors.toUnmodifiableList;
 import static school.hei.haapi.endpoint.rest.mapper.FileInfoMapper.ONE_DAY_DURATION_AS_LONG;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
@@ -29,10 +30,7 @@ public class FeeMapper {
   private final UserService userService;
 
   public Fee toRestFee(school.hei.haapi.model.Fee fee) {
-    List<Mpbs> feeMpbs =
-        fee.getMobilePayments() != null
-            ? fee.getMobilePayments().stream().map(mpbsMapper::toRest).toList()
-            : List.of();
+    Mpbs feeMpbs = fee.getMpbs() != null ? mpbsMapper.toRest(fee.getMpbs()) : null;
     var studentFee = fee.getStudent();
     var letter = letterService.getByFeeId(fee.getId());
 
@@ -88,7 +86,7 @@ public class FeeMapper {
         .build();
   }
 
-  public school.hei.haapi.model.Fee toDomain(CrupdateStudentFee crupdateFee) {
+  public school.hei.haapi.model.Fee ToDomain(CrupdateStudentFee crupdateFee) {
     User student = userService.findById(crupdateFee.getStudentId());
     school.hei.haapi.model.Fee fee =
         school.hei.haapi.model.Fee.builder()
@@ -139,8 +137,10 @@ public class FeeMapper {
 
   public List<school.hei.haapi.model.Fee> toDomainFee(User student, List<CreateFee> toCreate) {
     if (student == null) {
-      throw new NotFoundException("Student is not found");
+      throw new NotFoundException("Student.id=" + student.getId() + " is not found");
     }
-    return toCreate.stream().map(createFee -> toDomainFee(student, createFee)).toList();
+    return toCreate.stream()
+        .map(createFee -> toDomainFee(student, createFee))
+        .collect(toUnmodifiableList());
   }
 }

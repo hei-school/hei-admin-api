@@ -161,7 +161,7 @@ public class FeeController {
   @PutMapping("/fees")
   public List<Fee> crupdateStudentFees(@RequestBody List<CrupdateStudentFee> crupdateStudentFees) {
     return feeService
-        .saveAll(crupdateStudentFees.stream().map(feeMapper::toDomain).toList())
+        .saveAll(crupdateStudentFees.stream().map(feeMapper::ToDomain).collect(toList()))
         .stream()
         .map(feeMapper::toRestFee)
         .collect(toUnmodifiableList());
