@@ -4,8 +4,7 @@ import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
-import static school.hei.haapi.model.User.Status.DISABLED;
-import static school.hei.haapi.model.User.Status.ENABLED;
+import static school.hei.haapi.model.User.Status.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
@@ -151,6 +150,11 @@ public class User implements Serializable {
     if (DISABLED.equals(this.getStatus()) && ENABLED.equals(newStatus)) {
       throw new IllegalArgumentException("DISABLED User cannot be set back to ENABLED");
     }
+
+    if (DISABLED.equals(this.getStatus()) && SUSPENDED.equals(newStatus)) {
+      throw new IllegalArgumentException("DISABLED User cannot be set to SUSPENDED");
+    }
+
     this.status = newStatus;
   }
 
