@@ -725,7 +725,7 @@ public class TestUtils {
         .totalAmount(5000)
         .remainingAmount(0)
         .comment("Frais L1")
-        .mpbs(expectedMpbs1())
+        .mpbs(List.of(expectedMpbs1()))
         .updatedAt(Instant.parse("2023-02-08T08:30:24Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .dueDatetime(Instant.parse("2021-12-08T08:25:24.00Z"))

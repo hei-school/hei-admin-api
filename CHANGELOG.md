@@ -1,3 +1,28 @@
+## [1.103.1](https://github.com/hei-school/hei-admin-api/compare/v1.103.0...v1.103.1) (2025-05-07)
+
+
+### Bug Fixes
+
+* fee having list of mpbs ([074b6d2](https://github.com/hei-school/hei-admin-api/commit/074b6d2372cb0ad4e6bc99c2da3c22d694f0bcc0))
+
+
+
+# [1.103.0](https://github.com/hei-school/hei-admin-api/compare/v1.102.1...v1.103.0) (2025-04-25)
+
+
+### Bug Fixes
+
+* advanced fee statistics generation endpoint ([e3e6398](https://github.com/hei-school/hei-admin-api/commit/e3e63980a906115df8f04c0be2a0bd7ecfcd9b6a))
+* getAllEventParticipants without date parameters ([f0c20f1](https://github.com/hei-school/hei-admin-api/commit/f0c20f190d8657b1853eaa262eb6b245ceb3163e))
+
+
+### Features
+
+* get all event attendances & filter by status ([4bb28d6](https://github.com/hei-school/hei-admin-api/commit/4bb28d6aec5c84786f1e8d70abb8b6e797c7cc52))
+* getAllEventParticipants filters ([a5be603](https://github.com/hei-school/hei-admin-api/commit/a5be60386d3dbc6a9fffc98fae981a7e851a7b94))
+
+
+
 ## [1.102.1](https://github.com/hei-school/hei-admin-api/compare/v1.102.0...v1.102.1) (2025-04-04)
 
 
@@ -102,34 +127,6 @@
 
 * crupdate organizers ([a7fe681](https://github.com/hei-school/hei-admin-api/commit/a7fe681a3fa1230d3026f7257ebff95e43d73780))
 * role organizer ([9cf27fd](https://github.com/hei-school/hei-admin-api/commit/9cf27fd7e3785988b873424ec750f3675c104917))
-
-
-
-# [1.96.0](https://github.com/hei-school/hei-admin-api/compare/v1.95.0...v1.96.0) (2025-02-06)
-
-
-### Features
-
-* GET /event/participants/{participant_id}/stats ([6c752a5](https://github.com/hei-school/hei-admin-api/commit/6c752a53611a27bb3dabae8372d26ea28b8332cb))
-* get event stats ([eb7bd48](https://github.com/hei-school/hei-admin-api/commit/eb7bd48b5a0d0108ad1f8715e5572a14edef1516))
-* get students exam grades  ([0fe0c42](https://github.com/hei-school/hei-admin-api/commit/0fe0c426bec33b7b68ddd960b65503a098f47cd5))
-* mail student on failed mpbs  ([aebd92c](https://github.com/hei-school/hei-admin-api/commit/aebd92c8d6d9b8e1f64ef58308cb09244da2b4da))
-
-
-
-# [1.95.0](https://github.com/hei-school/hei-admin-api/compare/v1.94.0...v1.95.0) (2025-01-29)
-
-
-### Bug Fixes
-
-* event participant  ([7338d7b](https://github.com/hei-school/hei-admin-api/commit/7338d7b1cc78d0bcdbf6c1af5b0102bb23c58d78))
-* make PUT /events indempotant  ([1d7ca19](https://github.com/hei-school/hei-admin-api/commit/1d7ca196549e6e17fcba8ab9890ee43596153a7c))
-
-
-### Features
-
-* mail on participant missing event ([8ccff8d](https://github.com/hei-school/hei-admin-api/commit/8ccff8d218ce02db642ceeaca070432e15e1fd39))
-* **not-implemented:** delete events by id  ([ee8ff2c](https://github.com/hei-school/hei-admin-api/commit/ee8ff2cfa8162994ce6a92ebb35ac0ae29d5121f))
 
 
 

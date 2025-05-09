@@ -77,6 +77,8 @@ public class Event {
       inverseJoinColumns = @JoinColumn(name = "group_id"))
   private List<Group> groups;
 
+  public static final String BEGIN_DATETIME = "beginDatetime";
+
   @Override
   public String toString() {
     return "Event {id="
