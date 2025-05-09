@@ -1,13 +1,16 @@
 package school.hei.haapi.repository.dao;
 
 import static jakarta.persistence.criteria.JoinType.LEFT;
+import static school.hei.haapi.service.utils.DateUtils.RangedInstant;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Path;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -31,13 +34,15 @@ public class EventParticipantDao {
       String groupRef,
       String name,
       String ref,
-      AttendanceStatus attendanceStatus) {
+      AttendanceStatus attendanceStatus,
+      RangedInstant eventBeginRange) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<EventParticipant> query = builder.createQuery(EventParticipant.class);
     Root<EventParticipant> root = query.from(EventParticipant.class);
 
     List<Predicate> predicates =
-        getPredicates(builder, root, eventId, groupRef, name, ref, attendanceStatus);
+        getPredicates(
+            builder, root, eventId, groupRef, name, ref, attendanceStatus, eventBeginRange);
 
     if (!predicates.isEmpty()) {
       query.where(predicates.toArray(new Predicate[0]));
@@ -63,7 +68,8 @@ public class EventParticipantDao {
       String groupRef,
       String name,
       String ref,
-      AttendanceStatus attendanceStatus) {
+      AttendanceStatus attendanceStatus,
+      RangedInstant eventBeginRange) {
     List<Predicate> predicates = new ArrayList<>();
 
     if (eventId != null) {
@@ -102,6 +108,17 @@ public class EventParticipantDao {
 
     if (attendanceStatus != null) {
       predicates.add(builder.equal(root.get("status"), attendanceStatus));
+    }
+
+    Path<Instant> eventBeginDateTime = root.get("event").get(Event.BEGIN_DATETIME);
+    predicates.add(builder.isNotNull(eventBeginDateTime));
+    if (eventBeginRange != null) {
+      if (eventBeginRange.from() != null) {
+        predicates.add(builder.greaterThanOrEqualTo(eventBeginDateTime, eventBeginRange.from()));
+      }
+      if (eventBeginRange.to() != null) {
+        predicates.add(builder.lessThanOrEqualTo(eventBeginDateTime, eventBeginRange.to()));
+      }
     }
 
     return predicates;

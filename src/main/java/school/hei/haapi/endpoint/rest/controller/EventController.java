@@ -13,11 +13,13 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.rest.mapper.EventAttendanceMapper;
 import school.hei.haapi.endpoint.rest.mapper.EventMapper;
 import school.hei.haapi.endpoint.rest.mapper.EventParticipantMapper;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventAttendance;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.EventParticipantStats;
 import school.hei.haapi.endpoint.rest.model.EventStats;
@@ -33,6 +35,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.service.EventParticipantService;
 import school.hei.haapi.service.EventService;
 import school.hei.haapi.service.UserService;
+import school.hei.haapi.service.utils.DateUtils;
 
 @AllArgsConstructor
 @RestController
@@ -43,6 +46,7 @@ public class EventController {
   private final EventParticipantService eventParticipantService;
   private final UserService userService;
   private final CreateEventFrequencyValidator eventFrequencyValidator;
+  private final EventAttendanceMapper eventAttendanceMapper;
 
   @PutMapping("/events")
   public List<Event> crupdateEvents(
@@ -106,7 +110,7 @@ public class EventController {
       @RequestParam(name = "name", required = false) String name,
       @RequestParam(name = "status", required = false) AttendanceStatus attendanceStatus) {
     return eventParticipantService
-        .getEventParticipants(eventId, page, pageSize, groupRef, name, ref, attendanceStatus)
+        .getEventParticipants(eventId, page, pageSize, groupRef, name, ref, attendanceStatus, null)
         .stream()
         .map(eventParticipantMapper::toRest)
         .collect(toUnmodifiableList());
@@ -147,5 +151,30 @@ public class EventController {
   @DeleteMapping("/events/{id}")
   public Event deleteEventById(@PathVariable(name = "id") String id) {
     return mapper.toRest(eventService.deleteEvent(id));
+  }
+
+  @GetMapping(value = "/event_participants")
+  public List<EventAttendance> getAllEventParticipants(
+      @RequestParam(name = "page", defaultValue = "1") PageFromOne page,
+      @RequestParam(name = "page_size", defaultValue = "15") BoundedPageSize pageSize,
+      @RequestParam(name = "from", required = false) Instant from,
+      @RequestParam(name = "to", required = false) Instant to,
+      @RequestParam(name = "attendance_status", required = false) AttendanceStatus attendanceStatus,
+      @RequestParam(name = "group_ref", required = false) String groupRef,
+      @RequestParam(name = "student_ref", required = false) String studentRef,
+      @RequestParam(name = "student_name", required = false) String studentName) {
+    return eventParticipantService
+        .getEventParticipants(
+            null,
+            page,
+            pageSize,
+            groupRef,
+            studentName,
+            studentRef,
+            attendanceStatus,
+            new DateUtils.RangedInstant(from, to))
+        .stream()
+        .map(eventAttendanceMapper::toRest)
+        .toList();
   }
 }

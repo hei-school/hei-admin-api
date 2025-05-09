@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -26,7 +27,7 @@ public class MpbsService {
     return mpbsRepository.save(mobilePaymentByStudentToSave);
   }
 
-  public Mpbs getStudentMobilePaymentByFeeId(String studentId, String feeId) {
+  public List<Mpbs> getStudentMobilePaymentByFeeId(String studentId, String feeId) {
     return mpbsRepository.findByStudentIdAndFeeId(studentId, feeId);
   }
 
