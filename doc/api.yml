@@ -752,17 +752,13 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/courses/{id}':
+  '/courses/{course_id}':
     get:
       tags:
         - Teaching
       summary: Get course by identifier
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/PathCourseId'
       operationId: getCourseById
       responses:
         '200':
@@ -771,6 +767,32 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/courses/{course_id}/student/{student_id}/grade/stats':
+    get:
+      tags:
+        - Teaching
+      summary: Get student grade statistics for exams in a specific course
+      parameters:
+        - $ref: '#/components/parameters/PathCourseId'
+        - $ref: '#/components/parameters/PathStudentId'
+      operationId: getStudentCourseGradeStats
+      responses:
+        '200':
+          description: The student grade statistics for this course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentCourseGradeStats'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -5839,6 +5861,18 @@ components:
       required: true
       schema:
         type: string
+    PathCourseId:
+      name: course_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathStudentId:
+      name: student_id
+      in: path
+      required: true
+      schema:
+        type: string
   responses:
     '400':
       description: Bad request
@@ -6322,6 +6356,13 @@ components:
           type: string
           format: date-time
     ExamGradeStats:
+      type: object
+      properties:
+        average:
+          type: number
+          format: double
+          example: 12.5
+    StudentCourseGradeStats:
       type: object
       properties:
         average:
