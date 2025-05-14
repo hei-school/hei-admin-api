@@ -34,7 +34,6 @@ import org.hibernate.annotations.UpdateTimestamp;
 @EqualsAndHashCode
 public class AdvancedFeeStats {
   @Id
-  @GeneratedValue(strategy = IDENTITY)
   private String id;
 
   @JdbcTypeCode(NAMED_ENUM)

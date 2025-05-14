@@ -20,12 +20,8 @@ import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
@@ -94,6 +90,10 @@ public class AdvancedFeeStatsService {
           });
       return stats;
     } else {
+      dayStat.replaceAll((statType, stat) -> {
+        stat.setId(UUID.randomUUID().toString());
+        return stat;
+      });
       return dayStat.values();
     }
   }
