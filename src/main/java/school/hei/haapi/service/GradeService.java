@@ -5,10 +5,12 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.OptionalDouble;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
@@ -69,5 +71,13 @@ public class GradeService {
         (page == null || pageSize == null)
             ? Pageable.unpaged()
             : PageRequest.of((page.getValue() - 1), pageSize.getValue()));
+  }
+
+  private OptionalDouble getExamAverageGrade(String examId) {
+    return gradeDao.getGradesByExamId(examId).stream().mapToDouble(Grade::getScore).average();
+  }
+
+  public ExamGradeStats getExamGradeStats(String examId) {
+    return new ExamGradeStats().average(getExamAverageGrade(examId).orElse(0));
   }
 }
