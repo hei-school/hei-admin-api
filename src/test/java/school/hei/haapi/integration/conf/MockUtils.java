@@ -10,11 +10,7 @@ import school.hei.haapi.endpoint.rest.model.Group;
 
 @Component
 public class MockUtils {
-  private final Faker faker;
-
-  public MockUtils() {
-    faker = new Faker();
-  }
+  private final Faker faker = new Faker();
 
   public Group createGroup() {
     return new Group()
