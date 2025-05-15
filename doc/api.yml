@@ -831,6 +831,34 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/courses/{course_id}/student/{student_id}/exams/grades':
+    get:
+      tags:
+        - Teaching
+      summary: Get student exams grade in a specific course
+      parameters:
+        - $ref: '#/components/parameters/PathCourseId'
+        - $ref: '#/components/parameters/PathStudentId'
+      operationId: getStudentExamsGrade
+      responses:
+        '200':
+          description: The student exams grade for this course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentExamGrade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /courses:
     get:
       tags:
@@ -6338,6 +6366,15 @@ components:
           $ref: '#/components/schemas/Course'
         group:
           $ref: '#/components/schemas/Group'
+    StudentExamGrade:
+      type: object
+      properties:
+        score:
+          type: number
+          format: double
+          example: 12.5
+        exam:
+          $ref: '#/components/schemas/ExamInfo'
     ExamInfo:
       type: object
       properties:
