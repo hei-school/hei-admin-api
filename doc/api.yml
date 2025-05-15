@@ -111,6 +111,53 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/authentication/login-url':
+    get:
+      tags:
+        - Security
+      summary: Get login page URL
+      operationId: getLoginPageURL
+      responses:
+        '200':
+          description: Return login page URL
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
+  '/authentication/signin':
+    post:
+      tags:
+        - Security
+      summary: Get token
+      operationId: getToken
+      parameters:
+        - name: code
+          required: true
+          in: query
+          description: "Oauth2 authorization code"
+          schema:
+            type: string
+        - name: state
+          required: true
+          in: query
+          description: "Application name"
+          schema:
+            type: string
+      responses:
+        '200':
+          description: get token
+          content:
+            text/plain:
+              schema:
+                type: string
+        '400':
+          $ref: '#/components/responses/400'
+        '500':
+          $ref: '#/components/responses/500'
 
   '/groups/{id}':
     get:
