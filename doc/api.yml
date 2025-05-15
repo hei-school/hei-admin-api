@@ -777,6 +777,34 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/courses/{course_id}/students/grades':
+    get:
+      tags:
+        - Teaching
+      summary: Get students grade for exams in a specific course
+      parameters:
+        - $ref: '#/components/parameters/PathCourseId'
+        - $ref: '#/components/parameters/GroupRef'
+      operationId: getCourseStudentsGrade
+      responses:
+        '200':
+          description: Student list with grade for this course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentIdentifierGrade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/courses/{course_id}/student/{student_id}/grade/stats':
     get:
       tags:
@@ -6369,6 +6397,15 @@ components:
           type: number
           format: double
           example: 12.5
+    StudentIdentifierGrade:
+      type: object
+      properties:
+        weighted_average:
+          type: number
+          format: double
+          example: 12.5
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
     CrupdateGrade:
       type: object
       properties:
