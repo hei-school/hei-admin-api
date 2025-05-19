@@ -22,7 +22,7 @@ public class AdminIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   public void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock);
+    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, teacher1());
