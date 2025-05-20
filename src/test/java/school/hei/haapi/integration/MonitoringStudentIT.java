@@ -49,7 +49,7 @@ public class MonitoringStudentIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   public void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    setUpCasdoor(casdoorAuthServiceMock);
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
   }

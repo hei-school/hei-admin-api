@@ -47,7 +47,7 @@ class PaginationIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   public void setUp() throws ApiException {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    setUpCasdoor(casdoorAuthServiceMock);
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());

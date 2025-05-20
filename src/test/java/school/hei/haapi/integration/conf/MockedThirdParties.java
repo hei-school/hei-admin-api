@@ -5,7 +5,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.boot.test.web.server.LocalServerPort;
 import school.hei.haapi.endpoint.SentryConf;
-import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.file.bucket.BucketConf;
 import school.hei.haapi.service.aws.FileService;
@@ -18,5 +17,4 @@ public class MockedThirdParties {
   @MockBean protected CognitoComponent cognitoComponentMock;
   @MockBean protected FileService fileService;
   @MockBean protected CasdoorAuthService casdoorAuthServiceMock;
-  @MockBean protected CertificateLoader certificateLoaderMock;
 }

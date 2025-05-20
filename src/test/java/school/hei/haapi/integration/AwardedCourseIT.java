@@ -27,7 +27,7 @@ class AwardedCourseIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    setUpCasdoor(casdoorAuthServiceMock);
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
   }
