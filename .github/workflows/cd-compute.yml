@@ -87,7 +87,7 @@ jobs:
       - name: Build project
         run: sam build
 
-      - name: Prepare JCloudify deployment
+      - name: Prepare Poja deployment
         run: |
           shopt -s globstar
           zip -r9 ${{ env.to_upload_filename }} .aws-sam
@@ -104,7 +104,7 @@ jobs:
         with:
           name: ${{ steps.current-time.outputs.time }}
 
-      - name: Trigger JCloudify deployment
+      - name: Trigger Poja deployment
         id: trigger-deployment
         run: |
           app_env_deployment_id="${{ env.app_env_deployment_id }}"
