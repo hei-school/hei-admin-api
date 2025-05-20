@@ -1,6 +1,6 @@
 package school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config;
 
-import jakarta.annotation.PostConstruct;
+import java.util.Base64;
 import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -8,13 +8,9 @@ import org.springframework.stereotype.Component;
 @Component
 public class CertificateLoader {
 
-  @Value("${CASDOOR_CERTIFICATE}")
-  private String certBase64;
+  @Getter private final String certificate;
 
-  @Getter private String certificate;
-
-  @PostConstruct
-  public void init() {
-    this.certificate = new String(java.util.Base64.getDecoder().decode(certBase64));
+  public CertificateLoader(@Value("${CASDOOR_CERTIFICATE}") String certBase64) {
+    this.certificate = new String(Base64.getDecoder().decode(certBase64));
   }
 }

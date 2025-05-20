@@ -9,34 +9,32 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class CasdoorConfigBean {
   private final CertificateLoader certificateLoader;
+  private final String endpoint;
+  private final String clientId;
+  private final String clientSecret;
+  private final String orgName;
+  private final String appName;
 
-  @Value("${CASDOOR_ENDPOINT}")
-  private String endpoint;
-
-  @Value("${CASDOOR_CLIENT_ID}")
-  private String clientId;
-
-  @Value("${CASDOOR_CLIENT_SECRET}")
-  private String clientSecret;
-
-  @Value("${CASDOOR_CERTIFICATE}")
-  private String cert;
-
-  @Value("${CASDOOR_ORGANIZATION_NAME}")
-  private String orgName;
-
-  @Value("${CASDOOR_APPLICATION_NAME}")
-  private String appName;
-
-  public CasdoorConfigBean(CertificateLoader certificateLoader) {
+  public CasdoorConfigBean(
+      CertificateLoader certificateLoader,
+      @Value("${CASDOOR_ENDPOINT}") String endpoint,
+      @Value("${CASDOOR_CLIENT_ID}") String clientId,
+      @Value("${CASDOOR_CLIENT_SECRET}") String clientSecret,
+      @Value("${CASDOOR_ORGANIZATION_NAME}") String orgName,
+      @Value("${CASDOOR_APPLICATION_NAME}") String appName) {
     this.certificateLoader = certificateLoader;
+    this.endpoint = endpoint;
+    this.clientId = clientId;
+    this.clientSecret = clientSecret;
+    this.orgName = orgName;
+    this.appName = appName;
   }
 
   @Bean
   public CasdoorAuthService casdoorAuthService() {
-    cert = certificateLoader.getCertificate();
     CasdoorConfig config =
-        new CasdoorConfig(endpoint, clientId, clientSecret, cert, orgName, appName);
+        new CasdoorConfig(
+            endpoint, clientId, clientSecret, certificateLoader.getCertificate(), orgName, appName);
     return new CasdoorAuthService(config);
   }
 }

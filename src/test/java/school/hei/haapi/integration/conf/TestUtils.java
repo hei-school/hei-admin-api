@@ -4,7 +4,6 @@ import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
@@ -352,7 +351,7 @@ public class TestUtils {
 
   public static void setUpCasdoor(
       CasdoorAuthService casdoorAuthService, CertificateLoader certificateLoader) {
-    given(certificateLoader.getCertificate()).willReturn("mocked-certificate");
+    when(certificateLoader.getCertificate()).thenReturn("mocked-certificate");
     when(casdoorAuthService.parseJwtToken(TEACHER1_TOKEN)).thenReturn(getCasdoorUserTeacher1());
     when(casdoorAuthService.parseJwtToken(MANAGER1_TOKEN)).thenReturn(getCasdoorUserManager1());
     when(casdoorAuthService.parseJwtToken(STUDENT1_TOKEN)).thenReturn(getCasdoorUserStudent1());
