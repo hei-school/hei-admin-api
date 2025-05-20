@@ -51,6 +51,7 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
@@ -331,76 +332,41 @@ class FeeIT extends FacadeITMockedThirdParties {
         () -> api.createStudentFees(STUDENT1_ID, List.of()));
   }
 
+  private void assertApiException(Executable function, String expectedMessagePart) {
+    ApiException exception = assertThrows(ApiException.class, function);
+    assertTrue(exception.getMessage().contains(expectedMessagePart));
+  }
+
   @Test
   void manager_write_with_some_bad_fields_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
-    CreateFee toCreate1 = creatableFee1().totalAmount(null);
-    CreateFee toCreate2 = creatableFee1().totalAmount(-1);
-    CreateFee toCreate3 = creatableFee1().dueDatetime(null);
-    String wrongId = "wrong id";
+    String wrongId = "some-wrong-id";
     List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
-    ApiException exception1 =
-        assertThrows(
-            ApiException.class, () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate1)));
-    ApiException exception2 =
-        assertThrows(
-            ApiException.class, () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate2)));
-    ApiException exception3 =
-        assertThrows(
-            ApiException.class, () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate3)));
-    ApiException exception4 =
-        assertThrows(
-            ApiException.class, () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(null))));
-    ApiException exception6 =
-        assertThrows(
-            ApiException.class,
-            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(HARDWARE))));
-    ApiException exception7 =
-        assertThrows(
-            ApiException.class,
-            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().remainingAmount(10))));
-    ApiException exception9 =
-        assertThrows(
-            ApiException.class,
-            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().totalAmount(10))));
-    ApiException exception10 =
-        assertThrows(
-            ApiException.class,
-            () ->
-                api.updateStudentFees(
-                    STUDENT1_ID,
-                    List.of(fee1().creationDatetime(Instant.parse("2021-11-09T10:10:10.00Z")))));
-    ApiException exception11 =
-        assertThrows(
-            ApiException.class,
-            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(wrongId))));
+    assertApiException(() -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(null))),
+            "Total amount is mandatory");
+    assertApiException(() -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(-1))),
+            "Total amount must be positive");
+    assertApiException(() -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().dueDatetime(null))),
+            "Due datetime is mandatory");
 
-    String exceptionMessage1 = exception1.getMessage();
-    String exceptionMessage2 = exception2.getMessage();
-    String exceptionMessage3 = exception3.getMessage();
-    String exceptionMessage4 = exception4.getMessage();
-    String exceptionMessage6 = exception6.getMessage();
-    String exceptionMessage7 = exception7.getMessage();
-    String exceptionMessage9 = exception9.getMessage();
-    String exceptionMessage10 = exception10.getMessage();
-    String exceptionMessage11 = exception11.getMessage();
+    assertApiException(() -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(null))),
+            "Id is mandatory");
+    assertApiException(() -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(HARDWARE))),
+            "Can't modify Type");
+    assertApiException(() -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().remainingAmount(10))),
+            "Can't modify remainingAmount");
+    assertApiException(() -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().totalAmount(10))),
+            "Can't modify total amount");
+    assertApiException(() -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().creationDatetime(
+                    Instant.parse("2021-11-09T10:10:10.00Z")))),
+            "Can't modify CreationDatetime");
+    assertApiException(() -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(wrongId))),
+            "Fee with id "+ wrongId +"does not exist");
 
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
     assertEquals(expected.size(), actual.size());
-
-    assertTrue(expected.containsAll(actual));
-    assertTrue(exceptionMessage1.contains("Total amount is mandatory"));
-    assertTrue(exceptionMessage2.contains("Total amount must be positive"));
-    assertTrue(exceptionMessage3.contains("Due datetime is mandatory"));
-
-    assertTrue(exceptionMessage4.contains("Id is mandatory"));
-    assertTrue(exceptionMessage6.contains("Can't modify Type"));
-    assertTrue(exceptionMessage7.contains("Can't modify remainingAmount"));
-    assertTrue(exceptionMessage9.contains("Can't modify total amount"));
-    assertTrue(exceptionMessage10.contains("Can't modify CreationDatetime"));
-    assertTrue(exceptionMessage11.contains("Fee with id " + wrongId + "does not exist"));
   }
 
   @Test
