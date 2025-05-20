@@ -103,7 +103,7 @@ public class OrganizerIT extends FacadeITMockedThirdParties {
   @BeforeEach
   public void setUp() {
     setUpEventBridge(eventBridgeClientMock);
-    setUpCasdoor(casdoorAuthServiceMock);
+    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
   }
 
