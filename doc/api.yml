@@ -117,13 +117,6 @@ paths:
         - Security
       summary: Get login page URL
       operationId: getLoginPageURL
-      parameters:
-        - name: redirect_uri
-          required: false
-          in: query
-          description: "specified redirection url"
-          schema:
-            type: string
       responses:
         '200':
           description: Return login page URL

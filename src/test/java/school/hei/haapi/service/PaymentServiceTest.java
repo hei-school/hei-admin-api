@@ -62,7 +62,7 @@ class PaymentServiceTest extends MockedThirdParties {
 
   @BeforeEach
   void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    setUpCasdoor(casdoorAuthServiceMock);
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, TestUtils.student1());
     setUpEventBridge(eventBridgeClientMock);
