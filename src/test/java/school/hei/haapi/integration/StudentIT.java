@@ -379,7 +379,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   public void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock);
+    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());
