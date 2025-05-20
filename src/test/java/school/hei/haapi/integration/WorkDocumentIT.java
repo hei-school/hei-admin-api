@@ -40,7 +40,7 @@ public class WorkDocumentIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   public void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    setUpCasdoor(casdoorAuthServiceMock);
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
     setUpS3Service(fileService, student1());

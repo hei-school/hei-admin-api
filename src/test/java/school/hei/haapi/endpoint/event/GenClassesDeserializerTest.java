@@ -10,20 +10,16 @@ import java.util.List;
 import java.util.Map;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.conf.FacadeIT;
 import school.hei.haapi.endpoint.event.model.CheckAttendanceTriggered;
 import school.hei.haapi.endpoint.event.model.SendLateFeesEmailTriggered;
 import school.hei.haapi.endpoint.event.model.UpdateFeesStatusToLateTriggered;
-import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 
 public class GenClassesDeserializerTest extends FacadeIT {
 
   // TODO: Bodyless Gen classes must be PUBLIC and have AllArgsConstructor
   private static final String EMPTY_DETAIL_AS_STRING = "{}";
   @Autowired ObjectMapper subject;
-
-  @MockBean protected CertificateLoader certificateLoaderMock;
 
   private static final List<Class> emptyGenClasses =
       List.of(

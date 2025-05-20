@@ -90,7 +90,7 @@ public class ManagerIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   public void setUp() {
-    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
+    setUpCasdoor(casdoorAuthServiceMock);
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, manager1());
   }

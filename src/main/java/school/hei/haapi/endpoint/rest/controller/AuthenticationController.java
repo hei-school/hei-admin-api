@@ -21,11 +21,7 @@ public class AuthenticationController {
   }
 
   @GetMapping("/authentication/login-url")
-  public String getRedirectUrl(
-      @RequestParam(value = "redirect_uri", required = false) String givenURL) {
-    if (givenURL != null && !givenURL.isEmpty()) {
-      return casdoorAuthService.getSigninUrl(givenURL);
-    }
+  public String getRedirectUrl() {
     return casdoorAuthService.getSigninUrl(redirectUrl);
   }
 
