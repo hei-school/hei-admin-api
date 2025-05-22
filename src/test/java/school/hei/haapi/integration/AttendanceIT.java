@@ -18,6 +18,7 @@ import static school.hei.haapi.integration.conf.TestUtils.awardedCourse1;
 import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.course2;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
+import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableEvent;
