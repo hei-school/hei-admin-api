@@ -344,26 +344,36 @@ class FeeIT extends FacadeITMockedThirdParties {
     String wrongId = "some-wrong-id";
     List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
-    assertApiException(() -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(null))),
-            "Total amount is mandatory");
-    assertApiException(() -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(-1))),
-            "Total amount must be positive");
-    assertApiException(() -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().dueDatetime(null))),
-            "Due datetime is mandatory");
+    assertApiException(
+        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(null))),
+        "Total amount is mandatory");
+    assertApiException(
+        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(-1))),
+        "Total amount must be positive");
+    assertApiException(
+        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().dueDatetime(null))),
+        "Due datetime is mandatory");
 
-    assertApiException(() -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(null))),
-            "Id is mandatory");
-    assertApiException(() -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(HARDWARE))),
-            "Can't modify Type");
-    assertApiException(() -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().remainingAmount(10))),
-            "Can't modify remainingAmount");
-    assertApiException(() -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().totalAmount(10))),
-            "Can't modify total amount");
-    assertApiException(() -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().creationDatetime(
-                    Instant.parse("2021-11-09T10:10:10.00Z")))),
-            "Can't modify CreationDatetime");
-    assertApiException(() -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(wrongId))),
-            "Fee with id "+ wrongId +"does not exist");
+    assertApiException(
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(null))), "Id is mandatory");
+    assertApiException(
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(HARDWARE))),
+        "Can't modify Type");
+    assertApiException(
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().remainingAmount(10))),
+        "Can't modify remainingAmount");
+    assertApiException(
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().totalAmount(10))),
+        "Can't modify total amount");
+    assertApiException(
+        () ->
+            api.updateStudentFees(
+                STUDENT1_ID,
+                List.of(fee1().creationDatetime(Instant.parse("2021-11-09T10:10:10.00Z")))),
+        "Can't modify CreationDatetime");
+    assertApiException(
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(wrongId))),
+        "Fee with id " + wrongId + "does not exist");
 
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
     assertEquals(expected.size(), actual.size());
