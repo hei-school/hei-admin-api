@@ -46,6 +46,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
 
   @BeforeEach
   void setUp() {
+    setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
     checkAttendanceTriggeredService.accept(new CheckAttendanceTriggered());
     setUpS3Service(fileService, student1());
