@@ -71,8 +71,6 @@ public class AdvancedFeeStatsService {
 
     List<Fee> allFees = feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
 
-    System.out.println(allFees);
-
     AdvancedFeesStatistics restStats = generateAdvancedFeeStats(allFees);
 
     Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> dayStat =

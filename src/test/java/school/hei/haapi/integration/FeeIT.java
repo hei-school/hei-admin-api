@@ -3,7 +3,6 @@ package school.hei.haapi.integration;
 import static java.time.LocalDateTime.now;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
-import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -39,10 +38,6 @@ import static school.hei.haapi.integration.conf.TestUtils.requestFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.LATE_COUNT;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PAID_COUNT;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.TOTAL_COUNT;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
@@ -51,8 +46,6 @@ import java.net.URI;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
-import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -63,14 +56,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeesStatistics;
 import school.hei.haapi.endpoint.rest.model.FeesWithStats;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.model.statistics.AdvancedFeeStats;
-import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 
@@ -80,6 +73,7 @@ import school.hei.haapi.repository.dao.FeeDao;
 class FeeIT extends FacadeITMockedThirdParties {
   @Autowired EntityManager entityManager;
   @Autowired FeeRepository feeRepository;
+  @Autowired AdvancedFeeStatsMapper advancedFeeStatsMapper;
 
   @Autowired FeeDao feeDao;
 
@@ -508,59 +502,29 @@ class FeeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void get_advanced_fees_stats_ok() {
+  void manager_generate_advanced_fee_statistics_ok() throws ApiException {
     LocalDateTime fromDateTime = LocalDateTime.parse("2025-04-01T00:00:00.00");
     LocalDateTime toDateTime = LocalDateTime.parse("2025-04-30T23:59:59.99");
 
-    Map<AdvancedFeeStatsType, AdvancedFeeStats> actual =
-        feeDao.getAdvancedFeeStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate());
-    Set<AdvancedFeeStats> expectedStats =
-        Set.of(
-            AdvancedFeeStats.builder()
-                .statType(LATE_COUNT)
-                .firstGradeCount(0)
-                .secondGradeCount(0)
-                .thirdGradeCount(0)
-                .workStudyCount(0)
-                .yearlyCount(0)
-                .monthlyCount(0)
-                .build(),
-            AdvancedFeeStats.builder()
-                .statType(PAID_COUNT)
-                .firstGradeCount(186)
-                .secondGradeCount(118)
-                .thirdGradeCount(84)
-                .workStudyCount(20)
-                .remedialFeesCount(14)
-                .unknownGradeCount(0)
-                .yearlyCount(2)
-                .monthlyCount(388)
-                .unknownFrequencyCount(18)
-                .bankTransferCount(3L)
-                .mpbsCount(405L)
-                .build(),
-            AdvancedFeeStats.builder()
-                .statType(PENDING_COUNT)
-                .firstGradeCount(0)
-                .secondGradeCount(0)
-                .thirdGradeCount(0)
-                .workStudyCount(0)
-                .yearlyCount(0)
-                .monthlyCount(0)
-                .build(),
-            AdvancedFeeStats.builder()
-                .statType(TOTAL_COUNT)
-                .firstGradeCount(194)
-                .secondGradeCount(118)
-                .thirdGradeCount(84)
-                .workStudyCount(22)
-                .remedialFeesCount(0)
-                .yearlyCount(2)
-                .monthlyCount(396)
-                .unknownFrequencyCount(20)
-                .build());
+    var client = anApiClient(MANAGER1_TOKEN);
+    var payingApi = new PayingApi(client);
+    var expectedStats = new AdvancedFeeStatisticsGeneration().data("Total stats generated: 120");
+    var actualStat =
+        payingApi.generateAdvancedStats(fromDateTime.toInstant(UTC), toDateTime.toInstant(UTC));
 
-    assertEquals(expectedStats, actual.values().stream().peek(e -> {}).collect(toSet()));
+    assertEquals(expectedStats, actualStat);
+  }
+
+  @Test
+  void manager_get_advanced_fee_statistics_ok() throws ApiException {
+    LocalDateTime fromDateTime = LocalDateTime.parse("2025-04-01T00:00:00.00");
+    LocalDateTime toDateTime = LocalDateTime.parse("2025-04-30T23:59:59.99");
+
+    var client = anApiClient(MANAGER1_TOKEN);
+    var payingApi = new PayingApi(client);
+
+    assertDoesNotThrow(
+        () -> payingApi.getAdvancedFeesStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate()));
   }
 
   @Test
