@@ -21,7 +21,6 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.*;
-
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
@@ -72,12 +71,14 @@ public class AdvancedFeeStatsService {
 
     List<Fee> allFees = feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
 
+    System.out.println(allFees);
+
     AdvancedFeesStatistics restStats = generateAdvancedFeeStats(allFees);
 
     Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> dayStat =
         advancedFeeStatsMapper.fromRest(restStats, date);
 
-    Collection<AdvancedFeeStats> stats = feeDao.getAdvancedFeeStats(date).values();
+    Collection<AdvancedFeeStats> stats = feeDao.getAdvancedFeeStatsOnDate(date).values();
     if (!stats.isEmpty()) {
       stats.forEach(
           stat -> {
@@ -90,10 +91,11 @@ public class AdvancedFeeStatsService {
           });
       return stats;
     } else {
-      dayStat.replaceAll((statType, stat) -> {
-        stat.setId(UUID.randomUUID().toString());
-        return stat;
-      });
+      dayStat.replaceAll(
+          (statType, stat) -> {
+            stat.setId(UUID.randomUUID().toString());
+            return stat;
+          });
       return dayStat.values();
     }
   }
@@ -111,30 +113,36 @@ public class AdvancedFeeStatsService {
     feeStats.setFirstGradeCount(pendingFeesStats.getFirstGrade());
     feeStats.setSecondGradeCount(pendingFeesStats.getSecondGrade());
     feeStats.setThirdGradeCount(pendingFeesStats.getThirdGrade());
+    feeStats.setUnknownGradeCount(pendingFeesStats.getUnknownGrade());
     feeStats.setWorkStudyCount(pendingFeesStats.getWorkStudy());
     feeStats.setRemedialFeesCount(pendingFeesStats.getRemedialFeesCount().longValue());
     feeStats.setMonthlyCount(pendingFeesStats.getMonthly());
     feeStats.setYearlyCount(pendingFeesStats.getYearly());
+    feeStats.setUnknownFrequencyCount(pendingFeesStats.getUnknownFrequency());
   }
 
   private void handleLateFeesCount(AdvancedFeeStats feeStats, LateFeesStats lateFeesStats) {
     feeStats.setFirstGradeCount(lateFeesStats.getFirstGrade());
     feeStats.setSecondGradeCount(lateFeesStats.getSecondGrade());
     feeStats.setThirdGradeCount(lateFeesStats.getThirdGrade());
+    feeStats.setUnknownGradeCount(lateFeesStats.getUnknownGrade());
     feeStats.setWorkStudyCount(lateFeesStats.getWorkStudy());
     feeStats.setRemedialFeesCount(lateFeesStats.getRemedialFeesCount().longValue());
     feeStats.setMonthlyCount(lateFeesStats.getMonthly());
     feeStats.setYearlyCount(lateFeesStats.getYearly());
+    feeStats.setUnknownFrequencyCount(lateFeesStats.getUnknownFrequency());
   }
 
   private void handlePaidFeesCount(AdvancedFeeStats feeStats, PaidFeesStats paidFeesStats) {
     feeStats.setFirstGradeCount(paidFeesStats.getFirstGrade());
     feeStats.setSecondGradeCount(paidFeesStats.getSecondGrade());
     feeStats.setThirdGradeCount(paidFeesStats.getThirdGrade());
+    feeStats.setUnknownGradeCount(paidFeesStats.getUnknownGrade());
     feeStats.setWorkStudyCount(paidFeesStats.getWorkStudy());
     feeStats.setRemedialFeesCount(paidFeesStats.getRemedialFeesCount().longValue());
     feeStats.setMonthlyCount(paidFeesStats.getMonthly());
     feeStats.setYearlyCount(paidFeesStats.getYearly());
+    feeStats.setUnknownFrequencyCount(paidFeesStats.getUnknownFrequency());
     feeStats.setBankTransferCount(paidFeesStats.getBankFees().longValue());
     feeStats.setMpbsCount(paidFeesStats.getMobileMoney().longValue());
   }
@@ -144,9 +152,11 @@ public class AdvancedFeeStatsService {
     feeStats.setFirstGradeCount(totalExpectedFeesStats.getFirstGrade());
     feeStats.setSecondGradeCount(totalExpectedFeesStats.getSecondGrade());
     feeStats.setThirdGradeCount(totalExpectedFeesStats.getThirdGrade());
+    feeStats.setUnknownGradeCount(totalExpectedFeesStats.getUnknownGrade());
     feeStats.setWorkStudyCount(totalExpectedFeesStats.getWorkStudy());
     feeStats.setMonthlyCount(totalExpectedFeesStats.getMonthly());
     feeStats.setYearlyCount(totalExpectedFeesStats.getYearly());
+    feeStats.setUnknownFrequencyCount(totalExpectedFeesStats.getUnknownFrequency());
   }
 
   private LateFeesStats getLateFeesStats(List<Fee> fees) {

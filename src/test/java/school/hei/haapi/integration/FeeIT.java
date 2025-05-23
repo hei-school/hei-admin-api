@@ -3,6 +3,7 @@ package school.hei.haapi.integration;
 import static java.time.LocalDateTime.now;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.stream.Collectors.toSet;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -38,16 +39,20 @@ import static school.hei.haapi.integration.conf.TestUtils.requestFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.LATE_COUNT;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PAID_COUNT;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.TOTAL_COUNT;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -55,32 +60,26 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.event.consumer.EventConsumer;
-import school.hei.haapi.endpoint.event.model.AdvancedFeeStatsComputationTriggered;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeesStatistics;
 import school.hei.haapi.endpoint.rest.model.FeesWithStats;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
+import school.hei.haapi.model.statistics.AdvancedFeeStats;
+import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
-import school.hei.haapi.service.event.AdvancedFeeStatsComputationTriggeredService;
 
 @Testcontainers
 @AutoConfigureMockMvc
 @Slf4j
 class FeeIT extends FacadeITMockedThirdParties {
-  @Autowired EventConsumer subject;
   @Autowired EntityManager entityManager;
   @Autowired FeeRepository feeRepository;
-
-  @Autowired
-  AdvancedFeeStatsComputationTriggeredService advancedFeeStatsComputationTriggeredService;
 
   @Autowired FeeDao feeDao;
 
@@ -509,26 +508,59 @@ class FeeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_get_advanced_fees_stats_ok() throws ApiException {
-    LocalDate fromDate = LocalDate.parse("2021-12-01");
-    LocalDate toDate = LocalDate.parse("2021-12-31");
-    AdvancedFeeStatsComputationTriggered event =
-        new AdvancedFeeStatsComputationTriggered(
-            LocalDateTime.ofInstant(Instant.parse("2021-12-13T00:00:00.00Z"), UTC), now());
-    advancedFeeStatsComputationTriggeredService.accept(event);
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-    AdvancedFeesStatistics advStats = api.getAdvancedFeesStats(fromDate, toDate);
+  void get_advanced_fees_stats_ok() {
+    LocalDateTime fromDateTime = LocalDateTime.parse("2025-04-01T00:00:00.00");
+    LocalDateTime toDateTime = LocalDateTime.parse("2025-04-30T23:59:59.99");
 
-    assertEquals(1, advStats.getTotalExpectedFeesCount().getFirstGrade());
-    assertEquals(1, advStats.getTotalExpectedFeesCount().getWorkStudy());
-    assertEquals(1, advStats.getTotalExpectedFeesCount().getThirdGrade());
+    Map<AdvancedFeeStatsType, AdvancedFeeStats> actual =
+        feeDao.getAdvancedFeeStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate());
+    Set<AdvancedFeeStats> expectedStats =
+        Set.of(
+            AdvancedFeeStats.builder()
+                .statType(LATE_COUNT)
+                .firstGradeCount(0)
+                .secondGradeCount(0)
+                .thirdGradeCount(0)
+                .workStudyCount(0)
+                .yearlyCount(0)
+                .monthlyCount(0)
+                .build(),
+            AdvancedFeeStats.builder()
+                .statType(PAID_COUNT)
+                .firstGradeCount(186)
+                .secondGradeCount(118)
+                .thirdGradeCount(84)
+                .workStudyCount(20)
+                .remedialFeesCount(14)
+                .unknownGradeCount(0)
+                .yearlyCount(2)
+                .monthlyCount(388)
+                .unknownFrequencyCount(18)
+                .bankTransferCount(3L)
+                .mpbsCount(405L)
+                .build(),
+            AdvancedFeeStats.builder()
+                .statType(PENDING_COUNT)
+                .firstGradeCount(0)
+                .secondGradeCount(0)
+                .thirdGradeCount(0)
+                .workStudyCount(0)
+                .yearlyCount(0)
+                .monthlyCount(0)
+                .build(),
+            AdvancedFeeStats.builder()
+                .statType(TOTAL_COUNT)
+                .firstGradeCount(194)
+                .secondGradeCount(118)
+                .thirdGradeCount(84)
+                .workStudyCount(22)
+                .remedialFeesCount(0)
+                .yearlyCount(2)
+                .monthlyCount(396)
+                .unknownFrequencyCount(20)
+                .build());
 
-    assertEquals(BigDecimal.valueOf(1), advStats.getPaidFeesCount().getMobileMoney());
-    assertEquals(1, advStats.getPaidFeesCount().getFirstGrade());
-
-    assertEquals(1, advStats.getLateFeesCount().getThirdGrade());
-    assertEquals(1, advStats.getLateFeesCount().getWorkStudy());
+    assertEquals(expectedStats, actual.values().stream().peek(e -> {}).collect(toSet()));
   }
 
   @Test
