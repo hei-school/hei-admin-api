@@ -71,12 +71,8 @@ public class AdvancedFeeStatsService {
 
     List<Fee> allFees = feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
 
-    AdvancedFeesStatistics restStats = generateAdvancedFeeStats(allFees);
-
-    Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> dayStat =
-        advancedFeeStatsMapper.fromRest(restStats, date);
-
     Collection<AdvancedFeeStats> stats = feeDao.getAdvancedFeeStatsOnDate(date).values();
+    AdvancedFeesStatistics restStats = generateAdvancedFeeStats(allFees);
     if (!stats.isEmpty()) {
       stats.forEach(
           stat -> {
@@ -88,14 +84,9 @@ public class AdvancedFeeStatsService {
             }
           });
       return stats;
-    } else {
-      dayStat.replaceAll(
-          (statType, stat) -> {
-            stat.setId(UUID.randomUUID().toString());
-            return stat;
-          });
-      return dayStat.values();
     }
+
+    return advancedFeeStatsMapper.fromRest(restStats, date).values();
   }
 
   private AdvancedFeesStatistics generateAdvancedFeeStats(List<Fee> fees) {
