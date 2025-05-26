@@ -337,35 +337,35 @@ class FeeIT extends FacadeITMockedThirdParties {
     String wrongId = "some-wrong-id";
     List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
-    TestUtils.assertThrowsApiException(
+    assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Total amount is mandatory\"}",
         () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(null))));
-    TestUtils.assertThrowsApiException(
+    assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Total amount must be positive\"}",
         () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(-1))));
-    TestUtils.assertThrowsApiException(
+    assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Due datetime is mandatory\"}",
         () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().dueDatetime(null))));
 
-    TestUtils.assertThrowsApiException(
+    assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Id is mandatory\"}",
         () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(null))));
-    TestUtils.assertThrowsApiException(
+    assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify Type\"}",
         () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(HARDWARE))));
-    TestUtils.assertThrowsApiException(
+    assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify remainingAmount\"}",
         () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().remainingAmount(10))));
-    TestUtils.assertThrowsApiException(
+    assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify totalAmount\"}",
         () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().totalAmount(10))));
-    TestUtils.assertThrowsApiException(
+    assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify creationDatetime\"}",
         () ->
             api.updateStudentFees(
                 STUDENT1_ID,
                 List.of(fee1().creationDatetime(Instant.parse("2021-11-09T10:10:10.00Z")))));
-    TestUtils.assertThrowsApiException(
+    assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Fee with id " + wrongId + " does not exist\"}",
         () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(wrongId))));
 
