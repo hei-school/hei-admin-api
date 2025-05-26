@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
@@ -51,7 +50,6 @@ import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.function.Executable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
@@ -332,11 +330,6 @@ class FeeIT extends FacadeITMockedThirdParties {
         () -> api.createStudentFees(STUDENT1_ID, List.of()));
   }
 
-  private void assertApiException(Executable function, String expectedMessagePart) {
-    ApiException exception = assertThrows(ApiException.class, function);
-    assertTrue(exception.getMessage().contains(expectedMessagePart));
-  }
-
   @Test
   void manager_write_with_some_bad_fields_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
@@ -344,36 +337,37 @@ class FeeIT extends FacadeITMockedThirdParties {
     String wrongId = "some-wrong-id";
     List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
-    assertApiException(
-        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(null))),
-        "Total amount is mandatory");
-    assertApiException(
-        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(-1))),
-        "Total amount must be positive");
-    assertApiException(
-        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().dueDatetime(null))),
-        "Due datetime is mandatory");
+    TestUtils.assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Total amount is mandatory\"}",
+        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(null))));
+    TestUtils.assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Total amount must be positive\"}",
+        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(-1))));
+    TestUtils.assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Due datetime is mandatory\"}",
+        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().dueDatetime(null))));
 
-    assertApiException(
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(null))), "Id is mandatory");
-    assertApiException(
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(HARDWARE))),
-        "Can't modify Type");
-    assertApiException(
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().remainingAmount(10))),
-        "Can't modify remainingAmount");
-    assertApiException(
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().totalAmount(10))),
-        "Can't modify total amount");
-    assertApiException(
+    TestUtils.assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Id is mandatory\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(null))));
+    TestUtils.assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify Type\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(HARDWARE))));
+    TestUtils.assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify remainingAmount\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().remainingAmount(10))));
+    TestUtils.assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify total amount\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().totalAmount(10))));
+    TestUtils.assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify CreationDatetime\"}",
         () ->
             api.updateStudentFees(
                 STUDENT1_ID,
-                List.of(fee1().creationDatetime(Instant.parse("2021-11-09T10:10:10.00Z")))),
-        "Can't modify CreationDatetime");
-    assertApiException(
-        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(wrongId))),
-        "Fee with id " + wrongId + "does not exist");
+                List.of(fee1().creationDatetime(Instant.parse("2021-11-09T10:10:10.00Z")))));
+    TestUtils.assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Fee with id " + wrongId + "does not exist\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(wrongId))));
 
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
     assertEquals(expected.size(), actual.size());
