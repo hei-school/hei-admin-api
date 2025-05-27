@@ -5,8 +5,12 @@ import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.groupingByConcurrent;
-import static school.hei.haapi.endpoint.rest.model.FeeCategory.*;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.L2;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.L3;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.WORK_FEES;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
+import static school.hei.haapi.endpoint.rest.model.FeeFrequency.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.YEARLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
@@ -20,11 +24,24 @@ import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
+import school.hei.haapi.endpoint.rest.model.FeeCategory;
+import school.hei.haapi.endpoint.rest.model.FeeFrequency;
+import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
+import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
+import school.hei.haapi.endpoint.rest.model.LateFeesStats;
+import school.hei.haapi.endpoint.rest.model.PaidFeesStats;
+import school.hei.haapi.endpoint.rest.model.PendingFeesStats;
+import school.hei.haapi.endpoint.rest.model.TotalExpectedFeesStats;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.fee.PaymentType;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
@@ -69,7 +86,7 @@ public class AdvancedFeeStatsService {
     Instant dayStart = date.atStartOfDay().toInstant(UTC);
     Instant dayEnd = date.atTime(MAX).toInstant(UTC);
 
-    List<Fee> allFees = feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
+    List<Fee> allFees = feeRepository.findAllByUpdatedAtBetween(dayStart, dayEnd);
 
     Collection<AdvancedFeeStats> stats = feeDao.getAdvancedFeeStatsOnDate(date).values();
     AdvancedFeesStatistics restStats = generateAdvancedFeeStats(allFees);
@@ -159,11 +176,11 @@ public class AdvancedFeeStatsService {
         .workStudy(feeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
-        .unknownFrequency(feesCountByPaymentFrequency.get(FeeFrequency.UNKNOWN))
+        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .firstGrade(feeCountByCategory.get(L1))
         .secondGrade(feeCountByCategory.get(L2))
         .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(UNKNOWN));
+        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN));
   }
 
   private PaidFeesStats getPaidFeesStats(List<Fee> fees) {
@@ -178,11 +195,11 @@ public class AdvancedFeeStatsService {
         .workStudy(feeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
-        .unknownFrequency(feesCountByPaymentFrequency.get(FeeFrequency.UNKNOWN))
+        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .firstGrade(feeCountByCategory.get(L1))
         .secondGrade(feeCountByCategory.get(L2))
         .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(UNKNOWN))
+        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN))
         .bankFees(BigDecimal.valueOf(feesCountByPaymentType.get(BANK)))
         .mobileMoney(BigDecimal.valueOf(feesCountByPaymentType.get(MPBS)));
   }
@@ -198,11 +215,11 @@ public class AdvancedFeeStatsService {
         .workStudy(feeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
-        .unknownFrequency(feesCountByPaymentFrequency.get(FeeFrequency.UNKNOWN))
+        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .firstGrade(feeCountByCategory.get(L1))
         .secondGrade(feeCountByCategory.get(L2))
         .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(UNKNOWN));
+        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN));
   }
 
   private TotalExpectedFeesStats getTotalExpectedFeesStats(List<Fee> fees) {
@@ -214,10 +231,10 @@ public class AdvancedFeeStatsService {
         .firstGrade(feeCountByCategory.get(L1))
         .secondGrade(feeCountByCategory.get(L2))
         .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(UNKNOWN))
+        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
-        .unknownFrequency(feesCountByPaymentFrequency.get(FeeFrequency.UNKNOWN))
+        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .workStudy(feeCountByCategory.get(WORK_FEES));
   }
 
