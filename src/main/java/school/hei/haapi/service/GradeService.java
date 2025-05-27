@@ -5,7 +5,6 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalDouble;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -73,11 +72,15 @@ public class GradeService {
             : PageRequest.of((page.getValue() - 1), pageSize.getValue()));
   }
 
-  private OptionalDouble getExamAverageGrade(String examId) {
-    return gradeDao.getGradesByExamId(examId).stream().mapToDouble(Grade::getScore).average();
+  private double getExamAverageGrade(String examId) {
+    var averageOfGradeResult =
+        gradeDao.getGradesByExamId(examId).stream().mapToDouble(Grade::getScore).average();
+    if (averageOfGradeResult.isEmpty())
+      throw new NotFoundException("Exam with id " + examId + " do not have a score");
+    return averageOfGradeResult.getAsDouble();
   }
 
   public ExamGradeStats getExamGradeStats(String examId) {
-    return new ExamGradeStats().average(getExamAverageGrade(examId).orElse(0));
+    return new ExamGradeStats().average(getExamAverageGrade(examId));
   }
 }

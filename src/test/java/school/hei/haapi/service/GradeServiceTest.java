@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 
@@ -11,6 +12,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Grade;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.dao.GradeDao;
 
 class GradeServiceTest extends FacadeITMockedThirdParties {
@@ -28,5 +30,14 @@ class GradeServiceTest extends FacadeITMockedThirdParties {
     ExamGradeStats examGradeStats = subject.getExamGradeStats("random exam");
 
     assertEquals(15.5, examGradeStats.getAverage());
+  }
+
+  @Test
+  void exam_with_no_grades() {
+    String examId = "random exam";
+    Exception exception =
+        assertThrows(NotFoundException.class, () -> subject.getExamGradeStats(examId));
+
+    assertEquals("Exam with id " + examId + " do not have a score", exception.getMessage());
   }
 }
