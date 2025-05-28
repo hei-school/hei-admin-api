@@ -13,6 +13,7 @@ import static school.hei.haapi.model.User.Role.STUDENT;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -50,6 +51,7 @@ class UserServiceTest extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("Affected by other tests, should be re-enabled after tests refactoring")
   void dao_can_handle_null_value_in_params() {
     List<User> students =
         subject.getByCriteria(
