@@ -89,4 +89,8 @@ public class ExamService {
         examinationDateEnd,
         awardedCourseId);
   }
+
+  public List<Exam> getExamsByCourseId(String courseId) {
+    return examRepository.findExamsByCourseId(courseId);
+  }
 }
