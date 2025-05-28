@@ -5,8 +5,10 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.AWARDED_COURSE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
@@ -18,6 +20,8 @@ import static school.hei.haapi.integration.conf.TestUtils.exam2;
 import static school.hei.haapi.integration.conf.TestUtils.exam3;
 import static school.hei.haapi.integration.conf.TestUtils.exam4;
 import static school.hei.haapi.integration.conf.TestUtils.exam5;
+import static school.hei.haapi.integration.conf.TestUtils.grade1;
+import static school.hei.haapi.integration.conf.TestUtils.grade2;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -35,6 +39,7 @@ import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -197,5 +202,16 @@ class ExamIT extends FacadeITMockedThirdParties {
 
     assertEquals("Algorithmics", actualCreate.getTitle());
     assertEquals(2, actualCreate.getCoefficient());
+  }
+
+  @Test
+  void student_get_grade_for_each_exams_in_cours() throws ApiException {
+    TeachingApi api = new TeachingApi(anApiClient(STUDENT1_TOKEN));
+    List<StudentExamGrade> studentExamsGrade = api.getStudentExamsGrade(COURSE1_ID, STUDENT1_ID);
+
+    assertEquals(grade1().getScore(), studentExamsGrade.getFirst().getScore());
+    assertEquals(exam1(), studentExamsGrade.getFirst().getExam());
+    assertEquals(grade2().getScore(), studentExamsGrade.get(1).getScore());
+    assertEquals(exam2(), studentExamsGrade.get(1).getExam());
   }
 }
