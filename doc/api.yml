@@ -3546,6 +3546,7 @@ paths:
         - Attendance
       summary: Create attendance movement of one student
       operationId: createAttendanceMovement
+      deprecated: true
       requestBody:
         description: Attendance movement to create
         required: true
@@ -3790,6 +3791,7 @@ paths:
         - Attendance
       summary: Get all attendances by courses ids or student key word
       operationId: getStudentsAttendance
+      deprecated: true
       parameters:
         - name: page
           in: query
