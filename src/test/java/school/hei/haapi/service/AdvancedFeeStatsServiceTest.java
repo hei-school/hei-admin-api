@@ -19,7 +19,6 @@ import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStat
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PAID_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.TOTAL_COUNT;
-import static school.hei.haapi.service.utils.InstantUtils.now;
 
 import java.time.Instant;
 import java.util.List;
@@ -37,7 +36,7 @@ import school.hei.haapi.repository.AdvancedFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
 
-public class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
+class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   private AdvancedFeeStatsService subject;
   private FeeDao feeDao;
   private AdvancedFeeStatsRepository repository;
@@ -56,7 +55,7 @@ public class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void advanced_fee_statistics_count_ok() {
-    var rangeDate = Optional.of(now());
+    var rangeDate = Optional.of(Instant.now());
     Set<AdvancedFeeStats> expectedStats =
         Set.of(
             AdvancedFeeStats.builder()

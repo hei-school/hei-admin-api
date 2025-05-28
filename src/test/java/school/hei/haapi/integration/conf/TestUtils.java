@@ -523,13 +523,6 @@ public class TestUtils {
         .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
   }
 
-  public static Group createGroup() {
-    return new Group()
-        .name("Collaborative work like GWSP")
-        .ref("created")
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-  }
-
   public static Course createCourse(String code) {
     return new Course().code(code).name("Collaborative work like GWSP").credits(12).totalHours(5);
   }
@@ -588,14 +581,6 @@ public class TestUtils {
       teacherList.add(someCreatableTeacher());
     }
     return teacherList;
-  }
-
-  public static List<Group> someCreatableGroupList(int nbOfGroup) {
-    List<Group> groupList = new ArrayList<>();
-    for (int i = 0; i < nbOfGroup; i++) {
-      groupList.add(createGroup());
-    }
-    return groupList;
   }
 
   public static List<Course> someCreatableCourseList(int nbOfCourse) {
@@ -1212,15 +1197,6 @@ public class TestUtils {
         .type(TUITION);
   }
 
-  //  public static ExamDetail examDetail1() {
-  //    return new ExamDetail()
-  //        .id(exam1().getId())
-  //        .title(exam1().getTitle())
-  //        .examinationDate(exam1().getExaminationDate())
-  //        .coefficient(exam1().getCoefficient())
-  //        .participants(List.of(studentGrade1(), studentGrade7()));
-  //  }
-
   public static AwardedCourseExam awardedCourseExam1() {
     return new AwardedCourseExam()
         .id(AWARDED_COURSE1_ID)
@@ -1600,6 +1576,15 @@ public class TestUtils {
 
   public static CreateEvent someCreatableEvent(
       EventType eventType, String planerId, Instant beginDatetime, Instant endDatetime) {
+    return someCreatableEvent(eventType, planerId, beginDatetime, endDatetime, List.of(group1()));
+  }
+
+  public static CreateEvent someCreatableEvent(
+      EventType eventType,
+      String planerId,
+      Instant beginDatetime,
+      Instant endDatetime,
+      List<Group> groups) {
     return new CreateEvent()
         .id("event" + randomUUID() + "_id")
         .courseId(COURSE1_ID)
@@ -1608,7 +1593,7 @@ public class TestUtils {
         .description("Another event")
         .eventType(eventType)
         .plannerId(planerId)
-        .groups(List.of(createGroupIdentifier(group1())));
+        .groups(groups.stream().map(TestUtils::createGroupIdentifier).toList());
   }
 
   public static CreateFee createFeeForTest() {

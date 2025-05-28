@@ -1,11 +1,10 @@
 package school.hei.haapi.service.utils;
 
+import static java.time.DayOfWeek.*;
 import static java.time.temporal.TemporalAdjusters.firstDayOfMonth;
 
-import java.time.DayOfWeek;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.temporal.TemporalAdjusters;
 
@@ -14,29 +13,26 @@ public class InstantUtils {
 
   public static final ZoneId UTC3 = ZoneId.of("UTC+3");
 
-  public static Instant now() {
-    return LocalDateTime.now().atZone(UTC3).toInstant();
+  public static Instant currentMondayOfTheWeek() {
+    return mondayOfTheWeek(LocalDate.now());
   }
 
-  public static Instant getCurrentMondayOfTheWeek() {
-    return LocalDate.now()
-        .with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY))
+  public static Instant mondayOfTheWeek(LocalDate date) {
+    return date.with(TemporalAdjusters.previousOrSame(MONDAY))
         .atStartOfDay()
         .atZone(UTC0)
         .toInstant();
   }
 
-  public static Instant getCurrentSaturdayOfTheWeek() {
-    return LocalDate.now()
-        .with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY))
+  public static Instant currentSaturdayOfTheWeekOrNext() {
+    return saturdayOfTheWeekOrNext(LocalDate.now());
+  }
+
+  public static Instant saturdayOfTheWeekOrNext(LocalDate date) {
+    return date.with(TemporalAdjusters.nextOrSame(SATURDAY))
         .atStartOfDay()
         .atZone(UTC0)
         .toInstant();
-  }
-
-  public static Instant getToDay() {
-    LocalDate now = LocalDate.now();
-    return now.atStartOfDay(ZoneId.of("UTC")).plusHours(8).toInstant();
   }
 
   public static Instant getYesterday() {
