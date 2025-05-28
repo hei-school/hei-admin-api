@@ -1,11 +1,8 @@
 name: Automation backup neon
-
 on:
     schedule:
         - cron : "0 0 * * *"
-  
     workflow_dispatch:
-
 env :
     NEON_DB_URL: ${{ secrets.NEON_DB_URL }}
     NEON_DB_NAME: ${{secrets.NEON_DB_NAME}}
@@ -13,39 +10,28 @@ env :
     NEON_DB_PASSWORD : ${{secrets.NEON_DB_PASSWORD}}
     AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
     AWS_REGION: eu-west-3
-
-
-
 jobs:
   backup-db:
     runs-on: ubuntu-latest
     timeout-minutes: 20
-
     steps:
       - uses: actions/checkout@v4.1.6
-
       - name : Install postgres
         run : |
             sudo apt install -y postgresql postgresql-contrib
-
       - name: Configure AWS credentials
         uses: aws-actions/configure-aws-credentials@v4.0.1
         with:
             aws-access-key-id: ${{ secrets.S3_AWS_ACCESS_KEY_ID }}
             aws-secret-access-key: ${{ secrets.S3_AWS_SECRET_ACCESS_KEY }}
             aws-region: ${{ env.AWS_REGION }}
-
-
       - name: backup Neon db
         run: |
             set -e
             TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
             BACKUP_FILE="neon_backup_${TIMESTAMP}.sql"
-
             PGPASSWORD="${NEON_DB_PASSWORD}" \
               pg_dump -h "$NEON_DB_URL" -U "$NEON_DB_USER" -d "$NEON_DB_NAME" -F p -f "$BACKUP_FILE"
-
-
       - name : upload backup in S3
         run: |
             aws s3 cp "$BACKUP_FILE" "s3://${AWS_S3_BUCKET}/prod-backup-neon/${BACKUP_FILE}"
