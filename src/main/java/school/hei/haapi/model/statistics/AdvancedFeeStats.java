@@ -1,17 +1,14 @@
 package school.hei.haapi.model.statistics;
 
 import static jakarta.persistence.EnumType.STRING;
-import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
-import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
 import java.time.Instant;
 import java.time.LocalDate;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -33,9 +30,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 @NoArgsConstructor
 @EqualsAndHashCode
 public class AdvancedFeeStats {
-  @Id
-  @GeneratedValue(strategy = IDENTITY)
-  private String id;
+  @Id private String id;
 
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
@@ -59,7 +54,6 @@ public class AdvancedFeeStats {
   @CreationTimestamp private Instant creationDatetime;
   @UpdateTimestamp private Instant updateDatetime;
 
-  @Setter(AccessLevel.NONE)
   private LocalDate statDate;
 
   public enum AdvancedFeeStatsType {
@@ -73,10 +67,12 @@ public class AdvancedFeeStats {
       Long firstGradeCount,
       Long secondGradeCount,
       Long thirdGradeCount,
+      Long unknownGradeCount,
       Long remedialFeesCount,
       Long workStudyCount,
       Long monthlyCount,
       Long yearlyCount,
+      Long unknownFrequencyCount,
       Long bankTransferCount,
       Long mpbsCount,
       AdvancedFeeStatsType statType) {
@@ -84,10 +80,12 @@ public class AdvancedFeeStats {
     this.firstGradeCount = firstGradeCount;
     this.secondGradeCount = secondGradeCount;
     this.thirdGradeCount = thirdGradeCount;
+    this.unknownGradeCount = unknownGradeCount;
     this.remedialFeesCount = remedialFeesCount;
     this.workStudyCount = workStudyCount;
     this.monthlyCount = monthlyCount;
     this.yearlyCount = yearlyCount;
+    this.unknownFrequencyCount = unknownFrequencyCount;
     this.bankTransferCount = bankTransferCount;
     this.mpbsCount = mpbsCount;
   }

@@ -10,6 +10,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.UUID;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
 import school.hei.haapi.endpoint.rest.model.LateFeesStats;
@@ -36,6 +37,7 @@ public class AdvancedFeeStatsMapper {
   private AdvancedFeeStats getModelTotalFeeStats(
       TotalExpectedFeesStats restStat, LocalDate statDate) {
     return AdvancedFeeStats.builder()
+        .id(UUID.randomUUID().toString())
         .statType(TOTAL_COUNT)
         .firstGradeCount(restStat.getFirstGrade())
         .secondGradeCount(restStat.getSecondGrade())
@@ -52,6 +54,7 @@ public class AdvancedFeeStatsMapper {
 
   private AdvancedFeeStats getModelPaidFeeStats(PaidFeesStats restStat, LocalDate statDate) {
     return AdvancedFeeStats.builder()
+        .id(UUID.randomUUID().toString())
         .statType(PAID_COUNT)
         .firstGradeCount(restStat.getFirstGrade())
         .secondGradeCount(restStat.getSecondGrade())
@@ -70,6 +73,7 @@ public class AdvancedFeeStatsMapper {
 
   private AdvancedFeeStats getModelPendingFeeStats(PendingFeesStats restStat, LocalDate statDate) {
     return AdvancedFeeStats.builder()
+        .id(UUID.randomUUID().toString())
         .statType(PENDING_COUNT)
         .firstGradeCount(restStat.getFirstGrade())
         .secondGradeCount(restStat.getSecondGrade())
@@ -86,6 +90,7 @@ public class AdvancedFeeStatsMapper {
 
   private AdvancedFeeStats getModelLateFeeStats(LateFeesStats restStat, LocalDate statDate) {
     return AdvancedFeeStats.builder()
+        .id(UUID.randomUUID().toString())
         .statType(LATE_COUNT)
         .firstGradeCount(restStat.getFirstGrade())
         .secondGradeCount(restStat.getSecondGrade())

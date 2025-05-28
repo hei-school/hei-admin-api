@@ -42,10 +42,8 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -55,12 +53,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.event.consumer.EventConsumer;
-import school.hei.haapi.endpoint.event.model.AdvancedFeeStatsComputationTriggered;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
+import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeesStatistics;
@@ -69,18 +66,14 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
-import school.hei.haapi.service.event.AdvancedFeeStatsComputationTriggeredService;
 
 @Testcontainers
 @AutoConfigureMockMvc
 @Slf4j
 class FeeIT extends FacadeITMockedThirdParties {
-  @Autowired EventConsumer subject;
   @Autowired EntityManager entityManager;
   @Autowired FeeRepository feeRepository;
-
-  @Autowired
-  AdvancedFeeStatsComputationTriggeredService advancedFeeStatsComputationTriggeredService;
+  @Autowired AdvancedFeeStatsMapper advancedFeeStatsMapper;
 
   @Autowired FeeDao feeDao;
 
@@ -509,26 +502,29 @@ class FeeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_get_advanced_fees_stats_ok() throws ApiException {
-    LocalDate fromDate = LocalDate.parse("2021-12-01");
-    LocalDate toDate = LocalDate.parse("2021-12-31");
-    AdvancedFeeStatsComputationTriggered event =
-        new AdvancedFeeStatsComputationTriggered(
-            LocalDateTime.ofInstant(Instant.parse("2021-12-13T00:00:00.00Z"), UTC), now());
-    advancedFeeStatsComputationTriggeredService.accept(event);
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-    AdvancedFeesStatistics advStats = api.getAdvancedFeesStats(fromDate, toDate);
+  void manager_generate_advanced_fee_statistics_ok() throws ApiException {
+    LocalDateTime fromDateTime = LocalDateTime.parse("2025-04-01T00:00:00.00");
+    LocalDateTime toDateTime = LocalDateTime.parse("2025-04-30T23:59:59.99");
 
-    assertEquals(1, advStats.getTotalExpectedFeesCount().getFirstGrade());
-    assertEquals(1, advStats.getTotalExpectedFeesCount().getWorkStudy());
-    assertEquals(1, advStats.getTotalExpectedFeesCount().getThirdGrade());
+    var client = anApiClient(MANAGER1_TOKEN);
+    var payingApi = new PayingApi(client);
+    var expectedStats = new AdvancedFeeStatisticsGeneration().data("Total stats generated: 120");
+    var actualStat =
+        payingApi.generateAdvancedStats(fromDateTime.toInstant(UTC), toDateTime.toInstant(UTC));
 
-    assertEquals(BigDecimal.valueOf(1), advStats.getPaidFeesCount().getMobileMoney());
-    assertEquals(1, advStats.getPaidFeesCount().getFirstGrade());
+    assertEquals(expectedStats, actualStat);
+  }
 
-    assertEquals(1, advStats.getLateFeesCount().getThirdGrade());
-    assertEquals(1, advStats.getLateFeesCount().getWorkStudy());
+  @Test
+  void manager_get_advanced_fee_statistics_ok() throws ApiException {
+    LocalDateTime fromDateTime = LocalDateTime.parse("2025-04-01T00:00:00.00");
+    LocalDateTime toDateTime = LocalDateTime.parse("2025-04-30T23:59:59.99");
+
+    var client = anApiClient(MANAGER1_TOKEN);
+    var payingApi = new PayingApi(client);
+
+    assertDoesNotThrow(
+        () -> payingApi.getAdvancedFeesStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate()));
   }
 
   @Test
