@@ -86,7 +86,7 @@ public class AdvancedFeeStatsService {
     Instant dayStart = date.atStartOfDay().toInstant(UTC);
     Instant dayEnd = date.atTime(MAX).toInstant(UTC);
 
-    List<Fee> allFees = feeRepository.findAllByUpdatedAtBetween(dayStart, dayEnd);
+    List<Fee> allFees = feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
 
     Collection<AdvancedFeeStats> stats = feeDao.getAdvancedFeeStatsOnDate(date).values();
     AdvancedFeesStatistics restStats = generateAdvancedFeeStats(allFees);
