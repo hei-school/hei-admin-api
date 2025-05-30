@@ -6,7 +6,9 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.LATE_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PAID_COUNT;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.TOTAL_COUNT;
 
 import jakarta.persistence.EntityManager;
@@ -434,7 +436,12 @@ public class FeeDao {
             mpbsCount,
             statType)
         .orderBy(builder.desc(root.get("updateDatetime")));
-    query.where(builder.between(root.get("statDate"), from, to));
+    query.where(
+        builder.and(
+            builder.between(root.get("statDate"), from, to),
+            builder.or(
+                builder.equal(root.get("statType"), LATE_COUNT),
+                builder.equal(root.get("statType"), PENDING_COUNT))));
 
     TypedQuery<AdvancedFeeStats> typedQuery = entityManager.createQuery(query).setMaxResults(2);
 
