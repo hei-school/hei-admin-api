@@ -12,6 +12,8 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -22,6 +24,7 @@ import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
+import school.hei.haapi.model.fee.StudentGrade;
 
 @Entity
 @Table(name = "\"group\"")
@@ -85,5 +88,19 @@ public class Group implements Serializable {
   @Override
   public int hashCode() {
     return getClass().hashCode();
+  }
+
+  public StudentGrade getStudentGradeAtInstant(LocalDate localDate) {
+    int promotionYearAge =
+        Period.between(LocalDate.from(this.getPromotion().getStartDatetime()), localDate).getYears();
+    return switch (promotionYearAge) {
+      case 0 -> StudentGrade.L1;
+      case 1 -> StudentGrade.L2;
+      case 2 -> StudentGrade.L3;
+      default ->
+          throw new IllegalArgumentException(
+              "Invalid promotion at instant '%s': the group with ID '%s' cannot have a valid promotion for year %d at this time"
+                  .formatted(localDate, this.id, promotionYearAge));
+    };
   }
 }
