@@ -2,6 +2,9 @@ package school.hei.haapi.model;
 
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static school.hei.haapi.model.fee.StudentGrade.L1;
+import static school.hei.haapi.model.fee.StudentGrade.L2;
+import static school.hei.haapi.model.fee.StudentGrade.L3;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -92,11 +95,12 @@ public class Group implements Serializable {
 
   public StudentGrade getStudentGradeAtInstant(LocalDate localDate) {
     int promotionYearAge =
-        Period.between(LocalDate.from(this.getPromotion().getStartDatetime()), localDate).getYears();
+        Period.between(LocalDate.from(this.getPromotion().getStartDatetime()), localDate)
+            .getYears();
     return switch (promotionYearAge) {
-      case 0 -> StudentGrade.L1;
-      case 1 -> StudentGrade.L2;
-      case 2 -> StudentGrade.L3;
+      case 0 -> L1;
+      case 1 -> L2;
+      case 2 -> L3;
       default ->
           throw new IllegalArgumentException(
               "Invalid promotion at instant '%s': the group with ID '%s' cannot have a valid promotion for year %d at this time"
