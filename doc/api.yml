@@ -442,22 +442,10 @@ paths:
       summary: Get student grades.
       operationId: getStudentGrades
       parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
+        - $ref: '#/components/parameters/PathStudentId'
+        - $ref: '#/components/schemas/Page'
+        - $ref: '#/components/schemas/PageSize'
+        - $ref: '#/components/parameters/AcademicYearLevel'
       responses:
         '200':
           description: List of a student's grades, showing the exam and the course of these grades.
@@ -5911,6 +5899,13 @@ components:
       in: query
       required: false
       description: Filter by student first name or last name
+      schema:
+        type: string
+    AcademicYearLevel:
+      name: academic_year_level
+      in: query
+      required: false
+      description: Filter by group academic year level
       schema:
         type: string
     PathExamId:
