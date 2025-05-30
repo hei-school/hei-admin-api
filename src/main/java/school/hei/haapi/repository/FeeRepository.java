@@ -21,7 +21,7 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
 
   List<Fee> getFeesByStudentIdAndStatus(String studentId, FeeStatusEnum status, Pageable pageable);
 
-  List<Fee> findAllByUpdatedAtBetween(Instant from, Instant to);
+  List<Fee> findAllByDueDatetimeBetween(Instant from, Instant to);
 
   @Query(
       "select f from Fee f where f.status = 'UNPAID' "
