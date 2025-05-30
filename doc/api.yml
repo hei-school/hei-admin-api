@@ -443,8 +443,17 @@ paths:
       operationId: getStudentGrades
       parameters:
         - $ref: '#/components/parameters/PathStudentId'
-        - $ref: '#/components/schemas/Page'
-        - $ref: '#/components/schemas/PageSize'
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
         - $ref: '#/components/parameters/AcademicYearLevel'
       responses:
         '200':
@@ -5908,6 +5917,10 @@ components:
       description: Filter by group academic year level
       schema:
         type: string
+        enum:
+          - L1
+          - L2
+          - L3
     PathExamId:
       name: exams_id
       in: path

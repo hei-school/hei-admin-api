@@ -77,7 +77,7 @@ class GradeIT extends FacadeITMockedThirdParties {
     TeachingApi api = new TeachingApi(manager1Client);
 
     List<String> actualAwardedCourseExamGradesId =
-        api.getStudentGrades(STUDENT1_ID, 1, 10).stream()
+        api.getStudentGrades(STUDENT1_ID, 1, 10, null).stream()
             .map(AwardedCourseExam::getId)
             .collect(toUnmodifiableList());
 
@@ -91,7 +91,7 @@ class GradeIT extends FacadeITMockedThirdParties {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
 
-    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
+    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10, null);
 
     assertTrue(actual.contains(awardedCourseExam1()));
     assertTrue(actual.contains(awardedCourseExam2()));
@@ -104,7 +104,7 @@ class GradeIT extends FacadeITMockedThirdParties {
     TeachingApi api = new TeachingApi(student1Client);
 
     List<String> actualIds =
-        api.getStudentGrades(STUDENT1_ID, 1, 10).stream()
+        api.getStudentGrades(STUDENT1_ID, 1, 10, null).stream()
             .map(AwardedCourseExam::getId)
             .collect(toUnmodifiableList());
 
@@ -117,7 +117,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   void student_read_other_grade_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
-    assertThrowsForbiddenException(() -> api.getStudentGrades(STUDENT2_ID, 1, 10));
+    assertThrowsForbiddenException(() -> api.getStudentGrades(STUDENT2_ID, 1, 10, null));
     assertThrowsForbiddenException(() -> api.getParticipantGrade(GROUP1_ID, EXAM1_ID));
   }
 
