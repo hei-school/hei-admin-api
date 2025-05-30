@@ -204,6 +204,7 @@ public class SecurityConf {
                     antMatcher(GET, "/courses/*/exams/*/details"),
                     antMatcher(GET, "/courses/*/exams/*/participants/*"),
                     antMatcher(GET, "/courses/*/student/*/exams/grades"),
+                    antMatcher(GET, "/courses/*/student/*/grade/stats"),
                     antMatcher(GET, STUDENT_COURSE),
                     antMatcher(GET, "/comments"),
                     antMatcher(GET, "/students/*/comments"),
@@ -861,6 +862,11 @@ public class SecurityConf {
                         new SelfMatcher(GET, "/courses/*/student/*/exams/grades", "student"))
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/courses/*/student/*/exams/grades")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(
+                        new SelfMatcher(GET, "/courses/*/student/*/grade/stats", "student"))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(GET, "/courses/*/student/*/grade/stats")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))
                     .hasAnyRole(STUDENT.getRole(), ADMIN.getRole())

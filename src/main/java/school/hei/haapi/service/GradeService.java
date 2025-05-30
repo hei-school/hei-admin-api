@@ -83,4 +83,13 @@ public class GradeService {
   public ExamGradeStats getExamGradeStats(String examId) {
     return new ExamGradeStats().average(getExamAverageGrade(examId));
   }
+
+  public double scoreSumWithCoefficient(List<Grade> grades) {
+    return grades.stream()
+        .mapToDouble(
+            grade ->
+                Optional.ofNullable(grade.getScore()).orElse(0.)
+                    * Optional.ofNullable(grade.getExam().getCoefficient()).orElse(0))
+        .sum();
+  }
 }

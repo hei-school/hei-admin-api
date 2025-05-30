@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.ExamMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateExam;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.StudentCourseGradeStats;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -117,5 +118,12 @@ public class ExamController {
     return examService.getExamsByCourseId(courseId).stream()
         .map(exam -> examMapper.toRestStudentExamGrade(studentId, exam))
         .toList();
+  }
+
+  @GetMapping("/courses/{course_id}/student/{student_id}/grade/stats")
+  public StudentCourseGradeStats getStudentCourseGradeStats(
+      @PathVariable(value = "course_id") String courseId,
+      @PathVariable(value = "student_id") String studentId) {
+    return examService.getStudentCourseGradeStats(courseId, studentId);
   }
 }

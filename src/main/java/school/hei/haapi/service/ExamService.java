@@ -11,6 +11,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.model.StudentCourseGradeStats;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
@@ -92,5 +93,16 @@ public class ExamService {
 
   public List<Exam> getExamsByCourseId(String courseId) {
     return examRepository.findExamsByCourseId(courseId);
+  }
+
+  public StudentCourseGradeStats getStudentCourseGradeStats(String courseId, String studentId) {
+    List<Exam> exams = getExamsByCourseId(courseId);
+    double sumScore =
+        gradeService.scoreSumWithCoefficient(
+            exams.stream()
+                .map(exam -> gradeService.getGradeByExamIdAndStudentId(exam.getId(), studentId))
+                .toList());
+    double sumCoefficient = exams.stream().mapToDouble(Exam::getCoefficient).sum();
+    return new StudentCourseGradeStats().average(sumScore / sumCoefficient);
   }
 }
