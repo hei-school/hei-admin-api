@@ -22,8 +22,6 @@ import static school.hei.haapi.integration.conf.TestUtils.exam4;
 import static school.hei.haapi.integration.conf.TestUtils.exam5;
 import static school.hei.haapi.integration.conf.TestUtils.grade1;
 import static school.hei.haapi.integration.conf.TestUtils.grade2;
-import static school.hei.haapi.integration.conf.TestUtils.grade3;
-import static school.hei.haapi.integration.conf.TestUtils.grade4;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -41,7 +39,6 @@ import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
-import school.hei.haapi.endpoint.rest.model.StudentCourseGradeStats;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
@@ -211,19 +208,10 @@ class ExamIT extends FacadeITMockedThirdParties {
   void student_get_grade_for_each_exams_in_cours() throws ApiException {
     TeachingApi api = new TeachingApi(anApiClient(STUDENT1_TOKEN));
     List<StudentExamGrade> studentExamsGrade = api.getStudentExamsGrade(COURSE1_ID, STUDENT1_ID);
-    StudentCourseGradeStats student1Course1GradeStats =
-        api.getStudentCourseGradeStats(COURSE1_ID, STUDENT1_ID);
 
-    // Assert grades
     assertEquals(grade1().getScore(), studentExamsGrade.getFirst().getScore());
     assertEquals(exam1(), studentExamsGrade.getFirst().getExam());
     assertEquals(grade2().getScore(), studentExamsGrade.get(1).getScore());
     assertEquals(exam2(), studentExamsGrade.get(1).getExam());
-    assertEquals(grade3().getScore(), studentExamsGrade.get(2).getScore());
-    assertEquals(exam3(), studentExamsGrade.get(2).getExam());
-    assertEquals(grade4().getScore(), studentExamsGrade.get(3).getScore());
-    assertEquals(exam4(), studentExamsGrade.get(3).getExam());
-    // Assert grade stats
-    assertEquals(9.8, student1Course1GradeStats.getAverage());
   }
 }

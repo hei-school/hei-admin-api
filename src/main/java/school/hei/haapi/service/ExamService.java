@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
+import static school.hei.haapi.model.Grade.scoreSumWithCoefficient;
 
 import java.time.Instant;
 import java.util.ArrayList;
@@ -98,10 +99,7 @@ public class ExamService {
   public StudentCourseGradeStats getStudentCourseGradeStats(String courseId, String studentId) {
     List<Exam> exams = getExamsByCourseId(courseId);
     double sumScore =
-        gradeService.scoreSumWithCoefficient(
-            exams.stream()
-                .map(exam -> gradeService.getGradeByExamIdAndStudentId(exam.getId(), studentId))
-                .toList());
+        scoreSumWithCoefficient(gradeService.getGradeByCourseIdAndStudentId(courseId, studentId));
     double sumCoefficient = exams.stream().mapToDouble(Exam::getCoefficient).sum();
     return new StudentCourseGradeStats().average(sumScore / sumCoefficient);
   }

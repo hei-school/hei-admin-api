@@ -9,6 +9,8 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -48,5 +50,14 @@ public class Grade implements Serializable {
     this.score = 0.0;
     this.student = student;
     this.exam = exam;
+  }
+
+  public static double scoreSumWithCoefficient(List<Grade> grades) {
+    return grades.stream()
+        .mapToDouble(
+            grade ->
+                Optional.ofNullable(grade.getScore()).orElse(0.)
+                    * Optional.ofNullable(grade.getExam().getCoefficient()).orElse(0))
+        .sum();
   }
 }

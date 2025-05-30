@@ -92,4 +92,8 @@ public class GradeService {
                     * Optional.ofNullable(grade.getExam().getCoefficient()).orElse(0))
         .sum();
   }
+
+  public List<Grade> getGradeByCourseIdAndStudentId(String courseId, String studentId) {
+    return gradeRepository.findGradesByCourseIdAndStudentId(courseId, studentId);
+  }
 }

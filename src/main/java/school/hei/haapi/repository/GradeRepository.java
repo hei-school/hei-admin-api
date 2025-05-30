@@ -1,5 +1,6 @@
 package school.hei.haapi.repository;
 
+import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -18,4 +19,10 @@ public interface GradeRepository extends JpaRepository<Grade, String> {
       @Param("exam_id") String examId, @Param("student_ref") String studentRef);
 
   Optional<Grade> findByExamIdAndStudentId(String examId, String studentId);
+
+  @Query(
+      "select g from Grade g where g.exam.awardedCourse.course.id = :course_id"
+          + " and g.student = :user_id ")
+  List<Grade> findGradesByCourseIdAndStudentId(
+      @Param("course_id") String courseId, @Param("user_id") String studentId);
 }
