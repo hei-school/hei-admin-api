@@ -46,7 +46,7 @@ jobs:
           fi
 
           response=$(curl --fail -X POST "https://api.prod.poja.io/gh-repos/${{ github.repository }}/github-workflow-state" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: AppBearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
                   --arg app_env_deployment_id "$app_env_deployment_id_value" \
@@ -79,20 +79,20 @@ jobs:
         run: |
           chmod +x ./gradlew
           chmod +x .shell/publish_gen_to_maven_local.sh
-          response=$(curl -X GET "https://api.prod.poja.io/gh-repos/${{ github.repository }}/upload-build-uri?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/json")
+          response=$(curl --fail -X GET "https://api.prod.poja.io/gh-repos/${{ github.repository }}/upload-build-uri?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" -H "Authorization: AppBearer ${{ secrets.GITHUB_TOKEN }}" -H "Accept: application/json")
           echo "upload_build_file_uri=$(echo $response | jq -r '.uri')" >> $GITHUB_ENV
           echo "to_upload_filename=$(echo $response | jq -r '.filename')" >> $GITHUB_ENV
-          curl -X GET -o template.yml "$(echo $response | jq -r '.build_template_file_uri')"
+          curl --fail -X GET -o template.yml "$(echo $response | jq -r '.build_template_file_uri')"
 
       - name: Build project
         run: sam build
 
-      - name: Prepare JCloudify deployment
+      - name: Prepare Poja deployment
         run: |
           shopt -s globstar
           zip -r9 ${{ env.to_upload_filename }} .aws-sam
           shopt -u globstar
-          curl -X PUT -H "Content-Type: application/zip" -T ${{ env.to_upload_filename }} "${{ env.upload_build_file_uri }}"
+          curl --fail -X PUT -H "Content-Type: application/zip" -H "x-amz-tagging: temporary=true" -T ${{ env.to_upload_filename }} "${{ env.upload_build_file_uri }}"
 
       - name: Get current time
         uses: gerred/actions/current-time@master
@@ -104,7 +104,7 @@ jobs:
         with:
           name: ${{ steps.current-time.outputs.time }}
 
-      - name: Trigger JCloudify deployment
+      - name: Trigger Poja deployment
         id: trigger-deployment
         run: |
           app_env_deployment_id="${{ env.app_env_deployment_id }}"
@@ -124,7 +124,7 @@ jobs:
             input_conf_id="null"
           fi
           response=$(curl --fail -X PUT "https://api.prod.poja.io/gh-repos/${{ github.repository }}/env-deploys?environment_type=$(echo "${{ github.ref_name }}" | tr '[:lower:]' '[:upper:]')" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: AppBearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
               --arg env_depl_conf_id "$input_conf_id" \
@@ -174,7 +174,7 @@ jobs:
           fi
 
           response=$(curl --fail -X POST "https://api.prod.poja.io/gh-repos/${{ github.repository }}/github-workflow-state" \
-            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Authorization: AppBearer ${{ secrets.GITHUB_TOKEN }}" \
             -H "Content-Type: application/json" \
             -d "$(jq -n \
                   --arg app_env_deployment_id "$app_env_deployment_id_value" \

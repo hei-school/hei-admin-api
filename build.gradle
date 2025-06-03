@@ -163,7 +163,6 @@ dependencies {
     implementation 'org.flywaydb:flyway-core'
     testImplementation 'org.testcontainers:postgresql:1.20.0'
     implementation 'org.postgresql:postgresql'
-    implementation 'org.xerial:sqlite-jdbc:3.45.1.0'
     implementation 'org.hibernate.orm:hibernate-community-dialects:6.4.3.Final'
 
     implementation 'com.fasterxml.jackson.datatype:jackson-datatype-jsr310'

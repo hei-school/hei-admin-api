@@ -16,7 +16,7 @@ public class EmailConf {
   private final Region region;
 
   public EmailConf(
-      @Value("${aws.ses.source}") String sesSource, @Value("eu-west-3") Region region) {
+      @Value("noreply@jcloudify.com") String sesSource, @Value("eu-west-3") Region region) {
     this.sesSource = sesSource;
     this.region = region;
   }

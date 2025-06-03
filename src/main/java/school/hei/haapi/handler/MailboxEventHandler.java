@@ -1,4 +1,4 @@
-package school.hei.haapi;
+package school.hei.haapi.handler;
 
 import static java.lang.Runtime.getRuntime;
 import static java.lang.System.getenv;
@@ -15,6 +15,8 @@ import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.boot.SpringApplication;
 import org.springframework.context.ConfigurableApplicationContext;
+import school.hei.haapi.PojaApplication;
+import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.endpoint.EndpointConf;
 import school.hei.haapi.endpoint.event.EventConf;
 import school.hei.haapi.endpoint.event.consumer.EventConsumer;
