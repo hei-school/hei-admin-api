@@ -1,7 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +12,7 @@ import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
+import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.validator.GradeValidator;
@@ -45,22 +44,6 @@ public class GradeController {
     return awardedCourseMapper.toRest(awardedCourses, student);
   }
 
-  //  @GetMapping(
-  //      value = "/groups/{group_id}/awarded_courses/" +
-  // "{awarded_course_id}/exams/{exam_id}/grades")
-  //  public ExamDetail getExamGrades(
-  //      @PathVariable("group_id") String groupId,
-  //      @PathVariable("awarded_course_id") String awardedCourseId,
-  //      @PathVariable("exam_id") String examId) {
-  //    List<Grade> grades =
-  //        examService
-  //            .getExamsByIdAndGroupIdAndAwardedCourseId(examId, awardedCourseId, groupId)
-  //            .getGrades();
-  //    Exam exam =
-  //        examService.getExamsByIdAndGroupIdAndAwardedCourseId(examId, awardedCourseId, groupId);
-  //    return gradeMapper.toRestExamDetail(exam, grades);
-  //  }
-
   @GetMapping(value = "/exams/{exam_id}/students/{student_id}/grade")
   public StudentGrade getGradeOfStudentInOneExam(
       @PathVariable("exam_id") String examId, @PathVariable("student_id") String studentId) {
@@ -80,10 +63,10 @@ public class GradeController {
 
   @GetMapping(value = "/exams/{exam_id}/grades")
   public List<StudentGrade> getParticipantsGradeForExam(
-      @PathVariable String exam_id,
+      @PathVariable(value = "exam_id") String examId,
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize) {
-    return gradeService.getParticipantsGradeForExam(exam_id, page, pageSize).stream()
+    return gradeService.getParticipantsGradeForExam(examId, page, pageSize).stream()
         .map(gradeMapper::toRestStudentGrade)
         .toList();
   }
@@ -95,9 +78,14 @@ public class GradeController {
         .crupdateParticipantGrade(
             grades.stream()
                 .map(grade -> gradeMapper.toDomain(grade.getGrade(), examId, grade.getStudentRef()))
-                .collect(toUnmodifiableList()))
+                .toList())
         .stream()
         .map(gradeMapper::toRestStudentGrade)
-        .collect(toUnmodifiableList());
+        .toList();
+  }
+
+  @GetMapping(value = "/exams/{exam_id}/grade/stats")
+  public ExamGradeStats getExamGradeStats(@PathVariable(value = "exam_id") String examsId) {
+    return gradeService.getExamGradeStats(examsId);
   }
 }
