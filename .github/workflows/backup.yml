@@ -4,11 +4,8 @@ on:
         - cron : "0 0 * * *"
     workflow_dispatch:
 env :
-    NEON_DB_URL: ${{ secrets.NEON_DB_URL }}
-    NEON_DB_NAME: ${{secrets.NEON_DB_NAME}}
-    NEON_DB_USER: ${{secrets.NEON_DB_USER}}
-    NEON_DB_PASSWORD : ${{secrets.NEON_DB_PASSWORD}}
-    AWS_S3_BUCKET: ${{ secrets.AWS_S3_BUCKET }}
+    NEON_CONNECTION_URL: ${{ secrets.NEON_CONNECTION_URL }}
+    AWS_S3_BUCKET: ${{secrets.AWS_S3_BUCKET}}
     AWS_REGION: eu-west-3
 jobs:
   backup-db:
@@ -29,9 +26,9 @@ jobs:
         run: |
             set -e
             TIMESTAMP=$(date -u +"%Y-%m-%dT%H-%M-%SZ")
-            BACKUP_FILE="neon_backup_${TIMESTAMP}.sql"
-            PGPASSWORD="${NEON_DB_PASSWORD}" \
-              pg_dump -h "$NEON_DB_URL" -U "$NEON_DB_USER" -d "$NEON_DB_NAME" -F p -f "$BACKUP_FILE"
+            BACKUP_FILE="neon_backup_${TIMESTAMP}.bak"
+            echo "BACKUP_FILE=$BACKUP_FILE" >> $GITHUB_ENV
+            pg_dump -Fc -v -d ${NEON_CONNECTION_URL} -f "$BACKUP_FILE"
       - name : upload backup in S3
         run: |
             aws s3 cp "$BACKUP_FILE" "s3://${AWS_S3_BUCKET}/prod-backup-neon/${BACKUP_FILE}"
