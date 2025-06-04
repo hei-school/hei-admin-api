@@ -19,6 +19,7 @@ import java.util.Map;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
+@SuppressWarnings("all")
 public class HttpServletResponseWrapper implements HttpServletResponse {
   private final ByteArrayOutputStream outputStream;
   private final Map<String, List<String>> headers;

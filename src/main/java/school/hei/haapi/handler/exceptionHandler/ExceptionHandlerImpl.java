@@ -15,6 +15,7 @@ import school.hei.haapi.handler.model.ErrorModel;
 import school.hei.haapi.handler.model.ResponseEvent.LambdaUrlResponseEvent;
 
 @PojaGenerated
+@SuppressWarnings("all")
 public class ExceptionHandlerImpl implements ExceptionHandler<LambdaUrlResponseEvent> {
   private final Logger log = LoggerFactory.getLogger(ExceptionHandlerImpl.class);
 

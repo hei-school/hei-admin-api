@@ -6,6 +6,7 @@ import lombok.Setter;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @Getter
 @Setter
 public class IAM {

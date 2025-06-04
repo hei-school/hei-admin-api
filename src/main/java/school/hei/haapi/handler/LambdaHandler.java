@@ -27,6 +27,7 @@ import school.hei.haapi.handler.model.wrapper.HttpServletRequestWrapper;
 import school.hei.haapi.handler.model.wrapper.HttpServletResponseWrapper;
 
 @PojaGenerated
+@SuppressWarnings("all")
 public class LambdaHandler
     implements RequestHandler<LambdaUrlRequestEvent, LambdaUrlResponseEvent> {
 

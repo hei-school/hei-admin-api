@@ -34,6 +34,7 @@ import school.hei.haapi.PojaGenerated;
 import school.hei.haapi.handler.model.requestEvent.LambdaUrlRequestEvent;
 
 @PojaGenerated
+@SuppressWarnings("all")
 public class HttpServletRequestWrapper implements HttpServletRequest {
   private final LambdaUrlRequestEvent requestEvent;
   private final Map<String, Object> attributes;

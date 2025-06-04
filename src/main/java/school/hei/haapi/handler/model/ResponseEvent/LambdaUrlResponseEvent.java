@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
+@SuppressWarnings("all")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
