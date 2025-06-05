@@ -90,7 +90,7 @@ public class FeeMapper {
 
   public school.hei.haapi.model.Fee toDomain(CrupdateStudentFee crupdateFee) {
     User student = userService.findById(crupdateFee.getStudentId());
-    school.hei.haapi.model.Fee fee =
+    school.hei.haapi.model.Fee.FeeBuilder feeBuilder =
         school.hei.haapi.model.Fee.builder()
             .id(crupdateFee.getId())
             .student(student)
@@ -101,15 +101,14 @@ public class FeeMapper {
             .remainingAmount(crupdateFee.getTotalAmount())
             .comment(crupdateFee.getComment())
             .creationDatetime(crupdateFee.getCreationDatetime())
-            .dueDatetime(crupdateFee.getDueDatetime())
-            .build();
+            .dueDatetime(crupdateFee.getDueDatetime());
     if (crupdateFee.getId() != null) {
-      fee.setUpdatedAt(Instant.now());
+      feeBuilder.updatedAt(Instant.now());
     }
     if (crupdateFee.getDueDatetime() != null) {
-      fee.updateStatus(DataFormatterUtils.isLate(crupdateFee.getDueDatetime()) ? LATE : UNPAID);
+      feeBuilder.status(DataFormatterUtils.isLate(crupdateFee.getDueDatetime()) ? LATE : UNPAID);
     }
-    return fee;
+    return feeBuilder.build();
   }
 
   private school.hei.haapi.model.Fee toDomainFee(User student, CreateFee createFee) {
@@ -117,6 +116,12 @@ public class FeeMapper {
     if (!student.getRole().equals(User.Role.STUDENT)) {
       throw new BadRequestException("Only students can have fees");
     }
+
+    FeeStatusEnum feeStatus = UNPAID;
+    if (createFee.getDueDatetime() != null) {
+      feeStatus = DataFormatterUtils.isLate(createFee.getDueDatetime()) ? LATE : UNPAID;
+    }
+
     school.hei.haapi.model.Fee fee =
         school.hei.haapi.model.Fee.builder()
             .student(student)
@@ -127,6 +132,7 @@ public class FeeMapper {
             .updatedAt(createFee.getCreationDatetime())
             .remainingAmount(createFee.getTotalAmount())
             .comment(createFee.getComment())
+            .status(feeStatus)
             .creationDatetime(createFee.getCreationDatetime())
             .dueDatetime(createFee.getDueDatetime())
             .build();

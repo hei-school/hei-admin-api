@@ -176,7 +176,7 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
 
   private boolean isValidNewStatus(FeeStatusEnum newStatus) {
     return switch (this.status) {
-      case PAID -> List.of(LATE, UNPAID).contains(newStatus);
+      case PAID -> List.of(LATE, UNPAID, PAID).contains(newStatus);
       case UNPAID, PENDING, LATE -> true;
     };
   }
