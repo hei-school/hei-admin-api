@@ -49,6 +49,7 @@ public class PaymentService {
   private final UserManagerDao userManagerDao;
   private final PaymentValidator paymentValidator;
   private final EventProducer eventProducer;
+  private final FeeStatusHistoryService feeStatusHistoryService;
 
   public Payment deleteFeePaymentById(String paymentId) {
     Payment deletedPayment = getById(paymentId);
@@ -73,6 +74,7 @@ public class PaymentService {
     if (associatedFee.getDueDatetime().isAfter(now) && associatedFee.getRemainingAmount() != 0) {
       associatedFee.updateStatus(UNPAID);
     }
+    feeStatusHistoryService.saveFeeStatus(associatedFee.getStatus(), associatedFee);
     feeRepository.save(associatedFee);
   }
 
@@ -117,6 +119,7 @@ public class PaymentService {
     }
     if (associatedFee.getRemainingAmount() == 0) {
       associatedFee.updateStatus(PAID);
+      feeStatusHistoryService.saveFeeStatus(associatedFee.getStatus(), associatedFee);
     }
   }
 

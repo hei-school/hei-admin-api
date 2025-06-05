@@ -30,6 +30,7 @@ import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.AdvancedFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
+import school.hei.haapi.service.utils.DateUtils;
 
 class FeeServiceTest {
   FeeService subject;
@@ -42,6 +43,8 @@ class FeeServiceTest {
   UserService userService;
   FeeDao feeDao;
   FeeTemplateService feeTemplateService;
+  DateUtils dateUtils;
+  FeeStatusHistoryService feeStatusHistoryService;
 
   static User student1() {
     return User.builder().id(TestUtils.STUDENT1_ID).build();
@@ -127,6 +130,7 @@ class FeeServiceTest {
     feeTemplateService = mock(FeeTemplateService.class);
     advancedFeeStatsRepository = mock(AdvancedFeeStatsRepository.class);
     advancedFeeStatsMapper = mock(AdvancedFeeStatsMapper.class);
+    feeStatusHistoryService = mock(FeeStatusHistoryService.class);
     subject =
         new FeeService(
             feeRepository,
@@ -134,7 +138,8 @@ class FeeServiceTest {
             updateFeeValidator,
             eventProducer,
             feeDao,
-            feeTemplateService);
+            feeTemplateService,
+            feeStatusHistoryService);
   }
 
   @Test

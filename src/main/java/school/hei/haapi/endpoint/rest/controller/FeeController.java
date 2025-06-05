@@ -164,7 +164,7 @@ public class FeeController {
         .saveAll(crupdateStudentFees.stream().map(feeMapper::toDomain).toList())
         .stream()
         .map(feeMapper::toRestFee)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @GetMapping("/fees/templates")

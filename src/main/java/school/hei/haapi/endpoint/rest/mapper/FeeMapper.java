@@ -14,6 +14,7 @@ import school.hei.haapi.endpoint.rest.validator.CreateFeeValidator;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.service.FeeStatusHistoryService;
 import school.hei.haapi.service.LetterService;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.aws.FileService;
@@ -27,6 +28,7 @@ public class FeeMapper {
   private final LetterService letterService;
   private final FileService fileService;
   private final UserService userService;
+  private final FeeStatusHistoryService feeStatusHistoryService;
 
   public Fee toRestFee(school.hei.haapi.model.Fee fee) {
     List<Mpbs> feeMpbs =

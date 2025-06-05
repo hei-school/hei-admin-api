@@ -54,6 +54,7 @@ public class FeeService {
   private final EventProducer<PojaEvent> eventProducer;
   private final FeeDao feeDao;
   private final FeeTemplateService feeTemplateService;
+  private final FeeStatusHistoryService feeStatusHistoryService;
   private static final String MONTHLY_FEE_TEMPLATE_NAME = "Frais mensuel L1";
   private static final String YEARLY_FEE_TEMPLATE_NAME = "Frais annuel L1";
 
@@ -215,6 +216,7 @@ public class FeeService {
         && initialFee.getStatus() == UNPAID) {
       initialFee.updateStatus(LATE);
     }
+    feeStatusHistoryService.saveFeeStatus(initialFee.getStatus(), initialFee);
     return feeRepository.save(initialFee);
   }
 
@@ -229,7 +231,11 @@ public class FeeService {
           case YEARLY ->
               createFeesFromFeeTemplate(YEARLY_FEE_TEMPLATE_NAME, user, firstDueDatetime);
         };
-    return feeRepository.saveAll(feesToSave);
+    List<Fee> savedFees = feeRepository.saveAll(feesToSave);
+    savedFees.forEach(fee -> {
+      feeStatusHistoryService.saveFeeStatus(fee.getStatus(), fee);
+    });
+    return savedFees;
   }
 
   public List<Fee> createFeesFromFeeTemplate(String feeTemplateName, User user, Instant instant) {
@@ -279,6 +285,7 @@ public class FeeService {
                   + fee.getId()
                   + " is going to be updated from UNPAID to "
                   + fee.getStatus());
+          feeStatusHistoryService.saveFeeStatus(modifiedFee.getStatus(), modifiedFee);
           /*if (PAID.equals(modifiedFee.getStatus())) {
             paidFees.add(modifiedFee);
           } else*/
