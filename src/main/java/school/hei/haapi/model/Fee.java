@@ -121,8 +121,8 @@ public class Fee implements Serializable {
       return false;
     }
     Fee fee = (Fee) o;
-    return totalAmount.equals(fee.totalAmount)
-        && remainingAmount.equals(fee.remainingAmount)
+    return Objects.equals(totalAmount, fee.totalAmount)
+        && Objects.equals(remainingAmount, fee.remainingAmount)
         && Objects.equals(id, fee.id)
         && Objects.equals(student.getId(), fee.student.getId())
         && status == fee.status
