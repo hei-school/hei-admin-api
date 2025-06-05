@@ -22,7 +22,7 @@ public class MpbsService {
 
   public Mpbs saveMpbs(Mpbs mobilePaymentByStudentToSave) {
     Fee fee = mobilePaymentByStudentToSave.getFee();
-    fee.setStatus(PENDING);
+    fee.updateStatus(PENDING);
     mobilePaymentByStudentToSave.setFee(feeService.update(fee));
     return mpbsRepository.save(mobilePaymentByStudentToSave);
   }

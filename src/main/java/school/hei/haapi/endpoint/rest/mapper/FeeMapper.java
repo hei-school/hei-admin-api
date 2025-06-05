@@ -107,7 +107,7 @@ public class FeeMapper {
       fee.setUpdatedAt(Instant.now());
     }
     if (crupdateFee.getDueDatetime() != null) {
-      fee.setStatus(DataFormatterUtils.isLate(crupdateFee.getDueDatetime()) ? LATE : UNPAID);
+      fee.updateStatus(DataFormatterUtils.isLate(crupdateFee.getDueDatetime()) ? LATE : UNPAID);
     }
     return fee;
   }
@@ -132,7 +132,7 @@ public class FeeMapper {
             .build();
 
     if (createFee.getDueDatetime() != null) {
-      fee.setStatus(DataFormatterUtils.isLate(createFee.getDueDatetime()) ? LATE : UNPAID);
+      fee.updateStatus(DataFormatterUtils.isLate(createFee.getDueDatetime()) ? LATE : UNPAID);
     }
     return fee;
   }

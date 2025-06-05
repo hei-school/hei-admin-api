@@ -210,10 +210,10 @@ public class FeeService {
 
   private Fee updateFeeStatus(Fee initialFee) {
     if (initialFee.getRemainingAmount() == 0) {
-      initialFee.setStatus(PAID);
+      initialFee.updateStatus(PAID);
     } else if (Instant.now().isAfter(initialFee.getDueDatetime())
         && initialFee.getStatus() == UNPAID) {
-      initialFee.setStatus(LATE);
+      initialFee.updateStatus(LATE);
     }
     return feeRepository.save(initialFee);
   }
@@ -286,7 +286,7 @@ public class FeeService {
             lateFees.add(modifiedFee);
           }
         });
-    lateFees.forEach(lf -> feeRepository.updateFeeStatusById(LATE, lf.getId()));
+    feeRepository.saveAll(lateFees);
     log.info("lateFees = {}", lateFees.stream().map(Fee::describe).toList());
     // Send list of late fees with student ref to contact
     if (!lateFees.isEmpty()) {

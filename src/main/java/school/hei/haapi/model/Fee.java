@@ -5,6 +5,8 @@ import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
 
@@ -53,6 +55,7 @@ public class Fee implements Serializable {
 
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
+  @Setter(AccessLevel.NONE)
   private FeeStatusEnum status;
 
   @JdbcTypeCode(NAMED_ENUM)
@@ -158,5 +161,23 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
     } else {
       return BANK;
     }
+  }
+
+  public Fee updateStatus(FeeStatusEnum newStatus) {
+    if (isValidNewStatus(newStatus)) {
+      this.status = newStatus;
+      return this;
+    }
+    throw new IllegalArgumentException(
+        String.format(
+            "New Fee status is not valid" + "\nFee status %s cannot be changed to %s",
+            this.status, newStatus));
+  }
+
+  private boolean isValidNewStatus(FeeStatusEnum newStatus) {
+    return switch (this.status) {
+      case PAID -> List.of(LATE, UNPAID).contains(newStatus);
+      case UNPAID, PENDING, LATE -> true;
+    };
   }
 }

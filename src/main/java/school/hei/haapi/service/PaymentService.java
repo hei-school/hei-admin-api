@@ -68,10 +68,10 @@ public class PaymentService {
     associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() + amount);
 
     if (associatedFee.getDueDatetime().isBefore(now) && associatedFee.getRemainingAmount() != 0) {
-      associatedFee.setStatus(LATE);
+      associatedFee.updateStatus(LATE);
     }
     if (associatedFee.getDueDatetime().isAfter(now) && associatedFee.getRemainingAmount() != 0) {
-      associatedFee.setStatus(UNPAID);
+      associatedFee.updateStatus(UNPAID);
     }
     feeRepository.save(associatedFee);
   }
@@ -116,7 +116,7 @@ public class PaymentService {
       notifyStudentForEnabling(associatedFee, amount);
     }
     if (associatedFee.getRemainingAmount() == 0) {
-      associatedFee.setStatus(PAID);
+      associatedFee.updateStatus(PAID);
     }
   }
 

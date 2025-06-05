@@ -88,7 +88,7 @@ class FeeServiceTest {
     Fee fee = createSomeFee(feeId, paymentAmount, status, dueDatetime, creationDatetime);
     fee.setRemainingAmount(remainingAmount);
     if (isMocked) {
-      fee.setStatus(UNPAID);
+      fee.updateStatus(UNPAID);
       fee.setRemainingAmount(remainingAmount());
     }
     return fee;
