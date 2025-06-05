@@ -84,6 +84,9 @@ public class Fee implements Serializable {
   @EqualsAndHashCode.Exclude
   private List<Mpbs> mobilePayments;
 
+  @OneToMany(mappedBy = "fee", cascade = REMOVE)
+  private List<FeeStatusHistory> statusHistories;
+
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
   private FeeCategory category = UNKNOWN;
