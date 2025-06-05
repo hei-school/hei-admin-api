@@ -14,13 +14,14 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
@@ -41,7 +42,6 @@ import school.hei.haapi.model.fee.PaymentType;
 @NoArgsConstructor
 @SQLDelete(sql = "update \"fee\" set is_deleted = true where id = ?")
 @Where(clause = "is_deleted = false")
-@EqualsAndHashCode
 public class Fee implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -112,6 +112,25 @@ public class Fee implements Serializable {
     this.updatedAt = fee.getUpdatedAt();
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) {
+      return true;
+    }
+    if (o == null || Hibernate.getClass(this) != Hibernate.getClass(o)) {
+      return false;
+    }
+    Fee fee = (Fee) o;
+    return totalAmount.equals(fee.totalAmount)
+        && remainingAmount.equals(fee.remainingAmount)
+        && Objects.equals(id, fee.id)
+        && Objects.equals(student.getId(), fee.student.getId())
+        && status == fee.status
+        && type == fee.type
+        && Objects.equals(creationDatetime, fee.creationDatetime)
+        && Objects.equals(dueDatetime, fee.dueDatetime);
+  }
+
   public String describe() {
     return """
 Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime" : "%s", "actualStatus" : "%s"}
@@ -145,6 +164,26 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
         + ", dueDatetime="
         + dueDatetime
         + '}';
+  }
+
+  @Override
+  public int hashCode() {
+    int result = id.hashCode();
+    result = 31 * result + student.hashCode();
+    result = 31 * result + status.hashCode();
+    result = 31 * result + type.hashCode();
+    result = 31 * result + totalAmount.hashCode();
+    result = 31 * result + updatedAt.hashCode();
+    result = 31 * result + remainingAmount.hashCode();
+    result = 31 * result + comment.hashCode();
+    result = 31 * result + Boolean.hashCode(isDeleted);
+    result = 31 * result + creationDatetime.hashCode();
+    result = 31 * result + dueDatetime.hashCode();
+    result = 31 * result + Objects.hashCode(payments);
+    result = 31 * result + Objects.hashCode(mobilePayments);
+    result = 31 * result + category.hashCode();
+    result = 31 * result + frequency.hashCode();
+    return result;
   }
 
   public PaymentType getPaymentType() {
