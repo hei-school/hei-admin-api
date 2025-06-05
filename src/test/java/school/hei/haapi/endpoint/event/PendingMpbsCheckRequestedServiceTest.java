@@ -28,7 +28,6 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.User;
-import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.MobilePaymentService;
 import school.hei.haapi.service.MpbsService;
@@ -41,7 +40,6 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
   @Autowired PendingMpbsCheckRequestedService subject;
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired private MpbsService mpbsService;
-  @Autowired private MpbsRepository mpbsRepository;
   @MockBean private MobilePaymentService mobilePaymentService;
   @Autowired private FeeService feeService;
 
@@ -90,7 +88,6 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
                     .toVerify(mpbs)
                     .verifyAt(Instant.now())
                     .build()));
-    mpbsRepository.delete(mpbs);
   }
 
   private static Fee someFeeFor(User student1) {
