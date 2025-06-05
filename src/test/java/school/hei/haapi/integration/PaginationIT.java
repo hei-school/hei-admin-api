@@ -1,7 +1,6 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -106,8 +105,6 @@ class PaginationIT extends FacadeITMockedThirdParties {
     assertEquals(2, page2.size());
     assertEquals(2, page3.size());
     assertTrue(isAfter(page1.getFirst().getDueDatetime(), page1.get(1).getDueDatetime()));
-    assertNotEquals(
-        0, page1.getFirst().getDueDatetime().compareTo(page2.getFirst().getDueDatetime()));
     assertTrue(isAfter(page1.get(1).getDueDatetime(), page2.getFirst().getDueDatetime()));
   }
 

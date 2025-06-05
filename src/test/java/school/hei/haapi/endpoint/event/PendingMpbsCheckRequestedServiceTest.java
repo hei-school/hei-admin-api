@@ -3,7 +3,12 @@ package school.hei.haapi.endpoint.event;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.annotation.DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
+import static school.hei.haapi.endpoint.rest.model.FeeFrequency.YEARLY;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -18,10 +23,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.event.model.PendingMpbsCheckRequested;
-import school.hei.haapi.endpoint.rest.model.FeeCategory;
-import school.hei.haapi.endpoint.rest.model.FeeFrequency;
-import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
-import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.MobileTransactionDetails;
@@ -35,7 +36,7 @@ import school.hei.haapi.service.event.PendingMpbsCheckRequestedService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
-@DirtiesContext(classMode = DirtiesContext.ClassMode.AFTER_EACH_TEST_METHOD)
+@DirtiesContext(classMode = AFTER_EACH_TEST_METHOD)
 class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
   @Autowired PendingMpbsCheckRequestedService subject;
   @MockBean private EventBridgeClient eventBridgeClientMock;
@@ -64,20 +65,7 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
   @Test
   void verify_mpbs() {
     User student1 = User.builder().id(STUDENT1_ID).build();
-    Fee fee =
-        feeService
-            .saveAll(
-                List.of(
-                    Fee.builder()
-                        .student(student1)
-                        .category(FeeCategory.L1)
-                        .dueDatetime(Instant.now())
-                        .remainingAmount(100)
-                        .totalAmount(100)
-                        .frequency(FeeFrequency.YEARLY)
-                        .type(FeeTypeEnum.TUITION)
-                        .build()))
-            .getFirst();
+    Fee fee = feeService.saveAll(List.of(someFeeFor(student1))).getFirst();
     Mpbs mpbsCreated =
         Mpbs.builder().student(student1).fee(fee).amount(fee.getRemainingAmount()).build();
     mpbsCreated.setMobileMoneyType(ORANGE_MONEY);
@@ -92,7 +80,7 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
                     Instant.now(),
                     Instant.now(),
                     "pspTransactionRef",
-                    MpbsStatus.SUCCESS)));
+                    SUCCESS)));
     assertDoesNotThrow(
         () ->
             subject.accept(
@@ -101,5 +89,17 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
                     .verifyAt(Instant.now())
                     .build()));
     mpbsRepository.delete(mpbs);
+  }
+
+  private static Fee someFeeFor(User student1) {
+    return Fee.builder()
+        .student(student1)
+        .category(L1)
+        .dueDatetime(Instant.now())
+        .remainingAmount(100)
+        .totalAmount(100)
+        .frequency(YEARLY)
+        .type(TUITION)
+        .build();
   }
 }
