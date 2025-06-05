@@ -132,11 +132,13 @@ class FeeIT extends FacadeITMockedThirdParties {
     assertEquals(test, fee3());
 
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 20, null);
+    List<Fee> lateFees = api.getStudentFees(STUDENT1_ID, 1, 20, LATE);
 
     assertEquals(fee1(), actualFee);
     assertTrue(actual.contains(fee1()));
     assertTrue(actual.contains(fee2()));
     assertTrue(actual.contains(fee3()));
+    assertTrue(lateFees.contains(fee3()));
   }
 
   @Test
@@ -486,7 +488,7 @@ class FeeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_get_advanced_fee_statistics_ok() throws ApiException {
+  void manager_get_advanced_fee_statistics_ok() {
     LocalDateTime fromDateTime = LocalDateTime.parse("2025-04-01T00:00:00.00");
     LocalDateTime toDateTime = LocalDateTime.parse("2025-04-30T23:59:59.99");
 

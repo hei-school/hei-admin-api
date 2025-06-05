@@ -202,7 +202,8 @@ public class FeeService {
       String studentId, PageFromOne page, BoundedPageSize pageSize, FeeStatusEnum status) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     if (status != null) {
-      return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
+      return feeRepository.getFeesByStudentIdAndStatusOrderByDueDatetimeDesc(
+          studentId, status, pageable);
     }
     return feeRepository.findAllByStudentIdSortByStatusAndDueDatetimeDescAndId(studentId, pageable);
   }
