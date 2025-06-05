@@ -71,6 +71,7 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
     mpbsCreated.setMobileMoneyType(ORANGE_MONEY);
     mpbsCreated.setPspId("----");
     Mpbs mpbs = mpbsService.saveMpbs(mpbsCreated);
+
     when(mobilePaymentService.findTransactionByMpbsWithoutException(any()))
         .thenReturn(
             Optional.of(
@@ -81,6 +82,7 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
                     Instant.now(),
                     "pspTransactionRef",
                     SUCCESS)));
+
     assertDoesNotThrow(
         () ->
             subject.accept(
