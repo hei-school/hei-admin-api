@@ -22,6 +22,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
+import org.apache.commons.lang3.builder.ToStringExclude;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -36,6 +38,7 @@ import school.hei.haapi.endpoint.rest.model.EventType;
 @NoArgsConstructor
 @SQLDelete(sql = "update \"event\" set is_deleted = true where id = ?")
 @Where(clause = "is_deleted = false")
+@ToString
 public class Event {
 
   @Id
@@ -57,20 +60,25 @@ public class Event {
   // TODO : Add promotion
 
   @Column(name = "begin_datetime")
+  @ToStringExclude
   private Instant beginDatetime;
 
   @Column(name = "end_datetime")
+  @ToStringExclude
   private Instant endDatetime;
 
   @ManyToOne
   @JoinColumn(name = "planner_id", referencedColumnName = "id")
+  @ToStringExclude
   private User planner;
 
   @ManyToOne
   @JoinColumn(name = "course_id", referencedColumnName = "id")
+  @ToStringExclude
   private Course course;
 
   @ManyToMany(fetch = EAGER)
+  @ToStringExclude
   @JoinTable(
       name = "event_group_participate",
       joinColumns = @JoinColumn(name = "event_id"),
@@ -78,21 +86,4 @@ public class Event {
   private List<Group> groups;
 
   public static final String BEGIN_DATETIME = "beginDatetime";
-
-  @Override
-  public String toString() {
-    return "Event {id="
-        + id
-        + ", type="
-        + type
-        + ", title="
-        + title
-        + ", description="
-        + description
-        + ", colorCode="
-        + colorCode
-        + ", isDeleted"
-        + isDeleted
-        + "}";
-  }
 }
