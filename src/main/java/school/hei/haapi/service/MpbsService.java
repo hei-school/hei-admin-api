@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -18,14 +17,10 @@ import school.hei.haapi.repository.MpbsRepository;
 public class MpbsService {
   private final MpbsRepository mpbsRepository;
   private final FeeService feeService;
-  private final FeeStatusHistoryService feeStatusHistoryService;
-  private final MultipartFileConverter multipartFileConverter;
 
   public Mpbs saveMpbs(Mpbs mobilePaymentByStudentToSave) {
     Fee fee = mobilePaymentByStudentToSave.getFee();
-    fee.updateStatus(PENDING);
-    feeStatusHistoryService.saveFeeStatus(fee.getStatus(), fee);
-    mobilePaymentByStudentToSave.setFee(feeService.update(fee));
+    mobilePaymentByStudentToSave.setFee(feeService.pendFeeForMpbs(fee));
     return mpbsRepository.save(mobilePaymentByStudentToSave);
   }
 

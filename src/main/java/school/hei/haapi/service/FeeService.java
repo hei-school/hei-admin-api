@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static java.util.UUID.randomUUID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
@@ -195,10 +196,6 @@ public class FeeService {
     return feesStats.getFirst();
   }
 
-  private int toInt(Object value) {
-    return value instanceof Number ? ((Number) value).intValue() : 0;
-  }
-
   public List<Fee> getFeesByStudentId(
       String studentId, PageFromOne page, BoundedPageSize pageSize, FeeStatusEnum status) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
@@ -232,9 +229,10 @@ public class FeeService {
               createFeesFromFeeTemplate(YEARLY_FEE_TEMPLATE_NAME, user, firstDueDatetime);
         };
     List<Fee> savedFees = feeRepository.saveAll(feesToSave);
-    savedFees.forEach(fee -> {
-      feeStatusHistoryService.saveFeeStatus(fee.getStatus(), fee);
-    });
+    savedFees.forEach(
+        fee -> {
+          feeStatusHistoryService.saveFeeStatus(fee.getStatus(), fee);
+        });
     return savedFees;
   }
 
@@ -285,7 +283,6 @@ public class FeeService {
                   + fee.getId()
                   + " is going to be updated from UNPAID to "
                   + fee.getStatus());
-          feeStatusHistoryService.saveFeeStatus(modifiedFee.getStatus(), modifiedFee);
           /*if (PAID.equals(modifiedFee.getStatus())) {
             paidFees.add(modifiedFee);
           } else*/
@@ -354,7 +351,9 @@ public class FeeService {
         });
   }
 
-  public Fee update(Fee fee) {
+  public Fee pendFeeForMpbs(Fee fee) {
+    fee.updateStatus(PENDING);
+    feeStatusHistoryService.saveFeeStatus(fee.getStatus(), fee);
     return feeRepository.save(fee);
   }
 }

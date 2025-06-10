@@ -88,6 +88,7 @@ public class Fee implements Serializable {
   private List<Mpbs> mobilePayments;
 
   @OneToMany(mappedBy = "fee", cascade = REMOVE)
+  @Setter(AccessLevel.NONE)
   private List<FeeStatusHistory> statusHistories;
 
   @JdbcTypeCode(NAMED_ENUM)

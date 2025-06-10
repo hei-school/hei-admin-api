@@ -78,7 +78,7 @@ public class FeeController {
         fees.stream().map(fee -> feeMapper.toDomain(fee, student)).collect(toList());
     return feeService.updateAll(domainFeeList, studentId).stream()
         .map(feeMapper::toRestFee)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @GetMapping("/students/{studentId}/fees")
@@ -89,7 +89,7 @@ public class FeeController {
       @RequestParam(required = false) FeeStatusEnum status) {
     return feeService.getFeesByStudentId(studentId, page, pageSize, status).stream()
         .map(feeMapper::toRestFee)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @GetMapping(value = "/fees/raw", produces = "application/vnd.ms-excel")
