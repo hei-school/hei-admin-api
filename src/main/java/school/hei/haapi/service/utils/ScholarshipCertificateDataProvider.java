@@ -5,7 +5,6 @@ import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
-import java.time.temporal.ChronoUnit;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
@@ -59,24 +58,6 @@ public class ScholarshipCertificateDataProvider {
       case TN -> "Transformation Numérique";
       case EL -> "Écosystème Logiciel";
       default -> throw new ApiException(SERVER_EXCEPTION, "Invalid specialization field");
-    };
-  }
-
-  public static String determinerAnneeEtudes(String nomPromotion, Instant startDateTime) {
-    // Calcul de la différence en années entre maintenant et le début de la promotion
-    Instant maintenant = Instant.now();
-    long differenceAnnees =
-        ChronoUnit.YEARS.between(
-            startDateTime.atZone(ZoneId.systemDefault()).toLocalDate(),
-            maintenant.atZone(ZoneId.systemDefault()).toLocalDate());
-
-    return switch ((int) differenceAnnees) {
-      case 0 -> "première année";
-      case 1 -> "deuxième année";
-      case 2 -> "troisième année";
-      case 3 -> "quatrième année";
-      case 4 -> "cinquième année";
-      default -> "cinquième année";
     };
   }
 
