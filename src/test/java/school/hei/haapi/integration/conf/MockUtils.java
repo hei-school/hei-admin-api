@@ -18,7 +18,7 @@ import school.hei.haapi.model.User;
 
 @Component
 public class MockUtils {
-  private final Faker faker = new Faker();
+  private static final Faker faker = new Faker();
 
   public Group createGroup() {
     return new Group()
@@ -35,10 +35,10 @@ public class MockUtils {
     return groupList;
   }
 
-  public static Fee someFee(User student) {
+  public Fee someFee(User student) {
     return Fee.builder()
         .id(UUID.randomUUID().toString())
-        .comment("comment")
+        .comment(faker.lorem().sentence(10))
         .student(student)
         .totalAmount(0)
         .remainingAmount(0)
