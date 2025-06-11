@@ -17,7 +17,7 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
 
 @Component
-public class MockUtils {
+public class FakeDataProvider {
   private static final Faker faker = new Faker();
 
   public Group createGroup() {
