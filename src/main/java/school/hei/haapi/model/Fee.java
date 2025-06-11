@@ -94,6 +94,7 @@ public class Fee implements Serializable {
   @OneToMany(mappedBy = "fee", cascade = REMOVE)
   @Setter(AccessLevel.NONE)
   @JsonIgnore
+  @EqualsAndHashCode.Exclude
   private List<FeeStatusHistory> statusHistories;
 
   @JdbcTypeCode(NAMED_ENUM)
