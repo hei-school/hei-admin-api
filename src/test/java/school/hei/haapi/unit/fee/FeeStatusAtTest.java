@@ -12,7 +12,7 @@ import org.junit.jupiter.api.Test;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeStatusHistory;
 
-public class FeeStatusAtTest {
+class FeeStatusAtTest {
   @Test
   void get_status_at_instant_ok() {
     assertEquals(PENDING, fee().getStatusAt(Instant.parse("2022-01-01T00:00:00.00Z")).get());

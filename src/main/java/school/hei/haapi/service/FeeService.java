@@ -229,10 +229,7 @@ public class FeeService {
               createFeesFromFeeTemplate(YEARLY_FEE_TEMPLATE_NAME, user, firstDueDatetime);
         };
     List<Fee> savedFees = feeRepository.saveAll(feesToSave);
-    savedFees.forEach(
-        fee -> {
-          feeStatusHistoryService.saveFeeStatus(fee.getStatus(), fee);
-        });
+    savedFees.forEach(fee -> feeStatusHistoryService.saveFeeStatus(fee.getStatus(), fee));
     return savedFees;
   }
 
