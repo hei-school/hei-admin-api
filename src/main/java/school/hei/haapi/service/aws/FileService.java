@@ -95,25 +95,22 @@ public class FileService {
   }
 
   /* Use the JDK HttpClient (since v11) class to do the download. */
-  public byte[] useHttpClientToGet(String presignedUrlString) {
+  public byte[] useHttpClientToGet(String presignedUrlString)
+      throws URISyntaxException, IOException, InterruptedException {
     ByteArrayOutputStream byteArrayOutputStream =
         new ByteArrayOutputStream(); // Capture the response body to a byte array.
 
     HttpRequest.Builder requestBuilder = HttpRequest.newBuilder();
     HttpClient httpClient = HttpClient.newHttpClient();
-    try {
-      URL presignedUrl = new URL(presignedUrlString);
-      HttpResponse<InputStream> response =
-          httpClient.send(
-              requestBuilder.uri(presignedUrl.toURI()).GET().build(),
-              HttpResponse.BodyHandlers.ofInputStream());
+    URL presignedUrl = new URL(presignedUrlString);
+    HttpResponse<InputStream> response =
+        httpClient.send(
+            requestBuilder.uri(presignedUrl.toURI()).GET().build(),
+            HttpResponse.BodyHandlers.ofInputStream());
 
-      IoUtils.copy(response.body(), byteArrayOutputStream);
+    IoUtils.copy(response.body(), byteArrayOutputStream);
 
-      logger.info("HTTP response code is " + response.statusCode());
-    } catch (URISyntaxException | InterruptedException | IOException e) {
-      logger.error(e.getMessage(), e);
-    }
+    logger.info("HTTP response code is " + response.statusCode());
     return byteArrayOutputStream.toByteArray();
   }
 }
