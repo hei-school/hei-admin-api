@@ -42,15 +42,17 @@ public class AttendanceMapper {
   }
 
   public StudentAttendance toDomain(CreateAttendanceMovement toCreate) {
-    if (userRepository.findById(toCreate.getStudentId()).isEmpty()) {
-      throw new NotFoundException(
-          "the student with #" + toCreate.getStudentId() + " doesn't exist");
-    }
     return StudentAttendance.builder()
         .attendanceMovementType(toCreate.getAttendanceMovementType())
         .place(toCreate.getPlace())
         .createdAt(toCreate.getCreatedAt())
-        .student(userRepository.findById(toCreate.getStudentId()).get())
+        .student(
+            userRepository
+                .findById(toCreate.getStudentId())
+                .orElseThrow(
+                    () ->
+                        new NotFoundException(
+                            "the student with #" + toCreate.getStudentId() + " doesn't exist")))
         .build();
   }
 
