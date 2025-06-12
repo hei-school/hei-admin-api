@@ -9,19 +9,19 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
-import static school.hei.haapi.endpoint.rest.model.EventType.SEMINAR;
 
 import jakarta.mail.internet.AddressException;
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.event.model.CheckParticipantMissedEventTriggered;
 import school.hei.haapi.endpoint.event.model.MissedEventEmail;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.FakeDataProvider;
 import school.hei.haapi.mail.Mailer;
-import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.EventParticipant;
 import school.hei.haapi.model.User;
@@ -39,6 +39,7 @@ class CheckParticipantMissingEventTest extends FacadeITMockedThirdParties {
   @MockBean private UserService userService;
   @MockBean private EventService eventService;
   @MockBean private Mailer mailer;
+  @Autowired private FakeDataProvider fakeDataProvider;
   private MissedEventEmailService missedEventEmailService;
   private CheckParticipantMissedEventService subject;
 
@@ -51,7 +52,7 @@ class CheckParticipantMissingEventTest extends FacadeITMockedThirdParties {
 
   @Test
   void participant_missing_event_received_email() {
-    Event event1 = someEvent();
+    Event event1 = fakeDataProvider.someEvent();
     when(eventDao.findByCriteria(
             eq(null), any(Instant.class), any(Instant.class), eq(null), eq(null), eq(null)))
         .thenReturn(List.of(event1));
@@ -68,7 +69,7 @@ class CheckParticipantMissingEventTest extends FacadeITMockedThirdParties {
   @Test
   void send_mail_for_missed_event() {
     when(userService.findById(anyString())).thenReturn(new User());
-    when(eventService.findEventById(anyString())).thenReturn(someEvent());
+    when(eventService.findEventById(anyString())).thenReturn(fakeDataProvider.someEvent());
 
     assertThrows(
         AddressException.class,
@@ -76,20 +77,5 @@ class CheckParticipantMissingEventTest extends FacadeITMockedThirdParties {
     missedEventEmailService.accept(new MissedEventEmail("", "", "email@gmail.com"));
 
     verify(mailer, times(1)).accept(any());
-  }
-
-  private static Event someEvent() {
-    return new Event(
-        "",
-        SEMINAR,
-        "",
-        "",
-        null,
-        false,
-        Instant.now(),
-        Instant.now(),
-        null,
-        new Course("", "", "", 0, 0, List.of()),
-        List.of());
   }
 }
