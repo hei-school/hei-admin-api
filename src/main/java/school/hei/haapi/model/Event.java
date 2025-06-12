@@ -23,7 +23,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import org.apache.commons.lang3.builder.ToStringExclude;
 import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
@@ -60,25 +59,25 @@ public class Event {
   // TODO : Add promotion
 
   @Column(name = "begin_datetime")
-  @ToStringExclude
+  @ToString.Exclude
   private Instant beginDatetime;
 
   @Column(name = "end_datetime")
-  @ToStringExclude
+  @ToString.Exclude
   private Instant endDatetime;
 
   @ManyToOne
   @JoinColumn(name = "planner_id", referencedColumnName = "id")
-  @ToStringExclude
+  @ToString.Exclude
   private User planner;
 
   @ManyToOne
   @JoinColumn(name = "course_id", referencedColumnName = "id")
-  @ToStringExclude
+  @ToString.Exclude
   private Course course;
 
   @ManyToMany(fetch = EAGER)
-  @ToStringExclude
+  @ToString.Exclude
   @JoinTable(
       name = "event_group_participate",
       joinColumns = @JoinColumn(name = "event_id"),
