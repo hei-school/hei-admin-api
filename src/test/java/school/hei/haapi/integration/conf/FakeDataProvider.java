@@ -12,10 +12,18 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.model.Event;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
 
+/**
+ * Utility class for generating realistic fake data for testing purposes
+ *
+ * <p><b>Important:</b> Add/Modify data generation methods to this class as needs are identified
+ */
 @Component
 public class FakeDataProvider {
   private static final Faker faker = new Faker();
@@ -50,5 +58,21 @@ public class FakeDataProvider {
         .frequency(MONTHLY)
         .type(TUITION)
         .build();
+  }
+
+  public Event someEvent() {
+    var beginDatetime = faker.date().past(100, DAYS);
+    return new Event(
+        UUID.randomUUID().toString(),
+        faker.options().option(EventType.class),
+        faker.lorem().sentence(2),
+        faker.lorem().sentence(10),
+        null,
+        false,
+        beginDatetime.toInstant(),
+        faker.date().between(beginDatetime, faker.date().past(10, DAYS)).toInstant(),
+        null,
+        new Course("", "", "", 0, 0, List.of()),
+        List.of());
   }
 }
