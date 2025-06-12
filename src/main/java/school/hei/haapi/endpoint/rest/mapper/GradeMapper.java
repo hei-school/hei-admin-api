@@ -37,7 +37,7 @@ public class GradeMapper {
     return new Grade()
         .id(grade.getId())
         .createdAt(grade.getCreationDatetime())
-        .score(grade.getScore().doubleValue())
+        .score(grade.getScore())
         .updateDate(grade.getCreationDatetime());
   }
 
