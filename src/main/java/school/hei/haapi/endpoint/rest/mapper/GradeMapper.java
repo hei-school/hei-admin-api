@@ -1,7 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
@@ -10,6 +9,7 @@ import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.validator.GradeValidator;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeService;
@@ -52,25 +52,19 @@ public class GradeMapper {
   }
 
   public StudentGrade toRestStudentExamGrade(User student, Exam exam) {
-    Optional<school.hei.haapi.model.Grade> optionalGrade =
-        exam.getGrades().stream()
-            .filter(grade -> grade.getStudent().getId().equals(student.getId()))
-            .findFirst();
-    school.hei.haapi.model.Grade grade = optionalGrade.get();
-    var getStudentGrade = new StudentGrade().grade(toRest(grade));
-    getStudentGrade.setStudent(userMapper.toRestStudent(student));
-    return getStudentGrade;
+    return new StudentGrade()
+        .grade(
+            toRest(
+                exam.getGrades().stream()
+                    .filter(grade -> grade.getStudent().getId().equals(student.getId()))
+                    .findFirst()
+                    .orElseThrow(
+                        () ->
+                            new NotFoundException(
+                                "Student %s have no grade for the exam %s"
+                                    .formatted(student.getId(), exam.getId())))))
+        .student(userMapper.toRestStudent(student));
   }
-
-  //  public ExamDetail toRestExamDetail(Exam exam, List<school.hei.haapi.model.Grade> grades) {
-  //    return new ExamDetail()
-  //        .id(exam.getId())
-  //        .coefficient(exam.getCoefficient())
-  //        .title(exam.getTitle())
-  //        .examinationDate(exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
-  //        .participants(
-  //            grades.stream().map(grade -> this.toRestStudentGrade(grade)).collect(toList()));
-  //  }
 
   public school.hei.haapi.model.Grade toDomain(
       CrupdateGrade grade, String examId, String studentRef) {
