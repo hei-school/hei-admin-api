@@ -29,10 +29,11 @@ public class EventMapper {
   public school.hei.haapi.model.Event toDomain(CreateEvent createEvent) {
     List<GroupIdentifier> groupIdentifiers = Objects.requireNonNull(createEvent.getGroups());
     List<Group> groups =
-        groupService.getAllById(groupIdentifiers.stream().map(GroupIdentifier::getId).toList());
-    groups.stream()
-        .map(group -> mapGroupColorFromGroupIdentifiers(group, groupIdentifiers))
-        .toList();
+        groupService
+            .getAllById(groupIdentifiers.stream().map(GroupIdentifier::getId).toList())
+            .stream()
+            .map(group -> mapGroupColorFromGroupIdentifiers(group, groupIdentifiers))
+            .toList();
     List<Group> mappedGroup = groupService.saveDomainGroup(groups);
 
     return Event.builder()
