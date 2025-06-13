@@ -6,7 +6,6 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
-import static school.hei.haapi.integration.conf.TestUtils.EXAM2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -28,7 +27,6 @@ import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -40,7 +38,6 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
-import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
@@ -119,20 +116,6 @@ class GradeIT extends FacadeITMockedThirdParties {
 
   @Test
   @Disabled("Todo: move as dirty")
-  void manager_crupdate_grade_ok() throws ApiException {
-    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(managerClient);
-
-    CrupdateGrade newGrade = new CrupdateGrade();
-    newGrade.setScore(18.2);
-    Grade actualGrade = api.crupdateParticipantGrade(EXAM1_ID, STUDENT2_ID, newGrade);
-
-    Assertions.assertNotNull(actualGrade.getId());
-    assertEquals(36.4, actualGrade.getScore());
-  }
-
-  @Test
-  @Disabled("Todo: move as dirty")
   void manager_crupdate_multiple_grade_ok() throws ApiException {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(managerClient);
@@ -150,7 +133,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_crupdate_grade_ko() throws ApiException {
+  void manager_crupdate_grade_ko() {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(managerClient);
 
@@ -166,19 +149,6 @@ class GradeIT extends FacadeITMockedThirdParties {
     String actualMessage = illegalArgumentException.getMessage();
 
     assertTrue(actualMessage.contains(exceptedMessage));
-  }
-
-  @Test
-  @Disabled("Todo: move as dirty")
-  void teacher_crupdate_grade_ok() throws ApiException {
-    ApiClient teacherClient = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(teacherClient);
-
-    CrupdateGrade newGrade = new CrupdateGrade();
-    newGrade.setScore(5.25);
-    Grade actualGrade = api.crupdateParticipantGrade(EXAM2_ID, STUDENT2_ID, newGrade);
-
-    assertEquals(15.75, actualGrade.getScore());
   }
 
   @Test
