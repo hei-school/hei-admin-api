@@ -1,5 +1,6 @@
 package school.hei.haapi.integration.conf;
 
+import static java.time.ZoneOffset.UTC;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
@@ -8,7 +9,9 @@ import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 
 import com.github.javafaker.Faker;
 import java.time.Instant;
+import java.time.LocalDate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
@@ -61,7 +64,11 @@ public class FakeDataProvider {
   }
 
   public Event someEvent() {
-    var beginDatetime = faker.date().past(100, DAYS);
+    var beginDatetime =
+        faker
+            .date()
+            .past(
+                200, DAYS, Date.from(LocalDate.now().minusYears(1).atStartOfDay().toInstant(UTC)));
     return new Event(
         UUID.randomUUID().toString(),
         faker.options().option(EventType.class),
