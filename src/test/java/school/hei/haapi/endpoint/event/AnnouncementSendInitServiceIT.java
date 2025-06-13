@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.event;
 
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,12 +19,16 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ContextConfiguration;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.event.model.AnnouncementEmailSendRequested;
 import school.hei.haapi.endpoint.event.model.AnnouncementSendInit;
 import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.integration.conf.AbstractContextInitializer;
 import school.hei.haapi.integration.conf.MockedThirdParties;
+import school.hei.haapi.mail.Mailer;
+import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.notEntity.Group;
 import school.hei.haapi.service.GroupService;
+import school.hei.haapi.service.event.AnnouncementEmailSendRequestedService;
 import school.hei.haapi.service.event.AnnouncementSendInitService;
 
 @SpringBootTest(webEnvironment = RANDOM_PORT)
@@ -34,6 +39,8 @@ class AnnouncementSendInitServiceIT extends MockedThirdParties {
   @Autowired AnnouncementSendInitService announcementSendInitService;
   @MockBean EventProducer eventProducerMock;
   @Autowired GroupService groupService;
+  @Autowired AnnouncementEmailSendRequestedService announcementEmailSendRequestedService;
+  @MockBean Mailer mailer;
 
   static AnnouncementSendInit announcement(Scope scope, List<Group> groups) {
     return AnnouncementSendInit.builder()
@@ -74,6 +81,40 @@ class AnnouncementSendInitServiceIT extends MockedThirdParties {
                 .toList()));
 
     verify(eventProducerMock, times(1)).accept(any());
+  }
+
+  @Test
+  void should_send_email() {
+    announcementEmailSendRequestedService.accept(
+        new AnnouncementEmailSendRequested(
+            "",
+            "",
+            GLOBAL,
+            "",
+            "",
+            AnnouncementEmailSendRequested.MailUser.builder()
+                .id("id")
+                .email("email@gmail.com")
+                .build()));
+
+    verify(mailer, times(1)).accept(any());
+  }
+
+  @Test
+  void should_not_send_email_if_bad_email() {
+    var announcementEmailSendRequest =
+        new AnnouncementEmailSendRequested(
+            "",
+            "",
+            GLOBAL,
+            "",
+            "",
+            AnnouncementEmailSendRequested.MailUser.builder().id("fake_id").email("").build());
+    assertThrows(
+        ApiException.class,
+        () -> announcementEmailSendRequestedService.accept(announcementEmailSendRequest));
+
+    verify(mailer, times(0)).accept(any());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
