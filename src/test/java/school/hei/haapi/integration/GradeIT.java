@@ -70,12 +70,12 @@ class GradeIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(manager1Client);
 
-    List<String> actualAwardedCourseExamGradesId =
-        api.getStudentGrades(STUDENT1_ID, 1, 10).stream().map(AwardedCourseExam::getId).toList();
+    List<AwardedCourseExam> actualAwardedCourseExamGrades =
+        api.getStudentGrades(STUDENT1_ID, 1, 10);
 
-    assertTrue(actualAwardedCourseExamGradesId.contains(awardedCourseExam1().getId()));
-    assertTrue(actualAwardedCourseExamGradesId.contains(awardedCourseExam2().getId()));
-    assertTrue(actualAwardedCourseExamGradesId.contains(awardedCourseExam4().getId()));
+    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam1()));
+    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam2()));
+    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam4()));
   }
 
   @Test
@@ -95,12 +95,11 @@ class GradeIT extends FacadeITMockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
 
-    List<String> actualIds =
-        api.getStudentGrades(STUDENT1_ID, 1, 10).stream().map(AwardedCourseExam::getId).toList();
+    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
 
-    assertTrue(actualIds.contains(awardedCourseExam1().getId()));
-    assertTrue(actualIds.contains(awardedCourseExam2().getId()));
-    assertTrue(actualIds.contains(awardedCourseExam4().getId()));
+    assertTrue(actual.contains(awardedCourseExam1()));
+    assertTrue(actual.contains(awardedCourseExam2()));
+    assertTrue(actual.contains(awardedCourseExam4()));
   }
 
   @Test
