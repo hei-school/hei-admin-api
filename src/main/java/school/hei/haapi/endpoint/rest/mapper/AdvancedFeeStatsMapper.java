@@ -23,19 +23,23 @@ import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 @Component
 public class AdvancedFeeStatsMapper {
   public Map<AdvancedFeeStatsType, AdvancedFeeStats> fromRest(
-      AdvancedFeesStatistics restStat, LocalDate statDate) {
+      AdvancedFeesStatistics restStat, LocalDate statStartDate, LocalDate statEndDate) {
     Map<AdvancedFeeStatsType, AdvancedFeeStats> statsModels = new HashMap<>();
-    statsModels.put(LATE_COUNT, getModelLateFeeStats(restStat.getLateFeesCount(), statDate));
-    statsModels.put(PAID_COUNT, getModelPaidFeeStats(restStat.getPaidFeesCount(), statDate));
     statsModels.put(
-        PENDING_COUNT, getModelPendingFeeStats(restStat.getPendingFeesCount(), statDate));
+        LATE_COUNT, getModelLateFeeStats(restStat.getLateFeesCount(), statStartDate, statEndDate));
     statsModels.put(
-        TOTAL_COUNT, getModelTotalFeeStats(restStat.getTotalExpectedFeesCount(), statDate));
+        PAID_COUNT, getModelPaidFeeStats(restStat.getPaidFeesCount(), statStartDate, statEndDate));
+    statsModels.put(
+        PENDING_COUNT,
+        getModelPendingFeeStats(restStat.getPendingFeesCount(), statStartDate, statEndDate));
+    statsModels.put(
+        TOTAL_COUNT,
+        getModelTotalFeeStats(restStat.getTotalExpectedFeesCount(), statStartDate, statEndDate));
     return statsModels;
   }
 
   private AdvancedFeeStats getModelTotalFeeStats(
-      TotalExpectedFeesStats restStat, LocalDate statDate) {
+      TotalExpectedFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate) {
     return AdvancedFeeStats.builder()
         .id(UUID.randomUUID().toString())
         .statType(TOTAL_COUNT)
@@ -48,11 +52,13 @@ public class AdvancedFeeStatsMapper {
         .yearlyCount(restStat.getYearly())
         .unknownFrequencyCount(restStat.getUnknownFrequency())
         .workStudyCount(restStat.getWorkStudy())
-        .statDate(statDate)
+        .statStartDate(statStartDate)
+        .statEndDate(statEndDate)
         .build();
   }
 
-  private AdvancedFeeStats getModelPaidFeeStats(PaidFeesStats restStat, LocalDate statDate) {
+  private AdvancedFeeStats getModelPaidFeeStats(
+      PaidFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate) {
     return AdvancedFeeStats.builder()
         .id(UUID.randomUUID().toString())
         .statType(PAID_COUNT)
@@ -67,11 +73,13 @@ public class AdvancedFeeStatsMapper {
         .workStudyCount(restStat.getWorkStudy())
         .bankTransferCount(restStat.getBankFees().longValue())
         .mpbsCount(restStat.getMobileMoney().longValue())
-        .statDate(statDate)
+        .statStartDate(statStartDate)
+        .statEndDate(statEndDate)
         .build();
   }
 
-  private AdvancedFeeStats getModelPendingFeeStats(PendingFeesStats restStat, LocalDate statDate) {
+  private AdvancedFeeStats getModelPendingFeeStats(
+      PendingFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate) {
     return AdvancedFeeStats.builder()
         .id(UUID.randomUUID().toString())
         .statType(PENDING_COUNT)
@@ -84,11 +92,13 @@ public class AdvancedFeeStatsMapper {
         .yearlyCount(restStat.getYearly())
         .unknownFrequencyCount(restStat.getUnknownFrequency())
         .workStudyCount(restStat.getWorkStudy())
-        .statDate(statDate)
+        .statStartDate(statStartDate)
+        .statEndDate(statEndDate)
         .build();
   }
 
-  private AdvancedFeeStats getModelLateFeeStats(LateFeesStats restStat, LocalDate statDate) {
+  private AdvancedFeeStats getModelLateFeeStats(
+      LateFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate) {
     return AdvancedFeeStats.builder()
         .id(UUID.randomUUID().toString())
         .statType(LATE_COUNT)
@@ -101,7 +111,8 @@ public class AdvancedFeeStatsMapper {
         .unknownFrequencyCount(restStat.getUnknownFrequency())
         .remedialFeesCount(restStat.getRemedialFeesCount().longValue())
         .workStudyCount(restStat.getWorkStudy())
-        .statDate(statDate)
+        .statEndDate(statEndDate)
+        .statStartDate(statStartDate)
         .build();
   }
 

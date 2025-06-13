@@ -54,7 +54,8 @@ public class AdvancedFeeStats {
   @CreationTimestamp private Instant creationDatetime;
   @UpdateTimestamp private Instant updateDatetime;
 
-  private LocalDate statDate;
+  private LocalDate statStartDate;
+  private LocalDate statEndDate;
 
   public enum AdvancedFeeStatsType {
     TOTAL_COUNT,

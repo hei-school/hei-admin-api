@@ -443,12 +443,14 @@ public class FeeDao {
         .collect(toMap(AdvancedFeeStats::getStatType, advancedFeeStats -> advancedFeeStats));
   }
 
-  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStatsOnDate(LocalDate date) {
+  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStatsOnDateBetween(
+      LocalDate startDate, LocalDate endDate) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<AdvancedFeeStats> query = builder.createQuery(AdvancedFeeStats.class);
     Root<AdvancedFeeStats> root = query.from(AdvancedFeeStats.class);
 
-    query.where(builder.equal(root.get("statDate"), date));
+    query.where(builder.equal(root.get("statStartDate"), startDate));
+    query.where(builder.equal(root.get("statEndDate"), endDate));
 
     TypedQuery<AdvancedFeeStats> typedQuery = entityManager.createQuery(query);
 

@@ -1,2 +1,2 @@
-ALTER TABLE your_table_name
-ALTER COLUMN your_column_name TYPE TIMESTAMP;
+ALTER TABLE stats_advanced_fees
+ALTER COLUMN update_datetime TYPE TIMESTAMP;

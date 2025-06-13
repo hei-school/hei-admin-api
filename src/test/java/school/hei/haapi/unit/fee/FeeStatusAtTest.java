@@ -17,6 +17,7 @@ class FeeStatusAtTest {
   void get_status_at_instant_ok() {
     assertEquals(PENDING, fee().getStatusAt(Instant.parse("2022-01-01T00:00:00.00Z")).get());
     assertEquals(PAID, fee().getStatusAt(Instant.parse("2022-01-02T00:00:00.00Z")).get());
+    assertEquals(PAID, fee().getStatusAt(Instant.parse("2022-01-06T00:00:00.00Z")).get());
     assertEquals(UNPAID, fee().getStatusAt(Instant.parse("2021-12-16T00:00:00.00Z")).get());
     assertEquals(empty(), fee().getStatusAt(Instant.parse("2020-12-16T00:00:00.00Z")));
   }
