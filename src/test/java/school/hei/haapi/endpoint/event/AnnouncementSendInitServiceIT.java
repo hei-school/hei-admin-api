@@ -86,35 +86,30 @@ class AnnouncementSendInitServiceIT extends MockedThirdParties {
   @Test
   void should_send_email() {
     announcementEmailSendRequestedService.accept(
-        new AnnouncementEmailSendRequested(
-            "",
-            "",
-            GLOBAL,
-            "",
-            "",
-            AnnouncementEmailSendRequested.MailUser.builder()
-                .id("id")
-                .email("email@gmail.com")
-                .build()));
+        announcementEmailSendRequest("id", "email@gmail.com"));
 
     verify(mailer, times(1)).accept(any());
   }
 
   @Test
   void should_not_send_email_if_bad_email() {
-    var announcementEmailSendRequest =
-        new AnnouncementEmailSendRequested(
-            "",
-            "",
-            GLOBAL,
-            "",
-            "",
-            AnnouncementEmailSendRequested.MailUser.builder().id("fake_id").email("").build());
+    var announcementEmailSendRequest = announcementEmailSendRequest("fake_id", "");
     assertThrows(
         ApiException.class,
         () -> announcementEmailSendRequestedService.accept(announcementEmailSendRequest));
 
     verify(mailer, times(0)).accept(any());
+  }
+
+  private static AnnouncementEmailSendRequested announcementEmailSendRequest(
+      String userId, String email) {
+    return new AnnouncementEmailSendRequested(
+        "",
+        "",
+        GLOBAL,
+        "",
+        "",
+        AnnouncementEmailSendRequested.MailUser.builder().id(userId).email(email).build());
   }
 
   static class ContextInitializer extends AbstractContextInitializer {
