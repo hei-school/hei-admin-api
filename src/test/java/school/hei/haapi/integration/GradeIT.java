@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.EXAM3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.GROUP1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -111,7 +112,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_crupdate_grade_ko() {
+  void manager_crupdate_invalid_grade_ko() {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     TeachingApi api = new TeachingApi(managerClient);
 
@@ -124,6 +125,23 @@ class GradeIT extends FacadeITMockedThirdParties {
             () -> api.crupdateParticipantGrade(EXAM1_ID, STUDENT3_ID, newGrade));
 
     String exceptedMessage = "score must be between 0 and 20";
+    String actualMessage = illegalArgumentException.getMessage();
+
+    assertTrue(actualMessage.contains(exceptedMessage));
+  }
+
+  @Test
+  void manager_crupdate_grade_invalid_student_ko() {
+    TeachingApi api = new TeachingApi(anApiClient(MANAGER1_TOKEN));
+    CrupdateGrade newGrade = new CrupdateGrade();
+    newGrade.setScore(18.2);
+
+    ApiException illegalArgumentException =
+        assertThrows(
+            ApiException.class,
+            () -> api.crupdateParticipantGrade(EXAM3_ID, STUDENT3_ID, newGrade));
+
+    String exceptedMessage = "Student with id: " + STUDENT3_ID + " not in the Exam: " + EXAM3_ID;
     String actualMessage = illegalArgumentException.getMessage();
 
     assertTrue(actualMessage.contains(exceptedMessage));
