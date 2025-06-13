@@ -61,7 +61,8 @@ public class FakeDataProvider {
   }
 
   public Event someEvent() {
-    var beginDatetime = faker.date().past(100, DAYS);
+    var beginDatetime =
+        faker.date().between(faker.date().past(200, DAYS), faker.date().past(100, DAYS));
     return new Event(
         UUID.randomUUID().toString(),
         faker.options().option(EventType.class),
