@@ -1,7 +1,6 @@
 package school.hei.haapi.integration;
 
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
@@ -17,7 +16,6 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenE
 import static school.hei.haapi.integration.conf.TestUtils.awardedCourseExam1;
 import static school.hei.haapi.integration.conf.TestUtils.awardedCourseExam2;
 import static school.hei.haapi.integration.conf.TestUtils.awardedCourseExam4;
-import static school.hei.haapi.integration.conf.TestUtils.exam1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -28,7 +26,6 @@ import static school.hei.haapi.model.User.Status.ENABLED;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -39,7 +36,6 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
-import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
@@ -112,24 +108,6 @@ class GradeIT extends FacadeITMockedThirdParties {
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsForbiddenException(() -> api.getStudentGrades(STUDENT2_ID, 1, 10));
     assertThrowsForbiddenException(() -> api.getParticipantGrade(GROUP1_ID, EXAM1_ID));
-  }
-
-  @Test
-  @Disabled("Todo: move as dirty")
-  void manager_crupdate_multiple_grade_ok() throws ApiException {
-    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(managerClient);
-
-    UpdateGrade updateGrade =
-        new UpdateGrade().grade(new CrupdateGrade().score(18.2)).studentRef(student1().getRef());
-    List<StudentGrade> studentGrades =
-        api.updateParticipantsGradeForExam(EXAM1_ID, List.of(updateGrade));
-
-    assertEquals(1, studentGrades.size());
-    assertEquals(updateGrade.getStudentRef(), studentGrades.getFirst().getStudent().getRef());
-    assertEquals(
-        updateGrade.getGrade().getScore() * exam1().getCoefficient(),
-        studentGrades.getFirst().getGrade().getScore());
   }
 
   @Test

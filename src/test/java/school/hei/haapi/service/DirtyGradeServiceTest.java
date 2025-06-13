@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.springframework.test.annotation.DirtiesContext.ClassMode.BEFORE_EACH_TEST_METHOD;
 import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -31,10 +32,17 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   void crupdate_grade_ok() {
     List<Grade> randomGrade =
         someGrade(List.of(userService.findById(STUDENT1_ID)), examService.getExamById(EXAM1_ID));
+    List<Grade> randomGrades =
+        someGrade(
+            List.of(userService.findById(STUDENT1_ID), userService.findById(STUDENT2_ID)),
+            examService.getExamById(EXAM1_ID));
 
-    Grade savedGrades = subject.crupdateParticipantGrade(randomGrade).getFirst();
+    Grade savedGrade = subject.crupdateParticipantGrade(randomGrade).getFirst();
+    List<Grade> savedGrades = subject.crupdateParticipantGrade(randomGrades);
 
-    assertNotNull(savedGrades.getId());
-    assertEquals(randomGrade.getFirst().getScore(), savedGrades.getScore());
+    assertNotNull(savedGrade.getId());
+    assertEquals(randomGrade.getFirst().getScore(), savedGrade.getScore());
+    assertEquals(randomGrades.getFirst().getScore(), savedGrades.getFirst().getScore());
+    assertEquals(randomGrades.get(1).getScore(), savedGrades.get(1).getScore());
   }
 }
