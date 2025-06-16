@@ -6,20 +6,24 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 
+import java.time.Instant;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsNotificationBody;
+import school.hei.haapi.endpoint.event.model.SendVerifyMpbsByXlsEventEmail;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.service.event.PaidFeeByMpbsNotificationBodyService;
 import school.hei.haapi.service.event.PaidFeeByMpdsFailedNotificationBodyService;
+import school.hei.haapi.service.event.SendVerifyMpbsByXlsEventEmailService;
 
 class MailingTest extends FacadeITMockedThirdParties {
   @Autowired PaidFeeByMpbsNotificationBodyService paidFeeByMpbsNotificationBodyService;
   @Autowired PaidFeeByMpdsFailedNotificationBodyService paidFeeByMpdsFailedNotificationBodyService;
+  @Autowired private SendVerifyMpbsByXlsEventEmailService sendVerifyMpbsByXlsEventEmailService;
   @MockBean Mailer mailer;
 
   @Test
@@ -43,6 +47,14 @@ class MailingTest extends FacadeITMockedThirdParties {
         () -> paidFeeByMpdsFailedNotificationBodyService.accept(requestWithBadEmail));
     paidFeeByMpdsFailedNotificationBodyService.accept(
         new PaidFeeByMpbsFailedNotificationBody("", "email@gmail.com", 0, FEE1_ID));
+
+    verify(mailer, times(1)).accept(any());
+  }
+
+  @Test
+  void send_verify_mpbs_by_xls() {
+    sendVerifyMpbsByXlsEventEmailService.accept(
+        new SendVerifyMpbsByXlsEventEmail(Instant.now(), 1));
 
     verify(mailer, times(1)).accept(any());
   }
