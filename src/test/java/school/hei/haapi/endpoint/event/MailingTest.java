@@ -14,6 +14,7 @@ import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsNotificationBody;
 import school.hei.haapi.endpoint.event.model.SendVerifyMpbsByXlsEventEmail;
 import school.hei.haapi.endpoint.event.model.SuspensionEndedEmailBody;
+import school.hei.haapi.endpoint.event.model.UnpaidFeesReminder;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.exception.ApiException;
@@ -21,12 +22,14 @@ import school.hei.haapi.service.event.PaidFeeByMpbsNotificationBodyService;
 import school.hei.haapi.service.event.PaidFeeByMpdsFailedNotificationBodyService;
 import school.hei.haapi.service.event.SendVerifyMpbsByXlsEventEmailService;
 import school.hei.haapi.service.event.SuspensionEndedEmailBodyService;
+import school.hei.haapi.service.event.UnpaidFeesReminderService;
 
 class MailingTest extends FacadeITMockedThirdParties {
   @Autowired PaidFeeByMpbsNotificationBodyService paidFeeByMpbsNotificationBodyService;
   @Autowired PaidFeeByMpdsFailedNotificationBodyService paidFeeByMpdsFailedNotificationBodyService;
   @Autowired SendVerifyMpbsByXlsEventEmailService sendVerifyMpbsByXlsEventEmailService;
   @Autowired SuspensionEndedEmailBodyService suspensionEndedEmailBodyService;
+  @Autowired UnpaidFeesReminderService unpaidFeesReminderService;
   @MockBean Mailer mailer;
 
   @Test
@@ -69,6 +72,23 @@ class MailingTest extends FacadeITMockedThirdParties {
     assertThrows(
         ApiException.class, () -> suspensionEndedEmailBodyService.accept(requestWithBadEmail));
     suspensionEndedEmailBodyService.accept(new SuspensionEndedEmailBody("", "email@gmail.com", 0));
+
+    verify(mailer, times(1)).accept(any());
+  }
+
+  @Test
+  void unpaid_fees_reminder_send_email() {
+    var requestWithBadEmail =
+        new UnpaidFeesReminder(
+            new UnpaidFeesReminder.UnpaidFeesUser("", "", "", "", ""), 0, Instant.now(), "");
+
+    assertThrows(ApiException.class, () -> unpaidFeesReminderService.accept(requestWithBadEmail));
+    unpaidFeesReminderService.accept(
+        new UnpaidFeesReminder(
+            new UnpaidFeesReminder.UnpaidFeesUser("", "", "", "", "email@gmail.com"),
+            0,
+            Instant.now(),
+            ""));
 
     verify(mailer, times(1)).accept(any());
   }
