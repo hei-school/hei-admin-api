@@ -13,17 +13,20 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsNotificationBody;
 import school.hei.haapi.endpoint.event.model.SendVerifyMpbsByXlsEventEmail;
+import school.hei.haapi.endpoint.event.model.SuspensionEndedEmailBody;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.service.event.PaidFeeByMpbsNotificationBodyService;
 import school.hei.haapi.service.event.PaidFeeByMpdsFailedNotificationBodyService;
 import school.hei.haapi.service.event.SendVerifyMpbsByXlsEventEmailService;
+import school.hei.haapi.service.event.SuspensionEndedEmailBodyService;
 
 class MailingTest extends FacadeITMockedThirdParties {
   @Autowired PaidFeeByMpbsNotificationBodyService paidFeeByMpbsNotificationBodyService;
   @Autowired PaidFeeByMpdsFailedNotificationBodyService paidFeeByMpdsFailedNotificationBodyService;
-  @Autowired private SendVerifyMpbsByXlsEventEmailService sendVerifyMpbsByXlsEventEmailService;
+  @Autowired SendVerifyMpbsByXlsEventEmailService sendVerifyMpbsByXlsEventEmailService;
+  @Autowired SuspensionEndedEmailBodyService suspensionEndedEmailBodyService;
   @MockBean Mailer mailer;
 
   @Test
@@ -55,6 +58,17 @@ class MailingTest extends FacadeITMockedThirdParties {
   void send_verify_mpbs_by_xls() {
     sendVerifyMpbsByXlsEventEmailService.accept(
         new SendVerifyMpbsByXlsEventEmail(Instant.now(), 1));
+
+    verify(mailer, times(1)).accept(any());
+  }
+
+  @Test
+  void suspension_ended_send_email() {
+    var requestWithBadEmail = new SuspensionEndedEmailBody("", "", 0);
+
+    assertThrows(
+        ApiException.class, () -> suspensionEndedEmailBodyService.accept(requestWithBadEmail));
+    suspensionEndedEmailBodyService.accept(new SuspensionEndedEmailBody("", "email@gmail.com", 0));
 
     verify(mailer, times(1)).accept(any());
   }
