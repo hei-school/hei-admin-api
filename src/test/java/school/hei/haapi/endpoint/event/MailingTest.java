@@ -24,6 +24,10 @@ class MailingTest extends FacadeITMockedThirdParties {
 
   @Test
   void paid_fee_by_mpbs_notification_send_mail() {
+    var requestWithBadEmail = new PaidFeeByMpbsNotificationBody("", "", 0, FEE1_ID);
+
+    assertThrows(
+        ApiException.class, () -> paidFeeByMpbsNotificationBodyService.accept(requestWithBadEmail));
     paidFeeByMpbsNotificationBodyService.accept(
         new PaidFeeByMpbsNotificationBody("", "email@gmail.com", 0, FEE1_ID));
 
@@ -31,32 +35,15 @@ class MailingTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void paid_fee_by_mpbs_notification_not_send_for_bad_mail() {
-    var paidFeeByMpbsNotificationBody = new PaidFeeByMpbsNotificationBody("", "", 0, FEE1_ID);
+  void paid_fee_failed_notification_send_mail() {
+    var requestWithBadEmail = new PaidFeeByMpbsFailedNotificationBody("", "", 0, FEE1_ID);
+
     assertThrows(
         ApiException.class,
-        () -> paidFeeByMpbsNotificationBodyService.accept(paidFeeByMpbsNotificationBody));
-
-    verify(mailer, times(0)).accept(any());
-  }
-
-  @Test
-  void paid_fee_failed_notification_send_mail() {
+        () -> paidFeeByMpdsFailedNotificationBodyService.accept(requestWithBadEmail));
     paidFeeByMpdsFailedNotificationBodyService.accept(
         new PaidFeeByMpbsFailedNotificationBody("", "email@gmail.com", 0, FEE1_ID));
 
     verify(mailer, times(1)).accept(any());
-  }
-
-  @Test
-  void paid_fee_failed_notification_not_send_for_bad_mail() {
-    var paidFeeByMpbsFailedNotificationBody =
-        new PaidFeeByMpbsFailedNotificationBody("", "", 0, FEE1_ID);
-    assertThrows(
-        ApiException.class,
-        () ->
-            paidFeeByMpdsFailedNotificationBodyService.accept(paidFeeByMpbsFailedNotificationBody));
-
-    verify(mailer, times(0)).accept(any());
   }
 }
