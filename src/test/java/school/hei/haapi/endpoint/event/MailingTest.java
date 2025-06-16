@@ -9,14 +9,17 @@ import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsNotificationBody;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.mail.Mailer;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.service.event.PaidFeeByMpbsNotificationBodyService;
+import school.hei.haapi.service.event.PaidFeeByMpdsFailedNotificationBodyService;
 
 class MailingTest extends FacadeITMockedThirdParties {
   @Autowired PaidFeeByMpbsNotificationBodyService paidFeeByMpbsNotificationBodyService;
+  @Autowired PaidFeeByMpdsFailedNotificationBodyService paidFeeByMpdsFailedNotificationBodyService;
   @MockBean Mailer mailer;
 
   @Test
@@ -33,6 +36,26 @@ class MailingTest extends FacadeITMockedThirdParties {
     assertThrows(
         ApiException.class,
         () -> paidFeeByMpbsNotificationBodyService.accept(paidFeeByMpbsNotificationBody));
+
+    verify(mailer, times(0)).accept(any());
+  }
+
+  @Test
+  void paid_fee_failed_notification_send_mail() {
+    paidFeeByMpdsFailedNotificationBodyService.accept(
+        new PaidFeeByMpbsFailedNotificationBody("", "email@gmail.com", 0, FEE1_ID));
+
+    verify(mailer, times(1)).accept(any());
+  }
+
+  @Test
+  void paid_fee_failed_notification_not_send_for_bad_mail() {
+    var paidFeeByMpbsFailedNotificationBody =
+        new PaidFeeByMpbsFailedNotificationBody("", "", 0, FEE1_ID);
+    assertThrows(
+        ApiException.class,
+        () ->
+            paidFeeByMpdsFailedNotificationBodyService.accept(paidFeeByMpbsFailedNotificationBody));
 
     verify(mailer, times(0)).accept(any());
   }
