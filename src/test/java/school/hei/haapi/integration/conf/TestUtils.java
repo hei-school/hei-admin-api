@@ -441,10 +441,13 @@ public class TestUtils {
   }
 
   public static void assertThrowsForbiddenException(Executable executable) {
-    ApiException apiException = assertThrows(ApiException.class, executable);
-    String responseBody = apiException.getResponseBody();
-    assertEquals(
-        "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", responseBody);
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}", executable);
+  }
+
+  public static void assertBadRequestException(String exceptedMessage, Executable executable) {
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"%s\"}".formatted(exceptedMessage), executable);
   }
 
   public static File getMockedFile(String fileName, String extension) {
