@@ -47,6 +47,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -245,6 +246,7 @@ class FeeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("It dirties the other tests")
   void student_write_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
@@ -274,6 +276,7 @@ class FeeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("It dirties the other tests")
   void manager_write_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);

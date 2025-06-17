@@ -11,6 +11,7 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.createExam;
@@ -192,6 +193,20 @@ class ExamIT extends FacadeITMockedThirdParties {
 
     assertEquals("Algorithmics", actualCreate.getTitle());
     assertEquals(2, actualCreate.getCoefficient());
+  }
+
+  @Test
+  void teacher_create_or_update_exam_with_bad_info_ko() {
+    TeachingApi api = new TeachingApi(anApiClient(TEACHER1_TOKEN));
+
+    assertBadRequestException(
+        "Coefficient can't be less than 0",
+        () -> api.createOrUpdateExamsInfos(createExam1().coefficient(-1)));
+    assertBadRequestException(
+        "Title is mandatory", () -> api.createOrUpdateExamsInfos(createExam1().title(null)));
+    assertBadRequestException(
+        "Examination date is mandatory",
+        () -> api.createOrUpdateExamsInfos(createExam1().examinationDate(null)));
   }
 
   @Test
