@@ -2,6 +2,7 @@ package school.hei.haapi.integration.conf;
 
 import static java.time.ZoneOffset.UTC;
 import static java.util.concurrent.TimeUnit.DAYS;
+import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
@@ -16,8 +17,10 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
+import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.Fee;
@@ -41,10 +44,29 @@ public class FakeDataProvider {
     return createAwardedCourseList;
   }
 
+  public static CrupdateTeacher someCreatableTeacher() {
+    return new CrupdateTeacher()
+        .firstName(faker.name().firstName())
+        .lastName(faker.name().lastName())
+        .email(faker.internet().emailAddress())
+        .ref(someRef("TCR"))
+        .phone(faker.phoneNumber().phoneNumber())
+        .status(ENABLED)
+        .sex(faker.options().option(Sex.class))
+        .birthDate(LocalDate.parse("2000-01-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .coordinates(TestUtils.coordinatesWithNullValues())
+        .address(faker.address().fullAddress());
+  }
+
+  private static String someRef(String prefix) {
+    return "%s%s".formatted(prefix, faker.number().digits(5));
+  }
+
   public Group createGroup() {
     return new Group()
         .name(faker.lorem().sentence(10))
-        .ref(faker.lorem().characters(10))
+        .ref(someRef("GRP"))
         .creationDatetime(faker.date().past(30, DAYS).toInstant());
   }
 

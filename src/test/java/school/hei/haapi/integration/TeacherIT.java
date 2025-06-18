@@ -10,11 +10,13 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableTeacher;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
+import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
@@ -24,7 +26,6 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
-import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacher;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacherList;
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
 import static school.hei.haapi.integration.conf.TestUtils.teacher2;
@@ -239,6 +240,9 @@ class TeacherIT extends FacadeITMockedThirdParties {
         assertThrows(ApiException.class, () -> api.createOrUpdateTeachers(List.of(toCreate1)));
     ApiException exception2 =
         assertThrows(ApiException.class, () -> api.createOrUpdateTeachers(List.of(toCreate2)));
+    assertBadRequestException(
+        "Entrance datetime is mandatory",
+        () -> api.createOrUpdateTeachers(List.of(someCreatableTeacher().entranceDatetime(null))));
 
     String exceptionMessage1 = exception1.getMessage();
     String exceptionMessage2 = exception2.getMessage();
