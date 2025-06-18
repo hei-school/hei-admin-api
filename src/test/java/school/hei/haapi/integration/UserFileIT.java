@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static java.io.File.createTempFile;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -26,7 +27,6 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -387,10 +387,10 @@ public class UserFileIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void upload_file_with_extension_ko() {
+  void upload_file_with_extension_ko() throws IOException {
     FilesApi api = new FilesApi(anApiClient(MANAGER1_TOKEN));
 
-    File fileToSend = getMockedFile("file", "tmp");
+    File fileToSend = createTempFile("file", "tmp");
     assertBadRequestException(
         "File name must not contain an extension",
         () ->
@@ -402,10 +402,10 @@ public class UserFileIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void upload_user_file_ok() throws ApiException {
+  void upload_user_file_ok() throws ApiException, IOException {
     FilesApi api = new FilesApi(anApiClient(MANAGER1_TOKEN));
 
-    File fileToSend = getMockedFile("file", "tmp");
+    File fileToSend = createTempFile("file", "tmp");
     String filename = "STUDENT/STUDENT_ref/TRANSCRIPT/fileName";
     FileInfo fileInfo = api.uploadUserFile(STUDENT1_ID, TRANSCRIPT, filename, fileToSend);
 

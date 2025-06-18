@@ -14,6 +14,7 @@ import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT_PARTICIPANT5_ID;
+import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.LETTER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STAFF_MEMBER1_ID;
@@ -24,6 +25,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.letter1;
@@ -66,12 +68,12 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
 @AutoConfigureMockMvc
-public class LetterIT extends FacadeITMockedThirdParties {
+class LetterIT extends FacadeITMockedThirdParties {
   @MockBean EventBridgeClient eventBridgeClientMock;
   @Autowired ObjectMapper objectMapper;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
@@ -317,17 +319,15 @@ public class LetterIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void teacher_read_others_letter_ko() throws ApiException {
-    ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
+  void teacher_read_others_letter_ko() {
+    LettersApi api = new LettersApi(anApiClient(TEACHER1_TOKEN));
 
     assertThrowsForbiddenException(() -> api.getLettersByUserId(STUDENT1_ID, 1, 15, null));
   }
 
   @Test
-  void teacher_upload_letter_for_fee_ko() throws ApiException {
-    ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
-    LettersApi api = new LettersApi(apiClient);
+  void teacher_upload_letter_for_fee_ko() {
+    LettersApi api = new LettersApi(anApiClient(TEACHER1_TOKEN));
 
     assertThrowsForbiddenException(
         () ->
@@ -336,6 +336,46 @@ public class LetterIT extends FacadeITMockedThirdParties {
                 "filename",
                 "description",
                 "feeId",
+                null,
+                null,
+                getMockedFile("img", ".png")));
+
+    assertThrowsForbiddenException(
+        () ->
+            api.createLetter(
+                TEACHER1_ID,
+                "filename",
+                "description",
+                null,
+                null,
+                STUDENT1_ID,
+                getMockedFile("img", ".png")));
+  }
+
+  @Test
+  void upload_letter_with_bad_request_ko() {
+    LettersApi api = new LettersApi(anApiClient(STUDENT1_TOKEN));
+
+    assertBadRequestException(
+        "Cannot link letter with both fee and event participant",
+        () ->
+            api.createLetter(
+                STUDENT1_ID,
+                "filename",
+                "description",
+                FEE1_ID,
+                0,
+                STUDENT1_ID,
+                getMockedFile("img", ".png")));
+
+    assertBadRequestException(
+        "Cannot create a letter for a fee without a given amount",
+        () ->
+            api.createLetter(
+                STUDENT1_ID,
+                "filename",
+                "description",
+                FEE1_ID,
                 null,
                 null,
                 getMockedFile("img", ".png")));
