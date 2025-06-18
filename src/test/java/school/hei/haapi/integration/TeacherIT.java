@@ -53,6 +53,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -67,6 +68,7 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 class TeacherIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired private ObjectMapper objectMapper;
+  @Autowired private UserMapper userMapper;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -167,7 +169,7 @@ class TeacherIT extends FacadeITMockedThirdParties {
   void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     CrupdateTeacher toCreate = someCreatableTeacher();
-    Teacher expected = expectedCreatedTeacher();
+    Teacher expected = userMapper.toRestTeacher(userMapper.toDomain(toCreate));
 
     UsersApi api = new UsersApi(manager1Client);
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toCreate));
@@ -208,7 +210,7 @@ class TeacherIT extends FacadeITMockedThirdParties {
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toUpdate));
     toUpdate.setId(created.getFirst().getId());
 
-    Teacher expected = expectedCreatedTeacher();
+    Teacher expected = userMapper.toRestTeacher(userMapper.toDomain(toUpdate));
     expected.setId(created.getFirst().getId());
     expected.setLastName("New last name");
     expected.setEmail(toUpdate.getEmail());
