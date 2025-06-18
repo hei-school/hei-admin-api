@@ -15,6 +15,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.model.Course;
@@ -30,6 +31,15 @@ import school.hei.haapi.model.User;
 @Component
 public class FakeDataProvider {
   private static final Faker faker = new Faker();
+
+  public static List<CreateAwardedCourse> someCreatableCreateAwardedCourseList(
+      int nbOfCreateAwardedCourse) {
+    List<CreateAwardedCourse> createAwardedCourseList = new ArrayList<>();
+    for (int i = 0; i < nbOfCreateAwardedCourse; i++) {
+      createAwardedCourseList.add(TestUtils.createAwardedCourse());
+    }
+    return createAwardedCourseList;
+  }
 
   public Group createGroup() {
     return new Group()

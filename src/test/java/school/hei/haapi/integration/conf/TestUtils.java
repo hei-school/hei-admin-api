@@ -594,15 +594,6 @@ public class TestUtils {
     return courseList;
   }
 
-  public static List<CreateAwardedCourse> someCreatableCreateAwardedCourseList(
-      int nbOfCreateAwardedCourse) {
-    List<CreateAwardedCourse> createAwardedCourseList = new ArrayList<>();
-    for (int i = 0; i < nbOfCreateAwardedCourse; i++) {
-      createAwardedCourseList.add(createAwardedCourse());
-    }
-    return createAwardedCourseList;
-  }
-
   public static List<ExamInfo> someCreatableExamInfoList(int nbOfExamInfo) {
     List<ExamInfo> examInfoList = new ArrayList<>();
     for (int i = 0; i < nbOfExamInfo; i++) {
