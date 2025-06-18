@@ -70,7 +70,7 @@ public class UserFileController {
   }
 
   @PostMapping(value = "/users/{user_id}/files/raw", consumes = MULTIPART_FORM_DATA_VALUE)
-  public FileInfo uploadStudentFile(
+  public FileInfo uploadUserFile(
       @PathVariable(name = "user_id") String userId,
       @RequestParam(name = "filename") String fileName,
       @RequestParam(name = "file_type") FileType fileType,
