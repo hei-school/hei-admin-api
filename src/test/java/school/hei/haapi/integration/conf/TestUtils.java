@@ -523,13 +523,6 @@ public class TestUtils {
         .mainTeacherId("teacher1_id");
   }
 
-  public static CreateAwardedCourse createAwardedCourse() {
-    return new CreateAwardedCourse()
-        .courseId("course2_id")
-        .groupId("group2_id")
-        .mainTeacherId("teacher2_id");
-  }
-
   public static AwardedCourse updatedAwardedCourse2() {
     return new AwardedCourse()
         .id(AWARDED_COURSE2_ID)

@@ -16,6 +16,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
+import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EventType;
@@ -39,7 +40,7 @@ public class FakeDataProvider {
       int nbOfCreateAwardedCourse) {
     List<CreateAwardedCourse> createAwardedCourseList = new ArrayList<>();
     for (int i = 0; i < nbOfCreateAwardedCourse; i++) {
-      createAwardedCourseList.add(TestUtils.createAwardedCourse());
+      createAwardedCourseList.add(createAwardedCourse());
     }
     return createAwardedCourseList;
   }
@@ -55,12 +56,19 @@ public class FakeDataProvider {
         .sex(faker.options().option(Sex.class))
         .birthDate(LocalDate.parse("2000-01-01"))
         .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .coordinates(TestUtils.coordinatesWithNullValues())
+        .coordinates(new Coordinates().latitude(null).longitude(null))
         .address(faker.address().fullAddress());
   }
 
   private static String someRef(String prefix) {
     return "%s%s".formatted(prefix, faker.number().digits(5));
+  }
+
+  public static CreateAwardedCourse createAwardedCourse() {
+    return new CreateAwardedCourse()
+        .courseId("course2_id")
+        .groupId("group2_id")
+        .mainTeacherId("teacher2_id");
   }
 
   public Group createGroup() {

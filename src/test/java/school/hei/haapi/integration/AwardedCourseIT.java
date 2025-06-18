@@ -3,6 +3,7 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.FakeDataProvider.createAwardedCourse;
 import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableCreateAwardedCourseList;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 

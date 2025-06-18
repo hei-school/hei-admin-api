@@ -1,6 +1,5 @@
 package school.hei.haapi.integration;
 
-import static java.util.UUID.randomUUID;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -322,21 +321,6 @@ class TeacherIT extends FacadeITMockedThirdParties {
             HttpResponse.BodyHandlers.ofByteArray());
 
     assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
-  }
-
-  private static Teacher expectedCreatedTeacher() {
-    return new Teacher()
-        .firstName("Some")
-        .lastName("User")
-        .email(randomUUID() + "@hei.school")
-        .ref("TCR21-" + randomUUID())
-        .phone("0332511129")
-        .status(ENABLED)
-        .sex(Sex.M)
-        .birthDate(LocalDate.parse("2000-01-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .address("Adr X")
-        .coordinates(coordinatesWithNullValues());
   }
 
   public static Teacher disabledTeacher1() {
