@@ -441,10 +441,13 @@ public class TestUtils {
   }
 
   public static void assertThrowsForbiddenException(Executable executable) {
-    ApiException apiException = assertThrows(ApiException.class, executable);
-    String responseBody = apiException.getResponseBody();
-    assertEquals(
-        "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", responseBody);
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}", executable);
+  }
+
+  public static void assertBadRequestException(String exceptedMessage, Executable executable) {
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"%s\"}".formatted(exceptedMessage), executable);
   }
 
   public static File getMockedFile(String fileName, String extension) {
@@ -472,21 +475,6 @@ public class TestUtils {
         .pspTransactionRef("psp2_id")
         .pspTransactionAmount(300000)
         .build();
-  }
-
-  public static CrupdateTeacher someCreatableTeacher() {
-    return new CrupdateTeacher()
-        .firstName("Some")
-        .lastName("User")
-        .email(randomUUID() + "@hei.school")
-        .ref("TCR21-" + randomUUID())
-        .phone("0332511129")
-        .status(ENABLED)
-        .sex(Sex.M)
-        .birthDate(LocalDate.parse("2000-01-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .coordinates(coordinatesWithNullValues())
-        .address("Adr X");
   }
 
   public static CreateFee creatableFee1() {
@@ -535,13 +523,6 @@ public class TestUtils {
         .mainTeacherId("teacher1_id");
   }
 
-  public static CreateAwardedCourse createAwardedCourse() {
-    return new CreateAwardedCourse()
-        .courseId("course2_id")
-        .groupId("group2_id")
-        .mainTeacherId("teacher2_id");
-  }
-
   public static AwardedCourse updatedAwardedCourse2() {
     return new AwardedCourse()
         .id(AWARDED_COURSE2_ID)
@@ -578,7 +559,7 @@ public class TestUtils {
   public static List<CrupdateTeacher> someCreatableTeacherList(int nbOfTeacher) {
     List<CrupdateTeacher> teacherList = new ArrayList<>();
     for (int i = 0; i < nbOfTeacher; i++) {
-      teacherList.add(someCreatableTeacher());
+      teacherList.add(FakeDataProvider.someCreatableTeacher());
     }
     return teacherList;
   }
@@ -589,15 +570,6 @@ public class TestUtils {
       courseList.add(createCourse("ToAdd" + i));
     }
     return courseList;
-  }
-
-  public static List<CreateAwardedCourse> someCreatableCreateAwardedCourseList(
-      int nbOfCreateAwardedCourse) {
-    List<CreateAwardedCourse> createAwardedCourseList = new ArrayList<>();
-    for (int i = 0; i < nbOfCreateAwardedCourse; i++) {
-      createAwardedCourseList.add(createAwardedCourse());
-    }
-    return createAwardedCourseList;
   }
 
   public static List<ExamInfo> someCreatableExamInfoList(int nbOfExamInfo) {
@@ -1384,7 +1356,7 @@ public class TestUtils {
         .content("Nothing to say here")
         .subject(student2())
         .observer(observerTeacher1())
-        .creationDatetime(Instant.parse("2021-11-09T10:26:24.00Z"));
+        .creationDatetime(Instant.parse("2021-11-09T10:26:24.01Z"));
   }
 
   public static CreateComment createCommentByManager() {

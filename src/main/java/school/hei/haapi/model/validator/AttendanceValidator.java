@@ -9,12 +9,10 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.model.StudentAttendance;
 import school.hei.haapi.model.exception.BadRequestException;
-import school.hei.haapi.repository.UserRepository;
 
 @Component
 @AllArgsConstructor
 public class AttendanceValidator implements Consumer<StudentAttendance> {
-  private final UserRepository userRepository;
 
   public void accept(List<StudentAttendance> studentAttendances) {
     studentAttendances.forEach(this::accept);

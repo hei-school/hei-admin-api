@@ -22,7 +22,6 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.event.model.PendingMpbsCheckRequested;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Fee;
@@ -36,7 +35,6 @@ import school.hei.haapi.service.MpbsService;
 import school.hei.haapi.service.event.PendingMpbsCheckRequestedService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
-@Testcontainers
 class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
   @Autowired PendingMpbsCheckRequestedService subject;
   @MockBean private EventBridgeClient eventBridgeClientMock;

@@ -16,6 +16,7 @@ import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.model.validator.ExamValidator;
 import school.hei.haapi.repository.ExamRepository;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.dao.ExamDao;
@@ -28,6 +29,7 @@ public class ExamService {
   private final UserService userService;
   private final GradeService gradeService;
   private final GradeRepository gradeRepository;
+  private final ExamValidator validator;
 
   public List<Exam> getExamsFromAwardedCourseIdAndGroupId(
       String groupId, String awardedCourseId, PageFromOne page, BoundedPageSize pageSize) {
@@ -46,6 +48,7 @@ public class ExamService {
   }
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
+    validator.accept(exams);
     List<Exam> savedExams = examRepository.saveAll(exams);
     List<Grade> gradesToInitialize = new ArrayList<>();
     savedExams.forEach(exam -> gradesToInitialize.addAll(initializeExamGrades(exam)));
