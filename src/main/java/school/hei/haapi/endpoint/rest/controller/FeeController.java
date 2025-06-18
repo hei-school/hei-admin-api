@@ -61,7 +61,7 @@ public class FeeController {
   }
 
   @PostMapping("/students/{studentId}/fees")
-  public List<Fee> createFees(
+  public List<Fee> createStudentFees(
       @PathVariable String studentId, @RequestBody List<CreateFee> toCreate) {
     return feeService
         .saveAll(feeMapper.toDomainFee(userService.findById(studentId), toCreate))
