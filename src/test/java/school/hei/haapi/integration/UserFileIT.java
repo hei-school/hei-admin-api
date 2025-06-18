@@ -389,8 +389,8 @@ public class UserFileIT extends FacadeITMockedThirdParties {
   @Test
   void upload_file_with_extension_ko() throws IOException {
     FilesApi api = new FilesApi(anApiClient(MANAGER1_TOKEN));
-
     File fileToSend = createTempFile("file", "tmp");
+
     assertBadRequestException(
         "File name must not contain an extension",
         () ->
@@ -404,9 +404,9 @@ public class UserFileIT extends FacadeITMockedThirdParties {
   @Test
   void upload_user_file_ok() throws ApiException, IOException {
     FilesApi api = new FilesApi(anApiClient(MANAGER1_TOKEN));
-
     File fileToSend = createTempFile("file", "tmp");
     String filename = "STUDENT/STUDENT_ref/TRANSCRIPT/fileName";
+
     FileInfo fileInfo = api.uploadUserFile(STUDENT1_ID, TRANSCRIPT, filename, fileToSend);
 
     assertNotNull(fileInfo);
