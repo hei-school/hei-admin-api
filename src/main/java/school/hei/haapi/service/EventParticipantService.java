@@ -50,7 +50,7 @@ public class EventParticipantService {
       String name,
       String ref,
       AttendanceStatus attendanceStatus,
-      DateUtils.RangedInstant eventBeginRange) {
+      DateUtils.TimeRange eventBeginRange) {
 
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "participant.ref"));

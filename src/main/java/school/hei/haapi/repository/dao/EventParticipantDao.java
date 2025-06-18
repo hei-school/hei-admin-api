@@ -1,7 +1,7 @@
 package school.hei.haapi.repository.dao;
 
 import static jakarta.persistence.criteria.JoinType.LEFT;
-import static school.hei.haapi.service.utils.DateUtils.RangedInstant;
+import static school.hei.haapi.service.utils.DateUtils.TimeRange;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -35,7 +35,7 @@ public class EventParticipantDao {
       String name,
       String ref,
       AttendanceStatus attendanceStatus,
-      RangedInstant eventBeginRange) {
+      TimeRange<Instant> eventBeginRange) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<EventParticipant> query = builder.createQuery(EventParticipant.class);
     Root<EventParticipant> root = query.from(EventParticipant.class);
@@ -69,7 +69,7 @@ public class EventParticipantDao {
       String name,
       String ref,
       AttendanceStatus attendanceStatus,
-      RangedInstant eventBeginRange) {
+      TimeRange<Instant> eventBeginRange) {
     List<Predicate> predicates = new ArrayList<>();
 
     if (eventId != null) {

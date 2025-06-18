@@ -62,23 +62,21 @@ public class AdvancedFeeStatsService {
   public AdvancedFeesStatistics getAdvancedFeeStats(LocalDate dateFrom, LocalDate dateTo) {
     LocalDate now = LocalDate.now();
     LocalDate from = Optional.ofNullable(dateFrom).orElse(now.withDayOfMonth(1));
-    LocalDate to = Optional.ofNullable(dateTo).orElse(now.with(lastDayOfMonth()).plusDays(1));
-    return advancedFeeStatsMapper.toRest(feeDao.getAdvancedFeeStats(from, to));
+    LocalDate to = Optional.ofNullable(dateTo).orElse(now.with(lastDayOfMonth()));
+    return advancedFeeStatsMapper.toRest(feeDao.getAdvancedFeeStatsOnDateBetween(from, to));
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
       Optional<Instant> fromInstant, Optional<Instant> toInstant) {
-    List<AdvancedFeeStats> statistics = new ArrayList<>();
-    Instant startOfDay = LocalDate.now().atStartOfDay().toInstant(UTC);
-    Instant endOfDay = LocalDate.now().atTime(MAX).toInstant(UTC);
+    LocalDate now = LocalDate.now();
+    Optional<LocalDate> fromDate = fromInstant.map(instant -> instant.atZone(UTC).toLocalDate());
+    Optional<LocalDate> toDate = toInstant.map(instant -> instant.atZone(UTC).toLocalDate());
 
-    DateUtils.RangedInstant currentDayRange =
-        new DateUtils.RangedInstant(fromInstant.orElse(startOfDay), toInstant.orElse(endOfDay));
-    LocalDate fromDate = currentDayRange.from().atZone(UTC).toLocalDate();
-    LocalDate toDate = currentDayRange.to().atZone(UTC).toLocalDate();
+    DateUtils.TimeRange<LocalDate> dateRange =
+        new DateUtils.TimeRange<>(
+            fromDate.orElse(now.withDayOfMonth(1)), toDate.orElse(now.with(lastDayOfMonth())));
 
-    statistics.addAll(generateAdvancedFeeStatsOnDateBetween(fromDate, toDate));
-    return statistics;
+    return new ArrayList<>(generateAdvancedFeeStatsOnDateBetween(dateRange.from(), dateRange.to()));
   }
 
   private Collection<AdvancedFeeStats> generateAdvancedFeeStatsOnDateBetween(
