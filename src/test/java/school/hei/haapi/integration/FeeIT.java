@@ -503,6 +503,18 @@ class FeeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void manager_get_advanced_fee_statistics_cached_ok() {
+    LocalDateTime fromDateTime = LocalDateTime.parse("2024-04-01T00:00:00.00");
+    LocalDateTime toDateTime = LocalDateTime.parse("2024-04-30T23:59:59.99");
+
+    var client = anApiClient(MANAGER1_TOKEN);
+    var payingApi = new PayingApi(client);
+
+    assertDoesNotThrow(
+        () -> payingApi.getAdvancedFeesStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate()));
+  }
+
+  @Test
   void generate_fees_list_as_xlsx_without_parameters_ok() throws IOException, InterruptedException {
     var response =
         requestFile(URI.create("http://localhost:" + localPort + "/fees/raw"), MANAGER1_TOKEN);

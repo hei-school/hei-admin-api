@@ -5,6 +5,7 @@ import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.groupingByConcurrent;
+import static java.util.stream.Collectors.toMap;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L2;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L3;
@@ -59,11 +60,22 @@ public class AdvancedFeeStatsService {
   private final AdvancedFeeStatsMapper advancedFeeStatsMapper;
   private final FeeRepository feeRepository;
 
+  @Transactional
   public AdvancedFeesStatistics getAdvancedFeeStats(LocalDate dateFrom, LocalDate dateTo) {
     LocalDate now = LocalDate.now();
     LocalDate from = Optional.ofNullable(dateFrom).orElse(now.withDayOfMonth(1));
     LocalDate to = Optional.ofNullable(dateTo).orElse(now.with(lastDayOfMonth()));
-    return advancedFeeStatsMapper.toRest(feeDao.getAdvancedFeeStatsOnDateBetween(from, to));
+    var advancedStats = feeDao.getAdvancedFeeStatsOnDateBetween(from, to);
+    if (advancedStats.isEmpty()) {
+      var generatedStats =
+          updateAdvancedFeeStats(
+              Optional.of(from.atStartOfDay().toInstant(UTC)),
+              Optional.of(to.atTime(MAX).toInstant(UTC)));
+
+      return advancedFeeStatsMapper.toRest(
+          generatedStats.stream().collect(toMap(AdvancedFeeStats::getStatType, e -> e)));
+    }
+    return advancedFeeStatsMapper.toRest(advancedStats);
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
