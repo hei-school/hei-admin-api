@@ -34,12 +34,14 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
+import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
+import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.UserService;
 
@@ -49,6 +51,8 @@ import school.hei.haapi.service.UserService;
 class GradeIT extends FacadeITMockedThirdParties {
   @Autowired UserRepository userRepository;
   @Autowired UserService userService;
+  @Autowired GradeRepository gradeRepository;
+  @Autowired GradeMapper gradeMapper;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);

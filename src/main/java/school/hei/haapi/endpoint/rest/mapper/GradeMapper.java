@@ -25,14 +25,6 @@ public class GradeMapper {
   private final GradeValidator validator;
   private final GradeRepository gradeRepository;
 
-  // todo: to review all class
-  public school.hei.haapi.model.Grade toDomain(Grade grade) {
-    return school.hei.haapi.model.Grade.builder()
-        .score(grade.getScore())
-        .creationDatetime(grade.getCreatedAt())
-        .build();
-  }
-
   public Grade toRest(school.hei.haapi.model.Grade grade) {
     return new Grade()
         .id(grade.getId())
@@ -42,9 +34,6 @@ public class GradeMapper {
   }
 
   public StudentGrade toRestStudentGrade(school.hei.haapi.model.Grade grade) {
-    if (grade == null) {
-      return null;
-    }
     var getStudentGrade = new StudentGrade().grade(toRest(grade));
     getStudentGrade.setStudent(userMapper.toRestStudent(grade.getStudent()));
 
@@ -71,11 +60,6 @@ public class GradeMapper {
     validator.accept(grade);
 
     Exam exam = examService.getExamById(examId);
-    double scoreFinal = 0.0;
-
-    if (exam.getCoefficient() > 0 && grade.getScore() != null && grade.getScore() >= 0) {
-      scoreFinal = grade.getScore() * exam.getCoefficient();
-    }
 
     school.hei.haapi.model.Grade resultGrade =
         gradeRepository
@@ -88,7 +72,7 @@ public class GradeMapper {
                                 exam, userService.findByRef(studentRef))))
                     .getFirst());
 
-    resultGrade.setScore(scoreFinal);
+    resultGrade.setScore(grade.getScore() * exam.getCoefficient());
     return resultGrade;
   }
 }
