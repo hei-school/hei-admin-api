@@ -120,19 +120,19 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   }
 
   private List<Fee> getFeeList() {
-    var PAID_STATUS_HISTORY =
+    var paidStatusHistory =
         List.of(
             FeeStatusHistory.builder()
                 .status(PAID)
                 .datetime(Instant.parse("2021-04-11T00:00:00.00Z"))
                 .build());
-    var LATE_STATUS_HISTORY =
+    var lateStatusHistory =
         List.of(
             FeeStatusHistory.builder()
                 .status(LATE)
                 .datetime(Instant.parse("2021-04-11T00:00:00.00Z"))
                 .build());
-    var PENDING_STATUS_HISTORY =
+    var pendingStatusHistory =
         List.of(
             FeeStatusHistory.builder()
                 .status(PENDING)
@@ -149,7 +149,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .dueDatetime(Instant.parse("2025-04-30T00:00:00.00Z"))
             .frequency(MONTHLY)
             .type(TUITION)
-            .statusHistories(PAID_STATUS_HISTORY)
+            .statusHistories(paidStatusHistory)
             .build(),
         Fee.builder()
             .id("2")
@@ -160,7 +160,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .dueDatetime(Instant.parse("2025-04-30T00:00:00.00Z"))
             .frequency(YEARLY)
             .type(TUITION)
-            .statusHistories(PAID_STATUS_HISTORY)
+            .statusHistories(paidStatusHistory)
             .build(),
         Fee.builder()
             .id("3")
@@ -171,7 +171,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .dueDatetime(Instant.parse("2025-04-30T00:00:00.00Z"))
             .frequency(MONTHLY)
             .type(TUITION)
-            .statusHistories(PAID_STATUS_HISTORY)
+            .statusHistories(paidStatusHistory)
             .build(),
         Fee.builder()
             .id("4")
@@ -182,7 +182,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .dueDatetime(Instant.parse("2025-05-31T00:00:00.00Z"))
             .frequency(YEARLY)
             .type(TUITION)
-            .statusHistories(LATE_STATUS_HISTORY)
+            .statusHistories(lateStatusHistory)
             .build(),
         Fee.builder()
             .id("5")
@@ -193,7 +193,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .dueDatetime(Instant.parse("2025-05-31T00:00:00.00Z"))
             .frequency(MONTHLY)
             .type(TUITION)
-            .statusHistories(LATE_STATUS_HISTORY)
+            .statusHistories(lateStatusHistory)
             .build(),
         Fee.builder()
             .id("6")
@@ -204,7 +204,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .dueDatetime(Instant.parse("2025-06-30T00:00:00.00Z"))
             .frequency(YEARLY)
             .type(TUITION)
-            .statusHistories(PENDING_STATUS_HISTORY)
+            .statusHistories(pendingStatusHistory)
             .build(),
         Fee.builder()
             .id("7")
@@ -215,7 +215,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .dueDatetime(Instant.parse("2025-07-31T00:00:00.00Z"))
             .frequency(MONTHLY)
             .type(TUITION)
-            .statusHistories(PENDING_STATUS_HISTORY)
+            .statusHistories(pendingStatusHistory)
             .build(),
         Fee.builder()
             .id("8")
@@ -226,7 +226,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .dueDatetime(Instant.parse("2025-08-31T00:00:00.00Z"))
             .frequency(YEARLY)
             .type(TUITION)
-            .statusHistories(PAID_STATUS_HISTORY)
+            .statusHistories(paidStatusHistory)
             .build(),
         Fee.builder()
             .id("9")
@@ -237,7 +237,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .dueDatetime(Instant.parse("2025-09-30T00:00:00.00Z"))
             .frequency(MONTHLY)
             .type(TUITION)
-            .statusHistories(LATE_STATUS_HISTORY)
+            .statusHistories(lateStatusHistory)
             .build(),
         Fee.builder()
             .id("10")
@@ -248,7 +248,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .dueDatetime(Instant.parse("2025-10-31T00:00:00.00Z"))
             .frequency(YEARLY)
             .type(TUITION)
-            .statusHistories(PAID_STATUS_HISTORY)
+            .statusHistories(paidStatusHistory)
             .build(),
         Fee.builder()
             .id("11")
@@ -259,7 +259,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .dueDatetime(Instant.parse("2025-10-31T00:00:00.00Z"))
             .frequency(YEARLY)
             .type(TUITION)
-            .statusHistories(LATE_STATUS_HISTORY)
+            .statusHistories(lateStatusHistory)
             .build(),
         Fee.builder()
             .id("12")
@@ -270,7 +270,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
             .dueDatetime(Instant.parse("2025-10-31T00:00:00.00Z"))
             .frequency(YEARLY)
             .type(TUITION)
-            .statusHistories(PAID_STATUS_HISTORY)
+            .statusHistories(paidStatusHistory)
             .build());
   }
 }
