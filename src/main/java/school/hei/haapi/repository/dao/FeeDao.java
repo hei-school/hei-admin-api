@@ -25,6 +25,7 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
+import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
 import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 import school.hei.haapi.repository.model.FeesStats;
 
@@ -342,15 +343,17 @@ public class FeeDao {
   }
 
   public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStatsOnDateBetween(
-      LocalDate startDate, LocalDate endDate) {
+      LocalDate startDate, LocalDate endDate, AdvancedFeeStatsCountType type) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<AdvancedFeeStats> query = builder.createQuery(AdvancedFeeStats.class);
     Root<AdvancedFeeStats> root = query.from(AdvancedFeeStats.class);
 
     query.where(
         builder.and(
-            builder.equal(root.get("statStartDate"), startDate),
-            builder.equal(root.get("statEndDate"), endDate)));
+            builder.and(
+                builder.equal(root.get("statStartDate"), startDate),
+                builder.equal(root.get("statEndDate"), endDate)),
+            builder.equal(root.get("countType"), type)));
 
     TypedQuery<AdvancedFeeStats> typedQuery = entityManager.createQuery(query);
 

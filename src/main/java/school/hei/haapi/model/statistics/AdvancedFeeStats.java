@@ -57,11 +57,20 @@ public class AdvancedFeeStats {
   private LocalDate statStartDate;
   private LocalDate statEndDate;
 
+  @JdbcTypeCode(NAMED_ENUM)
+  @Enumerated(STRING)
+  private AdvancedFeeStatsCountType countType;
+
   public enum AdvancedFeeStatsType {
     TOTAL_COUNT,
     PAID_COUNT,
     LATE_COUNT,
     PENDING_COUNT
+  }
+
+  public enum AdvancedFeeStatsCountType {
+    ACCOUNTING,
+    RECEIPT;
   }
 
   public AdvancedFeeStats(

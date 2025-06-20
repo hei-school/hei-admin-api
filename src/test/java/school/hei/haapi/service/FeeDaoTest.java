@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.RECEIPT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.LATE_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PAID_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
@@ -26,7 +27,7 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
 
     Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> stats =
         subject.getAdvancedFeeStatsOnDateBetween(
-            fromDateTime.toLocalDate(), toDateTime.toLocalDate());
+            fromDateTime.toLocalDate(), toDateTime.toLocalDate(), RECEIPT);
     Set<AdvancedFeeStats> expectedStats =
         Set.of(
             AdvancedFeeStats.builder()
@@ -37,6 +38,7 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                 .workStudyCount(0)
                 .yearlyCount(0)
                 .monthlyCount(0)
+                .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
                 .statType(PAID_COUNT)
@@ -51,6 +53,7 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                 .unknownFrequencyCount(18)
                 .bankTransferCount(3L)
                 .mpbsCount(405L)
+                .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
                 .statType(PENDING_COUNT)
@@ -61,6 +64,7 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                 .yearlyCount(0)
                 .monthlyCount(0)
                 .unknownFrequencyCount(1)
+                .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
                 .statType(TOTAL_COUNT)
@@ -72,6 +76,7 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                 .yearlyCount(2)
                 .monthlyCount(396)
                 .unknownFrequencyCount(20)
+                .countType(RECEIPT)
                 .build());
     var values = stats.values();
     var actual =

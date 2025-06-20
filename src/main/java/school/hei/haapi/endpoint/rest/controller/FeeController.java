@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
@@ -146,7 +147,7 @@ public class FeeController {
   public AdvancedFeesStatistics getAdvancedFeesStats(
       @RequestParam(name = "month_from", required = false) LocalDate monthFrom,
       @RequestParam(name = "month_to", required = false) LocalDate monthTo) {
-    return advancedFeeStatsService.getAdvancedFeeStats(monthFrom, monthTo);
+    return advancedFeeStatsService.getAdvancedFeeStats(monthFrom, monthTo, empty());
   }
 
   @PostMapping("/fees/advanced-stats-generate")
@@ -154,7 +155,8 @@ public class FeeController {
       @RequestParam(name = "date_from") Instant dateFrom,
       @RequestParam(name = "date_to") Instant dateTo) {
     List<AdvancedFeeStats> stats =
-        advancedFeeStatsService.updateAdvancedFeeStats(Optional.of(dateFrom), Optional.of(dateTo));
+        advancedFeeStatsService.updateAdvancedFeeStats(
+            Optional.of(dateFrom), Optional.of(dateTo), empty());
     return new AdvancedFeeStatisticsGeneration().data("Total stats generated: " + stats.size());
   }
 

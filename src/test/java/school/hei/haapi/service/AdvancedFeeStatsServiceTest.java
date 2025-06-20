@@ -15,6 +15,7 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.RECEIPT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.LATE_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PAID_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
@@ -68,6 +69,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
                 .workStudyCount(1)
                 .yearlyCount(2)
                 .monthlyCount(2)
+                .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
                 .statType(PAID_COUNT)
@@ -79,6 +81,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
                 .monthlyCount(2)
                 .bankTransferCount(6L)
                 .mpbsCount(0L)
+                .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
                 .statType(PENDING_COUNT)
@@ -88,6 +91,7 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
                 .workStudyCount(0)
                 .yearlyCount(1)
                 .monthlyCount(1)
+                .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
                 .statType(TOTAL_COUNT)
@@ -97,11 +101,12 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
                 .workStudyCount(2)
                 .yearlyCount(7)
                 .monthlyCount(5)
+                .countType(RECEIPT)
                 .build());
 
     when(feeRepository.findAllByDueDatetimeBetween(any(), any())).thenReturn(getFeeList());
-    when(feeDao.getAdvancedFeeStatsOnDateBetween(any(), any())).thenReturn(Map.of());
-    List<AdvancedFeeStats> stats = subject.generateAdvancedFeeStats(rangeDate, rangeDate);
+    when(feeDao.getAdvancedFeeStatsOnDateBetween(any(), any(), any())).thenReturn(Map.of());
+    List<AdvancedFeeStats> stats = subject.generateAdvancedFeeStats(rangeDate, rangeDate, RECEIPT);
     Set<AdvancedFeeStats> actualStats =
         stats.stream()
             .peek(

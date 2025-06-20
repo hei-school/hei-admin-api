@@ -18,28 +18,29 @@ import school.hei.haapi.endpoint.rest.model.PaidFeesStats;
 import school.hei.haapi.endpoint.rest.model.PendingFeesStats;
 import school.hei.haapi.endpoint.rest.model.TotalExpectedFeesStats;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
+import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
 import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 
 @Component
 public class AdvancedFeeStatsMapper {
   public Map<AdvancedFeeStatsType, AdvancedFeeStats> fromRest(
-      AdvancedFeesStatistics restStat, LocalDate statStartDate, LocalDate statEndDate) {
+      AdvancedFeesStatistics restStat, LocalDate statStartDate, LocalDate statEndDate, AdvancedFeeStatsCountType type) {
     Map<AdvancedFeeStatsType, AdvancedFeeStats> statsModels = new HashMap<>();
     statsModels.put(
-        LATE_COUNT, getModelLateFeeStats(restStat.getLateFeesCount(), statStartDate, statEndDate));
+        LATE_COUNT, getModelLateFeeStats(restStat.getLateFeesCount(), statStartDate, statEndDate, type));
     statsModels.put(
-        PAID_COUNT, getModelPaidFeeStats(restStat.getPaidFeesCount(), statStartDate, statEndDate));
+        PAID_COUNT, getModelPaidFeeStats(restStat.getPaidFeesCount(), statStartDate, statEndDate, type));
     statsModels.put(
         PENDING_COUNT,
-        getModelPendingFeeStats(restStat.getPendingFeesCount(), statStartDate, statEndDate));
+        getModelPendingFeeStats(restStat.getPendingFeesCount(), statStartDate, statEndDate, type));
     statsModels.put(
         TOTAL_COUNT,
-        getModelTotalFeeStats(restStat.getTotalExpectedFeesCount(), statStartDate, statEndDate));
+        getModelTotalFeeStats(restStat.getTotalExpectedFeesCount(), statStartDate, statEndDate, type));
     return statsModels;
   }
 
   private AdvancedFeeStats getModelTotalFeeStats(
-      TotalExpectedFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate) {
+      TotalExpectedFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate, AdvancedFeeStatsCountType type) {
     return AdvancedFeeStats.builder()
         .id(UUID.randomUUID().toString())
         .statType(TOTAL_COUNT)
@@ -54,11 +55,12 @@ public class AdvancedFeeStatsMapper {
         .workStudyCount(restStat.getWorkStudy())
         .statStartDate(statStartDate)
         .statEndDate(statEndDate)
+        .countType(type)
         .build();
   }
 
   private AdvancedFeeStats getModelPaidFeeStats(
-      PaidFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate) {
+      PaidFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate, AdvancedFeeStatsCountType type) {
     return AdvancedFeeStats.builder()
         .id(UUID.randomUUID().toString())
         .statType(PAID_COUNT)
@@ -75,11 +77,12 @@ public class AdvancedFeeStatsMapper {
         .mpbsCount(restStat.getMobileMoney().longValue())
         .statStartDate(statStartDate)
         .statEndDate(statEndDate)
+        .countType(type)
         .build();
   }
 
   private AdvancedFeeStats getModelPendingFeeStats(
-      PendingFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate) {
+      PendingFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate, AdvancedFeeStatsCountType type) {
     return AdvancedFeeStats.builder()
         .id(UUID.randomUUID().toString())
         .statType(PENDING_COUNT)
@@ -94,11 +97,12 @@ public class AdvancedFeeStatsMapper {
         .workStudyCount(restStat.getWorkStudy())
         .statStartDate(statStartDate)
         .statEndDate(statEndDate)
+        .countType(type)
         .build();
   }
 
   private AdvancedFeeStats getModelLateFeeStats(
-      LateFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate) {
+      LateFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate, AdvancedFeeStatsCountType type) {
     return AdvancedFeeStats.builder()
         .id(UUID.randomUUID().toString())
         .statType(LATE_COUNT)
@@ -113,6 +117,7 @@ public class AdvancedFeeStatsMapper {
         .workStudyCount(restStat.getWorkStudy())
         .statEndDate(statEndDate)
         .statStartDate(statStartDate)
+        .countType(type)
         .build();
   }
 
