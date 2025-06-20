@@ -64,9 +64,7 @@ public class AdvancedFeeStatsService {
 
   @Transactional
   public AdvancedFeesStatistics getAdvancedFeeStats(
-      LocalDate dateFrom,
-      LocalDate dateTo,
-      Optional<AdvancedFeeStatsCountType> type) {
+      LocalDate dateFrom, LocalDate dateTo, Optional<AdvancedFeeStatsCountType> type) {
     LocalDate now = LocalDate.now();
     LocalDate from = Optional.ofNullable(dateFrom).orElse(now.withDayOfMonth(1));
     LocalDate to = Optional.ofNullable(dateTo).orElse(now.with(lastDayOfMonth()));
@@ -85,9 +83,7 @@ public class AdvancedFeeStatsService {
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
-      Optional<Instant> fromInstant,
-      Optional<Instant> toInstant,
-      AdvancedFeeStatsCountType type) {
+      Optional<Instant> fromInstant, Optional<Instant> toInstant, AdvancedFeeStatsCountType type) {
     LocalDate now = LocalDate.now();
     Optional<LocalDate> fromDate = fromInstant.map(instant -> instant.atZone(UTC).toLocalDate());
     Optional<LocalDate> toDate = toInstant.map(instant -> instant.atZone(UTC).toLocalDate());
@@ -130,7 +126,7 @@ public class AdvancedFeeStatsService {
 
   private Optional<LocalDate> statCountDateMapper(AdvancedFeeStatsCountType type, LocalDate date) {
     return switch (type) {
-      case RECEIPT ->  Optional.empty();
+      case RECEIPT -> Optional.empty();
       case ACCOUNTING -> Optional.of(date);
     };
   }

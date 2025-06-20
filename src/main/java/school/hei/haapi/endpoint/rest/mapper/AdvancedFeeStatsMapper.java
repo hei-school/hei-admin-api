@@ -24,23 +24,32 @@ import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 @Component
 public class AdvancedFeeStatsMapper {
   public Map<AdvancedFeeStatsType, AdvancedFeeStats> fromRest(
-      AdvancedFeesStatistics restStat, LocalDate statStartDate, LocalDate statEndDate, AdvancedFeeStatsCountType type) {
+      AdvancedFeesStatistics restStat,
+      LocalDate statStartDate,
+      LocalDate statEndDate,
+      AdvancedFeeStatsCountType type) {
     Map<AdvancedFeeStatsType, AdvancedFeeStats> statsModels = new HashMap<>();
     statsModels.put(
-        LATE_COUNT, getModelLateFeeStats(restStat.getLateFeesCount(), statStartDate, statEndDate, type));
+        LATE_COUNT,
+        getModelLateFeeStats(restStat.getLateFeesCount(), statStartDate, statEndDate, type));
     statsModels.put(
-        PAID_COUNT, getModelPaidFeeStats(restStat.getPaidFeesCount(), statStartDate, statEndDate, type));
+        PAID_COUNT,
+        getModelPaidFeeStats(restStat.getPaidFeesCount(), statStartDate, statEndDate, type));
     statsModels.put(
         PENDING_COUNT,
         getModelPendingFeeStats(restStat.getPendingFeesCount(), statStartDate, statEndDate, type));
     statsModels.put(
         TOTAL_COUNT,
-        getModelTotalFeeStats(restStat.getTotalExpectedFeesCount(), statStartDate, statEndDate, type));
+        getModelTotalFeeStats(
+            restStat.getTotalExpectedFeesCount(), statStartDate, statEndDate, type));
     return statsModels;
   }
 
   private AdvancedFeeStats getModelTotalFeeStats(
-      TotalExpectedFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate, AdvancedFeeStatsCountType type) {
+      TotalExpectedFeesStats restStat,
+      LocalDate statStartDate,
+      LocalDate statEndDate,
+      AdvancedFeeStatsCountType type) {
     return AdvancedFeeStats.builder()
         .id(UUID.randomUUID().toString())
         .statType(TOTAL_COUNT)
@@ -60,7 +69,10 @@ public class AdvancedFeeStatsMapper {
   }
 
   private AdvancedFeeStats getModelPaidFeeStats(
-      PaidFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate, AdvancedFeeStatsCountType type) {
+      PaidFeesStats restStat,
+      LocalDate statStartDate,
+      LocalDate statEndDate,
+      AdvancedFeeStatsCountType type) {
     return AdvancedFeeStats.builder()
         .id(UUID.randomUUID().toString())
         .statType(PAID_COUNT)
@@ -82,7 +94,10 @@ public class AdvancedFeeStatsMapper {
   }
 
   private AdvancedFeeStats getModelPendingFeeStats(
-      PendingFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate, AdvancedFeeStatsCountType type) {
+      PendingFeesStats restStat,
+      LocalDate statStartDate,
+      LocalDate statEndDate,
+      AdvancedFeeStatsCountType type) {
     return AdvancedFeeStats.builder()
         .id(UUID.randomUUID().toString())
         .statType(PENDING_COUNT)
@@ -102,7 +117,10 @@ public class AdvancedFeeStatsMapper {
   }
 
   private AdvancedFeeStats getModelLateFeeStats(
-      LateFeesStats restStat, LocalDate statStartDate, LocalDate statEndDate, AdvancedFeeStatsCountType type) {
+      LateFeesStats restStat,
+      LocalDate statStartDate,
+      LocalDate statEndDate,
+      AdvancedFeeStatsCountType type) {
     return AdvancedFeeStats.builder()
         .id(UUID.randomUUID().toString())
         .statType(LATE_COUNT)

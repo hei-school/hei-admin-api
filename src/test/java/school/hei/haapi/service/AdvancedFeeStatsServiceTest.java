@@ -21,7 +21,6 @@ import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStat
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.TOTAL_COUNT;
 
-import java.awt.*;
 import java.time.Instant;
 import java.util.List;
 import java.util.Map;
