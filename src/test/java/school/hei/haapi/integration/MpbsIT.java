@@ -64,6 +64,7 @@ import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
+import school.hei.haapi.repository.MpbsStatusHistoryRepository;
 import school.hei.haapi.service.MpbsVerificationService;
 import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -77,9 +78,10 @@ public class MpbsIT extends FacadeITMockedThirdParties {
   @Autowired MpbsVerificationService verificationService;
   @Autowired MpbsMapper mpbsMapper;
   @Autowired private UserService userService;
+  @Autowired private MpbsStatusHistoryRepository mpbsStatusHistoryRepository;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
@@ -184,8 +186,12 @@ public class MpbsIT extends FacadeITMockedThirdParties {
 
     Mpbs actualMpbs = mpbsVerified.getFirst();
 
+    // Check mpbs status and stored status history
+    var mpbsStatusHistories = mpbsStatusHistoryRepository.findAllByMpbs_PspId(MPBS_FEE4_REF);
     assertEquals(SUCCESS, actualMpbs.getStatus());
     assertEquals(MPBS_FEE4_REF, actualMpbs.getPspId());
+    assertEquals(1, mpbsStatusHistories.size());
+    assertEquals(SUCCESS, mpbsStatusHistories.getFirst().getStatus());
 
     // Check if the fee is paid
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE8_ID);

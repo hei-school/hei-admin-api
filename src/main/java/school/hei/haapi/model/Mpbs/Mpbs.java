@@ -1,5 +1,6 @@
 package school.hei.haapi.model.Mpbs;
 
+import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.EnumType.STRING;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
@@ -9,9 +10,12 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Enumerated;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -57,4 +61,11 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   @Enumerated(STRING)
   @JdbcTypeCode(NAMED_ENUM)
   private MpbsStatus status;
+
+  @OneToMany(mappedBy = "mpbs", cascade = REMOVE)
+  @Setter(AccessLevel.NONE)
+  @JsonIgnore
+  @EqualsAndHashCode.Exclude
+  @ToString.Exclude
+  private List<MpbsStatusHistory> statusHistory;
 }

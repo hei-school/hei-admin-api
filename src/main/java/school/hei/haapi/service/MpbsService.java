@@ -7,8 +7,10 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
+import school.hei.haapi.model.Mpbs.MpbsStatusHistory;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.MpbsRepository;
+import school.hei.haapi.repository.MpbsStatusHistoryRepository;
 
 @Service
 @AllArgsConstructor
@@ -16,11 +18,23 @@ import school.hei.haapi.repository.MpbsRepository;
 public class MpbsService {
   private final MpbsRepository mpbsRepository;
   private final FeeService feeService;
+  private final MultipartFileConverter multipartFileConverter;
+  private final MpbsStatusHistoryRepository mpbsStatusHistoryRepository;
+
+  public List<Mpbs> saveAll(List<Mpbs> toSave) {
+    var mpbs = mpbsRepository.saveAll(toSave);
+    mpbsStatusHistoryRepository.saveAll(toSave.stream().map(MpbsStatusHistory::fromMpbs).toList());
+    return mpbs;
+  }
+
+  public Mpbs save(Mpbs toSave) {
+    return saveAll(List.of(toSave)).getFirst();
+  }
 
   public Mpbs saveMpbs(Mpbs mobilePaymentByStudentToSave) {
     Fee fee = mobilePaymentByStudentToSave.getFee();
     mobilePaymentByStudentToSave.setFee(feeService.pendFeeForMpbs(fee));
-    return mpbsRepository.save(mobilePaymentByStudentToSave);
+    return save(mobilePaymentByStudentToSave);
   }
 
   public List<Mpbs> getStudentMobilePaymentByFeeId(String studentId, String feeId) {
