@@ -3304,7 +3304,7 @@ paths:
         since a MPBS implicitly pays the remaining unpaid amount of the fee.
 
         In case the amount paid by the student differs,
-        then the (scheduled) verifications will fail and another mpbs need to be send.
+        then the (scheduled) verifications will fail and manual fix from a manager is required.
 
         When the verification succeeds, and only then,
         a `Fee.Payment` object is automatically created to reflect the `Fee.Mbps`.

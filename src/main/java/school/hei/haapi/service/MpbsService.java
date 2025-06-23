@@ -18,15 +18,26 @@ import school.hei.haapi.repository.MpbsStatusHistoryRepository;
 public class MpbsService {
   private final MpbsRepository mpbsRepository;
   private final FeeService feeService;
-  private final MultipartFileConverter multipartFileConverter;
   private final MpbsStatusHistoryRepository mpbsStatusHistoryRepository;
 
+  /**
+   * Use MpbsService.saveAll to update mpbs status history
+   *
+   * @param toSave the mpbs to save
+   * @return the saved mpbs
+   */
   public List<Mpbs> saveAll(List<Mpbs> toSave) {
     var mpbs = mpbsRepository.saveAll(toSave);
     mpbsStatusHistoryRepository.saveAll(toSave.stream().map(MpbsStatusHistory::fromMpbs).toList());
     return mpbs;
   }
 
+  /**
+   * Use MpbsService.save to update mpbs status history
+   *
+   * @param toSave the mpbs to save
+   * @return the saved mpbs
+   */
   public Mpbs save(Mpbs toSave) {
     return saveAll(List.of(toSave)).getFirst();
   }
