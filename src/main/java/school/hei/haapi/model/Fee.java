@@ -3,8 +3,13 @@ package school.hei.haapi.model;
 import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Comparator.comparing;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
 
@@ -14,6 +19,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -53,6 +59,7 @@ public class Fee implements Serializable {
 
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
+  @Setter(AccessLevel.NONE)
   private FeeStatusEnum status;
 
   @JdbcTypeCode(NAMED_ENUM)
@@ -83,6 +90,12 @@ public class Fee implements Serializable {
   @OneToMany(mappedBy = "fee", cascade = REMOVE)
   @EqualsAndHashCode.Exclude
   private List<Mpbs> mobilePayments;
+
+  @OneToMany(mappedBy = "fee", cascade = REMOVE)
+  @Setter(AccessLevel.NONE)
+  @JsonIgnore
+  @EqualsAndHashCode.Exclude
+  private List<FeeStatusHistory> statusHistories;
 
   @JdbcTypeCode(NAMED_ENUM)
   @Enumerated(STRING)
@@ -155,5 +168,30 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
     } else {
       return BANK;
     }
+  }
+
+  public Fee updateStatus(FeeStatusEnum newStatus) {
+    if (isValidNewStatus(newStatus)) {
+      this.status = newStatus;
+      return this;
+    }
+    throw new IllegalArgumentException(
+        String.format(
+            "New Fee status is not valid" + "\nFee status %s cannot be changed to %s",
+            this.status, newStatus));
+  }
+
+  private boolean isValidNewStatus(FeeStatusEnum newStatus) {
+    return switch (this.status) {
+      case PAID -> !PENDING.equals(newStatus);
+      case UNPAID, PENDING, LATE -> true;
+    };
+  }
+
+  public Optional<FeeStatusEnum> getStatusAt(Instant instant) {
+    return this.statusHistories.stream()
+        .filter(fee -> fee.getDatetime().equals(instant) || fee.getDatetime().isBefore(instant))
+        .max(comparing(FeeStatusHistory::getDatetime))
+        .map(FeeStatusHistory::getStatus);
   }
 }

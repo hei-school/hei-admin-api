@@ -483,7 +483,7 @@ class FeeIT extends FacadeITMockedThirdParties {
 
     var client = anApiClient(MANAGER1_TOKEN);
     var payingApi = new PayingApi(client);
-    var expectedStats = new AdvancedFeeStatisticsGeneration().data("Total stats generated: 120");
+    var expectedStats = new AdvancedFeeStatisticsGeneration().data("Total stats generated: 4");
     var actualStat =
         payingApi.generateAdvancedStats(fromDateTime.toInstant(UTC), toDateTime.toInstant(UTC));
 
@@ -494,6 +494,18 @@ class FeeIT extends FacadeITMockedThirdParties {
   void manager_get_advanced_fee_statistics_ok() {
     LocalDateTime fromDateTime = LocalDateTime.parse("2025-04-01T00:00:00.00");
     LocalDateTime toDateTime = LocalDateTime.parse("2025-04-30T23:59:59.99");
+
+    var client = anApiClient(MANAGER1_TOKEN);
+    var payingApi = new PayingApi(client);
+
+    assertDoesNotThrow(
+        () -> payingApi.getAdvancedFeesStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate()));
+  }
+
+  @Test
+  void manager_get_advanced_fee_statistics_cached_ok() {
+    LocalDateTime fromDateTime = LocalDateTime.parse("2024-04-01T00:00:00.00");
+    LocalDateTime toDateTime = LocalDateTime.parse("2024-04-30T23:59:59.99");
 
     var client = anApiClient(MANAGER1_TOKEN);
     var payingApi = new PayingApi(client);

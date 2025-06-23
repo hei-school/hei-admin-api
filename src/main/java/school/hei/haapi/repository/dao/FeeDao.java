@@ -6,8 +6,6 @@ import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PAID_COUNT;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.TOTAL_COUNT;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.TypedQuery;
@@ -15,7 +13,6 @@ import jakarta.persistence.criteria.*;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.AllArgsConstructor;
@@ -28,6 +25,7 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
+import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
 import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 import school.hei.haapi.repository.model.FeesStats;
 
@@ -344,111 +342,18 @@ public class FeeDao {
     return entityManager.createQuery(query).getResultList();
   }
 
-  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStats(
-      LocalDate from, LocalDate to) {
-    var cumulatedStats = getCumulativeAdvancedFeeStats(from, to);
-    var variableStats = getVariableAdvancedFeeStats(from, to);
-    var result = new HashMap<AdvancedFeeStatsType, AdvancedFeeStats>();
-    result.putAll(variableStats);
-    result.putAll(cumulatedStats);
-    return result;
-  }
-
-  private Map<AdvancedFeeStatsType, AdvancedFeeStats> getCumulativeAdvancedFeeStats(
-      LocalDate from, LocalDate to) {
+  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStatsOnDateBetween(
+      LocalDate startDate, LocalDate endDate, AdvancedFeeStatsCountType type) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<AdvancedFeeStats> query = builder.createQuery(AdvancedFeeStats.class);
     Root<AdvancedFeeStats> root = query.from(AdvancedFeeStats.class);
-
-    Expression<Long> firstGradeCountSum = builder.sum(root.get("firstGradeCount"));
-    Expression<Long> secondGradeCountSum = builder.sum(root.get("secondGradeCount"));
-    Expression<Long> thirdGradeCountSum = builder.sum(root.get("thirdGradeCount"));
-    Expression<Long> unknownGradeCountSum = builder.sum(root.get("unknownGradeCount"));
-    Expression<Long> remedialFeesCountSum = builder.sum(root.get("remedialFeesCount"));
-    Expression<Long> workStudyCountSum = builder.sum(root.get("workStudyCount"));
-    Expression<Long> monthlyCountSum = builder.sum(root.get("monthlyCount"));
-    Expression<Long> yearlyCountSum = builder.sum(root.get("yearlyCount"));
-    Expression<Long> unknownFrequencyCountSum = builder.sum(root.get("unknownFrequencyCount"));
-    Expression<Long> bankTransferCountSum = builder.sum(root.get("bankTransferCount"));
-    Expression<Long> mpbsCountSum = builder.sum(root.get("mpbsCount"));
-    Expression<AdvancedFeeStatsType> statType = root.get("statType");
-
-    query
-        .multiselect(
-            firstGradeCountSum,
-            secondGradeCountSum,
-            thirdGradeCountSum,
-            unknownGradeCountSum,
-            remedialFeesCountSum,
-            workStudyCountSum,
-            monthlyCountSum,
-            yearlyCountSum,
-            unknownFrequencyCountSum,
-            bankTransferCountSum,
-            mpbsCountSum,
-            statType)
-        .groupBy(statType);
 
     query.where(
         builder.and(
-            builder.between(root.get("statDate"), from, to),
-            root.get("statType").in(List.of(TOTAL_COUNT, PAID_COUNT))));
-
-    TypedQuery<AdvancedFeeStats> typedQuery = entityManager.createQuery(query);
-    List<AdvancedFeeStats> feeStats = typedQuery.getResultList();
-    return feeStats.stream()
-        .collect(toMap(AdvancedFeeStats::getStatType, advancedFeeStats -> advancedFeeStats));
-  }
-
-  private Map<AdvancedFeeStatsType, AdvancedFeeStats> getVariableAdvancedFeeStats(
-      LocalDate from, LocalDate to) {
-    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<AdvancedFeeStats> query = builder.createQuery(AdvancedFeeStats.class);
-    Root<AdvancedFeeStats> root = query.from(AdvancedFeeStats.class);
-
-    Expression<Long> firstGradeCount = root.get("firstGradeCount");
-    Expression<Long> secondGradeCount = root.get("secondGradeCount");
-    Expression<Long> thirdGradeCount = root.get("thirdGradeCount");
-    Expression<Long> unknownGradeCount = root.get("unknownGradeCount");
-    Expression<Long> remedialFeesCount = root.get("remedialFeesCount");
-    Expression<Long> workStudyCount = root.get("workStudyCount");
-    Expression<Long> monthlyCount = root.get("monthlyCount");
-    Expression<Long> yearlyCount = root.get("yearlyCount");
-    Expression<Long> unknownFrequencyCount = root.get("unknownFrequencyCount");
-    Expression<Long> bankTransferCount = root.get("bankTransferCount");
-    Expression<Long> mpbsCount = root.get("mpbsCount");
-    Expression<AdvancedFeeStatsType> statType = root.get("statType");
-
-    query
-        .multiselect(
-            firstGradeCount,
-            secondGradeCount,
-            thirdGradeCount,
-            unknownGradeCount,
-            remedialFeesCount,
-            workStudyCount,
-            monthlyCount,
-            yearlyCount,
-            unknownFrequencyCount,
-            bankTransferCount,
-            mpbsCount,
-            statType)
-        .orderBy(builder.desc(root.get("updateDatetime")));
-    query.where(builder.between(root.get("statDate"), from, to));
-
-    TypedQuery<AdvancedFeeStats> typedQuery = entityManager.createQuery(query).setMaxResults(2);
-
-    List<AdvancedFeeStats> feeStats = typedQuery.getResultList();
-    return feeStats.stream()
-        .collect(toMap(AdvancedFeeStats::getStatType, advancedFeeStats -> advancedFeeStats));
-  }
-
-  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStatsOnDate(LocalDate date) {
-    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<AdvancedFeeStats> query = builder.createQuery(AdvancedFeeStats.class);
-    Root<AdvancedFeeStats> root = query.from(AdvancedFeeStats.class);
-
-    query.where(builder.equal(root.get("statDate"), date));
+            builder.and(
+                builder.equal(root.get("statStartDate"), startDate),
+                builder.equal(root.get("statEndDate"), endDate)),
+            builder.equal(root.get("countType"), type)));
 
     TypedQuery<AdvancedFeeStats> typedQuery = entityManager.createQuery(query);
 

@@ -172,7 +172,7 @@ public class EventController {
             studentName,
             studentRef,
             attendanceStatus,
-            new DateUtils.RangedInstant(from, to))
+            new DateUtils.TimeRange<>(from, to))
         .stream()
         .map(eventAttendanceMapper::toRest)
         .toList();

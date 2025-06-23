@@ -7,6 +7,7 @@ import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.YEARLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
@@ -106,6 +107,7 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
     return Fee.builder()
         .student(student1)
         .category(L1)
+        .status(UNPAID)
         .dueDatetime(Instant.now())
         .remainingAmount(100)
         .totalAmount(100)

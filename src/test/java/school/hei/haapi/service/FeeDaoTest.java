@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.RECEIPT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.LATE_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PAID_COUNT;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType.PENDING_COUNT;
@@ -10,7 +11,6 @@ import java.time.LocalDateTime;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
@@ -21,13 +21,13 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
   @Autowired FeeDao subject;
 
   @Test
-  @Disabled("TODO: fix advanced fee WIP")
   void get_advanced_fees_stats_ok() {
-    LocalDateTime fromDateTime = LocalDateTime.parse("2025-04-01T00:00:00.00");
-    LocalDateTime toDateTime = LocalDateTime.parse("2025-04-30T23:59:59.99");
+    LocalDateTime fromDateTime = LocalDateTime.parse("2024-04-01T00:00:00.00");
+    LocalDateTime toDateTime = LocalDateTime.parse("2024-04-30T23:59:59.99");
 
-    Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> actual =
-        subject.getAdvancedFeeStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate());
+    Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> stats =
+        subject.getAdvancedFeeStatsOnDateBetween(
+            fromDateTime.toLocalDate(), toDateTime.toLocalDate(), RECEIPT);
     Set<AdvancedFeeStats> expectedStats =
         Set.of(
             AdvancedFeeStats.builder()
@@ -38,6 +38,7 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                 .workStudyCount(0)
                 .yearlyCount(0)
                 .monthlyCount(0)
+                .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
                 .statType(PAID_COUNT)
@@ -52,15 +53,18 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                 .unknownFrequencyCount(18)
                 .bankTransferCount(3L)
                 .mpbsCount(405L)
+                .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
                 .statType(PENDING_COUNT)
                 .firstGradeCount(0)
                 .secondGradeCount(0)
                 .thirdGradeCount(0)
-                .workStudyCount(0)
+                .workStudyCount(1)
                 .yearlyCount(0)
                 .monthlyCount(0)
+                .unknownFrequencyCount(1)
+                .countType(RECEIPT)
                 .build(),
             AdvancedFeeStats.builder()
                 .statType(TOTAL_COUNT)
@@ -72,8 +76,21 @@ class FeeDaoTest extends FacadeITMockedThirdParties {
                 .yearlyCount(2)
                 .monthlyCount(396)
                 .unknownFrequencyCount(20)
+                .countType(RECEIPT)
                 .build());
+    var values = stats.values();
+    var actual =
+        values.stream()
+            .peek(
+                stat -> {
+                  stat.setId(null);
+                  stat.setStatEndDate(null);
+                  stat.setStatStartDate(null);
+                  stat.setUpdateDatetime(null);
+                  stat.setCreationDatetime(null);
+                })
+            .toList();
 
-    assertEquals(expectedStats, new HashSet<>(actual.values()));
+    assertEquals(expectedStats, new HashSet<>(actual));
   }
 }
