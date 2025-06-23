@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.event.model;
 
-import static java.time.LocalTime.MAX;
 import static java.time.ZoneOffset.UTC;
 import static java.util.Optional.empty;
 
@@ -26,7 +25,8 @@ public class AdvancedFeeStatsComputationTriggered extends PojaEvent {
 
   public LocalDateTime getEndDatetime() {
     LocalDate beginDate = beginDatetime.toLocalDate();
-    LocalDateTime endOfMonth = beginDate.withDayOfMonth(beginDate.lengthOfMonth()).atTime(MAX);
+    LocalDateTime endOfMonth =
+        beginDate.withDayOfMonth(beginDate.lengthOfMonth()).atTime(23, 59, 59);
     return end.isBefore(endOfMonth) ? end : endOfMonth;
   }
 
