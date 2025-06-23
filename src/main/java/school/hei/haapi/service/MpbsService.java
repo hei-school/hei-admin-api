@@ -1,5 +1,7 @@
 package school.hei.haapi.service;
 
+import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -11,7 +13,6 @@ import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsStatusHistory;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.MpbsRepository;
-import school.hei.haapi.repository.MpbsStatusHistoryRepository;
 
 @Service
 @AllArgsConstructor
@@ -19,7 +20,6 @@ import school.hei.haapi.repository.MpbsStatusHistoryRepository;
 public class MpbsService {
   private final MpbsRepository mpbsRepository;
   private final FeeService feeService;
-  private final MpbsStatusHistoryRepository mpbsStatusHistoryRepository;
 
   /**
    * Use MpbsService.saveAll to update mpbs status history
@@ -28,24 +28,8 @@ public class MpbsService {
    * @return the saved mpbs
    */
   public List<Mpbs> saveAll(List<Mpbs> toSave) {
-    var mpbs = mpbsRepository.saveAll(toSave);
-    var mpbsStatusHistoryToUpdate =
-        mpbs.stream()
-            .map(Mpbs::getStatusHistory)
-            .map(mpbsStatusHistories -> Optional.ofNullable(mpbsStatusHistories).orElse(List.of()))
-            .flatMap(List::stream)
-            .toList();
-    mpbsStatusHistoryRepository.saveAll(
-        mpbs.stream()
-            .map(MpbsStatusHistory::fromMpbs)
-            .map(
-                mpbsStatusHistory ->
-                    mpbsStatusHistoryToUpdate.stream()
-                        .filter(mpbsStatusHistory::sameMpbsIdAndStatus)
-                        .findFirst()
-                        .orElse(mpbsStatusHistory))
-            .toList());
-    return mpbs;
+    toSave.parallelStream().forEach(MpbsService::updateStatusHistory);
+    return mpbsRepository.saveAll(toSave);
   }
 
   /**
@@ -56,6 +40,18 @@ public class MpbsService {
    */
   public Mpbs save(Mpbs toSave) {
     return saveAll(List.of(toSave)).getFirst();
+  }
+
+  private static void updateStatusHistory(Mpbs mpbs) {
+    var statusHistory = Optional.ofNullable(mpbs.getStatusHistory()).orElse(new ArrayList<>());
+    var actualSavedStatus =
+        statusHistory.stream().max(Comparator.comparing(MpbsStatusHistory::getUpdateInstant));
+    if (actualSavedStatus.isPresent()) {
+      var presentStatus = actualSavedStatus.get();
+      if (presentStatus.getStatus() != mpbs.getStatus()) statusHistory.add(presentStatus);
+    } else {
+      statusHistory.add(MpbsStatusHistory.fromMpbs(mpbs));
+    }
   }
 
   public Mpbs saveMpbs(Mpbs mobilePaymentByStudentToSave) {
