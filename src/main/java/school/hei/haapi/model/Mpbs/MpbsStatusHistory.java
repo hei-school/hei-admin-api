@@ -13,6 +13,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.Instant;
+import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -54,5 +55,10 @@ public class MpbsStatusHistory {
 
   public static MpbsStatusHistory fromMpbs(Mpbs mpbs) {
     return MpbsStatusHistory.builder().mpbs(mpbs).status(mpbs.getStatus()).build();
+  }
+
+  public boolean sameMpbsAndStatus(MpbsStatusHistory mpbsStatusHistory1) {
+    return Objects.equals(mpbsStatusHistory1.getMpbs().getId(), mpbs.getId())
+        && mpbsStatusHistory1.getStatus() == status;
   }
 }

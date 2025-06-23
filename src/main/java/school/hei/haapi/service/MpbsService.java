@@ -28,7 +28,18 @@ public class MpbsService {
    */
   public List<Mpbs> saveAll(List<Mpbs> toSave) {
     var mpbs = mpbsRepository.saveAll(toSave);
-    mpbsStatusHistoryRepository.saveAll(toSave.stream().map(MpbsStatusHistory::fromMpbs).toList());
+    var mpbsStatusHistoryToUpdate =
+        mpbs.stream().map(Mpbs::getStatusHistory).flatMap(List::stream).toList();
+    mpbsStatusHistoryRepository.saveAll(
+        toSave.stream()
+            .map(MpbsStatusHistory::fromMpbs)
+            .map(
+                mpbsStatusHistory ->
+                    mpbsStatusHistoryToUpdate.stream()
+                        .filter(mpbsStatusHistory::sameMpbsAndStatus)
+                        .findFirst()
+                        .orElse(mpbsStatusHistory))
+            .toList());
     return mpbs;
   }
 
