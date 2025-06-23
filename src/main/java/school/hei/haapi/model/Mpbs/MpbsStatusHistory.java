@@ -27,7 +27,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 
 @Entity
-@Table(name = "\"mpbs_history\"")
+@Table(name = "\"mpbs_status_history\"")
 @AllArgsConstructor
 @NoArgsConstructor
 @Getter

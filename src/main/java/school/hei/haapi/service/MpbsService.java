@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,9 +30,13 @@ public class MpbsService {
   public List<Mpbs> saveAll(List<Mpbs> toSave) {
     var mpbs = mpbsRepository.saveAll(toSave);
     var mpbsStatusHistoryToUpdate =
-        mpbs.stream().map(Mpbs::getStatusHistory).flatMap(List::stream).toList();
+        mpbs.stream()
+            .map(Mpbs::getStatusHistory)
+            .map(v -> Optional.ofNullable(v).orElse(List.of()))
+            .flatMap(List::stream)
+            .toList();
     mpbsStatusHistoryRepository.saveAll(
-        toSave.stream()
+        mpbs.stream()
             .map(MpbsStatusHistory::fromMpbs)
             .map(
                 mpbsStatusHistory ->
