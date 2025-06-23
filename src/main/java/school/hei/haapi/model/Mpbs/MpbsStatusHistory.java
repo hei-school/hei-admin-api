@@ -57,8 +57,7 @@ public class MpbsStatusHistory {
     return MpbsStatusHistory.builder().mpbs(mpbs).status(mpbs.getStatus()).build();
   }
 
-  public boolean sameMpbsAndStatus(MpbsStatusHistory mpbsStatusHistory1) {
-    return Objects.equals(mpbsStatusHistory1.getMpbs().getId(), mpbs.getId())
-        && mpbsStatusHistory1.getStatus() == status;
+  public boolean sameMpbsIdAndStatus(MpbsStatusHistory other) {
+    return Objects.equals(other.getMpbs().getId(), mpbs.getId()) && other.getStatus() == status;
   }
 }

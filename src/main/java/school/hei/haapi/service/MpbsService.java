@@ -32,7 +32,7 @@ public class MpbsService {
     var mpbsStatusHistoryToUpdate =
         mpbs.stream()
             .map(Mpbs::getStatusHistory)
-            .map(v -> Optional.ofNullable(v).orElse(List.of()))
+            .map(mpbsStatusHistories -> Optional.ofNullable(mpbsStatusHistories).orElse(List.of()))
             .flatMap(List::stream)
             .toList();
     mpbsStatusHistoryRepository.saveAll(
@@ -41,7 +41,7 @@ public class MpbsService {
             .map(
                 mpbsStatusHistory ->
                     mpbsStatusHistoryToUpdate.stream()
-                        .filter(mpbsStatusHistory::sameMpbsAndStatus)
+                        .filter(mpbsStatusHistory::sameMpbsIdAndStatus)
                         .findFirst()
                         .orElse(mpbsStatusHistory))
             .toList());

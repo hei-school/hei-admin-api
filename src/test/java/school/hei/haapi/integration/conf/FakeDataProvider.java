@@ -21,10 +21,12 @@ import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.Group;
+import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.Fee;
+import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.User;
 
 /**
@@ -121,5 +123,13 @@ public class FakeDataProvider {
         null,
         new Course("", "", "", 0, 0, List.of()),
         List.of());
+  }
+
+  public Mpbs someMpbs(User student) {
+    return Mpbs.builder()
+        .status(faker.options().option(MpbsStatus.class))
+        .fee(someFee(student))
+        .amount(faker.number().numberBetween(100, 10_000))
+        .build();
   }
 }
