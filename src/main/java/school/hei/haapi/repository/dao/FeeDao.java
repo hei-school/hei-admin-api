@@ -25,7 +25,6 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
-import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
 import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 import school.hei.haapi.repository.model.FeesStats;
 
@@ -342,18 +341,41 @@ public class FeeDao {
     return entityManager.createQuery(query).getResultList();
   }
 
-  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStatsOnDateBetween(
-      LocalDate startDate, LocalDate endDate, AdvancedFeeStatsCountType type) {
+  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStats(LocalDate statDate) {
+    return getAdvancedFeeStats(statDate, statDate);
+  }
+
+  public Map<AdvancedFeeStatsType, AdvancedFeeStats> getAdvancedFeeStats(
+      LocalDate from, LocalDate to) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<AdvancedFeeStats> query = builder.createQuery(AdvancedFeeStats.class);
     Root<AdvancedFeeStats> root = query.from(AdvancedFeeStats.class);
 
-    query.where(
-        builder.and(
-            builder.and(
-                builder.equal(root.get("statStartDate"), startDate),
-                builder.equal(root.get("statEndDate"), endDate)),
-            builder.equal(root.get("countType"), type)));
+    Expression<Long> firstGradeCountSum = builder.sum(root.get("firstGradeCount"));
+    Expression<Long> secondGradeCountSum = builder.sum(root.get("secondGradeCount"));
+    Expression<Long> thirdGradeCountSum = builder.sum(root.get("thirdGradeCount"));
+    Expression<Long> remedialFeesCountSum = builder.sum(root.get("remedialFeesCount"));
+    Expression<Long> workStudyCountSum = builder.sum(root.get("workStudyCount"));
+    Expression<Long> monthlyCountSum = builder.sum(root.get("monthlyCount"));
+    Expression<Long> yearlyCountSum = builder.sum(root.get("yearlyCount"));
+    Expression<Long> bankTransferCountSum = builder.sum(root.get("bankTransferCount"));
+    Expression<Long> mpbsCountSum = builder.sum(root.get("mpbsCount"));
+    Expression<AdvancedFeeStatsType> statType = root.get("statType");
+
+    query
+        .multiselect(
+            firstGradeCountSum,
+            secondGradeCountSum,
+            thirdGradeCountSum,
+            remedialFeesCountSum,
+            workStudyCountSum,
+            monthlyCountSum,
+            yearlyCountSum,
+            bankTransferCountSum,
+            mpbsCountSum,
+            statType)
+        .groupBy(statType);
+    query.where(builder.between(root.get("statDate"), from, to));
 
     TypedQuery<AdvancedFeeStats> typedQuery = entityManager.createQuery(query);
 

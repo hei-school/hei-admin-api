@@ -8,7 +8,6 @@ import static school.hei.haapi.integration.conf.TestUtils.*;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -42,7 +41,7 @@ class CommentIT extends FacadeITMockedThirdParties {
 
     List<Comment> actual = api.getComments(1, 10, null, STUDENT1_REF);
 
-    assertEquals(2, actual.size());
+    assertEquals(3, actual.size());
     assertTrue(actual.contains(comment1()));
   }
 
@@ -61,7 +60,11 @@ class CommentIT extends FacadeITMockedThirdParties {
         actualTimestampAscendant.getFirst().getCreationDatetime());
 
     // Verify Comments are filter by timestamp Descendant (by default)
-    assertEquals(comment3(), actualTimestampDescendant.getFirst());
+    assertEquals(
+        createCommentByTeacher().getContent(), actualTimestampDescendant.getFirst().getContent());
+    assertEquals(
+        createCommentByTeacher().getStudentId(),
+        actualTimestampDescendant.getFirst().getSubject().getId());
   }
 
   @Test
@@ -106,7 +109,6 @@ class CommentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("It dirties the other tests")
   void manager_comment_about_student1_ok() throws ApiException {
     ApiClient apiClient = anApiClient(MANAGER1_TOKEN);
     CommentsApi api = new CommentsApi(apiClient);
@@ -121,7 +123,6 @@ class CommentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  @Disabled("It dirties the other tests")
   void teacher_comment_about_student1_ok() throws ApiException {
     ApiClient apiClient = anApiClient(TEACHER1_TOKEN);
     CommentsApi api = new CommentsApi(apiClient);

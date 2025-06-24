@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.randomUUID;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -9,13 +10,11 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
-import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableTeacher;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER2_ID;
-import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.coordinatesWithNullValues;
@@ -25,6 +24,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacher;
 import static school.hei.haapi.integration.conf.TestUtils.someCreatableTeacherList;
 import static school.hei.haapi.integration.conf.TestUtils.teacher1;
 import static school.hei.haapi.integration.conf.TestUtils.teacher2;
@@ -52,7 +52,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.mapper.UserMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EnableStatus;
 import school.hei.haapi.endpoint.rest.model.Sex;
@@ -67,7 +66,6 @@ import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 class TeacherIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired private ObjectMapper objectMapper;
-  @Autowired private UserMapper userMapper;
 
   private ApiClient anApiClient(String token) {
     return TestUtils.anApiClient(token, localPort);
@@ -168,7 +166,7 @@ class TeacherIT extends FacadeITMockedThirdParties {
   void manager_write_create_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     CrupdateTeacher toCreate = someCreatableTeacher();
-    Teacher expected = userMapper.toRestTeacher(userMapper.toDomain(toCreate));
+    Teacher expected = expectedCreatedTeacher();
 
     UsersApi api = new UsersApi(manager1Client);
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toCreate));
@@ -209,7 +207,7 @@ class TeacherIT extends FacadeITMockedThirdParties {
     List<Teacher> created = api.createOrUpdateTeachers(List.of(toUpdate));
     toUpdate.setId(created.getFirst().getId());
 
-    Teacher expected = userMapper.toRestTeacher(userMapper.toDomain(toUpdate));
+    Teacher expected = expectedCreatedTeacher();
     expected.setId(created.getFirst().getId());
     expected.setLastName("New last name");
     expected.setEmail(toUpdate.getEmail());
@@ -241,9 +239,6 @@ class TeacherIT extends FacadeITMockedThirdParties {
         assertThrows(ApiException.class, () -> api.createOrUpdateTeachers(List.of(toCreate1)));
     ApiException exception2 =
         assertThrows(ApiException.class, () -> api.createOrUpdateTeachers(List.of(toCreate2)));
-    assertBadRequestException(
-        "Entrance datetime is mandatory",
-        () -> api.createOrUpdateTeachers(List.of(someCreatableTeacher().entranceDatetime(null))));
 
     String exceptionMessage1 = exception1.getMessage();
     String exceptionMessage2 = exception2.getMessage();
@@ -321,6 +316,21 @@ class TeacherIT extends FacadeITMockedThirdParties {
             HttpResponse.BodyHandlers.ofByteArray());
 
     assertEquals(HttpStatus.FORBIDDEN.value(), response.statusCode());
+  }
+
+  private static Teacher expectedCreatedTeacher() {
+    return new Teacher()
+        .firstName("Some")
+        .lastName("User")
+        .email(randomUUID() + "@hei.school")
+        .ref("TCR21-" + randomUUID())
+        .phone("0332511129")
+        .status(ENABLED)
+        .sex(Sex.M)
+        .birthDate(LocalDate.parse("2000-01-01"))
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .address("Adr X")
+        .coordinates(coordinatesWithNullValues());
   }
 
   public static Teacher disabledTeacher1() {

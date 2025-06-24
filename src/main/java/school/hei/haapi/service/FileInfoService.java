@@ -62,7 +62,7 @@ public class FileInfoService {
       String fileName, FileType fileType, String userId, MultipartFile fileToUpload) {
     filenameValidator.accept(fileName);
     User user = userService.findById(userId);
-    // STUDENT/STUDENT_ref/<TRANSCRIPT|DOCUMENT|OTHER>/fileName
+    // STUDENT/STUDENT_ref/<TRANSCRIPT|DOCUMENT|OTHER>/fileName.extension
     String filePath =
         getFormattedBucketKey(user, fileType, fileName)
             + fileService.getFileExtension(fileToUpload);

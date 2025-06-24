@@ -4,6 +4,7 @@ import java.time.Instant;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -18,8 +19,9 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
 
   List<Fee> findAllByStatus(FeeStatusEnum status);
 
-  List<Fee> getFeesByStudentIdAndStatusOrderByDueDatetimeDesc(
-      String studentId, FeeStatusEnum status, Pageable pageable);
+  List<Fee> getFeesByStudentIdAndStatus(String studentId, FeeStatusEnum status, Pageable pageable);
+
+  List<Fee> getByStudentId(String studentId, Pageable pageable);
 
   List<Fee> findAllByDueDatetimeBetween(Instant from, Instant to);
 
@@ -70,4 +72,9 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
       @Param(value = "toCompare") Instant toCompare,
       @Param("studentId") String studentId,
       @Param("status") FeeStatusEnum status);
+
+  @Modifying
+  @Query("update Fee f set f.status = :status " + "where f.id = :fee_id")
+  void updateFeeStatusById(
+      @Param(value = "status") FeeStatusEnum status, @Param(value = "fee_id") String feeId);
 }

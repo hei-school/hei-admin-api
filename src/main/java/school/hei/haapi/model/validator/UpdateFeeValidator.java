@@ -55,14 +55,14 @@ public class UpdateFeeValidator implements Consumer<Fee> {
     } else {
       Optional<Fee> optionalFee = feeRepository.findById(fee.getId());
       if (optionalFee.isEmpty()) {
-        violationMessages.add("Fee with id " + fee.getId() + " does not exist");
+        violationMessages.add("Fee with id " + fee.getId() + "does not exist");
       } else {
         Fee originalFee = optionalFee.get();
         if (!fee.getTotalAmount().equals(originalFee.getTotalAmount())) {
-          violationMessages.add("Can't modify totalAmount");
+          violationMessages.add("Can't modify total amount");
         }
         if (!fee.getCreationDatetime().equals(originalFee.getCreationDatetime())) {
-          violationMessages.add("Can't modify creationDatetime");
+          violationMessages.add("Can't modify CreationDatetime");
         }
         if (!fee.getStudent().getId().equals(originalFee.getStudent().getId())) {
           violationMessages.add("Can't modify student");

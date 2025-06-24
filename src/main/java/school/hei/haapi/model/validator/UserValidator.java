@@ -17,7 +17,7 @@ public class UserValidator implements Consumer<User> {
   private final Validator validator;
 
   public void accept(List<User> users) {
-    users.forEach(this);
+    users.forEach(this::accept);
   }
 
   @Override

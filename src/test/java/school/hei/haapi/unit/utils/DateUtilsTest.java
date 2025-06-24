@@ -46,7 +46,7 @@ public class DateUtilsTest extends FacadeITMockedThirdParties {
     LocalDate firstDayOfMonth = LocalDate.now().withDayOfMonth(1);
     LocalDate lastDayOfMonth = firstDayOfMonth.withDayOfMonth(firstDayOfMonth.lengthOfMonth());
 
-    DateUtils.TimeRange defaultRange = dateUtils.getDefaultMonthRange(empty(), empty());
+    DateUtils.RangedInstant defaultRange = dateUtils.getDefaultMonthRange(empty(), empty());
 
     assertEquals(firstDayOfMonth.atStartOfDay(ZoneOffset.UTC).toInstant(), defaultRange.from());
     assertEquals(
