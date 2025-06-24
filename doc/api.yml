@@ -7146,6 +7146,12 @@ components:
           $ref: "#/components/schemas/PendingFeesStats"
         late_fees_count:
           $ref: "#/components/schemas/LateFeesStats"
+        update_datetime:
+          type: string
+          format: date-time
+        expired:
+          type: boolean
+          description: Ths field will be `true` when the returned stats is outdated or needs to be generated.
     BaseFeesStats:
       type: object
       properties:

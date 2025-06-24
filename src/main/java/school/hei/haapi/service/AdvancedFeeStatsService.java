@@ -1,7 +1,6 @@
 package school.hei.haapi.service;
 
 import static java.time.Instant.now;
-import static java.time.LocalTime.MAX;
 import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
@@ -39,6 +38,8 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.AdvancedFeeStatsComputationTriggered;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
 import school.hei.haapi.endpoint.rest.model.FeeCategory;
@@ -67,6 +68,7 @@ public class AdvancedFeeStatsService {
   private final AdvancedFeeStatsRepository repository;
   private final AdvancedFeeStatsMapper advancedFeeStatsMapper;
   private final FeeRepository feeRepository;
+  private final EventProducer<AdvancedFeeStatsComputationTriggered> eventProducer;
 
   private static final Duration ADVANCED_FEE_STATS_EXPIRATION = Duration.of(3, DAYS);
 
@@ -82,24 +84,30 @@ public class AdvancedFeeStatsService {
     LocalDate from = Optional.ofNullable(dateFrom).orElse(now.withDayOfMonth(1));
     LocalDate to = Optional.ofNullable(dateTo).orElse(now.with(lastDayOfMonth()));
     var advancedStats = feeDao.getAdvancedFeeStatsOnDateBetween(from, to, type.orElse(RECEIPT));
-    if (shouldBeUpdated(advancedStats)) {
-      var generatedStats =
-          updateAdvancedFeeStats(
-              Optional.of(from.atStartOfDay().toInstant(UTC)),
-              Optional.of(to.atTime(MAX).toInstant(UTC)),
-              type);
-
-      return advancedFeeStatsMapper.toRest(
-          generatedStats.stream().collect(toMap(AdvancedFeeStats::getStatType, e -> e)));
+    if (advancedStats.isEmpty()) {
+      eventProducer.accept(
+          List.of(
+              new AdvancedFeeStatsComputationTriggered(
+                  from.atStartOfDay(), to.atTime(23, 59, 59), type)));
+      return new AdvancedFeesStatistics().expired(true);
     }
-    return advancedFeeStatsMapper.toRest(advancedStats);
+
+    if (shouldBeUpdated(advancedStats)) {
+      eventProducer.accept(
+          List.of(
+              new AdvancedFeeStatsComputationTriggered(
+                  from.atStartOfDay(), to.atTime(23, 59, 59), type)));
+      return advancedFeeStatsMapper.toRest(
+          advancedStats.values().stream().collect(toMap(AdvancedFeeStats::getStatType, e -> e)),
+          true);
+    }
+
+    return advancedFeeStatsMapper.toRest(advancedStats, false);
   }
 
   private boolean shouldBeUpdated(Map<AdvancedFeeStatsType, AdvancedFeeStats> advancedStats) {
-    return advancedStats.isEmpty()
-        || advancedStats.values().stream()
-            .anyMatch(
-                e -> e.getUpdateDatetime().isAfter(now().minus(ADVANCED_FEE_STATS_EXPIRATION)));
+    return advancedStats.values().stream()
+        .anyMatch(e -> e.getUpdateDatetime().isAfter(now().minus(ADVANCED_FEE_STATS_EXPIRATION)));
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
@@ -119,7 +127,7 @@ public class AdvancedFeeStatsService {
   private Collection<AdvancedFeeStats> generateAdvancedFeeStatsOnDateBetween(
       LocalDate fromDate, LocalDate toDate, AdvancedFeeStatsCountType type) {
     Instant dayStart = fromDate.atStartOfDay().toInstant(UTC);
-    Instant dayEnd = toDate.atTime(MAX).toInstant(UTC);
+    Instant dayEnd = toDate.atTime(23, 59, 59).toInstant(UTC);
 
     List<Fee> allFees = feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
 
