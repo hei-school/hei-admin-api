@@ -1,7 +1,9 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
 import static java.time.LocalTime.MAX;
 import static java.time.ZoneOffset.UTC;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.groupingByConcurrent;
@@ -25,6 +27,7 @@ import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStat
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -50,6 +53,7 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.fee.PaymentType;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
+import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 import school.hei.haapi.repository.AdvancedFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
@@ -64,6 +68,8 @@ public class AdvancedFeeStatsService {
   private final AdvancedFeeStatsMapper advancedFeeStatsMapper;
   private final FeeRepository feeRepository;
 
+  private static final Duration ADVANCED_FEE_STATS_EXPIRATION = Duration.of(3, DAYS);
+
   @Transactional
   public AdvancedFeesStatistics getAdvancedFeeStats(
       LocalDate dateFrom, LocalDate dateTo, Optional<AdvancedFeeStatsCountType> type) {
@@ -76,7 +82,7 @@ public class AdvancedFeeStatsService {
     LocalDate from = Optional.ofNullable(dateFrom).orElse(now.withDayOfMonth(1));
     LocalDate to = Optional.ofNullable(dateTo).orElse(now.with(lastDayOfMonth()));
     var advancedStats = feeDao.getAdvancedFeeStatsOnDateBetween(from, to, type.orElse(RECEIPT));
-    if (advancedStats.isEmpty()) {
+    if (shouldBeUpdated(advancedStats)) {
       var generatedStats =
           updateAdvancedFeeStats(
               Optional.of(from.atStartOfDay().toInstant(UTC)),
@@ -87,6 +93,13 @@ public class AdvancedFeeStatsService {
           generatedStats.stream().collect(toMap(AdvancedFeeStats::getStatType, e -> e)));
     }
     return advancedFeeStatsMapper.toRest(advancedStats);
+  }
+
+  private boolean shouldBeUpdated(Map<AdvancedFeeStatsType, AdvancedFeeStats> advancedStats) {
+    return advancedStats.isEmpty()
+        || advancedStats.values().stream()
+            .anyMatch(
+                e -> e.getUpdateDatetime().isAfter(now().minus(ADVANCED_FEE_STATS_EXPIRATION)));
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
