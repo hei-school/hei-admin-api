@@ -17,6 +17,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -75,6 +76,7 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
             .student(student1)
             .fee(fee)
             .amount(fee.getRemainingAmount())
+            .statusHistory(new ArrayList<>())
             .build();
     mpbsCreated.setMobileMoneyType(ORANGE_MONEY);
     mpbsCreated.setPspId("----");

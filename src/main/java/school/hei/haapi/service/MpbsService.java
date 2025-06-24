@@ -1,9 +1,7 @@
 package school.hei.haapi.service;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,7 +41,7 @@ public class MpbsService {
   }
 
   private static void updateStatusHistory(Mpbs mpbs) {
-    var statusHistory = Optional.ofNullable(mpbs.getStatusHistory()).orElse(new ArrayList<>());
+    var statusHistory = mpbs.getStatusHistory();
     var actualSavedStatus =
         statusHistory.stream().max(Comparator.comparing(MpbsStatusHistory::getUpdateInstant));
     if (actualSavedStatus.isPresent()) {

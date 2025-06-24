@@ -72,6 +72,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @Testcontainers
 @AutoConfigureMockMvc
 public class MpbsIT extends FacadeITMockedThirdParties {
+  public static final String MPBS_FEE4_ID = "mpbs3_id";
   public static final String MPBS_FEE4_REF = "MP241210.0817.B36568";
   public static final String FEE8_ID = "fee8_id";
   @MockBean private EventBridgeClient eventBridgeClientMock;
@@ -178,6 +179,17 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     assertEquals(PENDING, fee3BeforeVerification.getStatus());
     assertEquals(MPBS_FEE4_REF, fee3BeforeVerification.getPspId());
 
+    // Initialize mpbs status history
+    api.crupdateMpbs(
+        STUDENT1_ID,
+        FEE8_ID,
+        new CrupdateMpbs()
+            .id(MPBS_FEE4_ID)
+            .feeId(FEE8_ID)
+            .studentId(STUDENT1_ID)
+            .pspType(ORANGE_MONEY)
+            .pspId(MPBS_FEE4_REF));
+
     // Upload xls file
     List<Mpbs> mpbsVerified =
         verificationService.computeFromXls(getMockedFile("test-mpbs", ".xls")).stream()
@@ -191,7 +203,7 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     assertEquals(SUCCESS, actualMpbs.getStatus());
     assertEquals(MPBS_FEE4_REF, actualMpbs.getPspId());
     assertEquals(1, mpbsStatusHistories.size());
-    assertEquals(SUCCESS, mpbsStatusHistories.getFirst().getStatus());
+    assertEquals(PENDING, mpbsStatusHistories.getFirst().getStatus());
 
     // Check if the fee is paid
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE8_ID);
