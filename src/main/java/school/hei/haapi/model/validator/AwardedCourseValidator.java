@@ -1,7 +1,6 @@
 package school.hei.haapi.model.validator;
 
-import jakarta.validation.ConstraintViolation;
-import jakarta.validation.Validator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Consumer;
@@ -14,7 +13,6 @@ import school.hei.haapi.model.exception.BadRequestException;
 @Component
 @AllArgsConstructor
 public class AwardedCourseValidator implements Consumer<AwardedCourse> {
-  private final Validator validator;
 
   public void accept(List<AwardedCourse> awardedCourses) {
     awardedCourses.forEach(this);
@@ -22,22 +20,20 @@ public class AwardedCourseValidator implements Consumer<AwardedCourse> {
 
   @Override
   public void accept(AwardedCourse awardedCourse) {
-    Set<ConstraintViolation<AwardedCourse>> violations = validator.validate(awardedCourse);
+    Set<String> violationMessages = new HashSet<>();
     if (awardedCourse.getCourse() == null) {
-      throw new BadRequestException("Course is mandatory");
+      violationMessages.add("Course is mandatory");
     }
     if (awardedCourse.getMainTeacher() == null) {
-      throw new BadRequestException("Teacher is mandatory");
+      violationMessages.add("Teacher is mandatory");
     }
     if (awardedCourse.getGroup() == null) {
-      throw new BadRequestException("Group is mandatory");
+      violationMessages.add("Group is mandatory");
     }
-    if (!violations.isEmpty()) {
-      String constraintMessages =
-          violations.stream()
-              .map(ConstraintViolation::getMessage)
-              .collect(Collectors.joining(". "));
-      throw new BadRequestException(constraintMessages);
+    if (!violationMessages.isEmpty()) {
+      String formattedViolationMessages =
+          violationMessages.stream().map(String::toString).collect(Collectors.joining(". "));
+      throw new BadRequestException(formattedViolationMessages);
     }
   }
 }

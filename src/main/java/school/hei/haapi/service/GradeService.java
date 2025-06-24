@@ -9,6 +9,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
@@ -69,5 +70,17 @@ public class GradeService {
         (page == null || pageSize == null)
             ? Pageable.unpaged()
             : PageRequest.of((page.getValue() - 1), pageSize.getValue()));
+  }
+
+  private double getExamAverageGrade(String examId) {
+    var averageOfGradeResult =
+        gradeDao.getGradesByExamId(examId).stream().mapToDouble(Grade::getScore).average();
+    if (averageOfGradeResult.isEmpty())
+      throw new NotFoundException("Exam with id " + examId + " do not have a score");
+    return averageOfGradeResult.getAsDouble();
+  }
+
+  public ExamGradeStats getExamGradeStats(String examId) {
+    return new ExamGradeStats().average(getExamAverageGrade(examId));
   }
 }

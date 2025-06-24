@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
+@SuppressWarnings("all")
 class UuidCreatedIT extends school.hei.haapi.integration.conf.FacadeITMockedThirdParties {
 
   @Autowired ObjectMapper om;

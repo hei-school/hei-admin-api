@@ -24,6 +24,7 @@ import software.amazon.awssdk.services.sqs.SqsClient;
 import software.amazon.awssdk.services.sqs.model.DeleteMessageRequest;
 
 @PojaGenerated
+@SuppressWarnings("all")
 public class ConsumableEventTyperTest
     extends school.hei.haapi.integration.conf.FacadeITMockedThirdParties {
   public static final String UNKNOWN_TYPENAME = "unknown_typename";

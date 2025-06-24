@@ -5,15 +5,18 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateExam;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.service.GradeService;
 
 @Component
 @AllArgsConstructor
 public class ExamMapper {
   private AwardedCourseMapper awardedCourseMapper;
   private AwardedCourseService awardedCourseService;
+  private GradeService gradeService;
 
   public ExamInfo toRest(Exam exam) {
     return new ExamInfo()
@@ -47,5 +50,11 @@ public class ExamMapper {
 
   public List<ExamInfo> toRestList(List<Exam> examList) {
     return examList.stream().map(this::toRest).toList();
+  }
+
+  public StudentExamGrade toRestStudentExamGrade(String studentId, Exam exam) {
+    return new StudentExamGrade()
+        .exam(toRest(exam))
+        .score(gradeService.getGradeByExamIdAndStudentId(exam.getId(), studentId).getScore());
   }
 }

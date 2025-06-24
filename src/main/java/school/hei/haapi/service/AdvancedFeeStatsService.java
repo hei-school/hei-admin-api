@@ -5,16 +5,23 @@ import static java.time.ZoneOffset.UTC;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.groupingByConcurrent;
-import static school.hei.haapi.endpoint.rest.model.FeeCategory.*;
+import static java.util.stream.Collectors.toMap;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.L2;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.L3;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.WORK_FEES;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
+import static school.hei.haapi.endpoint.rest.model.FeeFrequency.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.YEARLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.REMEDIAL_COSTS;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.RECEIPT;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
@@ -27,12 +34,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
+import school.hei.haapi.endpoint.rest.model.FeeCategory;
+import school.hei.haapi.endpoint.rest.model.FeeFrequency;
+import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
+import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
+import school.hei.haapi.endpoint.rest.model.LateFeesStats;
+import school.hei.haapi.endpoint.rest.model.PaidFeesStats;
+import school.hei.haapi.endpoint.rest.model.PendingFeesStats;
+import school.hei.haapi.endpoint.rest.model.TotalExpectedFeesStats;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.fee.PaymentType;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
+import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
 import school.hei.haapi.repository.AdvancedFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
@@ -40,48 +57,64 @@ import school.hei.haapi.service.utils.DateUtils;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class AdvancedFeeStatsService {
   private final FeeDao feeDao;
   private final AdvancedFeeStatsRepository repository;
   private final AdvancedFeeStatsMapper advancedFeeStatsMapper;
   private final FeeRepository feeRepository;
 
-  public AdvancedFeesStatistics getAdvancedFeeStats(LocalDate dateFrom, LocalDate dateTo) {
+  @Transactional
+  public AdvancedFeesStatistics getAdvancedFeeStats(
+      LocalDate dateFrom, LocalDate dateTo, Optional<AdvancedFeeStatsCountType> type) {
+    if (type.isEmpty()) {
+      log.warn(
+          "No count type provided for advanced stats query. RECEIPT stats will be returned by"
+              + " default");
+    }
     LocalDate now = LocalDate.now();
     LocalDate from = Optional.ofNullable(dateFrom).orElse(now.withDayOfMonth(1));
-    LocalDate to = Optional.ofNullable(dateTo).orElse(now.with(lastDayOfMonth()).plusDays(1));
-    return advancedFeeStatsMapper.toRest(feeDao.getAdvancedFeeStats(from, to));
+    LocalDate to = Optional.ofNullable(dateTo).orElse(now.with(lastDayOfMonth()));
+    var advancedStats = feeDao.getAdvancedFeeStatsOnDateBetween(from, to, type.orElse(RECEIPT));
+    if (advancedStats.isEmpty()) {
+      var generatedStats =
+          updateAdvancedFeeStats(
+              Optional.of(from.atStartOfDay().toInstant(UTC)),
+              Optional.of(to.atTime(MAX).toInstant(UTC)),
+              type);
+
+      return advancedFeeStatsMapper.toRest(
+          generatedStats.stream().collect(toMap(AdvancedFeeStats::getStatType, e -> e)));
+    }
+    return advancedFeeStatsMapper.toRest(advancedStats);
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
-      Optional<Instant> fromInstant, Optional<Instant> toInstant) {
-    List<AdvancedFeeStats> statistics = new ArrayList<>();
-    Instant startOfDay = LocalDate.now().atStartOfDay().toInstant(UTC);
-    Instant endOfDay = LocalDate.now().atTime(MAX).toInstant(UTC);
+      Optional<Instant> fromInstant, Optional<Instant> toInstant, AdvancedFeeStatsCountType type) {
+    LocalDate now = LocalDate.now();
+    Optional<LocalDate> fromDate = fromInstant.map(instant -> instant.atZone(UTC).toLocalDate());
+    Optional<LocalDate> toDate = toInstant.map(instant -> instant.atZone(UTC).toLocalDate());
 
-    DateUtils.RangedInstant currentDayRange =
-        new DateUtils.RangedInstant(fromInstant.orElse(startOfDay), toInstant.orElse(endOfDay));
-    LocalDate fromDate = currentDayRange.from().atZone(UTC).toLocalDate();
-    LocalDate toDate = currentDayRange.to().atZone(UTC).toLocalDate();
+    DateUtils.TimeRange<LocalDate> dateRange =
+        new DateUtils.TimeRange<>(
+            fromDate.orElse(now.withDayOfMonth(1)), toDate.orElse(now.with(lastDayOfMonth())));
 
-    fromDate
-        .datesUntil(toDate.plusDays(1))
-        .forEach(date -> statistics.addAll(generateAdvancedFeeStatsOnDate(date)));
-    return statistics;
+    return new ArrayList<>(
+        generateAdvancedFeeStatsOnDateBetween(dateRange.from(), dateRange.to(), type));
   }
 
-  private Collection<AdvancedFeeStats> generateAdvancedFeeStatsOnDate(LocalDate date) {
-    Instant dayStart = date.atStartOfDay().toInstant(UTC);
-    Instant dayEnd = date.atTime(MAX).toInstant(UTC);
+  private Collection<AdvancedFeeStats> generateAdvancedFeeStatsOnDateBetween(
+      LocalDate fromDate, LocalDate toDate, AdvancedFeeStatsCountType type) {
+    Instant dayStart = fromDate.atStartOfDay().toInstant(UTC);
+    Instant dayEnd = toDate.atTime(MAX).toInstant(UTC);
 
     List<Fee> allFees = feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
 
-    AdvancedFeesStatistics restStats = generateAdvancedFeeStats(allFees);
+    Collection<AdvancedFeeStats> stats =
+        feeDao.getAdvancedFeeStatsOnDateBetween(fromDate, toDate, type).values();
+    Optional<LocalDate> date = statCountDateMapper(type, toDate);
 
-    Map<AdvancedFeeStats.AdvancedFeeStatsType, AdvancedFeeStats> dayStat =
-        advancedFeeStatsMapper.fromRest(restStats, date);
-
-    Collection<AdvancedFeeStats> stats = feeDao.getAdvancedFeeStats(date).values();
+    AdvancedFeesStatistics restStats = generateAdvancedFeeStats(allFees, date);
     if (!stats.isEmpty()) {
       stats.forEach(
           stat -> {
@@ -93,16 +126,24 @@ public class AdvancedFeeStatsService {
             }
           });
       return stats;
-    } else {
-      return dayStat.values();
     }
+
+    return advancedFeeStatsMapper.fromRest(restStats, fromDate, toDate, type).values();
   }
 
-  private AdvancedFeesStatistics generateAdvancedFeeStats(List<Fee> fees) {
+  private Optional<LocalDate> statCountDateMapper(AdvancedFeeStatsCountType type, LocalDate date) {
+    return switch (type) {
+      case RECEIPT -> Optional.empty();
+      case ACCOUNTING -> Optional.of(date);
+    };
+  }
+
+  private AdvancedFeesStatistics generateAdvancedFeeStats(
+      List<Fee> fees, Optional<LocalDate> statusDate) {
     return new AdvancedFeesStatistics()
-        .lateFeesCount(getLateFeesStats(fees))
-        .paidFeesCount(getPaidFeesStats(fees))
-        .pendingFeesCount(getPendingFeesStats(fees))
+        .lateFeesCount(getLateFeesStats(fees, statusDate))
+        .paidFeesCount(getPaidFeesStats(fees, statusDate))
+        .pendingFeesCount(getPendingFeesStats(fees, statusDate))
         .totalExpectedFeesCount(getTotalExpectedFeesStats(fees));
   }
 
@@ -111,30 +152,36 @@ public class AdvancedFeeStatsService {
     feeStats.setFirstGradeCount(pendingFeesStats.getFirstGrade());
     feeStats.setSecondGradeCount(pendingFeesStats.getSecondGrade());
     feeStats.setThirdGradeCount(pendingFeesStats.getThirdGrade());
+    feeStats.setUnknownGradeCount(pendingFeesStats.getUnknownGrade());
     feeStats.setWorkStudyCount(pendingFeesStats.getWorkStudy());
     feeStats.setRemedialFeesCount(pendingFeesStats.getRemedialFeesCount().longValue());
     feeStats.setMonthlyCount(pendingFeesStats.getMonthly());
     feeStats.setYearlyCount(pendingFeesStats.getYearly());
+    feeStats.setUnknownFrequencyCount(pendingFeesStats.getUnknownFrequency());
   }
 
   private void handleLateFeesCount(AdvancedFeeStats feeStats, LateFeesStats lateFeesStats) {
     feeStats.setFirstGradeCount(lateFeesStats.getFirstGrade());
     feeStats.setSecondGradeCount(lateFeesStats.getSecondGrade());
     feeStats.setThirdGradeCount(lateFeesStats.getThirdGrade());
+    feeStats.setUnknownGradeCount(lateFeesStats.getUnknownGrade());
     feeStats.setWorkStudyCount(lateFeesStats.getWorkStudy());
     feeStats.setRemedialFeesCount(lateFeesStats.getRemedialFeesCount().longValue());
     feeStats.setMonthlyCount(lateFeesStats.getMonthly());
     feeStats.setYearlyCount(lateFeesStats.getYearly());
+    feeStats.setUnknownFrequencyCount(lateFeesStats.getUnknownFrequency());
   }
 
   private void handlePaidFeesCount(AdvancedFeeStats feeStats, PaidFeesStats paidFeesStats) {
     feeStats.setFirstGradeCount(paidFeesStats.getFirstGrade());
     feeStats.setSecondGradeCount(paidFeesStats.getSecondGrade());
     feeStats.setThirdGradeCount(paidFeesStats.getThirdGrade());
+    feeStats.setUnknownGradeCount(paidFeesStats.getUnknownGrade());
     feeStats.setWorkStudyCount(paidFeesStats.getWorkStudy());
     feeStats.setRemedialFeesCount(paidFeesStats.getRemedialFeesCount().longValue());
     feeStats.setMonthlyCount(paidFeesStats.getMonthly());
     feeStats.setYearlyCount(paidFeesStats.getYearly());
+    feeStats.setUnknownFrequencyCount(paidFeesStats.getUnknownFrequency());
     feeStats.setBankTransferCount(paidFeesStats.getBankFees().longValue());
     feeStats.setMpbsCount(paidFeesStats.getMobileMoney().longValue());
   }
@@ -144,13 +191,15 @@ public class AdvancedFeeStatsService {
     feeStats.setFirstGradeCount(totalExpectedFeesStats.getFirstGrade());
     feeStats.setSecondGradeCount(totalExpectedFeesStats.getSecondGrade());
     feeStats.setThirdGradeCount(totalExpectedFeesStats.getThirdGrade());
+    feeStats.setUnknownGradeCount(totalExpectedFeesStats.getUnknownGrade());
     feeStats.setWorkStudyCount(totalExpectedFeesStats.getWorkStudy());
     feeStats.setMonthlyCount(totalExpectedFeesStats.getMonthly());
     feeStats.setYearlyCount(totalExpectedFeesStats.getYearly());
+    feeStats.setUnknownFrequencyCount(totalExpectedFeesStats.getUnknownFrequency());
   }
 
-  private LateFeesStats getLateFeesStats(List<Fee> fees) {
-    List<Fee> lateFees = filterFeesByStatus(fees, LATE);
+  private LateFeesStats getLateFeesStats(List<Fee> fees, Optional<LocalDate> statusDate) {
+    List<Fee> lateFees = filterFeesByStatus(fees, LATE, statusDate);
     Map<FeeCategory, Long> feeCountByCategory = countFeesByGrades(lateFees);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(lateFees);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
@@ -160,15 +209,15 @@ public class AdvancedFeeStatsService {
         .workStudy(feeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
-        .unknownFrequency(feesCountByPaymentFrequency.get(FeeFrequency.UNKNOWN))
+        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .firstGrade(feeCountByCategory.get(L1))
         .secondGrade(feeCountByCategory.get(L2))
         .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(UNKNOWN));
+        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN));
   }
 
-  private PaidFeesStats getPaidFeesStats(List<Fee> fees) {
-    List<Fee> paidFees = filterFeesByStatus(fees, PAID);
+  private PaidFeesStats getPaidFeesStats(List<Fee> fees, Optional<LocalDate> statusDate) {
+    List<Fee> paidFees = filterFeesByStatus(fees, PAID, statusDate);
     Map<FeeCategory, Long> feeCountByCategory = countFeesByGrades(paidFees);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(paidFees);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
@@ -179,17 +228,17 @@ public class AdvancedFeeStatsService {
         .workStudy(feeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
-        .unknownFrequency(feesCountByPaymentFrequency.get(FeeFrequency.UNKNOWN))
+        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .firstGrade(feeCountByCategory.get(L1))
         .secondGrade(feeCountByCategory.get(L2))
         .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(UNKNOWN))
+        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN))
         .bankFees(BigDecimal.valueOf(feesCountByPaymentType.get(BANK)))
         .mobileMoney(BigDecimal.valueOf(feesCountByPaymentType.get(MPBS)));
   }
 
-  private PendingFeesStats getPendingFeesStats(List<Fee> fees) {
-    List<Fee> pendingFees = filterFeesByStatus(fees, PENDING);
+  private PendingFeesStats getPendingFeesStats(List<Fee> fees, Optional<LocalDate> statusDate) {
+    List<Fee> pendingFees = filterFeesByStatus(fees, PENDING, statusDate);
     Map<FeeCategory, Long> feeCountByCategory = countFeesByGrades(pendingFees);
     Map<FeeTypeEnum, List<Fee>> feesByType = groupFeesByType(pendingFees);
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
@@ -199,11 +248,11 @@ public class AdvancedFeeStatsService {
         .workStudy(feeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
-        .unknownFrequency(feesCountByPaymentFrequency.get(FeeFrequency.UNKNOWN))
+        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .firstGrade(feeCountByCategory.get(L1))
         .secondGrade(feeCountByCategory.get(L2))
         .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(UNKNOWN));
+        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN));
   }
 
   private TotalExpectedFeesStats getTotalExpectedFeesStats(List<Fee> fees) {
@@ -215,17 +264,22 @@ public class AdvancedFeeStatsService {
         .firstGrade(feeCountByCategory.get(L1))
         .secondGrade(feeCountByCategory.get(L2))
         .thirdGrade(feeCountByCategory.get(L3))
-        .unknownGrade(feeCountByCategory.get(UNKNOWN))
+        .unknownGrade(feeCountByCategory.get(FeeCategory.UNKNOWN))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
-        .unknownFrequency(feesCountByPaymentFrequency.get(FeeFrequency.UNKNOWN))
+        .unknownFrequency(feesCountByPaymentFrequency.get(UNKNOWN))
         .workStudy(feeCountByCategory.get(WORK_FEES));
   }
 
   @Transactional
   public List<AdvancedFeeStats> updateAdvancedFeeStats(
-      Optional<Instant> from, Optional<Instant> to) {
-    return repository.saveAll(generateAdvancedFeeStats(from, to));
+      Optional<Instant> from, Optional<Instant> to, Optional<AdvancedFeeStatsCountType> type) {
+    if (type.isEmpty()) {
+      log.warn(
+          "No count type provided for advanced stats generation request."
+              + " RECEIPT stats will be generated by default");
+    }
+    return repository.saveAll(generateAdvancedFeeStats(from, to, type.orElse(RECEIPT)));
   }
 
   private Map<FeeCategory, Long> countFeesByGrades(List<Fee> fees) {
@@ -268,7 +322,22 @@ public class AdvancedFeeStatsService {
     return fees.stream().collect(groupingBy(Fee::getType));
   }
 
-  private List<Fee> filterFeesByStatus(List<Fee> fees, FeeStatusEnum feeStatus) {
-    return fees.stream().filter(fee -> feeStatus.equals(fee.getStatus())).toList();
+  private List<Fee> filterFeesByStatus(
+      List<Fee> fees, FeeStatusEnum feeStatus, Optional<LocalDate> statusDate) {
+    return fees.stream()
+        .filter(
+            fee ->
+                statusDate
+                    .map(localDate -> feeStatusAtPredicate(fee, feeStatus, localDate))
+                    .orElseGet(() -> feeStatusPredicate(fee, feeStatus)))
+        .toList();
+  }
+
+  private boolean feeStatusPredicate(Fee fee, FeeStatusEnum feeStatus) {
+    return feeStatus.equals(fee.getStatus());
+  }
+
+  private boolean feeStatusAtPredicate(Fee fee, FeeStatusEnum feeStatus, LocalDate date) {
+    return feeStatus.equals(fee.getStatusAt(date.atStartOfDay().toInstant(UTC)).orElse(UNPAID));
   }
 }

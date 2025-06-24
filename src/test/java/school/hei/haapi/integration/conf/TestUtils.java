@@ -441,10 +441,13 @@ public class TestUtils {
   }
 
   public static void assertThrowsForbiddenException(Executable executable) {
-    ApiException apiException = assertThrows(ApiException.class, executable);
-    String responseBody = apiException.getResponseBody();
-    assertEquals(
-        "{" + "\"type\":\"403 FORBIDDEN\"," + "\"message\":\"Access is denied\"}", responseBody);
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}", executable);
+  }
+
+  public static void assertBadRequestException(String exceptedMessage, Executable executable) {
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"%s\"}".formatted(exceptedMessage), executable);
   }
 
   public static File getMockedFile(String fileName, String extension) {
@@ -472,21 +475,6 @@ public class TestUtils {
         .pspTransactionRef("psp2_id")
         .pspTransactionAmount(300000)
         .build();
-  }
-
-  public static CrupdateTeacher someCreatableTeacher() {
-    return new CrupdateTeacher()
-        .firstName("Some")
-        .lastName("User")
-        .email(randomUUID() + "@hei.school")
-        .ref("TCR21-" + randomUUID())
-        .phone("0332511129")
-        .status(ENABLED)
-        .sex(Sex.M)
-        .birthDate(LocalDate.parse("2000-01-01"))
-        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .coordinates(coordinatesWithNullValues())
-        .address("Adr X");
   }
 
   public static CreateFee creatableFee1() {
@@ -523,13 +511,6 @@ public class TestUtils {
         .dueDatetime(Instant.parse("2021-12-09T08:25:24.00Z"));
   }
 
-  public static Group createGroup() {
-    return new Group()
-        .name("Collaborative work like GWSP")
-        .ref("created")
-        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-  }
-
   public static Course createCourse(String code) {
     return new Course().code(code).name("Collaborative work like GWSP").credits(12).totalHours(5);
   }
@@ -540,13 +521,6 @@ public class TestUtils {
         .courseId("course1_id")
         .groupId("group1_id")
         .mainTeacherId("teacher1_id");
-  }
-
-  public static CreateAwardedCourse createAwardedCourse() {
-    return new CreateAwardedCourse()
-        .courseId("course2_id")
-        .groupId("group2_id")
-        .mainTeacherId("teacher2_id");
   }
 
   public static AwardedCourse updatedAwardedCourse2() {
@@ -585,17 +559,9 @@ public class TestUtils {
   public static List<CrupdateTeacher> someCreatableTeacherList(int nbOfTeacher) {
     List<CrupdateTeacher> teacherList = new ArrayList<>();
     for (int i = 0; i < nbOfTeacher; i++) {
-      teacherList.add(someCreatableTeacher());
+      teacherList.add(FakeDataProvider.someCreatableTeacher());
     }
     return teacherList;
-  }
-
-  public static List<Group> someCreatableGroupList(int nbOfGroup) {
-    List<Group> groupList = new ArrayList<>();
-    for (int i = 0; i < nbOfGroup; i++) {
-      groupList.add(createGroup());
-    }
-    return groupList;
   }
 
   public static List<Course> someCreatableCourseList(int nbOfCourse) {
@@ -604,15 +570,6 @@ public class TestUtils {
       courseList.add(createCourse("ToAdd" + i));
     }
     return courseList;
-  }
-
-  public static List<CreateAwardedCourse> someCreatableCreateAwardedCourseList(
-      int nbOfCreateAwardedCourse) {
-    List<CreateAwardedCourse> createAwardedCourseList = new ArrayList<>();
-    for (int i = 0; i < nbOfCreateAwardedCourse; i++) {
-      createAwardedCourseList.add(createAwardedCourse());
-    }
-    return createAwardedCourseList;
   }
 
   public static List<ExamInfo> someCreatableExamInfoList(int nbOfExamInfo) {
@@ -1212,15 +1169,6 @@ public class TestUtils {
         .type(TUITION);
   }
 
-  //  public static ExamDetail examDetail1() {
-  //    return new ExamDetail()
-  //        .id(exam1().getId())
-  //        .title(exam1().getTitle())
-  //        .examinationDate(exam1().getExaminationDate())
-  //        .coefficient(exam1().getCoefficient())
-  //        .participants(List.of(studentGrade1(), studentGrade7()));
-  //  }
-
   public static AwardedCourseExam awardedCourseExam1() {
     return new AwardedCourseExam()
         .id(AWARDED_COURSE1_ID)
@@ -1408,7 +1356,7 @@ public class TestUtils {
         .content("Nothing to say here")
         .subject(student2())
         .observer(observerTeacher1())
-        .creationDatetime(Instant.parse("2021-11-09T10:26:24.00Z"));
+        .creationDatetime(Instant.parse("2021-11-09T10:26:24.01Z"));
   }
 
   public static CreateComment createCommentByManager() {
@@ -1600,6 +1548,15 @@ public class TestUtils {
 
   public static CreateEvent someCreatableEvent(
       EventType eventType, String planerId, Instant beginDatetime, Instant endDatetime) {
+    return someCreatableEvent(eventType, planerId, beginDatetime, endDatetime, List.of(group1()));
+  }
+
+  public static CreateEvent someCreatableEvent(
+      EventType eventType,
+      String planerId,
+      Instant beginDatetime,
+      Instant endDatetime,
+      List<Group> groups) {
     return new CreateEvent()
         .id("event" + randomUUID() + "_id")
         .courseId(COURSE1_ID)
@@ -1608,7 +1565,7 @@ public class TestUtils {
         .description("Another event")
         .eventType(eventType)
         .plannerId(planerId)
-        .groups(List.of(createGroupIdentifier(group1())));
+        .groups(groups.stream().map(TestUtils::createGroupIdentifier).toList());
   }
 
   public static CreateFee createFeeForTest() {

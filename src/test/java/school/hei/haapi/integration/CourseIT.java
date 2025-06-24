@@ -7,6 +7,7 @@ import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.course2;
@@ -153,6 +154,25 @@ class CourseIT extends FacadeITMockedThirdParties {
         api.getCourses(null, null, null, null, null, CourseDirection.DESC, null, null, null);
 
     assertEquals(4 + numberOfCourseToAdd, actualCourseList.size());
+  }
+
+  @Test
+  void manager_create_or_update_bad_course_ko() {
+    TeachingApi api = new TeachingApi(anApiClient(MANAGER1_TOKEN));
+    var courseWithoutCode = course1().code(null);
+    var courseWithoutName = course1().name(null);
+    var courseWithBadCredits = course1().credits(-1);
+    var courseWithBadTotalHours = course1().totalHours(-2);
+
+    assertBadRequestException(
+        "code is mandatory", () -> api.createOrUpdateCourses(List.of(courseWithoutCode)));
+    assertBadRequestException(
+        "Name is mandatory", () -> api.createOrUpdateCourses(List.of(courseWithoutName)));
+    assertBadRequestException(
+        "Credits must be positive", () -> api.createOrUpdateCourses(List.of(courseWithBadCredits)));
+    assertBadRequestException(
+        "Total hours must be positive",
+        () -> api.createOrUpdateCourses(List.of(courseWithBadTotalHours)));
   }
 
   @Test

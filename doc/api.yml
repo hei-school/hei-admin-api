@@ -752,17 +752,13 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/courses/{id}':
+  '/courses/{course_id}':
     get:
       tags:
         - Teaching
       summary: Get course by identifier
       parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
+        - $ref: '#/components/parameters/PathCourseId'
       operationId: getCourseById
       responses:
         '200':
@@ -771,6 +767,88 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Course'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/courses/{course_id}/students/grades':
+    get:
+      tags:
+        - Teaching
+      summary: Get students grade for exams in a specific course
+      parameters:
+        - $ref: '#/components/parameters/PathCourseId'
+        - $ref: '#/components/parameters/GroupRef'
+      operationId: getCourseStudentsGrade
+      responses:
+        '200':
+          description: Student list with grade for this course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentIdentifierGrade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/courses/{course_id}/student/{student_id}/grade/stats':
+    get:
+      tags:
+        - Teaching
+      summary: Get student grade statistics for exams in a specific course
+      parameters:
+        - $ref: '#/components/parameters/PathCourseId'
+        - $ref: '#/components/parameters/PathStudentId'
+      operationId: getStudentCourseGradeStats
+      responses:
+        '200':
+          description: The student grade statistics for this course
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/StudentCourseGradeStats'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/courses/{course_id}/student/{student_id}/exams/grades':
+    get:
+      tags:
+        - Teaching
+      summary: Get student exams grade in a specific course
+      parameters:
+        - $ref: '#/components/parameters/PathCourseId'
+        - $ref: '#/components/parameters/PathStudentId'
+      operationId: getStudentExamsGrade
+      responses:
+        '200':
+          description: The student exams grade for this course
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentExamGrade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1630,6 +1708,31 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/AwardedCourse'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /exams/{exams_id}/grade/stats:
+    get:
+      tags:
+        - Teaching
+      summary: Get the exam grade stats
+      operationId: getExamGradeStats
+      parameters:
+        - $ref: '#/components/parameters/PathExamId'
+      responses:
+        '200':
+          description: The exam grade stats
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExamGradeStats'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -3443,6 +3546,7 @@ paths:
         - Attendance
       summary: Create attendance movement of one student
       operationId: createAttendanceMovement
+      deprecated: true
       requestBody:
         description: Attendance movement to create
         required: true
@@ -3687,6 +3791,7 @@ paths:
         - Attendance
       summary: Get all attendances by courses ids or student key word
       operationId: getStudentsAttendance
+      deprecated: true
       parameters:
         - name: page
           in: query
@@ -5808,6 +5913,24 @@ components:
       description: Filter by student first name or last name
       schema:
         type: string
+    PathExamId:
+      name: exams_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathCourseId:
+      name: course_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathStudentId:
+      name: student_id
+      in: path
+      required: true
+      schema:
+        type: string
   responses:
     '400':
       description: Bad request
@@ -6245,6 +6368,15 @@ components:
           $ref: '#/components/schemas/Course'
         group:
           $ref: '#/components/schemas/Group'
+    StudentExamGrade:
+      type: object
+      properties:
+        score:
+          type: number
+          format: double
+          example: 12.5
+        exam:
+          $ref: '#/components/schemas/ExamInfo'
     ExamInfo:
       type: object
       properties:
@@ -6290,6 +6422,29 @@ components:
         update_date:
           type: string
           format: date-time
+    ExamGradeStats:
+      type: object
+      properties:
+        average:
+          type: number
+          format: double
+          example: 12.5
+    StudentCourseGradeStats:
+      type: object
+      properties:
+        average:
+          type: number
+          format: double
+          example: 12.5
+    StudentIdentifierGrade:
+      type: object
+      properties:
+        weighted_average:
+          type: number
+          format: double
+          example: 12.5
+        student:
+          $ref: '#/components/schemas/UserIdentifier'
     CrupdateGrade:
       type: object
       properties:
