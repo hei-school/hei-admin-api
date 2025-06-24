@@ -49,7 +49,6 @@ public class PaymentService {
   private final UserManagerDao userManagerDao;
   private final PaymentValidator paymentValidator;
   private final EventProducer eventProducer;
-  private final FeeStatusHistoryService feeStatusHistoryService;
 
   public Payment deleteFeePaymentById(String paymentId) {
     Payment deletedPayment = getById(paymentId);
@@ -69,12 +68,11 @@ public class PaymentService {
     associatedFee.setRemainingAmount(associatedFee.getRemainingAmount() + amount);
 
     if (associatedFee.getDueDatetime().isBefore(now) && associatedFee.getRemainingAmount() != 0) {
-      associatedFee.updateStatus(LATE);
+      associatedFee.setStatus(LATE);
     }
     if (associatedFee.getDueDatetime().isAfter(now) && associatedFee.getRemainingAmount() != 0) {
-      associatedFee.updateStatus(UNPAID);
+      associatedFee.setStatus(UNPAID);
     }
-    feeStatusHistoryService.saveFeeStatus(associatedFee.getStatus(), associatedFee);
     feeRepository.save(associatedFee);
   }
 
@@ -118,8 +116,7 @@ public class PaymentService {
       notifyStudentForEnabling(associatedFee, amount);
     }
     if (associatedFee.getRemainingAmount() == 0) {
-      associatedFee.updateStatus(PAID);
-      feeStatusHistoryService.saveFeeStatus(associatedFee.getStatus(), associatedFee);
+      associatedFee.setStatus(PAID);
     }
   }
 

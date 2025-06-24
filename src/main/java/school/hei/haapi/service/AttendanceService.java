@@ -1,8 +1,5 @@
 package school.hei.haapi.service;
 
-import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.LATE;
-import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
-import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.service.utils.AttendanceServiceUtils.filterAttendanceFromTwoSet;
 import static school.hei.haapi.service.utils.AttendanceServiceUtils.getFilterCase;
 
@@ -74,9 +71,11 @@ public class AttendanceService {
       List<AttendanceStatus> attendanceStatuses, Pageable pageable) {
     Set<StudentAttendance> result = new LinkedHashSet<>();
     Map<AttendanceStatus, List<StudentAttendance>> eachStatusValues = new HashMap<>();
-    eachStatusValues.put(MISSING, attendanceRepository.findStudentsAbsent(pageable));
-    eachStatusValues.put(LATE, attendanceRepository.findStudentLate(pageable));
-    eachStatusValues.put(PRESENT, attendanceRepository.findStudentPresent(pageable));
+    eachStatusValues.put(
+        AttendanceStatus.MISSING, attendanceRepository.findStudentsAbsent(pageable));
+    eachStatusValues.put(AttendanceStatus.LATE, attendanceRepository.findStudentLate(pageable));
+    eachStatusValues.put(
+        AttendanceStatus.PRESENT, attendanceRepository.findStudentPresent(pageable));
 
     attendanceStatuses.forEach(
         status -> {

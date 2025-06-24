@@ -15,7 +15,7 @@ import school.hei.haapi.model.exception.BadRequestException;
 public class ExamValidator implements Consumer<Exam> {
 
   public void accept(List<Exam> exams) {
-    exams.forEach(this);
+    exams.forEach(this::accept);
   }
 
   @Override

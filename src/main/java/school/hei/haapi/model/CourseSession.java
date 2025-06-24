@@ -26,9 +26,6 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString
 public class CourseSession implements Serializable {
-  public static final String AWARDED_COURSE = "awardedCourse";
-  public static final String BEGIN = "begin";
-
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;

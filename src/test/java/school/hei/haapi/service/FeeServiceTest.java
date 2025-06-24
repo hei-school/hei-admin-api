@@ -2,7 +2,6 @@ package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -24,7 +23,6 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.*;
-import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.AdvancedFeeStatsRepository;
@@ -35,7 +33,7 @@ import school.hei.haapi.service.utils.DateUtils;
 class FeeServiceTest {
   FeeService subject;
   FeeRepository feeRepository;
-  FeeValidator feeValidator = new FeeValidator();
+  FeeValidator feeValidator;
   EventProducer eventProducer;
   UpdateFeeValidator updateFeeValidator;
   AdvancedFeeStatsRepository advancedFeeStatsRepository;
@@ -44,7 +42,6 @@ class FeeServiceTest {
   FeeDao feeDao;
   FeeTemplateService feeTemplateService;
   DateUtils dateUtils;
-  FeeStatusHistoryService feeStatusHistoryService;
 
   static User student1() {
     return User.builder().id(TestUtils.STUDENT1_ID).build();
@@ -91,7 +88,7 @@ class FeeServiceTest {
     Fee fee = createSomeFee(feeId, paymentAmount, status, dueDatetime, creationDatetime);
     fee.setRemainingAmount(remainingAmount);
     if (isMocked) {
-      fee.updateStatus(UNPAID);
+      fee.setStatus(UNPAID);
       fee.setRemainingAmount(remainingAmount());
     }
     return fee;
@@ -123,6 +120,7 @@ class FeeServiceTest {
   @BeforeEach
   void setUp() {
     feeRepository = mock(FeeRepository.class);
+    feeValidator = mock(FeeValidator.class);
     updateFeeValidator = mock(UpdateFeeValidator.class);
     eventProducer = mock(EventProducer.class);
     userService = mock(UserService.class);
@@ -130,7 +128,6 @@ class FeeServiceTest {
     feeTemplateService = mock(FeeTemplateService.class);
     advancedFeeStatsRepository = mock(AdvancedFeeStatsRepository.class);
     advancedFeeStatsMapper = mock(AdvancedFeeStatsMapper.class);
-    feeStatusHistoryService = mock(FeeStatusHistoryService.class);
     subject =
         new FeeService(
             feeRepository,
@@ -138,8 +135,7 @@ class FeeServiceTest {
             updateFeeValidator,
             eventProducer,
             feeDao,
-            feeTemplateService,
-            feeStatusHistoryService);
+            feeTemplateService);
   }
 
   @Test
@@ -238,15 +234,5 @@ class FeeServiceTest {
     assertFalse(actualPaidPage1.contains(fee1(!isMocked)));
     assertFalse(actualPaidPage1.contains(fee2(!isMocked)));
     assertFalse(actualLatePage1.contains(fee3(!isMocked)));
-  }
-
-  @Test
-  void save_fee_without_student_ko() {
-    var feesWithoutStudent = List.of(fee(100));
-    feesWithoutStudent.forEach(fee -> fee.setStudent(null));
-
-    var badRequestException =
-        assertThrows(BadRequestException.class, () -> subject.saveAll(feesWithoutStudent));
-    assertEquals("Student is mandatory", badRequestException.getMessage());
   }
 }

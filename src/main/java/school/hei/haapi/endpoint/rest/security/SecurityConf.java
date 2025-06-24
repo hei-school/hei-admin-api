@@ -186,7 +186,6 @@ public class SecurityConf {
                     antMatcher(GET, "/exams/*"),
                     antMatcher(GET, "/exams/*/grades"),
                     antMatcher(PUT, "/exams/*/grades"),
-                    antMatcher(GET, "/exams/*/grade/stats"),
                     antMatcher(PUT, "/exams"),
                     antMatcher(GET, "/exams/*/students/*/grade"),
                     antMatcher(PUT, "/exams/*/students/*/grade"),
@@ -203,7 +202,6 @@ public class SecurityConf {
                     antMatcher(GET, "/courses/*/exams/*"),
                     antMatcher(GET, "/courses/*/exams/*/details"),
                     antMatcher(GET, "/courses/*/exams/*/participants/*"),
-                    antMatcher(GET, "/courses/*/student/*/exams/grades"),
                     antMatcher(GET, STUDENT_COURSE),
                     antMatcher(GET, "/comments"),
                     antMatcher(GET, "/students/*/comments"),
@@ -652,8 +650,6 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/exams/*/grades")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(GET, "/exams/*/grade/stats")
-                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/event_participants")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/exams")
@@ -856,11 +852,6 @@ public class SecurityConf {
                             GET, "/courses/*" + "/exams/*/participants/*", "participants"))
                     .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/courses/*" + "/exams/*/participants/*")
-                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(
-                        new SelfMatcher(GET, "/courses/*/student/*/exams/grades", "student"))
-                    .hasAnyRole(STUDENT.getRole())
-                    .requestMatchers(GET, "/courses/*/student/*/exams/grades")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(new SelfMatcher(GET, STUDENT_COURSE, "students"))
                     .hasAnyRole(STUDENT.getRole(), ADMIN.getRole())

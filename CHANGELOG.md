@@ -1,24 +1,3 @@
-# [1.104.0](https://github.com/hei-school/hei-admin-api/compare/v1.103.1...v1.104.0) (2025-05-27)
-
-
-### Bug Fixes
-
-* casdoor custom redirect uri, add casdoor env vars ([9be5583](https://github.com/hei-school/hei-admin-api/commit/9be5583937d4734648c67d2f756e040da89c54b3))
-* student status going from disabled to suspended ([2d9ffd1](https://github.com/hei-school/hei-admin-api/commit/2d9ffd1d798404459ccbdf9afe3388ffb429558e))
-
-
-### Features
-
-* casdoor authentication ([#890](https://github.com/hei-school/hei-admin-api/issues/890)) ([5679e1e](https://github.com/hei-school/hei-admin-api/commit/5679e1e68dbfa6a902132204943d4a7864a4c3b9))
-* **not-implemented:** course grade and exam grades stats ([b16f960](https://github.com/hei-school/hei-admin-api/commit/b16f960bae3165660fee6758fbba6a2fc6ce9b66))
-
-
-### Reverts
-
-* Revert "chore: fix casdoor env variables" (#893) ([615ff34](https://github.com/hei-school/hei-admin-api/commit/615ff34cb520cee058e0920a49461ffbfbbc0a6c)), closes [#893](https://github.com/hei-school/hei-admin-api/issues/893)
-
-
-
 ## [1.103.1](https://github.com/hei-school/hei-admin-api/compare/v1.103.0...v1.103.1) (2025-05-07)
 
 
@@ -138,6 +117,16 @@
 ### Features
 
 * add advanced fees statistics ([c9d6e87](https://github.com/hei-school/hei-admin-api/commit/c9d6e873524f0854d82c050e6ee0a7cc6f4d8aa6))
+
+
+
+# [1.97.0](https://github.com/hei-school/hei-admin-api/compare/v1.96.0...v1.97.0) (2025-02-11)
+
+
+### Features
+
+* crupdate organizers ([a7fe681](https://github.com/hei-school/hei-admin-api/commit/a7fe681a3fa1230d3026f7257ebff95e43d73780))
+* role organizer ([9cf27fd](https://github.com/hei-school/hei-admin-api/commit/9cf27fd7e3785988b873424ec750f3675c104917))
 
 
 

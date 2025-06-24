@@ -30,7 +30,7 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.EventParticipantRepository;
 import school.hei.haapi.repository.EventRepository;
 import school.hei.haapi.repository.dao.EventParticipantDao;
-import school.hei.haapi.service.utils.DateUtils.TimeRange;
+import school.hei.haapi.service.utils.DateUtils;
 
 @Service
 @AllArgsConstructor
@@ -50,7 +50,7 @@ public class EventParticipantService {
       String name,
       String ref,
       AttendanceStatus attendanceStatus,
-      TimeRange<Instant> eventBeginRange) {
+      DateUtils.RangedInstant eventBeginRange) {
 
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "participant.ref"));

@@ -44,7 +44,7 @@ public class MissedEventEmailService implements Consumer<MissedEventEmail> {
   }
 
   private String formatHourFromInstant(Instant instant) {
-    LocalTime time = LocalTime.from(instant.atZone(UTC3));
+    LocalTime time = LocalTime.from(instant);
     return time.format(DateTimeFormatter.ofPattern("HH'h'mm", FRENCH));
   }
 

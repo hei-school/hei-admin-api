@@ -1,6 +1,5 @@
 package school.hei.haapi.integration;
 
-import static java.io.File.createTempFile;
 import static org.hibernate.validator.internal.util.Contracts.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -25,14 +24,12 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -384,33 +381,6 @@ public class UserFileIT extends FacadeITMockedThirdParties {
                 .from(Instant.parse("2021-11-08T08:25:24.00Z"))
                 .to(Instant.now()));
     assertNotNull(zipReceiptsStatistic);
-  }
-
-  @Test
-  void upload_file_with_extension_ko() throws IOException {
-    FilesApi api = new FilesApi(anApiClient(MANAGER1_TOKEN));
-    File fileToSend = createTempFile("file", "tmp");
-
-    assertBadRequestException(
-        "File name must not contain an extension",
-        () ->
-            api.uploadUserFile(
-                STUDENT1_ID,
-                TRANSCRIPT,
-                "STUDENT/STUDENT_ref/TRANSCRIPT/fileName.extension",
-                fileToSend));
-  }
-
-  @Test
-  void upload_user_file_ok() throws ApiException, IOException {
-    FilesApi api = new FilesApi(anApiClient(MANAGER1_TOKEN));
-    File fileToSend = createTempFile("file", "tmp");
-    String filename = "STUDENT/STUDENT_ref/TRANSCRIPT/fileName";
-
-    FileInfo fileInfo = api.uploadUserFile(STUDENT1_ID, TRANSCRIPT, filename, fileToSend);
-
-    assertNotNull(fileInfo);
-    assertEquals(filename, fileInfo.getName());
   }
 
   public static FileInfo file1() {

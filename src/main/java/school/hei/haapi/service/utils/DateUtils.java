@@ -6,7 +6,6 @@ import java.time.LocalTime;
 import java.time.Period;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import java.time.temporal.Temporal;
 import java.time.temporal.TemporalAccessor;
 import java.util.Locale;
 import java.util.Optional;
@@ -33,7 +32,7 @@ public class DateUtils {
   }
 
   // Returns the start and end dates of the current month if the parameters are null
-  public static TimeRange<Instant> getDefaultMonthRange(
+  public static RangedInstant getDefaultMonthRange(
       Optional<Instant> monthFrom, Optional<Instant> monthTo) {
     LocalDate firstDayOfMonth = LocalDate.now().withDayOfMonth(1);
     LocalDate lastDayOfMonth = firstDayOfMonth.withDayOfMonth(firstDayOfMonth.lengthOfMonth());
@@ -43,7 +42,7 @@ public class DateUtils {
     Instant monthToValue =
         monthTo.orElse(lastDayOfMonth.atTime(LocalTime.MAX).atZone(ZoneOffset.UTC).toInstant());
 
-    return new TimeRange<>(monthFromValue, monthToValue);
+    return new RangedInstant(monthFromValue, monthToValue);
   }
 
   public static Instant convertStringToInstant(String dateString) {
@@ -58,7 +57,7 @@ public class DateUtils {
     return date.atStartOfDay(ZoneOffset.UTC).toInstant();
   }
 
-  public record TimeRange<T extends Temporal>(T from, T to) {}
+  public record RangedInstant(Instant from, Instant to) {}
 
   public static Stream<LocalDate> generateStartOfMonthRange(LocalDate from, LocalDate to) {
     return from.withDayOfMonth(1).datesUntil(to.withDayOfMonth(1), Period.ofMonths(1));

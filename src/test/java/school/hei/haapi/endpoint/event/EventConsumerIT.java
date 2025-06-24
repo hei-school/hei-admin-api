@@ -16,7 +16,6 @@ import school.hei.haapi.endpoint.event.model.UuidCreated;
 import school.hei.haapi.repository.DummyUuidRepository;
 
 @PojaGenerated
-@SuppressWarnings("all")
 class EventConsumerIT extends school.hei.haapi.integration.conf.FacadeITMockedThirdParties {
 
   @Autowired EventConsumer subject;

@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static java.util.Optional.empty;
 import static java.util.stream.Collectors.toList;
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
@@ -62,7 +61,7 @@ public class FeeController {
   }
 
   @PostMapping("/students/{studentId}/fees")
-  public List<Fee> createStudentFees(
+  public List<Fee> createFees(
       @PathVariable String studentId, @RequestBody List<CreateFee> toCreate) {
     return feeService
         .saveAll(feeMapper.toDomainFee(userService.findById(studentId), toCreate))
@@ -79,7 +78,7 @@ public class FeeController {
         fees.stream().map(fee -> feeMapper.toDomain(fee, student)).collect(toList());
     return feeService.updateAll(domainFeeList, studentId).stream()
         .map(feeMapper::toRestFee)
-        .toList();
+        .collect(toUnmodifiableList());
   }
 
   @GetMapping("/students/{studentId}/fees")
@@ -90,7 +89,7 @@ public class FeeController {
       @RequestParam(required = false) FeeStatusEnum status) {
     return feeService.getFeesByStudentId(studentId, page, pageSize, status).stream()
         .map(feeMapper::toRestFee)
-        .toList();
+        .collect(toUnmodifiableList());
   }
 
   @GetMapping(value = "/fees/raw", produces = "application/vnd.ms-excel")
@@ -147,7 +146,7 @@ public class FeeController {
   public AdvancedFeesStatistics getAdvancedFeesStats(
       @RequestParam(name = "month_from", required = false) LocalDate monthFrom,
       @RequestParam(name = "month_to", required = false) LocalDate monthTo) {
-    return advancedFeeStatsService.getAdvancedFeeStats(monthFrom, monthTo, empty());
+    return advancedFeeStatsService.getAdvancedFeeStats(monthFrom, monthTo);
   }
 
   @PostMapping("/fees/advanced-stats-generate")
@@ -155,8 +154,7 @@ public class FeeController {
       @RequestParam(name = "date_from") Instant dateFrom,
       @RequestParam(name = "date_to") Instant dateTo) {
     List<AdvancedFeeStats> stats =
-        advancedFeeStatsService.updateAdvancedFeeStats(
-            Optional.of(dateFrom), Optional.of(dateTo), empty());
+        advancedFeeStatsService.updateAdvancedFeeStats(Optional.of(dateFrom), Optional.of(dateTo));
     return new AdvancedFeeStatisticsGeneration().data("Total stats generated: " + stats.size());
   }
 
@@ -166,7 +164,7 @@ public class FeeController {
         .saveAll(crupdateStudentFees.stream().map(feeMapper::toDomain).toList())
         .stream()
         .map(feeMapper::toRestFee)
-        .toList();
+        .collect(toUnmodifiableList());
   }
 
   @GetMapping("/fees/templates")

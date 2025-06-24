@@ -1,4 +1,4 @@
-package school.hei.haapi.handler;
+package school.hei.haapi;
 
 import com.amazonaws.serverless.exceptions.ContainerInitializationException;
 import com.amazonaws.serverless.proxy.model.AwsProxyResponse;
@@ -9,12 +9,9 @@ import com.amazonaws.services.lambda.runtime.RequestStreamHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import school.hei.haapi.PojaApplication;
-import school.hei.haapi.PojaGenerated;
 
 @PojaGenerated
-@SuppressWarnings("all")
-public class LambdaHandler implements RequestStreamHandler {
+public class ApiEventHandler implements RequestStreamHandler {
   private static final SpringBootLambdaContainerHandler<HttpApiV2ProxyRequest, AwsProxyResponse>
       handler;
 
@@ -27,8 +24,8 @@ public class LambdaHandler implements RequestStreamHandler {
   }
 
   @Override
-  public void handleRequest(InputStream inputStream, OutputStream outputStream, Context context)
+  public void handleRequest(InputStream input, OutputStream output, Context context)
       throws IOException {
-    handler.proxyStream(inputStream, outputStream, context);
+    handler.proxyStream(input, output, context);
   }
 }

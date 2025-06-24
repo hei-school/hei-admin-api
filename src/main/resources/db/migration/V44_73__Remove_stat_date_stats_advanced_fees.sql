@@ -1,1 +1,0 @@
-ALTER TABLE stats_advanced_fees DROP COLUMN stat_date;

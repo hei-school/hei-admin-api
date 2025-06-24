@@ -157,7 +157,7 @@ Resources:
       FlexibleTimeWindow:
         Mode: "OFF"
       Name: !Join [ '', [ !Ref Env, -RefreshAdvancedFeeStats ] ]
-      ScheduleExpression: "cron(0 4,21 * * ? *)" # This scheduler will run every 04AM, 09PM everyday
+      ScheduleExpression: "cron(0 0,5,12,21 * * ? *)" # This scheduler will run every 00, 05AM, 12PM, 09PM everyday
       Target:
         Arn: !Sub '{{resolve:ssm:/haapi/${Env}/eventbridge/bus-arn}}'
         RoleArn: !GetAtt ScheduledEventExecutionRole.Arn
