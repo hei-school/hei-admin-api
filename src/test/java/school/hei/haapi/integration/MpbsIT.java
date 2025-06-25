@@ -64,6 +64,7 @@ import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
+import school.hei.haapi.repository.MpbsStatusHistoryRepository;
 import school.hei.haapi.service.MpbsVerificationService;
 import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
@@ -71,15 +72,17 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 @Testcontainers
 @AutoConfigureMockMvc
 public class MpbsIT extends FacadeITMockedThirdParties {
+  public static final String MPBS_FEE4_ID = "mpbs3_id";
   public static final String MPBS_FEE4_REF = "MP241210.0817.B36568";
   public static final String FEE8_ID = "fee8_id";
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired MpbsVerificationService verificationService;
   @Autowired MpbsMapper mpbsMapper;
   @Autowired private UserService userService;
+  @Autowired private MpbsStatusHistoryRepository mpbsStatusHistoryRepository;
 
   @BeforeEach
-  public void setUp() {
+  void setUp() {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
     setUpEventBridge(eventBridgeClientMock);
@@ -176,6 +179,17 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     assertEquals(PENDING, fee3BeforeVerification.getStatus());
     assertEquals(MPBS_FEE4_REF, fee3BeforeVerification.getPspId());
 
+    // Initialize mpbs status history
+    api.crupdateMpbs(
+        STUDENT1_ID,
+        FEE8_ID,
+        new CrupdateMpbs()
+            .id(MPBS_FEE4_ID)
+            .feeId(FEE8_ID)
+            .studentId(STUDENT1_ID)
+            .pspType(ORANGE_MONEY)
+            .pspId(MPBS_FEE4_REF));
+
     // Upload xls file
     List<Mpbs> mpbsVerified =
         verificationService.computeFromXls(getMockedFile("test-mpbs", ".xls")).stream()
@@ -184,8 +198,12 @@ public class MpbsIT extends FacadeITMockedThirdParties {
 
     Mpbs actualMpbs = mpbsVerified.getFirst();
 
+    // Check mpbs status and stored status history
+    var mpbsStatusHistories = mpbsStatusHistoryRepository.findAllByMpbs_PspId(MPBS_FEE4_REF);
     assertEquals(SUCCESS, actualMpbs.getStatus());
     assertEquals(MPBS_FEE4_REF, actualMpbs.getPspId());
+    assertEquals(1, mpbsStatusHistories.size());
+    assertEquals(PENDING, mpbsStatusHistories.getFirst().getStatus());
 
     // Check if the fee is paid
     Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE8_ID);

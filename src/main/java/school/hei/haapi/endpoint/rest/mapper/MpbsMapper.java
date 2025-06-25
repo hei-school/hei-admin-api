@@ -3,6 +3,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 import static java.time.Instant.now;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 
+import java.util.ArrayList;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateMpbs;
@@ -41,6 +42,7 @@ public class MpbsMapper {
     domain.setMobileMoneyType(rest.getPspType());
     domain.setCreationDatetime(now());
     domain.setStatus(PENDING);
+    domain.setStatusHistory(new ArrayList<>());
     return domain;
   }
 }
