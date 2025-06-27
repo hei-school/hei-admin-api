@@ -36,6 +36,7 @@ import static school.hei.haapi.integration.conf.TestUtils.fee4;
 import static school.hei.haapi.integration.conf.TestUtils.requestFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
+import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import jakarta.persistence.EntityManager;
@@ -51,6 +52,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
@@ -66,6 +68,7 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
+import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -74,6 +77,7 @@ class FeeIT extends FacadeITMockedThirdParties {
   @Autowired EntityManager entityManager;
   @Autowired FeeRepository feeRepository;
   @Autowired AdvancedFeeStatsMapper advancedFeeStatsMapper;
+  @MockBean EventBridgeClient eventBridgeClientMock;
 
   @Autowired FeeDao feeDao;
 
@@ -103,6 +107,7 @@ class FeeIT extends FacadeITMockedThirdParties {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
+    setUpEventBridge(eventBridgeClientMock);
   }
 
   @Test
