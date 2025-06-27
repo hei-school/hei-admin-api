@@ -6,7 +6,6 @@ import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.groupingByConcurrent;
-import static java.util.stream.Collectors.toMap;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L2;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L3;
@@ -97,9 +96,7 @@ public class AdvancedFeeStatsService {
           List.of(
               new AdvancedFeeStatsComputationTriggered(
                   from.atStartOfDay(), to.atTime(23, 59, 59), type)));
-      return advancedFeeStatsMapper.toRest(
-          advancedStats.values().stream().collect(toMap(AdvancedFeeStats::getStatType, e -> e)),
-          true);
+      return advancedFeeStatsMapper.toRest(advancedStats, true);
     }
 
     return advancedFeeStatsMapper.toRest(advancedStats, false);
