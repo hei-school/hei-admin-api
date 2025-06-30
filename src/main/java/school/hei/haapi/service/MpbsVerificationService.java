@@ -11,6 +11,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -64,18 +65,19 @@ public class MpbsVerificationService {
 
     // TIPS: do not use exception to continue script
     for (Mpbs pendingMbps : pendingMpbsList) {
-      List<MobileTransactionDetails> correspondingTransactionPendingDetails =
+      var correspondingTransactionPendingDetails =
           mobileTransactionResponseDetails.stream()
               .filter(
                   transactionDetail ->
                       pendingMbps.getPspId().equals(transactionDetail.getPspTransactionRef()))
-              .toList();
+              .max(
+                  Comparator.comparing(
+                      MobileTransactionDetails
+                          ::getPspDatetimeTransactionCreation)); // Is it right ?
 
-      if (!correspondingTransactionPendingDetails.isEmpty()) {
-
-        ///  SUSPICIOUS ! Why only first element ???
+      if (correspondingTransactionPendingDetails.isPresent()) {
         MobileTransactionDetails firstCorrespondingTransactionDetails =
-            correspondingTransactionPendingDetails.getFirst();
+            correspondingTransactionPendingDetails.get();
         log.info("mobile transaction found = {}", firstCorrespondingTransactionDetails);
         TransactionDetails transactionDetails =
             externalResponseMapper.toExternalTransactionDetails(
@@ -129,7 +131,7 @@ public class MpbsVerificationService {
     }
   }
 
-  public List<String> generateMobileTransactionDetailsFromXlsFile(File file) throws IOException {
+  private List<String> generateMobileTransactionDetailsFromXlsFile(File file) throws IOException {
     log.info("Reading XLS file...");
     List<String> pendingMpbsPspIds =
         mpbsRepository.findAllByStatus(PENDING).stream()
