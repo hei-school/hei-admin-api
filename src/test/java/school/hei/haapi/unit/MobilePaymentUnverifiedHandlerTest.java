@@ -32,8 +32,8 @@ class MobilePaymentUnverifiedHandlerTest {
     when(mpbsMock2.getCreationDatetime()).thenReturn(now().minus(3L, DAYS));
     when(mpbsMock1.getStatus()).thenReturn(PENDING);
     when(mpbsMock2.getStatus()).thenReturn(PENDING);
-    when(mpbsMock1.toBuilder()).thenReturn(new Mpbs().toBuilder());
-    when(mpbsMock2.toBuilder()).thenReturn(new Mpbs().toBuilder());
+    when(mpbsMock1.toBuilder()).thenReturn((Mpbs.MpbsBuilder) new Mpbs().toBuilder());
+    when(mpbsMock2.toBuilder()).thenReturn((Mpbs.MpbsBuilder) new Mpbs().toBuilder());
 
     assertDoesNotThrow(() -> subject.accept(List.of(mpbsMock1, mpbsMock2)));
 

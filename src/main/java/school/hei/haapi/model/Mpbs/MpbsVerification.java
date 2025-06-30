@@ -7,6 +7,7 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.User;
 
@@ -14,9 +15,9 @@ import school.hei.haapi.model.User;
 @Table(name = "mpbs_verification")
 @Getter
 @Setter
-@Builder
-@AllArgsConstructor
+@SuperBuilder(toBuilder = true)
 @NoArgsConstructor
+@AllArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @ToString
 public class MpbsVerification extends TypedMobileMoneyTransaction implements Serializable {

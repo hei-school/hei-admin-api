@@ -17,12 +17,12 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.Fee;
@@ -34,7 +34,7 @@ import school.hei.haapi.model.User;
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder(toBuilder = true)
+@SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = false)
 public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   private Integer amount;

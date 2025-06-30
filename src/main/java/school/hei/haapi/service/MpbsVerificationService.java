@@ -2,7 +2,6 @@ package school.hei.haapi.service;
 
 import static java.util.UUID.randomUUID;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import static school.hei.haapi.service.utils.DateUtils.convertStringToInstant;
 
 import io.micrometer.common.util.StringUtils;
@@ -24,12 +23,9 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.http.mapper.ExternalResponseMapper;
 import school.hei.haapi.http.model.TransactionDetails;
-import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
@@ -44,15 +40,12 @@ import school.hei.haapi.service.aws.FileService;
 public class MpbsVerificationService {
   private final MpbsVerificationRepository repository;
   private final MpbsRepository mpbsRepository;
-  private final MpbsService mpbsService;
-  private final FeeService feeService;
   private final MobilePaymentService mobilePaymentService;
-  private final PaymentService paymentService;
   private final ExternalResponseMapper externalResponseMapper;
-  private final EventProducer<PaidFeeByMpbsFailedNotificationBody> eventProducer;
   private final MultipartFileConverter multipartFileConverter;
   private final FileService fileService;
   private final MobilePaymentUnverifiedHandler mobilePaymentUnverifiedHandler;
+  private final ComputeVerifiedMobilePayement computeVerifiedMobilePayement;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
@@ -89,7 +82,8 @@ public class MpbsVerificationService {
                 firstCorrespondingTransactionDetails);
         log.info("mapped transaction details = {}", transactionDetails);
 
-        verifiedMpbs.add(saveTheVerifiedMpbs(pendingMbps, transactionDetails));
+        verifiedMpbs.add(
+            computeVerifiedMobilePayement.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
       } else {
         unverifiedMpbs.add(pendingMbps);
       }
@@ -205,48 +199,6 @@ public class MpbsVerificationService {
         .collect(Collectors.toList());
   }
 
-  private MpbsVerification saveTheVerifiedMpbs(
-      Mpbs mpbs, TransactionDetails correspondingMobileTransaction) {
-    Instant now = Instant.now();
-    Fee fee = mpbs.getFee();
-    MpbsVerification verifiedMobileTransaction =
-        MpbsVerification.builder()
-            .amountInPsp(correspondingMobileTransaction.getPspTransactionAmount())
-            .fee(fee)
-            .amountOfFeeRemainingPayment(fee.getRemainingAmount())
-            .creationDatetimeOfMpbs(mpbs.getCreationDatetime())
-            .creationDatetimeOfPaymentInPsp(
-                correspondingMobileTransaction.getPspDatetimeTransactionCreation())
-            .student(mpbs.getStudent())
-            .build();
-
-    // Update mpbs ...
-    mpbs.setSuccessfullyVerifiedOn(now);
-    mpbs.setStatus(defineMpbsStatusFromOrangeTransactionDetails(correspondingMobileTransaction));
-    mpbs.setPspOwnDatetimeVerification(
-        correspondingMobileTransaction.getPspOwnDatetimeVerification());
-    var successfullyVerifiedMpbs = mpbsService.save(mpbs);
-    log.info("Mpbs has successfully verified = {}", mpbs);
-
-    // ... then save the verification
-    verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
-    verifiedMobileTransaction.setPspId(successfullyVerifiedMpbs.getPspId());
-    repository.save(verifiedMobileTransaction);
-
-    // ... then save the corresponding payment
-    paymentService.savePaymentFromMpbs(
-        successfullyVerifiedMpbs, correspondingMobileTransaction.getPspTransactionAmount());
-    log.info("Creating corresponding payment = {}", successfullyVerifiedMpbs);
-
-    // ... then update student status
-    paymentService.computeUserStatusAfterPayingFee(mpbs.getStudent());
-
-    // ... then update fee remaining amount
-    feeService.debitAmountFromMpbs(fee, verifiedMobileTransaction.getAmountInPsp());
-
-    return verifiedMobileTransaction;
-  }
-
   @Transactional
   public void checkMobilePaymentThenSaveVerification() {
     List<Mpbs> pendingMpbs = mpbsRepository.findAllByStatus(PENDING);
@@ -258,18 +210,5 @@ public class MpbsVerificationService {
 
   public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {
     return mobilePaymentService.fetchThenSaveTransactionDetails();
-  }
-
-  private MpbsStatus defineMpbsStatusFromOrangeTransactionDetails(
-      TransactionDetails storedTransaction) {
-
-    // 1. if it contains and if the status is success then make it success
-    if (SUCCESS.equals(storedTransaction.getStatus())) {
-      log.info("correct");
-      return SUCCESS;
-    }
-    // 2. and else if the mpbs is stored to day or less than 2 days, it will be verified later
-    log.info("status computed = else");
-    return PENDING;
   }
 }
