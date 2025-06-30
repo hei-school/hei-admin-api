@@ -25,23 +25,17 @@ public class MobilePaymentUnverifiedHandler implements Consumer<List<Mpbs>> {
   public void accept(List<Mpbs> mpbsList) {
     Instant now = now();
     List<Mpbs> verifiedMpbs =
-        mpbsList.stream()
-            .map(
-                actual -> {
-                  var mpbs =
-                      actual.toBuilder()
-                          .lastVerificationDatetime(now)
-                          .status(mpbsNewStatus(actual))
-                          .build();
-                  return mpbs;
-                })
-            .toList();
+        mpbsList.stream().map(actual -> updateMpbsInformation(actual, now)).toList();
     List<Mpbs> failedMpbsList =
         verifiedMpbs.stream().filter(failedMpbs -> FAILED.equals(failedMpbs.getStatus())).toList();
 
     failedMobilePaymentNotification.accept(failedMpbsList);
 
     mpbsService.saveAll(verifiedMpbs);
+  }
+
+  private Mpbs updateMpbsInformation(Mpbs mpbs, Instant now) {
+    return mpbs.toBuilder().lastVerificationDatetime(now).status(mpbsNewStatus(mpbs)).build();
   }
 
   private MpbsStatus mpbsNewStatus(Mpbs mpbs) {
