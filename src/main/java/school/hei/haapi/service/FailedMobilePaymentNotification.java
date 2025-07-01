@@ -17,29 +17,33 @@ import school.hei.haapi.model.Payment;
 @Component
 @RequiredArgsConstructor
 public class FailedMobilePaymentNotification implements Consumer<List<Mpbs>> {
-  private final EventProducer eventProducer;
+  private final EventProducer<PaidFeeByMpbsFailedNotificationBody> eventProducer;
 
   @Override
   public void accept(List<Mpbs> failedMobilePayments) {
-    List<PaidFeeByMpbsFailedNotificationBody> notificationBodyList =
-        failedMobilePayments.stream()
-            .map(
-                mpbs -> {
-                  log.info(
-                      "Fail verification {} for student {}",
-                      mpbs.getId(),
-                      mpbs.getStudent().getId());
-                  return PaidFeeByMpbsFailedNotificationBody.from(
-                      Payment.builder()
-                          .type(MOBILE_MONEY)
-                          .fee(mpbs.getFee())
-                          .amount(mpbs.getAmount())
-                          .creationDatetime(now())
-                          .comment(mpbs.getFee().getComment())
-                          .build());
-                })
-            .toList();
+    var notificationBodyList =
+        failedMobilePayments.stream().map(FailedMobilePaymentNotification::validMpbs).toList();
 
     eventProducer.accept(notificationBodyList);
+  }
+
+  private static PaidFeeByMpbsFailedNotificationBody validMpbs(Mpbs mpbs) {
+    try {
+        log.info(
+                "Fail verification {} for student {}",
+                mpbs.getId(),
+                mpbs.getStudent().getId());
+      return PaidFeeByMpbsFailedNotificationBody.from(
+          Payment.builder()
+              .type(MOBILE_MONEY)
+              .fee(mpbs.getFee())
+              .amount(mpbs.getAmount())
+              .creationDatetime(now())
+              .comment(mpbs.getFee().getComment())
+              .build());
+    } catch (Exception e) {
+      log.error(e.getMessage(), e);
+    }
+    return null;
   }
 }
