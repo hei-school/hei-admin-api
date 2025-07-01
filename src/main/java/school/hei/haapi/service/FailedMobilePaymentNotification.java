@@ -39,7 +39,7 @@ public class FailedMobilePaymentNotification implements Consumer<List<Mpbs>> {
               .comment(mpbs.getFee().getComment())
               .build());
     } catch (Exception e) {
-      log.error(e.getMessage(), e);
+      log.error("Bad mpbs", e);
     }
     return null;
   }

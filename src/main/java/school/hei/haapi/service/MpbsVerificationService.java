@@ -31,6 +31,7 @@ import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.Mpbs.TypedMobileMoneyTransaction;
+import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.service.aws.FileService;
@@ -76,16 +77,20 @@ public class MpbsVerificationService {
                           ::getPspDatetimeTransactionCreation)); // Is it right ?
 
       if (correspondingTransactionPendingDetails.isPresent()) {
-        MobileTransactionDetails firstCorrespondingTransactionDetails =
-            correspondingTransactionPendingDetails.get();
-        log.info("mobile transaction found = {}", firstCorrespondingTransactionDetails);
-        TransactionDetails transactionDetails =
-            externalResponseMapper.toExternalTransactionDetails(
-                firstCorrespondingTransactionDetails);
-        log.info("mapped transaction details = {}", transactionDetails);
+        try {
+          MobileTransactionDetails firstCorrespondingTransactionDetails =
+              correspondingTransactionPendingDetails.get();
+          log.info("mobile transaction found = {}", firstCorrespondingTransactionDetails);
+          TransactionDetails transactionDetails =
+              externalResponseMapper.toExternalTransactionDetails(
+                  firstCorrespondingTransactionDetails);
+          log.info("mapped transaction details = {}", transactionDetails);
 
-        verifiedMpbs.add(
-            computeVerifiedMobilePayement.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
+          verifiedMpbs.add(
+              computeVerifiedMobilePayement.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
+        } catch (NoRemainingAmountFee e) {
+          log.error("no remaining amount found", e);
+        }
       } else {
         unverifiedMpbs.add(pendingMbps);
       }
