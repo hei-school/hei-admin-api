@@ -29,10 +29,7 @@ public class FailedMobilePaymentNotification implements Consumer<List<Mpbs>> {
 
   private static PaidFeeByMpbsFailedNotificationBody validMpbs(Mpbs mpbs) {
     try {
-        log.info(
-                "Fail verification {} for student {}",
-                mpbs.getId(),
-                mpbs.getStudent().getId());
+      log.info("Fail verification {} for student {}", mpbs.getId(), mpbs.getStudent().getId());
       return PaidFeeByMpbsFailedNotificationBody.from(
           Payment.builder()
               .type(MOBILE_MONEY)
