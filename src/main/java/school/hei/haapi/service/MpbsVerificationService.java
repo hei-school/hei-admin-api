@@ -54,8 +54,7 @@ public class MpbsVerificationService {
   }
 
   @Transactional
-  public List<MpbsVerification> verifyMobilePaymentAndSaveResult(
-      List<Mpbs> pendingMpbsList, Instant now) {
+  public List<MpbsVerification> verifyMobilePaymentAndSaveResult(List<Mpbs> pendingMpbsList) {
     log.info("Magic happened here");
     List<MpbsVerification> verifiedMpbs = new ArrayList<>();
     List<Mpbs> unverifiedMpbs = new ArrayList<>();
@@ -102,22 +101,12 @@ public class MpbsVerificationService {
   }
 
   @Transactional
-  public MpbsVerification verifyMobilePaymentAndSaveResult(Mpbs mpbs, Instant toCompare) {
-    List<MpbsVerification> savedPayments =
-        verifyMobilePaymentAndSaveResult(List.of(mpbs), toCompare);
-    if (savedPayments.isEmpty()) {
-      return null;
-    }
-    return savedPayments.getFirst();
-  }
-
-  @Transactional
   public List<Mpbs> computeFromXls(File file) throws IOException {
     List<String> pspToCheck = generateMobileTransactionDetailsFromXlsFile(file);
 
     List<Mpbs> mpbsToCheck = mpbsRepository.findByPspIdIn(pspToCheck);
 
-    verifyMobilePaymentAndSaveResult(mpbsToCheck, Instant.now());
+    verifyMobilePaymentAndSaveResult(mpbsToCheck);
     return mpbsToCheck;
   }
 
@@ -210,9 +199,8 @@ public class MpbsVerificationService {
   public void checkMobilePaymentThenSaveVerification() {
     List<Mpbs> pendingMpbs = mpbsRepository.findAllByStatus(PENDING);
     log.info("pending mpbs = {}", pendingMpbs.size());
-    Instant now = Instant.now();
 
-    verifyMobilePaymentAndSaveResult(pendingMpbs, now);
+    verifyMobilePaymentAndSaveResult(pendingMpbs);
   }
 
   public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {

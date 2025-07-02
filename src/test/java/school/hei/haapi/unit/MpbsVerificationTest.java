@@ -1,6 +1,5 @@
 package school.hei.haapi.unit;
 
-import static java.time.Instant.now;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -60,7 +59,7 @@ class MpbsVerificationTest {
         .thenReturn(fakeComputedVerifiedMpbs);
 
     List<MpbsVerification> verifiedMpbs =
-        subject.verifyMobilePaymentAndSaveResult(List.of(mbpsPending, mpbsVerified), now());
+        subject.verifyMobilePaymentAndSaveResult(List.of(mbpsPending, mpbsVerified));
 
     ArgumentCaptor<List<Mpbs>> argumentCaptor = ArgumentCaptor.forClass(List.class);
     verify(mobilePaymentUnverifiedHandlerMock, times(1)).accept(argumentCaptor.capture());
