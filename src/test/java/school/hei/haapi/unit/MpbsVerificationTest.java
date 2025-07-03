@@ -38,30 +38,32 @@ class MpbsVerificationTest {
   ComputeVerifiedMobilePayement computeVerifiedMobilePayementMock = mock();
   ExternalResponseMapper externalResponseMapper = new ExternalResponseMapper();
   EventProducer<PaidFeeByMpbsFailedNotificationBody> eventProducerMock = mock();
-  MpbsVerificationService subject =
-      new MpbsVerificationService(
-          mock(),
-          mock(),
-          mobilePaymentServiceMock,
-          externalResponseMapper,
-          mock(),
-          mock(),
-          mobilePaymentUnverifiedHandlerMock,
-          computeVerifiedMobilePayementMock);
-  MpbsVerificationService subjectWithUnverifiedPayementHandler =
-      new MpbsVerificationService(
-          mock(),
-          mock(),
-          mobilePaymentServiceMock,
-          externalResponseMapper,
-          mock(),
-          mock(),
-          new MobilePaymentUnverifiedHandler(
-              mock(), new FailedMobilePaymentNotification(eventProducerMock)),
-          computeVerifiedMobilePayementMock);
+
+  private MpbsVerificationService createSubject(
+      MobilePaymentUnverifiedHandler mobilePaymentUnverifiedHandlerMock,
+      MobilePaymentService mobilePaymentService,
+      ExternalResponseMapper externalResponseMapper,
+      ComputeVerifiedMobilePayement computeVerifiedMobilePayement) {
+    return new MpbsVerificationService(
+        mock(),
+        mock(),
+        mobilePaymentService,
+        externalResponseMapper,
+        mock(),
+        mock(),
+        mobilePaymentUnverifiedHandlerMock,
+        computeVerifiedMobilePayement);
+  }
 
   @Test
   void verification_split_verification_for_mbps() {
+    MpbsVerificationService subject =
+        createSubject(
+            mobilePaymentUnverifiedHandlerMock,
+            mobilePaymentServiceMock,
+            externalResponseMapper,
+            computeVerifiedMobilePayementMock);
+
     var mbpsPending = Mpbs.builder().pspId("pending").fee(mock()).build();
     var mpbsVerified = Mpbs.builder().pspId("verified").fee(mock()).build();
     var correspondingMockTransactionsFromVerifiedMpbs =
@@ -94,6 +96,14 @@ class MpbsVerificationTest {
 
   @Test
   void verification_skip_bad_mobile_payment() {
+    MpbsVerificationService subject =
+        createSubject(
+            new MobilePaymentUnverifiedHandler(
+                mock(), new FailedMobilePaymentNotification(eventProducerMock)),
+            mobilePaymentServiceMock,
+            externalResponseMapper,
+            computeVerifiedMobilePayementMock);
+
     var pendingCreationDatetime = Instant.now().minus(1, DAYS);
     var failedCreationDatetime = Instant.now().minus(4, DAYS);
     var student = User.builder().email("email@gmail.com").build();
@@ -117,8 +127,7 @@ class MpbsVerificationTest {
         .thenReturn(fakeComputedVerifiedMpbs);
 
     List<MpbsVerification> verifiedMpbs =
-        subjectWithUnverifiedPayementHandler.verifyMobilePaymentAndSaveResult(
-            List.of(badMpbs, mpbsVerified, mpbsFailed));
+        subject.verifyMobilePaymentAndSaveResult(List.of(badMpbs, mpbsVerified, mpbsFailed));
 
     verify(computeVerifiedMobilePayementMock, never()).saveTheVerifiedMpbs(eq(badMpbs), any());
     assertEquals(1, verifiedMpbs.size());
