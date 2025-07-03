@@ -12,7 +12,6 @@ import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
-import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 
 @Component
@@ -20,7 +19,7 @@ import school.hei.haapi.repository.MpbsVerificationRepository;
 @Slf4j
 public class ComputeVerifiedMobilePayement {
   private final MpbsVerificationRepository mpbsVerificationRepository;
-  private final MpbsRepository mpbsRepository;
+  private final MpbsService mpbsService;
   private final FeeService feeService;
   private final PaymentService paymentService;
 
@@ -44,7 +43,7 @@ public class ComputeVerifiedMobilePayement {
     mpbs.setStatus(defineMpbsStatusFromOrangeTransactionDetails(correspondingMobileTransaction));
     mpbs.setPspOwnDatetimeVerification(
         correspondingMobileTransaction.getPspOwnDatetimeVerification());
-    var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
+    var successfullyVerifiedMpbs = mpbsService.save(mpbs);
 
     // ... then save the verification
     verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
