@@ -16,10 +16,10 @@ import school.hei.haapi.model.User;
 @Getter
 @Setter
 @SuperBuilder(toBuilder = true)
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
-@ToString
+@ToString(callSuper = true)
 public class MpbsVerification extends TypedMobileMoneyTransaction implements Serializable {
   private Integer amountOfFeeRemainingPayment;
 

@@ -36,6 +36,7 @@ import school.hei.haapi.model.User;
 @Setter
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = false)
+@ToString(callSuper = true)
 public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   private Integer amount;
 
