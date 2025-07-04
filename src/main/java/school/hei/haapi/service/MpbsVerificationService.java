@@ -72,8 +72,7 @@ public class MpbsVerificationService {
                       pendingMbps.getPspId().equals(transactionDetail.getPspTransactionRef()))
               .max(
                   Comparator.comparing(
-                      MobileTransactionDetails
-                          ::getPspDatetimeTransactionCreation)); // Is it right ?
+                      MobileTransactionDetails::getPspDatetimeTransactionCreation));
 
       if (correspondingTransactionPendingDetails.isPresent()) {
         try {
