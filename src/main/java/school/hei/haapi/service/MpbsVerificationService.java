@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -65,11 +66,19 @@ public class MpbsVerificationService {
 
     // TIPS: do not use exception to continue script
     for (Mpbs pendingMbps : pendingMpbsList) {
-      var correspondingTransactionPendingDetails =
+      List<MobileTransactionDetails> correspondingTransactionsPendingDetails =
           mobileTransactionResponseDetails.stream()
               .filter(
                   transactionDetail ->
                       pendingMbps.getPspId().equals(transactionDetail.getPspTransactionRef()))
+              .toList();
+      if (correspondingTransactionsPendingDetails.size() > 1) {
+        log.warn(
+            "The payment has more than one transaction: {}",
+            correspondingTransactionsPendingDetails);
+      }
+      Optional<MobileTransactionDetails> correspondingTransactionPendingDetails =
+          correspondingTransactionsPendingDetails.stream()
               .max(
                   Comparator.comparing(
                       MobileTransactionDetails::getPspDatetimeTransactionCreation));
