@@ -8,14 +8,14 @@ import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import java.time.Instant;
 import java.util.List;
 import java.util.function.Consumer;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.Mpbs.Mpbs;
 
 @Component
-@RequiredArgsConstructor
+@AllArgsConstructor
 @Slf4j
 public class MobilePaymentUnverifiedHandler implements Consumer<List<Mpbs>> {
   private final MpbsService mpbsService;

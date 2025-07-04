@@ -21,13 +21,11 @@ public class FailedMobilePaymentNotification implements Consumer<List<Mpbs>> {
 
   @Override
   public void accept(List<Mpbs> failedMobilePayments) {
-    var notificationBodyList =
-        failedMobilePayments.stream().map(FailedMobilePaymentNotification::validMpbs).toList();
-
+    var notificationBodyList = failedMobilePayments.stream().map(this::validMpbs).toList();
     eventProducer.accept(notificationBodyList);
   }
 
-  private static PaidFeeByMpbsFailedNotificationBody validMpbs(Mpbs mpbs) {
+  private PaidFeeByMpbsFailedNotificationBody validMpbs(Mpbs mpbs) {
     try {
       log.info("Fail verification {} for student {}", mpbs.getId(), mpbs.getStudent().getId());
       return PaidFeeByMpbsFailedNotificationBody.from(

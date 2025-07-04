@@ -41,11 +41,12 @@ class MobilePaymentUnverifiedHandlerTest {
     when(mpbsMock3.getStatus()).thenReturn(PENDING);
     when(mpbsMock4.getStatus()).thenReturn(PENDING);
     when(mpbsMock5.getStatus()).thenReturn(PENDING);
-    when(mpbsMock1.toBuilder()).thenReturn((Mpbs.MpbsBuilder) new Mpbs().toBuilder());
-    when(mpbsMock2.toBuilder()).thenReturn((Mpbs.MpbsBuilder) new Mpbs().toBuilder());
-    when(mpbsMock3.toBuilder()).thenReturn((Mpbs.MpbsBuilder) new Mpbs().toBuilder());
-    when(mpbsMock4.toBuilder()).thenReturn((Mpbs.MpbsBuilder) new Mpbs().toBuilder());
-    when(mpbsMock5.toBuilder()).thenReturn((Mpbs.MpbsBuilder) new Mpbs().toBuilder());
+    Mpbs.MpbsBuilder mpbsBuilder = new Mpbs().toBuilder();
+    when(mpbsMock1.toBuilder()).thenReturn(mpbsBuilder);
+    when(mpbsMock2.toBuilder()).thenReturn(mpbsBuilder);
+    when(mpbsMock3.toBuilder()).thenReturn(mpbsBuilder);
+    when(mpbsMock4.toBuilder()).thenReturn(mpbsBuilder);
+    when(mpbsMock5.toBuilder()).thenReturn(mpbsBuilder);
 
     assertDoesNotThrow(
         () -> subject.accept(List.of(mpbsMock1, mpbsMock2, mpbsMock3, mpbsMock4, mpbsMock5)));
