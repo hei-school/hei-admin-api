@@ -3,11 +3,13 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.*;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.ACCOUNTING;
@@ -17,11 +19,9 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
@@ -32,7 +32,6 @@ import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.service.AdvancedFeeStatsService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
-@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
   private static List<Fee> feeDueJunePaidInJuly;
   private static List<Fee> feeDueJunePaidInMay;
@@ -83,7 +82,6 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
         .statusHistories(statusHistories)
         .category(L1)
         .type(TUITION)
-        .status(PAID)
         .frequency(MONTHLY)
         .mobilePayments(List.of())
         .dueDatetime(Instant.parse(dueDatetime))
@@ -110,16 +108,6 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
             createStatus(PENDING, "2025-06-27T00:00:00.00Z"),
             createStatus(LATE, "2025-07-01T00:00:00.00Z"));
     return createFee(statusHistories, "2025-06-30T23:59:59Z");
-  }
-
-  @AfterAll
-  void cleanUp() {
-    feeDueJunePaidInJuly = null;
-    feeDueJunePaidInMay = null;
-    feeDueJunePending = null;
-    feeDueJuneUnpaid = null;
-    feeDueJuneLate = null;
-    reset(feeRepositoryMock);
   }
 
   @BeforeEach
