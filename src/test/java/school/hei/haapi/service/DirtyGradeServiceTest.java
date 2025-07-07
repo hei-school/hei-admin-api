@@ -51,8 +51,8 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
 
     List<Grade> savedGrades = subject.crupdateParticipantGrade(randomGrades);
 
-    assertEquals(randomGrades.getFirst().getScore(), savedGrades.getFirst().getScore());
-    assertEquals(randomGrades.get(1).getScore(), savedGrades.get(1).getScore());
+    assertEquals(randomGrades.getFirst(), savedGrades.getFirst());
+    assertEquals(randomGrades.get(1), savedGrades.get(1));
   }
 
   @Test
@@ -69,7 +69,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
 
     Grade savedGrade = subject.crupdateParticipantGrade(randomGrade).getFirst();
 
-    assertEquals(randomGrade.getFirst().getScore(), savedGrade.getScore());
+    assertEquals(randomGrade.getFirst(), savedGrade);
   }
 
   @Test
