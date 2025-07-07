@@ -13,15 +13,15 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
-import school.hei.haapi.service.MobilePaymentUnverifiedHandler;
 import school.hei.haapi.service.MpbsService;
+import school.hei.haapi.service.UnverifiedMobilePaymentHandler;
 
-class MobilePaymentUnverifiedHandlerTest {
+class UnverifiedMobilePaymentHandlerTest {
 
   MpbsService mpbsServiceMock = mock();
   FailedMobilePaymentNotification failedMobilePaymentNotificationMock = mock();
-  MobilePaymentUnverifiedHandler subject =
-      new MobilePaymentUnverifiedHandler(mpbsServiceMock, failedMobilePaymentNotificationMock);
+  UnverifiedMobilePaymentHandler subject =
+      new UnverifiedMobilePaymentHandler(mpbsServiceMock, failedMobilePaymentNotificationMock);
 
   @Test
   void save_failed_mpbs_and_trigger_failed_mobile_payment_notification() {

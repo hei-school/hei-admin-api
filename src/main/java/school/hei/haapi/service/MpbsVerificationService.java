@@ -48,7 +48,7 @@ public class MpbsVerificationService {
   private final ExternalResponseMapper externalResponseMapper;
   private final MultipartFileConverter multipartFileConverter;
   private final FileService fileService;
-  private final MobilePaymentUnverifiedHandler mobilePaymentUnverifiedHandler;
+  private final UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandler;
   private final ComputeVerifiedMobilePayment computeVerifiedMobilePayment;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
@@ -106,7 +106,7 @@ public class MpbsVerificationService {
       }
     }
 
-    mobilePaymentUnverifiedHandler.accept(unverifiedMpbs);
+    unverifiedMobilePaymentHandler.accept(unverifiedMpbs);
 
     return verifiedMpbs;
   }

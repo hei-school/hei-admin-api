@@ -16,7 +16,7 @@ import school.hei.haapi.model.Mpbs.Mpbs;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class MobilePaymentUnverifiedHandler implements Consumer<List<Mpbs>> {
+public class UnverifiedMobilePaymentHandler implements Consumer<List<Mpbs>> {
   private final MpbsService mpbsService;
   private final FailedMobilePaymentNotification failedMobilePaymentNotification;
 
@@ -26,7 +26,7 @@ public class MobilePaymentUnverifiedHandler implements Consumer<List<Mpbs>> {
     List<Mpbs> verifiedMpbs =
         mpbsList.stream().map(actual -> updateMpbsInformation(actual, now)).toList();
     List<Mpbs> failedMpbsList =
-        verifiedMpbs.stream().filter(failedMpbs -> FAILED.equals(failedMpbs.getStatus())).toList();
+        verifiedMpbs.stream().filter(mpbs -> FAILED.equals(mpbs.getStatus())).toList();
 
     failedMobilePaymentNotification.accept(failedMpbsList);
 

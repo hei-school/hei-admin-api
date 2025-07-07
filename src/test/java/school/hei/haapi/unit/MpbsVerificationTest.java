@@ -29,18 +29,18 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.service.ComputeVerifiedMobilePayment;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
 import school.hei.haapi.service.MobilePaymentService;
-import school.hei.haapi.service.MobilePaymentUnverifiedHandler;
 import school.hei.haapi.service.MpbsVerificationService;
+import school.hei.haapi.service.UnverifiedMobilePaymentHandler;
 
 class MpbsVerificationTest {
   MobilePaymentService mobilePaymentServiceMock = mock();
-  MobilePaymentUnverifiedHandler mobilePaymentUnverifiedHandlerMock = mock();
+  UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandlerMock = mock();
   ComputeVerifiedMobilePayment computeVerifiedMobilePaymentMock = mock();
   ExternalResponseMapper externalResponseMapper = new ExternalResponseMapper();
   EventProducer<PaidFeeByMpbsFailedNotificationBody> eventProducerMock = mock();
 
   private MpbsVerificationService initMpbsVerificationService(
-      MobilePaymentUnverifiedHandler mobilePaymentUnverifiedHandlerMock,
+      UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandlerMock,
       MobilePaymentService mobilePaymentService,
       ExternalResponseMapper externalResponseMapper,
       ComputeVerifiedMobilePayment computeVerifiedMobilePayment) {
@@ -51,7 +51,7 @@ class MpbsVerificationTest {
         externalResponseMapper,
         mock(),
         mock(),
-        mobilePaymentUnverifiedHandlerMock,
+        unverifiedMobilePaymentHandlerMock,
         computeVerifiedMobilePayment);
   }
 
@@ -59,7 +59,7 @@ class MpbsVerificationTest {
   void verification_split_verification_for_mbps() {
     MpbsVerificationService subject =
         initMpbsVerificationService(
-            mobilePaymentUnverifiedHandlerMock,
+            unverifiedMobilePaymentHandlerMock,
             mobilePaymentServiceMock,
             externalResponseMapper,
             computeVerifiedMobilePaymentMock);
@@ -86,7 +86,7 @@ class MpbsVerificationTest {
         subject.verifyMobilePaymentAndSaveResult(List.of(mbpsPending, mpbsVerified));
 
     ArgumentCaptor<List<Mpbs>> argumentCaptor = ArgumentCaptor.forClass(List.class);
-    verify(mobilePaymentUnverifiedHandlerMock, times(1)).accept(argumentCaptor.capture());
+    verify(unverifiedMobilePaymentHandlerMock, times(1)).accept(argumentCaptor.capture());
     List<Mpbs> mobilePaymentUnverified = argumentCaptor.getAllValues().getFirst();
     verify(computeVerifiedMobilePaymentMock, never()).saveTheVerifiedMpbs(eq(mbpsPending), any());
     assertEquals(1, mobilePaymentUnverified.size());
@@ -99,7 +99,7 @@ class MpbsVerificationTest {
   void verification_skip_bad_mobile_payment() {
     MpbsVerificationService subject =
         initMpbsVerificationService(
-            new MobilePaymentUnverifiedHandler(
+            new UnverifiedMobilePaymentHandler(
                 mock(), new FailedMobilePaymentNotification(eventProducerMock)),
             mobilePaymentServiceMock,
             externalResponseMapper,
