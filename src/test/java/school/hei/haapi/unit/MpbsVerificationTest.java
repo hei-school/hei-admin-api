@@ -38,7 +38,7 @@ class MpbsVerificationTest {
   ExternalResponseMapper externalResponseMapper = new ExternalResponseMapper();
   EventProducer<PaidFeeByMpbsFailedNotificationBody> eventProducerMock = mock();
 
-  private MpbsVerificationService createSubject(
+  private MpbsVerificationService initMpbsVerificationService(
       MobilePaymentUnverifiedHandler mobilePaymentUnverifiedHandlerMock,
       MobilePaymentService mobilePaymentService,
       ExternalResponseMapper externalResponseMapper,
@@ -57,7 +57,7 @@ class MpbsVerificationTest {
   @Test
   void verification_split_verification_for_mbps() {
     MpbsVerificationService subject =
-        createSubject(
+        initMpbsVerificationService(
             mobilePaymentUnverifiedHandlerMock,
             mobilePaymentServiceMock,
             externalResponseMapper,
@@ -96,7 +96,7 @@ class MpbsVerificationTest {
   @Test
   void verification_skip_bad_mobile_payment() {
     MpbsVerificationService subject =
-        createSubject(
+        initMpbsVerificationService(
             new MobilePaymentUnverifiedHandler(
                 mock(), new FailedMobilePaymentNotification(eventProducerMock)),
             mobilePaymentServiceMock,
