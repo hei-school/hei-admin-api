@@ -10,6 +10,7 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 
 import java.time.Instant;
 import java.util.List;
@@ -69,6 +70,7 @@ class MpbsVerificationTest {
         MobileTransactionDetails.builder()
             .pspTransactionRef(mpbsVerified.getPspId())
             .pspTransactionAmount(0)
+            .status(SUCCESS)
             .build();
     MpbsVerification fakeComputedVerifiedMpbs = new MpbsVerification();
     when(mobilePaymentServiceMock.findAllTransactionByMpbsWithoutException(anyList()))
@@ -115,6 +117,7 @@ class MpbsVerificationTest {
         MobileTransactionDetails.builder()
             .pspTransactionRef(mpbsVerified.getPspId())
             .pspTransactionAmount(0)
+            .status(SUCCESS)
             .build();
     var fakeComputedVerifiedMpbs = new MpbsVerification();
     when(mobilePaymentServiceMock.findAllTransactionByMpbsWithoutException(anyList()))
