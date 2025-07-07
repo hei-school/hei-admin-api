@@ -25,28 +25,11 @@ class MobilePaymentUnverifiedHandlerTest {
 
   @Test
   void save_failed_mpbs_and_trigger_failed_mobile_payment_notification() {
-    var mpbsMock1 = mock(Mpbs.class);
-    var mpbsMock2 = mock(Mpbs.class);
-    var mpbsMock3 = mock(Mpbs.class);
-    var mpbsMock4 = mock(Mpbs.class);
-    var mpbsMock5 = mock(Mpbs.class);
-
-    when(mpbsMock1.getCreationDatetime()).thenReturn(now());
-    when(mpbsMock2.getCreationDatetime()).thenReturn(now().minus(1L, DAYS));
-    when(mpbsMock3.getCreationDatetime()).thenReturn(now().minus(2L, DAYS));
-    when(mpbsMock4.getCreationDatetime()).thenReturn(now().minus(3L, DAYS));
-    when(mpbsMock5.getCreationDatetime()).thenReturn(now().minus(25L, DAYS));
-    when(mpbsMock1.getStatus()).thenReturn(PENDING);
-    when(mpbsMock2.getStatus()).thenReturn(PENDING);
-    when(mpbsMock3.getStatus()).thenReturn(PENDING);
-    when(mpbsMock4.getStatus()).thenReturn(PENDING);
-    when(mpbsMock5.getStatus()).thenReturn(PENDING);
-    Mpbs.MpbsBuilder mpbsBuilder = new Mpbs().toBuilder();
-    when(mpbsMock1.toBuilder()).thenReturn(mpbsBuilder);
-    when(mpbsMock2.toBuilder()).thenReturn(mpbsBuilder);
-    when(mpbsMock3.toBuilder()).thenReturn(mpbsBuilder);
-    when(mpbsMock4.toBuilder()).thenReturn(mpbsBuilder);
-    when(mpbsMock5.toBuilder()).thenReturn(mpbsBuilder);
+    var mpbsMock1 = Mpbs.builder().creationDatetime(now()).status(PENDING).build();
+    var mpbsMock2 = Mpbs.builder().creationDatetime(now().minus(1L, DAYS)).status(PENDING).build();
+    var mpbsMock3 = Mpbs.builder().creationDatetime(now().minus(2L, DAYS)).status(PENDING).build();
+    var mpbsMock4 = Mpbs.builder().creationDatetime(now().minus(3L, DAYS)).status(PENDING).build();
+    var mpbsMock5 = Mpbs.builder().creationDatetime(now().minus(25L, DAYS)).status(PENDING).build();
 
     assertDoesNotThrow(
         () -> subject.accept(List.of(mpbsMock1, mpbsMock2, mpbsMock3, mpbsMock4, mpbsMock5)));

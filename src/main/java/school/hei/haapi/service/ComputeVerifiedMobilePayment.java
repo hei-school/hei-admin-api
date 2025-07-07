@@ -1,13 +1,11 @@
 package school.hei.haapi.service;
 
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
@@ -40,7 +38,7 @@ public class ComputeVerifiedMobilePayment {
 
     // Update mpbs ...
     mpbs.setSuccessfullyVerifiedOn(now);
-    mpbs.setStatus(defineMpbsStatusFromOrangeTransactionDetails(correspondingMobileTransaction));
+    mpbs.setStatus(SUCCESS);
     mpbs.setPspOwnDatetimeVerification(
         correspondingMobileTransaction.getPspOwnDatetimeVerification());
     var successfullyVerifiedMpbs = mpbsService.save(mpbs);
@@ -61,18 +59,5 @@ public class ComputeVerifiedMobilePayment {
     feeService.debitAmountFromMpbs(fee, verifiedMobileTransaction.getAmountInPsp());
 
     return verifiedMobileTransaction;
-  }
-
-  private MpbsStatus defineMpbsStatusFromOrangeTransactionDetails(
-      TransactionDetails storedTransaction) {
-
-    // 1. if it contains and if the status is success then make it success
-    if (SUCCESS.equals(storedTransaction.getStatus())) {
-      log.info("correct");
-      return SUCCESS;
-    }
-    // 2. and else if the mpbs is stored to day or less than 2 days, it will be verified later
-    log.info("status computed = else");
-    return PENDING;
   }
 }

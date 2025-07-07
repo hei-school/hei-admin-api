@@ -25,6 +25,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import lombok.extern.slf4j.Slf4j;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.Fee;
@@ -39,6 +40,7 @@ import school.hei.haapi.model.User;
 @SuperBuilder(toBuilder = true)
 @EqualsAndHashCode(callSuper = false)
 @ToString(callSuper = true)
+@Slf4j
 public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   private Integer amount;
 
@@ -71,6 +73,8 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   private List<MpbsStatusHistory> statusHistory;
 
   public boolean exceedsValidationDate() {
-    return getCreationDatetime().until(now(), DAYS) > 2;
+    long validationDays = getCreationDatetime().until(now(), DAYS);
+    log.info("" + validationDays);
+    return validationDays > 2;
   }
 }

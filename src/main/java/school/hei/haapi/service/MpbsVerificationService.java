@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static java.util.UUID.randomUUID;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import static school.hei.haapi.service.utils.DateUtils.convertStringToInstant;
 
 import io.micrometer.common.util.StringUtils;
@@ -56,7 +57,6 @@ public class MpbsVerificationService {
 
   @Transactional
   public List<MpbsVerification> verifyMobilePaymentAndSaveResult(List<Mpbs> pendingMpbsList) {
-    log.info("Magic happened here");
     List<MpbsVerification> verifiedMpbs = new ArrayList<>();
     List<Mpbs> unverifiedMpbs = new ArrayList<>();
 
@@ -83,20 +83,23 @@ public class MpbsVerificationService {
                   Comparator.comparing(
                       MobileTransactionDetails::getPspDatetimeTransactionCreation));
 
-      if (correspondingTransactionPendingDetails.isPresent()) {
+      if (correspondingTransactionPendingDetails.isPresent()
+          && SUCCESS.equals(correspondingTransactionPendingDetails.get().getStatus())) {
         try {
-          MobileTransactionDetails firstCorrespondingTransactionDetails =
+          MobileTransactionDetails lastTransactionDetails =
               correspondingTransactionPendingDetails.get();
-          log.info("mobile transaction found = {}", firstCorrespondingTransactionDetails);
+          log.info("mobile transaction found = {}", lastTransactionDetails);
           TransactionDetails transactionDetails =
-              externalResponseMapper.toExternalTransactionDetails(
-                  firstCorrespondingTransactionDetails);
+              externalResponseMapper.toExternalTransactionDetails(lastTransactionDetails);
           log.info("mapped transaction details = {}", transactionDetails);
 
           verifiedMpbs.add(
               computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
         } catch (NoRemainingAmountFee e) {
-          log.error("no remaining amount found", e);
+          log.error(
+              "payment %s could not be verified because fee %s has no remaining amount"
+                  .formatted(pendingMbps.getId(), pendingMbps.getFee().getId()),
+              e);
         }
       } else {
         unverifiedMpbs.add(pendingMbps);
