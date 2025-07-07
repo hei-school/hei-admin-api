@@ -113,12 +113,12 @@ public class MpbsVerificationService {
 
   @Transactional
   public List<Mpbs> computeFromXls(File file) throws IOException {
-    List<String> pspToCheck = generateMobileTransactionDetailsFromXlsFile(file);
+    List<String> pspToVerify = generateMobileTransactionDetailsFromXlsFile(file);
 
-    List<Mpbs> mpbsToCheck = mpbsRepository.findByPspIdIn(pspToCheck);
+    List<Mpbs> mpbsToVerify = mpbsRepository.findByPspIdIn(pspToVerify);
 
-    verifyMobilePaymentAndSaveResult(mpbsToCheck);
-    return mpbsToCheck;
+    verifyMobilePaymentAndSaveResult(mpbsToVerify);
+    return mpbsToVerify;
   }
 
   public String uploadXlsToS3(MultipartFile multipartFile) {
