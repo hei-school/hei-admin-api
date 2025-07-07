@@ -62,7 +62,7 @@ public class MpbsVerificationService {
 
     // Find all corresponding transaction in database
     List<MobileTransactionDetails> mobileTransactionResponseDetails =
-        mobilePaymentService.findAllTransactionByMpbsWithoutException(pendingMpbsList);
+        mobilePaymentService.findAllTransactionByMpbs(pendingMpbsList);
 
     // TIPS: do not use exception to continue script
     for (Mpbs pendingMbps : pendingMpbsList) {

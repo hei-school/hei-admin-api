@@ -73,7 +73,7 @@ class MpbsVerificationTest {
             .status(SUCCESS)
             .build();
     MpbsVerification fakeComputedVerifiedMpbs = new MpbsVerification();
-    when(mobilePaymentServiceMock.findAllTransactionByMpbsWithoutException(anyList()))
+    when(mobilePaymentServiceMock.findAllTransactionByMpbs(anyList()))
         .thenReturn(List.of(correspondingMockTransactionsFromVerifiedMpbs));
     TransactionDetails transactionsFromVerifiedMpbs =
         externalResponseMapper.toRestMobileTransactionDetails(
@@ -120,7 +120,7 @@ class MpbsVerificationTest {
             .status(SUCCESS)
             .build();
     var fakeComputedVerifiedMpbs = new MpbsVerification();
-    when(mobilePaymentServiceMock.findAllTransactionByMpbsWithoutException(anyList()))
+    when(mobilePaymentServiceMock.findAllTransactionByMpbs(anyList()))
         .thenReturn(List.of(correspondingMockTransactionsFromVerifiedMpbs));
     when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(
             mpbsVerified,
