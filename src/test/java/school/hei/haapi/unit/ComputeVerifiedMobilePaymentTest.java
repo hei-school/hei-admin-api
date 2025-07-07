@@ -9,16 +9,16 @@ import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.exception.NoRemainingAmountFee;
-import school.hei.haapi.service.ComputeVerifiedMobilePayement;
+import school.hei.haapi.service.ComputeVerifiedMobilePayment;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.MpbsService;
 
-class ComputeVerifiedMobilePayementTest {
+class ComputeVerifiedMobilePaymentTest {
   private final MpbsService mpbsServiceMock = mock();
   private final FeeService feeServiceMock =
       new FeeService(mock(), mock(), mock(), mock(), mock(), mock(), mock());
-  private final ComputeVerifiedMobilePayement subject =
-      new ComputeVerifiedMobilePayement(mock(), mpbsServiceMock, feeServiceMock, mock());
+  private final ComputeVerifiedMobilePayment subject =
+      new ComputeVerifiedMobilePayment(mock(), mpbsServiceMock, feeServiceMock, mock());
 
   @Test
   void cannot_pay_already_paid_fee() {

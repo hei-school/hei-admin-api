@@ -48,7 +48,7 @@ public class MpbsVerificationService {
   private final MultipartFileConverter multipartFileConverter;
   private final FileService fileService;
   private final MobilePaymentUnverifiedHandler mobilePaymentUnverifiedHandler;
-  private final ComputeVerifiedMobilePayement computeVerifiedMobilePayement;
+  private final ComputeVerifiedMobilePayment computeVerifiedMobilePayment;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
@@ -94,7 +94,7 @@ public class MpbsVerificationService {
           log.info("mapped transaction details = {}", transactionDetails);
 
           verifiedMpbs.add(
-              computeVerifiedMobilePayement.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
+              computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
         } catch (NoRemainingAmountFee e) {
           log.error("no remaining amount found", e);
         }

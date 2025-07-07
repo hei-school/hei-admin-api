@@ -17,7 +17,7 @@ import school.hei.haapi.repository.MpbsVerificationRepository;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class ComputeVerifiedMobilePayement {
+public class ComputeVerifiedMobilePayment {
   private final MpbsVerificationRepository mpbsVerificationRepository;
   private final MpbsService mpbsService;
   private final FeeService feeService;

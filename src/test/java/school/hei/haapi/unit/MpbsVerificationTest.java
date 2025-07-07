@@ -26,7 +26,7 @@ import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
-import school.hei.haapi.service.ComputeVerifiedMobilePayement;
+import school.hei.haapi.service.ComputeVerifiedMobilePayment;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
 import school.hei.haapi.service.MobilePaymentService;
 import school.hei.haapi.service.MobilePaymentUnverifiedHandler;
@@ -35,7 +35,7 @@ import school.hei.haapi.service.MpbsVerificationService;
 class MpbsVerificationTest {
   MobilePaymentService mobilePaymentServiceMock = mock();
   MobilePaymentUnverifiedHandler mobilePaymentUnverifiedHandlerMock = mock();
-  ComputeVerifiedMobilePayement computeVerifiedMobilePayementMock = mock();
+  ComputeVerifiedMobilePayment computeVerifiedMobilePaymentMock = mock();
   ExternalResponseMapper externalResponseMapper = new ExternalResponseMapper();
   EventProducer<PaidFeeByMpbsFailedNotificationBody> eventProducerMock = mock();
 
@@ -43,7 +43,7 @@ class MpbsVerificationTest {
       MobilePaymentUnverifiedHandler mobilePaymentUnverifiedHandlerMock,
       MobilePaymentService mobilePaymentService,
       ExternalResponseMapper externalResponseMapper,
-      ComputeVerifiedMobilePayement computeVerifiedMobilePayement) {
+      ComputeVerifiedMobilePayment computeVerifiedMobilePayment) {
     return new MpbsVerificationService(
         mock(),
         mock(),
@@ -52,7 +52,7 @@ class MpbsVerificationTest {
         mock(),
         mock(),
         mobilePaymentUnverifiedHandlerMock,
-        computeVerifiedMobilePayement);
+        computeVerifiedMobilePayment);
   }
 
   @Test
@@ -62,7 +62,7 @@ class MpbsVerificationTest {
             mobilePaymentUnverifiedHandlerMock,
             mobilePaymentServiceMock,
             externalResponseMapper,
-            computeVerifiedMobilePayementMock);
+            computeVerifiedMobilePaymentMock);
 
     var mbpsPending = Mpbs.builder().pspId("pending").fee(mock()).build();
     var mpbsVerified = Mpbs.builder().pspId("verified").fee(mock()).build();
@@ -77,7 +77,7 @@ class MpbsVerificationTest {
     TransactionDetails transactionsFromVerifiedMpbs =
         externalResponseMapper.toRestMobileTransactionDetails(
             correspondingMockTransactionsFromVerifiedMpbs);
-    when(computeVerifiedMobilePayementMock.saveTheVerifiedMpbs(
+    when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(
             mpbsVerified, transactionsFromVerifiedMpbs))
         .thenReturn(fakeComputedVerifiedMpbs);
 
@@ -87,7 +87,7 @@ class MpbsVerificationTest {
     ArgumentCaptor<List<Mpbs>> argumentCaptor = ArgumentCaptor.forClass(List.class);
     verify(mobilePaymentUnverifiedHandlerMock, times(1)).accept(argumentCaptor.capture());
     List<Mpbs> mobilePaymentUnverified = argumentCaptor.getAllValues().getFirst();
-    verify(computeVerifiedMobilePayementMock, never()).saveTheVerifiedMpbs(eq(mbpsPending), any());
+    verify(computeVerifiedMobilePaymentMock, never()).saveTheVerifiedMpbs(eq(mbpsPending), any());
     assertEquals(1, mobilePaymentUnverified.size());
     assertEquals(mbpsPending, mobilePaymentUnverified.getFirst());
     assertEquals(1, verifiedMpbs.size());
@@ -102,7 +102,7 @@ class MpbsVerificationTest {
                 mock(), new FailedMobilePaymentNotification(eventProducerMock)),
             mobilePaymentServiceMock,
             externalResponseMapper,
-            computeVerifiedMobilePayementMock);
+            computeVerifiedMobilePaymentMock);
 
     var pendingCreationDatetime = Instant.now().minus(1, DAYS);
     var failedCreationDatetime = Instant.now().minus(4, DAYS);
@@ -120,7 +120,7 @@ class MpbsVerificationTest {
     var fakeComputedVerifiedMpbs = new MpbsVerification();
     when(mobilePaymentServiceMock.findAllTransactionByMpbsWithoutException(anyList()))
         .thenReturn(List.of(correspondingMockTransactionsFromVerifiedMpbs));
-    when(computeVerifiedMobilePayementMock.saveTheVerifiedMpbs(
+    when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(
             mpbsVerified,
             externalResponseMapper.toRestMobileTransactionDetails(
                 correspondingMockTransactionsFromVerifiedMpbs)))
@@ -129,7 +129,7 @@ class MpbsVerificationTest {
     List<MpbsVerification> verifiedMpbs =
         subject.verifyMobilePaymentAndSaveResult(List.of(badMpbs, mpbsVerified, mpbsFailed));
 
-    verify(computeVerifiedMobilePayementMock, never()).saveTheVerifiedMpbs(eq(badMpbs), any());
+    verify(computeVerifiedMobilePaymentMock, never()).saveTheVerifiedMpbs(eq(badMpbs), any());
     assertEquals(1, verifiedMpbs.size());
     assertEquals(fakeComputedVerifiedMpbs, verifiedMpbs.getFirst());
 
