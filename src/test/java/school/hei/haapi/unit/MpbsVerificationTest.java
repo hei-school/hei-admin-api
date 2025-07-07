@@ -2,7 +2,6 @@ package school.hei.haapi.unit;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.eq;
@@ -138,12 +137,11 @@ class MpbsVerificationTest {
     verify(eventProducerMock, times(1)).accept(argumentCaptor.capture());
     List<PaidFeeByMpbsFailedNotificationBody> notificationsRequestSend =
         argumentCaptor.getAllValues().getLast();
-    assertEquals(2, notificationsRequestSend.size());
-    assertNull(notificationsRequestSend.getFirst());
+    assertEquals(1, notificationsRequestSend.size());
     assertEquals(
         PaidFeeByMpbsFailedNotificationBody.from(
             Payment.builder().fee(fee).amount(mpbsFailed.getAmount()).build()),
-        notificationsRequestSend.get(1));
+        notificationsRequestSend.getFirst());
   }
 
   private Mpbs someMpbs(String pspId, Instant creationDateTime, Fee fee, User student) {

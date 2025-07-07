@@ -2,8 +2,6 @@ package school.hei.haapi.unit;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -17,6 +15,7 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
+import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
 
@@ -54,8 +53,9 @@ class FailedMobilePaymentNotificationTest {
         ArgumentCaptor.forClass(List.class);
     verify(eventProducerMock, times(1)).accept(captor.capture());
     List<PaidFeeByMpbsFailedNotificationBody> notificationBodyCaptor = captor.getValue();
-    assertEquals(2, notificationBodyCaptor.size());
-    assertNull(notificationBodyCaptor.getFirst());
-    assertNotNull(notificationBodyCaptor.getLast());
+    assertEquals(1, notificationBodyCaptor.size());
+    assertEquals(
+        PaidFeeByMpbsFailedNotificationBody.from(Payment.builder().amount(10).fee(fee).build()),
+        notificationBodyCaptor.getFirst());
   }
 }
