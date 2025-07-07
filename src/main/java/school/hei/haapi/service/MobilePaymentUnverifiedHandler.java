@@ -1,7 +1,6 @@
 package school.hei.haapi.service;
 
 import static java.time.Instant.now;
-import static java.time.temporal.ChronoUnit.DAYS;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 
@@ -39,12 +38,11 @@ public class MobilePaymentUnverifiedHandler implements Consumer<List<Mpbs>> {
   }
 
   private MpbsStatus mpbsNewStatus(Mpbs mpbs) {
-    long dayValidity = mpbs.getCreationDatetime().until(now(), DAYS);
-    if (dayValidity > 2) {
-      log.info("failed transaction");
+    if (mpbs.exceedsValidationDate()) {
+      log.info("failed transaction: {} with reference: {}", mpbs.getId(), mpbs.getPspId());
       return FAILED;
     }
-    log.info("pending transaction");
+    log.info("pending transaction: {} with reference: {}", mpbs.getId(), mpbs.getPspId());
     return PENDING;
   }
 }

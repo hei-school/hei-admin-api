@@ -3,6 +3,8 @@ package school.hei.haapi.model.Mpbs;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
+import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -67,4 +69,8 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private List<MpbsStatusHistory> statusHistory;
+
+  public boolean exceedsValidationDate() {
+    return getCreationDatetime().until(now(), DAYS) > 2;
+  }
 }
