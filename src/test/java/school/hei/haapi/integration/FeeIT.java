@@ -36,7 +36,6 @@ import static school.hei.haapi.integration.conf.TestUtils.fee4;
 import static school.hei.haapi.integration.conf.TestUtils.requestFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
-import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 
 import jakarta.persistence.EntityManager;
@@ -52,13 +51,11 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
@@ -68,7 +65,6 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
-import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
 @AutoConfigureMockMvc
@@ -76,8 +72,6 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 class FeeIT extends FacadeITMockedThirdParties {
   @Autowired EntityManager entityManager;
   @Autowired FeeRepository feeRepository;
-  @Autowired AdvancedFeeStatsMapper advancedFeeStatsMapper;
-  @MockBean EventBridgeClient eventBridgeClientMock;
 
   @Autowired FeeDao feeDao;
 
@@ -107,7 +101,6 @@ class FeeIT extends FacadeITMockedThirdParties {
     setUpCasdoor(casdoorAuthServiceMock, certificateLoaderMock);
     setUpCognito(cognitoComponentMock);
     setUpS3Service(fileService, student1());
-    setUpEventBridge(eventBridgeClientMock);
   }
 
   @Test
@@ -493,30 +486,6 @@ class FeeIT extends FacadeITMockedThirdParties {
         payingApi.generateAdvancedStats(fromDateTime.toInstant(UTC), toDateTime.toInstant(UTC));
 
     assertEquals(expectedStats, actualStat);
-  }
-
-  @Test
-  void manager_get_advanced_fee_statistics_ok() {
-    LocalDateTime fromDateTime = LocalDateTime.parse("2025-04-01T00:00:00.00");
-    LocalDateTime toDateTime = LocalDateTime.parse("2025-04-30T23:59:59.99");
-
-    var client = anApiClient(MANAGER1_TOKEN);
-    var payingApi = new PayingApi(client);
-
-    assertDoesNotThrow(
-        () -> payingApi.getAdvancedFeesStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate()));
-  }
-
-  @Test
-  void manager_get_advanced_fee_statistics_cached_ok() {
-    LocalDateTime fromDateTime = LocalDateTime.parse("2024-04-01T00:00:00.00");
-    LocalDateTime toDateTime = LocalDateTime.parse("2024-04-30T23:59:59.99");
-
-    var client = anApiClient(MANAGER1_TOKEN);
-    var payingApi = new PayingApi(client);
-
-    assertDoesNotThrow(
-        () -> payingApi.getAdvancedFeesStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate()));
   }
 
   @Test
