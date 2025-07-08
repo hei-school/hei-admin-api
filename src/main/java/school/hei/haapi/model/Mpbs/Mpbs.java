@@ -70,7 +70,9 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   @ToString.Exclude
   private List<MpbsStatusHistory> statusHistory;
 
+  private static final int MPBS_EXPIRATION_DAY = 2;
+
   public boolean exceedsValidationDate() {
-    return getCreationDatetime().until(now(), DAYS) > 2;
+    return getCreationDatetime().until(now(), DAYS) > MPBS_EXPIRATION_DAY;
   }
 }
