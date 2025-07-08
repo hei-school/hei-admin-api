@@ -10,6 +10,7 @@ import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 
 @Component
@@ -23,6 +24,10 @@ public class ComputeVerifiedMobilePayment {
 
   public MpbsVerification saveTheVerifiedMpbs(
       Mpbs mpbs, TransactionDetails correspondingMobileTransaction) {
+    if (!SUCCESS.equals(correspondingMobileTransaction.getStatus()))
+      throw new BadRequestException(
+          "Corresponding mobile payment transaction details must be successful for the payment %s"
+              .formatted(mpbs.getId()));
     Instant now = Instant.now();
     Fee fee = mpbs.getFee();
     MpbsVerification verifiedMobileTransaction =

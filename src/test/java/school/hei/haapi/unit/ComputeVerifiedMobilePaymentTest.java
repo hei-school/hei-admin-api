@@ -3,6 +3,7 @@ package school.hei.haapi.unit;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.http.model.TransactionDetails;
@@ -23,7 +24,8 @@ class ComputeVerifiedMobilePaymentTest {
   @Test
   void cannot_pay_already_paid_fee() {
     Mpbs mpbs = Mpbs.builder().fee(Fee.builder().remainingAmount(0).build()).build();
-    TransactionDetails transaction = TransactionDetails.builder().pspTransactionAmount(200).build();
+    TransactionDetails transaction =
+        TransactionDetails.builder().pspTransactionAmount(200).status(SUCCESS).build();
     when(mpbsServiceMock.save(mpbs)).thenReturn(mpbs);
 
     assertThrows(NoRemainingAmountFee.class, () -> subject.saveTheVerifiedMpbs(mpbs, transaction));
