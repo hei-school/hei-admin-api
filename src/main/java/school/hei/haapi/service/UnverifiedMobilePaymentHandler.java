@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static java.time.Instant.now;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
+import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 
 import java.time.Instant;
 import java.util.List;
@@ -34,6 +35,11 @@ public class UnverifiedMobilePaymentHandler implements Consumer<List<Mpbs>> {
   }
 
   private Mpbs updateMpbsInformation(Mpbs mpbs, Instant now) {
+    if (SUCCESS.equals(mpbs.getStatus())) {
+      log.warn(
+          "Update mpbs status failed, mpbs: {} is already successfully verified", mpbs.getId());
+      return mpbs;
+    }
     return mpbs.toBuilder().lastVerificationDatetime(now).status(mpbsNewStatus(mpbs)).build();
   }
 
