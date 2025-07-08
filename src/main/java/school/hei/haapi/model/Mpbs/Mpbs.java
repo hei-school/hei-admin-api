@@ -3,6 +3,8 @@ package school.hei.haapi.model.Mpbs;
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
+import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,12 +19,12 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.Fee;
@@ -34,9 +36,9 @@ import school.hei.haapi.model.User;
 @NoArgsConstructor
 @Getter
 @Setter
-@Builder
-@EqualsAndHashCode(callSuper = true)
-@ToString
+@SuperBuilder(toBuilder = true)
+@EqualsAndHashCode(callSuper = false)
+@ToString(callSuper = true)
 public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   private Integer amount;
 
@@ -67,4 +69,10 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private List<MpbsStatusHistory> statusHistory;
+
+  private static final int EXPIRATION_DURATION_IN_DAYS = 2;
+
+  public boolean exceedsValidationDate() {
+    return getCreationDatetime().until(now(), DAYS) > EXPIRATION_DURATION_IN_DAYS;
+  }
 }

@@ -37,6 +37,7 @@ import school.hei.haapi.model.FeeTemplate;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
@@ -79,7 +80,7 @@ public class FeeService {
     int remainingAmount = toUpdate.getRemainingAmount();
     log.info("actual remaining amount before computing = {}", remainingAmount);
     if (remainingAmount == 0) {
-      throw new ApiException(SERVER_EXCEPTION, "Remaining amount is already 0");
+      throw new NoRemainingAmountFee(toUpdate);
     }
     toUpdate.setRemainingAmount(remainingAmount - amountToDebit);
 
@@ -98,7 +99,7 @@ public class FeeService {
     int remainingAmount = toUpdate.getRemainingAmount();
 
     if (remainingAmount == 0) {
-      throw new ApiException(SERVER_EXCEPTION, "Remaining amount is already 0");
+      throw new NoRemainingAmountFee(toUpdate);
     }
     if (amountToDebit > remainingAmount) {
       throw new ApiException(SERVER_EXCEPTION, "Remaining amount is inferior to your request");

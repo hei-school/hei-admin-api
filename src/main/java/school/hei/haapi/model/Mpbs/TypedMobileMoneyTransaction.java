@@ -9,8 +9,12 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.MappedSuperclass;
 import java.time.Instant;
+import lombok.AllArgsConstructor;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
+import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
@@ -18,6 +22,10 @@ import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 @MappedSuperclass
 @Getter
 @Setter
+@SuperBuilder(toBuilder = true)
+@NoArgsConstructor
+@AllArgsConstructor
+@ToString
 public class TypedMobileMoneyTransaction {
   @Id
   @GeneratedValue(strategy = IDENTITY)

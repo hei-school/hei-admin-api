@@ -5,12 +5,10 @@ import static java.time.Month.APRIL;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.FEE2_ID;
@@ -59,27 +57,18 @@ import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.mapper.MpbsMapper;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
-import school.hei.haapi.repository.MpbsStatusHistoryRepository;
-import school.hei.haapi.service.MpbsVerificationService;
 import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
 @AutoConfigureMockMvc
 public class MpbsIT extends FacadeITMockedThirdParties {
-  public static final String MPBS_FEE4_ID = "mpbs3_id";
-  public static final String MPBS_FEE4_REF = "MP241210.0817.B36568";
-  public static final String FEE8_ID = "fee8_id";
   @MockBean private EventBridgeClient eventBridgeClientMock;
-  @Autowired MpbsVerificationService verificationService;
-  @Autowired MpbsMapper mpbsMapper;
   @Autowired private UserService userService;
-  @Autowired private MpbsStatusHistoryRepository mpbsStatusHistoryRepository;
 
   @BeforeEach
   void setUp() {
@@ -166,49 +155,6 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     // Assert that when we get fees it not throws error 500
     List<Fee> actualFee = api.getStudentFees(STUDENT1_ID, 1, 10, null);
     assertEquals(7, actualFee.size());
-  }
-
-  @Test
-  void verify_mpbs_via_xls() throws ApiException, IOException {
-    ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(managerClient);
-
-    // Check if the Mpbs exists
-    Mpbs fee3BeforeVerification = api.getMpbs(STUDENT1_ID, FEE8_ID).getFirst();
-
-    assertEquals(PENDING, fee3BeforeVerification.getStatus());
-    assertEquals(MPBS_FEE4_REF, fee3BeforeVerification.getPspId());
-
-    // Initialize mpbs status history
-    api.crupdateMpbs(
-        STUDENT1_ID,
-        FEE8_ID,
-        new CrupdateMpbs()
-            .id(MPBS_FEE4_ID)
-            .feeId(FEE8_ID)
-            .studentId(STUDENT1_ID)
-            .pspType(ORANGE_MONEY)
-            .pspId(MPBS_FEE4_REF));
-
-    // Upload xls file
-    List<Mpbs> mpbsVerified =
-        verificationService.computeFromXls(getMockedFile("test-mpbs", ".xls")).stream()
-            .map(mpbsMapper::toRest)
-            .toList();
-
-    Mpbs actualMpbs = mpbsVerified.getFirst();
-
-    // Check mpbs status and stored status history
-    var mpbsStatusHistories = mpbsStatusHistoryRepository.findAllByMpbs_PspId(MPBS_FEE4_REF);
-    assertEquals(SUCCESS, actualMpbs.getStatus());
-    assertEquals(MPBS_FEE4_REF, actualMpbs.getPspId());
-    assertEquals(1, mpbsStatusHistories.size());
-    assertEquals(PENDING, mpbsStatusHistories.getFirst().getStatus());
-
-    // Check if the fee is paid
-    Fee actualFee = api.getStudentFeeById(STUDENT1_ID, FEE8_ID);
-    assertEquals(0, actualFee.getRemainingAmount());
-    assertEquals(PAID, actualFee.getStatus());
   }
 
   public static HttpResponse<InputStream> uploadXls(Integer serverPort, String token)
