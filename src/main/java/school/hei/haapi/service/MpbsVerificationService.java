@@ -83,25 +83,34 @@ public class MpbsVerificationService {
                   Comparator.comparing(
                       MobileTransactionDetails::getPspDatetimeTransactionCreation));
 
-      if (correspondingTransactionPendingDetails.isPresent()
-          && SUCCESS.equals(correspondingTransactionPendingDetails.get().getStatus())) {
-        try {
-          MobileTransactionDetails lastTransactionDetails =
-              correspondingTransactionPendingDetails.get();
-          log.info("mobile transaction found = {}", lastTransactionDetails);
-          TransactionDetails transactionDetails =
-              externalResponseMapper.toExternalTransactionDetails(lastTransactionDetails);
-          log.info("mapped transaction details = {}", transactionDetails);
+      if (correspondingTransactionPendingDetails.isPresent()) {
+        MobileTransactionDetails lastTransactionDetails =
+            correspondingTransactionPendingDetails.get();
+        if (SUCCESS.equals(lastTransactionDetails.getStatus())) {
+          try {
+            log.info("mobile transaction found = {}", lastTransactionDetails);
+            TransactionDetails transactionDetails =
+                externalResponseMapper.toExternalTransactionDetails(lastTransactionDetails);
+            log.info("mapped transaction details = {}", transactionDetails);
 
-          verifiedMpbs.add(
-              computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
-        } catch (NoRemainingAmountFee e) {
-          log.error(
-              "payment %s could not be verified because fee %s has no remaining amount"
-                  .formatted(pendingMbps.getId(), pendingMbps.getFee().getId()),
-              e);
+            verifiedMpbs.add(
+                computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
+          } catch (NoRemainingAmountFee e) {
+            log.error(
+                "payment %s could not be verified because fee %s has no remaining amount"
+                    .formatted(pendingMbps.getId(), pendingMbps.getFee().getId()),
+                e);
+          }
+        } else {
+          log.info(
+              "verification mobile payment details stored is not success for the payment {}",
+              pendingMbps.getId());
+          unverifiedMpbs.add(pendingMbps);
         }
       } else {
+        log.info(
+            "no verification mobile payment details stored for the payment {}",
+            pendingMbps.getId());
         unverifiedMpbs.add(pendingMbps);
       }
     }
