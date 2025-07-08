@@ -21,15 +21,14 @@ import school.hei.haapi.service.MobilePaymentService;
 import school.hei.haapi.service.MpbsVerificationService;
 
 class VerificationMpbsByXlsxTest {
+  private final MpbsRepository mpbsRepository = mock();
+  private final MobilePaymentService mobilePaymentService = mock();
+  private final MpbsVerificationService subject =
+      new MpbsVerificationService(
+          mock(), mpbsRepository, mobilePaymentService, mock(), mock(), mock(), mock(), mock());
 
   @Test
   void xlsx_correctly_extracted() {
-    MpbsRepository mpbsRepository = mock();
-    MobilePaymentService mobilePaymentService = mock();
-    MpbsVerificationService subjectMocked =
-        new MpbsVerificationService(
-            mock(), mpbsRepository, mobilePaymentService, mock(), mock(), mock(), mock(), mock());
-
     var transactions =
         List.of(
             MobileTransactionDetails.builder()
@@ -134,7 +133,7 @@ class VerificationMpbsByXlsxTest {
     when(mpbsRepository.findByPspIdIn(anyList())).thenReturn(List.of());
     when(mpbsRepository.findAllByStatus(PENDING)).thenReturn(fakePendingSavedMpbs);
 
-    assertDoesNotThrow(() -> subjectMocked.computeFromXls(getMockedFile("test-mpbs", ".xls")));
+    assertDoesNotThrow(() -> subject.computeFromXls(getMockedFile("test-mpbs", ".xls")));
 
     ArgumentCaptor<List<MobileTransactionDetails>> argumentCaptor =
         ArgumentCaptor.forClass(List.class);
