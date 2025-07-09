@@ -43,7 +43,7 @@ public class Group implements Serializable {
 
   @OneToMany(mappedBy = "group", fetch = LAZY)
   @ToString.Exclude
-  private List<AwardedCourse> awardedCourse;
+  private List<CourseAssignment> courseAssignments;
 
   @OneToMany(mappedBy = "group", fetch = LAZY)
   @ToString.Exclude

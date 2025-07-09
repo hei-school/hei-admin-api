@@ -35,7 +35,7 @@ public class CourseSession implements Serializable {
 
   @ManyToOne
   @JoinColumn(name = "awarded_course_id")
-  private AwardedCourse awardedCourse;
+  private CourseAssignment awardedCourse;
 
   private Instant begin;
 

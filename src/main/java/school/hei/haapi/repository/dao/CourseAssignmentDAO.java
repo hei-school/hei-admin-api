@@ -12,21 +12,21 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.model.AwardedCourse;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.User;
 
 @Repository
 @AllArgsConstructor
-public class AwardedCourseDao {
+public class CourseAssignmentDAO {
   private final EntityManager entityManager;
 
-  public List<AwardedCourse> findByCriteria(String teacherId, String courseId, Pageable pageable) {
+  public List<CourseAssignment> findByCriteria(String teacherId, String courseId, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<AwardedCourse> query = builder.createQuery(AwardedCourse.class);
-    Root<AwardedCourse> root = query.from(AwardedCourse.class);
-    Join<AwardedCourse, User> teacher = root.join("mainTeacher", JoinType.LEFT);
-    Join<AwardedCourse, Course> Courses = root.join("course", JoinType.LEFT);
+    CriteriaQuery<CourseAssignment> query = builder.createQuery(CourseAssignment.class);
+    Root<CourseAssignment> root = query.from(CourseAssignment.class);
+    Join<CourseAssignment, User> teacher = root.join("mainTeacher", JoinType.LEFT);
+    Join<CourseAssignment, Course> Courses = root.join("course", JoinType.LEFT);
 
     List<Predicate> predicates = new ArrayList<>();
 

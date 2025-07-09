@@ -44,8 +44,8 @@ public class UserManagerDao {
     Predicate predicate = builder.conjunction();
 
     if (courseId != null && !courseId.isEmpty() && !courseId.isBlank()) {
-      Join<User, AwardedCourse> awardedCourseJoin = root.join("awardedCourses", LEFT);
-      Join<AwardedCourse, Course> courseJoin = awardedCourseJoin.join("course", LEFT);
+      Join<User, CourseAssignment> awardedCourseJoin = root.join("awardedCourses", LEFT);
+      Join<CourseAssignment, Course> courseJoin = awardedCourseJoin.join("course", LEFT);
       Expression<String> courseIdExpression = courseJoin.get("id");
       predicate = builder.and(predicate, builder.equal(courseIdExpression, courseId));
     }
@@ -171,8 +171,8 @@ public class UserManagerDao {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
-    Join<User, AwardedCourse> awardedCourse = root.join("awardedCourses");
-    Join<AwardedCourse, Course> course = awardedCourse.join("course");
+    Join<User, CourseAssignment> awardedCourse = root.join("awardedCourses");
+    Join<CourseAssignment, Course> course = awardedCourse.join("course");
 
     Predicate hasCourseId = builder.equal(course.get("id"), courseId);
     Predicate hasUserRole = builder.equal(root.get("role"), role);

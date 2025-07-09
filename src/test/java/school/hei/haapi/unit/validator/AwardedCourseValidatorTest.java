@@ -7,19 +7,19 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import school.hei.haapi.model.AwardedCourse;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
-import school.hei.haapi.model.validator.AwardedCourseValidator;
+import school.hei.haapi.model.validator.CourseAssignmentValidator;
 
 class AwardedCourseValidatorTest {
-  AwardedCourseValidator awardedCourseValidator;
+  CourseAssignmentValidator awardedCourseValidator;
 
   @BeforeEach
   void setUp() {
-    awardedCourseValidator = new AwardedCourseValidator();
+    awardedCourseValidator = new CourseAssignmentValidator();
   }
 
   @Test
@@ -46,7 +46,7 @@ class AwardedCourseValidatorTest {
     assertEquals("Group is mandatory", groupBadRequestException.getMessage());
   }
 
-  private static AwardedCourse someAwardedCourse(User mainTeacher, Course course, Group group) {
-    return new AwardedCourse("", mainTeacher, course, group, List.of(), Instant.now());
+  private static CourseAssignment someAwardedCourse(User mainTeacher, Course course, Group group) {
+    return new CourseAssignment("", mainTeacher, course, group, List.of(), Instant.now());
   }
 }

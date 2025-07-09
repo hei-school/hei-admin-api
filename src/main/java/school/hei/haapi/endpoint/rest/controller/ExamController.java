@@ -18,14 +18,14 @@ import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.NotImplementedException;
-import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.ExamService;
 
 @RestController
 @AllArgsConstructor
 public class ExamController {
   private final ExamService examService;
-  private final AwardedCourseService awardedCourseService;
+  private final CourseAssignmentService awardedCourseService;
   private final ExamMapper examMapper;
 
   @GetMapping("/awarded_courses/{awarded_course_id}/exams")

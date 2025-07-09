@@ -26,7 +26,7 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
-import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.UserService;
 
 @Configuration
@@ -36,7 +36,7 @@ public class SecurityConf {
 
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private static final String STUDENT_COURSE = "/students/*/courses";
-  private final AwardedCourseService awardedCourseService;
+  private final CourseAssignmentService awardedCourseService;
   private final UserService userService;
 
   private final AbstractUserDetailsAuthenticationProvider authProvider;
@@ -46,7 +46,7 @@ public class SecurityConf {
       CasdoorAuthProvider authProvider,
       // InternalToExternalErrorHandler behind
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
-      AwardedCourseService awardedCourseService,
+      CourseAssignmentService awardedCourseService,
       UserService userService) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;

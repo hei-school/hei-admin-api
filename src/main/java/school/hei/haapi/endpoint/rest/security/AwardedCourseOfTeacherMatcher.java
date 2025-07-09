@@ -8,11 +8,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
-import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.service.CourseAssignmentService;
 
 @AllArgsConstructor
 public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
-  private final AwardedCourseService awardedCourseService;
+  private final CourseAssignmentService awardedCourseService;
   private final HttpMethod method;
   private final String antPattern;
 

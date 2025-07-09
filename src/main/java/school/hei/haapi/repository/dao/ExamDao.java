@@ -14,7 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.model.AwardedCourse;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Group;
@@ -41,9 +41,9 @@ public class ExamDao {
       predicates.add(builder.like(root.get("title"), "%" + title.toLowerCase() + "%"));
     }
 
-    Join<Exam, AwardedCourse> awardedCourseJoin = root.join("awardedCourse", JoinType.LEFT);
+    Join<Exam, CourseAssignment> awardedCourseJoin = root.join("awardedCourse", JoinType.LEFT);
     if (courseCode != null && !courseCode.isEmpty()) {
-      Join<AwardedCourse, Course> courseJoin = awardedCourseJoin.join("course", JoinType.LEFT);
+      Join<CourseAssignment, Course> courseJoin = awardedCourseJoin.join("course", JoinType.LEFT);
       predicates.add(
           builder.like(
               builder.lower(courseJoin.get("code")), "%" + courseCode.toLowerCase() + "%"));
@@ -52,7 +52,7 @@ public class ExamDao {
       predicates.add(builder.equal(awardedCourseJoin.get("id"), awardedCourseId));
     }
     if (groupRef != null && !groupRef.isEmpty()) {
-      Join<AwardedCourse, Group> groupJoin = awardedCourseJoin.join("group", JoinType.LEFT);
+      Join<CourseAssignment, Group> groupJoin = awardedCourseJoin.join("group", JoinType.LEFT);
       predicates.add(
           builder.like(builder.lower(groupJoin.get("ref")), "%" + groupRef.toLowerCase() + "%"));
     }

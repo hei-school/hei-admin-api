@@ -14,7 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.model.AwardedCourse;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.User;
 
@@ -37,8 +37,8 @@ public class CourseDao {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
     Root<Course> root = query.from(Course.class);
-    Join<Course, AwardedCourse> awardedCourses = root.join("awardedCourses", JoinType.LEFT);
-    Join<AwardedCourse, User> teacher = awardedCourses.join("mainTeacher", JoinType.LEFT);
+    Join<Course, CourseAssignment> awardedCourses = root.join("awardedCourses", JoinType.LEFT);
+    Join<CourseAssignment, User> teacher = awardedCourses.join("mainTeacher", JoinType.LEFT);
 
     List<Predicate> predicates = new ArrayList<>();
 

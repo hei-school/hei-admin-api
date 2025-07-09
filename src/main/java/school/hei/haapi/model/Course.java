@@ -41,5 +41,5 @@ public class Course implements Serializable {
   private Integer totalHours;
 
   @OneToMany(mappedBy = "course", fetch = LAZY)
-  private List<AwardedCourse> awardedCourses;
+  private List<CourseAssignment> awardedCourses;
 }

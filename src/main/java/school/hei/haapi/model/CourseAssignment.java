@@ -24,7 +24,7 @@ import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
-@Table(name = "\"awarded_course\"")
+@Table(name = "\"course_assignment\"")
 @Getter
 @Setter
 @ToString
@@ -32,7 +32,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class AwardedCourse implements Serializable {
+public class CourseAssignment implements Serializable {
   // todo: to review all class
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -49,10 +49,10 @@ public class AwardedCourse implements Serializable {
   @ToString.Exclude
   private Course course;
 
-  @ManyToOne
+  @OneToMany
   @JoinColumn(name = "group_id")
   @ToString.Exclude
-  private Group group;
+  private List<Group> groups;
 
   @OneToMany(mappedBy = "awardedCourse", fetch = LAZY)
   @ToString.Exclude

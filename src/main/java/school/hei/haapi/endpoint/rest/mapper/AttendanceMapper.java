@@ -12,7 +12,7 @@ import school.hei.haapi.repository.UserRepository;
 @AllArgsConstructor
 @Component
 public class AttendanceMapper {
-  private final AwardedCourseMapper awardedCourseMapper;
+  private final CourseAssignmentMapper awardedCourseMapper;
   private final UserMapper userMapper;
   private final UserRepository userRepository;
 
@@ -56,7 +56,7 @@ public class AttendanceMapper {
 
   public CourseSession toCourseSession(school.hei.haapi.model.CourseSession toMap) {
     return new CourseSession()
-        .awarededCourse(awardedCourseMapper.toRest(toMap.getAwardedCourse()))
+        .courseAssignment(awardedCourseMapper.toRest(toMap.getAwardedCourse()))
         .id(toMap.getId())
         .end(toMap.getEnd())
         .begin(toMap.getBegin());

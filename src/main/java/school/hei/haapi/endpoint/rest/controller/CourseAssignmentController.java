@@ -10,24 +10,24 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
-import school.hei.haapi.endpoint.rest.model.AwardedCourse;
-import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
+import school.hei.haapi.endpoint.rest.mapper.CourseAssignmentMapper;
+import school.hei.haapi.endpoint.rest.model.CourseAssignment;
+import school.hei.haapi.endpoint.rest.model.CreateCourseAssignment;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
-import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.UserService;
 
 @RestController
 @AllArgsConstructor
-public class AwardedCourseController {
-  private final AwardedCourseService service;
-  private final AwardedCourseMapper mapper;
+public class CourseAssignmentController {
+  private final CourseAssignmentService service;
+  private final CourseAssignmentMapper mapper;
   private final UserService userService;
 
-  @GetMapping("/groups/{group_id}/awarded_courses")
-  public List<AwardedCourse> getByGroupId(
+  @GetMapping("/groups/{group_id}/course_assignments")
+  public List<CourseAssignment> getByGroupId(
       @PathVariable("group_id") String groupId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
@@ -36,24 +36,24 @@ public class AwardedCourseController {
         .collect(toList());
   }
 
-  @GetMapping("/groups/{group_id}/awarded_courses/{awarded_course_id}")
-  public AwardedCourse getById(
+  @GetMapping("/groups/{group_id}/course_assignments/{course_assignment_id}")
+  public CourseAssignment getById(
       @PathVariable("group_id") String groupId,
-      @PathVariable("awarded_course_id") String awardedCourseId) {
-    return mapper.toRest(service.getById(awardedCourseId, groupId));
+      @PathVariable("course_assignment_id") String CourseAssignmentId) {
+    return mapper.toRest(service.getById(CourseAssignmentId, groupId));
   }
 
-  @PutMapping("/groups/{group_id}/awarded_courses")
-  public List<AwardedCourse> createOrUpdateAwardedCourse(
+  @PutMapping("/groups/{group_id}/course_assignments")
+  public List<CourseAssignment> createOrUpdateCourseAssignment(
       @PathVariable("group_id") String groupId,
-      @RequestBody List<CreateAwardedCourse> awardedCourses) {
-    return service.createOrUpdateAwardedCourses(awardedCourses).stream()
+      @RequestBody List<CreateCourseAssignment> CourseAssignments) {
+    return service.createOrUpdateCourseAssignments(CourseAssignments).stream()
         .map(mapper::toRest)
         .collect(toList());
   }
 
-  @GetMapping("/awarded_courses")
-  public List<AwardedCourse> getAllAwardedCourseByCriteria(
+  @GetMapping("/course_assignments")
+  public List<CourseAssignment> getAllCourseAssignmentByCriteria(
       @RequestParam(value = "teacher_id", required = false) String teacherId,
       @RequestParam(value = "course_id", required = false) String courseId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
@@ -63,27 +63,27 @@ public class AwardedCourseController {
         .collect(toList());
   }
 
-  @GetMapping("/teachers/{teacher_id}/awarded_courses")
-  public List<AwardedCourse> getAwardedCoursesAssignedToTeacher(
+  @GetMapping("/teachers/{teacher_id}/course_assignments")
+  public List<CourseAssignment> getCourseAssignmentsByTeacherId(
       @PathVariable("teacher_id") String teacherId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
-    User teacher = userService.findById(teacherId);
-    return service.getAwardedCoursesByTeacherId(teacher.getId(), page, pageSize).stream()
+    return service.getCourseAssignmentsByTeacherId(teacherId, page, pageSize).stream()
         .map(mapper::toRest)
-        .collect(toList());
+        .toList();
   }
 
-  @PutMapping("/teachers/{teacher_id}/awarded_courses")
-  public List<AwardedCourse> createOrUpdateAwardedCoursesAssignToTeacher(
+  @PutMapping("/teachers/{teacher_id}/course_assignments")
+  public List<CourseAssignment> createOrUpdateCourseAssignmentByTeacherId(
       @PathVariable("teacher_id") String teacherId,
-      @RequestBody List<CreateAwardedCourse> createAwardedCourses) {
-    List<school.hei.haapi.model.AwardedCourse> awardedCourses =
-        createAwardedCourses.stream()
-            .map(mapper::fromCreateAwardedCourseToAwardedCourse)
-            .collect(toList());
-    return service.createOrUpdateAwardedCoursesByTeacherId(teacherId, awardedCourses).stream()
-        .map(mapper::toRest)
-        .collect(toList());
+      @RequestBody List<CreateCourseAssignment> createCourseAssignments) {
+    List<school.hei.haapi.model.CourseAssignment> courseAssignments =
+        createCourseAssignments.stream()
+            .map(mapper::toDomain)
+            .toList();
+    return service.createOrUpdateCourseAssignmentsByTeacherId(teacherId, courseAssignments)
+            .stream()
+            .map(mapper::toRest)
+            .toList();
   }
 }

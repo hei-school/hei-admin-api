@@ -17,7 +17,7 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.model.AwardedCourse;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseSession;
 import school.hei.haapi.model.StudentAttendance;
@@ -40,11 +40,11 @@ public class StudentAttendanceDao {
     Root<StudentAttendance> studentAttendanceRoot = query.from(StudentAttendance.class);
     Join<StudentAttendance, CourseSession> courseSessionJoin =
         studentAttendanceRoot.join(StudentAttendance.COURSE_SESSION, LEFT);
-    Join<CourseSession, AwardedCourse> awardedCourseJoin =
+    Join<CourseSession, CourseAssignment> awardedCourseJoin =
         courseSessionJoin.join(CourseSession.AWARDED_COURSE, LEFT);
-    Join<AwardedCourse, Course> courseJoin = awardedCourseJoin.join("course", LEFT);
+    Join<CourseAssignment, Course> courseJoin = awardedCourseJoin.join("course", LEFT);
     Join<StudentAttendance, User> userJoin = studentAttendanceRoot.join("student", LEFT);
-    Join<AwardedCourse, User> teacherJoin = awardedCourseJoin.join("mainTeacher", LEFT);
+    Join<CourseAssignment, User> teacherJoin = awardedCourseJoin.join("mainTeacher", LEFT);
     List<Predicate> predicates = new ArrayList<>();
 
     if (studentKeyword != null && !studentKeyword.isEmpty()) {

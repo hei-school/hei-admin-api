@@ -7,19 +7,19 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.model.AwardedCourse;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.exception.BadRequestException;
 
 @Component
 @AllArgsConstructor
-public class AwardedCourseValidator implements Consumer<AwardedCourse> {
+public class CourseAssignmentValidator implements Consumer<CourseAssignment> {
 
-  public void accept(List<AwardedCourse> awardedCourses) {
+  public void accept(List<CourseAssignment> awardedCourses) {
     awardedCourses.forEach(this);
   }
 
   @Override
-  public void accept(AwardedCourse awardedCourse) {
+  public void accept(CourseAssignment awardedCourse) {
     Set<String> violationMessages = new HashSet<>();
     if (awardedCourse.getCourse() == null) {
       violationMessages.add("Course is mandatory");
@@ -27,7 +27,7 @@ public class AwardedCourseValidator implements Consumer<AwardedCourse> {
     if (awardedCourse.getMainTeacher() == null) {
       violationMessages.add("Teacher is mandatory");
     }
-    if (awardedCourse.getGroup() == null) {
+    if (awardedCourse.getGroups() == null) {
       violationMessages.add("Group is mandatory");
     }
     if (!violationMessages.isEmpty()) {

@@ -106,7 +106,7 @@ public class User implements Serializable {
   // RELATION (TEACHER): Awarded Courses
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
   @ToString.Exclude
-  private List<AwardedCourse> awardedCourses;
+  private List<CourseAssignment> awardedCourses;
 
   // RELATION (STUDENT): Group Flows
   @OneToMany(mappedBy = "student", fetch = LAZY)

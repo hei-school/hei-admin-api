@@ -5,6 +5,8 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.service.GroupService;
 
+import java.util.List;
+
 @Component
 @AllArgsConstructor
 public class GroupMapper {
@@ -19,6 +21,13 @@ public class GroupMapper {
         .size(groupService.getGroupSize(group.getId()))
         .attributedColor(group.getAttributedColor())
         .creationDatetime(group.getCreationDatetime());
+  }
+
+  public List<Group> toRest(List<school.hei.haapi.model.Group> groups) {
+    return groups
+            .stream()
+            .map(this::toRest)
+            .toList();
   }
 
   public school.hei.haapi.model.Group toDomain(Group restGroup) {
