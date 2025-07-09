@@ -55,7 +55,6 @@ public class MpbsVerificationService {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
   }
 
-  @Transactional
   public List<MpbsVerification> verifyMobilePaymentAndSaveResult(List<Mpbs> pendingMpbsList) {
     List<MpbsVerification> verifiedMpbs = new ArrayList<>();
     List<Mpbs> unverifiedMpbs = new ArrayList<>();

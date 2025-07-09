@@ -54,7 +54,7 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   private User student;
 
   @ManyToOne
-  @JoinColumn(name = "fee_id")
+  @JoinColumn(name = "fee_id", updatable = false)
   @ToString.Exclude
   @JsonIgnore
   private Fee fee;
