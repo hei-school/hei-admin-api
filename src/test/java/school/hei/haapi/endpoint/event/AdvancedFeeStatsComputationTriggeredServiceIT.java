@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.event;
 
+import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
@@ -26,7 +27,7 @@ class AdvancedFeeStatsComputationTriggeredServiceIT extends FacadeITMockedThirdP
         () ->
             subject.accept(
                 new AdvancedFeeStatsComputationTriggered(
-                    LocalDateTime.now(), LocalDateTime.now())));
+                    LocalDateTime.now(), LocalDateTime.now(), empty())));
     verify(service, times(2)).updateAdvancedFeeStats(any(), any(), any());
   }
 }

@@ -1,11 +1,11 @@
 package school.hei.haapi.service;
 
-import static java.time.LocalTime.MAX;
+import static java.time.Instant.now;
 import static java.time.ZoneOffset.UTC;
+import static java.time.temporal.ChronoUnit.DAYS;
 import static java.time.temporal.TemporalAdjusters.lastDayOfMonth;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.groupingByConcurrent;
-import static java.util.stream.Collectors.toMap;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L2;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L3;
@@ -21,10 +21,12 @@ import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.REMEDIAL_COSTS;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.ACCOUNTING;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.RECEIPT;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
+import java.time.Duration;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -36,6 +38,8 @@ import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.AdvancedFeeStatsComputationTriggered;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
 import school.hei.haapi.endpoint.rest.model.FeeCategory;
@@ -50,6 +54,7 @@ import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.fee.PaymentType;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
 import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
+import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsType;
 import school.hei.haapi.repository.AdvancedFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
@@ -63,30 +68,44 @@ public class AdvancedFeeStatsService {
   private final AdvancedFeeStatsRepository repository;
   private final AdvancedFeeStatsMapper advancedFeeStatsMapper;
   private final FeeRepository feeRepository;
+  private final EventProducer<AdvancedFeeStatsComputationTriggered> eventProducer;
+
+  private static final Duration ADVANCED_FEE_STATS_EXPIRATION = Duration.of(3, DAYS);
 
   @Transactional
   public AdvancedFeesStatistics getAdvancedFeeStats(
       LocalDate dateFrom, LocalDate dateTo, Optional<AdvancedFeeStatsCountType> type) {
     if (type.isEmpty()) {
       log.warn(
-          "No count type provided for advanced stats query. RECEIPT stats will be returned by"
+          "No count type provided for advanced stats query. ACCOUNTING stats will be returned by"
               + " default");
     }
     LocalDate now = LocalDate.now();
     LocalDate from = Optional.ofNullable(dateFrom).orElse(now.withDayOfMonth(1));
     LocalDate to = Optional.ofNullable(dateTo).orElse(now.with(lastDayOfMonth()));
-    var advancedStats = feeDao.getAdvancedFeeStatsOnDateBetween(from, to, type.orElse(RECEIPT));
+    var advancedStats = feeDao.getAdvancedFeeStatsOnDateBetween(from, to, type.orElse(ACCOUNTING));
     if (advancedStats.isEmpty()) {
-      var generatedStats =
-          updateAdvancedFeeStats(
-              Optional.of(from.atStartOfDay().toInstant(UTC)),
-              Optional.of(to.atTime(MAX).toInstant(UTC)),
-              type);
-
-      return advancedFeeStatsMapper.toRest(
-          generatedStats.stream().collect(toMap(AdvancedFeeStats::getStatType, e -> e)));
+      eventProducer.accept(
+          List.of(
+              new AdvancedFeeStatsComputationTriggered(
+                  from.atStartOfDay(), to.atTime(23, 59, 59), type)));
+      return new AdvancedFeesStatistics().expired(true);
     }
-    return advancedFeeStatsMapper.toRest(advancedStats);
+
+    if (shouldBeUpdated(advancedStats)) {
+      eventProducer.accept(
+          List.of(
+              new AdvancedFeeStatsComputationTriggered(
+                  from.atStartOfDay(), to.atTime(23, 59, 59), type)));
+      return advancedFeeStatsMapper.toRest(advancedStats, true);
+    }
+
+    return advancedFeeStatsMapper.toRest(advancedStats, false);
+  }
+
+  private boolean shouldBeUpdated(Map<AdvancedFeeStatsType, AdvancedFeeStats> advancedStats) {
+    return advancedStats.values().stream()
+        .anyMatch(e -> e.getUpdateDatetime().isAfter(now().minus(ADVANCED_FEE_STATS_EXPIRATION)));
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
@@ -106,7 +125,7 @@ public class AdvancedFeeStatsService {
   private Collection<AdvancedFeeStats> generateAdvancedFeeStatsOnDateBetween(
       LocalDate fromDate, LocalDate toDate, AdvancedFeeStatsCountType type) {
     Instant dayStart = fromDate.atStartOfDay().toInstant(UTC);
-    Instant dayEnd = toDate.atTime(MAX).toInstant(UTC);
+    Instant dayEnd = toDate.atTime(23, 59, 59).toInstant(UTC);
 
     List<Fee> allFees = feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
 
@@ -133,8 +152,8 @@ public class AdvancedFeeStatsService {
 
   private Optional<LocalDate> statCountDateMapper(AdvancedFeeStatsCountType type, LocalDate date) {
     return switch (type) {
-      case RECEIPT -> Optional.empty();
-      case ACCOUNTING -> Optional.of(date);
+      case ACCOUNTING -> Optional.empty();
+      case RECEIPT -> Optional.of(date);
     };
   }
 
@@ -277,9 +296,9 @@ public class AdvancedFeeStatsService {
     if (type.isEmpty()) {
       log.warn(
           "No count type provided for advanced stats generation request."
-              + " RECEIPT stats will be generated by default");
+              + " ACCOUNTING stats will be generated by default");
     }
-    return repository.saveAll(generateAdvancedFeeStats(from, to, type.orElse(RECEIPT)));
+    return repository.saveAll(generateAdvancedFeeStats(from, to, type.orElse(ACCOUNTING)));
   }
 
   private Map<FeeCategory, Long> countFeesByGrades(List<Fee> fees) {

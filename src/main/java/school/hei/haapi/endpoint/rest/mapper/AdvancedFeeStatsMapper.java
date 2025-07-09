@@ -192,7 +192,8 @@ public class AdvancedFeeStatsMapper {
         .unknownFrequency(modelStat.getUnknownFrequencyCount());
   }
 
-  public AdvancedFeesStatistics toRest(Map<AdvancedFeeStatsType, AdvancedFeeStats> modelStat) {
+  public AdvancedFeesStatistics toRest(
+      Map<AdvancedFeeStatsType, AdvancedFeeStats> modelStat, boolean expired) {
     AdvancedFeesStatistics restStat = new AdvancedFeesStatistics();
     for (Entry<AdvancedFeeStatsType, AdvancedFeeStats> entry : modelStat.entrySet()) {
       switch (entry.getKey()) {
@@ -201,8 +202,9 @@ public class AdvancedFeeStatsMapper {
         case PAID_COUNT -> restStat.paidFeesCount(getRestPaidFeeStats(entry.getValue()));
         case TOTAL_COUNT -> restStat.totalExpectedFeesCount(getRestTotalFeeStats(entry.getValue()));
       }
+      restStat.updateDatetime(entry.getValue().getUpdateDatetime());
     }
-
+    restStat.expired(expired);
     return restStat;
   }
 }
