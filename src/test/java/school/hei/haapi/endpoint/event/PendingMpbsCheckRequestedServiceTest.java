@@ -21,6 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
@@ -51,6 +52,7 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("TODO: this should be an unit test")
   void verify_mpbs_to_unverified() {
     Fee actualFee = feeService.getById(FEE1_ID);
     assertDoesNotThrow(

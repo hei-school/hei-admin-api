@@ -18,7 +18,6 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
@@ -26,21 +25,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Sex.M;
 import static school.hei.haapi.model.User.Status.ENABLED;
-import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import java.io.ByteArrayInputStream;
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URI;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.util.List;
@@ -51,9 +36,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.web.util.UriComponentsBuilder;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import org.testcontainers.shaded.com.google.common.primitives.Bytes;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -155,57 +138,6 @@ public class MpbsIT extends FacadeITMockedThirdParties {
     // Assert that when we get fees it not throws error 500
     List<Fee> actualFee = api.getStudentFees(STUDENT1_ID, 1, 10, null);
     assertEquals(7, actualFee.size());
-  }
-
-  public static HttpResponse<InputStream> uploadXls(Integer serverPort, String token)
-      throws IOException, InterruptedException {
-    HttpClient client = HttpClient.newHttpClient();
-
-    String basePath = "http://localhost:" + serverPort;
-
-    String boundary = "---------------------------" + System.currentTimeMillis();
-    String contentTypeHeader = "multipart/form-data; boundary=" + boundary;
-
-    File file = getMockedFile("test-mpbs", ".xls");
-
-    String requestBodyPrefix =
-        "--"
-            + boundary
-            + CRLF
-            + "Content-Disposition: form-data; name=\"file_to_upload\"; filename=\""
-            + file.getName()
-            + "\""
-            + CRLF
-            + "Content-Type: application/vnd.ms-excel"
-            + CRLF
-            + CRLF;
-    byte[] fileBytes = Files.readAllBytes(Paths.get(file.getPath()));
-    String requestBodySuffix = CRLF + "--" + boundary + "--" + CRLF;
-
-    byte[] requestBody =
-        Bytes.concat(requestBodyPrefix.getBytes(), fileBytes, requestBodySuffix.getBytes());
-    UriComponentsBuilder uriComponentsBuilder =
-        UriComponentsBuilder.fromUri(URI.create(basePath + "/mpbs/verify"));
-    InputStream requestBodyStream = new ByteArrayInputStream(requestBody);
-    HttpRequest request =
-        HttpRequest.newBuilder()
-            .uri(uriComponentsBuilder.build().toUri())
-            .header("Content-Type", contentTypeHeader)
-            .header("Authorization", "Bearer " + token)
-            .POST(HttpRequest.BodyPublishers.ofInputStream(() -> requestBodyStream))
-            .build();
-
-    return client.send(request, HttpResponse.BodyHandlers.ofInputStream());
-  }
-
-  public static List<Mpbs> convertResponseToStudentList(HttpResponse<InputStream> response)
-      throws IOException {
-    ObjectMapper objectMapper = new ObjectMapper();
-    objectMapper.registerModule(new JavaTimeModule());
-
-    try (InputStream inputStream = response.body()) {
-      return objectMapper.readValue(inputStream, new TypeReference<List<Mpbs>>() {});
-    }
   }
 
   @Test
