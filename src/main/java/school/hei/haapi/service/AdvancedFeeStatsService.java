@@ -105,7 +105,7 @@ public class AdvancedFeeStatsService {
 
   private boolean shouldBeUpdated(Map<AdvancedFeeStatsType, AdvancedFeeStats> advancedStats) {
     return advancedStats.values().stream()
-        .anyMatch(e -> e.getUpdateDatetime().isAfter(now().minus(ADVANCED_FEE_STATS_EXPIRATION)));
+        .anyMatch(e -> e.getUpdateDatetime().isBefore(now().minus(ADVANCED_FEE_STATS_EXPIRATION)));
   }
 
   public List<AdvancedFeeStats> generateAdvancedFeeStats(
@@ -176,6 +176,7 @@ public class AdvancedFeeStatsService {
     feeStats.setRemedialFeesCount(pendingFeesStats.getRemedialFeesCount().longValue());
     feeStats.setMonthlyCount(pendingFeesStats.getMonthly());
     feeStats.setYearlyCount(pendingFeesStats.getYearly());
+    feeStats.setUpdateDatetime(now());
     feeStats.setUnknownFrequencyCount(pendingFeesStats.getUnknownFrequency());
   }
 
@@ -188,6 +189,7 @@ public class AdvancedFeeStatsService {
     feeStats.setRemedialFeesCount(lateFeesStats.getRemedialFeesCount().longValue());
     feeStats.setMonthlyCount(lateFeesStats.getMonthly());
     feeStats.setYearlyCount(lateFeesStats.getYearly());
+    feeStats.setUpdateDatetime(now());
     feeStats.setUnknownFrequencyCount(lateFeesStats.getUnknownFrequency());
   }
 
@@ -203,6 +205,7 @@ public class AdvancedFeeStatsService {
     feeStats.setUnknownFrequencyCount(paidFeesStats.getUnknownFrequency());
     feeStats.setBankTransferCount(paidFeesStats.getBankFees().longValue());
     feeStats.setMpbsCount(paidFeesStats.getMobileMoney().longValue());
+    feeStats.setUpdateDatetime(now());
   }
 
   private void handleTotalFeesCount(
@@ -214,6 +217,7 @@ public class AdvancedFeeStatsService {
     feeStats.setWorkStudyCount(totalExpectedFeesStats.getWorkStudy());
     feeStats.setMonthlyCount(totalExpectedFeesStats.getMonthly());
     feeStats.setYearlyCount(totalExpectedFeesStats.getYearly());
+    feeStats.setUpdateDatetime(now());
     feeStats.setUnknownFrequencyCount(totalExpectedFeesStats.getUnknownFrequency());
   }
 
