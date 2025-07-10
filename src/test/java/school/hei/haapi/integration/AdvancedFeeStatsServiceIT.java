@@ -160,7 +160,7 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
   void request_accounting_not_available_trigger_generation() {
     var generatedAugustStats =
         subject.getAdvancedFeeStats(
-            LocalDate.of(2025, 7, 1), LocalDate.of(2025, 7, 31), Optional.empty());
+            LocalDate.of(2026, 7, 1), LocalDate.of(2026, 7, 31), Optional.empty());
 
     assertTrue(generatedAugustStats.getExpired());
   }
