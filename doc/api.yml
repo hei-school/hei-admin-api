@@ -797,7 +797,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/CreateCourseAssignment'
+                $ref: '#/components/schemas/CrupdateCourseAssignment'
       responses:
         '200':
           description: All course_assignments that have been created / updated
@@ -993,40 +993,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Course'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /groups/{group_id}/course_assignment/{course_assignment_id}:
-    get:
-      tags:
-        - Courses
-      summary: Get a specific group course_assignment
-      parameters:
-        - name: group_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: course_assignment_id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: getCourseAssignmentByIdAndGroupId
-      responses:
-        '200':
-          description: A specific course_assignment for a specific group
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/CourseAssignment'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1299,7 +1265,7 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getAllCourseAssignmentByGroup
+      operationId: getAllCourseAssignmentsByGroupId
       responses:
         '200':
           description: List of all course_assignments in specific group
@@ -1658,7 +1624,7 @@ paths:
           schema:
             $ref: '#/components/schemas/PageSize'
           required: false
-      operationId: getAllCourseAssignmentByCriteria
+      operationId: getAllCourseAssignmentsByCriteria
       responses:
         '200':
           description: List of all course_assignments
@@ -6263,7 +6229,7 @@ components:
     Course:
       allOf:
         - $ref: '#/components/schemas/CourseTemplate'
-    CreateCourseAssignment:
+    CrupdateCourseAssignment:
       type: object
       properties:
         id:
