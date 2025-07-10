@@ -777,6 +777,46 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /courses/{course_id}/course_assignments:
+    put:
+      tags:
+        - Teaching
+      summary: Add or update course_assignments for a given course id.
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: createOrUpdateCourseAssignmentByCourseId
+      requestBody:
+        required: true
+        description: course_assignment to create / update
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateCourseAssignment'
+      responses:
+        '200':
+          description: All course_assignments that have been created / updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseAssignment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/courses/{course_id}/students/grades':
     get:
       tags:
@@ -997,7 +1037,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /course_assignment/{course_assignment_id}/exams:
+  /course_assignments/{course_assignment_id}/exams:
     get:
       tags:
         - Teaching
@@ -1237,13 +1277,13 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /groups/{id}/course_assignments:
+  /groups/{group_id}/course_assignments:
     get:
       tags:
         - Teaching
       summary: Get all group course_assignments
       parameters:
-        - name: id
+        - name: group_id
           in: path
           required: true
           schema:
@@ -1263,46 +1303,6 @@ paths:
       responses:
         '200':
           description: List of all course_assignments in specific group
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CourseAssignment'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    put:
-      tags:
-        - Teaching
-      summary: Create new course_assignments or update existing course_assignments
-      description: Update course_assignments when `id` are provided, create them otherwise.
-      parameters:
-        - name: id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: CreateOrUpdateCourseAssignments
-      requestBody:
-        required: true
-        description: Course assignments to update
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateCourseAssignment'
-      responses:
-        '200':
-          description: Exams infos without the students participated
           content:
             application/json:
               schema:
@@ -1345,46 +1345,6 @@ paths:
       responses:
         '200':
           description: List of all course_assignments for a teacher
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/CourseAssignment'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-    put:
-      tags:
-        - Teaching
-      summary: Create new course_assignments or update existing course_assignments for a teacher
-      description: Update course_assignments when `id` are provided, create them otherwise.
-      parameters:
-        - name: teacher_id
-          in: path
-          required: true
-          schema:
-            type: string
-      operationId: CreateOrUpdateCourseAssignmentByTeacherId
-      requestBody:
-        required: true
-        description: CourseAssignment to update
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/CreateCourseAssignment'
-      responses:
-        '200':
-          description: List of course_assignments created or updated
           content:
             application/json:
               schema:
