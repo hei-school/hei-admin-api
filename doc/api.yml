@@ -169,7 +169,7 @@ paths:
   '/groups/{id}':
     get:
       tags:
-        - Teaching
+        - Groups
       summary: Get group by identifier
       parameters:
         - name: id
@@ -198,7 +198,7 @@ paths:
   /groups:
     get:
       tags:
-        - Teaching
+        - Groups
       summary: Get all groups
       operationId: getGroups
       parameters:
@@ -244,7 +244,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Teaching
+        - Groups
       summary: Create new groups or update existing groups
       description: Update groups when `id` are provided, create them otherwise.
       operationId: createOrUpdateGroups
@@ -438,7 +438,7 @@ paths:
   /students/{student_id}/grades:
     get:
       tags:
-        - Teaching
+        - Grades
       summary: Get student grades.
       operationId: getStudentGrades
       parameters:
@@ -755,7 +755,7 @@ paths:
   '/courses/{course_id}':
     get:
       tags:
-        - Teaching
+        - Courses
       summary: Get course by identifier
       parameters:
         - $ref: '#/components/parameters/PathCourseId'
@@ -780,7 +780,7 @@ paths:
   /courses/{course_id}/course_assignments:
     put:
       tags:
-        - Teaching
+        - Courses
       summary: Add or update course_assignments for a given course id.
       parameters:
         - name: course_id
@@ -820,7 +820,7 @@ paths:
   '/courses/{course_id}/students/grades':
     get:
       tags:
-        - Teaching
+        - Grades
       summary: Get students grade for exams in a specific course
       parameters:
         - $ref: '#/components/parameters/PathCourseId'
@@ -848,7 +848,7 @@ paths:
   '/courses/{course_id}/student/{student_id}/grade/stats':
     get:
       tags:
-        - Teaching
+        - Grades
       summary: Get student grade statistics for exams in a specific course
       parameters:
         - $ref: '#/components/parameters/PathCourseId'
@@ -874,7 +874,7 @@ paths:
   '/courses/{course_id}/student/{student_id}/exams/grades':
     get:
       tags:
-        - Teaching
+        - Grades
       summary: Get student exams grade in a specific course
       parameters:
         - $ref: '#/components/parameters/PathCourseId'
@@ -902,7 +902,7 @@ paths:
   /courses:
     get:
       tags:
-        - Teaching
+        - Courses
       summary: Get all courses
       operationId: getCourses
       parameters:
@@ -971,7 +971,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Teaching
+        - Courses
       summary: Create new courses or update existing courses
       description: Update courses when `id` are provided, create them otherwise.
       operationId: CreateOrUpdateCourses
@@ -1006,7 +1006,7 @@ paths:
   /groups/{group_id}/course_assignment/{course_assignment_id}:
     get:
       tags:
-        - Teaching
+        - Courses
       summary: Get a specific group course_assignment
       parameters:
         - name: group_id
@@ -1040,7 +1040,7 @@ paths:
   /course_assignments/{course_assignment_id}/exams:
     get:
       tags:
-        - Teaching
+        - Exams
       summary: Get all exam infos of a specified course_assignment.
       parameters:
         - name: course_assignment_id
@@ -1081,7 +1081,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Teaching
+        - Exams
       summary: Create new exams or update existing exams
       description: Update exams when `id` are provided, create them otherwise.
       parameters:
@@ -1122,7 +1122,7 @@ paths:
   /exams:
     get:
       tags:
-        - Teaching
+        - Exams
       summary: Get all exam infos.
       parameters:
         - name: course_assignment_id
@@ -1187,7 +1187,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Teaching
+        - Exams
       summary: Create new exams or update existing exams
       operationId: CreateOrUpdateExamsInfos
       requestBody:
@@ -1217,7 +1217,7 @@ paths:
   /exams/{id}:
     get:
       tags:
-        - Teaching
+        - Exams
       summary: Get exam by id
       operationId: getExamOneExamById
       parameters:
@@ -1246,7 +1246,7 @@ paths:
   /course_assignment/{course_assignment_id}/exams/{exam_id}:
     get:
       tags:
-        - Teaching
+        - Exams
       summary: Get a course_assignment exam.
       operationId: getExamById
       parameters:
@@ -1280,7 +1280,7 @@ paths:
   /groups/{group_id}/course_assignments:
     get:
       tags:
-        - Teaching
+        - Courses
       summary: Get all group course_assignments
       parameters:
         - name: group_id
@@ -1322,7 +1322,7 @@ paths:
   /teachers/{teacher_id}/course_assignments:
     get:
       tags:
-        - Teaching
+        - Courses
       summary: Get all course_assignments to a teacher
       parameters:
         - name: teacher_id
@@ -1364,7 +1364,7 @@ paths:
   /groups/{id}/students/raw:
     get:
       tags:
-        - Teaching
+        - Groups
       summary: Get all students as xlsx file of a group
       operationId: generateStudentsGroupInXlsx
       parameters:
@@ -1539,7 +1539,7 @@ paths:
   /groups/{id}/students:
     get:
       tags:
-        - Teaching
+        - Groups
       summary: Get all students who follow a group
       parameters:
         - name: id
@@ -1588,7 +1588,7 @@ paths:
   /students/{id}/group_flows:
     post:
       tags:
-        - Teaching
+        - Groups
       summary: Moving or removing a student from a group.
       parameters:
         - name: id
@@ -1628,7 +1628,7 @@ paths:
   /course_assignments:
     get:
       tags:
-        - Teaching
+        - Courses
       summary: Get all course_assignments
       parameters:
         - name: teacher_id
@@ -1681,7 +1681,7 @@ paths:
   /exams/{exams_id}/grade/stats:
     get:
       tags:
-        - Teaching
+        - Grades
       summary: Get the exam grade stats
       operationId: getExamGradeStats
       parameters:
@@ -1706,7 +1706,7 @@ paths:
   /exams/{exam_id}/students/{student_id}/grade:
     get:
       tags:
-        - Teaching
+        - Grades
       summary: Return a participant with his exam grade
       operationId: getParticipantGrade
       parameters:
@@ -1739,7 +1739,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Teaching
+        - Grades
       summary: Create or update a participant exam grade
       operationId: crupdateParticipantGrade
       parameters:
@@ -1780,7 +1780,7 @@ paths:
   /exams/{exam_id}/grades:
     get:
       tags:
-        - Teaching
+        - Grades
       summary: Return all participants with there exam grade
       operationId: getParticipantsGradeForExam
       parameters:
@@ -1821,7 +1821,7 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Teaching
+        - Grades
       summary: Modify student grades in exam
       operationId: updateParticipantsGradeForExam
       parameters:
