@@ -6,10 +6,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Comparator.comparing;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
 
@@ -20,6 +17,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,6 +33,7 @@ import school.hei.haapi.endpoint.rest.model.FeeCategory;
 import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
+import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.fee.PaymentType;
 
@@ -193,5 +192,11 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
         .filter(fee -> fee.getDatetime().equals(instant) || fee.getDatetime().isBefore(instant))
         .max(comparing(FeeStatusHistory::getDatetime))
         .map(FeeStatusHistory::getStatus);
+  }
+
+  public boolean haveNoPendingMobilePayments() {
+    return mobilePayments.stream()
+        .map(Mpbs::getStatus)
+        .noneMatch(Predicate.isEqual(MpbsStatus.PENDING));
   }
 }

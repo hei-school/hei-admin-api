@@ -211,7 +211,7 @@ public class FeeService {
     if (initialFee.getRemainingAmount() == 0) {
       initialFee.updateStatus(PAID);
     } else if (Instant.now().isAfter(initialFee.getDueDatetime())
-        && initialFee.getStatus() == UNPAID) {
+        && (initialFee.getStatus() == UNPAID || initialFee.haveNoPendingMobilePayments())) {
       initialFee.updateStatus(LATE);
     }
     feeStatusHistoryService.saveFeeStatus(initialFee.getStatus(), initialFee);
