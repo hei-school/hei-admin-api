@@ -1,3 +1,19 @@
+## [1.104.1](https://github.com/hei-school/hei-admin-api/compare/v1.104.0...v1.104.1) (2025-07-10)
+
+
+### Bug Fixes
+
+* advanced fee stats null stat_date on update ([887a199](https://github.com/hei-school/hei-admin-api/commit/887a1994f69dabbb72d15f434c504e1bbdd2745b))
+* db backup neon ([2ff60d0](https://github.com/hei-school/hei-admin-api/commit/2ff60d0b4058e775e5d9f0c45c242d2d884c9759))
+* not failling mpbs ([45811cf](https://github.com/hei-school/hei-admin-api/commit/45811cfa844a9a4bffb0e9a4ab6e5c66c1d4d0e2))
+
+
+### Reverts
+
+* Revert "promotion: preprod to prod" ([c21886b](https://github.com/hei-school/hei-admin-api/commit/c21886bf666f864d3043d82adaad540a6bff0cec))
+
+
+
 # [1.104.0](https://github.com/hei-school/hei-admin-api/compare/v1.103.1...v1.104.0) (2025-05-27)
 
 
@@ -129,15 +145,6 @@
 ### Reverts
 
 * Revert "promotion: preprod to prod" ([9047d5d](https://github.com/hei-school/hei-admin-api/commit/9047d5d1a535750320e757df768f9dff85b4ec6a))
-
-
-
-# [1.98.0](https://github.com/hei-school/hei-admin-api/compare/v1.97.0...v1.98.0) (2025-02-14)
-
-
-### Features
-
-* add advanced fees statistics ([c9d6e87](https://github.com/hei-school/hei-admin-api/commit/c9d6e873524f0854d82c050e6ee0a7cc6f4d8aa6))
 
 
 
