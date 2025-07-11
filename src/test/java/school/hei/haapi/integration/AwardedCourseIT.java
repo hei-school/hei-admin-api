@@ -3,6 +3,8 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.FakeDataProvider.createAwardedCourse;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableCreateAwardedCourseList;
 import static school.hei.haapi.integration.conf.TestUtils.*;
 
 import java.util.List;
@@ -102,7 +104,7 @@ class AwardedCourseIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void awarded_courses_by_teacher_id_ko() throws ApiException {
+  void awarded_courses_by_teacher_id_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
 
@@ -160,7 +162,7 @@ class AwardedCourseIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void student_create_or_update_ko() throws ApiException {
+  void student_create_or_update_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     TeachingApi api = new TeachingApi(student1Client);
     assertThrowsApiException(
@@ -175,7 +177,7 @@ class AwardedCourseIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void teacher_create_or_update_ko() throws ApiException {
+  void teacher_create_or_update_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     TeachingApi api = new TeachingApi(teacher1Client);
     assertThrowsApiException(

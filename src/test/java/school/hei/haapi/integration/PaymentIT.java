@@ -367,7 +367,7 @@ class PaymentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_write_with_non_given_creation_datetime_ko() throws ApiException {
+  void manager_write_with_non_given_creation_datetime_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 
@@ -378,7 +378,7 @@ class PaymentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_write_with_creation_datetime_after_current_time_ko() throws ApiException {
+  void manager_write_with_creation_datetime_after_current_time_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
 

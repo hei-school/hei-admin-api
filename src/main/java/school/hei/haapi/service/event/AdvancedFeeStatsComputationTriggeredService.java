@@ -1,6 +1,7 @@
 package school.hei.haapi.service.event;
 
 import static java.time.ZoneOffset.UTC;
+import static java.util.Optional.empty;
 
 import java.time.Instant;
 import java.util.Optional;
@@ -24,7 +25,7 @@ public class AdvancedFeeStatsComputationTriggeredService
     Optional<Instant> fromValue =
         Optional.ofNullable(advancedFeeStatsComputationTriggered.getBeginDatetime().toInstant(UTC));
     Optional<Instant> toValue =
-        Optional.ofNullable(advancedFeeStatsComputationTriggered.getEndDatetime().toInstant(UTC));
-    advancedFeeStatsService.updateAdvancedFeeStats(fromValue, toValue);
+        Optional.ofNullable(advancedFeeStatsComputationTriggered.getEnd().toInstant(UTC));
+    advancedFeeStatsService.updateAdvancedFeeStats(fromValue, toValue, empty());
   }
 }

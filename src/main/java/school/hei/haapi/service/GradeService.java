@@ -5,13 +5,16 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.GradeRepository;
@@ -45,9 +48,9 @@ public class GradeService {
       presentGrade.setScore(grade.getScore());
       return presentGrade;
     }
-    if (!userService
-        .getByGroupId(grade.getExam().getAwardedCourse().getGroup().getId())
-        .contains(grade.getStudent())) {
+    if (userService.getByGroupId(grade.getExam().getAwardedCourse().getGroup().getId()).stream()
+        .map(User::getId)
+        .noneMatch(Predicate.isEqual(grade.getStudent().getId()))) {
       throw new BadRequestException(
           String.format(
               "Student with id: %s not in the Exam: %s",
@@ -69,5 +72,17 @@ public class GradeService {
         (page == null || pageSize == null)
             ? Pageable.unpaged()
             : PageRequest.of((page.getValue() - 1), pageSize.getValue()));
+  }
+
+  private double getExamAverageGrade(String examId) {
+    var averageOfGradeResult =
+        gradeDao.getGradesByExamId(examId).stream().mapToDouble(Grade::getScore).average();
+    if (averageOfGradeResult.isEmpty())
+      throw new NotFoundException("Exam with id " + examId + " do not have a score");
+    return averageOfGradeResult.getAsDouble();
+  }
+
+  public ExamGradeStats getExamGradeStats(String examId) {
+    return new ExamGradeStats().average(getExamAverageGrade(examId));
   }
 }

@@ -17,7 +17,7 @@ public class CourseValidator implements Consumer<Course> {
   private final CourseRepository repository;
 
   public void accept(List<Course> courses) {
-    courses.forEach(this::accept);
+    courses.forEach(this);
   }
 
   @Override

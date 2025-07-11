@@ -133,48 +133,48 @@ class PaymentServiceTest extends MockedThirdParties {
   }
 
   public static Fee student1UnpaidFee1() {
-    Fee associatedFee = new Fee();
-    associatedFee.setId("fee3_id");
-    associatedFee.setStudent(student1());
-    associatedFee.setType(TUITION);
-    associatedFee.setComment("Comment");
-    associatedFee.setRemainingAmount(5000);
-    associatedFee.setTotalAmount(5000);
-    associatedFee.setStatus(LATE);
-    associatedFee.setCreationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"));
-    associatedFee.setDueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"));
-    associatedFee.setUpdatedAt(Instant.parse("2021-12-09T08:25:24.00Z"));
-    return associatedFee;
+    return Fee.builder()
+        .id("fee3_id")
+        .student(student1())
+        .type(TUITION)
+        .comment("Comment")
+        .remainingAmount(5000)
+        .totalAmount(5000)
+        .status(LATE)
+        .creationDatetime(Instant.parse("2022-12-08T08:25:24.00Z"))
+        .dueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"))
+        .updatedAt(Instant.parse("2021-12-09T08:25:24.00Z"))
+        .build();
   }
 
   public static Fee student2UnpaidFee1() {
-    Fee associatedFee = new Fee();
-    associatedFee.setId("fee4_id");
-    associatedFee.setStudent(student2());
-    associatedFee.setType(TUITION);
-    associatedFee.setComment("Comment");
-    associatedFee.setRemainingAmount(5000);
-    associatedFee.setTotalAmount(5000);
-    associatedFee.setStatus(LATE);
-    associatedFee.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    associatedFee.setDueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"));
-    associatedFee.setUpdatedAt(Instant.parse("2021-12-09T08:25:25.00Z"));
-    return associatedFee;
+    return Fee.builder()
+        .id("fee4_id")
+        .student(student2())
+        .type(TUITION)
+        .comment("Comment")
+        .remainingAmount(5000)
+        .totalAmount(5000)
+        .status(LATE)
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .dueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"))
+        .updatedAt(Instant.parse("2021-12-09T08:25:25.00Z"))
+        .build();
   }
 
   public static Fee student2UnpaidFee2() {
-    Fee associatedFee = new Fee();
-    associatedFee.setId("fee5_id");
-    associatedFee.setStudent(student2());
-    associatedFee.setType(HARDWARE);
-    associatedFee.setComment("Comment");
-    associatedFee.setRemainingAmount(5000);
-    associatedFee.setTotalAmount(5000);
-    associatedFee.setStatus(LATE);
-    associatedFee.setCreationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"));
-    associatedFee.setDueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"));
-    associatedFee.setUpdatedAt(Instant.parse("2021-12-08T08:25:25.00Z"));
-    return associatedFee;
+    return Fee.builder()
+        .id("fee5_id")
+        .student(student2())
+        .type(HARDWARE)
+        .comment("Comment")
+        .remainingAmount(5000)
+        .totalAmount(5000)
+        .status(LATE)
+        .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+        .dueDatetime(Instant.parse("2023-02-08T08:30:24.00Z"))
+        .updatedAt(Instant.parse("2021-12-08T08:25:25.00Z"))
+        .build();
   }
 
   public static User student1() {

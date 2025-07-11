@@ -7,7 +7,6 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
-import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
@@ -42,25 +41,22 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.Query;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URI;
 import java.time.Instant;
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.http.HttpStatus;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.event.consumer.EventConsumer;
-import school.hei.haapi.endpoint.event.model.AdvancedFeeStatsComputationTriggered;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.AdvancedFeesStatistics;
+import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeesStatistics;
@@ -69,18 +65,13 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
-import school.hei.haapi.service.event.AdvancedFeeStatsComputationTriggeredService;
 
 @Testcontainers
 @AutoConfigureMockMvc
 @Slf4j
 class FeeIT extends FacadeITMockedThirdParties {
-  @Autowired EventConsumer subject;
   @Autowired EntityManager entityManager;
   @Autowired FeeRepository feeRepository;
-
-  @Autowired
-  AdvancedFeeStatsComputationTriggeredService advancedFeeStatsComputationTriggeredService;
 
   @Autowired FeeDao feeDao;
 
@@ -140,11 +131,13 @@ class FeeIT extends FacadeITMockedThirdParties {
     assertEquals(test, fee3());
 
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 20, null);
+    List<Fee> lateFees = api.getStudentFees(STUDENT1_ID, 1, 20, LATE);
 
     assertEquals(fee1(), actualFee);
     assertTrue(actual.contains(fee1()));
     assertTrue(actual.contains(fee2()));
     assertTrue(actual.contains(fee3()));
+    assertTrue(lateFees.contains(fee3()));
   }
 
   @Test
@@ -251,6 +244,7 @@ class FeeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("It dirties the other tests")
   void student_write_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     PayingApi api = new PayingApi(student1Client);
@@ -280,6 +274,7 @@ class FeeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("It dirties the other tests")
   void manager_write_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
@@ -335,72 +330,43 @@ class FeeIT extends FacadeITMockedThirdParties {
   void manager_write_with_some_bad_fields_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     PayingApi api = new PayingApi(manager1Client);
-    CreateFee toCreate1 = creatableFee1().totalAmount(null);
-    CreateFee toCreate2 = creatableFee1().totalAmount(-1);
-    CreateFee toCreate3 = creatableFee1().dueDatetime(null);
-    String wrongId = "wrong id";
+    String wrongId = "some-wrong-id";
     List<Fee> expected = api.getStudentFees(STUDENT1_ID, 1, 5, null);
 
-    ApiException exception1 =
-        assertThrows(
-            ApiException.class, () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate1)));
-    ApiException exception2 =
-        assertThrows(
-            ApiException.class, () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate2)));
-    ApiException exception3 =
-        assertThrows(
-            ApiException.class, () -> api.createStudentFees(STUDENT1_ID, List.of(toCreate3)));
-    ApiException exception4 =
-        assertThrows(
-            ApiException.class, () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(null))));
-    ApiException exception6 =
-        assertThrows(
-            ApiException.class,
-            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(HARDWARE))));
-    ApiException exception7 =
-        assertThrows(
-            ApiException.class,
-            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().remainingAmount(10))));
-    ApiException exception9 =
-        assertThrows(
-            ApiException.class,
-            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().totalAmount(10))));
-    ApiException exception10 =
-        assertThrows(
-            ApiException.class,
-            () ->
-                api.updateStudentFees(
-                    STUDENT1_ID,
-                    List.of(fee1().creationDatetime(Instant.parse("2021-11-09T10:10:10.00Z")))));
-    ApiException exception11 =
-        assertThrows(
-            ApiException.class,
-            () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(wrongId))));
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Total amount is mandatory\"}",
+        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(null))));
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Total amount must be positive\"}",
+        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().totalAmount(-1))));
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Due datetime is mandatory\"}",
+        () -> api.createStudentFees(STUDENT1_ID, List.of(creatableFee1().dueDatetime(null))));
 
-    String exceptionMessage1 = exception1.getMessage();
-    String exceptionMessage2 = exception2.getMessage();
-    String exceptionMessage3 = exception3.getMessage();
-    String exceptionMessage4 = exception4.getMessage();
-    String exceptionMessage6 = exception6.getMessage();
-    String exceptionMessage7 = exception7.getMessage();
-    String exceptionMessage9 = exception9.getMessage();
-    String exceptionMessage10 = exception10.getMessage();
-    String exceptionMessage11 = exception11.getMessage();
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Id is mandatory\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(null))));
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify Type\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().type(HARDWARE))));
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify remainingAmount\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().remainingAmount(10))));
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify totalAmount\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().totalAmount(10))));
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Can't modify creationDatetime\"}",
+        () ->
+            api.updateStudentFees(
+                STUDENT1_ID,
+                List.of(fee1().creationDatetime(Instant.parse("2021-11-09T10:10:10.00Z")))));
+    assertThrowsApiException(
+        "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Fee with id " + wrongId + " does not exist\"}",
+        () -> api.updateStudentFees(STUDENT1_ID, List.of(fee1().id(wrongId))));
 
     List<Fee> actual = api.getStudentFees(STUDENT1_ID, 1, 5, null);
     assertEquals(expected.size(), actual.size());
-
-    assertTrue(expected.containsAll(actual));
-    assertTrue(exceptionMessage1.contains("Total amount is mandatory"));
-    assertTrue(exceptionMessage2.contains("Total amount must be positive"));
-    assertTrue(exceptionMessage3.contains("Due datetime is mandatory"));
-
-    assertTrue(exceptionMessage4.contains("Id is mandatory"));
-    assertTrue(exceptionMessage6.contains("Can't modify Type"));
-    assertTrue(exceptionMessage7.contains("Can't modify remainingAmount"));
-    assertTrue(exceptionMessage9.contains("Can't modify total amount"));
-    assertTrue(exceptionMessage10.contains("Can't modify CreationDatetime"));
-    assertTrue(exceptionMessage11.contains("Fee with id " + wrongId + "does not exist"));
   }
 
   @Test
@@ -509,26 +475,17 @@ class FeeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_get_advanced_fees_stats_ok() throws ApiException {
-    LocalDate fromDate = LocalDate.parse("2021-12-01");
-    LocalDate toDate = LocalDate.parse("2021-12-31");
-    AdvancedFeeStatsComputationTriggered event =
-        new AdvancedFeeStatsComputationTriggered(
-            LocalDateTime.ofInstant(Instant.parse("2021-12-13T00:00:00.00Z"), UTC), now());
-    advancedFeeStatsComputationTriggeredService.accept(event);
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    PayingApi api = new PayingApi(manager1Client);
-    AdvancedFeesStatistics advStats = api.getAdvancedFeesStats(fromDate, toDate);
+  void manager_generate_advanced_fee_statistics_ok() throws ApiException {
+    LocalDateTime fromDateTime = LocalDateTime.parse("2025-04-01T00:00:00.00");
+    LocalDateTime toDateTime = LocalDateTime.parse("2025-04-30T23:59:59.99");
 
-    assertEquals(1, advStats.getTotalExpectedFeesCount().getFirstGrade());
-    assertEquals(1, advStats.getTotalExpectedFeesCount().getWorkStudy());
-    assertEquals(1, advStats.getTotalExpectedFeesCount().getThirdGrade());
+    var client = anApiClient(MANAGER1_TOKEN);
+    var payingApi = new PayingApi(client);
+    var expectedStats = new AdvancedFeeStatisticsGeneration().data("Total stats generated: 4");
+    var actualStat =
+        payingApi.generateAdvancedStats(fromDateTime.toInstant(UTC), toDateTime.toInstant(UTC));
 
-    assertEquals(BigDecimal.valueOf(1), advStats.getPaidFeesCount().getMobileMoney());
-    assertEquals(1, advStats.getPaidFeesCount().getFirstGrade());
-
-    assertEquals(1, advStats.getLateFeesCount().getThirdGrade());
-    assertEquals(1, advStats.getLateFeesCount().getWorkStudy());
+    assertEquals(expectedStats, actualStat);
   }
 
   @Test

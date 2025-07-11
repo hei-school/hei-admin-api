@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static java.util.UUID.randomUUID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
@@ -36,6 +37,7 @@ import school.hei.haapi.model.FeeTemplate;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
@@ -54,6 +56,7 @@ public class FeeService {
   private final EventProducer<PojaEvent> eventProducer;
   private final FeeDao feeDao;
   private final FeeTemplateService feeTemplateService;
+  private final FeeStatusHistoryService feeStatusHistoryService;
   private static final String MONTHLY_FEE_TEMPLATE_NAME = "Frais mensuel L1";
   private static final String YEARLY_FEE_TEMPLATE_NAME = "Frais annuel L1";
 
@@ -77,7 +80,7 @@ public class FeeService {
     int remainingAmount = toUpdate.getRemainingAmount();
     log.info("actual remaining amount before computing = {}", remainingAmount);
     if (remainingAmount == 0) {
-      throw new ApiException(SERVER_EXCEPTION, "Remaining amount is already 0");
+      throw new NoRemainingAmountFee(toUpdate);
     }
     toUpdate.setRemainingAmount(remainingAmount - amountToDebit);
 
@@ -96,7 +99,7 @@ public class FeeService {
     int remainingAmount = toUpdate.getRemainingAmount();
 
     if (remainingAmount == 0) {
-      throw new ApiException(SERVER_EXCEPTION, "Remaining amount is already 0");
+      throw new NoRemainingAmountFee(toUpdate);
     }
     if (amountToDebit > remainingAmount) {
       throw new ApiException(SERVER_EXCEPTION, "Remaining amount is inferior to your request");
@@ -194,26 +197,23 @@ public class FeeService {
     return feesStats.getFirst();
   }
 
-  private int toInt(Object value) {
-    return value instanceof Number ? ((Number) value).intValue() : 0;
-  }
-
   public List<Fee> getFeesByStudentId(
       String studentId, PageFromOne page, BoundedPageSize pageSize, FeeStatusEnum status) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     if (status != null) {
-      return feeRepository.getFeesByStudentIdAndStatus(studentId, status, pageable);
+      return feeRepository.getFeesByStudentIdAndStatusOrderByDueDatetimeDesc(
+          studentId, status, pageable);
     }
     return feeRepository.findAllByStudentIdSortByStatusAndDueDatetimeDescAndId(studentId, pageable);
   }
 
   private Fee updateFeeStatus(Fee initialFee) {
     if (initialFee.getRemainingAmount() == 0) {
-      initialFee.setStatus(PAID);
-    } else if (Instant.now().isAfter(initialFee.getDueDatetime())
-        && initialFee.getStatus() == UNPAID) {
-      initialFee.setStatus(LATE);
+      initialFee.updateStatus(PAID);
+    } else if (initialFee.mustBeLate()) {
+      initialFee.updateStatus(LATE);
     }
+    feeStatusHistoryService.saveFeeStatus(initialFee.getStatus(), initialFee);
     return feeRepository.save(initialFee);
   }
 
@@ -228,7 +228,9 @@ public class FeeService {
           case YEARLY ->
               createFeesFromFeeTemplate(YEARLY_FEE_TEMPLATE_NAME, user, firstDueDatetime);
         };
-    return feeRepository.saveAll(feesToSave);
+    List<Fee> savedFees = feeRepository.saveAll(feesToSave);
+    savedFees.forEach(fee -> feeStatusHistoryService.saveFeeStatus(fee.getStatus(), fee));
+    return savedFees;
   }
 
   public List<Fee> createFeesFromFeeTemplate(String feeTemplateName, User user, Instant instant) {
@@ -285,7 +287,7 @@ public class FeeService {
             lateFees.add(modifiedFee);
           }
         });
-    lateFees.forEach(lf -> feeRepository.updateFeeStatusById(LATE, lf.getId()));
+    feeRepository.saveAll(lateFees);
     log.info("lateFees = {}", lateFees.stream().map(Fee::describe).toList());
     // Send list of late fees with student ref to contact
     if (!lateFees.isEmpty()) {
@@ -346,7 +348,9 @@ public class FeeService {
         });
   }
 
-  public Fee update(Fee fee) {
+  public Fee pendFeeForMpbs(Fee fee) {
+    fee.updateStatus(PENDING);
+    feeStatusHistoryService.saveFeeStatus(fee.getStatus(), fee);
     return feeRepository.save(fee);
   }
 }
