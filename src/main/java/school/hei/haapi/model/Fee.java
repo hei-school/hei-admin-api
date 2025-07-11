@@ -4,6 +4,7 @@ import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Comparator.comparing;
+import static java.util.function.Predicate.isEqual;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
@@ -19,7 +20,6 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
@@ -198,9 +198,7 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
   }
 
   public boolean haveNoPendingMobilePayments() {
-    return mobilePayments.stream()
-        .map(Mpbs::getStatus)
-        .noneMatch(Predicate.isEqual(MpbsStatus.PENDING));
+    return mobilePayments.stream().map(Mpbs::getStatus).noneMatch(isEqual(MpbsStatus.PENDING));
   }
 
   public boolean mustBeLate() {
