@@ -70,6 +70,7 @@ class FeeServiceTest {
         .creationDatetime(creationDatetime)
         .status(status)
         .student(student1())
+        .mobilePayments(List.of())
         .payments(List.of(payment1(paymentAmount, creationDatetime)))
         .build();
   }
