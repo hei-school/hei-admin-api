@@ -8,6 +8,7 @@ import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
 
@@ -20,7 +21,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -201,5 +201,11 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
     return mobilePayments.stream()
         .map(Mpbs::getStatus)
         .noneMatch(Predicate.isEqual(MpbsStatus.PENDING));
+  }
+
+  public boolean mustBeLate() {
+    return Instant.now().isAfter(dueDatetime)
+        && !PAID.equals(status)
+        && (UNPAID.equals(status) || haveNoPendingMobilePayments());
   }
 }
