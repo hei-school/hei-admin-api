@@ -6,6 +6,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Comparator.comparing;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
+import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
@@ -18,6 +19,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -182,7 +185,7 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
 
   private boolean isValidNewStatus(FeeStatusEnum newStatus) {
     return switch (this.status) {
-      case PAID -> !PENDING.equals(newStatus);
+      case PAID -> Stream.of(PENDING, PAID).anyMatch(e -> e.equals(newStatus));
       case UNPAID, PENDING, LATE -> true;
     };
   }
