@@ -1,6 +1,6 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.toList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -12,10 +12,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.mapper.CourseAssignmentMapper;
-import school.hei.haapi.endpoint.rest.model.CreateCourseAssignment;
-import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
@@ -59,27 +57,21 @@ public class CourseAssignmentService {
     return courseAssignmentRepository.getByIdAndGroupId(id, groupId);
   }
 
-  public CourseAssignment createOrUpdateCourseAssignment(CreateCourseAssignment createCourseAssignment) {
-    List<Group> groups = groupRepository.findAllById(createCourseAssignment.getGroups());
-    Course course = courseRepository.getById(createCourseAssignment.getCourseId());
-    User teacher = userRepository.getById(createCourseAssignment.getMainTeacherId());
-    CourseAssignment awardedCourse =
-        courseAssignmentRepository.save(
-            CourseAssignment.builder().course(course).mainTeacher(teacher).groups(groups).build());
-    courseAssignmentValidator.accept(awardedCourse);
-    return awardedCourse;
+  @Transactional
+  public List<CourseAssignment> crupdateCourseAssignments(
+      List<CourseAssignment> courseAssignments) {
+    return courseAssignments.stream().map(this::crupdateCourseAssignment).toList();
   }
 
-  public Boolean checkTeacherOfAwardedCourse(
+  public CourseAssignment crupdateCourseAssignment(CourseAssignment courseAssignment) {
+    courseAssignmentValidator.accept(courseAssignment);
+    return courseAssignmentRepository.save(courseAssignment);
+  }
+
+  public Boolean checkTeacherOfCourseAssignment(
       String teacherId, String awardedCourseId, String groupId) {
     CourseAssignment awardedCourse = getById(awardedCourseId, groupId);
     return awardedCourse.getMainTeacher().getId().equals(teacherId);
-  }
-
-  @Transactional
-  public List<CourseAssignment> createOrUpdateCourseAssignments(
-      List<CreateCourseAssignment> createCourseAssignments) {
-    return createCourseAssignments.stream().map(this::createOrUpdateCourseAssignment).collect(toList());
   }
 
   public List<CourseAssignment> getByCriteria(
@@ -89,24 +81,25 @@ public class CourseAssignmentService {
     return courseAssignmentDAO.findByCriteria(teacherId, courseId, pageable);
   }
 
-  public List<CourseAssignment> getCourseAssignmentsByTeacherId(
+  public List<CourseAssignment> getByTeacherId(
       String teacherId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     return courseAssignmentRepository.findAllByMainTeacherId(teacherId, pageable);
   }
 
   @Transactional
-  public List<CourseAssignment> createOrUpdateCourseAssignmentsByTeacherId(
+  public List<CourseAssignment> crupdateCourseAssignmentsByTeacherId(
       String teacherId, List<CourseAssignment> courseAssignments) {
     courseAssignmentValidator.accept(courseAssignments);
     return courseAssignmentRepository.saveAll(courseAssignments);
   }
 
-  public CourseAssignment findById(String awardedCourseId) {
+  public CourseAssignment findCourseAssignmentById(String awardedCourseId) {
     return courseAssignmentRepository
         .findById(awardedCourseId)
         .orElseThrow(
             () ->
-                new NotFoundException("Course assignment with id: " + awardedCourseId + " not found"));
+                new NotFoundException(
+                    "Course assignment with id: " + awardedCourseId + " not found"));
   }
 }
