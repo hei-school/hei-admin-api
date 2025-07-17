@@ -3,6 +3,8 @@ package school.hei.haapi.service;
 import static java.util.stream.Collectors.toUnmodifiableList;
 
 import jakarta.transaction.Transactional;
+
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -13,6 +15,7 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Grade;
+import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -48,9 +51,15 @@ public class GradeService {
       presentGrade.setScore(grade.getScore());
       return presentGrade;
     }
-    if (userService.getByGroupId(grade.getExam().getAwardedCourse().getGroup().getId()).stream()
-        .map(User::getId)
-        .noneMatch(Predicate.isEqual(grade.getStudent().getId()))) {
+    // TODO: refactor this to be more readable
+    var studentCurrentGroup = grade.getStudent().getGroupFlows().stream().max(Comparator.comparing(GroupFlow::getFlowDatetime));
+    if (studentCurrentGroup.isEmpty()) {
+      throw new BadRequestException(
+          String.format(
+              "Student with id: %s not in any group", grade.getStudent().getId()));
+    }
+    var isInAssignedGroups = grade.getExam().getCourseAssignment().getGroups().stream().anyMatch(group -> studentCurrentGroup.get().getGroup().getId().equals(group.getId()));
+    if (!isInAssignedGroups) {
       throw new BadRequestException(
           String.format(
               "Student with id: %s not in the Exam: %s",
