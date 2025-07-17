@@ -13,4 +13,6 @@ public interface CourseAssignmentRepository extends JpaRepository<CourseAssignme
   List<CourseAssignment> findAllByGroupId(String groupId, Pageable pageable);
 
   List<CourseAssignment> findAllByMainTeacherId(String teacherId, Pageable pageable);
+
+  List<CourseAssignment> findAllByCourseId(String courseId, Pageable pageable);
 }

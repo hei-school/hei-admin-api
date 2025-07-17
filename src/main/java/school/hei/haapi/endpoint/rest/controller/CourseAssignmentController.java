@@ -23,8 +23,18 @@ public class CourseAssignmentController {
   private final CourseAssignmentService service;
   private final CourseAssignmentMapper mapper;
 
+  @GetMapping("/courses/{course_id}/course_assignments")
+  public List<CourseAssignment> getCourseAssignmentsByCourseId(
+      @PathVariable("course_id") String courseId,
+      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
+    return service.getByCourseId(courseId, page, pageSize).stream()
+        .map(mapper::toRest)
+        .collect(toList());
+  }
+
   @GetMapping("/groups/{group_id}/course_assignments")
-  public List<CourseAssignment> getAllCourseAssignmentsByGroupId(
+  public List<CourseAssignment> getCourseAssignmentsByGroupId(
       @PathVariable("group_id") String groupId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
@@ -34,7 +44,7 @@ public class CourseAssignmentController {
   }
 
   @GetMapping("/course_assignments")
-  public List<CourseAssignment> getAllCourseAssignmentsByCriteria(
+  public List<CourseAssignment> getCourseAssignmentsByCriteria(
       @RequestParam(value = "teacher_id", required = false) String teacherId,
       @RequestParam(value = "course_id", required = false) String courseId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
@@ -52,20 +62,26 @@ public class CourseAssignmentController {
     return service.getByTeacherId(teacherId, page, pageSize).stream().map(mapper::toRest).toList();
   }
 
+  @PutMapping("/course_assignments")
+  public List<CourseAssignment> createOrUpdateCourseAssignments(
+      @RequestBody List<CrupdateCourseAssignment> crupdateCourseAssignments) {
+    return service
+        .crupdateCourseAssignments(
+            crupdateCourseAssignments.stream().map(mapper::toDomain).toList())
+        .stream()
+        .map(mapper::toRest)
+        .toList();
+  }
+
   @PutMapping("/courses/{course_id}/course_assignments")
-  public List<CourseAssignment> createOrUpdateCourseAssignmentByCourseId(
+  public List<CourseAssignment> createOrUpdateCourseAssignmentsByCourseId(
       @PathVariable("course_id") String courseId,
       @RequestBody List<CrupdateCourseAssignment> crupdateCourseAssignments) {
     return service
         .crupdateCourseAssignments(
             crupdateCourseAssignments.stream()
                 .map(
-                    crupdateCourseAssignment ->
-                        mapper.toDomain(
-                            courseId,
-                            crupdateCourseAssignment.getMainTeacherId(),
-                            crupdateCourseAssignment.getGroups(),
-                            crupdateCourseAssignment.getId()))
+                    crupdateCourseAssignment -> mapper.toDomain(courseId, crupdateCourseAssignment))
                 .toList())
         .stream()
         .map(mapper::toRest)

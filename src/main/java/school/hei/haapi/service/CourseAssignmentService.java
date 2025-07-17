@@ -5,6 +5,8 @@ import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.List;
+import java.util.Optional;
+
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -35,6 +37,10 @@ public class CourseAssignmentService {
   private final CourseAssignmentMapper courseAssignmentMapper;
   private final CourseAssignmentValidator courseAssignmentValidator;
   private final CourseAssignmentDAO courseAssignmentDAO;
+
+  public Optional<CourseAssignment> getById(String courseAssignmentId) {
+    return courseAssignmentRepository.findById(courseAssignmentId);
+  }
 
   public List<CourseAssignment> getByStudentId(String userId) {
     User student = userRepository.getById(userId);
@@ -94,12 +100,18 @@ public class CourseAssignmentService {
     return courseAssignmentRepository.saveAll(courseAssignments);
   }
 
-  public CourseAssignment findCourseAssignmentById(String awardedCourseId) {
+  public CourseAssignment findCourseAssignmentById(String courseAssignmentId) {
     return courseAssignmentRepository
-        .findById(awardedCourseId)
+        .findById(courseAssignmentId)
         .orElseThrow(
             () ->
                 new NotFoundException(
-                    "Course assignment with id: " + awardedCourseId + " not found"));
+                    "Course assignment with id: " + courseAssignmentId + " not found"));
+  }
+
+  public List<CourseAssignment> getByCourseId(
+      String courseId, PageFromOne page, BoundedPageSize pageSize) {
+    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
+    return courseAssignmentRepository.findAllByCourseId(courseId, pageable);
   }
 }

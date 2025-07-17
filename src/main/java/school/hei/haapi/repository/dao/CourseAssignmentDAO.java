@@ -12,8 +12,8 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.User;
 
 @Repository
@@ -21,7 +21,8 @@ import school.hei.haapi.model.User;
 public class CourseAssignmentDAO {
   private final EntityManager entityManager;
 
-  public List<CourseAssignment> findByCriteria(String teacherId, String courseId, Pageable pageable) {
+  public List<CourseAssignment> findByCriteria(
+      String teacherId, String courseId, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<CourseAssignment> query = builder.createQuery(CourseAssignment.class);
     Root<CourseAssignment> root = query.from(CourseAssignment.class);
