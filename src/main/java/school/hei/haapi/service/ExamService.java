@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.time.Instant;
@@ -14,7 +13,6 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
-import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -59,7 +57,8 @@ public class ExamService {
   }
 
   private List<Grade> initializeExamGrades(Exam exam, List<User> users) {
-    return users.stream().map(
+    return users.stream()
+        .map(
             student ->
                 gradeRepository
                     .getGradeByExamIdAndStudentId(exam.getId(), student.getId())
@@ -69,10 +68,10 @@ public class ExamService {
 
   private List<Grade> initializeExamGrades(Exam exam) {
     return exam.getCourseAssignment().getGroups().stream()
-            .map(group -> userService.getByGroupId(group.getId()))
-            .map(users -> initializeExamGrades(exam, users))
-            .flatMap(List::stream)
-            .toList();
+        .map(group -> userService.getByGroupId(group.getId()))
+        .map(users -> initializeExamGrades(exam, users))
+        .flatMap(List::stream)
+        .toList();
   }
 
   public Exam getExamById(String id) {
