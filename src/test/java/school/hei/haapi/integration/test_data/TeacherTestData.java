@@ -1,21 +1,9 @@
-package school.hei.haapi.integration.utils;
+package school.hei.haapi.integration.test_data;
 
 import java.util.UUID;
 import school.hei.haapi.model.User;
 
-public class TeacherUtils {
-  public static User lou() {
-    return User.builder()
-        .id(UUID.randomUUID().toString())
-        .ref("REF-TEACHER-001")
-        .firstName("Lou")
-        .lastName("HEI")
-        .email("john.smith@hei.school")
-        .phone("+261 34 12 345 01")
-        .status(User.Status.ENABLED)
-        .build();
-  }
-
+public class TeacherTestData {
   public static User ryan() {
     return User.builder()
         .id(UUID.randomUUID().toString())

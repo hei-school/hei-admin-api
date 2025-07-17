@@ -1,4 +1,4 @@
-package school.hei.haapi.integration.utils;
+package school.hei.haapi.integration.test_data;
 
 import java.util.List;
 import java.util.UUID;
@@ -8,7 +8,7 @@ import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
 
-public class CourseAssignmentUtils {
+public class CourseAssignmentTestData {
   public static CourseAssignment createCourseAssignment(
       Course course, User mainTeacher, List<Group> groups) {
     return CourseAssignment.builder()

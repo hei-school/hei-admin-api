@@ -1,9 +1,9 @@
-package school.hei.haapi.integration.utils;
+package school.hei.haapi.integration.test_data;
 
 import java.util.UUID;
 import school.hei.haapi.model.Course;
 
-public class CourseUtils {
+public class CourseTestData {
   public static Course prog1() {
     return Course.builder()
         .id(UUID.randomUUID().toString())
@@ -41,26 +41,6 @@ public class CourseUtils {
         .name("Advanced Programming")
         .credits(7)
         .totalHours(70)
-        .build();
-  }
-
-  public static Course sys2() {
-    return Course.builder()
-        .id(UUID.randomUUID().toString())
-        .code("sys2")
-        .name("Systèmes interconnectés")
-        .credits(6)
-        .totalHours(40)
-        .build();
-  }
-
-  public static Course web1() {
-    return Course.builder()
-        .id(UUID.randomUUID().toString())
-        .code("web1")
-        .name("Interfaces web")
-        .credits(6)
-        .totalHours(60)
         .build();
   }
 }
