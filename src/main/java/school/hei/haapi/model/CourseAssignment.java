@@ -8,6 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -40,7 +42,7 @@ public class CourseAssignment implements Serializable {
 
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "teacher_id")
-  @JsonIgnoreProperties("awardedCourses")
+  @JsonIgnoreProperties("courseAssignments")
   @ToString.Exclude
   private User mainTeacher;
 
@@ -49,12 +51,17 @@ public class CourseAssignment implements Serializable {
   @ToString.Exclude
   private Course course;
 
-  @OneToMany
-  @JoinColumn(name = "group_id")
+  @ManyToMany
+  @JoinTable(
+          name = "course_assignment_group",
+          joinColumns = @JoinColumn(name = "course_assignment_id"),
+          inverseJoinColumns = @JoinColumn(name = "group_id")
+  )
+
   @ToString.Exclude
   private List<Group> groups;
 
-  @OneToMany(mappedBy = "awardedCourse", fetch = LAZY)
+  @OneToMany(mappedBy = "courseAssignment", fetch = LAZY)
   @ToString.Exclude
   private List<Exam> exams;
 

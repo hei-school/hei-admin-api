@@ -36,7 +36,7 @@ public class ExamService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "examinationDate"));
     return examRepository
-        .findExamsByGroupIdAndAwardedGroupId(groupId, awardedCourseId, pageable)
+        .findExamsByGroupIdAndCourseAssignmentId(groupId, awardedCourseId, pageable)
         .toList();
   }
 

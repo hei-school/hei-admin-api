@@ -7,6 +7,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -41,7 +42,7 @@ public class Group implements Serializable {
 
   @CreationTimestamp private Instant creationDatetime;
 
-  @OneToMany(mappedBy = "group", fetch = LAZY)
+  @ManyToMany(mappedBy = "groups", fetch = LAZY)
   @ToString.Exclude
   private List<CourseAssignment> courseAssignments;
 
