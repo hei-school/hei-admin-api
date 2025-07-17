@@ -56,7 +56,7 @@ public class AttendanceMapper {
 
   public CourseSession toCourseSession(school.hei.haapi.model.CourseSession toMap) {
     return new CourseSession()
-        .courseAssignment(awardedCourseMapper.toRest(toMap.getAwardedCourse()))
+        .courseAssignment(awardedCourseMapper.toRest(toMap.getCourseAssignment()))
         .id(toMap.getId())
         .end(toMap.getEnd())
         .begin(toMap.getBegin());
