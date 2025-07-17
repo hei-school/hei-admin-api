@@ -14,8 +14,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.User;
 
 @Repository
