@@ -28,7 +28,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.api.GroupsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateGroup;
@@ -121,8 +121,7 @@ class GroupIT extends FacadeITMockedThirdParties {
   @Test
   void badtoken_read_ko() {
     ApiClient anonymousClient = anApiClient(BAD_TOKEN);
-
-    TeachingApi api = new TeachingApi(anonymousClient);
+    GroupsApi api = new GroupsApi(anonymousClient);
     assertThrowsForbiddenException(() -> api.getGroups(null, null, 1, 10));
   }
 
@@ -130,7 +129,7 @@ class GroupIT extends FacadeITMockedThirdParties {
   void badtoken_write_ko() {
     ApiClient anonymousClient = anApiClient(BAD_TOKEN);
 
-    TeachingApi api = new TeachingApi(anonymousClient);
+    GroupsApi api = new GroupsApi(anonymousClient);
     assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
@@ -138,7 +137,7 @@ class GroupIT extends FacadeITMockedThirdParties {
   void student_read_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
-    TeachingApi api = new TeachingApi(student1Client);
+    GroupsApi api = new GroupsApi(student1Client);
     Group actual1 = api.getGroupById(GROUP1_ID);
     List<Group> actualGroups = api.getGroups(null, null, 1, 10);
 
@@ -151,7 +150,7 @@ class GroupIT extends FacadeITMockedThirdParties {
   void student_write_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
-    TeachingApi api = new TeachingApi(student1Client);
+    GroupsApi api = new GroupsApi(student1Client);
     assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
@@ -159,14 +158,14 @@ class GroupIT extends FacadeITMockedThirdParties {
   void teacher_write_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
 
-    TeachingApi api = new TeachingApi(teacher1Client);
+    GroupsApi api = new GroupsApi(teacher1Client);
     assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
   @Test
   void manager_read_ok() throws ApiException {
     ApiClient client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(client);
+    GroupsApi api = new GroupsApi(client);
 
     List<Group> actualGroups = api.getGroups(null, null, 1, 10);
     assertTrue(actualGroups.contains(group1()));
@@ -191,7 +190,7 @@ class GroupIT extends FacadeITMockedThirdParties {
     CreateGroup toCreate4 = someCreatableGroup(new ArrayList<>());
     CreateGroup toCreate5 = someCreatableGroup(List.of(STUDENT1_ID, STUDENT2_ID));
 
-    TeachingApi api = new TeachingApi(manager1Client);
+    GroupsApi api = new GroupsApi(manager1Client);
     List<Group> created = api.createOrUpdateGroups(List.of(toCreate3, toCreate4));
     List<Group> createdWithStudent = api.createOrUpdateGroups(List.of(toCreate5));
     List<Student> students =
@@ -218,7 +217,7 @@ class GroupIT extends FacadeITMockedThirdParties {
   @Test
   void manager_write_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    GroupsApi api = new GroupsApi(manager1Client);
 
     Group group =
         api.createOrUpdateGroups(

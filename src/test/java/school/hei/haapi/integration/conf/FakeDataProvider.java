@@ -42,7 +42,7 @@ public class FakeDataProvider {
       int nbOfCrupdateCourseAssignment) {
     List<CrupdateCourseAssignment> createAwardedCourseList = new ArrayList<>();
     for (int i = 0; i < nbOfCrupdateCourseAssignment; i++) {
-      createAwardedCourseList.add(createAwardedCourse());
+      createAwardedCourseList.add(createCourseAssignment());
     }
     return createAwardedCourseList;
   }
@@ -66,10 +66,10 @@ public class FakeDataProvider {
     return "%s%s".formatted(prefix, faker.number().digits(5));
   }
 
-  public static CrupdateCourseAssignment createAwardedCourse() {
+  public static CrupdateCourseAssignment createCourseAssignment() {
     return new CrupdateCourseAssignment()
         .courseId("course2_id")
-        .groups(List.of("group2_id"))
+        .groupIds(List.of("group2_id"))
         .mainTeacherId("teacher2_id");
   }
 

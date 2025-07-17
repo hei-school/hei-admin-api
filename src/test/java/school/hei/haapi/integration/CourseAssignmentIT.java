@@ -2,7 +2,6 @@ package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.FakeDataProvider.createAwardedCourse;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.NOT_EXISTING_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
@@ -12,6 +11,15 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiExcepti
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
+import static school.hei.haapi.integration.test_data.CourseAssignmentTestData.createCourseAssignment;
+import static school.hei.haapi.integration.test_data.CourseAssignmentTestData.createCrupdateCourseAssignment;
+import static school.hei.haapi.integration.test_data.CourseTestData.prog1;
+import static school.hei.haapi.integration.test_data.CourseTestData.prog2;
+import static school.hei.haapi.integration.test_data.CourseTestData.prog4;
+import static school.hei.haapi.integration.test_data.GroupTestData.g1;
+import static school.hei.haapi.integration.test_data.GroupTestData.g2;
+import static school.hei.haapi.integration.test_data.TeacherTestData.ryan;
+import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -26,13 +34,9 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.CourseAssignmentMapper;
 import school.hei.haapi.endpoint.rest.model.CourseAssignment;
-import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
+import school.hei.haapi.integration.conf.FakeDataProvider;
 import school.hei.haapi.integration.conf.TestUtils;
-import school.hei.haapi.integration.utils.CourseAssignmentUtils;
-import school.hei.haapi.integration.utils.CourseUtils;
-import school.hei.haapi.integration.utils.GroupUtils;
-import school.hei.haapi.integration.utils.TeacherUtils;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
@@ -49,66 +53,43 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
   @Autowired private UserRepository teacherRepository;
   @Autowired private GroupRepository groupRepository;
   @Autowired private CourseAssignmentMapper courseAssignmentMapper;
-  private Course courseProg1, courseProg2, courseProg3, courseProg4;
-  private User teacherToky, teacherRyan, teacherLou;
-  private Group groupG1, groupG2, groupG3;
+  private Course courseProg1, courseProg2;
+  private User teacherToky, teacherRyan;
+  private Group groupG1, groupG2;
   private school.hei.haapi.model.CourseAssignment assignProg1_toToky_forG1AndG2;
-  private school.hei.haapi.model.CourseAssignment assignProg2_toToky_forG1AndG2;
-  private school.hei.haapi.model.CourseAssignment assignProg2_toRyan_forG1AndG2;
-  private school.hei.haapi.model.CourseAssignment assignProg3_toRyan_forG1AndG2;
-  private school.hei.haapi.model.CourseAssignment assignProg4_toLou_forG3;
+  private school.hei.haapi.model.CourseAssignment assignProg2_toToky_forG1;
+  private school.hei.haapi.model.CourseAssignment assignProg2_toRyan_forG2;
   private List<String> courseIds = new ArrayList<>();
   private List<String> teacherIds = new ArrayList<>();
   private List<String> groupIds = new ArrayList<>();
   private List<String> courseAssignmentIds = new ArrayList<>();
 
   private void setUpTestData() {
-    courseProg1 = CourseUtils.prog1();
-    courseProg2 = CourseUtils.prog2();
-    courseProg3 = CourseUtils.prog3();
-    courseProg4 = CourseUtils.prog4();
-    teacherToky = TeacherUtils.toky();
-    teacherRyan = TeacherUtils.ryan();
-    teacherLou = TeacherUtils.lou();
-    groupG1 = GroupUtils.g1();
-    groupG2 = GroupUtils.g2();
-    groupG3 = GroupUtils.g3();
-    courseRepository.saveAll(List.of(courseProg1, courseProg2, courseProg3, courseProg4));
-    teacherRepository.saveAll(List.of(teacherToky, teacherRyan, teacherLou));
-    groupRepository.saveAll(List.of(groupG1, groupG2, groupG3));
-    courseIds.addAll(
-        List.of(
-            courseProg1.getId(), courseProg2.getId(), courseProg3.getId(), courseProg4.getId()));
-    teacherIds.addAll(List.of(teacherToky.getId(), teacherRyan.getId(), teacherLou.getId()));
-    groupIds.addAll(List.of(groupG1.getId(), groupG2.getId(), groupG3.getId()));
-
+    courseProg1 = prog1();
+    courseProg2 = prog2();
+    teacherToky = toky();
+    teacherRyan = ryan();
+    groupG1 = g1();
+    groupG2 = g2();
     assignProg1_toToky_forG1AndG2 =
-        CourseAssignmentUtils.createCourseAssignment(
-            courseProg1, teacherToky, List.of(groupG1, groupG2));
-    assignProg2_toToky_forG1AndG2 =
-        CourseAssignmentUtils.createCourseAssignment(
-            courseProg2, teacherToky, List.of(groupG1, groupG2));
-    assignProg2_toRyan_forG1AndG2 =
-        CourseAssignmentUtils.createCourseAssignment(
-            courseProg2, teacherRyan, List.of(groupG1, groupG2));
-    assignProg3_toRyan_forG1AndG2 =
-        CourseAssignmentUtils.createCourseAssignment(
-            courseProg3, teacherRyan, List.of(groupG1, groupG2));
-    assignProg4_toLou_forG3 =
-        CourseAssignmentUtils.createCourseAssignment(courseProg4, teacherLou, List.of(groupG3));
+        createCourseAssignment(courseProg1, teacherToky, List.of(groupG1, groupG2));
+    assignProg2_toToky_forG1 = createCourseAssignment(courseProg2, teacherToky, List.of(groupG1));
+    assignProg2_toRyan_forG2 = createCourseAssignment(courseProg2, teacherRyan, List.of(groupG2));
+
+    courseRepository.saveAll(List.of(courseProg1, courseProg2));
+    teacherRepository.saveAll(List.of(teacherToky, teacherRyan));
+    groupRepository.saveAll(List.of(groupG1, groupG2));
     courseAssignmentRepository.saveAll(
-        List.of(
-            assignProg1_toToky_forG1AndG2,
-            assignProg2_toToky_forG1AndG2,
-            assignProg3_toRyan_forG1AndG2,
-            assignProg4_toLou_forG3));
+        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1, assignProg2_toRyan_forG2));
+
+    courseIds.addAll(List.of(courseProg1.getId(), courseProg2.getId()));
+    teacherIds.addAll(List.of(teacherToky.getId(), teacherRyan.getId()));
+    groupIds.addAll(List.of(groupG1.getId(), groupG2.getId()));
     courseAssignmentIds.addAll(
         List.of(
-            assignProg2_toToky_forG1AndG2.getId(),
-            assignProg4_toLou_forG3.getId(),
+            assignProg2_toToky_forG1.getId(),
             assignProg1_toToky_forG1AndG2.getId(),
-            assignProg2_toRyan_forG1AndG2.getId(),
-            assignProg3_toRyan_forG1AndG2.getId()));
+            assignProg2_toRyan_forG2.getId()));
   }
 
   private ApiClient anApiClient(String token) {
@@ -129,69 +110,68 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
     courseRepository.deleteAllById(courseIds);
     teacherRepository.deleteAllById(teacherIds);
     groupRepository.deleteAllById(groupIds);
+    courseAssignmentIds = new ArrayList<>();
+    courseIds = new ArrayList<>();
+    teacherIds = new ArrayList<>();
+    groupIds = new ArrayList<>();
+  }
+
+  private void assertCourseAssignments(
+      String method,
+      String id,
+      List<school.hei.haapi.model.CourseAssignment> expected,
+      CoursesApi api)
+      throws ApiException {
+    List<CourseAssignment> actual =
+        switch (method) {
+          case "byTeacherId" -> api.getCourseAssignmentByTeacherId(id, 1, 10);
+          case "byCourseId" -> api.getCourseAssignmentByCourseId(id, 1, 10);
+          case "byGroupId" -> api.getCourseAssignmentsByGroupId(id, 1, 10);
+          default -> api.getCourseAssignmentsByCriteria(null, null, null, null, null);
+        };
+    assertListEquals(actual, expected.stream().map(courseAssignmentMapper::toRest).toList());
   }
 
   @Test
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     CoursesApi api = new CoursesApi(manager1Client);
-
-    List<CourseAssignment> courseAssignedToG1 =
-        api.getCourseAssignmentsByGroupId(groupG1.getId(), 1, 10);
-    List<CourseAssignment> allCourseAssignments =
-        api.getCourseAssignmentsByCriteria(null, null, null, null, null);
-    List<CourseAssignment> courseAssignedToLou =
-        api.getCourseAssignmentByTeacherId(teacherLou.getId(), 1, 10);
-    List<CourseAssignment> courseAssignedToToky =
-        api.getCourseAssignmentByTeacherId(teacherToky.getId(), 1, 10);
-    List<CourseAssignment> assignmentsForProg2 =
-        api.getCourseAssignmentByCourseId(courseProg2.getId(), 1, 10);
-
-    assertListEquals(
-        courseAssignedToLou, courseAssignmentMapper.toRest(List.of(assignProg4_toLou_forG3)));
-    assertListEquals(
-        courseAssignedToToky,
-        courseAssignmentMapper.toRest(
-            List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1AndG2)));
-    assertListEquals(
-        assignmentsForProg2,
-        courseAssignmentMapper.toRest(
-            List.of(assignProg2_toRyan_forG1AndG2, assignProg2_toToky_forG1AndG2)));
-    assertListEquals(
-        courseAssignedToG1,
-        courseAssignmentMapper.toRest(
-            List.of(
-                assignProg1_toToky_forG1AndG2,
-                assignProg2_toToky_forG1AndG2,
-                assignProg3_toRyan_forG1AndG2)));
-    assertListEquals(
-        allCourseAssignments,
-        courseAssignmentMapper.toRest(
-            List.of(
-                assignProg1_toToky_forG1AndG2,
-                assignProg2_toToky_forG1AndG2,
-                assignProg2_toRyan_forG1AndG2,
-                assignProg3_toRyan_forG1AndG2,
-                assignProg4_toLou_forG3)));
+    assertCourseAssignments(
+        "byGroupId",
+        groupG1.getId(),
+        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1),
+        api);
+    assertCourseAssignments(
+        "all",
+        null,
+        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1, assignProg2_toRyan_forG2),
+        api);
+    assertCourseAssignments(
+        "byTeacherId",
+        teacherToky.getId(),
+        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1),
+        api);
+    assertCourseAssignments(
+        "byCourseId",
+        courseProg2.getId(),
+        List.of(assignProg2_toToky_forG1, assignProg2_toRyan_forG2),
+        api);
   }
 
   @Test
   void student_read_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     CoursesApi api = new CoursesApi(student1Client);
-
-    List<CourseAssignment> courseAssignmentsForToky =
-        api.getCourseAssignmentByTeacherId(teacherToky.getId(), 1, 10);
-
-    assertListEquals(
-        courseAssignmentsForToky,
-        courseAssignmentMapper.toRest(
-            List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1AndG2)));
+    assertCourseAssignments(
+        "byTeacherId",
+        teacherToky.getId(),
+        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1),
+        api);
   }
 
   @Test
-  void course_assignment_by_teacher_id_ko() {
-    ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
+  void course_assignment_by_manager_with_bad_id_ko() {
+    ApiClient teacher1Client = anApiClient(MANAGER1_TOKEN);
     CoursesApi api = new CoursesApi(teacher1Client);
 
     assertThrowsApiException(
@@ -210,39 +190,31 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
         api.getCourseAssignmentsByGroupId(groupG1.getId(), 1, 10);
     List<CourseAssignment> allCourseAssignments =
         api.getCourseAssignmentsByCriteria(null, null, null, null, null);
-    List<CourseAssignment> courseAssignedToLou =
-        api.getCourseAssignmentByTeacherId(teacherLou.getId(), 1, 10);
     List<CourseAssignment> courseAssignedToToky =
         api.getCourseAssignmentByTeacherId(teacherToky.getId(), 1, 10);
     List<CourseAssignment> assignmentsForProg2 =
         api.getCourseAssignmentByCourseId(courseProg2.getId(), 1, 10);
 
-    assertListEquals(
-        courseAssignedToLou, courseAssignmentMapper.toRest(List.of(assignProg4_toLou_forG3)));
-    assertListEquals(
-        courseAssignedToToky,
-        courseAssignmentMapper.toRest(
-            List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1AndG2)));
-    assertListEquals(
-        assignmentsForProg2,
-        courseAssignmentMapper.toRest(
-            List.of(assignProg2_toRyan_forG1AndG2, assignProg2_toToky_forG1AndG2)));
-    assertListEquals(
-        courseAssignedToG1,
-        courseAssignmentMapper.toRest(
-            List.of(
-                assignProg1_toToky_forG1AndG2,
-                assignProg2_toToky_forG1AndG2,
-                assignProg3_toRyan_forG1AndG2)));
-    assertListEquals(
-        allCourseAssignments,
-        courseAssignmentMapper.toRest(
-            List.of(
-                assignProg1_toToky_forG1AndG2,
-                assignProg2_toToky_forG1AndG2,
-                assignProg2_toRyan_forG1AndG2,
-                assignProg3_toRyan_forG1AndG2,
-                assignProg4_toLou_forG3)));
+    assertCourseAssignments(
+        "byGroup",
+        groupG1.getId(),
+        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1),
+        api);
+    assertCourseAssignments(
+        "all",
+        null,
+        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1, assignProg2_toRyan_forG2),
+        api);
+    assertCourseAssignments(
+        "byTeacher",
+        teacherToky.getId(),
+        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1),
+        api);
+    assertCourseAssignments(
+        "byCourse",
+        courseProg2.getId(),
+        List.of(assignProg2_toToky_forG1, assignProg2_toRyan_forG2),
+        api);
   }
 
   @Test
@@ -254,7 +226,7 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () ->
             api.createOrUpdateCourseAssignmentsByCourseId(
-                courseProg1.getId(), List.of(createAwardedCourse())));
+                courseProg1.getId(), List.of(FakeDataProvider.createCourseAssignment())));
   }
 
   @Test
@@ -263,40 +235,59 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
     CoursesApi api = new CoursesApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateCourseAssignments(List.of(createAwardedCourse())));
+        () ->
+            api.createOrUpdateCourseAssignments(
+                List.of(FakeDataProvider.createCourseAssignment())));
 
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateCourseAssignmentsByCourseId());
+        () -> api.createOrUpdateCourseAssignmentsByCourseId(courseProg1.getId(), List.of()));
   }
 
   @Test
-  void manager_create_or_update_ok() throws ApiException {
+  void manager_create_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     CoursesApi api = new CoursesApi(manager1Client);
-    List<CourseAssignment> allCourseAssignments =
-        api.getCourseAssignmentsByCriteria(null, null, null, null, null).size();
-    Course courseWeb1 = CourseUtils.web1();
-    Course courseSys2 = CourseUtils.sys2();
-    courseRepository.saveAll(List.of(courseWeb1, courseSys2));
-    courseIds.addAll(List.of(courseWeb1.getId(), courseSys2.getId()));
-    List<CrupdateCourseAssignment> toCreate =
-        List.of(
-            CourseAssignmentUtils.createCrupdateCourseAssignment(
-                courseWeb1, teacherToky, List.of(groupG1, groupG2)),
-            CourseAssignmentUtils.createCrupdateCourseAssignment(
-                courseSys2, teacherLou, List.of(groupG1, groupG2)));
-    courseAssignmentIds.addAll(List.of(toCreate.get(0).getId(), toCreate.get(1).getId()));
+    Course courseProg4 = prog4();
+    courseRepository.save(courseProg4);
+    courseIds.add(courseProg4.getId());
+    var toCreate =
+        createCrupdateCourseAssignment(courseProg4, teacherToky, List.of(groupG1, groupG2));
+    int initialSize = api.getCourseAssignmentsByCriteria(null, null, null, null, null).size();
 
-    List<CourseAssignment> createdCourseAssignments = api.createOrUpdateCourseAssignments(toCreate);
-    List<CourseAssignment> afterCreateAndUpdate =
-        api.getCourseAssignmentsByCriteria(null, null, null, null, null);
+    List<CourseAssignment> created = api.createOrUpdateCourseAssignments(List.of(toCreate));
+    courseAssignmentIds.add(created.getFirst().getId());
 
     assertEquals(
-        afterCreateAndUpdate.size(), createdCourseAssignments.size() + allCourseAssignments.size());
+        initialSize + 1, api.getCourseAssignmentsByCriteria(null, null, null, null, null).size());
+    assertCourseAssignments(
+        "byTeacherId",
+        teacherToky.getId(),
+        List.of(
+            assignProg1_toToky_forG1AndG2,
+            assignProg2_toToky_forG1,
+            courseAssignmentMapper.toDomain(toCreate)),
+        api);
   }
 
-  // TODO: test update as manager
   @Test
-  void manager_update_ok() throws ApiException {}
+  void manager_update_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    CoursesApi api = new CoursesApi(manager1Client);
+
+    var toUpdate =
+        createCrupdateCourseAssignment(courseProg1, teacherRyan, List.of(groupG1, groupG2));
+    List<CourseAssignment> updatedRestCourseAssignment =
+        api.createOrUpdateCourseAssignments(List.of(toUpdate));
+    courseAssignmentIds.remove(assignProg1_toToky_forG1AndG2.getId());
+    courseAssignmentIds.add(updatedRestCourseAssignment.getFirst().getId());
+
+    assertCourseAssignments(
+        "byTeacher",
+        teacherRyan.getId(),
+        List.of(assignProg2_toRyan_forG2, courseAssignmentMapper.toDomain(toUpdate)),
+        api);
+    assertCourseAssignments(
+        "byTeacher", teacherToky.getId(), List.of(assignProg2_toToky_forG1), api);
+  }
 }

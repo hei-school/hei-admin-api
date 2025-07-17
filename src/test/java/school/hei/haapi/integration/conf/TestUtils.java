@@ -76,6 +76,7 @@ import school.hei.haapi.endpoint.rest.model.Comment;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.Course;
 import school.hei.haapi.endpoint.rest.model.CourseAssignment;
+import school.hei.haapi.endpoint.rest.model.CourseAssignmentExam;
 import school.hei.haapi.endpoint.rest.model.CreateAnnouncement;
 import school.hei.haapi.endpoint.rest.model.CreateComment;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
@@ -938,7 +939,7 @@ public class TestUtils {
         .id(EXAM1_ID)
         .coefficient(2)
         .title("Algorithmics")
-        .CourseAssignment(courseAssignment1())
+        .courseAssignment(courseAssignment1())
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
@@ -947,7 +948,7 @@ public class TestUtils {
         .id(EXAM2_ID)
         .coefficient(3)
         .title("Algorithmics final")
-        .CourseAssignment(courseAssignment1())
+        .courseAssignment(courseAssignment1())
         .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
@@ -956,7 +957,7 @@ public class TestUtils {
         .id(EXAM3_ID)
         .coefficient(2)
         .title("Algorithmics")
-        .CourseAssignment(courseAssignment3())
+        .courseAssignment(courseAssignment3())
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
@@ -965,7 +966,7 @@ public class TestUtils {
         .id(EXAM4_ID)
         .coefficient(3)
         .title("Algorithmics2")
-        .CourseAssignment(courseAssignment2())
+        .courseAssignment(courseAssignment2())
         .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
@@ -974,7 +975,7 @@ public class TestUtils {
         .id(EXAM5_ID)
         .coefficient(1)
         .title("Prog2 final")
-        .CourseAssignment(CourseAssignment4())
+        .courseAssignment(CourseAssignment4())
         .examinationDate(Instant.parse("2022-12-09T08:25:24Z"));
   }
 
@@ -1142,7 +1143,7 @@ public class TestUtils {
         .id(AWARDED_COURSE1_ID)
         .mainTeacher(courseAssignment1().getMainTeacher())
         .course(courseAssignment1().getCourse())
-        .group(courseAssignment1().getGroup())
+        .groups(courseAssignment1().getGroups())
         .exams(List.of(studentExamGrade1(), studentExamGrade2()));
   }
 
@@ -1151,7 +1152,7 @@ public class TestUtils {
         .id(AWARDED_COURSE2_ID)
         .mainTeacher(courseAssignment2().getMainTeacher())
         .course(courseAssignment2().getCourse())
-        .group(courseAssignment2().getGroup())
+        .groups(courseAssignment2().getGroups())
         .exams(List.of(studentExamGrade4()));
   }
 
@@ -1160,7 +1161,7 @@ public class TestUtils {
         .id(AWARDED_COURSE3_ID)
         .mainTeacher(courseAssignment3().getMainTeacher())
         .course(courseAssignment3().getCourse())
-        .group(courseAssignment3().getGroup())
+        .groups(courseAssignment3().getGroups())
         .exams(List.of(studentExamGrade3()));
   }
 
@@ -1169,7 +1170,7 @@ public class TestUtils {
         .id(AWARDED_COURSE4_ID)
         .mainTeacher(CourseAssignment4().getMainTeacher())
         .course(CourseAssignment4().getCourse())
-        .group(CourseAssignment4().getGroup())
+        .groups(CourseAssignment4().getGroups())
         .exams(List.of(studentExamGrade5()));
   }
 

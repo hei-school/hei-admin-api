@@ -14,9 +14,9 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.awardedCourseExam1;
-import static school.hei.haapi.integration.conf.TestUtils.awardedCourseExam2;
-import static school.hei.haapi.integration.conf.TestUtils.awardedCourseExam4;
+import static school.hei.haapi.integration.conf.TestUtils.courseAssignment1;
+import static school.hei.haapi.integration.conf.TestUtils.courseAssignment2;
+import static school.hei.haapi.integration.conf.TestUtils.courseAssignment3;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -31,10 +31,10 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.api.GradesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.CourseAssignmentExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
@@ -68,44 +68,44 @@ class GradeIT extends FacadeITMockedThirdParties {
   @Test
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    GradesApi api = new GradesApi(manager1Client);
 
-    List<AwardedCourseExam> actualAwardedCourseExamGrades =
+    List<CourseAssignmentExam> actualAwardedCourseExamGrades =
         api.getStudentGrades(STUDENT1_ID, 1, 10);
 
-    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam1()));
-    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam2()));
-    assertTrue(actualAwardedCourseExamGrades.contains(awardedCourseExam4()));
+    assertTrue(actualAwardedCourseExamGrades.contains(courseAssignment1()));
+    assertTrue(actualAwardedCourseExamGrades.contains(courseAssignment2()));
+    assertTrue(actualAwardedCourseExamGrades.contains(courseAssignment3()));
   }
 
   @Test
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(teacher1Client);
+    GradesApi api = new GradesApi(teacher1Client);
 
-    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
+    List<CourseAssignmentExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
 
-    assertTrue(actual.contains(awardedCourseExam1()));
-    assertTrue(actual.contains(awardedCourseExam2()));
-    assertTrue(actual.contains(awardedCourseExam4()));
+    assertTrue(actual.contains(courseAssignment1()));
+    assertTrue(actual.contains(courseAssignment2()));
+    assertTrue(actual.contains(courseAssignment3()));
   }
 
   @Test
   void student_read_his_grade_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    TeachingApi api = new TeachingApi(student1Client);
+    GradesApi api = new GradesApi(student1Client);
 
-    List<AwardedCourseExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
+    List<CourseAssignmentExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
 
-    assertTrue(actual.contains(awardedCourseExam1()));
-    assertTrue(actual.contains(awardedCourseExam2()));
-    assertTrue(actual.contains(awardedCourseExam4()));
+    assertTrue(actual.contains(courseAssignment1()));
+    assertTrue(actual.contains(courseAssignment2()));
+    assertTrue(actual.contains(courseAssignment3()));
   }
 
   @Test
   void student_read_other_grade_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    TeachingApi api = new TeachingApi(student1Client);
+    GradesApi api = new GradesApi(student1Client);
     assertThrowsForbiddenException(() -> api.getStudentGrades(STUDENT2_ID, 1, 10));
     assertThrowsForbiddenException(() -> api.getParticipantGrade(GROUP1_ID, EXAM1_ID));
   }
@@ -113,7 +113,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   @Test
   void manager_crupdate_invalid_grade_ko() {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(managerClient);
+    GradesApi api = new GradesApi(managerClient);
 
     CrupdateGrade newGrade = new CrupdateGrade();
     newGrade.setScore(28.2);
@@ -131,7 +131,7 @@ class GradeIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_crupdate_grade_invalid_student_ko() {
-    TeachingApi api = new TeachingApi(anApiClient(MANAGER1_TOKEN));
+    GradesApi api = new GradesApi(anApiClient(MANAGER1_TOKEN));
     CrupdateGrade newGrade = new CrupdateGrade();
     newGrade.setScore(18.2);
 
@@ -149,7 +149,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   @Test
   void student_crupdate_grade_forbidden() {
     ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
-    TeachingApi api = new TeachingApi(studentClient);
+    GradesApi api = new GradesApi(studentClient);
 
     CrupdateGrade newCrupdateGrade = new CrupdateGrade();
     newCrupdateGrade.setScore(90.0);
@@ -160,7 +160,7 @@ class GradeIT extends FacadeITMockedThirdParties {
 
   @Test
   void teacher_get_all_grade_ok() throws ApiException {
-    TeachingApi managerApi = new TeachingApi(anApiClient(MANAGER1_TOKEN));
+    GradesApi managerApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
 
     List<StudentGrade> participantsGradeForExam =
         managerApi.getParticipantsGradeForExam(EXAM1_ID, 1, 2);
@@ -171,7 +171,7 @@ class GradeIT extends FacadeITMockedThirdParties {
 
   @Test
   void student_get_all_grade_ko() {
-    TeachingApi studentApi = new TeachingApi(anApiClient(STUDENT1_TOKEN));
+    GradesApi studentApi = new GradesApi(anApiClient(STUDENT1_TOKEN));
 
     assertThrowsForbiddenException(() -> studentApi.getParticipantsGradeForExam(EXAM1_ID, 1, 10));
   }
