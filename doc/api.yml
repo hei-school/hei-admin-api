@@ -788,7 +788,7 @@ paths:
           required: true
           schema:
             type: string
-      operationId: createOrUpdateCourseAssignmentByCourseId
+      operationId: createOrUpdateCourseAssignmentsByCourseId
       requestBody:
         required: true
         description: course_assignment to create / update
@@ -801,6 +801,47 @@ paths:
       responses:
         '200':
           description: All course_assignments that have been created / updated
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseAssignment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    get:
+      tags:
+        - Courses
+      summary: Get all course_assignments for a given course
+      parameters:
+        - name: course_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getCourseAssignmentByCourseId
+      responses:
+        '200':
+          description: List of all course_assignments for a course
           content:
             application/json:
               schema:
@@ -1265,7 +1306,7 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getAllCourseAssignmentsByGroupId
+      operationId: getCourseAssignmentsByGroupId
       responses:
         '200':
           description: List of all course_assignments in specific group
@@ -1624,10 +1665,43 @@ paths:
           schema:
             $ref: '#/components/schemas/PageSize'
           required: false
-      operationId: getAllCourseAssignmentsByCriteria
+      operationId: getCourseAssignmentsByCriteria
       responses:
         '200':
           description: List of all course_assignments
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CourseAssignment'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Courses
+      summary: Add or update course_assignments for a given course id.
+      operationId: createOrUpdateCourseAssignments
+      requestBody:
+        required: true
+        description: course_assignment to create / update
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateCourseAssignment'
+      responses:
+        '200':
+          description: All course_assignments that have been created / updated
           content:
             application/json:
               schema:
@@ -4418,7 +4492,7 @@ paths:
           in: query
           description: |
             what time does the frequency start, format HH:MM
-        
+            
             **IMPORTANT** The frequency_beginning_hour must be send as UTC+3
           schema:
             type: string
@@ -4451,7 +4525,7 @@ paths:
                 event_type: 'EXAM'
                 planner_id: 'teacher_id_1'
                 course_id: 'course_id_1'
-                groups: []
+                groups: [ ]
               - title: 'test'
                 description: 'description'
                 color: '#f6bf26'
@@ -4460,7 +4534,7 @@ paths:
                 event_type: 'EXAM'
                 planner_id: 'teacher_id_1'
                 course_id: 'course_id_1'
-                groups: []
+                groups: [ ]
       responses:
         '200':
           description: Event created
@@ -4482,7 +4556,7 @@ paths:
                       id: 'teacher_id_1'
                     course_id:
                       id: 'course_id_1'
-                    groups: []
+                    groups: [ ]
                   - id: 223456
                     type: 'EXAM'
                     title: 'exam - salle B'
@@ -4494,7 +4568,7 @@ paths:
                       id: 'teacher_id_1'
                     course_id:
                       id: 'course_id_1'
-                    groups: []
+                    groups: [ ]
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -6238,7 +6312,7 @@ components:
           type: string
         course_id:
           type: string
-        groups:
+        group_ids:
           type: array
           items:
             type: string
