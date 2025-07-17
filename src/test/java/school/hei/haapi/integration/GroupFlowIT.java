@@ -26,7 +26,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.api.GroupsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.CreateGroupFlow;
@@ -55,7 +55,7 @@ public class GroupFlowIT extends FacadeITMockedThirdParties {
   @Test
   void manager_read_grouped_students_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    GroupsApi api = new GroupsApi(manager1Client);
 
     List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID, 1, 10, null);
 
@@ -65,7 +65,7 @@ public class GroupFlowIT extends FacadeITMockedThirdParties {
   @Test
   void student_leaves_same_group_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    GroupsApi api = new GroupsApi(manager1Client);
     String expectedBody =
         "{"
             + "\"type\":\"400 BAD_REQUEST\","
@@ -85,7 +85,7 @@ public class GroupFlowIT extends FacadeITMockedThirdParties {
   @Test
   void insert_two_student_in_same_group_ko() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    GroupsApi api = new GroupsApi(manager1Client);
     String expectedBody =
         "{" + "\"type\":\"400 BAD_REQUEST\"," + "\"message\":\"Student is already in group\"}";
 
@@ -105,7 +105,7 @@ public class GroupFlowIT extends FacadeITMockedThirdParties {
   @Test
   void manager_moves_student2_to_group2_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    GroupsApi api = new GroupsApi(manager1Client);
 
     api.moveOrDeleteStudentInGroup(
         STUDENT2_ID, List.of(createStudent2LeavesGroup1(), createStudent2JoinsGroup2()));

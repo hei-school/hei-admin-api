@@ -25,7 +25,7 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.api.CoursesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Course;
@@ -51,7 +51,7 @@ class CourseIT extends FacadeITMockedThirdParties {
   @Test
   void student_read_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    TeachingApi api = new TeachingApi(student1Client);
+    CoursesApi api = new CoursesApi(student1Client);
 
     List<Course> actualList = api.getCourses(null, null, null, null, null, null, null, null, null);
     Course actual = api.getCourseById(COURSE1_ID);
@@ -65,7 +65,7 @@ class CourseIT extends FacadeITMockedThirdParties {
   @Test
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(teacher1Client);
+    CoursesApi api = new CoursesApi(teacher1Client);
 
     List<Course> actualList = api.getCourses(null, null, null, null, null, null, null, null, null);
     assertEquals(4, actualList.size());
@@ -79,7 +79,7 @@ class CourseIT extends FacadeITMockedThirdParties {
   @Disabled("Don't pass on GHA")
   void user_read_by_filter() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    CoursesApi api = new CoursesApi(manager1Client);
 
     List<Course> actualByCode =
         api.getCourses("PROG1", null, null, null, null, null, null, null, null);
@@ -135,7 +135,7 @@ class CourseIT extends FacadeITMockedThirdParties {
   @Test
   void manager_create_or_update_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    CoursesApi api = new CoursesApi(manager1Client);
 
     List<Course> actualUpdate = api.createOrUpdateCourses(List.of(course2(), course1()));
 
@@ -158,7 +158,7 @@ class CourseIT extends FacadeITMockedThirdParties {
 
   @Test
   void manager_create_or_update_bad_course_ko() {
-    TeachingApi api = new TeachingApi(anApiClient(MANAGER1_TOKEN));
+    CoursesApi api = new CoursesApi(anApiClient(MANAGER1_TOKEN));
     var courseWithoutCode = course1().code(null);
     var courseWithoutName = course1().name(null);
     var courseWithBadCredits = course1().credits(-1);
@@ -178,7 +178,7 @@ class CourseIT extends FacadeITMockedThirdParties {
   @Test
   void student_create_or_update_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    TeachingApi api = new TeachingApi(student1Client);
+    CoursesApi api = new CoursesApi(student1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateCourses(someCreatableCourseList(1)));
@@ -187,7 +187,7 @@ class CourseIT extends FacadeITMockedThirdParties {
   @Test
   void Teacher_create_or_update_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(teacher1Client);
+    CoursesApi api = new CoursesApi(teacher1Client);
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateCourses(someCreatableCourseList(1)));
@@ -196,7 +196,7 @@ class CourseIT extends FacadeITMockedThirdParties {
   @Test
   void manager_create_or_update_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    CoursesApi api = new CoursesApi(manager1Client);
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Course.PROG3 already exist.\"}",
