@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.Group;
@@ -38,10 +38,10 @@ import school.hei.haapi.model.User;
 public class FakeDataProvider {
   private static final Faker faker = new Faker();
 
-  public static List<CreateAwardedCourse> someCreatableCreateAwardedCourseList(
-      int nbOfCreateAwardedCourse) {
-    List<CreateAwardedCourse> createAwardedCourseList = new ArrayList<>();
-    for (int i = 0; i < nbOfCreateAwardedCourse; i++) {
+  public static List<CrupdateCourseAssignment> someCreatableCreateAwardedCourseList(
+      int nbOfCrupdateCourseAssignment) {
+    List<CrupdateCourseAssignment> createAwardedCourseList = new ArrayList<>();
+    for (int i = 0; i < nbOfCrupdateCourseAssignment; i++) {
       createAwardedCourseList.add(createAwardedCourse());
     }
     return createAwardedCourseList;
@@ -66,10 +66,10 @@ public class FakeDataProvider {
     return "%s%s".formatted(prefix, faker.number().digits(5));
   }
 
-  public static CreateAwardedCourse createAwardedCourse() {
-    return new CreateAwardedCourse()
+  public static CrupdateCourseAssignment createAwardedCourse() {
+    return new CrupdateCourseAssignment()
         .courseId("course2_id")
-        .groupId("group2_id")
+        .groups(List.of("group2_id"))
         .mainTeacherId("teacher2_id");
   }
 

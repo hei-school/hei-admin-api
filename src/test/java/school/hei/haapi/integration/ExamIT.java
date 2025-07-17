@@ -36,7 +36,9 @@ import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.testcontainers.junit.jupiter.Testcontainers;
-import school.hei.haapi.endpoint.rest.api.TeachingApi;
+import school.hei.haapi.endpoint.rest.api.ExamsApi;
+import school.hei.haapi.endpoint.rest.api.GradesApi;
+import school.hei.haapi.endpoint.rest.api.GroupsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.ExamInfo;
@@ -63,21 +65,21 @@ class ExamIT extends FacadeITMockedThirdParties {
   @Test
   void student_read_exam_grades_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    TeachingApi api = new TeachingApi(student1Client);
+    ExamsApi api = new ExamsApi(student1Client);
     assertThrowsForbiddenException(() -> api.getExamById(AWARDED_COURSE1_ID, EXAM1_ID));
   }
 
   @Test
   void manager_read_exam_details_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    GradesApi api = new GradesApi(manager1Client);
     List<StudentGrade> studentGrades = api.getParticipantsGradeForExam(EXAM1_ID, 1, 1);
     assertEquals(studentGrade1(), studentGrades.getFirst());
   }
 
   @Test
   void student_create_or_update_exam_ko() {
-    TeachingApi api = new TeachingApi(anApiClient(STUDENT1_TOKEN));
+    ExamsApi api = new ExamsApi(anApiClient(STUDENT1_TOKEN));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(exam1())));
@@ -85,21 +87,23 @@ class ExamIT extends FacadeITMockedThirdParties {
 
   @Test
   void teacher_create_exam_and_initialize_grades_ok() throws ApiException {
-    TeachingApi api = new TeachingApi(anApiClient(TEACHER1_TOKEN));
+    ExamsApi examsApi = new ExamsApi(anApiClient(TEACHER1_TOKEN));
+    GradesApi gradesApi = new GradesApi(anApiClient(TEACHER1_TOKEN));
+    GroupsApi groupsApi = new GroupsApi(anApiClient(TEACHER1_TOKEN));
 
-    List<ExamInfo> exams = api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(createExam()));
+    List<ExamInfo> exams = examsApi.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(createExam()));
     assertEquals(1, exams.size());
     ExamInfo exam = exams.getFirst();
 
-    List<StudentGrade> studentGrades = api.getParticipantsGradeForExam(exam.getId(), 1, 10);
+    List<StudentGrade> studentGrades = gradesApi.getParticipantsGradeForExam(exam.getId(), 1, 10);
     assertEquals(
-        api.getStudentsByGroupId(group1().getId(), 1, 10, null).size(), studentGrades.size());
+        groupsApi.getStudentsByGroupId(group1().getId(), 1, 10, null).size(), studentGrades.size());
     assertTrue(studentGrades.stream().allMatch(grade -> grade.getGrade().getScore() == 0));
   }
 
   @Test
   void exam_creation_create_only_one_exam() throws ApiException {
-    TeachingApi api = new TeachingApi(anApiClient(TEACHER1_TOKEN));
+    ExamsApi api = new ExamsApi(anApiClient(TEACHER1_TOKEN));
     int examCount = api.getAllExams(null, null, null, null, null, null, null, null).size();
     api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(createExam()));
     assertEquals(
@@ -109,7 +113,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   @Test
   void student_read_exam_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    TeachingApi api = new TeachingApi(student1Client);
+    ExamsApi api = new ExamsApi(student1Client);
     String exam1Id = exam1().getId();
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
@@ -119,7 +123,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   @Test
   void manager_read_exam_ko() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    ExamsApi api = new ExamsApi(manager1Client);
     String nonExistentExamId = "NON_EXISTENT_EXAM";
     assertThrowsApiException(
         "{\"type\":\"404 NOT_FOUND\",\"message\":\"Exam with id #"
@@ -131,7 +135,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   @Test
   void manager_read_exam_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    ExamsApi api = new ExamsApi(manager1Client);
     String exam1Id = exam1().getId();
     ExamInfo actual = api.getExamOneExamById(exam1Id);
     assertDoesNotThrow(() -> api.getExamOneExamById(exam1Id));
@@ -141,7 +145,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   @Test
   void teacher_read_exam_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(teacher1Client);
+    ExamsApi api = new ExamsApi(teacher1Client);
     String exam1Id = exam1().getId();
     ExamInfo actual = api.getExamOneExamById(exam1Id);
     assertDoesNotThrow(() -> api.getExamOneExamById(exam1Id));
@@ -152,7 +156,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   @Disabled("Don't pass in GHA")
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    ExamsApi api = new ExamsApi(manager1Client);
     List<ExamInfo> actual =
         api.getAllExams(null, null, null, null, Instant.parse("2022-10-09T08:25:24Z"), null, 1, 10);
 
@@ -166,7 +170,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   @Test
   void student_read_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    TeachingApi api = new TeachingApi(student1Client);
+    ExamsApi api = new ExamsApi(student1Client);
     assertThrowsForbiddenException(
         () -> api.getAllExams(null, null, null, null, null, null, 1, 10));
   }
@@ -175,7 +179,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   @Disabled("Don't pass on GHA")
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(teacher1Client);
+    ExamsApi api = new ExamsApi(teacher1Client);
     List<ExamInfo> actual = api.getAllExams(null, null, "", "", null, null, 1, 10);
 
     assertTrue(actual.contains(exam1()));
@@ -188,7 +192,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   @Test
   void teacher_create_or_update_exam_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
-    TeachingApi api = new TeachingApi(teacher1Client);
+    ExamsApi api = new ExamsApi(teacher1Client);
     ExamInfo actualCreate = api.createOrUpdateExamsInfos(createExam1());
 
     assertEquals("Algorithmics", actualCreate.getTitle());
@@ -197,7 +201,7 @@ class ExamIT extends FacadeITMockedThirdParties {
 
   @Test
   void teacher_create_or_update_exam_with_bad_info_ko() {
-    TeachingApi api = new TeachingApi(anApiClient(TEACHER1_TOKEN));
+    ExamsApi api = new ExamsApi(anApiClient(TEACHER1_TOKEN));
 
     assertBadRequestException(
         "Coefficient can't be less than 0",
@@ -212,7 +216,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   @Test
   void manager_create_or_update_exam_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    ExamsApi api = new ExamsApi(manager1Client);
     ExamInfo actualCreate = api.createOrUpdateExamsInfos(createExam1());
 
     assertEquals("Algorithmics", actualCreate.getTitle());
@@ -221,7 +225,8 @@ class ExamIT extends FacadeITMockedThirdParties {
 
   @Test
   void student_get_grade_for_each_exams_in_cours() throws ApiException {
-    TeachingApi api = new TeachingApi(anApiClient(STUDENT1_TOKEN));
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    GradesApi api = new GradesApi(student1Client);
     List<StudentExamGrade> studentExamsGrade = api.getStudentExamsGrade(COURSE1_ID, STUDENT1_ID);
 
     assertEquals(grade1().getScore(), studentExamsGrade.getFirst().getScore());

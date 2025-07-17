@@ -14,7 +14,6 @@ import static school.hei.haapi.integration.conf.TestUtils.ORGANIZER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.awardedCourse1;
 import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.course2;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
@@ -28,6 +27,7 @@ import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -40,7 +40,7 @@ import school.hei.haapi.endpoint.rest.api.EventsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.AttendanceMovementType;
-import school.hei.haapi.endpoint.rest.model.AwardedCourse;
+import school.hei.haapi.endpoint.rest.model.CourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CourseSession;
 import school.hei.haapi.endpoint.rest.model.CreateAttendanceMovement;
 import school.hei.haapi.endpoint.rest.model.Event;
@@ -265,18 +265,26 @@ class AttendanceIT extends FacadeITMockedThirdParties {
     api.deleteEventById(createEvent.getId());
   }
 
-  public static AwardedCourse awardedCourse4() {
-    return new AwardedCourse()
+  public static CourseAssignment courseAssignment1() {
+    return new CourseAssignment()
+        .id(UUID.randomUUID().toString())
+        .course(course1())
+        .groups(List.of(group1()))
+        .mainTeacher(teacher1());
+  }
+
+  public static CourseAssignment courseAssignment4() {
+    return new school.hei.haapi.endpoint.rest.model.CourseAssignment()
         .id("awarded_course4_id")
         .course(course2())
-        .group(group1())
+        .groups(List.of(group1()))
         .mainTeacher(teacher4());
   }
 
   public static CourseSession courseSession1() {
     return new CourseSession()
         .id("course_session1_id")
-        .awarededCourse(awardedCourse1())
+        .courseAssignment(courseAssignment1())
         .begin(Instant.parse("2021-11-08T08:00:00.00Z"))
         .end(Instant.parse("2021-11-08T12:00:00.00Z"));
   }
@@ -284,7 +292,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
   public static CourseSession courseSession2() {
     return new CourseSession()
         .id("course_session2_id")
-        .awarededCourse(awardedCourse4())
+        .courseAssignment(courseAssignment4())
         .begin(Instant.parse("2021-08-08T15:00:00.00Z"))
         .end(Instant.parse("2021-08-08T17:00:00.00Z"));
   }

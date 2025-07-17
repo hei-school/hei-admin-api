@@ -1,6 +1,7 @@
 package school.hei.haapi.integration.conf;
 
 import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertTrue;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -71,13 +72,11 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Announcement;
 import school.hei.haapi.endpoint.rest.model.AnnouncementAuthor;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
-import school.hei.haapi.endpoint.rest.model.AwardedCourse;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.Comment;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CreateAnnouncement;
-import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateComment;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
@@ -435,6 +434,13 @@ public class TestUtils {
         .thenReturn(PutEventsResponse.builder().build());
   }
 
+  public static <T> void assertListEquals(List<T> expectedList, List<T> actualList) {
+    assertTrue(
+        expectedList.size() == actualList.size()
+            && expectedList.containsAll(actualList)
+            && actualList.containsAll(expectedList));
+  }
+
   public static void assertThrowsApiException(String expectedBody, Executable executable) {
     ApiException apiException = assertThrows(ApiException.class, executable);
     assertEquals(expectedBody, apiException.getResponseBody());
@@ -515,41 +521,12 @@ public class TestUtils {
     return new Course().code(code).name("Collaborative work like GWSP").credits(12).totalHours(5);
   }
 
-  public static CreateAwardedCourse updateAwardedCourse1() {
-    return new CreateAwardedCourse()
-        .id(AWARDED_COURSE1_ID)
-        .courseId("course1_id")
-        .groupId("group1_id")
-        .mainTeacherId("teacher1_id");
-  }
-
-  public static AwardedCourse updatedAwardedCourse2() {
-    return new AwardedCourse()
-        .id(AWARDED_COURSE2_ID)
-        .course(course2())
-        .group(group2())
-        .mainTeacher(teacher2());
-  }
-
-  public static List<CreateAwardedCourse> someAwardedCoursesToCrupdate() {
-    return List.of(
-        new CreateAwardedCourse()
-            .id(AWARDED_COURSE2_ID)
-            .courseId("course2_id")
-            .groupId("group2_id")
-            .mainTeacherId("teacher2_id"),
-        new CreateAwardedCourse()
-            .courseId("course2_id")
-            .groupId("group1_id")
-            .mainTeacherId("teacher2_id"));
-  }
-
   public static ExamInfo createExam() {
     return new ExamInfo()
         .coefficient(10)
         .title("createExam")
         .examinationDate(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .awardedCourse(awardedCourse1());
+        .courseAssignment(courseAssignment1());
   }
 
   public static CrupdateGrade createGrade() {
@@ -916,44 +893,35 @@ public class TestUtils {
         .name("Implemented IA");
   }
 
-  public static Course course4() {
-    return new Course()
-        .id(COURSE4_ID)
-        .code("donne1")
-        .credits(4)
-        .totalHours(30)
-        .name("relational data base");
-  }
-
-  public static AwardedCourse awardedCourse1() {
-    return new AwardedCourse()
+  public static CourseAssignment courseAssignment1() {
+    return new CourseAssignment()
         .id(AWARDED_COURSE1_ID)
         .course(course1())
-        .group(group1())
+        .groups(List.of(group1()))
         .mainTeacher(teacher1());
   }
 
-  public static AwardedCourse awardedCourse2() {
-    return new AwardedCourse()
+  public static CourseAssignment courseAssignment2() {
+    return new CourseAssignment()
         .id(AWARDED_COURSE2_ID)
         .course(course1())
-        .group(group1())
+        .groups(List.of(group1()))
         .mainTeacher(teacher2());
   }
 
-  public static AwardedCourse awardedCourse3() {
-    return new AwardedCourse()
+  public static CourseAssignment courseAssignment3() {
+    return new CourseAssignment()
         .id(AWARDED_COURSE3_ID)
         .course(course1())
-        .group(group2())
+        .groups(List.of(group2()))
         .mainTeacher(teacher2());
   }
 
-  public static AwardedCourse awardedCourse4() {
-    return new AwardedCourse()
+  public static CourseAssignment CourseAssignment4() {
+    return new CourseAssignment()
         .id(AWARDED_COURSE4_ID)
         .course(course2())
-        .group(group1())
+        .groups(List.of(group1()))
         .mainTeacher(teacher4());
   }
 
@@ -961,7 +929,7 @@ public class TestUtils {
     return new CrupdateExam()
         .coefficient(2)
         .title("Algorithmics")
-        .awardedCourseId(awardedCourse1().getId())
+        .courseAssignmentId(courseAssignment1().getId())
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
@@ -970,7 +938,7 @@ public class TestUtils {
         .id(EXAM1_ID)
         .coefficient(2)
         .title("Algorithmics")
-        .awardedCourse(awardedCourse1())
+        .CourseAssignment(courseAssignment1())
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
@@ -979,7 +947,7 @@ public class TestUtils {
         .id(EXAM2_ID)
         .coefficient(3)
         .title("Algorithmics final")
-        .awardedCourse(awardedCourse1())
+        .CourseAssignment(courseAssignment1())
         .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
@@ -988,7 +956,7 @@ public class TestUtils {
         .id(EXAM3_ID)
         .coefficient(2)
         .title("Algorithmics")
-        .awardedCourse(awardedCourse3())
+        .CourseAssignment(courseAssignment3())
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
@@ -997,7 +965,7 @@ public class TestUtils {
         .id(EXAM4_ID)
         .coefficient(3)
         .title("Algorithmics2")
-        .awardedCourse(awardedCourse2())
+        .CourseAssignment(courseAssignment2())
         .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
@@ -1006,7 +974,7 @@ public class TestUtils {
         .id(EXAM5_ID)
         .coefficient(1)
         .title("Prog2 final")
-        .awardedCourse(awardedCourse4())
+        .CourseAssignment(CourseAssignment4())
         .examinationDate(Instant.parse("2022-12-09T08:25:24Z"));
   }
 
@@ -1169,39 +1137,39 @@ public class TestUtils {
         .type(TUITION);
   }
 
-  public static AwardedCourseExam awardedCourseExam1() {
-    return new AwardedCourseExam()
+  public static CourseAssignmentExam CourseAssignmentExam1() {
+    return new CourseAssignmentExam()
         .id(AWARDED_COURSE1_ID)
-        .mainTeacher(awardedCourse1().getMainTeacher())
-        .course(awardedCourse1().getCourse())
-        .group(awardedCourse1().getGroup())
+        .mainTeacher(courseAssignment1().getMainTeacher())
+        .course(courseAssignment1().getCourse())
+        .group(courseAssignment1().getGroup())
         .exams(List.of(studentExamGrade1(), studentExamGrade2()));
   }
 
-  public static AwardedCourseExam awardedCourseExam2() {
-    return new AwardedCourseExam()
+  public static CourseAssignmentExam CourseAssignmentExam2() {
+    return new CourseAssignmentExam()
         .id(AWARDED_COURSE2_ID)
-        .mainTeacher(awardedCourse2().getMainTeacher())
-        .course(awardedCourse2().getCourse())
-        .group(awardedCourse2().getGroup())
+        .mainTeacher(courseAssignment2().getMainTeacher())
+        .course(courseAssignment2().getCourse())
+        .group(courseAssignment2().getGroup())
         .exams(List.of(studentExamGrade4()));
   }
 
-  public static AwardedCourseExam awardedCourseExam3() {
-    return new AwardedCourseExam()
+  public static CourseAssignmentExam CourseAssignmentExam3() {
+    return new CourseAssignmentExam()
         .id(AWARDED_COURSE3_ID)
-        .mainTeacher(awardedCourse3().getMainTeacher())
-        .course(awardedCourse3().getCourse())
-        .group(awardedCourse3().getGroup())
+        .mainTeacher(courseAssignment3().getMainTeacher())
+        .course(courseAssignment3().getCourse())
+        .group(courseAssignment3().getGroup())
         .exams(List.of(studentExamGrade3()));
   }
 
-  public static AwardedCourseExam awardedCourseExam4() {
-    return new AwardedCourseExam()
+  public static CourseAssignmentExam CourseAssignmentExam4() {
+    return new CourseAssignmentExam()
         .id(AWARDED_COURSE4_ID)
-        .mainTeacher(awardedCourse4().getMainTeacher())
-        .course(awardedCourse4().getCourse())
-        .group(awardedCourse4().getGroup())
+        .mainTeacher(CourseAssignment4().getMainTeacher())
+        .course(CourseAssignment4().getCourse())
+        .group(CourseAssignment4().getGroup())
         .exams(List.of(studentExamGrade5()));
   }
 
