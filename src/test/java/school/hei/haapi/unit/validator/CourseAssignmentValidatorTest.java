@@ -14,39 +14,39 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.validator.CourseAssignmentValidator;
 
-class AwardedCourseValidatorTest {
-  CourseAssignmentValidator awardedCourseValidator;
+class CourseAssignmentValidatorTest {
+  CourseAssignmentValidator courseAssignmentValidator;
 
   @BeforeEach
   void setUp() {
-    awardedCourseValidator = new CourseAssignmentValidator();
+    courseAssignmentValidator = new CourseAssignmentValidator();
   }
 
   @Test
   void awarded_courses_with_bad_data_ko() {
-    var awardedCoursesWithoutTeacher = List.of(someAwardedCourse(null, new Course(), new Group()));
-    var awardedCoursesWithoutCourse = List.of(someAwardedCourse(new User(), null, new Group()));
-    var awardedCoursesWithoutGroup = List.of(someAwardedCourse(new User(), new Course(), null));
+    var courseAssignmentsWithoutTeacher = List.of(someCourseAssignment(null, new Course(), List.of(new Group())));
+    var courseAssignmentsWithoutCourse = List.of(someCourseAssignment(new User(), null, List.of(new Group())));
+    var courseAssignmentsWithoutGroup = List.of(someCourseAssignment(new User(), new Course(), null));
 
     var teacherBadRequestException =
         assertThrows(
             BadRequestException.class,
-            () -> awardedCourseValidator.accept(awardedCoursesWithoutTeacher));
+            () -> courseAssignmentValidator.accept(courseAssignmentsWithoutTeacher));
     var courseBadRequestException =
         assertThrows(
             BadRequestException.class,
-            () -> awardedCourseValidator.accept(awardedCoursesWithoutCourse));
+            () -> courseAssignmentValidator.accept(courseAssignmentsWithoutCourse));
     var groupBadRequestException =
         assertThrows(
             BadRequestException.class,
-            () -> awardedCourseValidator.accept(awardedCoursesWithoutGroup));
+            () -> courseAssignmentValidator.accept(courseAssignmentsWithoutGroup));
 
     assertEquals("Teacher is mandatory", teacherBadRequestException.getMessage());
     assertEquals("Course is mandatory", courseBadRequestException.getMessage());
     assertEquals("Group is mandatory", groupBadRequestException.getMessage());
   }
 
-  private static CourseAssignment someAwardedCourse(User mainTeacher, Course course, Group group) {
-    return new CourseAssignment("", mainTeacher, course, group, List.of(), Instant.now());
+  private static CourseAssignment someCourseAssignment(User mainTeacher, Course course, List<Group> groups) {
+    return new CourseAssignment("", mainTeacher, course, groups, List.of(), Instant.now());
   }
 }
