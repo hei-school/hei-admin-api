@@ -12,7 +12,7 @@ import school.hei.haapi.service.CourseAssignmentService;
 
 @AllArgsConstructor
 public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
-  private final CourseAssignmentService awardedCourseService;
+  private final CourseAssignmentService courseAssignmentService;
   private final HttpMethod method;
   private final String antPattern;
 
@@ -25,7 +25,7 @@ public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
     Principal principal = AuthProvider.getPrincipal();
     String awardedCourseIdFromRequest = getSelfId(request, "awarded_courses");
     String groupIdFromRequest = getSelfId(request, "groups");
-    return awardedCourseService.checkTeacherOfAwardedCourse(
+    return courseAssignmentService.checkTeacherOfCourseAssignment(
         principal.getUserId(), awardedCourseIdFromRequest, groupIdFromRequest);
   }
 
