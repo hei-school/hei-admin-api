@@ -1,5 +1,6 @@
 package school.hei.haapi.integration.test_data;
 
+import java.util.Random;
 import java.util.UUID;
 import school.hei.haapi.model.Group;
 
@@ -8,7 +9,7 @@ public class GroupTestData {
     return Group.builder()
         .id(UUID.randomUUID().toString())
         .name("G1")
-        .ref("G1")
+        .ref(UUID.randomUUID().toString())
         .attributedColor("green")
         .build();
   }
@@ -17,7 +18,7 @@ public class GroupTestData {
     return Group.builder()
         .id(UUID.randomUUID().toString())
         .name("G2")
-        .ref("G2")
+        .ref(UUID.randomUUID().toString())
         .attributedColor("blue")
         .build();
   }

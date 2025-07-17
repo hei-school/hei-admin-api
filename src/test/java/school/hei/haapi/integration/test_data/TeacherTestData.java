@@ -1,5 +1,6 @@
 package school.hei.haapi.integration.test_data;
 
+import java.time.Instant;
 import java.util.UUID;
 import school.hei.haapi.model.User;
 
@@ -13,6 +14,8 @@ public class TeacherTestData {
         .email("jane.doe@hei.school")
         .phone("+261 34 12 345 02")
         .status(User.Status.ENABLED)
+            .entranceDatetime(Instant.now())
+            .role(User.Role.TEACHER)
         .build();
   }
 
@@ -25,6 +28,8 @@ public class TeacherTestData {
         .email("bob.wilson@hei.school")
         .phone("+261 34 12 345 03")
         .status(User.Status.ENABLED)
+            .entranceDatetime(Instant.now())
+            .role(User.Role.TEACHER)
         .build();
   }
 
@@ -37,6 +42,8 @@ public class TeacherTestData {
         .email("harry@something.com")
         .phone("+261 34 12 345 04")
         .status(User.Status.DISABLED)
+            .entranceDatetime(Instant.now())
+            .role(User.Role.TEACHER)
         .build();
   }
 }
