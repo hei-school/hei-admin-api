@@ -24,21 +24,22 @@ public class ExamMapper {
         .coefficient(exam.getCoefficient())
         .title(exam.getTitle())
         .examinationDate(exam.getExaminationDate())
-        .awardedCourse(awardedCourseMapper.toRest(exam.getAwardedCourse()));
+        .courseAssignment(courseAssignmentMapper.toRest(exam.getCourseAssignment()));
   }
 
-  public Exam toDomain(ExamInfo examInfo, CourseAssignment awardedCourse) {
+  public Exam toDomain(ExamInfo examInfo, CourseAssignment courseAssignment) {
     return Exam.builder()
         .id(examInfo.getId())
         .coefficient(examInfo.getCoefficient())
         .title(examInfo.getTitle())
         .examinationDate(examInfo.getExaminationDate())
-        .awardedCourse(awardedCourse)
+        .courseAssignment(courseAssignment)
         .build();
   }
 
   public Exam toDomain(CrupdateExam createExam) {
-    CourseAssignment courseAssignment = awardedCourseService.findById(createExam.getCourseAssignmentId());
+    CourseAssignment courseAssignment =
+        courseAssignmentService.findCourseAssignmentById(createExam.getCourseAssignmentId());
     return Exam.builder()
         .id(createExam.getId())
         .coefficient(createExam.getCoefficient())

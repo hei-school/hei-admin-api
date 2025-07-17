@@ -14,7 +14,9 @@ import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
+import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.ExamValidator;
 import school.hei.haapi.repository.ExamRepository;
@@ -56,14 +58,21 @@ public class ExamService {
     return savedExams;
   }
 
-  private List<Grade> initializeExamGrades(Exam exam) {
-    return userService.getByGroupId(exam.getAwardedCourse().getGroup().getId()).stream()
-        .map(
+  private List<Grade> initializeExamGrades(Exam exam, List<User> users) {
+    return users.stream().map(
             student ->
                 gradeRepository
                     .getGradeByExamIdAndStudentId(exam.getId(), student.getId())
                     .orElse(new Grade(exam, student)))
-        .collect(toUnmodifiableList());
+        .toList();
+  }
+
+  private List<Grade> initializeExamGrades(Exam exam) {
+    return exam.getCourseAssignment().getGroups().stream()
+            .map(group -> userService.getByGroupId(group.getId()))
+            .map(users -> initializeExamGrades(exam, users))
+            .flatMap(List::stream)
+            .toList();
   }
 
   public Exam getExamById(String id) {
