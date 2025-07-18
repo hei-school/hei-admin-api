@@ -2,6 +2,7 @@ package school.hei.haapi.model;
 
 import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.EnumType.STRING;
+import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Comparator.comparing;
 import static java.util.function.Predicate.isEqual;
@@ -89,7 +90,7 @@ public class Fee implements Serializable {
   @EqualsAndHashCode.Exclude
   private List<Payment> payments;
 
-  @OneToMany(mappedBy = "fee", cascade = REMOVE)
+  @OneToMany(mappedBy = "fee", cascade = REMOVE, fetch = EAGER)
   @EqualsAndHashCode.Exclude
   private List<Mpbs> mobilePayments;
 
