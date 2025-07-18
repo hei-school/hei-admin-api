@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.AWARDED_COURSE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.COURSE_ASSIGNMENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
@@ -66,7 +66,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void student_read_exam_grades_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     ExamsApi api = new ExamsApi(student1Client);
-    assertThrowsForbiddenException(() -> api.getExamById(AWARDED_COURSE1_ID, EXAM1_ID));
+    assertThrowsForbiddenException(() -> api.getExamById(COURSE_ASSIGNMENT1_ID, EXAM1_ID));
   }
 
   @Test
@@ -82,7 +82,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     ExamsApi api = new ExamsApi(anApiClient(STUDENT1_TOKEN));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(exam1())));
+        () -> api.createOrUpdateExams(COURSE_ASSIGNMENT1_ID, List.of(exam1())));
   }
 
   @Test
@@ -91,7 +91,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     GradesApi gradesApi = new GradesApi(anApiClient(TEACHER1_TOKEN));
     GroupsApi groupsApi = new GroupsApi(anApiClient(TEACHER1_TOKEN));
 
-    List<ExamInfo> exams = examsApi.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(createExam()));
+    List<ExamInfo> exams = examsApi.createOrUpdateExams(COURSE_ASSIGNMENT1_ID, List.of(createExam()));
     assertEquals(1, exams.size());
     ExamInfo exam = exams.getFirst();
 
@@ -105,7 +105,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void exam_creation_create_only_one_exam() throws ApiException {
     ExamsApi api = new ExamsApi(anApiClient(TEACHER1_TOKEN));
     int examCount = api.getAllExams(null, null, null, null, null, null, null, null).size();
-    api.createOrUpdateExams(AWARDED_COURSE1_ID, List.of(createExam()));
+    api.createOrUpdateExams(COURSE_ASSIGNMENT1_ID, List.of(createExam()));
     assertEquals(
         examCount + 1, api.getAllExams(null, null, null, null, null, null, null, null).size());
   }

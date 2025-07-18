@@ -1,5 +1,5 @@
 insert into "exam"
-(id, coefficient, title, awarded_course_id, examination_date)
+(id, coefficient, title, course_assignment_id, examination_date)
 values ('exam1_id', 2, 'Algorithmics', 'course_assignment1_id', '2022-10-09T08:25:24.00Z'), -- group1
        ('exam2_id', 3, 'Algorithmics final', 'course_assignment1_id', '2022-11-09T08:25:24.00Z'), -- group1
        ('exam3_id', 2, 'Algorithmics', 'course_assignment3_id', '2022-10-09T08:25:24.00Z'), -- group2

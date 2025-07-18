@@ -152,10 +152,10 @@ public class TestUtils {
   public static final String COURSE2_ID = "course2_id";
   public static final String COURSE3_ID = "course3_id";
   public static final String COURSE4_ID = "course4_id";
-  public static final String AWARDED_COURSE1_ID = "awarded_course1_id";
-  public static final String AWARDED_COURSE2_ID = "awarded_course2_id";
-  public static final String AWARDED_COURSE3_ID = "awarded_course3_id";
-  public static final String AWARDED_COURSE4_ID = "awarded_course4_id";
+  public static final String COURSE_ASSIGNMENT1_ID = "course_assignment1_id";
+  public static final String COURSE_ASSIGNMENT2_ID = "course_assignment2_id";
+  public static final String COURSE_ASSIGNMENT3_ID = "course_assignment3_id";
+  public static final String COURSE_ASSIGNMENT4_ID = "course_assignment4_id";
   public static final String EXAM1_ID = "exam1_id";
   public static final String EXAM2_ID = "exam2_id";
   public static final String EXAM3_ID = "exam3_id";
@@ -896,7 +896,7 @@ public class TestUtils {
 
   public static CourseAssignment courseAssignment1() {
     return new CourseAssignment()
-        .id(AWARDED_COURSE1_ID)
+        .id(COURSE_ASSIGNMENT1_ID)
         .course(course1())
         .groups(List.of(group1()))
         .mainTeacher(teacher1());
@@ -904,7 +904,7 @@ public class TestUtils {
 
   public static CourseAssignment courseAssignment2() {
     return new CourseAssignment()
-        .id(AWARDED_COURSE2_ID)
+        .id(COURSE_ASSIGNMENT2_ID)
         .course(course1())
         .groups(List.of(group1()))
         .mainTeacher(teacher2());
@@ -912,7 +912,7 @@ public class TestUtils {
 
   public static CourseAssignment courseAssignment3() {
     return new CourseAssignment()
-        .id(AWARDED_COURSE3_ID)
+        .id(COURSE_ASSIGNMENT3_ID)
         .course(course1())
         .groups(List.of(group2()))
         .mainTeacher(teacher2());
@@ -920,7 +920,7 @@ public class TestUtils {
 
   public static CourseAssignment CourseAssignment4() {
     return new CourseAssignment()
-        .id(AWARDED_COURSE4_ID)
+        .id(COURSE_ASSIGNMENT4_ID)
         .course(course2())
         .groups(List.of(group1()))
         .mainTeacher(teacher4());
@@ -1140,7 +1140,7 @@ public class TestUtils {
 
   public static CourseAssignmentExam CourseAssignmentExam1() {
     return new CourseAssignmentExam()
-        .id(AWARDED_COURSE1_ID)
+        .id(COURSE_ASSIGNMENT1_ID)
         .mainTeacher(courseAssignment1().getMainTeacher())
         .course(courseAssignment1().getCourse())
         .groups(courseAssignment1().getGroups())
@@ -1149,7 +1149,7 @@ public class TestUtils {
 
   public static CourseAssignmentExam CourseAssignmentExam2() {
     return new CourseAssignmentExam()
-        .id(AWARDED_COURSE2_ID)
+        .id(COURSE_ASSIGNMENT2_ID)
         .mainTeacher(courseAssignment2().getMainTeacher())
         .course(courseAssignment2().getCourse())
         .groups(courseAssignment2().getGroups())
@@ -1158,7 +1158,7 @@ public class TestUtils {
 
   public static CourseAssignmentExam CourseAssignmentExam3() {
     return new CourseAssignmentExam()
-        .id(AWARDED_COURSE3_ID)
+        .id(COURSE_ASSIGNMENT3_ID)
         .mainTeacher(courseAssignment3().getMainTeacher())
         .course(courseAssignment3().getCourse())
         .groups(courseAssignment3().getGroups())
@@ -1167,7 +1167,7 @@ public class TestUtils {
 
   public static CourseAssignmentExam CourseAssignmentExam4() {
     return new CourseAssignmentExam()
-        .id(AWARDED_COURSE4_ID)
+        .id(COURSE_ASSIGNMENT4_ID)
         .mainTeacher(CourseAssignment4().getMainTeacher())
         .course(CourseAssignment4().getCourse())
         .groups(CourseAssignment4().getGroups())

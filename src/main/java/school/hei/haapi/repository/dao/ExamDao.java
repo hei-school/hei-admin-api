@@ -31,28 +31,28 @@ public class ExamDao {
       String groupRef,
       Instant examinationDateStart,
       Instant examinationDateEnd,
-      String awardedCourseId) {
+      String courseAssignmentId) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Exam> query = builder.createQuery(Exam.class);
     Root<Exam> root = query.from(Exam.class);
     ArrayList<Predicate> predicates = new ArrayList<>();
-
     if (title != null && !title.isEmpty()) {
       predicates.add(builder.like(root.get("title"), "%" + title.toLowerCase() + "%"));
     }
 
-    Join<Exam, CourseAssignment> awardedCourseJoin = root.join("awardedCourse", JoinType.LEFT);
+    Join<Exam, CourseAssignment> courseAssignmentJoin = root.join("courseAssignment", JoinType.LEFT);
+    predicates.add(builder.equal(courseAssignmentJoin.get("isDeleted"), false));
     if (courseCode != null && !courseCode.isEmpty()) {
-      Join<CourseAssignment, Course> courseJoin = awardedCourseJoin.join("course", JoinType.LEFT);
+      Join<CourseAssignment, Course> courseJoin = courseAssignmentJoin.join("course", JoinType.LEFT);
       predicates.add(
           builder.like(
               builder.lower(courseJoin.get("code")), "%" + courseCode.toLowerCase() + "%"));
     }
-    if (awardedCourseId != null && !awardedCourseId.isEmpty()) {
-      predicates.add(builder.equal(awardedCourseJoin.get("id"), awardedCourseId));
+    if (courseAssignmentId != null && !courseAssignmentId.isEmpty()) {
+      predicates.add(builder.equal(courseAssignmentJoin.get("id"), courseAssignmentId));
     }
     if (groupRef != null && !groupRef.isEmpty()) {
-      Join<CourseAssignment, Group> groupJoin = awardedCourseJoin.join("group", JoinType.LEFT);
+      Join<CourseAssignment, Group> groupJoin = courseAssignmentJoin.join("groups", JoinType.LEFT);
       predicates.add(
           builder.like(builder.lower(groupJoin.get("ref")), "%" + groupRef.toLowerCase() + "%"));
     }
