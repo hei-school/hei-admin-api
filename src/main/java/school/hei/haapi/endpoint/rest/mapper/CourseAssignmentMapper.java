@@ -2,7 +2,6 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import static java.util.stream.Collectors.toList;
 
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -108,18 +107,15 @@ public class CourseAssignmentMapper {
     return courseAssignments;
   }
 
-  public school.hei.haapi.model.CourseAssignment toRest(
-      CrupdateCourseAssignment crupdateCourseAssignment) {
+  public CourseAssignment toRest(CrupdateCourseAssignment crupdateCourseAssignment) {
     List<Group> groups = groupService.getAllById(crupdateCourseAssignment.getGroupIds());
     Course course = courseService.getById(crupdateCourseAssignment.getCourseId());
     User teacher = userService.findById(crupdateCourseAssignment.getMainTeacherId());
 
-    return school.hei.haapi.model.CourseAssignment.builder()
+    return new CourseAssignment()
         .id(crupdateCourseAssignment.getId())
-        .groups(groups)
-        .course(course)
-        .mainTeacher(teacher)
-        .creationDatetime(Instant.now())
-        .build();
+        .groups(groups.stream().map(groupMapper::toRest).toList())
+        .course(courseMapper.toRest(course))
+        .mainTeacher(userMapper.toRestTeacher(teacher));
   }
 }
