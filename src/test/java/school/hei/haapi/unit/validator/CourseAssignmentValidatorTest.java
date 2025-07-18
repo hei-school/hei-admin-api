@@ -24,9 +24,12 @@ class CourseAssignmentValidatorTest {
 
   @Test
   void awarded_courses_with_bad_data_ko() {
-    var courseAssignmentsWithoutTeacher = List.of(someCourseAssignment(null, new Course(), List.of(new Group())));
-    var courseAssignmentsWithoutCourse = List.of(someCourseAssignment(new User(), null, List.of(new Group())));
-    var courseAssignmentsWithoutGroup = List.of(someCourseAssignment(new User(), new Course(), null));
+    var courseAssignmentsWithoutTeacher =
+        List.of(someCourseAssignment(null, new Course(), List.of(new Group())));
+    var courseAssignmentsWithoutCourse =
+        List.of(someCourseAssignment(new User(), null, List.of(new Group())));
+    var courseAssignmentsWithoutGroup =
+        List.of(someCourseAssignment(new User(), new Course(), null));
 
     var teacherBadRequestException =
         assertThrows(
@@ -46,7 +49,15 @@ class CourseAssignmentValidatorTest {
     assertEquals("Group is mandatory", groupBadRequestException.getMessage());
   }
 
-  private static CourseAssignment someCourseAssignment(User mainTeacher, Course course, List<Group> groups) {
-    return new CourseAssignment("", mainTeacher, course, groups, List.of(), Instant.now());
+  private static CourseAssignment someCourseAssignment(
+      User mainTeacher, Course course, List<Group> groups) {
+    return CourseAssignment.builder()
+        .id("")
+        .mainTeacher(mainTeacher)
+        .course(course)
+        .groups(groups)
+        .exams(List.of())
+        .creationDatetime(Instant.now())
+        .build();
   }
 }

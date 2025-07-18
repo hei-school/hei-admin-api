@@ -121,7 +121,14 @@ public class FakeDataProvider {
         beginDatetime.toInstant(),
         faker.date().between(beginDatetime, faker.date().past(10, DAYS)).toInstant(),
         null,
-        new Course("", "", "", 0, 0, List.of()),
+        Course.builder()
+            .id("")
+            .code("")
+            .name("")
+            .credits(0)
+            .totalHours(0)
+            .awardedCourses(List.of())
+            .build(),
         List.of());
   }
 
