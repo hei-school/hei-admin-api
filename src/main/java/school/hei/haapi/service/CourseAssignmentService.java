@@ -29,8 +29,6 @@ import school.hei.haapi.repository.dao.CourseAssignmentDAO;
 @Service
 @AllArgsConstructor
 public class CourseAssignmentService {
-  private final CourseRepository courseRepository;
-  private final GroupRepository groupRepository;
   private final UserRepository userRepository;
   private final CourseAssignmentRepository courseAssignmentRepository;
   private final CourseAssignmentMapper courseAssignmentMapper;

@@ -57,7 +57,6 @@ public class CourseAssignment implements Serializable {
           joinColumns = @JoinColumn(name = "course_assignment_id"),
           inverseJoinColumns = @JoinColumn(name = "group_id")
   )
-
   @ToString.Exclude
   private List<Group> groups;
 
