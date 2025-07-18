@@ -838,7 +838,7 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
-      operationId: getCourseAssignmentByCourseId
+      operationId: getCourseAssignmentsByCourseId
       responses:
         '200':
           description: List of all course_assignments for a course
