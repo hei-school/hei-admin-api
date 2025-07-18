@@ -26,8 +26,8 @@ public class CourseAssignmentDAO {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<CourseAssignment> query = builder.createQuery(CourseAssignment.class);
     Root<CourseAssignment> root = query.from(CourseAssignment.class);
-    Join<CourseAssignment, User> teacher = root.join("mainTeacher", JoinType.LEFT);
-    Join<CourseAssignment, Course> Courses = root.join("course", JoinType.LEFT);
+    Join<CourseAssignment, User> teacher = root.join("mainTeacher", JoinType.INNER);
+    Join<CourseAssignment, Course> Courses = root.join("course", JoinType.INNER);
 
     List<Predicate> predicates = new ArrayList<>();
 
@@ -45,6 +45,7 @@ public class CourseAssignmentDAO {
               builder.like(Courses.get("id"), "%" + courseId + "%")));
     }
 
+    predicates.add(builder.equal(root.get("isDeleted"), false));
     query.where(builder.and(predicates.toArray(new Predicate[0]))).distinct(true);
 
     return entityManager
