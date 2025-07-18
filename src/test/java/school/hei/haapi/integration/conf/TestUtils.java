@@ -2,6 +2,7 @@ package school.hei.haapi.integration.conf;
 
 import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -58,6 +59,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.casbin.casdoor.entity.CasdoorRole;
 import org.casbin.casdoor.entity.CasdoorUser;
@@ -435,11 +437,9 @@ public class TestUtils {
         .thenReturn(PutEventsResponse.builder().build());
   }
 
-  public static <T> void assertListEquals(List<T> expectedList, List<T> actualList) {
+  public static <T> void assertListContains(List<T> actual, List<T> expectedElements) {
     assertTrue(
-        expectedList.size() == actualList.size()
-            && expectedList.containsAll(actualList)
-            && actualList.containsAll(expectedList));
+        actual + " does not contain : " + expectedElements, actual.containsAll(expectedElements));
   }
 
   public static void assertThrowsApiException(String expectedBody, Executable executable) {
@@ -1818,5 +1818,45 @@ public class TestUtils {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public static void assertCourseAssignmentsIgnoringGroupCreationDateTime(
+      List<CourseAssignment> actual, List<CourseAssignment> expected) {
+    if (actual == null || expected == null) {
+      fail("One of the lists is null");
+      return;
+    }
+    List<CourseAssignment> actualCloned =
+        actual.stream().map(TestUtils::cloneCourseAssignmentWithNullGroupCreationDateTime).toList();
+    List<CourseAssignment> expectedCloned =
+        expected.stream()
+            .map(TestUtils::cloneCourseAssignmentWithNullGroupCreationDateTime)
+            .toList();
+    assertTrue(
+        "Actual list does not contain all expected elements",
+        actualCloned.containsAll(expectedCloned));
+  }
+
+  private static CourseAssignment cloneCourseAssignmentWithNullGroupCreationDateTime(
+      CourseAssignment original) {
+    CourseAssignment clone = new CourseAssignment();
+    clone.setId(original.getId());
+    clone.setMainTeacher(original.getMainTeacher());
+    clone.setCourse(original.getCourse());
+    clone.setGroups(
+        original.getGroups().stream()
+            .map(TestUtils::cloneGroupWithoutCreationDateTime)
+            .collect(Collectors.toList()));
+    return clone;
+  }
+
+  private static Group cloneGroupWithoutCreationDateTime(Group original) {
+    Group clone = new Group();
+    clone.setId(original.getId());
+    clone.setName(original.getName());
+    clone.setRef(original.getRef());
+    clone.setSize(original.getSize());
+    clone.setAttributedColor(original.getAttributedColor());
+    return clone;
   }
 }

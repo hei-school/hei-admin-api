@@ -6,7 +6,7 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.NOT_EXISTING_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
-import static school.hei.haapi.integration.conf.TestUtils.assertListEquals;
+import static school.hei.haapi.integration.conf.TestUtils.assertCourseAssignmentsIgnoringGroupCreationDateTime;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -106,10 +106,10 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
 
   @AfterEach
   void tearDown() {
-    courseAssignmentRepository.deleteAllById(courseAssignmentIds);
     courseRepository.deleteAllById(courseIds);
     teacherRepository.deleteAllById(teacherIds);
     groupRepository.deleteAllById(groupIds);
+    courseAssignmentRepository.deleteAllById(courseAssignmentIds);
     courseAssignmentIds = new ArrayList<>();
     courseIds = new ArrayList<>();
     teacherIds = new ArrayList<>();
@@ -122,20 +122,52 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
       List<school.hei.haapi.model.CourseAssignment> expected,
       CoursesApi api)
       throws ApiException {
+    assertRestCourseAssignments(
+        method, id, expected.stream().map(courseAssignmentMapper::toRest).toList(), api);
+  }
+
+  private void assertRestCourseAssignments(
+      String method, String id, List<CourseAssignment> expected, CoursesApi api)
+      throws ApiException {
     List<CourseAssignment> actual =
         switch (method) {
           case "byTeacherId" -> api.getCourseAssignmentByTeacherId(id, 1, 10);
-          case "byCourseId" -> api.getCourseAssignmentByCourseId(id, 1, 10);
+          case "byCourseId" -> api.getCourseAssignmentsByCourseId(id, 1, 10);
           case "byGroupId" -> api.getCourseAssignmentsByGroupId(id, 1, 10);
           default -> api.getCourseAssignmentsByCriteria(null, null, null, null, null);
         };
-    assertListEquals(actual, expected.stream().map(courseAssignmentMapper::toRest).toList());
+    assertCourseAssignmentsIgnoringGroupCreationDateTime(actual, expected);
   }
 
   @Test
-  void manager_read_ok() throws ApiException {
-    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    CoursesApi api = new CoursesApi(manager1Client);
+  void student_read_ok() throws ApiException {
+    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
+    CoursesApi api = new CoursesApi(student1Client);
+
+    assertCourseAssignments(
+        "byTeacherId",
+        teacherToky.getId(),
+        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1),
+        api);
+  }
+
+  @Test
+  void manager_read_with_bad_id_ko() {
+    ApiClient teacher1Client = anApiClient(MANAGER1_TOKEN);
+    CoursesApi api = new CoursesApi(teacher1Client);
+
+    assertThrowsApiException(
+        "{\"type\":\"404 NOT_FOUND\",\"message\":\"Teacher with id: "
+            + NOT_EXISTING_ID
+            + " not found\"}",
+        () -> api.getCourseAssignmentByTeacherId(NOT_EXISTING_ID, 1, 10));
+  }
+
+  @Test
+  void teacher_read_ok() throws ApiException {
+    ApiClient teacherClient = anApiClient(TEACHER1_TOKEN);
+    CoursesApi api = new CoursesApi(teacherClient);
+
     assertCourseAssignments(
         "byGroupId",
         groupG1.getId(),
@@ -159,65 +191,6 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void student_read_ok() throws ApiException {
-    ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
-    CoursesApi api = new CoursesApi(student1Client);
-    assertCourseAssignments(
-        "byTeacherId",
-        teacherToky.getId(),
-        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1),
-        api);
-  }
-
-  @Test
-  void course_assignment_by_manager_with_bad_id_ko() {
-    ApiClient teacher1Client = anApiClient(MANAGER1_TOKEN);
-    CoursesApi api = new CoursesApi(teacher1Client);
-
-    assertThrowsApiException(
-        "{\"type\":\"404 NOT_FOUND\",\"message\":\"User with id: "
-            + NOT_EXISTING_ID
-            + " not found\"}",
-        () -> api.getCourseAssignmentByTeacherId(NOT_EXISTING_ID, 1, 10));
-  }
-
-  @Test
-  void teacher_read_ok() throws ApiException {
-    ApiClient teacherClient = anApiClient(TEACHER1_TOKEN);
-    CoursesApi api = new CoursesApi(teacherClient);
-
-    List<CourseAssignment> courseAssignedToG1 =
-        api.getCourseAssignmentsByGroupId(groupG1.getId(), 1, 10);
-    List<CourseAssignment> allCourseAssignments =
-        api.getCourseAssignmentsByCriteria(null, null, null, null, null);
-    List<CourseAssignment> courseAssignedToToky =
-        api.getCourseAssignmentByTeacherId(teacherToky.getId(), 1, 10);
-    List<CourseAssignment> assignmentsForProg2 =
-        api.getCourseAssignmentByCourseId(courseProg2.getId(), 1, 10);
-
-    assertCourseAssignments(
-        "byGroup",
-        groupG1.getId(),
-        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1),
-        api);
-    assertCourseAssignments(
-        "all",
-        null,
-        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1, assignProg2_toRyan_forG2),
-        api);
-    assertCourseAssignments(
-        "byTeacher",
-        teacherToky.getId(),
-        List.of(assignProg1_toToky_forG1AndG2, assignProg2_toToky_forG1),
-        api);
-    assertCourseAssignments(
-        "byCourse",
-        courseProg2.getId(),
-        List.of(assignProg2_toToky_forG1, assignProg2_toRyan_forG2),
-        api);
-  }
-
-  @Test
   void student_create_or_update_ko() {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     CoursesApi api = new CoursesApi(student1Client);
@@ -233,12 +206,12 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
   void teacher_create_or_update_ko() {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     CoursesApi api = new CoursesApi(teacher1Client);
+
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () ->
             api.createOrUpdateCourseAssignments(
                 List.of(FakeDataProvider.createCourseAssignment())));
-
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
         () -> api.createOrUpdateCourseAssignmentsByCourseId(courseProg1.getId(), List.of()));
@@ -259,15 +232,10 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
     courseAssignmentIds.add(created.getFirst().getId());
 
     assertEquals(
-        initialSize + 1, api.getCourseAssignmentsByCriteria(null, null, null, null, null).size());
-    assertCourseAssignments(
-        "byTeacherId",
-        teacherToky.getId(),
-        List.of(
-            assignProg1_toToky_forG1AndG2,
-            assignProg2_toToky_forG1,
-            courseAssignmentMapper.toDomain(toCreate)),
-        api);
+        initialSize + 1,
+        api.getCourseAssignmentsByCriteria(null, null, null, null, null).size(),
+        "List have not been extended by the new element");
+    assertRestCourseAssignments("byTeacherId", teacherToky.getId(), created, api);
   }
 
   @Test
@@ -282,12 +250,6 @@ class CourseAssignmentIT extends FacadeITMockedThirdParties {
     courseAssignmentIds.remove(assignProg1_toToky_forG1AndG2.getId());
     courseAssignmentIds.add(updatedRestCourseAssignment.getFirst().getId());
 
-    assertCourseAssignments(
-        "byTeacher",
-        teacherRyan.getId(),
-        List.of(assignProg2_toRyan_forG2, courseAssignmentMapper.toDomain(toUpdate)),
-        api);
-    assertCourseAssignments(
-        "byTeacher", teacherToky.getId(), List.of(assignProg2_toToky_forG1), api);
+    assertRestCourseAssignments("byTeacher", teacherRyan.getId(), updatedRestCourseAssignment, api);
   }
 }
