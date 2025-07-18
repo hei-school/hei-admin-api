@@ -17,12 +17,15 @@ import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "\"group\"")
@@ -31,6 +34,8 @@ import org.hibernate.annotations.CreationTimestamp;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "update \"group\" set is_deleted = true where id = ?")
+@Where(clause = "is_deleted = false")
 public class Group implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -40,7 +45,9 @@ public class Group implements Serializable {
   private String ref;
   private String attributedColor;
 
-  @CreationTimestamp private Instant creationDatetime;
+  @EqualsAndHashCode.Exclude @CreationTimestamp private Instant creationDatetime;
+
+  @EqualsAndHashCode.Exclude @Builder.Default private boolean isDeleted = false;
 
   @ManyToMany(mappedBy = "groups", fetch = LAZY)
   @ToString.Exclude

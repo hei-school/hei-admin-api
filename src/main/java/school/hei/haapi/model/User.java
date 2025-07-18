@@ -28,12 +28,15 @@ import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
 
 @Entity
@@ -43,6 +46,8 @@ import school.hei.haapi.endpoint.rest.model.SpecializationField;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "update \"user\" set is_deleted = true where id = ?")
+@Where(clause = "is_deleted = false")
 // TODO: separate to a child table as MANAGER, TEACHER, STUDENT, MONITOR
 public class User implements Serializable {
   @Id
@@ -85,6 +90,8 @@ public class User implements Serializable {
   private String birthPlace;
 
   private Instant entranceDatetime;
+
+  @EqualsAndHashCode.Exclude @Builder.Default private boolean isDeleted = false;
 
   @Enumerated(STRING)
   @JdbcTypeCode(NAMED_ENUM)

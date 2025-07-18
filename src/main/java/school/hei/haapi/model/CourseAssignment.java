@@ -24,6 +24,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "\"course_assignment\"")
@@ -34,6 +36,8 @@ import org.hibernate.annotations.CreationTimestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@SQLDelete(sql = "update \"course_assignment\" set is_deleted = true where id = ?")
+@Where(clause = "is_deleted = false")
 public class CourseAssignment implements Serializable {
   // todo: to review all class
   @Id
@@ -53,16 +57,18 @@ public class CourseAssignment implements Serializable {
 
   @ManyToMany
   @JoinTable(
-          name = "course_assignment_group",
-          joinColumns = @JoinColumn(name = "course_assignment_id"),
-          inverseJoinColumns = @JoinColumn(name = "group_id")
-  )
+      name = "course_assignment_group",
+      joinColumns = @JoinColumn(name = "course_assignment_id"),
+      inverseJoinColumns = @JoinColumn(name = "group_id"))
   @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   private List<Group> groups;
 
   @OneToMany(mappedBy = "courseAssignment", fetch = LAZY)
   @ToString.Exclude
   private List<Exam> exams;
 
-  @CreationTimestamp private Instant creationDatetime;
+  @EqualsAndHashCode.Exclude @CreationTimestamp private Instant creationDatetime;
+
+  @EqualsAndHashCode.Exclude @Builder.Default private boolean isDeleted = false;
 }

@@ -17,6 +17,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
 @Table(name = "\"course\"")
@@ -27,6 +29,8 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
+@SQLDelete(sql = "update \"course\" set is_deleted = true where id = ?")
+@Where(clause = "is_deleted = false")
 public class Course implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -39,6 +43,8 @@ public class Course implements Serializable {
   private Integer credits;
 
   private Integer totalHours;
+
+  @EqualsAndHashCode.Exclude @Builder.Default private boolean isDeleted = false;
 
   @OneToMany(mappedBy = "course", fetch = LAZY)
   private List<CourseAssignment> awardedCourses;
