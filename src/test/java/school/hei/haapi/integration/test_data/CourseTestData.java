@@ -7,7 +7,7 @@ public class CourseTestData {
   public static Course prog1() {
     return Course.builder()
         .id(UUID.randomUUID().toString())
-        .code("prog1")
+        .code(UUID.randomUUID().toString())
         .name("Algorithmique")
         .credits(6)
         .totalHours(80)
@@ -17,7 +17,7 @@ public class CourseTestData {
   public static Course prog2() {
     return Course.builder()
         .id(UUID.randomUUID().toString())
-        .code("prog2")
+        .code(UUID.randomUUID().toString())
         .name("Programmation Orientée-Objet")
         .credits(10)
         .totalHours(60)
@@ -27,7 +27,7 @@ public class CourseTestData {
   public static Course prog3() {
     return Course.builder()
         .id(UUID.randomUUID().toString())
-        .code("prog3")
+        .code(UUID.randomUUID().toString())
         .name("Implémentation d'API Backend")
         .credits(6)
         .totalHours(80)
@@ -37,7 +37,7 @@ public class CourseTestData {
   public static Course prog4() {
     return Course.builder()
         .id(UUID.randomUUID().toString())
-        .code("prog4")
+        .code(UUID.randomUUID().toString())
         .name("Advanced Programming")
         .credits(7)
         .totalHours(70)

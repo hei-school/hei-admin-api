@@ -1,6 +1,6 @@
 package school.hei.haapi.integration.test_data;
 
-import java.util.Random;
+import java.time.Instant;
 import java.util.UUID;
 import school.hei.haapi.model.Group;
 
@@ -11,6 +11,7 @@ public class GroupTestData {
         .name("G1")
         .ref(UUID.randomUUID().toString())
         .attributedColor("green")
+        .creationDatetime(Instant.now())
         .build();
   }
 
@@ -20,6 +21,7 @@ public class GroupTestData {
         .name("G2")
         .ref(UUID.randomUUID().toString())
         .attributedColor("blue")
+        .creationDatetime(Instant.now())
         .build();
   }
 }
