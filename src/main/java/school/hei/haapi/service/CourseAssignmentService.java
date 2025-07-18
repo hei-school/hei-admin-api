@@ -21,8 +21,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.CourseAssignmentValidator;
 import school.hei.haapi.repository.CourseAssignmentRepository;
-import school.hei.haapi.repository.CourseRepository;
-import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.CourseAssignmentDAO;
 
@@ -87,7 +85,11 @@ public class CourseAssignmentService {
   public List<CourseAssignment> getByTeacherId(
       String teacherId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return courseAssignmentRepository.findAllByMainTeacherId(teacherId, pageable);
+    var teacher = userRepository.findById(teacherId);
+    if (teacher.isEmpty()) {
+      throw new NotFoundException("Teacher with id: " + teacherId + " not found");
+    }
+    return courseAssignmentRepository.findAllByMainTeacher(teacher.get(), pageable);
   }
 
   @Transactional
