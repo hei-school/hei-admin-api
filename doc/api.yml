@@ -827,8 +827,8 @@ paths:
           required: true
           schema:
             type: string
-        - $ref: '#/components/parameters/PageSize'
         - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
       operationId: getCourseAssignmentsByCourseId
       responses:
         '200':
@@ -5881,7 +5881,7 @@ components:
       scheme: bearer
   parameters:
     PageSize:
-      name: page_name
+      name: page_size
       in: query
       example: 50
       required: false
