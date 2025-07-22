@@ -1,7 +1,6 @@
 package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toList;
-import static org.springframework.data.domain.Sort.Direction.ASC;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.List;
@@ -77,8 +76,7 @@ public class CourseAssignmentService {
 
   public List<CourseAssignment> getByCriteria(
       String teacherId, String courseId, PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable =
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "name"));
+    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     return courseAssignmentDAO.findByCriteria(teacherId, courseId, pageable);
   }
 
