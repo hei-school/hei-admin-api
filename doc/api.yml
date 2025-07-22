@@ -827,17 +827,8 @@ paths:
           required: true
           schema:
             type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/Page'
       operationId: getCourseAssignmentsByCourseId
       responses:
         '200':
@@ -5889,6 +5880,22 @@ components:
       type: http
       scheme: bearer
   parameters:
+    PageSize:
+      name: page_name
+      in: query
+      example: 50
+      required: false
+      description: Page size for the retrieved ressources
+      schema:
+        $ref: '#/components/schemas/PageSize'
+    Page:
+      name: page
+      in: query
+      example: 1
+      required: false
+      description: Page number for the retrieved ressources
+      schema:
+        $ref: '#/components/schemas/Page'
     GroupRef:
       name: group_ref
       in: query
