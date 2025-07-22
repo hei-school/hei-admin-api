@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static java.util.UUID.*;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.LATE;
@@ -27,7 +28,6 @@ import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.time.Instant;
 import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -267,7 +267,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
 
   public static CourseAssignment courseAssignment1() {
     return new CourseAssignment()
-        .id(UUID.randomUUID().toString())
+        .id(randomUUID().toString())
         .course(course1())
         .groups(List.of(group1()))
         .mainTeacher(teacher1());
