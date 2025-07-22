@@ -1,12 +1,8 @@
 package school.hei.haapi.service;
 
-import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.UUID.randomUUID;
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
-import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.MOBILE_MONEY;
 import static school.hei.haapi.service.utils.DateUtils.convertStringToInstant;
 
 import io.micrometer.common.util.StringUtils;
@@ -16,8 +12,10 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,17 +26,14 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.http.mapper.ExternalResponseMapper;
 import school.hei.haapi.http.model.TransactionDetails;
-import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.Mpbs.TypedMobileMoneyTransaction;
-import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.service.aws.FileService;
@@ -49,76 +44,89 @@ import school.hei.haapi.service.aws.FileService;
 public class MpbsVerificationService {
   private final MpbsVerificationRepository repository;
   private final MpbsRepository mpbsRepository;
-  private final MpbsService mpbsService;
-  private final FeeService feeService;
   private final MobilePaymentService mobilePaymentService;
-  private final PaymentService paymentService;
-  private final UserService userService;
   private final ExternalResponseMapper externalResponseMapper;
-  private final EventProducer<PaidFeeByMpbsFailedNotificationBody> eventProducer;
   private final MultipartFileConverter multipartFileConverter;
   private final FileService fileService;
+  private final UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandler;
+  private final ComputeVerifiedMobilePayment computeVerifiedMobilePayment;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
   }
 
-  @Transactional
-  public List<MpbsVerification> verifyMobilePaymentAndSaveResult(
-      List<Mpbs> mpbsList, Instant toCompare) {
-    log.info("Magic happened here");
+  public List<MpbsVerification> verifyMobilePaymentAndSaveResult(List<Mpbs> pendingMpbsList) {
     List<MpbsVerification> verifiedMpbs = new ArrayList<>();
     List<Mpbs> unverifiedMpbs = new ArrayList<>();
 
     // Find all corresponding transaction in database
     List<MobileTransactionDetails> mobileTransactionResponseDetails =
-        mobilePaymentService.findAllTransactionByMpbsWithoutException(mpbsList);
+        mobilePaymentService.findAllTransactionByMpbs(pendingMpbsList);
 
     // TIPS: do not use exception to continue script
-    for (Mpbs mpbs : mpbsList) {
-      List<MobileTransactionDetails> correspondingTransactionDetails =
+    for (Mpbs pendingMbps : pendingMpbsList) {
+      List<MobileTransactionDetails> correspondingTransactionsPendingDetails =
           mobileTransactionResponseDetails.stream()
               .filter(
                   transactionDetail ->
-                      mpbs.getPspId().equals(transactionDetail.getPspTransactionRef()))
-              .collect(toUnmodifiableList());
+                      pendingMbps.getPspId().equals(transactionDetail.getPspTransactionRef()))
+              .toList();
+      if (correspondingTransactionsPendingDetails.size() > 1) {
+        log.warn(
+            "The payment has more than one transaction: {}",
+            correspondingTransactionsPendingDetails);
+      }
+      Optional<MobileTransactionDetails> correspondingTransactionPendingDetails =
+          correspondingTransactionsPendingDetails.stream()
+              .max(
+                  Comparator.comparing(
+                      MobileTransactionDetails::getPspDatetimeTransactionCreation));
 
-      if (!correspondingTransactionDetails.isEmpty()) {
-        MobileTransactionDetails firstCorrespondingTransactionDetails =
-            correspondingTransactionDetails.getFirst();
-        log.info("mobile transaction found = {}", firstCorrespondingTransactionDetails);
-        TransactionDetails transactionDetails =
-            externalResponseMapper.toExternalTransactionDetails(
-                firstCorrespondingTransactionDetails);
-        log.info("mapped transaction details = {}", transactionDetails);
-        verifiedMpbs.add(saveTheVerifiedMpbs(mpbs, transactionDetails, toCompare));
+      if (correspondingTransactionPendingDetails.isPresent()) {
+        MobileTransactionDetails lastTransactionDetails =
+            correspondingTransactionPendingDetails.get();
+        if (SUCCESS.equals(lastTransactionDetails.getStatus())) {
+          try {
+            log.info("mobile transaction found = {}", lastTransactionDetails);
+            TransactionDetails transactionDetails =
+                externalResponseMapper.toExternalTransactionDetails(lastTransactionDetails);
+            log.info("mapped transaction details = {}", transactionDetails);
+
+            verifiedMpbs.add(
+                computeVerifiedMobilePayment.saveTheVerifiedMpbs(pendingMbps, transactionDetails));
+          } catch (NoRemainingAmountFee e) {
+            log.error(
+                "payment %s could not be verified because fee %s has no remaining amount"
+                    .formatted(pendingMbps.getId(), pendingMbps.getFee().getId()),
+                e);
+          }
+        } else {
+          log.info(
+              "verification mobile payment details stored is not success for the payment {}",
+              pendingMbps.getId());
+          unverifiedMpbs.add(pendingMbps);
+        }
       } else {
-        unverifiedMpbs.add(mpbs);
+        log.info(
+            "no verification mobile payment details stored for the payment {}",
+            pendingMbps.getId());
+        unverifiedMpbs.add(pendingMbps);
       }
     }
 
-    saveTheUnverifiedMpbs(unverifiedMpbs, toCompare);
+    unverifiedMobilePaymentHandler.accept(unverifiedMpbs);
+
     return verifiedMpbs;
   }
 
   @Transactional
-  public MpbsVerification verifyMobilePaymentAndSaveResult(Mpbs mpbs, Instant toCompare) {
-    List<MpbsVerification> savedPayments =
-        verifyMobilePaymentAndSaveResult(List.of(mpbs), toCompare);
-    if (savedPayments.isEmpty()) {
-      return null;
-    }
-    return savedPayments.getFirst();
-  }
-
-  @Transactional
   public List<Mpbs> computeFromXls(File file) throws IOException {
-    List<String> pspToCheck = generateMobileTransactionDetailsFromXlsFile(file);
+    List<String> pspToVerify = generateMobileTransactionDetailsFromXlsFile(file);
 
-    List<Mpbs> mpbsToCheck = mpbsRepository.findByPspIdIn(pspToCheck);
+    List<Mpbs> mpbsToVerify = mpbsRepository.findByPspIdIn(pspToVerify);
 
-    verifyMobilePaymentAndSaveResult(mpbsToCheck, Instant.now());
-    return mpbsToCheck;
+    verifyMobilePaymentAndSaveResult(mpbsToVerify);
+    return mpbsToVerify;
   }
 
   public String uploadXlsToS3(MultipartFile multipartFile) {
@@ -136,7 +144,7 @@ public class MpbsVerificationService {
     }
   }
 
-  public List<String> generateMobileTransactionDetailsFromXlsFile(File file) throws IOException {
+  private List<String> generateMobileTransactionDetailsFromXlsFile(File file) throws IOException {
     log.info("Reading XLS file...");
     List<String> pendingMpbsPspIds =
         mpbsRepository.findAllByStatus(PENDING).stream()
@@ -206,123 +214,15 @@ public class MpbsVerificationService {
         .collect(Collectors.toList());
   }
 
-  private List<Mpbs> saveTheUnverifiedMpbs(List<Mpbs> mpbsList, Instant toCompare) {
-    mpbsList.forEach(
-        mpbs -> {
-          mpbs.setLastVerificationDatetime(Instant.now());
-          mpbs.setStatus(defineMpbsStatusWithoutOrangeTransactionDetails(mpbs, toCompare));
-        });
-
-    List<Mpbs> failedMpbs =
-        mpbsList.stream()
-            .filter(mpbs -> FAILED.equals(mpbs.getStatus()))
-            .collect(toUnmodifiableList());
-
-    notifyStudentForFailedPayment(failedMpbs);
-    return mpbsService.saveAll(mpbsList);
-  }
-
-  private MpbsVerification saveTheVerifiedMpbs(
-      Mpbs mpbs, TransactionDetails correspondingMobileTransaction, Instant toCompare) {
-    Instant now = Instant.now();
-    Fee fee = mpbs.getFee();
-    MpbsVerification verifiedMobileTransaction =
-        MpbsVerification.builder()
-            .amountInPsp(correspondingMobileTransaction.getPspTransactionAmount())
-            .fee(fee)
-            .amountOfFeeRemainingPayment(fee.getRemainingAmount())
-            .creationDatetimeOfMpbs(mpbs.getCreationDatetime())
-            .creationDatetimeOfPaymentInPsp(
-                correspondingMobileTransaction.getPspDatetimeTransactionCreation())
-            .student(mpbs.getStudent())
-            .build();
-
-    // Update mpbs ...
-    mpbs.setSuccessfullyVerifiedOn(now);
-    mpbs.setStatus(defineMpbsStatusFromOrangeTransactionDetails(correspondingMobileTransaction));
-    mpbs.setPspOwnDatetimeVerification(
-        correspondingMobileTransaction.getPspOwnDatetimeVerification());
-    var successfullyVerifiedMpbs = mpbsService.save(mpbs);
-    log.info("Mpbs has successfully verified = {}", mpbs.toString());
-
-    // ... then save the verification
-    verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
-    verifiedMobileTransaction.setPspId(successfullyVerifiedMpbs.getPspId());
-    repository.save(verifiedMobileTransaction);
-
-    // ... then save the corresponding payment
-    paymentService.savePaymentFromMpbs(
-        successfullyVerifiedMpbs, correspondingMobileTransaction.getPspTransactionAmount());
-    log.info("Creating corresponding payment = {}", successfullyVerifiedMpbs.toString());
-
-    // ... then update student status
-    paymentService.computeUserStatusAfterPayingFee(mpbs.getStudent());
-    log.info(
-        "Student computed status: {}",
-        (userService.findById(mpbs.getStudent().getId())).getStatus());
-
-    // ... then update fee remaining amount
-    feeService.debitAmountFromMpbs(fee, verifiedMobileTransaction.getAmountInPsp());
-
-    return verifiedMobileTransaction;
-  }
-
   @Transactional
   public void checkMobilePaymentThenSaveVerification() {
     List<Mpbs> pendingMpbs = mpbsRepository.findAllByStatus(PENDING);
     log.info("pending mpbs = {}", pendingMpbs.size());
-    Instant now = Instant.now();
 
-    verifyMobilePaymentAndSaveResult(pendingMpbs, now);
+    verifyMobilePaymentAndSaveResult(pendingMpbs);
   }
 
   public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {
     return mobilePaymentService.fetchThenSaveTransactionDetails();
-  }
-
-  private MpbsStatus defineMpbsStatusFromOrangeTransactionDetails(
-      TransactionDetails storedTransaction) {
-
-    // 1. if it contains and if the status is success then make it success
-    if (SUCCESS.equals(storedTransaction.getStatus())) {
-      log.info("correct");
-      return SUCCESS;
-    }
-    // 2. and else if the mpbs is stored to day or less than 2 days, it will be verified later
-    log.info("status computed = else");
-    return PENDING;
-  }
-
-  private MpbsStatus defineMpbsStatusWithoutOrangeTransactionDetails(Mpbs mpbs, Instant toCompare) {
-    long dayValidity = mpbs.getCreationDatetime().until(toCompare, DAYS);
-    if (dayValidity > 2) {
-      log.info("failed transaction");
-      return FAILED;
-    }
-    log.info("pending transaction");
-    return PENDING;
-  }
-
-  private void notifyStudentForFailedPayment(List<Mpbs> mpbsList) {
-    List<PaidFeeByMpbsFailedNotificationBody> notifications = new ArrayList<>();
-
-    mpbsList.forEach(
-        mpbs -> {
-          Payment paymentFromMpbs = getPaymentFromMpbs(mpbs);
-          log.info("Fail verification {} for student {}", mpbs.getId(), mpbs.getStudent().getId());
-          notifications.add(PaidFeeByMpbsFailedNotificationBody.from(paymentFromMpbs));
-        });
-    eventProducer.accept(notifications);
-  }
-
-  private Payment getPaymentFromMpbs(Mpbs mpbs) {
-    Fee correspondingFee = mpbs.getFee();
-    return Payment.builder()
-        .type(MOBILE_MONEY)
-        .fee(correspondingFee)
-        .amount(mpbs.getAmount())
-        .creationDatetime(Instant.now())
-        .comment(correspondingFee.getComment())
-        .build();
   }
 }

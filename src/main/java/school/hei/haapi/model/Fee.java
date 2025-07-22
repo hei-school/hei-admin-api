@@ -4,9 +4,9 @@ import static jakarta.persistence.CascadeType.REMOVE;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static java.util.Comparator.comparing;
+import static java.util.function.Predicate.isEqual;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
-import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
@@ -20,6 +20,7 @@ import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -35,6 +36,7 @@ import school.hei.haapi.endpoint.rest.model.FeeCategory;
 import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
+import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.fee.PaymentType;
 
@@ -183,7 +185,7 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
 
   private boolean isValidNewStatus(FeeStatusEnum newStatus) {
     return switch (this.status) {
-      case PAID -> !PENDING.equals(newStatus);
+      case PAID -> Stream.of(PENDING, PAID).anyMatch(e -> e.equals(newStatus));
       case UNPAID, PENDING, LATE -> true;
     };
   }
@@ -193,5 +195,15 @@ Fee : {"id" : "%s", "remainingAmount" : "%s", "totalAmount" : "%s", "dueDatetime
         .filter(fee -> fee.getDatetime().equals(instant) || fee.getDatetime().isBefore(instant))
         .max(comparing(FeeStatusHistory::getDatetime))
         .map(FeeStatusHistory::getStatus);
+  }
+
+  public boolean haveNoPendingMobilePayments() {
+    return mobilePayments.stream().map(Mpbs::getStatus).noneMatch(isEqual(MpbsStatus.PENDING));
+  }
+
+  public boolean mustBeLate() {
+    return Instant.now().isAfter(dueDatetime)
+        && !PAID.equals(status)
+        && (UNPAID.equals(status) || haveNoPendingMobilePayments());
   }
 }

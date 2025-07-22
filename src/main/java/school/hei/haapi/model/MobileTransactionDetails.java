@@ -14,6 +14,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -29,6 +30,7 @@ import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 @NoArgsConstructor
 @Builder
 @ToString
+@EqualsAndHashCode
 public class MobileTransactionDetails implements Serializable {
   @Id
   @GeneratedValue(strategy = IDENTITY)

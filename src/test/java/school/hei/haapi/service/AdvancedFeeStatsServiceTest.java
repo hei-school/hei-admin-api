@@ -29,6 +29,7 @@ import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Fee;
@@ -41,6 +42,7 @@ import school.hei.haapi.repository.dao.FeeDao;
 class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
   private AdvancedFeeStatsService subject;
   private FeeDao feeDao;
+  private EventProducer eventProducer;
   private AdvancedFeeStatsRepository repository;
   @Autowired private AdvancedFeeStatsMapper advancedFeeStatsMapper;
   private FeeRepository feeRepository;
@@ -50,9 +52,11 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
     feeDao = mock(FeeDao.class);
     repository = mock(AdvancedFeeStatsRepository.class);
     feeRepository = mock(FeeRepository.class);
+    eventProducer = mock(EventProducer.class);
 
     subject =
-        new AdvancedFeeStatsService(feeDao, repository, advancedFeeStatsMapper, feeRepository);
+        new AdvancedFeeStatsService(
+            feeDao, repository, advancedFeeStatsMapper, feeRepository, eventProducer);
   }
 
   @Test

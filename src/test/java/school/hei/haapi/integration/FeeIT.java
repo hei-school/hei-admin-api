@@ -56,7 +56,6 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
 import school.hei.haapi.endpoint.rest.model.AdvancedFeeStatisticsGeneration;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.Fee;
@@ -73,7 +72,6 @@ import school.hei.haapi.repository.dao.FeeDao;
 class FeeIT extends FacadeITMockedThirdParties {
   @Autowired EntityManager entityManager;
   @Autowired FeeRepository feeRepository;
-  @Autowired AdvancedFeeStatsMapper advancedFeeStatsMapper;
 
   @Autowired FeeDao feeDao;
 
@@ -488,30 +486,6 @@ class FeeIT extends FacadeITMockedThirdParties {
         payingApi.generateAdvancedStats(fromDateTime.toInstant(UTC), toDateTime.toInstant(UTC));
 
     assertEquals(expectedStats, actualStat);
-  }
-
-  @Test
-  void manager_get_advanced_fee_statistics_ok() {
-    LocalDateTime fromDateTime = LocalDateTime.parse("2025-04-01T00:00:00.00");
-    LocalDateTime toDateTime = LocalDateTime.parse("2025-04-30T23:59:59.99");
-
-    var client = anApiClient(MANAGER1_TOKEN);
-    var payingApi = new PayingApi(client);
-
-    assertDoesNotThrow(
-        () -> payingApi.getAdvancedFeesStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate()));
-  }
-
-  @Test
-  void manager_get_advanced_fee_statistics_cached_ok() {
-    LocalDateTime fromDateTime = LocalDateTime.parse("2024-04-01T00:00:00.00");
-    LocalDateTime toDateTime = LocalDateTime.parse("2024-04-30T23:59:59.99");
-
-    var client = anApiClient(MANAGER1_TOKEN);
-    var payingApi = new PayingApi(client);
-
-    assertDoesNotThrow(
-        () -> payingApi.getAdvancedFeesStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate()));
   }
 
   @Test

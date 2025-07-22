@@ -12,7 +12,6 @@ import static school.hei.haapi.integration.test_data.GroupTestData.g1;
 import static school.hei.haapi.integration.test_data.StudentTestData.axel;
 import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
 import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
-
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -21,6 +20,7 @@ import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
@@ -40,6 +40,7 @@ import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
+
 
 @Testcontainers
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
@@ -103,6 +104,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
     examIds.add(exam1Prog1.getId());
     gradeIds.addAll(List.of(gradesExam1Prog1.get(0).getId(), gradesExam1Prog1.get(1).getId()));
   }
+
 
   private List<Grade> someGrade(List<User> students, Exam exam) {
     return students.stream()

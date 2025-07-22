@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import lombok.AllArgsConstructor;
@@ -34,9 +35,11 @@ import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeTemplate;
+import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
+import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
@@ -79,7 +82,7 @@ public class FeeService {
     int remainingAmount = toUpdate.getRemainingAmount();
     log.info("actual remaining amount before computing = {}", remainingAmount);
     if (remainingAmount == 0) {
-      throw new ApiException(SERVER_EXCEPTION, "Remaining amount is already 0");
+      throw new NoRemainingAmountFee(toUpdate);
     }
     toUpdate.setRemainingAmount(remainingAmount - amountToDebit);
 
@@ -98,7 +101,7 @@ public class FeeService {
     int remainingAmount = toUpdate.getRemainingAmount();
 
     if (remainingAmount == 0) {
-      throw new ApiException(SERVER_EXCEPTION, "Remaining amount is already 0");
+      throw new NoRemainingAmountFee(toUpdate);
     }
     if (amountToDebit > remainingAmount) {
       throw new ApiException(SERVER_EXCEPTION, "Remaining amount is inferior to your request");
@@ -196,6 +199,7 @@ public class FeeService {
     return feesStats.getFirst();
   }
 
+  /** The mpbs is sorted by creation date */
   public List<Fee> getFeesByStudentId(
       String studentId, PageFromOne page, BoundedPageSize pageSize, FeeStatusEnum status) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
@@ -203,14 +207,21 @@ public class FeeService {
       return feeRepository.getFeesByStudentIdAndStatusOrderByDueDatetimeDesc(
           studentId, status, pageable);
     }
-    return feeRepository.findAllByStudentIdSortByStatusAndDueDatetimeDescAndId(studentId, pageable);
+    return feeRepository
+        .findAllByStudentIdSortByStatusAndDueDatetimeDescAndId(studentId, pageable)
+        .stream()
+        .map(
+            fee -> {
+              fee.getMobilePayments().sort(Comparator.comparing(Mpbs::getCreationDatetime));
+              return fee;
+            })
+        .toList();
   }
 
   private Fee updateFeeStatus(Fee initialFee) {
     if (initialFee.getRemainingAmount() == 0) {
       initialFee.updateStatus(PAID);
-    } else if (Instant.now().isAfter(initialFee.getDueDatetime())
-        && initialFee.getStatus() == UNPAID) {
+    } else if (initialFee.mustBeLate()) {
       initialFee.updateStatus(LATE);
     }
     feeStatusHistoryService.saveFeeStatus(initialFee.getStatus(), initialFee);

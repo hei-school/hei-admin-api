@@ -26,10 +26,10 @@ import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.Payment;
-import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.service.FeeService;
 import school.hei.haapi.service.MobilePaymentService;
+import school.hei.haapi.service.MpbsService;
 import school.hei.haapi.service.PaymentService;
 
 @Service
@@ -38,7 +38,7 @@ import school.hei.haapi.service.PaymentService;
 public class PendingMpbsCheckRequestedService implements Consumer<PendingMpbsCheckRequested> {
   private final ExternalResponseMapper externalResponseMapper;
   private final MpbsVerificationRepository repository;
-  private final MpbsRepository mpbsRepository;
+  private final MpbsService mpbsService;
   private final FeeService feeService;
   private final MobilePaymentService mobilePaymentService;
   private final PaymentService paymentService;
@@ -48,7 +48,7 @@ public class PendingMpbsCheckRequestedService implements Consumer<PendingMpbsChe
     log.info("could not verify {}", mpbs.getId());
     mpbs.setLastVerificationDatetime(now());
     mpbs.setStatus(defineMpbsStatusWithoutOrangeTransactionDetails(mpbs, toCompare));
-    return mpbsRepository.save(mpbs);
+    return mpbsService.save(mpbs);
   }
 
   private MpbsVerification saveTheVerifiedMpbs(
@@ -71,7 +71,7 @@ public class PendingMpbsCheckRequestedService implements Consumer<PendingMpbsChe
     mpbs.setStatus(defineMpbsStatusFromOrangeTransactionDetails(correspondingMobileTransaction));
     mpbs.setPspOwnDatetimeVerification(
         correspondingMobileTransaction.getPspOwnDatetimeVerification());
-    var successfullyVerifiedMpbs = mpbsRepository.save(mpbs);
+    var successfullyVerifiedMpbs = mpbsService.save(mpbs);
     log.info("Mpbs has successfully verified = {}", mpbs.toString());
 
     // ... then save the verification

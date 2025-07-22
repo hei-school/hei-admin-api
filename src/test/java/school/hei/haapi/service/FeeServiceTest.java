@@ -70,6 +70,7 @@ class FeeServiceTest {
         .creationDatetime(creationDatetime)
         .status(status)
         .student(student1())
+        .mobilePayments(List.of())
         .payments(List.of(payment1(paymentAmount, creationDatetime)))
         .build();
   }
@@ -91,7 +92,7 @@ class FeeServiceTest {
     Fee fee = createSomeFee(feeId, paymentAmount, status, dueDatetime, creationDatetime);
     fee.setRemainingAmount(remainingAmount);
     if (isMocked) {
-      fee.updateStatus(UNPAID);
+      fee = fee.toBuilder().status(UNPAID).build();
       fee.setRemainingAmount(remainingAmount());
     }
     return fee;
