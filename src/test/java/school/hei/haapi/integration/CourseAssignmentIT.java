@@ -45,8 +45,6 @@ import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 
-@Testcontainers
-@AutoConfigureMockMvc
 class CourseAssignmentIT extends FacadeITMockedThirdParties {
   @Autowired private CourseAssignmentRepository courseAssignmentRepository;
   @Autowired private CourseRepository courseRepository;
