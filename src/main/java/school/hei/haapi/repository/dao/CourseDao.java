@@ -37,8 +37,8 @@ public class CourseDao {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
     Root<Course> root = query.from(Course.class);
-    Join<Course, CourseAssignment> awardedCourses = root.join("awardedCourses", JoinType.LEFT);
-    Join<CourseAssignment, User> teacher = awardedCourses.join("mainTeacher", JoinType.LEFT);
+    Join<Course, CourseAssignment> courseAssignments = root.join("courseAssignments", JoinType.LEFT);
+    Join<CourseAssignment, User> teacher = courseAssignments.join("mainTeacher", JoinType.LEFT);
 
     List<Predicate> predicates = new ArrayList<>();
 

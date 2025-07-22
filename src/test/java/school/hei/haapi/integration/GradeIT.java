@@ -14,9 +14,10 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
-import static school.hei.haapi.integration.conf.TestUtils.courseAssignment1;
-import static school.hei.haapi.integration.conf.TestUtils.courseAssignment2;
-import static school.hei.haapi.integration.conf.TestUtils.courseAssignment3;
+import static school.hei.haapi.integration.conf.TestUtils.courseAssignmentExam1;
+import static school.hei.haapi.integration.conf.TestUtils.courseAssignmentExam2;
+import static school.hei.haapi.integration.conf.TestUtils.courseAssignmentExam3;
+import static school.hei.haapi.integration.conf.TestUtils.courseAssignmentExam4;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -73,9 +74,9 @@ class GradeIT extends FacadeITMockedThirdParties {
     List<CourseAssignmentExam> actualAwardedCourseExamGrades =
         api.getStudentGrades(STUDENT1_ID, 1, 10);
 
-    assertTrue(actualAwardedCourseExamGrades.contains(courseAssignment1()));
-    assertTrue(actualAwardedCourseExamGrades.contains(courseAssignment2()));
-    assertTrue(actualAwardedCourseExamGrades.contains(courseAssignment3()));
+    assertTrue(actualAwardedCourseExamGrades.contains(courseAssignmentExam1()));
+    assertTrue(actualAwardedCourseExamGrades.contains(courseAssignmentExam2()));
+    assertTrue(actualAwardedCourseExamGrades.contains(courseAssignmentExam4()));
   }
 
   @Test
@@ -84,10 +85,9 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi api = new GradesApi(teacher1Client);
 
     List<CourseAssignmentExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
-
-    assertTrue(actual.contains(courseAssignment1()));
-    assertTrue(actual.contains(courseAssignment2()));
-    assertTrue(actual.contains(courseAssignment3()));
+    assertTrue(actual.contains(courseAssignmentExam1()));
+    assertTrue(actual.contains(courseAssignmentExam2()));
+    assertTrue(actual.contains(courseAssignmentExam4()));
   }
 
   @Test
@@ -97,9 +97,9 @@ class GradeIT extends FacadeITMockedThirdParties {
 
     List<CourseAssignmentExam> actual = api.getStudentGrades(STUDENT1_ID, 1, 10);
 
-    assertTrue(actual.contains(courseAssignment1()));
-    assertTrue(actual.contains(courseAssignment2()));
-    assertTrue(actual.contains(courseAssignment3()));
+    assertTrue(actual.contains(courseAssignmentExam1()));
+    assertTrue(actual.contains(courseAssignmentExam2()));
+    assertTrue(actual.contains(courseAssignmentExam4()));
   }
 
   @Test

@@ -34,7 +34,7 @@ public class AttendanceController {
                 .collect(Collectors.toUnmodifiableList()))
         .stream()
         .map(attendanceMapper::toRestMovement)
-        .collect(Collectors.toUnmodifiableList());
+        .toList();
   }
 
   @GetMapping("/attendance")
@@ -54,6 +54,6 @@ public class AttendanceController {
             studentKeyWord, coursesIds, teacherIds, attendanceStatuses, from, to, page, pageSize)
         .stream()
         .map(attendanceMapper::toRestAttendance)
-        .collect(Collectors.toUnmodifiableList());
+        .toList();
   }
 }

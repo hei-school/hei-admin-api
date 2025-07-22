@@ -30,7 +30,7 @@ public class CourseAssignmentController {
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return service.getByCourseId(courseId, page, pageSize).stream()
         .map(mapper::toRest)
-        .collect(toList());
+        .toList();
   }
 
   @GetMapping("/groups/{group_id}/course_assignments")
@@ -40,7 +40,7 @@ public class CourseAssignmentController {
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return service.getByGroupId(groupId, page, pageSize).stream()
         .map(mapper::toRest)
-        .collect(toList());
+        .toList();
   }
 
   @GetMapping("/course_assignments")
@@ -51,7 +51,7 @@ public class CourseAssignmentController {
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
     return service.getByCriteria(teacherId, courseId, page, pageSize).stream()
         .map(mapper::toRest)
-        .collect(toList());
+        .toList();
   }
 
   @GetMapping("/teachers/{teacher_id}/course_assignments")

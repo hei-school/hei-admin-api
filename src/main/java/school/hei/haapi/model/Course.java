@@ -47,5 +47,5 @@ public class Course implements Serializable {
   @EqualsAndHashCode.Exclude @Builder.Default private boolean isDeleted = false;
 
   @OneToMany(mappedBy = "course", fetch = LAZY)
-  private List<CourseAssignment> awardedCourses;
+  private List<CourseAssignment> courseAssignments;
 }

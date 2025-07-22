@@ -127,7 +127,7 @@ public class FakeDataProvider {
             .name("")
             .credits(0)
             .totalHours(0)
-            .awardedCourses(List.of())
+            .courseAssignments(List.of())
             .build(),
         List.of());
   }

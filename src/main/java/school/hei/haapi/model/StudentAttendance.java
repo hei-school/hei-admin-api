@@ -35,7 +35,6 @@ import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 @EqualsAndHashCode
 @ToString
 public class StudentAttendance implements Serializable {
-  public static final String COURSE_SESSION = "courseSession";
   public static final String CREATED_AT = "createdAt";
 
   @Id

@@ -46,7 +46,7 @@ class CourseAssignmentValidatorTest {
 
     assertEquals("Teacher is mandatory", teacherBadRequestException.getMessage());
     assertEquals("Course is mandatory", courseBadRequestException.getMessage());
-    assertEquals("Group is mandatory", groupBadRequestException.getMessage());
+    assertEquals("Groups are mandatory", groupBadRequestException.getMessage());
   }
 
   private static CourseAssignment someCourseAssignment(

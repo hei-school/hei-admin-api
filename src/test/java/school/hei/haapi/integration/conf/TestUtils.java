@@ -151,7 +151,6 @@ public class TestUtils {
   public static final String COURSE1_ID = "course1_id";
   public static final String COURSE2_ID = "course2_id";
   public static final String COURSE3_ID = "course3_id";
-  public static final String COURSE4_ID = "course4_id";
   public static final String COURSE_ASSIGNMENT1_ID = "course_assignment1_id";
   public static final String COURSE_ASSIGNMENT2_ID = "course_assignment2_id";
   public static final String COURSE_ASSIGNMENT3_ID = "course_assignment3_id";
@@ -624,7 +623,7 @@ public class TestUtils {
     student.setWorkStudyStatus(WORKING);
     student.setProfessionalExperience(WORKER_STUDENT);
     student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24Z"));
-    student.setGroups(List.of(group1(), group2()));
+    student.setGroups(List.of(group1()));
     student.setIsRepeatingYear(false);
     return student;
   }
@@ -918,7 +917,7 @@ public class TestUtils {
         .mainTeacher(teacher2());
   }
 
-  public static CourseAssignment CourseAssignment4() {
+  public static CourseAssignment courseAssignment4() {
     return new CourseAssignment()
         .id(COURSE_ASSIGNMENT4_ID)
         .course(course2())
@@ -975,7 +974,7 @@ public class TestUtils {
         .id(EXAM5_ID)
         .coefficient(1)
         .title("Prog2 final")
-        .courseAssignment(CourseAssignment4())
+        .courseAssignment(courseAssignment4())
         .examinationDate(Instant.parse("2022-12-09T08:25:24Z"));
   }
 
@@ -1000,7 +999,7 @@ public class TestUtils {
         .id(GRADE3_ID)
         .score(11.0)
         .createdAt(Instant.parse("2022-11-09T08:25:24Z"))
-        .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
+        .updateDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
   public static Grade grade4() {
@@ -1138,7 +1137,7 @@ public class TestUtils {
         .type(TUITION);
   }
 
-  public static CourseAssignmentExam CourseAssignmentExam1() {
+  public static CourseAssignmentExam courseAssignmentExam1() {
     return new CourseAssignmentExam()
         .id(COURSE_ASSIGNMENT1_ID)
         .mainTeacher(courseAssignment1().getMainTeacher())
@@ -1147,7 +1146,7 @@ public class TestUtils {
         .exams(List.of(studentExamGrade1(), studentExamGrade2()));
   }
 
-  public static CourseAssignmentExam CourseAssignmentExam2() {
+  public static CourseAssignmentExam courseAssignmentExam2() {
     return new CourseAssignmentExam()
         .id(COURSE_ASSIGNMENT2_ID)
         .mainTeacher(courseAssignment2().getMainTeacher())
@@ -1156,7 +1155,7 @@ public class TestUtils {
         .exams(List.of(studentExamGrade4()));
   }
 
-  public static CourseAssignmentExam CourseAssignmentExam3() {
+  public static CourseAssignmentExam courseAssignmentExam3() {
     return new CourseAssignmentExam()
         .id(COURSE_ASSIGNMENT3_ID)
         .mainTeacher(courseAssignment3().getMainTeacher())
@@ -1165,12 +1164,12 @@ public class TestUtils {
         .exams(List.of(studentExamGrade3()));
   }
 
-  public static CourseAssignmentExam CourseAssignmentExam4() {
+  public static CourseAssignmentExam courseAssignmentExam4() {
     return new CourseAssignmentExam()
         .id(COURSE_ASSIGNMENT4_ID)
-        .mainTeacher(CourseAssignment4().getMainTeacher())
-        .course(CourseAssignment4().getCourse())
-        .groups(CourseAssignment4().getGroups())
+        .mainTeacher(courseAssignment4().getMainTeacher())
+        .course(courseAssignment4().getCourse())
+        .groups(courseAssignment4().getGroups())
         .exams(List.of(studentExamGrade5()));
   }
 
@@ -1833,7 +1832,7 @@ public class TestUtils {
             .map(TestUtils::cloneCourseAssignmentWithNullGroupCreationDateTime)
             .toList();
     assertTrue(
-        "Actual list does not contain all expected elements",
+        "Actual list does not contain all expected elements" + actualCloned + " did not contain " + expectedCloned,
         actualCloned.containsAll(expectedCloned));
   }
 

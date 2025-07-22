@@ -8,6 +8,8 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 
 import java.util.List;
+
+import jakarta.transaction.Transactional;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
@@ -19,6 +21,7 @@ import school.hei.haapi.model.User;
 
 @Testcontainers
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
+@Transactional
 class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   @Autowired GradeService subject;
   @Autowired UserService userService;

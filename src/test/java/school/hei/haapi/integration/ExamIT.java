@@ -101,6 +101,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     assertTrue(studentGrades.stream().allMatch(grade -> grade.getGrade().getScore() == 0));
   }
 
+  // TODO : check test data because student_1 is now in group_2 according to group_flows4_id
   @Test
   void exam_creation_create_only_one_exam() throws ApiException {
     ExamsApi api = new ExamsApi(anApiClient(TEACHER1_TOKEN));

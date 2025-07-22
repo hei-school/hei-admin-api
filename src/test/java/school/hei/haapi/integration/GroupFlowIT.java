@@ -13,7 +13,6 @@ import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
-import static school.hei.haapi.integration.conf.TestUtils.group1;
 import static school.hei.haapi.integration.conf.TestUtils.group2;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
@@ -112,13 +111,12 @@ public class GroupFlowIT extends FacadeITMockedThirdParties {
     List<Student> group1Students = api.getStudentsByGroupId(GROUP1_ID, 1, 10, null);
     List<Student> group2Students = api.getStudentsByGroupId(GROUP2_ID, 1, 10, null);
 
-    Student student2moved = student2().groups(List.of(group2().size(2)));
+    Student student2moved = student2().groups(List.of(group2().size(1)));
     assertEquals(1, group1Students.size());
-    assertEquals(2, group2Students.size());
+    assertEquals(1, group2Students.size());
     assertTrue(
-        group2Students.containsAll(
-            List.of(
-                student2moved, student1().groups(List.of(group1().size(1), group2().size(2))))));
+        group2Students.contains(
+            student2moved));
   }
 
   public CreateGroupFlow createStudent1LeavesGroup1() {

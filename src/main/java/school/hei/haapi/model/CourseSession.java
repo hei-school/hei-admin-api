@@ -26,15 +26,12 @@ import lombok.ToString;
 @EqualsAndHashCode
 @ToString
 public class CourseSession implements Serializable {
-  public static final String AWARDED_COURSE = "awardedCourse";
-  public static final String BEGIN = "begin";
-
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
   @ManyToOne
-  @JoinColumn(name = "awarded_course_id")
+  @JoinColumn(name = "course_assignment_id")
   private CourseAssignment courseAssignment;
 
   private Instant begin;

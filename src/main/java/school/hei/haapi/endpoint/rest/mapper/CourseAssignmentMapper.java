@@ -60,7 +60,6 @@ public class CourseAssignmentMapper {
     return domainCourseAssignment;
   }
 
-  // todo: to review all class
   public CourseAssignment toRest(school.hei.haapi.model.CourseAssignment courseAssignment) {
     return new CourseAssignment()
         .id(courseAssignment.getId())
@@ -92,7 +91,7 @@ public class CourseAssignmentMapper {
       List<StudentGrade> studentExamGrades =
           courseAssignment.getExams().stream()
               .map(exam -> gradeMapper.toRestStudentExamGrade(student, exam))
-              .collect(toList());
+              .toList();
       courseAssignmentExams.add(toRest(courseAssignment, studentExamGrades));
     }
     return courseAssignmentExams;

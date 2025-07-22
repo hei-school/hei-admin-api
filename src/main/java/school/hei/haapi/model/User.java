@@ -4,6 +4,7 @@ import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.User.Status.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,8 +24,11 @@ import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -230,6 +234,13 @@ public class User implements Serializable {
         + ", highSchoolOrigin='"
         + highSchoolOrigin
         + '}';
+  }
+
+  public Optional<Group> findCurrentGroup() {
+    var lastGroupFlow = this.getGroupFlows().stream()
+            .filter(groupFlow -> JOIN.equals(groupFlow.getGroupFlowType()))
+            .max(Comparator.comparing(GroupFlow::getFlowDatetime));
+    return lastGroupFlow.map(GroupFlow::getGroup);
   }
 
   public enum Sex {

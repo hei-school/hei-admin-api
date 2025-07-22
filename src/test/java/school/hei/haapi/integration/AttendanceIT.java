@@ -28,6 +28,12 @@ import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.time.Instant;
 import java.util.List;
+<<<<<<< Updated upstream
+=======
+import java.util.UUID;
+
+import lombok.extern.slf4j.Slf4j;
+>>>>>>> Stashed changes
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -55,6 +61,7 @@ import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.event.CheckAttendanceTriggeredService;
 
+@Slf4j
 @Testcontainers
 @AutoConfigureMockMvc
 class AttendanceIT extends FacadeITMockedThirdParties {
@@ -81,6 +88,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("Attendance has been replaced by event participant")
   void teacher_read_attendance_with_course_session_criteria() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     AttendanceApi api = new AttendanceApi(teacher1Client);
@@ -130,6 +138,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
             List.of(attendance6Missing(), attendance5Missing())));
   }
 
+  @Disabled("Attendance has been replaced by event participant")
   @Test
   void teacher_read_attendance_with_attendance_status() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
@@ -142,7 +151,8 @@ class AttendanceIT extends FacadeITMockedThirdParties {
             1, 10, null, null, null, DEFAULT_FROM, DEFAULT_TO, List.of(MISSING));
     assertEquals(2, actualWithStudentMissing.size());
     assertTrue(
-        actualWithStudentMissing.containsAll(List.of(attendance6Missing(), attendance5Missing())));
+        actualWithStudentMissing.containsAll(
+                List.of(attendance6Missing(), attendance5Missing())));
 
     // GET
     // /attendance?page=1&page_size=10&attendance_statuses=LATE,MISSING&from={DEFAULT_FROM}&to={DEFAULT_TO}
@@ -172,6 +182,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("Attendance has been replaced by event participant")
   void teacher_read_attendance_by_teachers_ids() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     AttendanceApi api = new AttendanceApi(teacher1Client);
@@ -228,6 +239,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  @Disabled("Attendance has been replaced by event participant")
   void manager_create_attendance_with_no_student_id() {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     AttendanceApi api = new AttendanceApi(manager1Client);
@@ -267,7 +279,11 @@ class AttendanceIT extends FacadeITMockedThirdParties {
 
   public static CourseAssignment courseAssignment1() {
     return new CourseAssignment()
+<<<<<<< Updated upstream
         .id(randomUUID().toString())
+=======
+        .id("course_assignment1_id")
+>>>>>>> Stashed changes
         .course(course1())
         .groups(List.of(group1()))
         .mainTeacher(teacher1());
@@ -275,7 +291,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
 
   public static CourseAssignment courseAssignment4() {
     return new school.hei.haapi.endpoint.rest.model.CourseAssignment()
-        .id("awarded_course4_id")
+        .id("course_assignment4_id")
         .course(course2())
         .groups(List.of(group1()))
         .mainTeacher(teacher4());

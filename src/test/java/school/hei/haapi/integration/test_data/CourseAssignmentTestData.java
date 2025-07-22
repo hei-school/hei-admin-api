@@ -1,7 +1,7 @@
 package school.hei.haapi.integration.test_data;
 
 import java.util.List;
-import java.util.UUID;
+import static java.util.UUID.randomUUID;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
@@ -12,7 +12,7 @@ public class CourseAssignmentTestData {
   public static CourseAssignment createCourseAssignment(
       Course course, User mainTeacher, List<Group> groups) {
     return CourseAssignment.builder()
-        .id(UUID.randomUUID().toString())
+        .id(randomUUID().toString())
         .course(course)
         .mainTeacher(mainTeacher)
         .groups(groups)
@@ -22,7 +22,7 @@ public class CourseAssignmentTestData {
   public static CrupdateCourseAssignment createCrupdateCourseAssignment(
       Course course, User mainTeacher, List<Group> groups) {
     return new CrupdateCourseAssignment()
-        .id(UUID.randomUUID().toString())
+        .id(randomUUID().toString())
         .courseId(course.getId())
         .mainTeacherId(mainTeacher.getId())
         .groupIds(groups.stream().map(Group::getId).toList());

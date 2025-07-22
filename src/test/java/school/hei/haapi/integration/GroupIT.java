@@ -61,7 +61,7 @@ class GroupIT extends FacadeITMockedThirdParties {
     group.setRef("G2");
     group.setName("GRP21002");
     group.setCreationDatetime(Instant.parse("2021-11-08T08:30:24.00Z"));
-    group.setSize(1);
+    group.setSize(0);
     return group;
   }
 
@@ -143,7 +143,7 @@ class GroupIT extends FacadeITMockedThirdParties {
 
     assertEquals(group1(), actual1);
     assertTrue(actualGroups.contains(group1()));
-    assertTrue(actualGroups.contains(group2()));
+    assertTrue(actualGroups.contains(group2()), "Expected " + actualGroups + " to contain " + group2());
   }
 
   @Test

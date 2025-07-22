@@ -27,7 +27,7 @@ public class CourseAssignmentDAO {
     CriteriaQuery<CourseAssignment> query = builder.createQuery(CourseAssignment.class);
     Root<CourseAssignment> root = query.from(CourseAssignment.class);
     Join<CourseAssignment, User> teacher = root.join("mainTeacher", JoinType.INNER);
-    Join<CourseAssignment, Course> Courses = root.join("course", JoinType.INNER);
+    Join<CourseAssignment, Course> courses = root.join("course", JoinType.INNER);
 
     List<Predicate> predicates = new ArrayList<>();
 
@@ -41,8 +41,8 @@ public class CourseAssignmentDAO {
     if (courseId != null) {
       predicates.add(
           builder.or(
-              builder.like(builder.lower(Courses.get("id")), "%" + courseId + "%"),
-              builder.like(Courses.get("id"), "%" + courseId + "%")));
+              builder.like(builder.lower(courses.get("id")), "%" + courseId + "%"),
+              builder.like(courses.get("id"), "%" + courseId + "%")));
     }
 
     predicates.add(builder.equal(root.get("isDeleted"), false));

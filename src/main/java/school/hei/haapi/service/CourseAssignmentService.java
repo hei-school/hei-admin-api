@@ -6,6 +6,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -23,6 +24,7 @@ import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.CourseAssignmentDAO;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class CourseAssignmentService {
@@ -42,7 +44,7 @@ public class CourseAssignmentService {
         student.getGroupFlows().stream()
             .map(groupFlow -> groupFlow.getGroup())
             .distinct()
-            .collect(toList());
+            .toList();
     return courseAssignmentMapper.toDomainCourseAssignmentsByGroups(groups);
   }
 
@@ -68,10 +70,10 @@ public class CourseAssignmentService {
     return courseAssignmentRepository.save(courseAssignment);
   }
 
-  public Boolean checkTeacherOfCourseAssignment(
-      String teacherId, String awardedCourseId, String groupId) {
-    CourseAssignment awardedCourse = getById(awardedCourseId, groupId);
-    return awardedCourse.getMainTeacher().getId().equals(teacherId);
+  public boolean checkTeacherOfCourseAssignment(
+      String teacherId, String courseAssignmentId, String groupId) {
+    CourseAssignment courseAssignment = getById(courseAssignmentId, groupId);
+    return teacherId.equals(courseAssignment.getMainTeacher().getId());
   }
 
   public List<CourseAssignment> getByCriteria(
