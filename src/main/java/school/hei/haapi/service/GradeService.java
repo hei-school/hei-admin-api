@@ -68,6 +68,7 @@ public class GradeService {
 
   @Transactional
   public List<Grade> crupdateParticipantGrade(List<Grade> grades) {
+    log.info("crupdateParticipantGrade: {}", grades);
     return gradeRepository.saveAll(grades.stream().map(this::checkAndCreateOrModifyGrade).toList());
   }
 
