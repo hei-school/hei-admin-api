@@ -82,11 +82,11 @@ public class CourseAssignmentService {
 
   public List<CourseAssignment> getByTeacherId(
       String teacherId, PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     var teacher = userRepository.findById(teacherId);
     if (teacher.isEmpty()) {
       throw new NotFoundException("Teacher with id: " + teacherId + " not found");
     }
+    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     return courseAssignmentRepository.findAllByMainTeacher(teacher.get(), pageable);
   }
 
