@@ -1,11 +1,12 @@
 package school.hei.haapi.integration.test_data;
 
-import com.github.javafaker.Faker;
-import java.time.Instant;
 import static java.util.UUID.randomUUID;
 import static school.hei.haapi.model.User.Role.TEACHER;
 import static school.hei.haapi.model.User.Status.DISABLED;
 import static school.hei.haapi.model.User.Status.ENABLED;
+
+import com.github.javafaker.Faker;
+import java.time.Instant;
 import school.hei.haapi.model.User;
 
 public class TeacherTestData {

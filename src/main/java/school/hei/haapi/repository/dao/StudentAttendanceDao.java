@@ -85,8 +85,7 @@ public class StudentAttendanceDao {
         predicates.add(
             builder.and(
                 builder.or(
-                    builder.greaterThanOrEqualTo(
-                        studentAttendanceRoot.get("createdAt"), from),
+                    builder.greaterThanOrEqualTo(studentAttendanceRoot.get("createdAt"), from),
                     builder.isNull(studentAttendanceRoot.get("createdAt"))),
                 builder.or(
                     builder.greaterThanOrEqualTo(courseSessionJoin.get("begin"), from),
@@ -96,8 +95,7 @@ public class StudentAttendanceDao {
         predicates.add(
             builder.and(
                 builder.or(
-                    builder.lessThanOrEqualTo(
-                        studentAttendanceRoot.get("createdAt"), to),
+                    builder.lessThanOrEqualTo(studentAttendanceRoot.get("createdAt"), to),
                     builder.isNull(studentAttendanceRoot.get("createdAt"))),
                 builder.or(
                     builder.lessThanOrEqualTo(courseSessionJoin.get("begin"), to),
@@ -107,8 +105,7 @@ public class StudentAttendanceDao {
         predicates.add(
             builder.and(
                 builder.or(
-                    builder.between(
-                        studentAttendanceRoot.get("createdAt"), from, to),
+                    builder.between(studentAttendanceRoot.get("createdAt"), from, to),
                     builder.isNull(studentAttendanceRoot.get("createdAt"))),
                 builder.or(
                     builder.between(courseSessionJoin.get("begin"), from, to),

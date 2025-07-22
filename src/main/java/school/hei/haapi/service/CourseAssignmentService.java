@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.toList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.util.List;
@@ -41,10 +40,7 @@ public class CourseAssignmentService {
   public List<CourseAssignment> getByStudentId(String userId) {
     User student = userRepository.getById(userId);
     List<Group> groups =
-        student.getGroupFlows().stream()
-            .map(groupFlow -> groupFlow.getGroup())
-            .distinct()
-            .toList();
+        student.getGroupFlows().stream().map(groupFlow -> groupFlow.getGroup()).distinct().toList();
     return courseAssignmentMapper.toDomainCourseAssignmentsByGroups(groups);
   }
 

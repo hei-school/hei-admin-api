@@ -1,7 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,9 +26,7 @@ public class CourseAssignmentController {
       @PathVariable("course_id") String courseId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
-    return service.getByCourseId(courseId, page, pageSize).stream()
-        .map(mapper::toRest)
-        .toList();
+    return service.getByCourseId(courseId, page, pageSize).stream().map(mapper::toRest).toList();
   }
 
   @GetMapping("/groups/{group_id}/course_assignments")
@@ -38,9 +34,7 @@ public class CourseAssignmentController {
       @PathVariable("group_id") String groupId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
-    return service.getByGroupId(groupId, page, pageSize).stream()
-        .map(mapper::toRest)
-        .toList();
+    return service.getByGroupId(groupId, page, pageSize).stream().map(mapper::toRest).toList();
   }
 
   @GetMapping("/course_assignments")

@@ -1,10 +1,6 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
-
 import jakarta.transaction.Transactional;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -16,7 +12,6 @@ import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
-import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -73,8 +68,7 @@ public class GradeService {
 
   @Transactional
   public List<Grade> crupdateParticipantGrade(List<Grade> grades) {
-    return gradeRepository.saveAll(
-        grades.stream().map(this::checkAndCreateOrModifyGrade).toList());
+    return gradeRepository.saveAll(grades.stream().map(this::checkAndCreateOrModifyGrade).toList());
   }
 
   public List<Grade> getParticipantsGradeForExam(

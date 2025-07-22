@@ -1,7 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import static java.util.stream.Collectors.toList;
-
 import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;

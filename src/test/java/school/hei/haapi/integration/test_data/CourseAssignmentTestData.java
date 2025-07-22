@@ -1,7 +1,8 @@
 package school.hei.haapi.integration.test_data;
 
-import java.util.List;
 import static java.util.UUID.randomUUID;
+
+import java.util.List;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;

@@ -7,9 +7,8 @@ import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 
-import java.util.List;
-
 import jakarta.transaction.Transactional;
+import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;

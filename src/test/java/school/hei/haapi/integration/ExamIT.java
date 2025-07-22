@@ -4,8 +4,8 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
-import static school.hei.haapi.integration.conf.TestUtils.COURSE_ASSIGNMENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.COURSE_ASSIGNMENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.MANAGER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
@@ -91,7 +91,8 @@ class ExamIT extends FacadeITMockedThirdParties {
     GradesApi gradesApi = new GradesApi(anApiClient(TEACHER1_TOKEN));
     GroupsApi groupsApi = new GroupsApi(anApiClient(TEACHER1_TOKEN));
 
-    List<ExamInfo> exams = examsApi.createOrUpdateExams(COURSE_ASSIGNMENT1_ID, List.of(createExam()));
+    List<ExamInfo> exams =
+        examsApi.createOrUpdateExams(COURSE_ASSIGNMENT1_ID, List.of(createExam()));
     assertEquals(1, exams.size());
     ExamInfo exam = exams.getFirst();
 

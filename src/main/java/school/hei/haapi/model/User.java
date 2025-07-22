@@ -28,7 +28,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -237,7 +236,8 @@ public class User implements Serializable {
   }
 
   public Optional<Group> findCurrentGroup() {
-    var lastGroupFlow = this.getGroupFlows().stream()
+    var lastGroupFlow =
+        this.getGroupFlows().stream()
             .filter(groupFlow -> JOIN.equals(groupFlow.getGroupFlowType()))
             .max(Comparator.comparing(GroupFlow::getFlowDatetime));
     return lastGroupFlow.map(GroupFlow::getGroup);

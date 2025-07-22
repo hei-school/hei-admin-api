@@ -1832,7 +1832,10 @@ public class TestUtils {
             .map(TestUtils::cloneCourseAssignmentWithNullGroupCreationDateTime)
             .toList();
     assertTrue(
-        "Actual list does not contain all expected elements" + actualCloned + " did not contain " + expectedCloned,
+        "Actual list does not contain all expected elements"
+            + actualCloned
+            + " did not contain "
+            + expectedCloned,
         actualCloned.containsAll(expectedCloned));
   }
 

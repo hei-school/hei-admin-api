@@ -114,9 +114,7 @@ public class GroupFlowIT extends FacadeITMockedThirdParties {
     Student student2moved = student2().groups(List.of(group2().size(1)));
     assertEquals(1, group1Students.size());
     assertEquals(1, group2Students.size());
-    assertTrue(
-        group2Students.contains(
-            student2moved));
+    assertTrue(group2Students.contains(student2moved));
   }
 
   public CreateGroupFlow createStudent1LeavesGroup1() {

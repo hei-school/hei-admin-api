@@ -1,7 +1,8 @@
 package school.hei.haapi.integration.test_data;
 
-import school.hei.haapi.model.Course;
 import static java.util.UUID.randomUUID;
+
+import school.hei.haapi.model.Course;
 
 public class CourseTestData {
   public static Course prog1() {

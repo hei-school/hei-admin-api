@@ -102,7 +102,8 @@ public class ExamController {
         .collect(toList());
   }
 
-  @GetMapping(value = "/groups/{group_id}/course_assignments/{course_assignment_id}/exams/{exam_id}")
+  @GetMapping(
+      value = "/groups/{group_id}/course_assignments/{course_assignment_id}/exams/{exam_id}")
   public ExamInfo getExamById(
       @PathVariable("group_id") String groupId,
       @PathVariable("course_assignment_id") String courseAssignmentId,

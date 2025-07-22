@@ -143,7 +143,8 @@ class GroupIT extends FacadeITMockedThirdParties {
 
     assertEquals(group1(), actual1);
     assertTrue(actualGroups.contains(group1()));
-    assertTrue(actualGroups.contains(group2()), "Expected " + actualGroups + " to contain " + group2());
+    assertTrue(
+        actualGroups.contains(group2()), "Expected " + actualGroups + " to contain " + group2());
   }
 
   @Test

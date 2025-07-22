@@ -16,7 +16,6 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.courseAssignmentExam1;
 import static school.hei.haapi.integration.conf.TestUtils.courseAssignmentExam2;
-import static school.hei.haapi.integration.conf.TestUtils.courseAssignmentExam3;
 import static school.hei.haapi.integration.conf.TestUtils.courseAssignmentExam4;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;

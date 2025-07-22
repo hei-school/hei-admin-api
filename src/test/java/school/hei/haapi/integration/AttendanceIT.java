@@ -28,12 +28,6 @@ import static school.hei.haapi.model.User.Status.ENABLED;
 
 import java.time.Instant;
 import java.util.List;
-<<<<<<< Updated upstream
-=======
-import java.util.UUID;
-
-import lombok.extern.slf4j.Slf4j;
->>>>>>> Stashed changes
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
@@ -61,7 +55,6 @@ import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.service.UserService;
 import school.hei.haapi.service.event.CheckAttendanceTriggeredService;
 
-@Slf4j
 @Testcontainers
 @AutoConfigureMockMvc
 class AttendanceIT extends FacadeITMockedThirdParties {
@@ -151,8 +144,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
             1, 10, null, null, null, DEFAULT_FROM, DEFAULT_TO, List.of(MISSING));
     assertEquals(2, actualWithStudentMissing.size());
     assertTrue(
-        actualWithStudentMissing.containsAll(
-                List.of(attendance6Missing(), attendance5Missing())));
+        actualWithStudentMissing.containsAll(List.of(attendance6Missing(), attendance5Missing())));
 
     // GET
     // /attendance?page=1&page_size=10&attendance_statuses=LATE,MISSING&from={DEFAULT_FROM}&to={DEFAULT_TO}
@@ -279,11 +271,7 @@ class AttendanceIT extends FacadeITMockedThirdParties {
 
   public static CourseAssignment courseAssignment1() {
     return new CourseAssignment()
-<<<<<<< Updated upstream
-        .id(randomUUID().toString())
-=======
         .id("course_assignment1_id")
->>>>>>> Stashed changes
         .course(course1())
         .groups(List.of(group1()))
         .mainTeacher(teacher1());

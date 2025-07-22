@@ -1,7 +1,8 @@
 package school.hei.haapi.integration.test_data;
 
-import java.time.Instant;
 import static java.util.UUID.randomUUID;
+
+import java.time.Instant;
 import school.hei.haapi.model.Group;
 
 public class GroupTestData {
