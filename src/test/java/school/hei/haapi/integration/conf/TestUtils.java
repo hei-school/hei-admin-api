@@ -1851,12 +1851,11 @@ public class TestUtils {
   }
 
   private static Group cloneGroupWithoutCreationDateTime(Group original) {
-    Group clone = new Group();
-    clone.setId(original.getId());
-    clone.setName(original.getName());
-    clone.setRef(original.getRef());
-    clone.setSize(original.getSize());
-    clone.setAttributedColor(original.getAttributedColor());
-    return clone;
+    return new Group()
+        .id(original.getId())
+        .name(original.getName())
+        .ref(original.getRef())
+        .size(original.getSize())
+        .attributedColor(original.getAttributedColor());
   }
 }
