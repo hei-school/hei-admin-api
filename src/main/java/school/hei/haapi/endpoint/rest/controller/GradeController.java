@@ -13,7 +13,7 @@ import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.CourseAssignmentExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.StudentGrades;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.validator.GradeValidator;
 import school.hei.haapi.model.BoundedPageSize;
@@ -45,7 +45,7 @@ public class GradeController {
   }
 
   @GetMapping(value = "/exams/{exam_id}/students/{student_id}/grade")
-  public StudentGrade getGradeOfStudentInOneExam(
+  public StudentGrades getGradeOfStudentInOneExam(
       @PathVariable("exam_id") String examId, @PathVariable("student_id") String studentId) {
     Grade grade = gradeService.getGradeByExamIdAndStudentId(examId, studentId);
     return gradeMapper.toRestStudentGrade(grade);
@@ -62,7 +62,7 @@ public class GradeController {
   }
 
   @GetMapping(value = "/exams/{exam_id}/grades")
-  public List<StudentGrade> getParticipantsGradeForExam(
+  public List<StudentGrades> getParticipantsGradeForExam(
       @PathVariable(value = "exam_id") String examId,
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize) {
@@ -72,7 +72,7 @@ public class GradeController {
   }
 
   @PutMapping(value = "/exams/{exam_id}/grades")
-  public List<StudentGrade> updateParticipantsGradeForExam(
+  public List<StudentGrades> updateParticipantsGradeForExam(
       @PathVariable("exam_id") String examId, @RequestBody List<UpdateGrade> grades) {
     return gradeService
         .crupdateParticipantGrade(

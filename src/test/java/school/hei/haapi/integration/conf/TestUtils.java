@@ -94,7 +94,7 @@ import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.endpoint.rest.model.EventType;
-import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.Exam;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
@@ -110,7 +110,7 @@ import school.hei.haapi.endpoint.rest.model.Promotion;
 import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.StudentGrades;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
@@ -521,8 +521,8 @@ public class TestUtils {
     return new Course().code(code).name("Collaborative work like GWSP").credits(12).totalHours(5);
   }
 
-  public static ExamInfo createExam() {
-    return new ExamInfo()
+  public static Exam createExam() {
+    return new Exam()
         .coefficient(10)
         .title("createExam")
         .examinationDate(Instant.parse("2021-11-08T08:25:24.00Z"))
@@ -549,9 +549,9 @@ public class TestUtils {
     return courseList;
   }
 
-  public static List<ExamInfo> someCreatableExamInfoList(int nbOfExamInfo) {
-    List<ExamInfo> examInfoList = new ArrayList<>();
-    for (int i = 0; i < nbOfExamInfo; i++) {
+  public static List<Exam> someCreatableExamInfoList(int nbOfExam) {
+    List<Exam> examInfoList = new ArrayList<>();
+    for (int i = 0; i < nbOfExam; i++) {
       examInfoList.add(createExam());
     }
     return examInfoList;
@@ -933,8 +933,8 @@ public class TestUtils {
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
-  public static ExamInfo exam1() {
-    return new ExamInfo()
+  public static Exam exam1() {
+    return new Exam()
         .id(EXAM1_ID)
         .coefficient(2)
         .title("Algorithmics")
@@ -942,8 +942,8 @@ public class TestUtils {
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
-  public static ExamInfo exam2() {
-    return new ExamInfo()
+  public static Exam exam2() {
+    return new Exam()
         .id(EXAM2_ID)
         .coefficient(3)
         .title("Algorithmics final")
@@ -951,8 +951,8 @@ public class TestUtils {
         .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
-  public static ExamInfo exam3() {
-    return new ExamInfo()
+  public static Exam exam3() {
+    return new Exam()
         .id(EXAM3_ID)
         .coefficient(2)
         .title("Algorithmics")
@@ -960,8 +960,8 @@ public class TestUtils {
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
-  public static ExamInfo exam4() {
-    return new ExamInfo()
+  public static Exam exam4() {
+    return new Exam()
         .id(EXAM4_ID)
         .coefficient(3)
         .title("Algorithmics2")
@@ -969,8 +969,8 @@ public class TestUtils {
         .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
-  public static ExamInfo exam5() {
-    return new ExamInfo()
+  public static Exam exam5() {
+    return new Exam()
         .id(EXAM5_ID)
         .coefficient(1)
         .title("Prog2 final")
@@ -1034,52 +1034,52 @@ public class TestUtils {
         .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
-  public static StudentGrade studentExamGrade1() {
-    return new StudentGrade().grade(grade1()).student(student1());
+  public static StudentGrades studentExamGrade1() {
+    return new StudentGrades().grade(List.of(grade1())).student(student1());
   }
 
-  public static StudentGrade studentExamGrade2() {
-    return new StudentGrade().grade(grade2()).student(student1());
+  public static StudentGrades studentExamGrade2() {
+    return new StudentGrades().grade(List.of(grade2())).student(student1());
   }
 
-  public static StudentGrade studentExamGrade3() {
-    return new StudentGrade().grade(grade3()).student(student1());
+  public static StudentGrades studentExamGrade3() {
+    return new StudentGrades().grade(List.of(grade3())).student(student1());
   }
 
-  public static StudentGrade studentExamGrade4() {
-    return new StudentGrade().grade(grade4()).student(student1());
+  public static StudentGrades studentExamGrade4() {
+    return new StudentGrades().grade(List.of(grade4())).student(student1());
   }
 
-  public static StudentGrade studentExamGrade5() {
-    return new StudentGrade().grade(grade5()).student(student1());
+  public static StudentGrades studentExamGrade5() {
+    return new StudentGrades().grade(List.of(grade5())).student(student1());
   }
 
-  public static StudentGrade studentGrade1() {
-    return new StudentGrade().grade(grade1()).student(student1());
+  public static StudentGrades studentGrade1() {
+    return new StudentGrades().grade(List.of(grade1())).student(student1());
   }
 
-  public static StudentGrade studentGrade2() {
-    return new StudentGrade().grade(grade2());
+  public static StudentGrades studentGrade2() {
+    return new StudentGrades().grade(List.of(grade2()));
   }
 
-  public static StudentGrade studentGrade3() {
-    return new StudentGrade().grade(grade3());
+  public static StudentGrades studentGrade3() {
+    return new StudentGrades().grade(List.of(grade3()));
   }
 
-  public static StudentGrade studentGrade4() {
-    return new StudentGrade().grade(grade4());
+  public static StudentGrades studentGrade4() {
+    return new StudentGrades().grade(List.of(grade4()));
   }
 
-  public static StudentGrade studentGrade5() {
-    return new StudentGrade().grade(grade5());
+  public static StudentGrades studentGrade5() {
+    return new StudentGrades().grade(List.of(grade5()));
   }
 
-  public static StudentGrade studentGrade6() {
-    return new StudentGrade().grade(grade6());
+  public static StudentGrades studentGrade6() {
+    return new StudentGrades().grade(List.of(grade6()));
   }
 
-  public static StudentGrade studentGrade7() {
-    return new StudentGrade().grade(grade7()).student(student3());
+  public static StudentGrades studentGrade7() {
+    return new StudentGrades().grade(List.of(grade7())).student(student3());
   }
 
   public static FeeTemplate feeTemplate1() {

@@ -8,7 +8,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CourseAssignmentExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.StudentGrades;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
@@ -73,7 +73,7 @@ public class CourseAssignmentMapper {
 
   public CourseAssignmentExam toRest(
       school.hei.haapi.model.CourseAssignment courseAssignment,
-      List<StudentGrade> studentExamGrades) {
+      List<StudentGrades> studentExamGrades) {
     return new CourseAssignmentExam()
         .id(courseAssignment.getId())
         .exams(studentExamGrades)
@@ -86,7 +86,7 @@ public class CourseAssignmentMapper {
       List<school.hei.haapi.model.CourseAssignment> courseAssignments, User student) {
     var courseAssignmentExams = new ArrayList<CourseAssignmentExam>();
     for (var courseAssignment : courseAssignments) {
-      List<StudentGrade> studentExamGrades =
+      List<StudentGrades> studentExamGrades =
           courseAssignment.getExams().stream()
               .map(exam -> gradeMapper.toRestStudentExamGrade(student, exam))
               .toList();
