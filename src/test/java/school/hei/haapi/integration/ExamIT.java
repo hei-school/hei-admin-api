@@ -14,6 +14,7 @@ import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
+import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.createExam;
 import static school.hei.haapi.integration.conf.TestUtils.createExam1;
 import static school.hei.haapi.integration.conf.TestUtils.exam1;
@@ -167,6 +168,25 @@ class ExamIT extends FacadeITMockedThirdParties {
     assertTrue(actual.contains(exam3()));
     assertTrue(actual.contains(exam4()));
     assertTrue(actual.contains(exam5()));
+  }
+
+  @Test
+  void filter_exam_ok() throws ApiException {
+    ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
+    ExamsApi api = new ExamsApi(manager1Client);
+    List<ExamInfo> filteredExams =
+        api.getAllExams(
+            null,
+            exam2().getTitle(),
+            course1().getCode(),
+            group1().getRef(),
+            exam2().getExaminationDate().minusSeconds(1),
+            null,
+            1,
+            10);
+
+    assertEquals(1, filteredExams.size());
+    assertEquals(exam2(), filteredExams.getFirst());
   }
 
   @Test

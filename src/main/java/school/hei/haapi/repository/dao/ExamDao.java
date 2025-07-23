@@ -37,7 +37,8 @@ public class ExamDao {
     Root<Exam> root = query.from(Exam.class);
     ArrayList<Predicate> predicates = new ArrayList<>();
     if (title != null && !title.isEmpty()) {
-      predicates.add(builder.like(root.get("title"), "%" + title.toLowerCase() + "%"));
+      predicates.add(
+          builder.like(builder.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
     }
 
     Join<Exam, CourseAssignment> courseAssignmentJoin =
