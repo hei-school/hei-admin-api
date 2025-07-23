@@ -477,6 +477,69 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{student_id}/yearly_results:
+    get:
+      tags:
+        - Grades
+      summary: Get the yearly results of a given student for all levels
+      operationId: getYearlyResults
+      parameters:
+        - $ref: "#/components/parameters/PathStudentId"
+        - name: student_level
+          required: false
+          in: query
+          schema:
+            $ref: "#/components/schemas/StudentLevel"
+      responses:
+        '200':
+          description: Yearly result of the specified student.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/YearlyResult"
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/courses/{course_id}/grades:
+    get:
+      tags:
+        - Grades
+      summary: Get the Grades of a given student for a given course.
+      operationId: getCourseGrades
+      parameters:
+        - $ref: "#/components/parameters/PathStudentId"
+        - $ref: "#/components/parameters/PathCourseId"
+        - name: student_level
+          required: false
+          in: query
+          schema:
+            $ref: "#/components/schemas/StudentLevel"
+      responses:
+        '200':
+          description: List of Grades of the specified student.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Grade"
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students:
     get:
       tags:
@@ -1066,7 +1129,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ExamInfo'
+                  $ref: '#/components/schemas/Exam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1097,7 +1160,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/ExamInfo'
+                $ref: '#/components/schemas/Exam'
       responses:
         '200':
           description: Exams infos without the students participated
@@ -1106,7 +1169,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ExamInfo'
+                  $ref: '#/components/schemas/Exam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1172,7 +1235,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/ExamInfo'
+                  $ref: '#/components/schemas/Exam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1201,7 +1264,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExamInfo'
+                $ref: '#/components/schemas/Exam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1230,7 +1293,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExamInfo'
+                $ref: '#/components/schemas/Exam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1264,7 +1327,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/ExamInfo'
+                $ref: '#/components/schemas/Exam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1839,7 +1902,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/StudentGrade'
+                  $ref: '#/components/schemas/StudentGrades'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1877,7 +1940,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/StudentGrade'
+                  $ref: '#/components/schemas/StudentGrades'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -6386,8 +6449,8 @@ components:
           format: double
           example: 12.5
         exam:
-          $ref: '#/components/schemas/ExamInfo'
-    ExamInfo:
+          $ref: '#/components/schemas/Exam'
+    Exam:
       type: object
       properties:
         id:
@@ -6422,6 +6485,8 @@ components:
       properties:
         id:
           type: string
+        exam:
+          $ref: "#/components/schemas/Exam"
         score:
           type: number
           format: double
@@ -6432,6 +6497,14 @@ components:
         update_date:
           type: string
           format: date-time
+    StudentLevel:
+      type: string
+      enum:
+        - L1
+        - L2
+        - L3
+        - M1
+        - M2
     ExamGradeStats:
       type: object
       properties:
@@ -6446,6 +6519,37 @@ components:
           type: number
           format: double
           example: 12.5
+    CourseResult:
+      type: object
+      properties:
+        id:
+          type: string
+        couse:
+          $ref: "#/components/schemas/Course"
+        weighted_average:
+          type: number
+          format: double
+        status:
+          $ref: "#/components/schemas/CourseResultStatus"
+    CourseResultStatus:
+      type: string
+      enum:
+        - VALIDATED
+        - IN_PROGRESS
+        - INCOMPLETE
+        - NOT_STARTED
+    YearlyResult:
+      type: object
+      properties:
+        weighted_average:
+          type: number
+          format: double
+        obtained_credits:
+          format: number
+        course_results:
+          type: array
+          items:
+            $ref: "#/components/schemas/CourseResult"
     StudentIdentifierGrade:
       type: object
       properties:
@@ -6460,14 +6564,17 @@ components:
       properties:
         id:
           type: string
+          description: Id of the Grade
         score:
           type: number
           format: double
           example: 12.5
-    StudentGrade:
+    StudentGrades:
       properties:
         grade:
-          $ref: '#/components/schemas/Grade'
+          type: array
+          items:
+            $ref: '#/components/schemas/Grade'
         student:
           $ref: '#/components/schemas/Student'
     UpdateGrade:
@@ -6476,17 +6583,6 @@ components:
           $ref: '#/components/schemas/CrupdateGrade'
         student_ref:
           type: string
-    CrupdateStudentExamGrade:
-      required:
-        - id
-        - student_id
-        - exam_id
-      properties:
-        id:
-          type: string
-        score:
-          type: number
-          default: 0.0
     CourseAssignmentExam:
       allOf:
         - $ref: '#/components/schemas/CourseAssignment'
@@ -6494,7 +6590,7 @@ components:
         exams:
           type: array
           items:
-            $ref: '#/components/schemas/StudentGrade'
+            $ref: '#/components/schemas/StudentGrades'
     CreateAttendanceMovement:
       type: object
       properties:
