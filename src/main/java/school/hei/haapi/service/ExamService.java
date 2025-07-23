@@ -56,21 +56,18 @@ public class ExamService {
     return savedExams;
   }
 
-  private List<Grade> initializeExamGrades(Exam exam, List<User> users) {
-    return users.stream()
-        .map(
-            student ->
-                gradeRepository
-                    .getGradeByExamIdAndStudentId(exam.getId(), student.getId())
-                    .orElse(new Grade(exam, student)))
-        .toList();
+  private Grade initializeExamGrade(Exam exam, User user) {
+    return gradeRepository
+        .getGradeByExamIdAndStudentId(exam.getId(), user.getId())
+        .orElse(new Grade(exam, user));
   }
 
   private List<Grade> initializeExamGrades(Exam exam) {
     return exam.getCourseAssignment().getGroups().stream()
         .map(group -> userService.getByGroupId(group.getId()))
-        .map(users -> initializeExamGrades(exam, users))
         .flatMap(List::stream)
+        .distinct()
+        .map(user -> initializeExamGrade(exam, user))
         .toList();
   }
 
