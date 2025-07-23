@@ -40,6 +40,9 @@ public class CourseAssignmentService {
 
   public List<CourseAssignment> getByStudentId(String userId) {
     User student = userRepository.getById(userId);
+    /*
+     *   TODO: Optimize heavy db call
+     */
     List<Group> groups =
         student.getGroupFlows().stream().map(GroupFlow::getGroup).distinct().toList();
     return courseAssignmentMapper.toDomainCourseAssignmentsByGroups(groups);
