@@ -19,7 +19,7 @@ public class TeacherTestData {
         .email(new Faker().internet().emailAddress())
         .phone("+261 34 12 345 02")
         .status(ENABLED)
-        .entranceDatetime(Instant.now())
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .role(TEACHER)
         .build();
   }
@@ -33,7 +33,7 @@ public class TeacherTestData {
         .email(new Faker().internet().emailAddress())
         .phone("+261 34 12 345 03")
         .status(ENABLED)
-        .entranceDatetime(Instant.now())
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .role(TEACHER)
         .build();
   }
@@ -47,7 +47,7 @@ public class TeacherTestData {
         .email(new Faker().internet().emailAddress())
         .phone("+261 34 12 345 04")
         .status(DISABLED)
-        .entranceDatetime(Instant.now())
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .role(TEACHER)
         .build();
   }

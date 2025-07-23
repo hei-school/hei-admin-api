@@ -18,7 +18,7 @@ public class StudentTestData {
         .address("123 Avenue de l'Indépendance")
         .role(User.Role.STUDENT)
         .status(User.Status.ENABLED)
-        .entranceDatetime(Instant.now())
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .groupFlows(new ArrayList<>())
         .build();
   }
@@ -34,7 +34,7 @@ public class StudentTestData {
         .address("456 Rue de la République")
         .role(User.Role.STUDENT)
         .status(User.Status.ENABLED)
-        .entranceDatetime(Instant.now())
+        .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
         .groupFlows(new ArrayList<>())
         .build();
   }
