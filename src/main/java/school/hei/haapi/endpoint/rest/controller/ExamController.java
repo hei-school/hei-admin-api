@@ -95,7 +95,7 @@ public class ExamController {
                     examInfo ->
                         examMapper.toDomain(
                             examInfo,
-                            courseAssignmentService.findCourseAssignmentById(courseAssignmentId)))
+                            courseAssignmentService.getCourseAssignmentById(courseAssignmentId)))
                 .collect(toList()))
         .stream()
         .map(examMapper::toRest)

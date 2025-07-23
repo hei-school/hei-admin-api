@@ -39,7 +39,7 @@ public class ExamMapper {
 
   public Exam toDomain(CrupdateExam createExam) {
     CourseAssignment courseAssignment =
-        courseAssignmentService.findCourseAssignmentById(createExam.getCourseAssignmentId());
+        courseAssignmentService.getCourseAssignmentById(createExam.getCourseAssignmentId());
     return Exam.builder()
         .id(createExam.getId())
         .coefficient(createExam.getCoefficient())

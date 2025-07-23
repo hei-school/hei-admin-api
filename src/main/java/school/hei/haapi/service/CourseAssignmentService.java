@@ -15,6 +15,7 @@ import school.hei.haapi.endpoint.rest.mapper.CourseAssignmentMapper;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Group;
+import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
@@ -33,14 +34,14 @@ public class CourseAssignmentService {
   private final CourseAssignmentValidator courseAssignmentValidator;
   private final CourseAssignmentDAO courseAssignmentDAO;
 
-  public Optional<CourseAssignment> getById(String courseAssignmentId) {
+  public Optional<CourseAssignment> findById(String courseAssignmentId) {
     return courseAssignmentRepository.findById(courseAssignmentId);
   }
 
   public List<CourseAssignment> getByStudentId(String userId) {
     User student = userRepository.getById(userId);
     List<Group> groups =
-        student.getGroupFlows().stream().map(groupFlow -> groupFlow.getGroup()).distinct().toList();
+        student.getGroupFlows().stream().map(GroupFlow::getGroup).distinct().toList();
     return courseAssignmentMapper.toDomainCourseAssignmentsByGroups(groups);
   }
 
@@ -95,9 +96,8 @@ public class CourseAssignmentService {
     return courseAssignmentRepository.saveAll(courseAssignments);
   }
 
-  public CourseAssignment findCourseAssignmentById(String courseAssignmentId) {
-    return courseAssignmentRepository
-        .findById(courseAssignmentId)
+  public CourseAssignment getCourseAssignmentById(String courseAssignmentId) {
+    return findById(courseAssignmentId)
         .orElseThrow(
             () ->
                 new NotFoundException(
