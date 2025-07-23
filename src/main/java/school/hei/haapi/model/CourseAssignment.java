@@ -8,6 +8,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinTable;
+import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
@@ -22,9 +24,11 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 
 @Entity
-@Table(name = "\"awarded_course\"")
+@Table(name = "\"course_assignment\"")
 @Getter
 @Setter
 @ToString
@@ -32,7 +36,9 @@ import org.hibernate.annotations.CreationTimestamp;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class AwardedCourse implements Serializable {
+@SQLDelete(sql = "update \"course_assignment\" set is_deleted = true where id = ?")
+@Where(clause = "is_deleted = false")
+public class CourseAssignment implements Serializable {
   // todo: to review all class
   @Id
   @GeneratedValue(strategy = IDENTITY)
@@ -40,7 +46,7 @@ public class AwardedCourse implements Serializable {
 
   @ManyToOne(fetch = LAZY)
   @JoinColumn(name = "teacher_id")
-  @JsonIgnoreProperties("awardedCourses")
+  @JsonIgnoreProperties("courseAssignments")
   @ToString.Exclude
   private User mainTeacher;
 
@@ -49,14 +55,20 @@ public class AwardedCourse implements Serializable {
   @ToString.Exclude
   private Course course;
 
-  @ManyToOne
-  @JoinColumn(name = "group_id")
+  @ManyToMany
+  @JoinTable(
+      name = "course_assignment_group",
+      joinColumns = @JoinColumn(name = "course_assignment_id"),
+      inverseJoinColumns = @JoinColumn(name = "group_id"))
   @ToString.Exclude
-  private Group group;
+  @EqualsAndHashCode.Exclude
+  private List<Group> groups;
 
-  @OneToMany(mappedBy = "awardedCourse", fetch = LAZY)
+  @OneToMany(mappedBy = "courseAssignment", fetch = LAZY)
   @ToString.Exclude
   private List<Exam> exams;
 
-  @CreationTimestamp private Instant creationDatetime;
+  @EqualsAndHashCode.Exclude @CreationTimestamp private Instant creationDatetime;
+
+  @EqualsAndHashCode.Exclude @Builder.Default private boolean isDeleted = false;
 }

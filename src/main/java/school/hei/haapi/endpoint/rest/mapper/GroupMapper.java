@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
+import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.*;
@@ -19,6 +20,10 @@ public class GroupMapper {
         .size(groupService.getGroupSize(group.getId()))
         .attributedColor(group.getAttributedColor())
         .creationDatetime(group.getCreationDatetime());
+  }
+
+  public List<Group> toRest(List<school.hei.haapi.model.Group> groups) {
+    return groups.stream().map(this::toRest).toList();
   }
 
   public school.hei.haapi.model.Group toDomain(Group restGroup) {

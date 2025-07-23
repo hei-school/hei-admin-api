@@ -8,20 +8,20 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
+import school.hei.haapi.endpoint.rest.mapper.CourseAssignmentMapper;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
+import school.hei.haapi.endpoint.rest.model.CourseAssignmentExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.validator.GradeValidator;
-import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.BoundedPageSize;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
-import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
 
@@ -29,17 +29,17 @@ import school.hei.haapi.service.UserService;
 @AllArgsConstructor
 public class GradeController {
   private final UserService userService;
-  private final AwardedCourseService awardedCourseService;
-  private final AwardedCourseMapper awardedCourseMapper;
+  private final CourseAssignmentService awardedCourseService;
+  private final CourseAssignmentMapper awardedCourseMapper;
   private final GradeValidator validator;
   private final GradeService gradeService;
   private final GradeMapper gradeMapper;
 
   // todo: to review all class
   @GetMapping("/students/{student_id}/grades")
-  public List<AwardedCourseExam> getAllGradesOfStudent(
+  public List<CourseAssignmentExam> getAllGradesOfStudent(
       @PathVariable("student_id") String studentId) {
-    List<AwardedCourse> awardedCourses = awardedCourseService.getByStudentId(studentId);
+    List<CourseAssignment> awardedCourses = awardedCourseService.getByStudentId(studentId);
     User student = userService.findById(studentId);
     return awardedCourseMapper.toRest(awardedCourses, student);
   }

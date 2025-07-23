@@ -1,25 +1,24 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-
 import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
-import java.util.function.Predicate;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Grade;
+import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.dao.GradeDao;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class GradeService {
@@ -39,7 +38,8 @@ public class GradeService {
         .orElseThrow(() -> new NotFoundException("grade with id " + id + " not found"));
   }
 
-  private Grade checkAndCreateOrModifyGrade(Grade grade) {
+  @Transactional
+  public Grade checkAndCreateOrModifyGrade(Grade grade) {
     Optional<Grade> getGrade =
         gradeRepository.findByExamIdAndStudentId(
             grade.getExam().getId(), grade.getStudent().getId());
@@ -48,9 +48,16 @@ public class GradeService {
       presentGrade.setScore(grade.getScore());
       return presentGrade;
     }
-    if (userService.getByGroupId(grade.getExam().getAwardedCourse().getGroup().getId()).stream()
-        .map(User::getId)
-        .noneMatch(Predicate.isEqual(grade.getStudent().getId()))) {
+    Optional<Group> studentCurrentGroup = grade.getStudent().findCurrentGroup();
+    // TODO: refactor this to be more readable
+    if (studentCurrentGroup.isEmpty()) {
+      throw new BadRequestException(
+          String.format("Student with id: %s not in any group", grade.getStudent().getId()));
+    }
+    var isInAssignedGroups =
+        grade.getExam().getCourseAssignment().getGroups().stream()
+            .anyMatch(group -> studentCurrentGroup.get().getId().equals(group.getId()));
+    if (!isInAssignedGroups) {
       throw new BadRequestException(
           String.format(
               "Student with id: %s not in the Exam: %s",
@@ -61,8 +68,8 @@ public class GradeService {
 
   @Transactional
   public List<Grade> crupdateParticipantGrade(List<Grade> grades) {
-    return gradeRepository.saveAll(
-        grades.stream().map(this::checkAndCreateOrModifyGrade).collect(toUnmodifiableList()));
+    log.info("crupdateParticipantGrade: {}", grades);
+    return gradeRepository.saveAll(grades.stream().map(this::checkAndCreateOrModifyGrade).toList());
   }
 
   public List<Grade> getParticipantsGradeForExam(

@@ -76,8 +76,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.api.GroupsApi;
 import school.hei.haapi.endpoint.rest.api.PayingApi;
-import school.hei.haapi.endpoint.rest.api.TeachingApi;
 import school.hei.haapi.endpoint.rest.api.UsersApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
@@ -1130,7 +1130,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
   @Disabled("TODO: check group1 students")
   void manager_read_group_students_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
-    TeachingApi api = new TeachingApi(manager1Client);
+    GroupsApi api = new GroupsApi(manager1Client);
 
     List<Student> actualGroupStudents = api.getStudentsByGroupId(GROUP1_ID, 1, 10, null);
     assertEquals(2, actualGroupStudents.size());

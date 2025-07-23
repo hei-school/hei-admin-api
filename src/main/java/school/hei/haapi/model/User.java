@@ -4,6 +4,7 @@ import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
+import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.User.Status.*;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -23,17 +24,22 @@ import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.JdbcTypeCode;
+import org.hibernate.annotations.SQLDelete;
+import org.hibernate.annotations.Where;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
 
 @Entity
@@ -43,6 +49,8 @@ import school.hei.haapi.endpoint.rest.model.SpecializationField;
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
+@SQLDelete(sql = "update \"user\" set is_deleted = true where id = ?")
+@Where(clause = "is_deleted = false")
 // TODO: separate to a child table as MANAGER, TEACHER, STUDENT, MONITOR
 public class User implements Serializable {
   @Id
@@ -86,6 +94,8 @@ public class User implements Serializable {
 
   private Instant entranceDatetime;
 
+  @EqualsAndHashCode.Exclude @Builder.Default private boolean isDeleted = false;
+
   @Enumerated(STRING)
   @JdbcTypeCode(NAMED_ENUM)
   private SpecializationField specializationField;
@@ -103,10 +113,10 @@ public class User implements Serializable {
 
   private String profilePictureKey;
 
-  // RELATION (TEACHER): Awarded Courses
+  // RELATION (TEACHER): Course Assignment
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
   @ToString.Exclude
-  private List<AwardedCourse> awardedCourses;
+  private List<CourseAssignment> courseAssignments;
 
   // RELATION (STUDENT): Group Flows
   @OneToMany(mappedBy = "student", fetch = LAZY)
@@ -223,6 +233,14 @@ public class User implements Serializable {
         + ", highSchoolOrigin='"
         + highSchoolOrigin
         + '}';
+  }
+
+  public Optional<Group> findCurrentGroup() {
+    var lastGroupFlow =
+        this.getGroupFlows().stream()
+            .filter(groupFlow -> JOIN.equals(groupFlow.getGroupFlowType()))
+            .max(Comparator.comparing(GroupFlow::getFlowDatetime));
+    return lastGroupFlow.map(GroupFlow::getGroup);
   }
 
   public enum Sex {

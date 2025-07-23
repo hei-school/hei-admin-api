@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
-import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
+import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.Group;
@@ -38,11 +38,11 @@ import school.hei.haapi.model.User;
 public class FakeDataProvider {
   private static final Faker faker = new Faker();
 
-  public static List<CreateAwardedCourse> someCreatableCreateAwardedCourseList(
-      int nbOfCreateAwardedCourse) {
-    List<CreateAwardedCourse> createAwardedCourseList = new ArrayList<>();
-    for (int i = 0; i < nbOfCreateAwardedCourse; i++) {
-      createAwardedCourseList.add(createAwardedCourse());
+  public static List<CrupdateCourseAssignment> someCreatableCreateAwardedCourseList(
+      int nbOfCrupdateCourseAssignment) {
+    List<CrupdateCourseAssignment> createAwardedCourseList = new ArrayList<>();
+    for (int i = 0; i < nbOfCrupdateCourseAssignment; i++) {
+      createAwardedCourseList.add(createCourseAssignment());
     }
     return createAwardedCourseList;
   }
@@ -66,10 +66,10 @@ public class FakeDataProvider {
     return "%s%s".formatted(prefix, faker.number().digits(5));
   }
 
-  public static CreateAwardedCourse createAwardedCourse() {
-    return new CreateAwardedCourse()
+  public static CrupdateCourseAssignment createCourseAssignment() {
+    return new CrupdateCourseAssignment()
         .courseId("course2_id")
-        .groupId("group2_id")
+        .groupIds(List.of("group2_id"))
         .mainTeacherId("teacher2_id");
   }
 
@@ -121,7 +121,14 @@ public class FakeDataProvider {
         beginDatetime.toInstant(),
         faker.date().between(beginDatetime, faker.date().past(10, DAYS)).toInstant(),
         null,
-        new Course("", "", "", 0, 0, List.of()),
+        Course.builder()
+            .id("")
+            .code("")
+            .name("")
+            .credits(0)
+            .totalHours(0)
+            .courseAssignments(List.of())
+            .build(),
         List.of());
   }
 

@@ -43,9 +43,9 @@ public class UserManagerDao {
     Join<User, WorkDocument> workDocumentJoin = null;
     Predicate predicate = builder.conjunction();
 
-    if (courseId != null && !courseId.isEmpty() && !courseId.isBlank()) {
-      Join<User, AwardedCourse> awardedCourseJoin = root.join("awardedCourses", LEFT);
-      Join<AwardedCourse, Course> courseJoin = awardedCourseJoin.join("course", LEFT);
+    if (courseId != null && !courseId.isBlank()) {
+      Join<User, CourseAssignment> courseAssignmentJoin = root.join("courseAssignments", LEFT);
+      Join<CourseAssignment, Course> courseJoin = courseAssignmentJoin.join("course", LEFT);
       Expression<String> courseIdExpression = courseJoin.get("id");
       predicate = builder.and(predicate, builder.equal(courseIdExpression, courseId));
     }
@@ -159,27 +159,6 @@ public class UserManagerDao {
     }
 
     query.where(predicate).orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
-
-    return entityManager
-        .createQuery(query)
-        .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
-        .setMaxResults(pageable.getPageSize())
-        .getResultList();
-  }
-
-  public List<User> findByLinkedCourse(User.Role role, String courseId, Pageable pageable) {
-    CriteriaBuilder builder = entityManager.getCriteriaBuilder();
-    CriteriaQuery<User> query = builder.createQuery(User.class);
-    Root<User> root = query.from(User.class);
-    Join<User, AwardedCourse> awardedCourse = root.join("awardedCourses");
-    Join<AwardedCourse, Course> course = awardedCourse.join("course");
-
-    Predicate hasCourseId = builder.equal(course.get("id"), courseId);
-    Predicate hasUserRole = builder.equal(root.get("role"), role);
-    query
-        .distinct(true)
-        .where(builder.and(hasUserRole, hasCourseId))
-        .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
 
     return entityManager
         .createQuery(query)

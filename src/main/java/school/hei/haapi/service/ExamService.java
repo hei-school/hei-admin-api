@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.time.Instant;
@@ -15,6 +14,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.ExamValidator;
 import school.hei.haapi.repository.ExamRepository;
@@ -36,7 +36,7 @@ public class ExamService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "examinationDate"));
     return examRepository
-        .findExamsByGroupIdAndAwardedGroupId(groupId, awardedCourseId, pageable)
+        .findExamsByGroupIdAndCourseAssignmentId(groupId, awardedCourseId, pageable)
         .toList();
   }
 
@@ -56,14 +56,19 @@ public class ExamService {
     return savedExams;
   }
 
+  private Grade initializeExamGrade(Exam exam, User user) {
+    return gradeRepository
+        .getGradeByExamIdAndStudentId(exam.getId(), user.getId())
+        .orElse(new Grade(exam, user));
+  }
+
   private List<Grade> initializeExamGrades(Exam exam) {
-    return userService.getByGroupId(exam.getAwardedCourse().getGroup().getId()).stream()
-        .map(
-            student ->
-                gradeRepository
-                    .getGradeByExamIdAndStudentId(exam.getId(), student.getId())
-                    .orElse(new Grade(exam, student)))
-        .collect(toUnmodifiableList());
+    return exam.getCourseAssignment().getGroups().stream()
+        .map(group -> userService.getByGroupId(group.getId()))
+        .flatMap(List::stream)
+        .distinct()
+        .map(user -> initializeExamGrade(exam, user))
+        .toList();
   }
 
   public Exam getExamById(String id) {

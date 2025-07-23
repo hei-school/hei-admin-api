@@ -7,28 +7,28 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.model.AwardedCourse;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.exception.BadRequestException;
 
 @Component
 @AllArgsConstructor
-public class AwardedCourseValidator implements Consumer<AwardedCourse> {
+public class CourseAssignmentValidator implements Consumer<CourseAssignment> {
 
-  public void accept(List<AwardedCourse> awardedCourses) {
-    awardedCourses.forEach(this);
+  public void accept(List<CourseAssignment> courseAssignments) {
+    courseAssignments.forEach(this);
   }
 
   @Override
-  public void accept(AwardedCourse awardedCourse) {
+  public void accept(CourseAssignment courseAssignment) {
     Set<String> violationMessages = new HashSet<>();
-    if (awardedCourse.getCourse() == null) {
+    if (courseAssignment.getCourse() == null) {
       violationMessages.add("Course is mandatory");
     }
-    if (awardedCourse.getMainTeacher() == null) {
+    if (courseAssignment.getMainTeacher() == null) {
       violationMessages.add("Teacher is mandatory");
     }
-    if (awardedCourse.getGroup() == null) {
-      violationMessages.add("Group is mandatory");
+    if (courseAssignment.getGroups() == null) {
+      violationMessages.add("Groups are mandatory");
     }
     if (!violationMessages.isEmpty()) {
       String formattedViolationMessages =

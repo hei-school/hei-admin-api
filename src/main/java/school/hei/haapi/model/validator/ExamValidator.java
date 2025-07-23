@@ -27,7 +27,7 @@ public class ExamValidator implements Consumer<Exam> {
     if (exam.getTitle() == null) {
       violationMessages.add("Title is mandatory");
     }
-    if (exam.getAwardedCourse() == null) {
+    if (exam.getCourseAssignment() == null) {
       violationMessages.add("Awarded course is mandatory");
     }
     if (exam.getExaminationDate() == null) {

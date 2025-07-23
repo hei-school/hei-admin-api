@@ -8,11 +8,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
-import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.service.CourseAssignmentService;
 
 @AllArgsConstructor
 public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
-  private final AwardedCourseService awardedCourseService;
+  private final CourseAssignmentService courseAssignmentService;
   private final HttpMethod method;
   private final String antPattern;
 
@@ -23,13 +23,16 @@ public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
       return false;
     }
     Principal principal = AuthProvider.getPrincipal();
-    String awardedCourseIdFromRequest = getSelfId(request, "awarded_courses");
-    String groupIdFromRequest = getSelfId(request, "groups");
-    return awardedCourseService.checkTeacherOfAwardedCourse(
-        principal.getUserId(), awardedCourseIdFromRequest, groupIdFromRequest);
+    String courseAssignmentIdFromRequest = getCourseAssignmentId(request, "course_assignments");
+    return courseAssignmentService.checkTeacherOfCourseAssignment(
+        principal.getUserId(), courseAssignmentIdFromRequest);
   }
 
-  private String getSelfId(HttpServletRequest request, String stringBeforeId) {
+  /*
+   * TODO: Refactor make a superclass for this
+   *  Same function in SelfMatcher
+   */
+  private String getCourseAssignmentId(HttpServletRequest request, String stringBeforeId) {
     Pattern SELFABLE_URI_PATTERN = Pattern.compile(stringBeforeId + "/(?<id>[^/]+)(/.*)?");
     Matcher uriMatcher = SELFABLE_URI_PATTERN.matcher(request.getRequestURI());
     return uriMatcher.find() ? uriMatcher.group("id") : null;
