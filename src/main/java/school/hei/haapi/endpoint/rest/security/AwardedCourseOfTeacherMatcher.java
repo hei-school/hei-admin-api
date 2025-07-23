@@ -23,13 +23,12 @@ public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
       return false;
     }
     Principal principal = AuthProvider.getPrincipal();
-    String awardedCourseIdFromRequest = getSelfId(request, "awarded_courses");
-    String groupIdFromRequest = getSelfId(request, "groups");
+    String courseAssignmentIdFromRequest = getCourseAssignmentId(request, "course_assignments");
     return courseAssignmentService.checkTeacherOfCourseAssignment(
-        principal.getUserId(), awardedCourseIdFromRequest, groupIdFromRequest);
+        principal.getUserId(), courseAssignmentIdFromRequest);
   }
 
-  private String getSelfId(HttpServletRequest request, String stringBeforeId) {
+  private String getCourseAssignmentId(HttpServletRequest request, String stringBeforeId) {
     Pattern SELFABLE_URI_PATTERN = Pattern.compile(stringBeforeId + "/(?<id>[^/]+)(/.*)?");
     Matcher uriMatcher = SELFABLE_URI_PATTERN.matcher(request.getRequestURI());
     return uriMatcher.find() ? uriMatcher.group("id") : null;
