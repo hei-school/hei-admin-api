@@ -52,8 +52,8 @@ public class CourseAssignmentService {
     return courseAssignmentRepository.findAllByGroupId(groupId, pageable);
   }
 
-  public CourseAssignment getById(String id, String groupId) {
-    return courseAssignmentRepository.getByIdAndGroupId(id, groupId);
+  public CourseAssignment getById(String id) {
+    return courseAssignmentRepository.getById(id);
   }
 
   @Transactional
@@ -67,9 +67,8 @@ public class CourseAssignmentService {
     return courseAssignmentRepository.save(courseAssignment);
   }
 
-  public boolean checkTeacherOfCourseAssignment(
-      String teacherId, String courseAssignmentId, String groupId) {
-    CourseAssignment courseAssignment = getById(courseAssignmentId, groupId);
+  public boolean checkTeacherOfCourseAssignment(String teacherId, String courseAssignmentId) {
+    CourseAssignment courseAssignment = getById(courseAssignmentId);
     return teacherId.equals(courseAssignment.getMainTeacher().getId());
   }
 
@@ -87,13 +86,6 @@ public class CourseAssignmentService {
     }
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
     return courseAssignmentRepository.findAllByMainTeacher(teacher.get(), pageable);
-  }
-
-  @Transactional
-  public List<CourseAssignment> crupdateCourseAssignmentsByTeacherId(
-      String teacherId, List<CourseAssignment> courseAssignments) {
-    courseAssignmentValidator.accept(courseAssignments);
-    return courseAssignmentRepository.saveAll(courseAssignments);
   }
 
   public CourseAssignment getCourseAssignmentById(String courseAssignmentId) {
