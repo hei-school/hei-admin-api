@@ -29,7 +29,7 @@ public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
   }
 
   /*
-   * TODO: Refactor make a SupperClass for this
+   * TODO: Refactor make a superclass for this
    *  Same function in SelfMatcher
    */
   private String getCourseAssignmentId(HttpServletRequest request, String stringBeforeId) {
