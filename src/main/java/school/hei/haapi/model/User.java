@@ -113,10 +113,10 @@ public class User implements Serializable {
 
   private String profilePictureKey;
 
-  // RELATION (TEACHER): Awarded Courses
+  // RELATION (TEACHER): Course Assignment
   @OneToMany(fetch = FetchType.LAZY, mappedBy = "mainTeacher")
   @ToString.Exclude
-  private List<CourseAssignment> awardedCourses;
+  private List<CourseAssignment> courseAssignments;
 
   // RELATION (STUDENT): Group Flows
   @OneToMany(mappedBy = "student", fetch = LAZY)

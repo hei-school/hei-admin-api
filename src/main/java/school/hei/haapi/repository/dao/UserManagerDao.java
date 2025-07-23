@@ -43,7 +43,7 @@ public class UserManagerDao {
     Join<User, WorkDocument> workDocumentJoin = null;
     Predicate predicate = builder.conjunction();
 
-    if (courseId != null && !courseId.isEmpty() && !courseId.isBlank()) {
+    if (courseId != null && !courseId.isBlank()) {
       Join<User, CourseAssignment> courseAssignmentJoin = root.join("courseAssignments", LEFT);
       Join<CourseAssignment, Course> courseJoin = courseAssignmentJoin.join("course", LEFT);
       Expression<String> courseIdExpression = courseJoin.get("id");
