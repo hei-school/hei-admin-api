@@ -28,6 +28,10 @@ public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
         principal.getUserId(), courseAssignmentIdFromRequest);
   }
 
+  /*
+   * TODO: Refactor make a SupperClass for this
+   *  Same function in SelfMatcher
+   */
   private String getCourseAssignmentId(HttpServletRequest request, String stringBeforeId) {
     Pattern SELFABLE_URI_PATTERN = Pattern.compile(stringBeforeId + "/(?<id>[^/]+)(/.*)?");
     Matcher uriMatcher = SELFABLE_URI_PATTERN.matcher(request.getRequestURI());
