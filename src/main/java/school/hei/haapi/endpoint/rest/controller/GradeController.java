@@ -14,13 +14,17 @@ import school.hei.haapi.endpoint.rest.model.CourseAssignmentExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.ResultSummary;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
+import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.endpoint.rest.validator.GradeValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
@@ -87,5 +91,17 @@ public class GradeController {
   @GetMapping(value = "/exams/{exam_id}/grade/stats")
   public ExamGradeStats getExamGradeStats(@PathVariable(value = "exam_id") String examsId) {
     return gradeService.getExamGradeStats(examsId);
+  }
+
+  @GetMapping("/students/{student_id}/yearly_results/{student_level}")
+  public YearlyResult getYearlyResult(
+      @PathVariable("student_id") String studentId,
+      @PathVariable("student_level") StudentLevel studentLevel) {
+    throw new NotImplementedException("This method is not yet implemented");
+  }
+
+  @GetMapping("/students/{student_id}/results_summary")
+  public ResultSummary getResultSummary(@PathVariable("student_id") String studentId) {
+    throw new NotImplementedException("This method is not yet implemented");
   }
 }
