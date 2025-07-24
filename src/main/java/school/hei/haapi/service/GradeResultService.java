@@ -8,8 +8,9 @@ import school.hei.haapi.model.exception.NotImplementedException;
 
 @Service
 @AllArgsConstructor
-public class YearlyResultService {
-  public YearlyResult getLevelYearlyResultByStudentId(StudentLevel level, String studentId) {
+public class GradeResultService {
+  public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
     throw new NotImplementedException("Need to be implemented");
   }
+
 }
