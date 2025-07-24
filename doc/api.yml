@@ -477,17 +477,17 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{student_id}/yearly_results:
+  /students/{student_id}/yearly_results/{student_level}:
     get:
       tags:
         - Grades
-      summary: Get the yearly results of a given student for all levels
+      summary: Get the yearly results of a given student for the given level.
       operationId: getYearlyResults
       parameters:
         - $ref: "#/components/parameters/PathStudentId"
         - name: student_level
-          required: false
-          in: query
+          required: true
+          in: path
           schema:
             $ref: "#/components/schemas/StudentLevel"
       responses:
@@ -530,6 +530,31 @@ paths:
                 type: array
                 items:
                   $ref: "#/components/schemas/Grade"
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/results_summary:
+    get:
+      tags:
+        - Grades
+      summary: Get the results of a given student for all levels
+      operationId: getResultsSummary
+      parameters:
+        - $ref: "#/components/parameters/PathStudentId"
+      responses:
+        '200':
+          description: Yearly result of the specified student.
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/YearlyResult"
         '400':
           $ref: '#/components/responses/400'
         '403':
