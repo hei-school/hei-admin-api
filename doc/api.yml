@@ -6570,7 +6570,7 @@ components:
           type: number
           format: double
         obtained_credits:
-          format: number
+          type: number
         course_results:
           type: array
           items:
