@@ -481,8 +481,8 @@ paths:
     get:
       tags:
         - Grades
-      summary: Get the yearly results of a given student for the given level.
-      operationId: getYearlyResults
+      summary: Get the yearly result of a given student for the given level.
+      operationId: getYearlyResult
       parameters:
         - $ref: "#/components/parameters/PathStudentId"
         - name: student_level
@@ -6549,7 +6549,7 @@ components:
       properties:
         id:
           type: string
-        couse:
+        course:
           $ref: "#/components/schemas/Course"
         weighted_average:
           type: number
