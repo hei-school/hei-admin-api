@@ -6385,6 +6385,8 @@ components:
       properties:
         id:
           type: string
+        level:
+          $ref: "#/components/schemas/StudentLevel"
         code:
           type: string
           example: PROG1
