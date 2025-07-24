@@ -99,8 +99,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     List<StudentGrade> studentGrades = gradesApi.getParticipantsGradeForExam(exam.getId(), 1, 10);
     assertEquals(
         groupsApi.getStudentsByGroupId(group1().getId(), 1, 10, null).size(), studentGrades.size());
-    assertTrue(
-        studentGrades.stream().allMatch(grade -> grade.getGrade().getScore() == 0));
+    assertTrue(studentGrades.stream().allMatch(grade -> grade.getGrade().getScore() == 0));
   }
 
   // TODO : check test data because student_1 is now in group_2 according to group_flows4_id
