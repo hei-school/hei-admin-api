@@ -1,3 +1,12 @@
+## [1.104.2](https://github.com/hei-school/hei-admin-api/compare/v1.104.1...v1.104.2) (2025-07-24)
+
+
+### Bug Fixes
+
+* advanced fee stats not updating expired field ([db595c1](https://github.com/hei-school/hei-admin-api/commit/db595c1583bd5f1b6272f5103955ddf3c95a4ede))
+
+
+
 ## [1.104.1](https://github.com/hei-school/hei-admin-api/compare/v1.104.0...v1.104.1) (2025-07-10)
 
 
@@ -121,30 +130,6 @@
 
 * advanced fee statistics scheduler wrong event type sent ([7546133](https://github.com/hei-school/hei-admin-api/commit/754613334feb5a5a60ec0bd3f569b4913cf1b87e))
 * wrong event consumer class name ([2efd6e8](https://github.com/hei-school/hei-admin-api/commit/2efd6e81816589886d84e25908e1dc3fe7d71c34))
-
-
-
-# [1.99.0](https://github.com/hei-school/hei-admin-api/compare/v1.98.0...v1.99.0) (2025-03-04)
-
-
-### Bug Fixes
-
-* advanced fee stats compute event ([72f94a8](https://github.com/hei-school/hei-admin-api/commit/72f94a8b99b5d1cb084cb7dc1302589e2c737792))
-* correct count of event create by frequency ([69da6ad](https://github.com/hei-school/hei-admin-api/commit/69da6adfc93aeebb756171a40aad4e34ab835151))
-* creation event by frequency ([76b6cdb](https://github.com/hei-school/hei-admin-api/commit/76b6cdb0da66a01a787fa62586545e70b643d647))
-* handle null comment on fee advanced stats ([75973dd](https://github.com/hei-school/hei-admin-api/commit/75973dd607cd9aa888c994be926bec95af6defe6))
-* handle null value in export students as xlsx function params ([d304806](https://github.com/hei-school/hei-admin-api/commit/d304806349e3b8dfe9f8a0eb333f1d8f32a40647))
-* start of event create by frequency ([0aec301](https://github.com/hei-school/hei-admin-api/commit/0aec3010483cffa0fc28a0448a4ee965ce4b1509))
-
-
-### Features
-
-* **not-implemented:** announcements reaction ([01d72cd](https://github.com/hei-school/hei-admin-api/commit/01d72cdaad44d97cf33c6ba2bb76c031b5f095e1))
-
-
-### Reverts
-
-* Revert "promotion: preprod to prod" ([9047d5d](https://github.com/hei-school/hei-admin-api/commit/9047d5d1a535750320e757df768f9dff85b4ec6a))
 
 
 
