@@ -1,3 +1,12 @@
+# [1.105.0](https://github.com/hei-school/hei-admin-api/compare/v1.104.2...v1.105.0) (2025-07-24)
+
+
+### Features
+
+* **not-implemented:** add course_results and yearly_results endpoint ([5044897](https://github.com/hei-school/hei-admin-api/commit/50448978e5639aa45420fa75b2dfeabed7c96105))
+
+
+
 ## [1.104.2](https://github.com/hei-school/hei-admin-api/compare/v1.104.1...v1.104.2) (2025-07-24)
 
 
@@ -120,16 +129,6 @@
 ### Reverts
 
 * Revert "infra(to-revert): rm synchronisation with release" ([da03dc7](https://github.com/hei-school/hei-admin-api/commit/da03dc7fce99ca5dcf26931a6089c7af9206c38b))
-
-
-
-## [1.99.1](https://github.com/hei-school/hei-admin-api/compare/v1.99.0...v1.99.1) (2025-03-12)
-
-
-### Bug Fixes
-
-* advanced fee statistics scheduler wrong event type sent ([7546133](https://github.com/hei-school/hei-admin-api/commit/754613334feb5a5a60ec0bd3f569b4913cf1b87e))
-* wrong event consumer class name ([2efd6e8](https://github.com/hei-school/hei-admin-api/commit/2efd6e81816589886d84e25908e1dc3fe7d71c34))
 
 
 
