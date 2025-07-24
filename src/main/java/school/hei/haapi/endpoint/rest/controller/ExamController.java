@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.ExamMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateExam;
-import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.Exam;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -29,7 +29,7 @@ public class ExamController {
   private final ExamMapper examMapper;
 
   @GetMapping("/course_assignments/{course_assignment_id}/exams")
-  public List<ExamInfo> getExamsByAwardedCourse(
+  public List<Exam> getExamsByAwardedCourse(
       @PathVariable(name = "course_assignment_id") String id,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
@@ -39,7 +39,7 @@ public class ExamController {
   }
 
   @GetMapping("/exams")
-  public List<ExamInfo> getAllExams(
+  public List<Exam> getAllExams(
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize,
       @RequestParam(value = "title", required = false) String title,
@@ -61,18 +61,18 @@ public class ExamController {
   }
 
   @GetMapping("/exams/{id}")
-  public ExamInfo getExam(@PathVariable(name = "id") String id) {
+  public Exam getExam(@PathVariable(name = "id") String id) {
     return examMapper.toRest(examService.getExamById(id));
   }
 
   @PutMapping("/exams")
-  public ExamInfo createOrUpdateExamsInfos(@RequestBody CrupdateExam examInfo) {
+  public Exam createOrUpdateExamsInfos(@RequestBody CrupdateExam examInfo) {
     return examMapper.toRest(
         examService.updateOrSaveAll(List.of(examMapper.toDomain(examInfo))).getFirst());
   }
 
   @GetMapping(value = "/groups/{group_id}/course_assignments/{course_assignment_id}/exams")
-  public List<ExamInfo> getAwardedCourseExams(
+  public List<Exam> getAwardedCourseExams(
       @PathVariable("group_id") String groupId,
       @PathVariable("course_assignment_id") String courseAssignmentId,
       @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
@@ -85,9 +85,9 @@ public class ExamController {
   }
 
   @PutMapping(value = "/course_assignments/{course_assignment_id}/exams")
-  public List<ExamInfo> createOrUpdateExams(
+  public List<Exam> createOrUpdateExams(
       @PathVariable("course_assignment_id") String courseAssignmentId,
-      @RequestBody List<ExamInfo> examInfos) {
+      @RequestBody List<Exam> examInfos) {
     return examService
         .updateOrSaveAll(
             examInfos.stream()
@@ -104,7 +104,7 @@ public class ExamController {
 
   @GetMapping(
       value = "/groups/{group_id}/course_assignments/{course_assignment_id}/exams/{exam_id}")
-  public ExamInfo getExamById(
+  public Exam getExamById(
       @PathVariable("group_id") String groupId,
       @PathVariable("course_assignment_id") String courseAssignmentId,
       @PathVariable("exam_id") String examId) {

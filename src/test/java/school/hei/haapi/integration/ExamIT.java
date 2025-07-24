@@ -42,9 +42,9 @@ import school.hei.haapi.endpoint.rest.api.GradesApi;
 import school.hei.haapi.endpoint.rest.api.GroupsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
-import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.Exam;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.StudentGrades;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
@@ -74,7 +74,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void manager_read_exam_details_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     GradesApi api = new GradesApi(manager1Client);
-    List<StudentGrade> studentGrades = api.getParticipantsGradeForExam(EXAM1_ID, 1, 1);
+    List<StudentGrades> studentGrades = api.getParticipantsGradeForExam(EXAM1_ID, 1, 1);
     assertEquals(studentGrade1(), studentGrades.getFirst());
   }
 
@@ -92,15 +92,15 @@ class ExamIT extends FacadeITMockedThirdParties {
     GradesApi gradesApi = new GradesApi(anApiClient(TEACHER1_TOKEN));
     GroupsApi groupsApi = new GroupsApi(anApiClient(TEACHER1_TOKEN));
 
-    List<ExamInfo> exams =
-        examsApi.createOrUpdateExams(COURSE_ASSIGNMENT1_ID, List.of(createExam()));
+    List<Exam> exams = examsApi.createOrUpdateExams(COURSE_ASSIGNMENT1_ID, List.of(createExam()));
     assertEquals(1, exams.size());
-    ExamInfo exam = exams.getFirst();
+    Exam exam = exams.getFirst();
 
-    List<StudentGrade> studentGrades = gradesApi.getParticipantsGradeForExam(exam.getId(), 1, 10);
+    List<StudentGrades> studentGrades = gradesApi.getParticipantsGradeForExam(exam.getId(), 1, 10);
     assertEquals(
         groupsApi.getStudentsByGroupId(group1().getId(), 1, 10, null).size(), studentGrades.size());
-    assertTrue(studentGrades.stream().allMatch(grade -> grade.getGrade().getScore() == 0));
+    assertTrue(
+        studentGrades.stream().allMatch(grade -> grade.getGrade().getFirst().getScore() == 0));
   }
 
   // TODO : check test data because student_1 is now in group_2 according to group_flows4_id
@@ -140,7 +140,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     ExamsApi api = new ExamsApi(manager1Client);
     String exam1Id = exam1().getId();
-    ExamInfo actual = api.getExamOneExamById(exam1Id);
+    Exam actual = api.getExamOneExamById(exam1Id);
     assertDoesNotThrow(() -> api.getExamOneExamById(exam1Id));
     assertEquals(actual, exam1());
   }
@@ -150,7 +150,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     ExamsApi api = new ExamsApi(teacher1Client);
     String exam1Id = exam1().getId();
-    ExamInfo actual = api.getExamOneExamById(exam1Id);
+    Exam actual = api.getExamOneExamById(exam1Id);
     assertDoesNotThrow(() -> api.getExamOneExamById(exam1Id));
     assertEquals(actual, exam1());
   }
@@ -160,7 +160,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void manager_read_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     ExamsApi api = new ExamsApi(manager1Client);
-    List<ExamInfo> actual =
+    List<Exam> actual =
         api.getAllExams(null, null, null, null, Instant.parse("2022-10-09T08:25:24Z"), null, 1, 10);
 
     assertTrue(actual.contains(exam1()));
@@ -174,7 +174,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void filter_exam_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     ExamsApi api = new ExamsApi(manager1Client);
-    List<ExamInfo> filteredExams =
+    List<Exam> filteredExams =
         api.getAllExams(
             null,
             exam2().getTitle(),
@@ -202,7 +202,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     ExamsApi api = new ExamsApi(teacher1Client);
-    List<ExamInfo> actual = api.getAllExams(null, null, "", "", null, null, 1, 10);
+    List<Exam> actual = api.getAllExams(null, null, "", "", null, null, 1, 10);
 
     assertTrue(actual.contains(exam1()));
     assertTrue(actual.contains(exam2()));
@@ -215,7 +215,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void teacher_create_or_update_exam_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     ExamsApi api = new ExamsApi(teacher1Client);
-    ExamInfo actualCreate = api.createOrUpdateExamsInfos(createExam1());
+    Exam actualCreate = api.createOrUpdateExamsInfos(createExam1());
 
     assertEquals("Algorithmics", actualCreate.getTitle());
     assertEquals(2, actualCreate.getCoefficient());
@@ -239,7 +239,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void manager_create_or_update_exam_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     ExamsApi api = new ExamsApi(manager1Client);
-    ExamInfo actualCreate = api.createOrUpdateExamsInfos(createExam1());
+    Exam actualCreate = api.createOrUpdateExamsInfos(createExam1());
 
     assertEquals("Algorithmics", actualCreate.getTitle());
     assertEquals(2, actualCreate.getCoefficient());

@@ -4,10 +4,9 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateExam;
-import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.Exam;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.model.CourseAssignment;
-import school.hei.haapi.model.Exam;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.GradeService;
 
@@ -18,8 +17,8 @@ public class ExamMapper {
   private CourseAssignmentService courseAssignmentService;
   private GradeService gradeService;
 
-  public ExamInfo toRest(Exam exam) {
-    return new ExamInfo()
+  public Exam toRest(school.hei.haapi.model.Exam exam) {
+    return new Exam()
         .id(exam.getId())
         .coefficient(exam.getCoefficient())
         .title(exam.getTitle())
@@ -27,8 +26,8 @@ public class ExamMapper {
         .courseAssignment(courseAssignmentMapper.toRest(exam.getCourseAssignment()));
   }
 
-  public Exam toDomain(ExamInfo examInfo, CourseAssignment courseAssignment) {
-    return Exam.builder()
+  public school.hei.haapi.model.Exam toDomain(Exam examInfo, CourseAssignment courseAssignment) {
+    return school.hei.haapi.model.Exam.builder()
         .id(examInfo.getId())
         .coefficient(examInfo.getCoefficient())
         .title(examInfo.getTitle())
@@ -37,10 +36,10 @@ public class ExamMapper {
         .build();
   }
 
-  public Exam toDomain(CrupdateExam createExam) {
+  public school.hei.haapi.model.Exam toDomain(CrupdateExam createExam) {
     CourseAssignment courseAssignment =
         courseAssignmentService.getCourseAssignmentById(createExam.getCourseAssignmentId());
-    return Exam.builder()
+    return school.hei.haapi.model.Exam.builder()
         .id(createExam.getId())
         .coefficient(createExam.getCoefficient())
         .title(createExam.getTitle())
@@ -49,11 +48,12 @@ public class ExamMapper {
         .build();
   }
 
-  public List<ExamInfo> toRestList(List<Exam> examList) {
+  public List<Exam> toRestList(List<school.hei.haapi.model.Exam> examList) {
     return examList.stream().map(this::toRest).toList();
   }
 
-  public StudentExamGrade toRestStudentExamGrade(String studentId, Exam exam) {
+  public StudentExamGrade toRestStudentExamGrade(
+      String studentId, school.hei.haapi.model.Exam exam) {
     return new StudentExamGrade()
         .exam(toRest(exam))
         .score(gradeService.getGradeByExamIdAndStudentId(exam.getId(), studentId).getScore());
