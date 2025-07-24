@@ -554,7 +554,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/YearlyResult"
+                $ref: "#/components/schemas/ResultSummary"
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -6563,14 +6563,22 @@ components:
         - IN_PROGRESS
         - INCOMPLETE
         - NOT_STARTED
+    ResultSummary:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/ResultsOverview"
+      properties:
+        yearly_results:
+          type: array
+          items:
+            $ref: "#/components/schemas/YearlyResult"
     YearlyResult:
       type: object
+      allOf:
+        - $ref: "#/components/schemas/ResultsOverview"
       properties:
-        weighted_average:
-          type: number
-          format: double
-        obtained_credits:
-          type: number
+        level:
+          $ref: "#/components/schemas/StudentLevel"
         course_results:
           type: array
           items:
@@ -6594,6 +6602,14 @@ components:
           type: number
           format: double
           example: 12.5
+    ResultsOverview:
+      type: object
+      properties:
+        weighted_average:
+          type: number
+          format: double
+        obtained_credits:
+          type: number
     StudentGrades:
       properties:
         grade:
