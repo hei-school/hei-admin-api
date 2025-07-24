@@ -1927,7 +1927,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/StudentGrades'
+                  $ref: '#/components/schemas/StudentGrade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1965,7 +1965,7 @@ paths:
             application/json:
               schema:
                 items:
-                  $ref: '#/components/schemas/StudentGrades'
+                  $ref: '#/components/schemas/StudentGrade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -6612,12 +6612,10 @@ components:
           format: double
         obtained_credits:
           type: number
-    StudentGrades:
+    StudentGrade:
       properties:
         grade:
-          type: array
-          items:
-            $ref: '#/components/schemas/Grade'
+          $ref: '#/components/schemas/Grade'
         student:
           $ref: '#/components/schemas/Student'
     UpdateGrade:
@@ -6633,7 +6631,7 @@ components:
         exams:
           type: array
           items:
-            $ref: '#/components/schemas/StudentGrades'
+            $ref: '#/components/schemas/StudentGrade'
     CreateAttendanceMovement:
       type: object
       properties:

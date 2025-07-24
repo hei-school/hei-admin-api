@@ -44,7 +44,7 @@ import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Exam;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
-import school.hei.haapi.endpoint.rest.model.StudentGrades;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
@@ -74,7 +74,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void manager_read_exam_details_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     GradesApi api = new GradesApi(manager1Client);
-    List<StudentGrades> studentGrades = api.getParticipantsGradeForExam(EXAM1_ID, 1, 1);
+    List<StudentGrade> studentGrades = api.getParticipantsGradeForExam(EXAM1_ID, 1, 1);
     assertEquals(studentGrade1(), studentGrades.getFirst());
   }
 
@@ -96,11 +96,10 @@ class ExamIT extends FacadeITMockedThirdParties {
     assertEquals(1, exams.size());
     Exam exam = exams.getFirst();
 
-    List<StudentGrades> studentGrades = gradesApi.getParticipantsGradeForExam(exam.getId(), 1, 10);
+    List<StudentGrade> studentGrades = gradesApi.getParticipantsGradeForExam(exam.getId(), 1, 10);
     assertEquals(
         groupsApi.getStudentsByGroupId(group1().getId(), 1, 10, null).size(), studentGrades.size());
-    assertTrue(
-        studentGrades.stream().allMatch(grade -> grade.getGrade().getFirst().getScore() == 0));
+    assertTrue(studentGrades.stream().allMatch(grade -> grade.getGrade().getScore() == 0));
   }
 
   // TODO : check test data because student_1 is now in group_2 according to group_flows4_id
