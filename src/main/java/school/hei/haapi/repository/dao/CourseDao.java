@@ -27,14 +27,15 @@ public class CourseDao {
   // todo: to review
 
   public List<Course> findByCriteria(
-          String code,
-          String name,
-          Integer credits,
-          String teacherFirstName,
-          String teacherLastName,
-          String creditsOrder,
-          String codeOrder,
-          StudentLevel studentLevel, Pageable pageable) {
+      String code,
+      String name,
+      Integer credits,
+      String teacherFirstName,
+      String teacherLastName,
+      String creditsOrder,
+      String codeOrder,
+      StudentLevel studentLevel,
+      Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
     Root<Course> root = query.from(Course.class);
@@ -100,9 +101,7 @@ public class CourseDao {
     }
 
     if (pageable.isUnpaged()) {
-      return entityManager
-              .createQuery(query)
-              .getResultList();
+      return entityManager.createQuery(query).getResultList();
     }
 
     return entityManager
