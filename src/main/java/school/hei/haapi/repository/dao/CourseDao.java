@@ -71,7 +71,7 @@ public class CourseDao {
     }
 
     if (studentLevel != null) {
-      predicates.add(builder.equal(teacher.get("student_level"), studentLevel));
+      predicates.add(builder.equal(root.get("studentLevel"), studentLevel));
     }
 
     Predicate hasCredits =
@@ -97,6 +97,12 @@ public class CourseDao {
       query.orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
     } else {
       query.orderBy(orders);
+    }
+
+    if (pageable.isUnpaged()) {
+      return entityManager
+              .createQuery(query)
+              .getResultList();
     }
 
     return entityManager
