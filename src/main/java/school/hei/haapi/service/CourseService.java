@@ -44,8 +44,8 @@ public class CourseService {
         teacherFirstName,
         teacherLastName,
         creditsOrder == null ? null : creditsOrder.name(),
-        codeOrder == null ? null : codeOrder.name(),
-        pageable);
+        codeOrder == null ? null : codeOrder.name(), null,
+            pageable);
   }
 
   @Transactional

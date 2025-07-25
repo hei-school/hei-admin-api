@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.User;
@@ -26,14 +27,14 @@ public class CourseDao {
   // todo: to review
 
   public List<Course> findByCriteria(
-      String code,
-      String name,
-      Integer credits,
-      String teacherFirstName,
-      String teacherLastName,
-      String creditsOrder,
-      String codeOrder,
-      Pageable pageable) {
+          String code,
+          String name,
+          Integer credits,
+          String teacherFirstName,
+          String teacherLastName,
+          String creditsOrder,
+          String codeOrder,
+          StudentLevel studentLevel, Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
     Root<Course> root = query.from(Course.class);
@@ -67,6 +68,10 @@ public class CourseDao {
       predicates.add(
           builder.like(
               builder.lower(teacher.get("firstName")), "%" + teacherFirstName.toLowerCase() + "%"));
+    }
+
+    if (studentLevel != null) {
+      predicates.add(builder.equal(teacher.get("student_level"), studentLevel));
     }
 
     Predicate hasCredits =
