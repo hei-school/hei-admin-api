@@ -111,6 +111,7 @@ import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
@@ -877,11 +878,23 @@ public class TestUtils {
   }
 
   public static Course course1() {
-    return new Course().id(COURSE1_ID).code("PROG1").credits(6).totalHours(20).name("Algorithmics");
+    return new Course()
+        .id(COURSE1_ID)
+        .code("PROG1")
+        .credits(6)
+        .totalHours(20)
+        .name("Algorithmics")
+        .level(StudentLevel.L1);
   }
 
   public static Course course2() {
-    return new Course().id(COURSE2_ID).code("PROG3").credits(6).totalHours(24).name("Advanced OOP");
+    return new Course()
+        .id(COURSE2_ID)
+        .code("PROG3")
+        .credits(6)
+        .totalHours(24)
+        .name("Advanced OOP")
+        .level(StudentLevel.L2);
   }
 
   public static Course course3() {
@@ -890,7 +903,8 @@ public class TestUtils {
         .code("IA2")
         .credits(null)
         .totalHours(null)
-        .name("Implemented IA");
+        .name("Implemented IA")
+        .level(StudentLevel.L2);
   }
 
   public static CourseAssignment courseAssignment1() {

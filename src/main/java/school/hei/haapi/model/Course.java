@@ -50,10 +50,10 @@ public class Course implements Serializable {
 
   private Integer totalHours;
 
-  @Column(name = "\"level\"")
+  @Column(name = "\"student_level\"")
   @Enumerated(STRING)
   @JdbcTypeCode(NAMED_ENUM)
-  private StudentLevel level;
+  private StudentLevel studentLevel;
 
   @EqualsAndHashCode.Exclude @Builder.Default private boolean isDeleted = false;
 
