@@ -55,7 +55,6 @@ public class GradeResultService {
             courseResults.stream().mapToDouble(CourseResult::getWeightedAverage).sum()
                 / totalCredits)
         .obtainedCredits(BigDecimal.valueOf(obtainedCredits))
-        .level(level)
         .courseResults(courseResults);
   }
 
