@@ -81,9 +81,9 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
     groupFlowsAxel = createGroupFlow(studentAxel, groupG1);
     groupFlowsTolojanahary = createGroupFlow(studentTolojanahary, groupG1);
     assign_web1_toToky = createCourseAssignment(courseProg1, teacherToky, List.of(groupG1));
-    exam1Prog1 =
-        createExam(Instant.parse("2025-07-22T10:15:30Z"), assign_web1_toToky, gradesExam1Prog1);
+    exam1Prog1 = createExam(Instant.parse("2025-07-22T10:15:30Z"), assign_web1_toToky);
     gradesExam1Prog1 = someGrade(List.of(studentAxel, studentTolojanahary), exam1Prog1);
+    exam1Prog1.setGrades(gradesExam1Prog1);
 
     groupRepository.save(groupG1);
     userRepository.saveAll(List.of(studentAxel, studentTolojanahary));

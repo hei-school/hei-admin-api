@@ -2,6 +2,7 @@ package school.hei.haapi.integration.test_data;
 
 import static java.util.UUID.randomUUID;
 
+import com.github.javafaker.Faker;
 import java.time.Instant;
 import java.util.ArrayList;
 import school.hei.haapi.model.User;
@@ -12,7 +13,7 @@ public class StudentTestData {
         .id(randomUUID().toString())
         .firstName("Axel")
         .lastName("HEI")
-        .email("axel.dev@hei.school")
+        .email(new Faker().internet().emailAddress())
         .ref("STD" + randomUUID())
         .phone("+261 34 94 543 21")
         .address("123 Avenue de l'Indépendance")
@@ -28,7 +29,7 @@ public class StudentTestData {
         .id(randomUUID().toString())
         .firstName("Tolojanahary")
         .lastName("HEI")
-        .email("tolojanahary@hei.school")
+        .email(new Faker().internet().emailAddress())
         .ref("STD" + randomUUID())
         .phone("+261 34 83 765 43")
         .address("456 Rue de la République")
