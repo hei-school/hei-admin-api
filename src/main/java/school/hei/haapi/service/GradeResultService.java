@@ -4,7 +4,6 @@ import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.VALIDATED;
 import static school.hei.haapi.model.grade.GradeUtils.weightedAverageOfGrades;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -16,7 +15,6 @@ import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
-import school.hei.haapi.model.Course;
 import school.hei.haapi.repository.dao.CourseDao;
 import school.hei.haapi.repository.dao.GradeDao;
 
@@ -41,19 +39,17 @@ public class GradeResultService {
     var coursesForSpecificLevel =
         courseDao.findByCriteria(
             null, null, null, null, null, null, null, level, Pageable.unpaged());
-    List<CourseResult> courseResults = new ArrayList<>();
 
-    for (Course course : coursesForSpecificLevel) {
-      double courseWeightedAverageOfGrades =
-          weightedAverageOfGrades(gradeDao.getStudentGradesByCourseId(course.getId(), studentId));
-      courseResults.add(
-          new CourseResult()
-              .course(courseMapper.toRest(course))
-              .weightedAverage(courseWeightedAverageOfGrades)
-              .status(VALIDATED));
-    }
-
-    return courseResults;
+    return coursesForSpecificLevel.stream()
+        .map(
+            course ->
+                new CourseResult()
+                    .course(courseMapper.toRest(course))
+                    .weightedAverage(
+                        weightedAverageOfGrades(
+                            gradeDao.getStudentGradesByCourseId(course.getId(), studentId)))
+                    .status(VALIDATED))
+        .toList();
   }
 
   private BigDecimal obtainedCreditsOfCourseResults(List<CourseResult> courseResults) {
