@@ -28,18 +28,24 @@ public class GradeResultService {
   private CourseMapper courseMapper;
 
   public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
+    var courseResults = courseResultsForLevelOfStudent(level, studentId);
+
+    return new YearlyResult()
+        .level(level)
+        .weightedAverage(weightedSumOfCourseResults(courseResults))
+        .obtainedCredits(obtainedCreditsOfCourseResults(courseResults))
+        .courseResults(courseResults);
+  }
+
+  private List<CourseResult> courseResultsForLevelOfStudent(StudentLevel level, String studentId) {
     var coursesForSpecificLevel =
         courseDao.findByCriteria(
             null, null, null, null, null, null, null, level, Pageable.unpaged());
-    double obtainedCredits = 0;
     List<CourseResult> courseResults = new ArrayList<>();
 
     for (Course course : coursesForSpecificLevel) {
       double courseWeightedAverageOfGrades =
           weightedAverageOfGrades(gradeDao.getStudentGradesByCourseId(course.getId(), studentId));
-      if (courseWeightedAverageOfGrades >= 10) {
-        obtainedCredits += course.getCredits();
-      }
       courseResults.add(
           new CourseResult()
               .course(courseMapper.toRest(course))
@@ -47,11 +53,18 @@ public class GradeResultService {
               .status(VALIDATED));
     }
 
-    return new YearlyResult()
-        .level(level)
-        .weightedAverage(weightedSumOfCourseResults(courseResults))
-        .obtainedCredits(BigDecimal.valueOf(obtainedCredits))
-        .courseResults(courseResults);
+    return courseResults;
+  }
+
+  private BigDecimal obtainedCreditsOfCourseResults(List<CourseResult> courseResults) {
+    return BigDecimal.valueOf(
+        courseResults.stream()
+            .mapToDouble(
+                courseResult ->
+                    courseResult.getWeightedAverage() >= 10
+                        ? courseResult.getCourse().getCredits()
+                        : 0.)
+            .sum());
   }
 
   private double weightedSumOfCourseResults(List<CourseResult> courseResults) {
