@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
@@ -16,16 +17,18 @@ import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.dao.CourseDao;
 import school.hei.haapi.repository.dao.GradeDao;
+import school.hei.haapi.service.utils.CourseResultUtils;
 
 class GradeResultServiceTest {
-  private GradeDao gradeDao = mock();
-  private CourseDao courseDao = mock();
-  private GradeResultService gradeResultService =
-      new GradeResultService(courseDao, gradeDao, new CourseMapper());
+  private final GradeDao gradeDao = mock();
+  private final CourseDao courseDao = mock();
+  private final GradeResultService gradeResultService =
+      new GradeResultService(new CourseResultUtils(courseDao, gradeDao, new CourseMapper()));
 
   @Test
   void correct_result() {
-    var student1 = User.builder().id("id").ref("STD22075").build();
+    var targetLevel = L1;
+    var student1 = User.builder().id("id").build();
     var mgt1Grade =
         Grade.builder().score(17.75).exam(Exam.builder().coefficient(1).build()).build();
     var prog1Grade =
@@ -42,7 +45,8 @@ class GradeResultServiceTest {
     var web1Course = Course.builder().id("web1").credits(6).build();
     var sys1Course = Course.builder().id("sys1").credits(6).build();
     var lv1Course = Course.builder().id("lv1").credits(4).build();
-    when(courseDao.findByCriteria(any(), any(), any(), any(), any(), any(), any(), any(), any()))
+    when(courseDao.findByCriteria(
+            any(), any(), any(), any(), any(), any(), any(), eq(targetLevel), any()))
         .thenReturn(
             List.of(mgt1Course, prog1Course, donne1Course, web1Course, sys1Course, lv1Course));
     when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
@@ -59,9 +63,9 @@ class GradeResultServiceTest {
         .thenReturn(List.of(lv1Grade));
 
     YearlyResult result =
-        gradeResultService.getLeveledYearlyResultByStudentId(L1, student1.getId());
+        gradeResultService.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
 
-    assertEquals(L1, result.getLevel());
+    assertEquals(targetLevel, result.getLevel());
     assertEquals(30., result.getObtainedCredits().doubleValue());
     assertEquals(6, result.getCourseResults().size());
     assertEquals(15.347666666666667, result.getWeightedAverage().doubleValue());
