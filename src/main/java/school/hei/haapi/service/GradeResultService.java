@@ -31,14 +31,12 @@ public class GradeResultService {
     var coursesForSpecificLevel =
         courseDao.findByCriteria(
             null, null, null, null, null, null, null, level, Pageable.unpaged());
-    double totalCredits = 0;
     double obtainedCredits = 0;
     List<CourseResult> courseResults = new ArrayList<>();
 
     for (Course course : coursesForSpecificLevel) {
       double courseWeightedAverageOfGrades =
           weightedAverageOfGrades(gradeDao.getStudentGradesByCourseId(course.getId(), studentId));
-      totalCredits += course.getCredits();
       if (courseWeightedAverageOfGrades >= 10) {
         obtainedCredits += course.getCredits();
       }
@@ -51,11 +49,20 @@ public class GradeResultService {
 
     return new YearlyResult()
         .level(level)
-        .weightedAverage(
-            courseResults.stream().mapToDouble(CourseResult::getWeightedAverage).sum()
-                / totalCredits)
+        .weightedAverage(weightedSumOfCourseResults(courseResults))
         .obtainedCredits(BigDecimal.valueOf(obtainedCredits))
         .courseResults(courseResults);
+  }
+
+  private double weightedSumOfCourseResults(List<CourseResult> courseResults) {
+    return courseResults.stream()
+            .mapToDouble(
+                courseResult ->
+                    courseResult.getWeightedAverage() * courseResult.getCourse().getCredits())
+            .sum()
+        / courseResults.stream()
+            .mapToDouble(courseResult -> courseResult.getCourse().getCredits())
+            .sum();
   }
 
   public ResultSummary getStudentResultSummary(String studentId) {
