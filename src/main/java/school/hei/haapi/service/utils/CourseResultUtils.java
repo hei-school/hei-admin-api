@@ -14,31 +14,33 @@ import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.exception.CourseCreditsSumZero;
-import school.hei.haapi.repository.dao.CourseDao;
+import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.ExamService;
 
 @Component
 @AllArgsConstructor
 public class CourseResultUtils {
-  private CourseDao courseDao;
+  private CourseAssignmentDao courseAssignmentDao;
   private GradeDao gradeDao;
   private CourseMapper courseMapper;
   private ExamService examService;
 
   public List<CourseResult> courseResultsForLevelOfStudent(StudentLevel level, String studentId) {
     var coursesForSpecificLevel =
-        courseDao.findByCriteria(
-            null, null, null, null, null, null, null, level, Pageable.unpaged());
+        courseAssignmentDao.findByCriteria(null, null, level, Pageable.unpaged());
 
     return coursesForSpecificLevel.stream()
         .map(
-            course -> {
-              var studentGrades = gradeDao.getStudentGradesByCourseId(course.getId(), studentId);
-              var examsOfTheCourse = examService.getExamsByCourseAssignmentId(course.getId());
+            courseAssignment -> {
+              var studentGrades =
+                  gradeDao.getStudentGradesByCourseId(
+                      courseAssignment.getCourse().getId(), studentId);
+              var examsOfTheCourse =
+                  examService.getExamsByCourseAssignmentId(courseAssignment.getId());
               var courseResult =
                   new CourseResult()
-                      .course(courseMapper.toRest(course))
+                      .course(courseMapper.toRest(courseAssignment.getCourse()))
                       .weightedAverage(weightedAverageOfGrades(studentGrades));
               if (studentGrades.isEmpty()) {
                 return courseResult.status(NOT_STARTED);

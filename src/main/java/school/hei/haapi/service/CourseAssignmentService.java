@@ -22,7 +22,7 @@ import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.CourseAssignmentValidator;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.UserRepository;
-import school.hei.haapi.repository.dao.CourseAssignmentDAO;
+import school.hei.haapi.repository.dao.CourseAssignmentDao;
 
 @Slf4j
 @Service
@@ -32,7 +32,7 @@ public class CourseAssignmentService {
   private final CourseAssignmentRepository courseAssignmentRepository;
   private final CourseAssignmentMapper courseAssignmentMapper;
   private final CourseAssignmentValidator courseAssignmentValidator;
-  private final CourseAssignmentDAO courseAssignmentDAO;
+  private final CourseAssignmentDao courseAssignmentDAO;
 
   public Optional<CourseAssignment> findById(String courseAssignmentId) {
     return courseAssignmentRepository.findById(courseAssignmentId);
@@ -78,7 +78,7 @@ public class CourseAssignmentService {
   public List<CourseAssignment> getByCriteria(
       String teacherId, String courseId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return courseAssignmentDAO.findByCriteria(teacherId, courseId, pageable);
+    return courseAssignmentDAO.findByCriteria(teacherId, courseId, null, pageable);
   }
 
   public List<CourseAssignment> getByTeacherId(
