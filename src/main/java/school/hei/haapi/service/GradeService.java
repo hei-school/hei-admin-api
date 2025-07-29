@@ -15,7 +15,9 @@ import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.GradeRepository;
+import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.GradeDao;
 
 @Slf4j
@@ -24,7 +26,14 @@ import school.hei.haapi.repository.dao.GradeDao;
 public class GradeService {
   private final GradeRepository gradeRepository;
   private final GradeDao gradeDao;
-  private final UserService userService;
+  private final UserRepository userRepository;
+  private final CourseAssignmentRepository courseAssignmentRepository;
+
+  public List<Grade> getGradesByStudentId(String studentId) {
+    var student = userRepository.getById(studentId);
+    log.info("getGradesByStudentId: {}", student);
+    return gradeRepository.getAllByStudent(student);
+  }
 
   public Grade getGradeByExamIdAndStudentId(String examId, String studentId) {
     return gradeRepository
@@ -38,37 +47,38 @@ public class GradeService {
         .orElseThrow(() -> new NotFoundException("grade with id " + id + " not found"));
   }
 
+  // TODO: make this obey the single-responsibility rule, at least in the name.
   @Transactional
   public Grade checkAndCreateOrModifyGrade(Grade grade) {
-    Optional<Grade> getGrade =
-        gradeRepository.findByExamIdAndStudentId(
-            grade.getExam().getId(), grade.getStudent().getId());
-    if (getGrade.isPresent()) {
-      Grade presentGrade = getGrade.get();
+    String examId = grade.getExam().getId();
+    String studentId = grade.getStudent().getId();
+
+    Optional<Grade> existingGrade = gradeRepository.findByExamIdAndStudentId(examId, studentId);
+    if (existingGrade.isPresent()) {
+      Grade presentGrade = existingGrade.get();
       presentGrade.setScore(grade.getScore());
       return presentGrade;
     }
-    Optional<Group> studentCurrentGroup = grade.getStudent().findCurrentGroup();
-    // TODO: refactor this to be more readable
-    if (studentCurrentGroup.isEmpty()) {
-      throw new BadRequestException(
-          String.format("Student with id: %s not in any group", grade.getStudent().getId()));
+
+    Optional<Group> studentGroup = grade.getStudent().findCurrentGroup();
+    if (studentGroup.isEmpty()) {
+      String error = String.format("Student with id %s is not in any group", studentId);
+      throw new BadRequestException(error);
     }
-    var isInAssignedGroups =
+
+    boolean isInAssignedGroup =
         grade.getExam().getCourseAssignment().getGroups().stream()
-            .anyMatch(group -> studentCurrentGroup.get().getId().equals(group.getId()));
-    if (!isInAssignedGroups) {
-      throw new BadRequestException(
-          String.format(
-              "Student with id: %s not in the Exam: %s",
-              grade.getStudent().getId(), grade.getExam().getId()));
+            .anyMatch(group -> group.getId().equals(studentGroup.get().getId()));
+    if (!isInAssignedGroup) {
+      String error = String.format("Student with id %s is not in exam %s", studentId, examId);
+      throw new BadRequestException(error);
     }
+
     return grade;
   }
 
   @Transactional
   public List<Grade> crupdateParticipantGrade(List<Grade> grades) {
-    log.info("crupdateParticipantGrade: {}", grades);
     return gradeRepository.saveAll(grades.stream().map(this::checkAndCreateOrModifyGrade).toList());
   }
 
@@ -93,7 +103,25 @@ public class GradeService {
     return new ExamGradeStats().average(getExamAverageGrade(examId));
   }
 
+  private boolean isGroupInCourse(Group studentCurrentGroup, String courseId) {
+    var pageable = Pageable.unpaged();
+    return courseAssignmentRepository.findAllByCourseId(courseId, pageable).stream()
+        .anyMatch(
+            courseAssignment ->
+                courseAssignment.getGroups().stream()
+                    .anyMatch(group -> group.getId().equals(studentCurrentGroup.getId())));
+  }
+
   public List<Grade> getGradesByStudentAndCourseId(String studentId, String courseId) {
+    var student = userRepository.getById(studentId);
+    var studentCurrentGroup = student.findCurrentGroup();
+    if (studentCurrentGroup.isEmpty()) {
+      throw new BadRequestException(String.format("Student with id: %s not in any group", student));
+    }
+    if (!isGroupInCourse(studentCurrentGroup.get(), courseId)) {
+      throw new BadRequestException(
+          String.format("Student's current group is not assigned to course with id: %s", courseId));
+    }
     return gradeRepository.getGradesByStudentIdAndCourseId(studentId, courseId);
   }
 }

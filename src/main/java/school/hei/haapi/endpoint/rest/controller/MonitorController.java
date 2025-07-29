@@ -1,7 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -46,7 +44,7 @@ public class MonitorController {
     toWrite.forEach(monitor -> validator.accept(monitor.getCoordinates()));
     return monitoringStudentService.crupdateAndLinkMonitorFollowingStudents(toWrite).stream()
         .map(userMapper::toRestMonitor)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @GetMapping(value = "/monitors")
@@ -60,6 +58,6 @@ public class MonitorController {
         .getByCriteria(User.Role.MONITOR, firstName, lastName, ref, page, pageSize)
         .stream()
         .map(userMapper::toRestMonitor)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 }

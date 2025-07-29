@@ -50,7 +50,7 @@ public class MonitoringStudentService {
                       }
                       return mappedMonitor;
                     })
-                .collect(toUnmodifiableList()));
+                .toList());
 
     monitors.forEach(
         monitor -> {
@@ -75,6 +75,14 @@ public class MonitoringStudentService {
 
   public List<User> getMonitorsByStudentId(String studentId) {
     return monitoringStudentRepository.findAllMonitorsByStudentId(studentId);
+  }
+
+  public List<String> getMonitorIdsByStudentId(String studentId) {
+    return monitoringStudentRepository.getAllMonitorsIdsByStudentId(studentId);
+  }
+
+  public List<String> getAllMonitors() {
+    return monitoringStudentRepository.getAllMonitors();
   }
 
   public List<User> getStudentsByMonitorId(

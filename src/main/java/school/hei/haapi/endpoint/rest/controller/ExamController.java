@@ -102,14 +102,14 @@ public class ExamController {
         .collect(toList());
   }
 
+  // TODO: remove the unnecessary path variables
   @GetMapping(
       value = "/groups/{group_id}/course_assignments/{course_assignment_id}/exams/{exam_id}")
   public Exam getExamById(
       @PathVariable("group_id") String groupId,
       @PathVariable("course_assignment_id") String courseAssignmentId,
       @PathVariable("exam_id") String examId) {
-    return examMapper.toRest(
-        examService.getExamsByIdAndGroupIdAndAwardedCourseId(examId, courseAssignmentId, groupId));
+    return examMapper.toRest(examService.getExamById(examId));
   }
 
   @GetMapping(value = "/courses/{course_id}/student/{student_id}/exams/grades")
