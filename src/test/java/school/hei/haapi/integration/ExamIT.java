@@ -258,7 +258,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void manager_get_exam_by_id_ok() throws ApiException {
+  void admin_get_exam_by_id_ok() throws ApiException {
     ApiClient admin1Client = anApiClient(ADMIN1_TOKEN);
     ExamsApi api = new ExamsApi(admin1Client);
     Exam actual = api.getExamById(COURSE_ASSIGNMENT1_ID, EXAM1_ID);

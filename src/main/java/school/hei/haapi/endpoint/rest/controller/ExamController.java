@@ -90,8 +90,7 @@ public class ExamController {
   }
 
   // TODO: remove the unnecessary path variables
-  @GetMapping(
-      value = "/course_assignments/{course_assignment_id}/exams/{exam_id}")
+  @GetMapping(value = "/course_assignments/{course_assignment_id}/exams/{exam_id}")
   public Exam getExamById(
       @PathVariable("course_assignment_id") String courseAssignmentId,
       @PathVariable("exam_id") String examId) {
