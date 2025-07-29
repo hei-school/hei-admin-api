@@ -1,5 +1,7 @@
 package school.hei.haapi.service.utils;
 
+import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
+import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.NOT_STARTED;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.VALIDATED;
 import static school.hei.haapi.model.grade.GradeUtils.weightedAverageOfGrades;
 
@@ -14,6 +16,7 @@ import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.exception.CourseCreditsSumZero;
 import school.hei.haapi.repository.dao.CourseDao;
 import school.hei.haapi.repository.dao.GradeDao;
+import school.hei.haapi.service.ExamService;
 
 @Component
 @AllArgsConstructor
@@ -21,6 +24,7 @@ public class CourseResultUtils {
   private CourseDao courseDao;
   private GradeDao gradeDao;
   private CourseMapper courseMapper;
+  private ExamService examService;
 
   public List<CourseResult> courseResultsForLevelOfStudent(StudentLevel level, String studentId) {
     var coursesForSpecificLevel =
@@ -29,13 +33,21 @@ public class CourseResultUtils {
 
     return coursesForSpecificLevel.stream()
         .map(
-            course ->
-                new CourseResult()
-                    .course(courseMapper.toRest(course))
-                    .weightedAverage(
-                        weightedAverageOfGrades(
-                            gradeDao.getStudentGradesByCourseId(course.getId(), studentId)))
-                    .status(VALIDATED))
+            course -> {
+              var studentGrades = gradeDao.getStudentGradesByCourseId(course.getId(), studentId);
+              var examsOfTheCourse = examService.getExamsByCourseAssignmentId(course.getId());
+              var courseResult =
+                  new CourseResult()
+                      .course(courseMapper.toRest(course))
+                      .weightedAverage(weightedAverageOfGrades(studentGrades));
+              if (studentGrades.isEmpty()) {
+                return courseResult.status(NOT_STARTED);
+              } else if (studentGrades.size() < examsOfTheCourse.size()) {
+                return courseResult.status(INCOMPLETE);
+              } else {
+                return courseResult.status(VALIDATED);
+              }
+            })
         .toList();
   }
 

@@ -27,22 +27,24 @@ import school.hei.haapi.service.utils.CourseResultUtils;
 class GradeResultServiceTest {
   private final GradeDao gradeDao = mock();
   private final CourseDao courseDao = mock();
+  private final ExamService examService = mock();
   private final GradeResultService gradeResultService =
-      new GradeResultService(new CourseResultUtils(courseDao, gradeDao, new CourseMapper()));
+      new GradeResultService(
+          new CourseResultUtils(courseDao, gradeDao, new CourseMapper(), examService));
 
   private final User student1 = User.builder().id("id").build();
-  private final Grade mgt1Grade =
-      Grade.builder().score(17.75).exam(Exam.builder().coefficient(1).build()).build();
-  private final Grade prog1Grade =
-      Grade.builder().score(13.59).exam(Exam.builder().coefficient(1).build()).build();
-  private final Grade donnees1Grade =
-      Grade.builder().score(15.4375).exam(Exam.builder().coefficient(1).build()).build();
-  private final Grade web1Grade =
-      Grade.builder().score(18.75).exam(Exam.builder().coefficient(1).build()).build();
-  private final Grade sys1Grade =
-      Grade.builder().score(13.).exam(Exam.builder().coefficient(1).build()).build();
-  private final Grade lv1Grade =
-      Grade.builder().score(13.91).exam(Exam.builder().coefficient(1).build()).build();
+  private final Exam mgt1Exam = Exam.builder().id("mgt1 exam").coefficient(1).build();
+  private final Exam prog1Exam = Exam.builder().id("prog1 exam").coefficient(1).build();
+  private final Exam donnees1Exam = Exam.builder().id("donnees1 exam").coefficient(1).build();
+  private final Exam web1Exam = Exam.builder().id("web1 exam").coefficient(1).build();
+  private final Exam sys1Exam = Exam.builder().id("sys1 exam").coefficient(1).build();
+  private final Exam lv1Exam = Exam.builder().id("lv1 exam").coefficient(1).build();
+  private final Grade mgt1Grade = Grade.builder().score(17.75).exam(mgt1Exam).build();
+  private final Grade prog1Grade = Grade.builder().score(13.59).exam(prog1Exam).build();
+  private final Grade donnees1Grade = Grade.builder().score(15.4375).exam(donnees1Exam).build();
+  private final Grade web1Grade = Grade.builder().score(18.75).exam(web1Exam).build();
+  private final Grade sys1Grade = Grade.builder().score(13.).exam(sys1Exam).build();
+  private final Grade lv1Grade = Grade.builder().score(13.91).exam(lv1Exam).build();
   private final Course mgt1Course = Course.builder().id("mgt1").credits(4).build();
   private final Course prog1Course = Course.builder().id("prog1").credits(6).build();
   private final Course donne1Course = Course.builder().id("donne1").credits(4).build();
@@ -64,6 +66,18 @@ class GradeResultServiceTest {
         .thenReturn(List.of(sys1Grade));
     when(gradeDao.getStudentGradesByCourseId(lv1Course.getId(), student1.getId()))
         .thenReturn(List.of(lv1Grade));
+
+    when(examService.getExamsByCourseAssignmentId(mgt1Course.getId()))
+        .thenReturn(List.of(mgt1Exam));
+    when(examService.getExamsByCourseAssignmentId(prog1Course.getId()))
+        .thenReturn(List.of(prog1Exam));
+    when(examService.getExamsByCourseAssignmentId(donne1Course.getId()))
+        .thenReturn(List.of(donnees1Exam));
+    when(examService.getExamsByCourseAssignmentId(web1Course.getId()))
+        .thenReturn(List.of(web1Exam));
+    when(examService.getExamsByCourseAssignmentId(sys1Course.getId()))
+        .thenReturn(List.of(sys1Exam));
+    when(examService.getExamsByCourseAssignmentId(lv1Course.getId())).thenReturn(List.of(lv1Exam));
 
     when(courseDao.findByCriteria(any(), any(), any(), any(), any(), any(), any(), eq(L1), any()))
         .thenReturn(
