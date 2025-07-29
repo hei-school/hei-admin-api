@@ -6,6 +6,7 @@ import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.VALIDATED;
 import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -78,6 +79,6 @@ public class CourseResultUtils {
                     courseResult ->
                         courseResult.getWeightedAverage() * courseResult.getCourse().getCredits())
                 .sum())
-        .divide(BigDecimal.valueOf(sumCoefficient));
+        .divide(BigDecimal.valueOf(sumCoefficient), MathContext.DECIMAL128);
   }
 }

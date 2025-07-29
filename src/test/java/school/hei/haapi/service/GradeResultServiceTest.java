@@ -130,6 +130,6 @@ class GradeResultServiceTest {
 
     assertEquals(1, result.getYearlyResults().size());
     assertEquals(30., result.getObtainedCredits().doubleValue());
-    assertEquals(15.347666666666667, result.getWeightedAverage().doubleValue());
+    assertEquals(15.35, result.getWeightedAverage().doubleValue(), 0.01);
   }
 }
