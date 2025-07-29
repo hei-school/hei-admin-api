@@ -135,13 +135,15 @@ class GroupIT extends FacadeITMockedThirdParties {
     assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
+  // TODO: fix interference that would put this on the next page, for now pageSize 10_000 groups per
+  // page is more than enough
   @Test
   void student_read_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
 
     GroupsApi api = new GroupsApi(student1Client);
     Group actual1 = api.getGroupById(GROUP1_ID);
-    List<Group> actualGroups = api.getGroups(null, null, 1, 10);
+    List<Group> actualGroups = api.getGroups(null, null, 1, 10_000);
 
     assertEquals(group1(), actual1, "Expected " + group1() + " to be in " + actual1);
     assertTrue(actualGroups.contains(group1()));
@@ -165,22 +167,24 @@ class GroupIT extends FacadeITMockedThirdParties {
     assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
+  // TODO: fix interference that would put this on the next page, for now pageSize 10_000 groups per
+  // page is more than enough
   @Test
   void manager_read_ok() throws ApiException {
     ApiClient client = anApiClient(MANAGER1_TOKEN);
     GroupsApi api = new GroupsApi(client);
 
-    List<Group> actualGroups = api.getGroups(null, null, 1, 50);
+    List<Group> actualGroups = api.getGroups(null, null, 1, 10_000);
     assertTrue(actualGroups.contains(group1()));
     assertTrue(actualGroups.contains(group2()));
     assertTrue(actualGroups.contains(updatedGroup3()));
 
-    List<Group> groupsFilteredByRef = api.getGroups("G1", null, 1, 50);
+    List<Group> groupsFilteredByRef = api.getGroups("G1", null, 1, 10_000);
     assertTrue(groupsFilteredByRef.contains(group1()));
     assertFalse(groupsFilteredByRef.contains(group2()));
     assertFalse(groupsFilteredByRef.contains(updatedGroup3()));
 
-    List<Group> groupsFilteredByStudentRef = api.getGroups(null, "STD21002", 1, 50);
+    List<Group> groupsFilteredByStudentRef = api.getGroups(null, "STD21002", 1, 10_000);
     assertTrue(groupsFilteredByStudentRef.contains(group1()));
     assertFalse(groupsFilteredByStudentRef.contains(group2()));
     assertFalse(groupsFilteredByStudentRef.contains(group3()));
