@@ -48,7 +48,8 @@ import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
 
-// TODO: isolate this test's data (please!) and add an @AfterEach when soft delete is added to all entities
+// TODO: isolate this test's data (please!) and add an @AfterEach when soft delete is added to all
+// entities
 @Testcontainers
 @AutoConfigureMockMvc
 class GroupIT extends FacadeITMockedThirdParties {
@@ -60,14 +61,10 @@ class GroupIT extends FacadeITMockedThirdParties {
   private List<String> studentIds = new ArrayList<>();
   private List<String> grooupFlowIds = new ArrayList<>();
 
-  @Autowired
-  private GroupRepository groupRepository;
-  @Autowired
-  private GroupMapper groupMapper;
-  @Autowired
-  private UserRepository userRepository;
-    @Autowired
-    private GroupFlowRepository groupFlowRepository;
+  @Autowired private GroupRepository groupRepository;
+  @Autowired private GroupMapper groupMapper;
+  @Autowired private UserRepository userRepository;
+  @Autowired private GroupFlowRepository groupFlowRepository;
 
   private void setUpTestData() {
     studentAxel = axel();
@@ -177,7 +174,8 @@ class GroupIT extends FacadeITMockedThirdParties {
     assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
-  // TODO: fix potential interference due to pagination, for now pageSize 250 groups per page is more than enough
+  // TODO: fix potential interference due to pagination, for now pageSize 250 groups per page is
+  // more than enough
   @Test
   void student_read_ok() throws ApiException {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
@@ -185,11 +183,13 @@ class GroupIT extends FacadeITMockedThirdParties {
     Group actualG1 = api.getGroupById(groupG1.getId());
     List<Group> actualGroups = api.getGroups(null, null, 1, 250);
 
-    // TODO: should be way cleaner if we could deal with @CreationTimestamp using PrePersist to avoid the auto-now
+    // TODO: should be way cleaner if we could deal with @CreationTimestamp using PrePersist to
+    // avoid the auto-now
     var restGroupG1 = groupMapper.toRest(groupG1);
     var restGroupG2 = groupMapper.toRest(groupG2);
     var actualG1NoTimestamp = cloneGroupNoTimestamp(actualG1);
-    var actualGroupsWithoutCreationTimestamp = actualGroups.stream().map(TestUtils::cloneGroupNoTimestamp).toList();
+    var actualGroupsWithoutCreationTimestamp =
+        actualGroups.stream().map(TestUtils::cloneGroupNoTimestamp).toList();
     var restGroupG1NoTimestamp = cloneGroupNoTimestamp(restGroupG1);
     var restGroupG2NoTimestamp = cloneGroupNoTimestamp(restGroupG2);
 
@@ -215,7 +215,8 @@ class GroupIT extends FacadeITMockedThirdParties {
     assertThrowsForbiddenException(() -> api.createOrUpdateGroups(List.of()));
   }
 
-  // TODO: fix potential interference with pagination, for now pageSize 250 groups per page is more than enough
+  // TODO: fix potential interference with pagination, for now pageSize 250 groups per page is more
+  // than enough
   @Test
   void manager_read_ok() throws ApiException {
     ApiClient client = anApiClient(MANAGER1_TOKEN);
@@ -225,21 +226,25 @@ class GroupIT extends FacadeITMockedThirdParties {
 
     // TODO: make it much cleaner once you deal with @CreationTimestamp in the model
     List<Group> actualGroups = api.getGroups(null, null, 1, 250);
-    var actualGroupsWithoutTimestamp = actualGroups.stream().map(TestUtils::cloneGroupNoTimestamp).toList();
+    var actualGroupsWithoutTimestamp =
+        actualGroups.stream().map(TestUtils::cloneGroupNoTimestamp).toList();
     var restGroupG1WithoutTimestamp = cloneGroupNoTimestamp(restGroupG1);
     var restGroupG2WithoutTimestamp = cloneGroupNoTimestamp(restGroupG2);
-    assertTrue(actualGroupsWithoutTimestamp.contains(restGroupG1WithoutTimestamp),
-            "Expected " + actualGroupsWithoutTimestamp + " to contain " + restGroupG1WithoutTimestamp);
+    assertTrue(
+        actualGroupsWithoutTimestamp.contains(restGroupG1WithoutTimestamp),
+        "Expected " + actualGroupsWithoutTimestamp + " to contain " + restGroupG1WithoutTimestamp);
     assertTrue(actualGroupsWithoutTimestamp.contains(restGroupG2WithoutTimestamp));
 
     List<Group> groupsFilteredByRef = api.getGroups(groupG1.getRef(), null, 1, 250);
-    var groupsFilteredByRefWithoutTimestamp = groupsFilteredByRef.stream().map(TestUtils::cloneGroupNoTimestamp).toList();
+    var groupsFilteredByRefWithoutTimestamp =
+        groupsFilteredByRef.stream().map(TestUtils::cloneGroupNoTimestamp).toList();
     assertTrue(groupsFilteredByRefWithoutTimestamp.contains(restGroupG1WithoutTimestamp));
     assertFalse(groupsFilteredByRefWithoutTimestamp.contains(restGroupG2WithoutTimestamp));
     assertEquals(1, groupsFilteredByRef.size());
 
     List<Group> groupsFilteredByStudentRef = api.getGroups(null, studentAxel.getRef(), 1, 250);
-    var groupsFilteredByStudentRefWithoutTimestamp = groupsFilteredByStudentRef.stream().map(TestUtils::cloneGroupNoTimestamp).toList();
+    var groupsFilteredByStudentRefWithoutTimestamp =
+        groupsFilteredByStudentRef.stream().map(TestUtils::cloneGroupNoTimestamp).toList();
     assertTrue(groupsFilteredByStudentRefWithoutTimestamp.contains(restGroupG1WithoutTimestamp));
     assertFalse(groupsFilteredByStudentRefWithoutTimestamp.contains(restGroupG2WithoutTimestamp));
   }

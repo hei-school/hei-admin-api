@@ -1822,9 +1822,7 @@ public class TestUtils {
     List<CourseAssignment> actualCloned =
         actual.stream().map(TestUtils::cloneCourseAssignmentNoTimestamp).toList();
     List<CourseAssignment> expectedCloned =
-        expected.stream()
-            .map(TestUtils::cloneCourseAssignmentNoTimestamp)
-            .toList();
+        expected.stream().map(TestUtils::cloneCourseAssignmentNoTimestamp).toList();
     assertTrue(
         "Actual list does not contain all expected elements"
             + actualCloned
@@ -1833,8 +1831,7 @@ public class TestUtils {
         actualCloned.containsAll(expectedCloned));
   }
 
-  private static CourseAssignment cloneCourseAssignmentNoTimestamp(
-      CourseAssignment original) {
+  private static CourseAssignment cloneCourseAssignmentNoTimestamp(CourseAssignment original) {
     CourseAssignment clone = new CourseAssignment();
     clone.setId(original.getId());
     clone.setMainTeacher(original.getMainTeacher());
