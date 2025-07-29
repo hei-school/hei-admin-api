@@ -35,9 +35,7 @@ import school.hei.haapi.service.UserService;
 @EnableWebSecurity
 public class SecurityConf {
   private static final String AUTHORIZATION_HEADER = "Authorization";
-  private final CourseAssignmentService awardedCourseService;
-  private final UserService userService;
-
+  private final CourseAssignmentService courseAssignmentService;
   private final AbstractUserDetailsAuthenticationProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
 
@@ -45,12 +43,11 @@ public class SecurityConf {
       CasdoorAuthProvider authProvider,
       // InternalToExternalErrorHandler behind
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
-      CourseAssignmentService awardedCourseService,
+      CourseAssignmentService courseAssignmentService,
       UserService userService) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
-    this.awardedCourseService = awardedCourseService;
-    this.userService = userService;
+    this.courseAssignmentService = courseAssignmentService;
   }
 
   @Bean
@@ -178,6 +175,7 @@ public class SecurityConf {
                     antMatcher(PUT, "/groups/*/course_assignments/*/exams"),
                     antMatcher(GET, "/groups/*/course_assignments/*/exams"),
                     antMatcher(GET, "/groups/*/course_assignments/*/exams/*"),
+                    antMatcher(GET, "/course_assignments/*/exams/*"),
                     antMatcher(GET, "/groups/*/course_assignments/*/exams/*/grades"),
                     antMatcher(GET, "/groups/*/course_assignments/*/exams/*/students/*/grade"),
                     antMatcher(GET, "/course_assignments"),
@@ -660,11 +658,11 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new CourseAssignmentTeacherMatcher(
-                            awardedCourseService, PUT, "/groups/*/course_assignments/*/exams"))
+                            courseAssignmentService, PUT, "/groups/*/course_assignments/*/exams"))
                     .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(GET, "/groups/*/course_assignments/*/exams")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(GET, "/groups/*/course_assignments/*/exams/*")
+                    .requestMatchers(GET, "/course_assignments/*/exams/*")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/groups/*/course_assignments/*/exams/*/grades")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
@@ -700,11 +698,9 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new CourseAssignmentTeacherMatcher(
-                            awardedCourseService, PUT, "/groups/*/course_assignments/*/exams"))
+                            courseAssignmentService, PUT, "/groups/*/course_assignments/*/exams"))
                     .hasAnyRole(TEACHER.getRole())
                     .requestMatchers(GET, "/groups/*/course_assignments/*/exams")
-                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
-                    .requestMatchers(GET, "/groups/*/course_assignments/*/exams/*")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/groups/*/course_assignments/*/exams/*/grades")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())

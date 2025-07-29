@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE_ASSIGNMENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
@@ -254,5 +255,14 @@ class ExamIT extends FacadeITMockedThirdParties {
     assertEquals(exam1(), studentExamsGrade.getFirst().getExam());
     assertEquals(grade2().getScore(), studentExamsGrade.get(1).getScore());
     assertEquals(exam2(), studentExamsGrade.get(1).getExam());
+  }
+
+  @Test
+  void manager_get_exam_by_id_ok() throws ApiException {
+    ApiClient admin1Client = anApiClient(ADMIN1_TOKEN);
+    ExamsApi api = new ExamsApi(admin1Client);
+    Exam actual = api.getExamById(COURSE_ASSIGNMENT1_ID, EXAM1_ID);
+
+    assertEquals(exam1(), actual);
   }
 }

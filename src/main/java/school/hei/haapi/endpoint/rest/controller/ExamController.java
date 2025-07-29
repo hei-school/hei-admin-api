@@ -71,19 +71,6 @@ public class ExamController {
         examService.updateOrSaveAll(List.of(examMapper.toDomain(examInfo))).getFirst());
   }
 
-  @GetMapping(value = "/groups/{group_id}/course_assignments/{course_assignment_id}/exams")
-  public List<Exam> getAwardedCourseExams(
-      @PathVariable("group_id") String groupId,
-      @PathVariable("course_assignment_id") String courseAssignmentId,
-      @RequestParam(value = "page", defaultValue = "1") PageFromOne page,
-      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize) {
-    return examService
-        .getExamsFromAwardedCourseIdAndGroupId(groupId, courseAssignmentId, page, pageSize)
-        .stream()
-        .map(examMapper::toRest)
-        .collect(toList());
-  }
-
   @PutMapping(value = "/course_assignments/{course_assignment_id}/exams")
   public List<Exam> createOrUpdateExams(
       @PathVariable("course_assignment_id") String courseAssignmentId,
@@ -104,9 +91,8 @@ public class ExamController {
 
   // TODO: remove the unnecessary path variables
   @GetMapping(
-      value = "/groups/{group_id}/course_assignments/{course_assignment_id}/exams/{exam_id}")
+      value = "/course_assignments/{course_assignment_id}/exams/{exam_id}")
   public Exam getExamById(
-      @PathVariable("group_id") String groupId,
       @PathVariable("course_assignment_id") String courseAssignmentId,
       @PathVariable("exam_id") String examId) {
     return examMapper.toRest(examService.getExamById(examId));
