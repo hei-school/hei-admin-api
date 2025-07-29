@@ -26,7 +26,7 @@ public class GradeResultService {
 
     return new YearlyResult()
         .level(level)
-        .weightedAverage(courseResultUtils.weightedSumOfCourseResults(courseResults))
+        .weightedAverage(courseResultUtils.weightedSumOfCourseResults(courseResults).doubleValue())
         .obtainedCredits(courseResultUtils.obtainedCreditsOfCourseResults(courseResults))
         .courseResults(courseResults);
   }

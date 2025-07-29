@@ -64,7 +64,7 @@ public class CourseResultUtils {
             .sum());
   }
 
-  public double weightedSumOfCourseResults(List<CourseResult> courseResults)
+  public BigDecimal weightedSumOfCourseResults(List<CourseResult> courseResults)
       throws CourseCreditsSumZero {
     double sumCoefficient =
         courseResults.stream()
@@ -72,11 +72,12 @@ public class CourseResultUtils {
             .sum();
     if (sumCoefficient == 0.0) throw new CourseCreditsSumZero();
 
-    return courseResults.stream()
-            .mapToDouble(
-                courseResult ->
-                    courseResult.getWeightedAverage() * courseResult.getCourse().getCredits())
-            .sum()
-        / sumCoefficient;
+    return BigDecimal.valueOf(
+            courseResults.stream()
+                .mapToDouble(
+                    courseResult ->
+                        courseResult.getWeightedAverage() * courseResult.getCourse().getCredits())
+                .sum())
+        .divide(BigDecimal.valueOf(sumCoefficient));
   }
 }
