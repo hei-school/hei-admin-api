@@ -42,13 +42,6 @@ public class GradeController {
     return gradeService.getGradesByStudentId(studentId).stream().map(gradeMapper::toRest).toList();
   }
 
-  @GetMapping(value = "/exams/{exam_id}/students/{student_id}/grade")
-  public StudentGrade getGradeOfStudentInOneExam(
-      @PathVariable("exam_id") String examId, @PathVariable("student_id") String studentId) {
-    return gradeMapper.toRestStudentGrade(
-        gradeService.getGradeByExamIdAndStudentId(examId, studentId));
-  }
-
   @PutMapping(value = "/exams/{exam_id}/students/{student_id}/grade")
   public Grade crupdateParticipantGrade(
       @PathVariable("exam_id") String examId,
