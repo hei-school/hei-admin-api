@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -30,16 +31,17 @@ public class GradeResultService {
         .courseResults(courseResults);
   }
 
-  private YearlyResult findLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
+  private Optional<YearlyResult> findLeveledYearlyResultByStudentId(
+      StudentLevel level, String studentId) {
     try {
-      return getLeveledYearlyResultByStudentId(level, studentId);
+      return Optional.of(getLeveledYearlyResultByStudentId(level, studentId));
     } catch (CourseCreditsSumZero e) {
       log.error(
           "Course results for the level {} of the student id {} coefficient sum is 0",
           level,
           studentId,
           e);
-      return null;
+      return Optional.empty();
     }
   }
 
@@ -47,7 +49,8 @@ public class GradeResultService {
     List<YearlyResult> yearlyResultList =
         Arrays.stream(StudentLevel.values())
             .map(level -> findLeveledYearlyResultByStudentId(level, studentId))
-            .filter(Objects::nonNull)
+            .filter(Optional::isPresent)
+            .map(Optional::get)
             .toList();
 
     int obtainedCredits =
