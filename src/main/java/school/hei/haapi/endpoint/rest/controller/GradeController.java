@@ -24,7 +24,6 @@ import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.GradeResultService;
 import school.hei.haapi.service.GradeService;
@@ -39,7 +38,7 @@ public class GradeController {
   private final GradeValidator validator;
   private final GradeService gradeService;
   private final GradeMapper gradeMapper;
-  private final GradeResultService  gradeResultService;
+  private final GradeResultService gradeResultService;
 
   // todo: to review all class
   @GetMapping("/students/{student_id}/grades")
@@ -104,6 +103,6 @@ public class GradeController {
 
   @GetMapping("/students/{student_id}/results_summary")
   public ResultSummary getResultSummary(@PathVariable("student_id") String studentId) {
-    throw new NotImplementedException("This method is not yet implemented");
+    return gradeResultService.getStudentResultSummary(studentId);
   }
 }
