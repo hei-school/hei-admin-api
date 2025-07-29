@@ -42,7 +42,9 @@ public class GradeResultService {
 
     double average =
         yearlyResultList.stream()
-            .mapToDouble(YearlyResult::getWeightedAverage)
+            .map(YearlyResult::getWeightedAverage)
+            .filter(Objects::nonNull)
+            .mapToDouble(Double::doubleValue)
             .average()
             .orElse(0.0);
 

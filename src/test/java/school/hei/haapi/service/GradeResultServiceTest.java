@@ -6,11 +6,13 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
+import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Exam;
@@ -61,14 +63,13 @@ class GradeResultServiceTest {
     when(gradeDao.getStudentGradesByCourseId(lv1Course.getId(), student1.getId()))
         .thenReturn(List.of(lv1Grade));
 
-    when(courseDao.findByCriteria(
-            any(), any(), any(), any(), any(), any(), any(), eq(L1), any()))
-            .thenReturn(
-                    List.of(mgt1Course, prog1Course, donne1Course, web1Course, sys1Course, lv1Course));
+    when(courseDao.findByCriteria(any(), any(), any(), any(), any(), any(), any(), eq(L1), any()))
+        .thenReturn(
+            List.of(mgt1Course, prog1Course, donne1Course, web1Course, sys1Course, lv1Course));
   }
 
   @Test
-  void correct_result_yearly_result() {
+  void correct_result_yearly_result_L1() {
     var targetLevel = L1;
 
     YearlyResult result =
@@ -77,6 +78,28 @@ class GradeResultServiceTest {
     assertEquals(targetLevel, result.getLevel());
     assertEquals(30., result.getObtainedCredits().doubleValue());
     assertEquals(6, result.getCourseResults().size());
+    assertEquals(15.347666666666667, result.getWeightedAverage().doubleValue());
+  }
+
+  @Test
+  void correct_result_yearly_result_M2_empty() {
+    var targetLevel = M2;
+
+    YearlyResult result =
+        gradeResultService.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
+
+    assertEquals(targetLevel, result.getLevel());
+    assertEquals(0, result.getObtainedCredits().doubleValue());
+    assertEquals(0, result.getCourseResults().size());
+    assertEquals(0, result.getWeightedAverage().doubleValue());
+  }
+
+  @Test
+  void correct_result_result_summary() {
+    ResultSummary result = gradeResultService.getStudentResultSummary(student1.getId());
+
+    assertEquals(5, result.getYearlyResults().size());
+    assertEquals(30., result.getObtainedCredits().doubleValue());
     assertEquals(15.347666666666667, result.getWeightedAverage().doubleValue());
   }
 }
