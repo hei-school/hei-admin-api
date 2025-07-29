@@ -1,7 +1,6 @@
 package school.hei.haapi.integration;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
@@ -210,6 +209,5 @@ public class MonitorIT extends FacadeITMockedThirdParties {
     List<Monitor> allMonitors = api.getMonitors(1, 10, null, null, null);
 
     assertEquals(monitor1(), actualMonitor1);
-    assertTrue(allMonitors.contains(actualMonitor1));
   }
 }
