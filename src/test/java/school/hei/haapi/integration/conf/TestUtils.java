@@ -975,8 +975,8 @@ public class TestUtils {
     return new Grade()
         .id(GRADE1_ID)
         .score(8.0)
-        .createdAt(Instant.parse("2022-10-09T08:25:24Z"))
-        .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
+        .exam(exam1())
+        .createdAt(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade2() {
