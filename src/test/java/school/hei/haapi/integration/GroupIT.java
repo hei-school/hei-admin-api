@@ -24,6 +24,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -37,6 +38,7 @@ import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 
+@Slf4j
 @Testcontainers
 @AutoConfigureMockMvc
 class GroupIT extends FacadeITMockedThirdParties {
@@ -141,7 +143,8 @@ class GroupIT extends FacadeITMockedThirdParties {
     Group actual1 = api.getGroupById(GROUP1_ID);
     List<Group> actualGroups = api.getGroups(null, null, 1, 10);
 
-    assertEquals(group1(), actual1);
+    log.info("actualGroups: {}", actualGroups);
+    assertEquals(group1(), actual1, "Expected " + group1() + " to be in " + actual1);
     assertTrue(actualGroups.contains(group1()));
     assertTrue(
         actualGroups.contains(group2()), "Expected " + actualGroups + " to contain " + group2());
