@@ -9,6 +9,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -48,5 +49,14 @@ public class Grade implements Serializable {
     this.score = 0.0;
     this.student = student;
     this.exam = exam;
+  }
+
+  public static double weightedAverageOfGrades(List<Grade> grades) {
+    double sumCoefficients =
+        grades.stream().map(Grade::getExam).mapToDouble(Exam::getCoefficient).sum();
+    return grades.stream()
+            .mapToDouble(grade -> grade.getScore() * grade.getExam().getCoefficient())
+            .sum()
+        / sumCoefficients;
   }
 }

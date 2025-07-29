@@ -3,7 +3,7 @@ package school.hei.haapi.service.utils;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.NOT_STARTED;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.VALIDATED;
-import static school.hei.haapi.model.grade.GradeUtils.weightedAverageOfGrades;
+import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 import java.math.BigDecimal;
 import java.util.List;
