@@ -3,7 +3,7 @@ package school.hei.haapi.model;
 import static java.time.LocalTime.MIDNIGHT;
 import static java.time.ZoneOffset.UTC;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
@@ -28,19 +28,19 @@ class PromotionTest {
             .startDatetime(LocalDate.now().minusYears(6).atTime(MIDNIGHT).toInstant(UTC))
             .build();
 
-    assertEquals(L1, promotionCreated6YearsAgo.findLevelAt(instantToBeL1));
-    assertEquals(L2, promotionCreated6YearsAgo.findLevelAt(instantToBeL2));
-    assertEquals(L3, promotionCreated6YearsAgo.findLevelAt(instantToBeL3));
-    assertEquals(M1, promotionCreated6YearsAgo.findLevelAt(instantToBeM1));
-    assertEquals(M2, promotionCreated6YearsAgo.findLevelAt(instantToBeM2));
-    assertNull(promotionCreated6YearsAgo.findLevelAt(instantOutOfRange));
+    assertEquals(L1, promotionCreated6YearsAgo.findLevelAt(instantToBeL1).get());
+    assertEquals(L2, promotionCreated6YearsAgo.findLevelAt(instantToBeL2).get());
+    assertEquals(L3, promotionCreated6YearsAgo.findLevelAt(instantToBeL3).get());
+    assertEquals(M1, promotionCreated6YearsAgo.findLevelAt(instantToBeM1).get());
+    assertEquals(M2, promotionCreated6YearsAgo.findLevelAt(instantToBeM2).get());
+    assertTrue(promotionCreated6YearsAgo.findLevelAt(instantOutOfRange).isEmpty());
   }
 
-  private Instant pastInstant(int yearsToSubtract, int monthsOffset) {
+  private static Instant pastInstant(int yearsToSubtract, int monthsOffset) {
     return pastInstant(yearsToSubtract, monthsOffset, 0);
   }
 
-  private Instant pastInstant(int yearsToSubtract, int monthsOffset, int daysOffset) {
+  private static Instant pastInstant(int yearsToSubtract, int monthsOffset, int daysOffset) {
     return LocalDate.now()
         .minusYears(yearsToSubtract)
         .plusMonths(monthsOffset)

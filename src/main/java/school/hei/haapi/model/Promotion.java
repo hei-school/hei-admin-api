@@ -16,6 +16,7 @@ import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -69,11 +70,11 @@ public class Promotion {
     };
   }
 
-  public StudentLevel findLevelAt(Instant levelInstant) {
+  public Optional<StudentLevel> findLevelAt(Instant levelInstant) {
     try {
-      return getLevelAt(levelInstant);
+      return Optional.of(getLevelAt(levelInstant));
     } catch (PromotionLevelOutOfRange e) {
-      return null;
+      return Optional.empty();
     }
   }
 }

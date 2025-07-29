@@ -23,7 +23,7 @@ public class ScholarshipCertificateDataProvider {
   }
 
   public String getAcademicYear(Promotion promotion, Instant from) {
-    return switch (promotion.findLevelAt(from)) {
+    return switch (promotion.findLevelAt(from).orElse(null)) {
       case L1 -> "Première";
       case L2 -> "Deuxième";
       case L3 -> "Troisième";
