@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,7 +18,6 @@ import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -106,7 +106,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
 
   private List<Grade> someGrade(List<User> students, Exam exam) {
     return students.stream()
-        .map(student -> new Grade(UUID.randomUUID().toString(), student, exam, 18.2, null))
+        .map(student -> new Grade(randomUUID().toString(), student, exam, 18.2, null))
         .toList();
   }
 

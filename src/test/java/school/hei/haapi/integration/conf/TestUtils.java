@@ -22,9 +22,6 @@ import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.RECEIVED;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.AIRTEL_MONEY;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
 import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
@@ -119,8 +116,8 @@ import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
+import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.FileService;
-import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -178,6 +175,7 @@ public class TestUtils {
   public static final String STUDENT13_TOKEN = "student13_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MONITOR1_TOKEN = "monitor1_token";
+  public static final String AXEL_MONITOR_TOKEN = "axel_monitor_token";
   public static final String MONITOR2_TOKEN = "monitor2_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
   public static final String STAFF_MEMBER1_TOKEN = "staff1_token";
@@ -219,7 +217,6 @@ public class TestUtils {
   public static final String EVENT_PARTICIPANT5_ID = "event_participant5_id";
 
   public static final String ORGANIZER1_ID = "organizer1_id";
-  public static final String ORGANIZER2_ID = "organizer2_id";
   public static final String ORGANIZER1_TOKEN = "organizer1_token";
   public static final String ORGANIZER2_TOKEN = "organizer2_token";
 
@@ -309,6 +306,18 @@ public class TestUtils {
     return user;
   }
 
+  public static CasdoorUser getCasdoorUserFromMonitor(User monitor) {
+    CasdoorUser user = new CasdoorUser();
+    user.setEmail(monitor.getEmail());
+    CasdoorRole casdoorRole = new CasdoorRole();
+    casdoorRole.setOwner("dummy");
+    casdoorRole.setName("manager");
+    String[] roleUsers = List.of("dummy/user").toArray(new String[0]);
+    casdoorRole.setUsers(roleUsers);
+    user.setRoles(List.of(casdoorRole));
+    return user;
+  }
+
   public static CasdoorUser getCasdoorUserMonitor2() {
     CasdoorUser user = getCasdoorUserMonitor1();
     user.setEmail("test+monitor2@hei.school");
@@ -383,14 +392,6 @@ public class TestUtils {
       client.setRequestInterceptor(
           httpRequestBuilder -> httpRequestBuilder.header("Authorization", "Bearer " + token));
     return client;
-  }
-
-  public static void setUpMobilePaymentApi(MobileMoneyApiFacade mobilePaymentApi) {
-    when(mobilePaymentApi.getByTransactionRef(MVOLA, "psp2_id")).thenReturn(psp2Verification());
-    when(mobilePaymentApi.getByTransactionRef(ORANGE_MONEY, "psp2_id"))
-        .thenThrow(school.hei.haapi.model.exception.ApiException.class);
-    when(mobilePaymentApi.getByTransactionRef(AIRTEL_MONEY, "psp2_id"))
-        .thenThrow(school.hei.haapi.model.exception.ApiException.class);
   }
 
   public static void setUpCognito(CognitoComponent cognitoComponent) {

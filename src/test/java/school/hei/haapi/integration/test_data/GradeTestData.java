@@ -28,7 +28,6 @@ public class GradeTestData {
                     .id(randomUUID().toString())
                     .exam(exam)
                     .student(student)
-                    .creationDatetime(Instant.parse("2025-06-22T11:00:00Z"))
                     .score(new Random().nextDouble(5, 20))
                     .build())
         .toList();

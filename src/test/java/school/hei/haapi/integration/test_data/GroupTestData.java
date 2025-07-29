@@ -14,7 +14,7 @@ public class GroupTestData {
         .name("G1")
         .ref(randomUUID().toString())
         .attributedColor("green")
-        .creationDatetime(Instant.now())
+        .creationDatetime(Instant.parse("2025-07-28T10:00:00Z"))
         .build();
   }
 
@@ -24,7 +24,7 @@ public class GroupTestData {
         .name("G2")
         .ref(randomUUID().toString())
         .attributedColor("blue")
-        .creationDatetime(Instant.now())
+        .creationDatetime(Instant.parse("2025-07-28T11:00:00Z"))
         .build();
   }
 
@@ -32,7 +32,7 @@ public class GroupTestData {
     return GroupFlow.builder()
         .id(randomUUID().toString())
         .group(toJoin)
-        .flowDatetime(Instant.now())
+        .flowDatetime(Instant.parse("2025-07-28T12:00:00Z"))
         .student(student)
         .groupFlowType(GroupFlow.GroupFlowType.JOIN)
         .build();
