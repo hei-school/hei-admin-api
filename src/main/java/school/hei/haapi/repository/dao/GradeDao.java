@@ -1,10 +1,11 @@
 package school.hei.haapi.repository.dao;
 
+import static jakarta.persistence.criteria.JoinType.INNER;
+
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
-import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Root;
 import jakarta.validation.constraints.NotNull;
 import java.util.List;
@@ -48,10 +49,9 @@ public class GradeDao {
     CriteriaQuery<Grade> query = builder.createQuery(Grade.class);
     Root<Grade> gradeRoot = query.from(Grade.class);
 
-    Join<Grade, Exam> examJoin = gradeRoot.join("exam", JoinType.INNER);
-    Join<Exam, CourseAssignment> courseAssignmentJoin =
-        examJoin.join("courseAssignment", JoinType.INNER);
-    Join<CourseAssignment, Course> courseJoin = courseAssignmentJoin.join("course", JoinType.INNER);
+    Join<Grade, Exam> examJoin = gradeRoot.join("exam", INNER);
+    Join<Exam, CourseAssignment> courseAssignmentJoin = examJoin.join("courseAssignment", INNER);
+    Join<CourseAssignment, Course> courseJoin = courseAssignmentJoin.join("course", INNER);
 
     query.where(
         builder.and(
