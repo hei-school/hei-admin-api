@@ -11,7 +11,7 @@ import school.hei.haapi.endpoint.rest.security.model.Principal;
 import school.hei.haapi.service.CourseAssignmentService;
 
 @AllArgsConstructor
-public class AwardedCourseOfTeacherMatcher implements RequestMatcher {
+public class CourseAssignmentTeacherMatcher implements RequestMatcher {
   private final CourseAssignmentService courseAssignmentService;
   private final HttpMethod method;
   private final String antPattern;

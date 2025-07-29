@@ -6,9 +6,7 @@ import lombok.AllArgsConstructor;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CourseAssignment;
-import school.hei.haapi.endpoint.rest.model.CourseAssignmentExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
-import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.User;
@@ -22,7 +20,6 @@ import school.hei.haapi.service.UserService;
 public class CourseAssignmentMapper {
   private final UserMapper userMapper;
   private final CourseMapper courseMapper;
-  private final GradeMapper gradeMapper;
   private final GroupMapper groupMapper;
   private final GroupService groupService;
   private final CourseService courseService;
@@ -69,30 +66,6 @@ public class CourseAssignmentMapper {
   public List<CourseAssignment> toRest(
       List<school.hei.haapi.model.CourseAssignment> courseAssignments) {
     return courseAssignments.stream().map(this::toRest).toList();
-  }
-
-  public CourseAssignmentExam toRest(
-      school.hei.haapi.model.CourseAssignment courseAssignment,
-      List<StudentGrade> studentExamGrades) {
-    return new CourseAssignmentExam()
-        .id(courseAssignment.getId())
-        .exams(studentExamGrades)
-        .mainTeacher(userMapper.toRestTeacher(courseAssignment.getMainTeacher()))
-        .course(courseMapper.toRest(courseAssignment.getCourse()))
-        .groups(groupMapper.toRest(courseAssignment.getGroups()));
-  }
-
-  public List<CourseAssignmentExam> toRest(
-      List<school.hei.haapi.model.CourseAssignment> courseAssignments, User student) {
-    var courseAssignmentExams = new ArrayList<CourseAssignmentExam>();
-    for (var courseAssignment : courseAssignments) {
-      List<StudentGrade> studentExamGrades =
-          courseAssignment.getExams().stream()
-              .map(exam -> gradeMapper.toRestStudentExamGrade(student, exam))
-              .toList();
-      courseAssignmentExams.add(toRest(courseAssignment, studentExamGrades));
-    }
-    return courseAssignmentExams;
   }
 
   public List<school.hei.haapi.model.CourseAssignment> toDomainCourseAssignmentsByGroups(
