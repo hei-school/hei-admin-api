@@ -92,8 +92,4 @@ public class GradeService {
   public ExamGradeStats getExamGradeStats(String examId) {
     return new ExamGradeStats().average(getExamAverageGrade(examId));
   }
-
-  public List<Grade> findAllByStudentId(String studentId) {
-    return gradeRepository.findAllByStudentId(studentId);
-  }
 }
