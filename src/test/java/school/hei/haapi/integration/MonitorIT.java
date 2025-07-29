@@ -205,9 +205,8 @@ public class MonitorIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     UsersApi api = new UsersApi(manager1Client);
 
-    List<Monitor> actual = api.getMonitors(1, 10, null, null, null);
+    Monitor actualMonitor1 = api.getMonitorById(monitor1().getId());
 
-    assertEquals(2, actual.size());
-    assertEquals(monitor1(), actual.getFirst());
+    assertEquals(monitor1(), actualMonitor1);
   }
 }

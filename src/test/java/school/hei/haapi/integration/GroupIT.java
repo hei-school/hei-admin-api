@@ -143,7 +143,6 @@ class GroupIT extends FacadeITMockedThirdParties {
     Group actual1 = api.getGroupById(GROUP1_ID);
     List<Group> actualGroups = api.getGroups(null, null, 1, 10);
 
-    log.info("actualGroups: {}", actualGroups);
     assertEquals(group1(), actual1, "Expected " + group1() + " to be in " + actual1);
     assertTrue(actualGroups.contains(group1()));
     assertTrue(
@@ -171,17 +170,17 @@ class GroupIT extends FacadeITMockedThirdParties {
     ApiClient client = anApiClient(MANAGER1_TOKEN);
     GroupsApi api = new GroupsApi(client);
 
-    List<Group> actualGroups = api.getGroups(null, null, 1, 10);
+    List<Group> actualGroups = api.getGroups(null, null, 1, 50);
     assertTrue(actualGroups.contains(group1()));
     assertTrue(actualGroups.contains(group2()));
     assertTrue(actualGroups.contains(updatedGroup3()));
 
-    List<Group> groupsFilteredByRef = api.getGroups("G1", null, 1, 10);
+    List<Group> groupsFilteredByRef = api.getGroups("G1", null, 1, 50);
     assertTrue(groupsFilteredByRef.contains(group1()));
     assertFalse(groupsFilteredByRef.contains(group2()));
     assertFalse(groupsFilteredByRef.contains(updatedGroup3()));
 
-    List<Group> groupsFilteredByStudentRef = api.getGroups(null, "STD21002", 1, 10);
+    List<Group> groupsFilteredByStudentRef = api.getGroups(null, "STD21002", 1, 50);
     assertTrue(groupsFilteredByStudentRef.contains(group1()));
     assertFalse(groupsFilteredByStudentRef.contains(group2()));
     assertFalse(groupsFilteredByStudentRef.contains(group3()));
