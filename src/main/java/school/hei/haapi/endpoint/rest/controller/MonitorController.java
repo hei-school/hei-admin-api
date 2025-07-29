@@ -48,7 +48,7 @@ public class MonitorController {
   }
 
   @GetMapping(value = "/monitors")
-  public List<Monitor> getTeachers(
+  public List<Monitor> getMonitors(
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize,
       @RequestParam(value = "ref", required = false, defaultValue = "") String ref,
