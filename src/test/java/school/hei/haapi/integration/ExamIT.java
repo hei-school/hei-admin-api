@@ -74,7 +74,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void manager_read_exam_details_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     GradesApi api = new GradesApi(manager1Client);
-    List<StudentGrade> studentGrades = api.getParticipantsGradeForExam(EXAM1_ID, 1, 1);
+    List<StudentGrade> studentGrades = api.getStudentGradesForExam(EXAM1_ID, 1, 1);
     assertEquals(studentGrade1(), studentGrades.getFirst());
   }
 
@@ -96,7 +96,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     assertEquals(1, exams.size());
     Exam exam = exams.getFirst();
 
-    List<StudentGrade> studentGrades = gradesApi.getParticipantsGradeForExam(exam.getId(), 1, 10);
+    List<StudentGrade> studentGrades = gradesApi.getStudentGradesForExam(exam.getId(), 1, 10);
     assertEquals(
         groupsApi.getStudentsByGroupId(group1().getId(), 1, 10, null).size(), studentGrades.size());
     assertTrue(studentGrades.stream().allMatch(grade -> grade.getGrade().getScore() == 0));
