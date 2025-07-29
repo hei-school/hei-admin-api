@@ -24,7 +24,6 @@ import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CourseCreditsSumZero;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.GradeResultService;
@@ -99,14 +98,9 @@ public class GradeController {
   @GetMapping("/students/{student_id}/yearly_results/{student_level}")
   public YearlyResult getYearlyResult(
       @PathVariable("student_id") String studentId,
-      @PathVariable("student_level") StudentLevel studentLevel) {
-    try {
-      return gradeResultService.getLeveledYearlyResultByStudentId(studentLevel, studentId);
-    } catch (CourseCreditsSumZero e) {
-      throw new BadRequestException(
-          "Course results for the level %s of the student id %s coefficient sum is 0"
-              .formatted(studentLevel, studentId));
-    }
+      @PathVariable("student_level") StudentLevel studentLevel)
+      throws CourseCreditsSumZero {
+    return gradeResultService.getLeveledYearlyResultByStudentId(studentLevel, studentId);
   }
 
   @GetMapping("/students/{student_id}/results_summary")

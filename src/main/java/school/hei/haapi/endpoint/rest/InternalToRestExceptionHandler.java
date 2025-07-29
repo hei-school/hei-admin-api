@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.CourseCreditsSumZero;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.exception.NotImplementedException;
@@ -21,6 +22,13 @@ import school.hei.haapi.model.exception.TooManyRequestsException;
 @RestControllerAdvice
 @Slf4j
 public class InternalToRestExceptionHandler {
+
+  @ExceptionHandler(value = {CourseCreditsSumZero.class})
+  ResponseEntity<school.hei.haapi.endpoint.rest.model.Exception> handleCourseCreditsSumZero(
+      CourseCreditsSumZero exception) {
+    log.info("Bad request", exception);
+    return new ResponseEntity<>(toRest(exception, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+  }
 
   @SuppressWarnings("checkstyle:Indentation")
   @ExceptionHandler(value = {BadRequestException.class})

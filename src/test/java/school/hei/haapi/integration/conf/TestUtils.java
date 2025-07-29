@@ -33,6 +33,7 @@ import static school.hei.haapi.endpoint.rest.model.Scope.STUDENT;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.ADD;
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.REMOVE;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
@@ -894,7 +895,7 @@ public class TestUtils {
         .credits(6)
         .totalHours(24)
         .name("Advanced OOP")
-        .level(StudentLevel.L2);
+        .level(L2);
   }
 
   public static Course course3() {
@@ -904,7 +905,7 @@ public class TestUtils {
         .credits(null)
         .totalHours(null)
         .name("Implemented IA")
-        .level(StudentLevel.L2);
+        .level(L2);
   }
 
   public static CourseAssignment courseAssignment1() {
