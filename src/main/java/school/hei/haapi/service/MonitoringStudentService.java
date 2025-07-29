@@ -81,10 +81,6 @@ public class MonitoringStudentService {
     return monitoringStudentRepository.getAllMonitorsIdsByStudentId(studentId);
   }
 
-  public List<String> getAllMonitors() {
-    return monitoringStudentRepository.getAllMonitors();
-  }
-
   public List<User> getStudentsByMonitorId(
       String monitorId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable =

@@ -83,7 +83,6 @@ import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
-import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
 import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
@@ -116,7 +115,6 @@ import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
-import school.hei.haapi.model.User;
 import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -306,18 +304,6 @@ public class TestUtils {
     return user;
   }
 
-  public static CasdoorUser getCasdoorUserFromMonitor(User monitor) {
-    CasdoorUser user = new CasdoorUser();
-    user.setEmail(monitor.getEmail());
-    CasdoorRole casdoorRole = new CasdoorRole();
-    casdoorRole.setOwner("dummy");
-    casdoorRole.setName("manager");
-    String[] roleUsers = List.of("dummy/user").toArray(new String[0]);
-    casdoorRole.setUsers(roleUsers);
-    user.setRoles(List.of(casdoorRole));
-    return user;
-  }
-
   public static CasdoorUser getCasdoorUserMonitor2() {
     CasdoorUser user = getCasdoorUserMonitor1();
     user.setEmail("test+monitor2@hei.school");
@@ -439,11 +425,6 @@ public class TestUtils {
         .thenReturn(PutEventsResponse.builder().build());
   }
 
-  public static <T> void assertListContains(List<T> actual, List<T> expectedElements) {
-    assertTrue(
-        actual + " does not contain : " + expectedElements, actual.containsAll(expectedElements));
-  }
-
   public static void assertThrowsApiException(String expectedBody, Executable executable) {
     ApiException apiException = assertThrows(ApiException.class, executable);
     assertEquals(expectedBody, apiException.getResponseBody());
@@ -530,10 +511,6 @@ public class TestUtils {
         .title("createExam")
         .examinationDate(Instant.parse("2021-11-08T08:25:24.00Z"))
         .courseAssignment(courseAssignment1());
-  }
-
-  public static CrupdateGrade createGrade() {
-    return new CrupdateGrade().score(20.0);
   }
 
   public static List<CrupdateTeacher> someCreatableTeacherList(int nbOfTeacher) {

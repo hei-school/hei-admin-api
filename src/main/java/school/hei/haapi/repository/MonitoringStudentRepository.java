@@ -42,7 +42,4 @@ public interface MonitoringStudentRepository extends JpaRepository<User, String>
       value = "SELECT monitor_id FROM monitor_following_student WHERE student_id = :studentId",
       nativeQuery = true)
   List<String> getAllMonitorsIdsByStudentId(@Param("studentId") String studentId);
-
-  @Query(value = "SELECT monitor_id, student_id FROM monitor_following_student", nativeQuery = true)
-  List<String> getAllMonitors();
 }
