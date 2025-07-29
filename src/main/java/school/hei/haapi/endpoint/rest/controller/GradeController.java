@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.controller;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -24,11 +25,14 @@ import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.CourseCreditsSumZero;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.GradeResultService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
 
+@Slf4j
 @RestController
 @AllArgsConstructor
 public class GradeController {
@@ -98,7 +102,13 @@ public class GradeController {
   public YearlyResult getYearlyResult(
       @PathVariable("student_id") String studentId,
       @PathVariable("student_level") StudentLevel studentLevel) {
-    return gradeResultService.getLeveledYearlyResultByStudentId(studentLevel, studentId);
+    try {
+      return gradeResultService.getLeveledYearlyResultByStudentId(studentLevel, studentId);
+    } catch (CourseCreditsSumZero e) {
+      throw new BadRequestException(
+          "Course results for the level %s of the student id %s coefficient sum is 0"
+              .formatted(studentLevel, studentId));
+    }
   }
 
   @GetMapping("/students/{student_id}/results_summary")

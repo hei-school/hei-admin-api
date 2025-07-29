@@ -11,6 +11,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
+import school.hei.haapi.model.exception.CourseCreditsSumZero;
 import school.hei.haapi.repository.dao.CourseDao;
 import school.hei.haapi.repository.dao.GradeDao;
 
@@ -49,14 +50,19 @@ public class CourseResultUtils {
             .sum());
   }
 
-  public double weightedSumOfCourseResults(List<CourseResult> courseResults) {
+  public double weightedSumOfCourseResults(List<CourseResult> courseResults)
+      throws CourseCreditsSumZero {
+    double sumCoefficient =
+        courseResults.stream()
+            .mapToDouble(courseResult -> courseResult.getCourse().getCredits())
+            .sum();
+    if (sumCoefficient == 0.0) throw new CourseCreditsSumZero();
+
     return courseResults.stream()
             .mapToDouble(
                 courseResult ->
                     courseResult.getWeightedAverage() * courseResult.getCourse().getCredits())
             .sum()
-        / courseResults.stream()
-            .mapToDouble(courseResult -> courseResult.getCourse().getCredits())
-            .sum();
+        / sumCoefficient;
   }
 }

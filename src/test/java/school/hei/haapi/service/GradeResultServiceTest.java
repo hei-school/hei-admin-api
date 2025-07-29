@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -18,6 +19,7 @@ import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.CourseCreditsSumZero;
 import school.hei.haapi.repository.dao.CourseDao;
 import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.utils.CourseResultUtils;
@@ -69,7 +71,7 @@ class GradeResultServiceTest {
   }
 
   @Test
-  void correct_result_yearly_result_L1() {
+  void correct_result_yearly_result_L1() throws CourseCreditsSumZero {
     var targetLevel = L1;
 
     YearlyResult result =
@@ -82,23 +84,17 @@ class GradeResultServiceTest {
   }
 
   @Test
-  void correct_result_yearly_result_M2_empty() {
-    var targetLevel = M2;
-
-    YearlyResult result =
-        gradeResultService.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
-
-    assertEquals(targetLevel, result.getLevel());
-    assertEquals(0, result.getObtainedCredits().doubleValue());
-    assertEquals(0, result.getCourseResults().size());
-    assertEquals(0, result.getWeightedAverage().doubleValue());
+  void correct_result_yearly_result_M2_empty_ko() {
+    assertThrows(
+        CourseCreditsSumZero.class,
+        () -> gradeResultService.getLeveledYearlyResultByStudentId(M2, student1.getId()));
   }
 
   @Test
   void correct_result_result_summary() {
     ResultSummary result = gradeResultService.getStudentResultSummary(student1.getId());
 
-    assertEquals(5, result.getYearlyResults().size());
+    assertEquals(1, result.getYearlyResults().size());
     assertEquals(30., result.getObtainedCredits().doubleValue());
     assertEquals(15.347666666666667, result.getWeightedAverage().doubleValue());
   }
