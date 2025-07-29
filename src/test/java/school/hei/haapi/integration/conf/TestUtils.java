@@ -1812,6 +1812,7 @@ public class TestUtils {
     }
   }
 
+  // TODO: remove all these custom asserts once the auto-now on all creationTimestamp is by-passed
   public static void assertCourseAssignmentsIgnoringGroupCreationDateTime(
       List<CourseAssignment> actual, List<CourseAssignment> expected) {
     if (actual == null || expected == null) {
@@ -1819,10 +1820,10 @@ public class TestUtils {
       return;
     }
     List<CourseAssignment> actualCloned =
-        actual.stream().map(TestUtils::cloneCourseAssignmentWithNullGroupCreationDateTime).toList();
+        actual.stream().map(TestUtils::cloneCourseAssignmentNoTimestamp).toList();
     List<CourseAssignment> expectedCloned =
         expected.stream()
-            .map(TestUtils::cloneCourseAssignmentWithNullGroupCreationDateTime)
+            .map(TestUtils::cloneCourseAssignmentNoTimestamp)
             .toList();
     assertTrue(
         "Actual list does not contain all expected elements"
@@ -1832,7 +1833,7 @@ public class TestUtils {
         actualCloned.containsAll(expectedCloned));
   }
 
-  private static CourseAssignment cloneCourseAssignmentWithNullGroupCreationDateTime(
+  private static CourseAssignment cloneCourseAssignmentNoTimestamp(
       CourseAssignment original) {
     CourseAssignment clone = new CourseAssignment();
     clone.setId(original.getId());
@@ -1840,12 +1841,12 @@ public class TestUtils {
     clone.setCourse(original.getCourse());
     clone.setGroups(
         original.getGroups().stream()
-            .map(TestUtils::cloneGroupWithoutCreationDateTime)
+            .map(TestUtils::cloneGroupNoTimestamp)
             .collect(Collectors.toList()));
     return clone;
   }
 
-  private static Group cloneGroupWithoutCreationDateTime(Group original) {
+  public static Group cloneGroupNoTimestamp(Group original) {
     return new Group()
         .id(original.getId())
         .name(original.getName())
