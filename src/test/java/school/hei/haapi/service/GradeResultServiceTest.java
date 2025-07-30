@@ -9,6 +9,7 @@ import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 
+import java.math.BigDecimal;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -118,9 +119,11 @@ class GradeResultServiceTest {
 
   @Test
   void correct_result_yearly_result_M2_empty_ko() {
+    String studentId = student1.getId();
+
     assertThrows(
         CourseCreditsSumZero.class,
-        () -> gradeResultService.getLeveledYearlyResultByStudentId(M2, student1.getId()));
+        () -> gradeResultService.getLeveledYearlyResultByStudentId(M2, studentId));
   }
 
   @Test
@@ -129,6 +132,7 @@ class GradeResultServiceTest {
 
     assertEquals(1, result.getYearlyResults().size());
     assertEquals(30., result.getObtainedCredits().doubleValue());
-    assertEquals(15.35, result.getWeightedAverage().doubleValue(), 0.01);
+    assertEquals(
+        new BigDecimal("15.34766666666666633333333333333333"), result.getWeightedAverage());
   }
 }

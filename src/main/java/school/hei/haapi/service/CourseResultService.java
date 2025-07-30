@@ -41,7 +41,7 @@ public class CourseResultService {
               var courseResult =
                   new CourseResult()
                       .course(courseMapper.toRest(courseAssignment.getCourse()))
-                      .weightedAverage(weightedAverageOfGrades(studentGrades));
+                      .weightedAverage(weightedAverageOfGrades(studentGrades).doubleValue());
               if (studentGrades.isEmpty()) {
                 return courseResult.status(NOT_STARTED);
               } else if (studentGrades.size() < examsOfTheCourse.size()) {

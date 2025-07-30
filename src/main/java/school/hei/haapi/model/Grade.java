@@ -8,6 +8,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.math.BigDecimal;
+import java.math.MathContext;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -51,12 +53,14 @@ public class Grade implements Serializable {
     this.exam = exam;
   }
 
-  public static double weightedAverageOfGrades(List<Grade> grades) {
+  public static BigDecimal weightedAverageOfGrades(List<Grade> grades) {
     double sumCoefficients =
         grades.stream().map(Grade::getExam).mapToDouble(Exam::getCoefficient).sum();
-    return grades.stream()
+    var weightedSum =
+        grades.stream()
             .mapToDouble(grade -> grade.getScore() * grade.getExam().getCoefficient())
-            .sum()
-        / sumCoefficients;
+            .sum();
+    return BigDecimal.valueOf(weightedSum)
+        .divide(BigDecimal.valueOf(sumCoefficients), MathContext.UNLIMITED);
   }
 }

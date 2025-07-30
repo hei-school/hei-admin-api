@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -24,8 +25,7 @@ public class GradeResultService {
 
     return new YearlyResult()
         .level(level)
-        .weightedAverage(
-            courseResultService.weightedSumOfCourseResults(courseResults).doubleValue())
+        .weightedAverage(courseResultService.weightedSumOfCourseResults(courseResults))
         .obtainedCredits(courseResultService.obtainedCreditsOfCourseResults(courseResults))
         .courseResults(courseResults);
   }
@@ -59,17 +59,22 @@ public class GradeResultService {
             .mapToInt(BigDecimal::intValue)
             .sum();
 
-    double average =
+    List<BigDecimal> yearlyResults =
         yearlyResultList.stream()
             .map(YearlyResult::getWeightedAverage)
             .filter(Objects::nonNull)
-            .mapToDouble(Double::doubleValue)
-            .average()
-            .orElse(0.0);
+            .toList();
+
+    BigDecimal yearlyResultsWeightedAverageSum =
+        yearlyResults.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+
+    BigDecimal weightedAverage =
+        yearlyResultsWeightedAverageSum.divide(
+            BigDecimal.valueOf(yearlyResults.size()), MathContext.UNLIMITED);
 
     return new ResultSummary()
         .yearlyResults(yearlyResultList)
         .obtainedCredits(BigDecimal.valueOf(obtainedCredits))
-        .weightedAverage(average);
+        .weightedAverage(weightedAverage);
   }
 }
