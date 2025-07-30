@@ -1,5 +1,7 @@
 package school.hei.haapi.model;
 
+import static java.math.MathContext.*;
+
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -9,7 +11,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -60,7 +61,6 @@ public class Grade implements Serializable {
         grades.stream()
             .mapToDouble(grade -> grade.getScore() * grade.getExam().getCoefficient())
             .sum();
-    return BigDecimal.valueOf(weightedSum)
-        .divide(BigDecimal.valueOf(sumCoefficients), MathContext.UNLIMITED);
+    return BigDecimal.valueOf(weightedSum).divide(BigDecimal.valueOf(sumCoefficients), UNLIMITED);
   }
 }

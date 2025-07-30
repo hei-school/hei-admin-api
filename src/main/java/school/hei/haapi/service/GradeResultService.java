@@ -1,7 +1,8 @@
 package school.hei.haapi.service;
 
+import static java.math.MathContext.*;
+
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -69,8 +70,7 @@ public class GradeResultService {
         yearlyResults.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
 
     BigDecimal weightedAverage =
-        yearlyResultsWeightedAverageSum.divide(
-            BigDecimal.valueOf(yearlyResults.size()), MathContext.UNLIMITED);
+        yearlyResultsWeightedAverageSum.divide(BigDecimal.valueOf(yearlyResults.size()), UNLIMITED);
 
     return new ResultSummary()
         .yearlyResults(yearlyResultList)
