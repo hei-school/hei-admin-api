@@ -55,9 +55,7 @@ public class Promotion {
     LocalDate date = levelInstant.atZone(ZoneId.systemDefault()).toLocalDate();
     int year = date.getYear();
     int month = date.getMonthValue();
-
     int scholarYear = (month >= 11) ? year : year - 1;
-
     int yearOfStudying = scholarYear - firstYear;
 
     return switch (yearOfStudying) {
