@@ -26,8 +26,7 @@ public class InternalToRestExceptionHandler {
   @ExceptionHandler(value = {CourseCreditsSumZero.class})
   ResponseEntity<school.hei.haapi.endpoint.rest.model.Exception> handleCourseCreditsSumZero(
       CourseCreditsSumZero exception) {
-    log.info("Bad request", exception);
-    return new ResponseEntity<>(toRest(exception, HttpStatus.BAD_REQUEST), HttpStatus.BAD_REQUEST);
+    return handleBadRequest(new BadRequestException(exception.getMessage()));
   }
 
   @SuppressWarnings("checkstyle:Indentation")
