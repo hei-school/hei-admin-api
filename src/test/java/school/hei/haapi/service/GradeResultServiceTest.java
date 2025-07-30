@@ -114,7 +114,8 @@ class GradeResultServiceTest {
     assertEquals(targetLevel, result.getLevel());
     assertEquals(30., result.getObtainedCredits().doubleValue());
     assertEquals(6, result.getCourseResults().size());
-    assertEquals(15.347666666666667, result.getWeightedAverage().doubleValue());
+    assertEquals(
+        new BigDecimal("15.34766666666666633333333333333333"), result.getWeightedAverage());
   }
 
   @Test
