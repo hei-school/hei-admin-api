@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.math.BigDecimal.ZERO;
 import static java.math.MathContext.*;
 
 import java.math.BigDecimal;
@@ -53,12 +54,12 @@ public class GradeResultService {
             .map(Optional::get)
             .toList();
 
-    int obtainedCredits =
+    BigDecimal obtainedCredits =
         yearlyResultList.stream()
             .map(YearlyResult::getObtainedCredits)
             .filter(Objects::nonNull)
-            .mapToInt(BigDecimal::intValue)
-            .sum();
+            .reduce(BigDecimal::add)
+            .orElse(ZERO);
 
     List<BigDecimal> yearlyResults =
         yearlyResultList.stream()
@@ -67,14 +68,14 @@ public class GradeResultService {
             .toList();
 
     BigDecimal yearlyResultsWeightedAverageSum =
-        yearlyResults.stream().reduce(BigDecimal::add).orElse(BigDecimal.ZERO);
+        yearlyResults.stream().reduce(BigDecimal::add).orElse(ZERO);
 
     BigDecimal weightedAverage =
         yearlyResultsWeightedAverageSum.divide(BigDecimal.valueOf(yearlyResults.size()), UNLIMITED);
 
     return new ResultSummary()
         .yearlyResults(yearlyResultList)
-        .obtainedCredits(BigDecimal.valueOf(obtainedCredits))
+        .obtainedCredits(obtainedCredits)
         .weightedAverage(weightedAverage);
   }
 }

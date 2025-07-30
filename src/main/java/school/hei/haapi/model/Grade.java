@@ -1,5 +1,6 @@
 package school.hei.haapi.model;
 
+import static java.math.BigDecimal.ZERO;
 import static java.math.MathContext.*;
 
 import jakarta.persistence.Entity;
@@ -55,12 +56,18 @@ public class Grade implements Serializable {
   }
 
   public static BigDecimal weightedAverageOfGrades(List<Grade> grades) {
-    double sumCoefficients =
-        grades.stream().map(Grade::getExam).mapToDouble(Exam::getCoefficient).sum();
+    var sumCoefficients =
+        BigDecimal.valueOf(
+            grades.stream().map(Grade::getExam).mapToInt(Exam::getCoefficient).sum());
     var weightedSum =
         grades.stream()
-            .mapToDouble(grade -> grade.getScore() * grade.getExam().getCoefficient())
-            .sum();
-    return BigDecimal.valueOf(weightedSum).divide(BigDecimal.valueOf(sumCoefficients), UNLIMITED);
+            .map(
+                grade ->
+                    BigDecimal.valueOf(grade.getExam().getCoefficient())
+                        .multiply(BigDecimal.valueOf(grade.getScore())))
+            .reduce(BigDecimal::add)
+            .orElse(ZERO);
+
+    return weightedSum.divide(sumCoefficients, UNLIMITED);
   }
 }
