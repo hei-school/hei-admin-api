@@ -23,7 +23,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.CourseCreditsSumZero;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
-import school.hei.haapi.service.utils.CourseResultUtils;
 
 class GradeResultServiceTest {
   private final GradeDao gradeDao = mock();
@@ -31,7 +30,7 @@ class GradeResultServiceTest {
   private final ExamService examService = mock();
   private final GradeResultService gradeResultService =
       new GradeResultService(
-          new CourseResultUtils(courseAssignmentDao, gradeDao, new CourseMapper(), examService));
+          new CourseResultService(courseAssignmentDao, gradeDao, new CourseMapper(), examService));
 
   private final User student1 = User.builder().id("id").build();
   private final Exam mgt1Exam = Exam.builder().id("mgt1 exam").coefficient(1).build();

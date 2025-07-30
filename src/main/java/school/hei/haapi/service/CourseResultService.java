@@ -1,4 +1,4 @@
-package school.hei.haapi.service.utils;
+package school.hei.haapi.service;
 
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.NOT_STARTED;
@@ -17,11 +17,10 @@ import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.exception.CourseCreditsSumZero;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
-import school.hei.haapi.service.ExamService;
 
 @Component
 @AllArgsConstructor
-public class CourseResultUtils {
+public class CourseResultService {
   private CourseAssignmentDao courseAssignmentDao;
   private GradeDao gradeDao;
   private CourseMapper courseMapper;

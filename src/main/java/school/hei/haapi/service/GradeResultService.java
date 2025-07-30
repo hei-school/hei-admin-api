@@ -12,22 +12,22 @@ import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.model.exception.CourseCreditsSumZero;
-import school.hei.haapi.service.utils.CourseResultUtils;
 
 @Service
 @AllArgsConstructor
 @Slf4j
 public class GradeResultService {
-  private CourseResultUtils courseResultUtils;
+  private CourseResultService courseResultService;
 
   public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId)
       throws CourseCreditsSumZero {
-    var courseResults = courseResultUtils.courseResultsForLevelOfStudent(level, studentId);
+    var courseResults = courseResultService.courseResultsForLevelOfStudent(level, studentId);
 
     return new YearlyResult()
         .level(level)
-        .weightedAverage(courseResultUtils.weightedSumOfCourseResults(courseResults).doubleValue())
-        .obtainedCredits(courseResultUtils.obtainedCreditsOfCourseResults(courseResults))
+        .weightedAverage(
+            courseResultService.weightedSumOfCourseResults(courseResults).doubleValue())
+        .obtainedCredits(courseResultService.obtainedCreditsOfCourseResults(courseResults))
         .courseResults(courseResults);
   }
 
