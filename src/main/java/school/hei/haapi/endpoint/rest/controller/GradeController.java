@@ -48,8 +48,7 @@ public class GradeController {
       @PathVariable("student_id") String studentId,
       @RequestBody CrupdateGrade grade) {
     validator.accept(grade);
-    school.hei.haapi.model.Grade toSave =
-        gradeMapper.toDomain(grade, examId, userService.findById(studentId).getRef());
+    var toSave = gradeMapper.toDomain(grade, examId, userService.findById(studentId).getRef());
     return gradeMapper.toRest(gradeService.crupdateParticipantGrade(List.of(toSave)).getFirst());
   }
 

@@ -86,7 +86,7 @@ public class ExamController {
                 .collect(toList()))
         .stream()
         .map(examMapper::toRest)
-        .collect(toList());
+        .toList();
   }
 
   // TODO: remove the unnecessary path variables

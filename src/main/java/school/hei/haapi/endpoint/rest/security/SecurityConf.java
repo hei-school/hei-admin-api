@@ -28,7 +28,6 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.MonitoringStudentService;
-import school.hei.haapi.service.UserService;
 
 @Configuration
 @Slf4j
@@ -36,6 +35,7 @@ import school.hei.haapi.service.UserService;
 public class SecurityConf {
   private static final String AUTHORIZATION_HEADER = "Authorization";
   private final CourseAssignmentService courseAssignmentService;
+  private final MonitoringStudentService monitoringStudentService;
   private final AbstractUserDetailsAuthenticationProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
 
@@ -44,10 +44,11 @@ public class SecurityConf {
       // InternalToExternalErrorHandler behind
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
       CourseAssignmentService courseAssignmentService,
-      UserService userService) {
+      MonitoringStudentService monitoringStudentService) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
     this.courseAssignmentService = courseAssignmentService;
+    this.monitoringStudentService = monitoringStudentService;
   }
 
   @Bean
@@ -56,9 +57,7 @@ public class SecurityConf {
   }
 
   @Bean
-  public SecurityFilterChain configure(
-      HttpSecurity httpSecurity, MonitoringStudentService monitoringStudentService)
-      throws Exception {
+  public SecurityFilterChain configure(HttpSecurity httpSecurity) throws Exception {
     // @formatter:off
     AntPathRequestMatcher nonAccessibleBySuspendedUserPath =
         antMatcher(GET, "/non-accessible-by-suspended");

@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,7 +19,6 @@ import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.GradeDao;
 
-@Slf4j
 @Service
 @AllArgsConstructor
 public class GradeService {
@@ -31,7 +29,6 @@ public class GradeService {
 
   public List<Grade> getGradesByStudentId(String studentId) {
     var student = userRepository.getById(studentId);
-    log.info("getGradesByStudentId: {}", student);
     return gradeRepository.getAllByStudent(student);
   }
 
