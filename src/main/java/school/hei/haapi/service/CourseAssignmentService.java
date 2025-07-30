@@ -32,7 +32,7 @@ public class CourseAssignmentService {
   private final CourseAssignmentRepository courseAssignmentRepository;
   private final CourseAssignmentMapper courseAssignmentMapper;
   private final CourseAssignmentValidator courseAssignmentValidator;
-  private final CourseAssignmentDao courseAssignmentDAO;
+  private final CourseAssignmentDao courseAssignmentDao;
 
   public Optional<CourseAssignment> findById(String courseAssignmentId) {
     return courseAssignmentRepository.findById(courseAssignmentId);
@@ -78,7 +78,7 @@ public class CourseAssignmentService {
   public List<CourseAssignment> getByCriteria(
       String teacherId, String courseId, PageFromOne page, BoundedPageSize pageSize) {
     Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
-    return courseAssignmentDAO.findByCriteria(teacherId, courseId, null, pageable);
+    return courseAssignmentDao.findByCriteria(teacherId, courseId, null, pageable);
   }
 
   public List<CourseAssignment> getByTeacherId(

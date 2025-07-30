@@ -65,18 +65,18 @@ public class CourseResultService {
   }
 
   public BigDecimal weightedSumOfCourseResults(List<CourseResult> courseResults) {
-    double sumCoefficient =
+    double sumCredits =
         courseResults.stream()
-            .mapToDouble(courseResult -> courseResult.getCourse().getCredits())
+            .mapToInt(courseResult -> courseResult.getCourse().getCredits())
             .sum();
-    if (sumCoefficient == 0.0) throw new CourseCreditsSumZero();
+    if (sumCredits == 0) throw new CourseCreditsSumZero();
 
-    return BigDecimal.valueOf(
-            courseResults.stream()
-                .mapToDouble(
-                    courseResult ->
-                        courseResult.getWeightedAverage() * courseResult.getCourse().getCredits())
-                .sum())
-        .divide(BigDecimal.valueOf(sumCoefficient), MathContext.DECIMAL128);
+    return courseResults.stream()
+        .map(
+            courseResult ->
+                BigDecimal.valueOf(
+                    courseResult.getWeightedAverage() * courseResult.getCourse().getCredits()))
+        .reduce(BigDecimal.ZERO, BigDecimal::add)
+        .divide(BigDecimal.valueOf(sumCredits), MathContext.DECIMAL128);
   }
 }
