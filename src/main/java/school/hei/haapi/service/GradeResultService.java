@@ -19,8 +19,7 @@ import school.hei.haapi.model.exception.CourseCreditsSumZero;
 public class GradeResultService {
   private CourseResultService courseResultService;
 
-  public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId)
-      throws CourseCreditsSumZero {
+  public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
     var courseResults = courseResultService.courseResultsForLevelOfStudent(level, studentId);
 
     return new YearlyResult()

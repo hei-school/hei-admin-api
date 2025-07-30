@@ -64,8 +64,7 @@ public class CourseResultService {
             .sum());
   }
 
-  public BigDecimal weightedSumOfCourseResults(List<CourseResult> courseResults)
-      throws CourseCreditsSumZero {
+  public BigDecimal weightedSumOfCourseResults(List<CourseResult> courseResults) {
     double sumCoefficient =
         courseResults.stream()
             .mapToDouble(courseResult -> courseResult.getCourse().getCredits())
