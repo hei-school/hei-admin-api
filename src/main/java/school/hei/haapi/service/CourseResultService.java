@@ -41,7 +41,7 @@ public class CourseResultService {
               var courseResult =
                   new CourseResult()
                       .course(courseMapper.toRest(courseAssignment.getCourse()))
-                      .weightedAverage(weightedAverageOfGrades(studentGrades).doubleValue());
+                      .weightedAverage(weightedAverageOfGrades(studentGrades));
               if (studentGrades.isEmpty()) {
                 return courseResult.status(NOT_STARTED);
               } else if (studentGrades.size() < examsOfTheCourse.size()) {
@@ -58,7 +58,7 @@ public class CourseResultService {
         courseResults.stream()
             .mapToDouble(
                 courseResult ->
-                    courseResult.getWeightedAverage() >= 10
+                    courseResult.getWeightedAverage().doubleValue() >= 10
                         ? courseResult.getCourse().getCredits()
                         : 0.)
             .sum());
@@ -74,8 +74,9 @@ public class CourseResultService {
     return courseResults.stream()
         .map(
             courseResult ->
-                BigDecimal.valueOf(
-                    courseResult.getWeightedAverage() * courseResult.getCourse().getCredits()))
+                courseResult
+                    .getWeightedAverage()
+                    .multiply(BigDecimal.valueOf(courseResult.getCourse().getCredits())))
         .reduce(BigDecimal.ZERO, BigDecimal::add)
         .divide(BigDecimal.valueOf(sumCredits), MathContext.DECIMAL128);
   }
