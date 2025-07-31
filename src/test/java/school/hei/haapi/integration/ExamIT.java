@@ -141,7 +141,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     String exam1Id = exam1().getId();
     Exam actual = api.getExamOneExamById(exam1Id);
     assertDoesNotThrow(() -> api.getExamOneExamById(exam1Id));
-    assertEquals(actual, exam1());
+    assertEquals(exam1(), actual);
   }
 
   @Test

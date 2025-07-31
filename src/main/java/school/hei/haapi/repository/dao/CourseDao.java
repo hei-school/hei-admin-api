@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.User;
@@ -33,6 +34,7 @@ public class CourseDao {
       String teacherLastName,
       String creditsOrder,
       String codeOrder,
+      StudentLevel studentLevel,
       Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Course> query = builder.createQuery(Course.class);
@@ -69,6 +71,10 @@ public class CourseDao {
               builder.lower(teacher.get("firstName")), "%" + teacherFirstName.toLowerCase() + "%"));
     }
 
+    if (studentLevel != null) {
+      predicates.add(builder.equal(root.get("studentLevel"), studentLevel));
+    }
+
     Predicate hasCredits =
         credits != null ? builder.or(builder.equal(root.get("credits"), credits)) : null;
 
@@ -92,6 +98,10 @@ public class CourseDao {
       query.orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
     } else {
       query.orderBy(orders);
+    }
+
+    if (pageable.isUnpaged()) {
+      return entityManager.createQuery(query).getResultList();
     }
 
     return entityManager

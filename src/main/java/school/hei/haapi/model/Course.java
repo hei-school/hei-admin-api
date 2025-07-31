@@ -1,9 +1,13 @@
 package school.hei.haapi.model;
 
+import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.Enumerated;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -17,8 +21,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 
 @Entity
 @Table(name = "\"course\"")
@@ -43,6 +49,11 @@ public class Course implements Serializable {
   private Integer credits;
 
   private Integer totalHours;
+
+  @Column(name = "\"student_level\"")
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
+  private StudentLevel studentLevel;
 
   @EqualsAndHashCode.Exclude @Builder.Default private boolean isDeleted = false;
 

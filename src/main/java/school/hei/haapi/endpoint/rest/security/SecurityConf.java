@@ -206,6 +206,8 @@ public class SecurityConf {
                     antMatcher(GET, "/courses/*/exams/*/participants/*"),
                     antMatcher(GET, "/courses/*/student/*/exams/grades"),
                     antMatcher(GET, STUDENT_COURSE),
+                    antMatcher(GET, "/students/*/yearly_results/*"),
+                    antMatcher(GET, "/students/*/results_summary"),
                     antMatcher(GET, "/comments"),
                     antMatcher(GET, "/students/*/comments"),
                     antMatcher(POST, "/students/*/comments"),
@@ -539,6 +541,24 @@ public class SecurityConf {
                     //
                     .requestMatchers(new SelfMatcher(GET, "/students/*/grades", "students"))
                     .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(GET, "/students/*/results_summary")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(
+                        new SelfMatcher(GET, "/students/*/results_summary", "students"))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new StudentMonitorMatcher(
+                            GET, "/students/*/results_summary", "students", userService))
+                    .hasAnyRole(MONITOR.getRole())
+                    .requestMatchers(GET, "/students/*/yearly_results/*")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(
+                        new SelfMatcher(GET, "/students/*/yearly_results/*", "students"))
+                    .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(
+                        new StudentMonitorMatcher(
+                            GET, "/students/*/yearly_results/*", "students", userService))
+                    .hasAnyRole(MONITOR.getRole())
                     .requestMatchers(GET, "/students/*/grades")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/teachers")

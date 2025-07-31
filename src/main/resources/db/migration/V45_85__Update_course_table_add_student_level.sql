@@ -1,0 +1,1 @@
+alter table "course" add column if not exists student_level student_level;

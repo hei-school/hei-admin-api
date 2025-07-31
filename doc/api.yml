@@ -6555,7 +6555,6 @@ components:
           $ref: "#/components/schemas/Course"
         weighted_average:
           type: number
-          format: double
         status:
           $ref: "#/components/schemas/CourseResultStatus"
     CourseResultStatus:
@@ -6609,7 +6608,6 @@ components:
       properties:
         weighted_average:
           type: number
-          format: double
         obtained_credits:
           type: number
     StudentGrade:

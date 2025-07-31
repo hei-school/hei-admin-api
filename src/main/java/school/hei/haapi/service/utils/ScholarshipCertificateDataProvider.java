@@ -3,8 +3,6 @@ package school.hei.haapi.service.utils;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import java.time.Instant;
-import java.time.LocalDate;
-import java.time.ZoneId;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
@@ -20,30 +18,18 @@ public class ScholarshipCertificateDataProvider {
   private final PromotionService promotionService;
 
   public String getAcademicYearSentence(User student) {
-    String academicYear =
-        getAcademicYear(findLastStudentPromotion(student).getStartDatetime(), Instant.now());
+    String academicYear = getAcademicYear(findLastStudentPromotion(student), Instant.now());
     return academicYear + " année d'informatique - parcours " + specializationFiledString(student);
   }
 
-  public String getAcademicYear(Instant startDatetime, Instant from) {
-
-    int firstYear = startDatetime.atZone(ZoneId.systemDefault()).getYear();
-
-    LocalDate date = from.atZone(ZoneId.systemDefault()).toLocalDate();
-    int year = date.getYear();
-    int month = date.getMonthValue();
-
-    int scholarYear = (month >= 11) ? year : year - 1;
-
-    int difference = scholarYear - firstYear;
-
-    return switch (difference) {
-      case 0 -> "Première";
-      case 1 -> "Deuxième";
-      case 2 -> "Troisième";
-      case 3 -> "Quatrième";
-      case 4 -> "Cinquième";
-      default -> "Non defini";
+  public String getAcademicYear(Promotion promotion, Instant from) {
+    return switch (promotion.findLevelAt(from).orElse(null)) {
+      case L1 -> "Première";
+      case L2 -> "Deuxième";
+      case L3 -> "Troisième";
+      case M1 -> "Quatrième";
+      case M2 -> "Cinquième";
+      case null -> "Non defini";
     };
   }
 
