@@ -78,6 +78,10 @@ public class GradeResultService {
     return new ResultSummary()
         .yearlyResults(yearlyResultList)
         .obtainedCredits(obtainedCredits)
-        .weightedAverage(weightedAverage);
+        .weightedAverage(weightedAverage)
+        .totalCredits(
+            yearlyResultList.parallelStream()
+                .map(YearlyResult::getTotalCredits)
+                .reduce(ZERO, BigDecimal::add));
   }
 }
