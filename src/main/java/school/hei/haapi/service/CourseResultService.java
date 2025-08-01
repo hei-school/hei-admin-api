@@ -69,11 +69,7 @@ public class CourseResultService {
   }
 
   public BigDecimal weightedSumOfCourseResults(List<CourseResult> courseResults) {
-    double sumCredits =
-        courseResults.stream()
-            .mapToInt(courseResult -> courseResult.getCourse().getCredits())
-            .sum();
-    if (sumCredits == 0) throw new CourseCreditsSumZero();
+    int sumCredits = getSumCredits(courseResults);
 
     return courseResults.stream()
         .map(
@@ -95,5 +91,16 @@ public class CourseResultService {
       return VALIDATED;
     }
     return IN_PROGRESS;
+  }
+
+  private int getSumCredits(List<school.hei.haapi.endpoint.rest.model.Course> courses) {
+    int sumCredits =
+        courses.stream().mapToInt(school.hei.haapi.endpoint.rest.model.Course::getCredits).sum();
+    if (sumCredits == 0) throw new CourseCreditsSumZero();
+    return sumCredits;
+  }
+
+  private int getSumCredits(List<CourseResult> courses) {
+    return getSumCredits(courses.stream().map(CourseResult::getCourse).toList());
   }
 }
