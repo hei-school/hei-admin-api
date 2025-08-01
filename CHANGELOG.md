@@ -1,3 +1,12 @@
+# [1.107.0](https://github.com/hei-school/hei-admin-api/compare/v1.106.0...v1.107.0) (2025-08-01)
+
+
+### Features
+
+* add getCourseGrades to fetch grades for a student for a given course ([3e3b79a](https://github.com/hei-school/hei-admin-api/commit/3e3b79a6c4c72c40900a259a04ab9679bfb88b4d))
+
+
+
 # [1.106.0](https://github.com/hei-school/hei-admin-api/compare/v1.105.1...v1.106.0) (2025-08-01)
 
 
@@ -102,21 +111,6 @@
 ### Bug Fixes
 
 * modify grade requirement ([703e1d1](https://github.com/hei-school/hei-admin-api/commit/703e1d1d4c73ed7705ccfe63fd4e9fb1ce41b17a))
-
-
-
-# [1.102.0](https://github.com/hei-school/hei-admin-api/compare/v1.101.0...v1.102.0) (2025-04-03)
-
-
-### Bug Fixes
-
-* disabled user re-enabled ([5ede7bb](https://github.com/hei-school/hei-admin-api/commit/5ede7bb2c95d867dc233ad32379fa54a91dd7c80))
-
-
-### Features
-
-* generate advanced fee stats  for given date range ([979fe44](https://github.com/hei-school/hei-admin-api/commit/979fe44c6248e5c326b665df9108760a6aeb21ce))
-* **not-implemented:** get all event attendances ([46a0826](https://github.com/hei-school/hei-admin-api/commit/46a0826d1a582c8cfe7d3f3b52cd3931c06749ec))
 
 
 
