@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import school.hei.haapi.model.exception.CourseCoefficientsSumZero;
 
 @Entity
 @Table(name = "\"grade\"")
@@ -67,6 +68,8 @@ public class Grade implements Serializable {
                         .multiply(BigDecimal.valueOf(grade.getScore())))
             .reduce(BigDecimal::add)
             .orElse(ZERO);
+
+    if (ZERO.equals(weightedSum)) throw new CourseCoefficientsSumZero();
 
     return weightedSum.divide(sumCoefficients, UNLIMITED);
   }

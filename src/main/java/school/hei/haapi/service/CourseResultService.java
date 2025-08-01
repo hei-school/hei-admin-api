@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.math.BigDecimal.ZERO;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.NOT_STARTED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
@@ -19,6 +20,7 @@ import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
+import school.hei.haapi.model.exception.CourseCoefficientsSumZero;
 import school.hei.haapi.model.exception.CourseCreditsSumZero;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
@@ -43,10 +45,15 @@ public class CourseResultService {
                       courseAssignment.getCourse().getId(), studentId);
               var examsOfTheCourse =
                   examService.getExamsByCourseAssignmentId(courseAssignment.getId());
+
               var courseResult =
-                  new CourseResult()
-                      .course(courseMapper.toRest(courseAssignment.getCourse()))
-                      .weightedAverage(weightedAverageOfGrades(studentGrades));
+                  new CourseResult().course(courseMapper.toRest(courseAssignment.getCourse()));
+              try {
+                courseResult.weightedAverage(weightedAverageOfGrades(studentGrades));
+              } catch (CourseCoefficientsSumZero e) {
+                return courseResult.weightedAverage(ZERO).status(CourseResultStatus.IN_PROGRESS);
+              }
+
               if (studentGrades.isEmpty()) {
                 return courseResult.status(NOT_STARTED);
               } else if (studentGrades.size() < examsOfTheCourse.size()) {
@@ -78,7 +85,7 @@ public class CourseResultService {
                 courseResult
                     .getWeightedAverage()
                     .multiply(BigDecimal.valueOf(courseResult.getCourse().getCredits())))
-        .reduce(BigDecimal.ZERO, BigDecimal::add)
+        .reduce(ZERO, BigDecimal::add)
         .divide(BigDecimal.valueOf(sumCredits), MathContext.DECIMAL128);
   }
 
