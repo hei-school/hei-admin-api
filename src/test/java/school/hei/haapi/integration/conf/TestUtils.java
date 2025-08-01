@@ -22,9 +22,6 @@ import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.RECEIVED;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.AIRTEL_MONEY;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
 import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
@@ -86,7 +83,6 @@ import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
-import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
 import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
@@ -120,7 +116,6 @@ import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.Cert
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.service.aws.FileService;
-import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -178,6 +173,7 @@ public class TestUtils {
   public static final String STUDENT13_TOKEN = "student13_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MONITOR1_TOKEN = "monitor1_token";
+  public static final String AXEL_MONITOR_TOKEN = "axel_monitor_token";
   public static final String MONITOR2_TOKEN = "monitor2_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
   public static final String STAFF_MEMBER1_TOKEN = "staff1_token";
@@ -219,7 +215,6 @@ public class TestUtils {
   public static final String EVENT_PARTICIPANT5_ID = "event_participant5_id";
 
   public static final String ORGANIZER1_ID = "organizer1_id";
-  public static final String ORGANIZER2_ID = "organizer2_id";
   public static final String ORGANIZER1_TOKEN = "organizer1_token";
   public static final String ORGANIZER2_TOKEN = "organizer2_token";
 
@@ -385,14 +380,6 @@ public class TestUtils {
     return client;
   }
 
-  public static void setUpMobilePaymentApi(MobileMoneyApiFacade mobilePaymentApi) {
-    when(mobilePaymentApi.getByTransactionRef(MVOLA, "psp2_id")).thenReturn(psp2Verification());
-    when(mobilePaymentApi.getByTransactionRef(ORANGE_MONEY, "psp2_id"))
-        .thenThrow(school.hei.haapi.model.exception.ApiException.class);
-    when(mobilePaymentApi.getByTransactionRef(AIRTEL_MONEY, "psp2_id"))
-        .thenThrow(school.hei.haapi.model.exception.ApiException.class);
-  }
-
   public static void setUpCognito(CognitoComponent cognitoComponent) {
     when(cognitoComponent.getEmailByIdToken(BAD_TOKEN)).thenReturn(null);
     when(cognitoComponent.getEmailByIdToken(STUDENT1_TOKEN)).thenReturn("test+ryan@hei.school");
@@ -436,11 +423,6 @@ public class TestUtils {
   public static void setUpEventBridge(EventBridgeClient eventBridgeClient) {
     when(eventBridgeClient.putEvents((PutEventsRequest) any()))
         .thenReturn(PutEventsResponse.builder().build());
-  }
-
-  public static <T> void assertListContains(List<T> actual, List<T> expectedElements) {
-    assertTrue(
-        actual + " does not contain : " + expectedElements, actual.containsAll(expectedElements));
   }
 
   public static void assertThrowsApiException(String expectedBody, Executable executable) {
@@ -529,10 +511,6 @@ public class TestUtils {
         .title("createExam")
         .examinationDate(Instant.parse("2021-11-08T08:25:24.00Z"))
         .courseAssignment(courseAssignment1());
-  }
-
-  public static CrupdateGrade createGrade() {
-    return new CrupdateGrade().score(20.0);
   }
 
   public static List<CrupdateTeacher> someCreatableTeacherList(int nbOfTeacher) {
@@ -997,8 +975,8 @@ public class TestUtils {
     return new Grade()
         .id(GRADE1_ID)
         .score(8.0)
-        .createdAt(Instant.parse("2022-10-09T08:25:24Z"))
-        .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
+        .exam(exam1())
+        .createdAt(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade2() {
@@ -1834,6 +1812,7 @@ public class TestUtils {
     }
   }
 
+  // TODO: remove all these custom asserts once the auto-now on all creationTimestamp is by-passed
   public static void assertCourseAssignmentsIgnoringGroupCreationDateTime(
       List<CourseAssignment> actual, List<CourseAssignment> expected) {
     if (actual == null || expected == null) {
@@ -1841,11 +1820,9 @@ public class TestUtils {
       return;
     }
     List<CourseAssignment> actualCloned =
-        actual.stream().map(TestUtils::cloneCourseAssignmentWithNullGroupCreationDateTime).toList();
+        actual.stream().map(TestUtils::cloneCourseAssignmentNoTimestamp).toList();
     List<CourseAssignment> expectedCloned =
-        expected.stream()
-            .map(TestUtils::cloneCourseAssignmentWithNullGroupCreationDateTime)
-            .toList();
+        expected.stream().map(TestUtils::cloneCourseAssignmentNoTimestamp).toList();
     assertTrue(
         "Actual list does not contain all expected elements"
             + actualCloned
@@ -1854,20 +1831,19 @@ public class TestUtils {
         actualCloned.containsAll(expectedCloned));
   }
 
-  private static CourseAssignment cloneCourseAssignmentWithNullGroupCreationDateTime(
-      CourseAssignment original) {
+  private static CourseAssignment cloneCourseAssignmentNoTimestamp(CourseAssignment original) {
     CourseAssignment clone = new CourseAssignment();
     clone.setId(original.getId());
     clone.setMainTeacher(original.getMainTeacher());
     clone.setCourse(original.getCourse());
     clone.setGroups(
         original.getGroups().stream()
-            .map(TestUtils::cloneGroupWithoutCreationDateTime)
+            .map(TestUtils::cloneGroupNoTimestamp)
             .collect(Collectors.toList()));
     return clone;
   }
 
-  private static Group cloneGroupWithoutCreationDateTime(Group original) {
+  public static Group cloneGroupNoTimestamp(Group original) {
     return new Group()
         .id(original.getId())
         .name(original.getName())

@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.COURSE_ASSIGNMENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.EXAM1_ID;
@@ -74,7 +75,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void manager_read_exam_details_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     GradesApi api = new GradesApi(manager1Client);
-    List<StudentGrade> studentGrades = api.getParticipantsGradeForExam(EXAM1_ID, 1, 1);
+    List<StudentGrade> studentGrades = api.getStudentGradesForExam(EXAM1_ID, 1, 1);
     assertEquals(studentGrade1(), studentGrades.getFirst());
   }
 
@@ -96,7 +97,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     assertEquals(1, exams.size());
     Exam exam = exams.getFirst();
 
-    List<StudentGrade> studentGrades = gradesApi.getParticipantsGradeForExam(exam.getId(), 1, 10);
+    List<StudentGrade> studentGrades = gradesApi.getStudentGradesForExam(exam.getId(), 1, 10);
     assertEquals(
         groupsApi.getStudentsByGroupId(group1().getId(), 1, 10, null).size(), studentGrades.size());
     assertTrue(studentGrades.stream().allMatch(grade -> grade.getGrade().getScore() == 0));
@@ -254,5 +255,14 @@ class ExamIT extends FacadeITMockedThirdParties {
     assertEquals(exam1(), studentExamsGrade.getFirst().getExam());
     assertEquals(grade2().getScore(), studentExamsGrade.get(1).getScore());
     assertEquals(exam2(), studentExamsGrade.get(1).getExam());
+  }
+
+  @Test
+  void admin_get_exam_by_id_ok() throws ApiException {
+    ApiClient admin1Client = anApiClient(ADMIN1_TOKEN);
+    ExamsApi api = new ExamsApi(admin1Client);
+    Exam actual = api.getExamById(COURSE_ASSIGNMENT1_ID, EXAM1_ID);
+
+    assertEquals(exam1(), actual);
   }
 }

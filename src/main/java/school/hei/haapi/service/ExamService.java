@@ -40,13 +40,6 @@ public class ExamService {
         .toList();
   }
 
-  public Exam getExamsByIdAndGroupIdAndAwardedCourseId(
-      String id, String awardedCourseId, String groupId) {
-    return examRepository
-        .findById(id)
-        .orElseThrow(() -> new NotFoundException("Exam with id #" + id + " not found"));
-  }
-
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
     validator.accept(exams);
     List<Exam> savedExams = examRepository.saveAll(exams);

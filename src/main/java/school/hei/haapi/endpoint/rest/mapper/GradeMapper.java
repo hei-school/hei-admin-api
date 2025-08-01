@@ -23,6 +23,7 @@ public class GradeMapper {
   private final ExamService examService;
   private final UserService userService;
   private final GradeValidator validator;
+  private final ExamMapper examMapper;
   private final GradeRepository gradeRepository;
 
   // todo: to review all class
@@ -36,9 +37,10 @@ public class GradeMapper {
   public Grade toRest(school.hei.haapi.model.Grade grade) {
     return new Grade()
         .id(grade.getId())
+        .exam(examMapper.toRest(grade.getExam()))
         .createdAt(grade.getCreationDatetime())
-        .score(grade.getScore().doubleValue())
-        .updateDate(grade.getCreationDatetime());
+        .score(grade.getScore());
+    // TODO: implement update time or better yet : grade history here !
   }
 
   public StudentGrade toRestStudentGrade(school.hei.haapi.model.Grade grade) {

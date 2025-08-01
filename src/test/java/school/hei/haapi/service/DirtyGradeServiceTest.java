@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -17,7 +18,6 @@ import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -58,7 +58,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   private Course courseProg1;
   private User teacherToky;
   private Exam exam1Prog1;
-  private CourseAssignment assign_web1_toToky;
+  private CourseAssignment assign_prog1_toToky;
   private Group groupG1;
   private List<Grade> gradesExam1Prog1;
   private GroupFlow groupFlowsAxel;
@@ -80,33 +80,40 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
     teacherToky = toky();
     groupFlowsAxel = createGroupFlow(studentAxel, groupG1);
     groupFlowsTolojanahary = createGroupFlow(studentTolojanahary, groupG1);
-    assign_web1_toToky = createCourseAssignment(courseProg1, teacherToky, List.of(groupG1));
-    exam1Prog1 =
-        createExam(Instant.parse("2025-07-22T10:15:30Z"), assign_web1_toToky, gradesExam1Prog1);
+    assign_prog1_toToky = createCourseAssignment(courseProg1, teacherToky, List.of(groupG1));
+    exam1Prog1 = createExam(Instant.parse("2025-07-22T10:15:30Z"), assign_prog1_toToky);
     gradesExam1Prog1 = someGrade(List.of(studentAxel, studentTolojanahary), exam1Prog1);
+    exam1Prog1.setGrades(gradesExam1Prog1);
 
     groupRepository.save(groupG1);
-    userRepository.saveAll(List.of(studentAxel, studentTolojanahary));
-    userRepository.saveAll(List.of(teacherToky));
+    userRepository.saveAll(List.of(studentAxel, studentTolojanahary, teacherToky));
     courseRepository.save(courseProg1);
+    groupFlowsAxel = createGroupFlow(studentAxel, groupG1);
+    groupFlowsTolojanahary = createGroupFlow(studentTolojanahary, groupG1);
     groupFlowRepository.saveAll(List.of(groupFlowsAxel, groupFlowsTolojanahary));
-    courseAssignmentRepository.save(assign_web1_toToky);
+    assign_prog1_toToky = createCourseAssignment(courseProg1, teacherToky, List.of(groupG1));
+    courseAssignmentRepository.save(assign_prog1_toToky);
+    exam1Prog1 = createExam(Instant.parse("2025-07-22T10:15:30Z"), assign_prog1_toToky);
     examRepository.save(exam1Prog1);
+
+    gradesExam1Prog1 = someGrade(List.of(studentAxel, studentTolojanahary), exam1Prog1);
     gradeRepository.saveAll(gradesExam1Prog1);
+    exam1Prog1.setGrades(gradesExam1Prog1);
+    examRepository.save(exam1Prog1);
 
     groupIds.add(groupG1.getId());
     studentIds.addAll(List.of(studentAxel.getId(), studentTolojanahary.getId()));
     groupFlowIds.addAll(List.of(groupFlowsAxel.getId(), groupFlowsTolojanahary.getId()));
     teacherIds.add(teacherToky.getId());
     courseIds.add(courseProg1.getId());
-    courseAssignmentIds.add(assign_web1_toToky.getId());
+    courseAssignmentIds.add(assign_prog1_toToky.getId());
     examIds.add(exam1Prog1.getId());
     gradeIds.addAll(List.of(gradesExam1Prog1.get(0).getId(), gradesExam1Prog1.get(1).getId()));
   }
 
   private List<Grade> someGrade(List<User> students, Exam exam) {
     return students.stream()
-        .map(student -> new Grade(UUID.randomUUID().toString(), student, exam, 18.2, null))
+        .map(student -> new Grade(randomUUID().toString(), student, exam, 18.2, null))
         .toList();
   }
 

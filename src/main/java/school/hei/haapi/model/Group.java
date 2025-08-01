@@ -45,6 +45,8 @@ public class Group implements Serializable {
   private String ref;
   private String attributedColor;
 
+  // TODO: should replace this with PrePersist because this always sets to Instant.now() even with a
+  // set value
   @EqualsAndHashCode.Exclude @CreationTimestamp private Instant creationDatetime;
 
   @EqualsAndHashCode.Exclude @Builder.Default private boolean isDeleted = false;

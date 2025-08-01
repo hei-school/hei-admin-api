@@ -440,7 +440,7 @@ paths:
       tags:
         - Grades
       summary: Get student grades.
-      operationId: getStudentGrades
+      operationId: getGradesByStudentId
       parameters:
         - name: student_id
           in: path
@@ -466,7 +466,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/CourseAssignmentExam'
+                  $ref: '#/components/schemas/Grade'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -516,11 +516,6 @@ paths:
       parameters:
         - $ref: "#/components/parameters/PathStudentId"
         - $ref: "#/components/parameters/PathCourseId"
-        - name: student_level
-          required: false
-          in: query
-          schema:
-            $ref: "#/components/schemas/StudentLevel"
       responses:
         '200':
           description: List of Grades of the specified student.
@@ -1329,7 +1324,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /course_assignment/{course_assignment_id}/exams/{exam_id}:
+  /course_assignments/{course_assignment_id}/exams/{exam_id}:
     get:
       tags:
         - Exams
@@ -1900,8 +1895,8 @@ paths:
     get:
       tags:
         - Grades
-      summary: Return all participants with there exam grade
-      operationId: getParticipantsGradeForExam
+      summary: Return all students with their grade
+      operationId: getStudentGradesForExam
       parameters:
         - name: exam_id
           in: path
