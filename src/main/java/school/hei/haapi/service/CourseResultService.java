@@ -9,6 +9,7 @@ import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -93,14 +94,17 @@ public class CourseResultService {
     return IN_PROGRESS;
   }
 
-  private int getSumCredits(List<school.hei.haapi.endpoint.rest.model.Course> courses) {
+  public int getSumCredits(List<CourseResult> courses) {
     int sumCredits =
-        courses.stream().mapToInt(school.hei.haapi.endpoint.rest.model.Course::getCredits).sum();
+        courses.parallelStream()
+            .map(CourseResult::getCourse)
+            .filter(Objects::nonNull)
+            .map(school.hei.haapi.endpoint.rest.model.Course::getCredits)
+            .map(Optional::ofNullable)
+            .filter(Optional::isPresent)
+            .mapToInt(Optional::get)
+            .sum();
     if (sumCredits == 0) throw new CourseCreditsSumZero();
     return sumCredits;
-  }
-
-  private int getSumCredits(List<CourseResult> courses) {
-    return getSumCredits(courses.stream().map(CourseResult::getCourse).toList());
   }
 }

@@ -11,8 +11,6 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.endpoint.rest.model.Course;
-import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
@@ -33,16 +31,7 @@ public class GradeResultService {
         .obtainedCredits(courseResultService.obtainedCreditsOfCourseResults(courseResults))
         .courseResults(courseResults)
         .status(courseResultService.courseStatusFromCourseResult(courseResults))
-        .totalCredits(
-            BigDecimal.valueOf(
-                courseResults.parallelStream()
-                    .map(CourseResult::getCourse)
-                    .filter(Objects::nonNull)
-                    .map(Course::getCredits)
-                    .map(Optional::ofNullable)
-                    .filter(Optional::isPresent)
-                    .mapToInt(Optional::get)
-                    .sum()));
+        .totalCredits(BigDecimal.valueOf(courseResultService.getSumCredits(courseResults)));
   }
 
   private Optional<YearlyResult> findLeveledYearlyResultByStudentId(
