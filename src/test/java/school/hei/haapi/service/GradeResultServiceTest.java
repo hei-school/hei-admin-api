@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
@@ -34,18 +35,26 @@ class GradeResultServiceTest {
           new CourseResultService(courseAssignmentDao, gradeDao, new CourseMapper(), examService));
 
   private final User student1 = User.builder().id("id").build();
+  private final User student2 = User.builder().id("another id").build();
   private final Exam mgt1Exam = Exam.builder().id("mgt1 exam").coefficient(1).build();
   private final Exam prog1Exam = Exam.builder().id("prog1 exam").coefficient(1).build();
   private final Exam donnees1Exam = Exam.builder().id("donnees1 exam").coefficient(1).build();
   private final Exam web1Exam = Exam.builder().id("web1 exam").coefficient(1).build();
   private final Exam sys1Exam = Exam.builder().id("sys1 exam").coefficient(1).build();
   private final Exam lv1Exam = Exam.builder().id("lv1 exam").coefficient(1).build();
-  private final Grade mgt1Grade = Grade.builder().score(17.75).exam(mgt1Exam).build();
-  private final Grade prog1Grade = Grade.builder().score(13.59).exam(prog1Exam).build();
-  private final Grade donnees1Grade = Grade.builder().score(15.4375).exam(donnees1Exam).build();
-  private final Grade web1Grade = Grade.builder().score(18.75).exam(web1Exam).build();
-  private final Grade sys1Grade = Grade.builder().score(13.).exam(sys1Exam).build();
-  private final Grade lv1Grade = Grade.builder().score(13.91).exam(lv1Exam).build();
+  private final Grade student1Mgt1Grade = Grade.builder().score(17.75).exam(mgt1Exam).build();
+  private final Grade student1Prog1Grade = Grade.builder().score(13.59).exam(prog1Exam).build();
+  private final Grade student1Donnees1Grade =
+      Grade.builder().score(15.4375).exam(donnees1Exam).build();
+  private final Grade student1Web1Grade = Grade.builder().score(18.75).exam(web1Exam).build();
+  private final Grade student1Sys1Grade = Grade.builder().score(13.).exam(sys1Exam).build();
+  private final Grade student1Lv1Grade = Grade.builder().score(13.91).exam(lv1Exam).build();
+  private final Grade student2Mgt1Grade = Grade.builder().score(14.75).exam(mgt1Exam).build();
+  private final Grade student2Prog1Grade = Grade.builder().score(4.46).exam(prog1Exam).build();
+  private final Grade student2Donnees1Grade = Grade.builder().score(6.).exam(donnees1Exam).build();
+  private final Grade student2Web1Grade = Grade.builder().score(7.5).exam(web1Exam).build();
+  private final Grade student2Sys1Grade = Grade.builder().score(10.00).exam(sys1Exam).build();
+  private final Grade student2Lv1Grade = Grade.builder().score(3.91).exam(lv1Exam).build();
   private final Course mgt1Course = Course.builder().id("mgt1").credits(4).build();
   private final Course prog1Course = Course.builder().id("prog1").credits(6).build();
   private final Course donne1Course = Course.builder().id("donne1").credits(4).build();
@@ -67,19 +76,35 @@ class GradeResultServiceTest {
 
   @BeforeEach
   void setUp() {
+    // Mock student1 grades
     when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
-        .thenReturn(List.of(mgt1Grade));
+        .thenReturn(List.of(student1Mgt1Grade));
     when(gradeDao.getStudentGradesByCourseId(prog1Course.getId(), student1.getId()))
-        .thenReturn(List.of(prog1Grade));
+        .thenReturn(List.of(student1Prog1Grade));
     when(gradeDao.getStudentGradesByCourseId(donne1Course.getId(), student1.getId()))
-        .thenReturn(List.of(donnees1Grade));
+        .thenReturn(List.of(student1Donnees1Grade));
     when(gradeDao.getStudentGradesByCourseId(web1Course.getId(), student1.getId()))
-        .thenReturn(List.of(web1Grade));
+        .thenReturn(List.of(student1Web1Grade));
     when(gradeDao.getStudentGradesByCourseId(sys1Course.getId(), student1.getId()))
-        .thenReturn(List.of(sys1Grade));
+        .thenReturn(List.of(student1Sys1Grade));
     when(gradeDao.getStudentGradesByCourseId(lv1Course.getId(), student1.getId()))
-        .thenReturn(List.of(lv1Grade));
+        .thenReturn(List.of(student1Lv1Grade));
 
+    // Mock student2 grades
+    when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student2.getId()))
+        .thenReturn(List.of(student2Mgt1Grade));
+    when(gradeDao.getStudentGradesByCourseId(prog1Course.getId(), student2.getId()))
+        .thenReturn(List.of(student2Prog1Grade));
+    when(gradeDao.getStudentGradesByCourseId(donne1Course.getId(), student2.getId()))
+        .thenReturn(List.of(student2Donnees1Grade));
+    when(gradeDao.getStudentGradesByCourseId(web1Course.getId(), student2.getId()))
+        .thenReturn(List.of(student2Web1Grade));
+    when(gradeDao.getStudentGradesByCourseId(sys1Course.getId(), student2.getId()))
+        .thenReturn(List.of(student2Sys1Grade));
+    when(gradeDao.getStudentGradesByCourseId(lv1Course.getId(), student2.getId()))
+        .thenReturn(List.of(student2Lv1Grade));
+
+    // Mock exam from course assignment
     when(examService.getExamsByCourseAssignmentId(mgt1CourseAssignment.getId()))
         .thenReturn(List.of(mgt1Exam));
     when(examService.getExamsByCourseAssignmentId(prog1CourseAssignment.getId()))
@@ -93,6 +118,7 @@ class GradeResultServiceTest {
     when(examService.getExamsByCourseAssignmentId(lv1CourseAssignment.getId()))
         .thenReturn(List.of(lv1Exam));
 
+    // Mock course assignment from course level
     when(courseAssignmentDao.findByCriteria(any(), any(), eq(L1), any()))
         .thenReturn(
             List.of(
@@ -105,7 +131,7 @@ class GradeResultServiceTest {
   }
 
   @Test
-  void correct_result_yearly_result_L1() throws CourseCreditsSumZero {
+  void correct_result_yearly_result_student1_L1_validate() throws CourseCreditsSumZero {
     var targetLevel = L1;
 
     YearlyResult result =
@@ -116,6 +142,21 @@ class GradeResultServiceTest {
     assertEquals(6, result.getCourseResults().size());
     assertEquals(15.347666666666667, result.getWeightedAverage().doubleValue());
     assertEquals(VALIDATED, result.getStatus());
+    assertEquals(30., result.getTotalCredits().doubleValue());
+  }
+
+  @Test
+  void correct_result_yearly_result_student2_L1_invalidate() throws CourseCreditsSumZero {
+    var targetLevel = L1;
+
+    YearlyResult result =
+        gradeResultService.getLeveledYearlyResultByStudentId(targetLevel, student2.getId());
+
+    assertEquals(targetLevel, result.getLevel());
+    assertEquals(10., result.getObtainedCredits().doubleValue());
+    assertEquals(6, result.getCourseResults().size());
+    assertEquals(7.68, result.getWeightedAverage().doubleValue());
+    assertEquals(INVALIDATED, result.getStatus());
     assertEquals(30., result.getTotalCredits().doubleValue());
   }
 

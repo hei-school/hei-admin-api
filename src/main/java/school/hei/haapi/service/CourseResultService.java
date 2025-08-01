@@ -82,7 +82,7 @@ public class CourseResultService {
         .divide(BigDecimal.valueOf(sumCredits), MathContext.DECIMAL128);
   }
 
-  public ResultOverviewStatus courseStatusFromCourseResult(List<CourseResult> courseResults) {
+  public ResultOverviewStatus courseValidationFromCourseResult(List<CourseResult> courseResults) {
     if (courseResults.parallelStream()
         .map(CourseResult::getStatus)
         .map(Optional::ofNullable)
