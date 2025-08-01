@@ -6610,6 +6610,16 @@ components:
           type: number
         obtained_credits:
           type: number
+        status:
+          $ref: '#/components/schemas/ResultOverviewStatus'
+        total_credits:
+          type: number
+    ResultOverviewStatus:
+      type: string
+      enum:
+        - VALIDATED
+        - INVALIDATED
+        - IN_PROGRESS
     StudentGrade:
       properties:
         grade:
