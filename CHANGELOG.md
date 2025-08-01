@@ -1,3 +1,12 @@
+# [1.106.0](https://github.com/hei-school/hei-admin-api/compare/v1.105.1...v1.106.0) (2025-08-01)
+
+
+### Features
+
+* ResultOverview add status and total credits ([95441ba](https://github.com/hei-school/hei-admin-api/commit/95441bae528139507089e2bb4dd1e6167be0c9c7))
+
+
+
 ## [1.105.1](https://github.com/hei-school/hei-admin-api/compare/v1.105.0...v1.105.1) (2025-07-24)
 
 
@@ -108,15 +117,6 @@
 
 * generate advanced fee stats  for given date range ([979fe44](https://github.com/hei-school/hei-admin-api/commit/979fe44c6248e5c326b665df9108760a6aeb21ce))
 * **not-implemented:** get all event attendances ([46a0826](https://github.com/hei-school/hei-admin-api/commit/46a0826d1a582c8cfe7d3f3b52cd3931c06749ec))
-
-
-
-# [1.101.0](https://github.com/hei-school/hei-admin-api/compare/v1.100.0...v1.101.0) (2025-03-26)
-
-
-### Features
-
-* add category and frequency to fees, c9d39277 ([459ddac](https://github.com/hei-school/hei-admin-api/commit/459ddac47a5e06e4cd3c321a8c4a11e9890c5a01))
 
 
 
