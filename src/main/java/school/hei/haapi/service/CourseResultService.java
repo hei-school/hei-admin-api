@@ -2,17 +2,21 @@ package school.hei.haapi.service;
 
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.NOT_STARTED;
-import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.VALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
+import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
+import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.exception.CourseCreditsSumZero;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
@@ -47,7 +51,7 @@ public class CourseResultService {
               } else if (studentGrades.size() < examsOfTheCourse.size()) {
                 return courseResult.status(INCOMPLETE);
               } else {
-                return courseResult.status(VALIDATED);
+                return courseResult.status(CourseResultStatus.VALIDATED);
               }
             })
         .toList();
@@ -79,5 +83,17 @@ public class CourseResultService {
                     .multiply(BigDecimal.valueOf(courseResult.getCourse().getCredits())))
         .reduce(BigDecimal.ZERO, BigDecimal::add)
         .divide(BigDecimal.valueOf(sumCredits), MathContext.DECIMAL128);
+  }
+
+  public ResultOverviewStatus courseStatusFromCourseResult(List<CourseResult> courseResults) {
+    if (courseResults.parallelStream()
+        .map(CourseResult::getStatus)
+        .map(Optional::ofNullable)
+        .allMatch(
+            courseResultStatus ->
+                courseResultStatus.filter(CourseResultStatus.VALIDATED::equals).isPresent())) {
+      return VALIDATED;
+    }
+    return IN_PROGRESS;
   }
 }

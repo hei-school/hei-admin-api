@@ -29,7 +29,8 @@ public class GradeResultService {
         .level(level)
         .weightedAverage(courseResultService.weightedSumOfCourseResults(courseResults))
         .obtainedCredits(courseResultService.obtainedCreditsOfCourseResults(courseResults))
-        .courseResults(courseResults);
+        .courseResults(courseResults)
+        .status(courseResultService.courseStatusFromCourseResult(courseResults));
   }
 
   private Optional<YearlyResult> findLeveledYearlyResultByStudentId(

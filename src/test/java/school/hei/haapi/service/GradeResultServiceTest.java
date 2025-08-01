@@ -6,6 +6,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 
@@ -114,6 +115,8 @@ class GradeResultServiceTest {
     assertEquals(30., result.getObtainedCredits().doubleValue());
     assertEquals(6, result.getCourseResults().size());
     assertEquals(15.347666666666667, result.getWeightedAverage().doubleValue());
+    assertEquals(VALIDATED, result.getStatus());
+    assertEquals(30., result.getTotalCredits().doubleValue());
   }
 
   @Test
@@ -132,5 +135,7 @@ class GradeResultServiceTest {
     assertEquals(1, result.getYearlyResults().size());
     assertEquals(30., result.getObtainedCredits().doubleValue());
     assertEquals(15.3476666666666667, result.getWeightedAverage().doubleValue());
+    assertEquals(VALIDATED, result.getStatus());
+    assertEquals(30., result.getTotalCredits().doubleValue());
   }
 }
