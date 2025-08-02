@@ -223,4 +223,26 @@ class GradeResultServiceTest {
     assertEquals(VALIDATED, result.getStatus());
     assertEquals(30., result.getTotalCredits().doubleValue());
   }
+
+  @Test
+  void correct_result_result_summary_student2_invalidated() {
+    ResultSummary result = gradeResultService.getStudentResultSummary(student2.getId());
+
+    assertEquals(1, result.getYearlyResults().size());
+    assertEquals(10., result.getObtainedCredits().doubleValue());
+    assertEquals(7.68, result.getWeightedAverage().doubleValue());
+    assertEquals(INVALIDATED, result.getStatus());
+    assertEquals(30., result.getTotalCredits().doubleValue());
+  }
+
+  @Test
+  void correct_result_result_summary_student3_in_progress() {
+    ResultSummary result = gradeResultService.getStudentResultSummary(student3.getId());
+
+    assertEquals(1, result.getYearlyResults().size());
+    assertEquals(26., result.getObtainedCredits().doubleValue());
+    assertEquals(13.493, result.getWeightedAverage().doubleValue());
+    assertEquals(IN_PROGRESS, result.getStatus());
+    assertEquals(30., result.getTotalCredits().doubleValue());
+  }
 }
