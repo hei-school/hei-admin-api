@@ -1,10 +1,9 @@
 package school.hei.haapi.service;
 
-import static java.math.BigDecimal.ZERO;
+import static java.math.BigDecimal.*;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
 import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.NOT_STARTED;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.*;
 import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 import java.math.BigDecimal;
@@ -58,6 +57,8 @@ public class CourseResultService {
                 return courseResult.status(NOT_STARTED);
               } else if (studentGrades.size() < examsOfTheCourse.size()) {
                 return courseResult.status(INCOMPLETE);
+              } else if (TEN.compareTo(courseResult.getWeightedAverage()) > 0) {
+                return courseResult.status(INCOMPLETE);
               } else {
                 return courseResult.status(CourseResultStatus.VALIDATED);
               }
@@ -90,15 +91,18 @@ public class CourseResultService {
   }
 
   public ResultOverviewStatus courseValidationFromCourseResult(List<CourseResult> courseResults) {
-    if (courseResults.parallelStream()
-        .map(CourseResult::getStatus)
+    var coursesResultStatus = courseResults.parallelStream().map(CourseResult::getStatus).toList();
+    if (coursesResultStatus.stream()
         .map(Optional::ofNullable)
         .allMatch(
             courseResultStatus ->
                 courseResultStatus.filter(CourseResultStatus.VALIDATED::equals).isPresent())) {
       return VALIDATED;
     }
-    return IN_PROGRESS;
+    if (coursesResultStatus.stream().anyMatch(CourseResultStatus.IN_PROGRESS::equals)) {
+      return IN_PROGRESS;
+    }
+    return INVALIDATED;
   }
 
   public int getSumCredits(List<CourseResult> courses) {

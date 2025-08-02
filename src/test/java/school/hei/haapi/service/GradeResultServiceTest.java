@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.math.BigDecimal.ZERO;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -26,7 +27,6 @@ import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
-import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
 
@@ -263,7 +263,7 @@ class GradeResultServiceTest {
   }
 
   @Test
-  void course_result_with_exams_coefficient_sum_zero_ko() {
+  void course_result_with_exams_coefficient_sum_zero_is_inProgress() {
     when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
         .thenReturn(List.of(student3GradeForBadExam));
     when(examService.getExamsByCourseAssignmentId(mgt1CourseAssignment.getId()))
@@ -271,8 +271,11 @@ class GradeResultServiceTest {
     when(courseAssignmentDao.findByCriteria(any(), any(), eq(L1), any()))
         .thenReturn(List.of(mgt1CourseAssignment));
 
-    assertThrows(
-        ExamsCoefficientSumZero.class,
-        () -> subject.getLeveledYearlyResultByStudentId(L1, student1.getId()));
+    var result = subject.getLeveledYearlyResultByStudentId(L1, student1.getId());
+
+    assertEquals(IN_PROGRESS, result.getStatus());
+    assertEquals(ZERO, result.getWeightedAverage());
+    assertEquals(1, result.getCourseResults().size());
+    assertEquals(0, result.getObtainedCredits().doubleValue());
   }
 }

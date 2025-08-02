@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.math.BigDecimal.TWO;
 import static java.math.BigDecimal.ZERO;
 import static java.math.MathContext.*;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.*;
@@ -28,20 +27,13 @@ public class GradeResultService {
   public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
     var courseResults = courseResultService.courseResultsForLevelOfStudent(level, studentId);
 
-    var obtainedCredits = courseResultService.obtainedCreditsOfCourseResults(courseResults);
-    var totalCredits = BigDecimal.valueOf(courseResultService.getSumCredits(courseResults));
-    var canBeValidated = obtainedCredits.compareTo(totalCredits.divide(TWO, UNLIMITED)) > 0;
-
     return new YearlyResult()
         .level(level)
         .weightedAverage(courseResultService.weightedSumOfCourseResults(courseResults))
-        .obtainedCredits(obtainedCredits)
+        .obtainedCredits(courseResultService.obtainedCreditsOfCourseResults(courseResults))
         .courseResults(courseResults)
-        .status(
-            canBeValidated
-                ? courseResultService.courseValidationFromCourseResult(courseResults)
-                : INVALIDATED)
-        .totalCredits(totalCredits);
+        .status(courseResultService.courseValidationFromCourseResult(courseResults))
+        .totalCredits(BigDecimal.valueOf(courseResultService.getSumCredits(courseResults)));
   }
 
   private Optional<YearlyResult> findLeveledYearlyResultByStudentId(
