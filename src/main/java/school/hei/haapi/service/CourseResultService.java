@@ -20,8 +20,8 @@ import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
-import school.hei.haapi.model.exception.CourseCoefficientsSumZero;
-import school.hei.haapi.model.exception.CourseCreditsSumZero;
+import school.hei.haapi.model.exception.CoursesCreditSumZero;
+import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
 
@@ -50,7 +50,7 @@ public class CourseResultService {
                   new CourseResult().course(courseMapper.toRest(courseAssignment.getCourse()));
               try {
                 courseResult.weightedAverage(weightedAverageOfGrades(studentGrades));
-              } catch (CourseCoefficientsSumZero e) {
+              } catch (ExamsCoefficientSumZero e) {
                 return courseResult.weightedAverage(ZERO).status(CourseResultStatus.IN_PROGRESS);
               }
 
@@ -111,7 +111,7 @@ public class CourseResultService {
             .filter(Optional::isPresent)
             .mapToInt(Optional::get)
             .sum();
-    if (sumCredits == 0) throw new CourseCreditsSumZero();
+    if (sumCredits == 0) throw new CoursesCreditSumZero();
     return sumCredits;
   }
 }

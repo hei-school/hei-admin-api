@@ -17,7 +17,7 @@ import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
-import school.hei.haapi.model.exception.CourseCreditsSumZero;
+import school.hei.haapi.model.exception.CoursesCreditSumZero;
 
 @Service
 @AllArgsConstructor
@@ -48,7 +48,7 @@ public class GradeResultService {
       StudentLevel level, String studentId) {
     try {
       return Optional.of(getLeveledYearlyResultByStudentId(level, studentId));
-    } catch (CourseCreditsSumZero e) {
+    } catch (CoursesCreditSumZero e) {
       log.error(
           "Course results for the level {} of the student id {} coefficient sum is 0",
           level,

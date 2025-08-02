@@ -25,7 +25,8 @@ import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.User;
-import school.hei.haapi.model.exception.CourseCreditsSumZero;
+import school.hei.haapi.model.exception.CoursesCreditSumZero;
+import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
 
@@ -33,7 +34,7 @@ class GradeResultServiceTest {
   private final GradeDao gradeDao = mock();
   private final CourseAssignmentDao courseAssignmentDao = mock();
   private final ExamService examService = mock();
-  private final GradeResultService gradeResultService =
+  private final GradeResultService subject =
       new GradeResultService(
           new CourseResultService(courseAssignmentDao, gradeDao, new CourseMapper(), examService));
 
@@ -47,6 +48,7 @@ class GradeResultServiceTest {
   private final Exam web1Exam = Exam.builder().id("web1 exam").coefficient(1).build();
   private final Exam sys1Exam = Exam.builder().id("sys1 exam").coefficient(1).build();
   private final Exam lv1Exam = Exam.builder().id("lv1 exam").coefficient(1).build();
+  private final Exam badExam = Exam.builder().id("bad exam").coefficient(0).build();
 
   private final Grade student1Mgt1Grade = Grade.builder().score(17.75).exam(mgt1Exam).build();
   private final Grade student1Prog1Grade = Grade.builder().score(13.59).exam(prog1Exam).build();
@@ -67,6 +69,7 @@ class GradeResultServiceTest {
       Grade.builder().score(15.4375).exam(donnees1Exam).build();
   private final Grade student3Web1Grade = Grade.builder().score(18.75).exam(web1Exam).build();
   private final Grade student3Sys1Grade = Grade.builder().score(13.).exam(sys1Exam).build();
+  private final Grade student3GradeForBadExam = Grade.builder().score(13.59).exam(badExam).build();
 
   private final Course mgt1Course = Course.builder().id("mgt1").credits(4).build();
   private final Course prog1Course = Course.builder().id("prog1").credits(6).build();
@@ -74,6 +77,7 @@ class GradeResultServiceTest {
   private final Course web1Course = Course.builder().id("web1").credits(6).build();
   private final Course sys1Course = Course.builder().id("sys1").credits(6).build();
   private final Course lv1Course = Course.builder().id("lv1").credits(4).build();
+  private final Course badCourse = Course.builder().id("bad course").credits(0).build();
 
   private final CourseAssignment mgt1CourseAssignment =
       CourseAssignment.builder().id("mgt1 courseAssignment").course(mgt1Course).build();
@@ -87,6 +91,8 @@ class GradeResultServiceTest {
       CourseAssignment.builder().id("sys1 courseAssignment").course(sys1Course).build();
   private final CourseAssignment lv1CourseAssignment =
       CourseAssignment.builder().id("lv1 courseAssignment").course(lv1Course).build();
+  private final CourseAssignment badCourseAssignment =
+      CourseAssignment.builder().id("lv1 courseAssignment").course(badCourse).build();
 
   @BeforeEach
   void setUp() {
@@ -157,11 +163,10 @@ class GradeResultServiceTest {
   }
 
   @Test
-  void correct_result_yearly_result_student1_L1_validate() throws CourseCreditsSumZero {
+  void correct_result_yearly_result_student1_L1_validate() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    YearlyResult result =
-        gradeResultService.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
+    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(30., result.getObtainedCredits().doubleValue());
@@ -172,11 +177,10 @@ class GradeResultServiceTest {
   }
 
   @Test
-  void correct_result_yearly_result_student2_L1_invalidate() throws CourseCreditsSumZero {
+  void correct_result_yearly_result_student2_L1_invalidate() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    YearlyResult result =
-        gradeResultService.getLeveledYearlyResultByStudentId(targetLevel, student2.getId());
+    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, student2.getId());
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(10., result.getObtainedCredits().doubleValue());
@@ -187,11 +191,10 @@ class GradeResultServiceTest {
   }
 
   @Test
-  void correct_result_yearly_result_student3_L1_inProgress() throws CourseCreditsSumZero {
+  void correct_result_yearly_result_student3_L1_inProgress() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    YearlyResult result =
-        gradeResultService.getLeveledYearlyResultByStudentId(targetLevel, student3.getId());
+    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, student3.getId());
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(26., result.getObtainedCredits().doubleValue());
@@ -209,13 +212,12 @@ class GradeResultServiceTest {
     String studentId = student1.getId();
 
     assertThrows(
-        CourseCreditsSumZero.class,
-        () -> gradeResultService.getLeveledYearlyResultByStudentId(M2, studentId));
+        CoursesCreditSumZero.class, () -> subject.getLeveledYearlyResultByStudentId(M2, studentId));
   }
 
   @Test
   void correct_result_result_summary_student1_validated() {
-    ResultSummary result = gradeResultService.getStudentResultSummary(student1.getId());
+    ResultSummary result = subject.getStudentResultSummary(student1.getId());
 
     assertEquals(1, result.getYearlyResults().size());
     assertEquals(30., result.getObtainedCredits().doubleValue());
@@ -226,7 +228,7 @@ class GradeResultServiceTest {
 
   @Test
   void correct_result_result_summary_student2_invalidated() {
-    ResultSummary result = gradeResultService.getStudentResultSummary(student2.getId());
+    ResultSummary result = subject.getStudentResultSummary(student2.getId());
 
     assertEquals(1, result.getYearlyResults().size());
     assertEquals(10., result.getObtainedCredits().doubleValue());
@@ -237,12 +239,40 @@ class GradeResultServiceTest {
 
   @Test
   void correct_result_result_summary_student3_in_progress() {
-    ResultSummary result = gradeResultService.getStudentResultSummary(student3.getId());
+    ResultSummary result = subject.getStudentResultSummary(student3.getId());
 
     assertEquals(1, result.getYearlyResults().size());
     assertEquals(26., result.getObtainedCredits().doubleValue());
     assertEquals(13.493, result.getWeightedAverage().doubleValue());
     assertEquals(IN_PROGRESS, result.getStatus());
     assertEquals(30., result.getTotalCredits().doubleValue());
+  }
+
+  @Test
+  void yearly_result_with_course_credits_sum_zero_ko() {
+    when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
+        .thenReturn(List.of(student1Mgt1Grade));
+    when(examService.getExamsByCourseAssignmentId(badCourseAssignment.getId()))
+        .thenReturn(List.of(mgt1Exam));
+    when(courseAssignmentDao.findByCriteria(any(), any(), eq(L1), any()))
+        .thenReturn(List.of(badCourseAssignment));
+
+    assertThrows(
+        CoursesCreditSumZero.class,
+        () -> subject.getLeveledYearlyResultByStudentId(L1, student1.getId()));
+  }
+
+  @Test
+  void course_result_with_exams_coefficient_sum_zero_ko() {
+    when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
+        .thenReturn(List.of(student3GradeForBadExam));
+    when(examService.getExamsByCourseAssignmentId(mgt1CourseAssignment.getId()))
+        .thenReturn(List.of(badExam));
+    when(courseAssignmentDao.findByCriteria(any(), any(), eq(L1), any()))
+        .thenReturn(List.of(mgt1CourseAssignment));
+
+    assertThrows(
+        ExamsCoefficientSumZero.class,
+        () -> subject.getLeveledYearlyResultByStudentId(L1, student1.getId()));
   }
 }
