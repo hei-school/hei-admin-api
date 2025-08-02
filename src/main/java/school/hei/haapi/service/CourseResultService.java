@@ -1,9 +1,10 @@
 package school.hei.haapi.service;
 
-import static java.math.BigDecimal.*;
-import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
-import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.NOT_STARTED;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.*;
+import static java.math.BigDecimal.TEN;
+import static java.math.BigDecimal.ZERO;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 import java.math.BigDecimal;
@@ -54,11 +55,11 @@ public class CourseResultService {
               }
 
               if (studentGrades.isEmpty()) {
-                return courseResult.status(NOT_STARTED);
+                return courseResult.status(CourseResultStatus.NOT_STARTED);
               } else if (studentGrades.size() < examsOfTheCourse.size()) {
-                return courseResult.status(INCOMPLETE);
+                return courseResult.status(CourseResultStatus.INCOMPLETE);
               } else if (TEN.compareTo(courseResult.getWeightedAverage()) > 0) {
-                return courseResult.status(INCOMPLETE);
+                return courseResult.status(CourseResultStatus.INCOMPLETE);
               } else {
                 return courseResult.status(CourseResultStatus.VALIDATED);
               }

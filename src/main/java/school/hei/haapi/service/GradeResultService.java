@@ -1,8 +1,10 @@
 package school.hei.haapi.service;
 
 import static java.math.BigDecimal.ZERO;
-import static java.math.MathContext.*;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.*;
+import static java.math.MathContext.UNLIMITED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 
 import java.math.BigDecimal;
 import java.util.Arrays;

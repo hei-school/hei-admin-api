@@ -1,7 +1,7 @@
 package school.hei.haapi.model;
 
 import static java.math.BigDecimal.ZERO;
-import static java.math.MathContext.*;
+import static java.math.MathContext.UNLIMITED;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;

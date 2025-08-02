@@ -24,7 +24,7 @@ import school.hei.haapi.model.exception.TooManyRequestsException;
 public class InternalToRestExceptionHandler {
 
   @ExceptionHandler(value = {CoursesCreditSumZero.class})
-  ResponseEntity<school.hei.haapi.endpoint.rest.model.Exception> handleCourseCreditsSumZero(
+  ResponseEntity<school.hei.haapi.endpoint.rest.model.Exception> handleCoursesCreditSumZero(
       CoursesCreditSumZero exception) {
     return handleBadRequest(new BadRequestException(exception.getMessage()));
   }
