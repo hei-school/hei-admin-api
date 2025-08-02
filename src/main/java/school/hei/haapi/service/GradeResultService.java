@@ -3,7 +3,7 @@ package school.hei.haapi.service;
 import static java.math.BigDecimal.TWO;
 import static java.math.BigDecimal.ZERO;
 import static java.math.MathContext.*;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.*;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -13,6 +13,7 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
@@ -88,9 +89,23 @@ public class GradeResultService {
         .yearlyResults(yearlyResultList)
         .obtainedCredits(obtainedCredits)
         .weightedAverage(weightedAverage)
+        .status(resultSummaryStatusFromYearlyResults(yearlyResultList))
         .totalCredits(
             yearlyResultList.parallelStream()
                 .map(YearlyResult::getTotalCredits)
                 .reduce(ZERO, BigDecimal::add));
+  }
+
+  private ResultOverviewStatus resultSummaryStatusFromYearlyResults(
+      List<YearlyResult> yearlyResultList) {
+    var yearlyResultsStatus = yearlyResultList.stream().map(YearlyResult::getStatus).toList();
+
+    if (yearlyResultsStatus.stream().anyMatch(IN_PROGRESS::equals)) {
+      return IN_PROGRESS;
+    } else if (yearlyResultsStatus.stream().allMatch(VALIDATED::equals)) {
+      return VALIDATED;
+    } else {
+      return INVALIDATED;
+    }
   }
 }

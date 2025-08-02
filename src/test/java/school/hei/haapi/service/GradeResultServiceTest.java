@@ -214,13 +214,13 @@ class GradeResultServiceTest {
   }
 
   @Test
-  void correct_result_result_summary() {
+  void correct_result_result_summary_student1_validated() {
     ResultSummary result = gradeResultService.getStudentResultSummary(student1.getId());
 
     assertEquals(1, result.getYearlyResults().size());
     assertEquals(30., result.getObtainedCredits().doubleValue());
     assertEquals(15.3476666666666667, result.getWeightedAverage().doubleValue());
-    // TODO: implement status for result summary
+    assertEquals(VALIDATED, result.getStatus());
     assertEquals(30., result.getTotalCredits().doubleValue());
   }
 }
