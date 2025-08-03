@@ -4468,6 +4468,40 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /monitors/{monitor_id}/students/{student_id}:
+    get: 
+      tags:
+        - Monitoring 
+      summary: Get a student using its monitor id.
+      parameters: 
+        - name: monitor_id
+          in: path
+          required: true
+          schema: 
+            type: string
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      operationId: getLinkedStudentByIdAndMonitorId
+      responses:
+        '200':
+          description: A student monitored by the monitor_id with the given student_id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Student"
+        '400': 
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500': 
+          $ref: '#/components/responses/500'
   /events:
     get:
       tags:

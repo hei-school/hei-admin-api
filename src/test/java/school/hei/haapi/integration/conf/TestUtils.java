@@ -174,6 +174,7 @@ public class TestUtils {
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MONITOR1_TOKEN = "monitor1_token";
   public static final String AXEL_MONITOR_TOKEN = "axel_monitor_token";
+  public static final String TOLOJANAHARY_MONITOR_TOKEN = "tolojanahary_monitor_token";
   public static final String MONITOR2_TOKEN = "monitor2_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
   public static final String STAFF_MEMBER1_TOKEN = "staff1_token";

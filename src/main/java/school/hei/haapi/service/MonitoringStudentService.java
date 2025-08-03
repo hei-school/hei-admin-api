@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 
 import java.util.List;
@@ -17,6 +16,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.MonitoringStudentRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -57,7 +57,7 @@ public class MonitoringStudentService {
           List<String> studentsIds =
               userRepository.findAllByRefIn(monitor.getStudentRefs()).stream()
                   .map(User::getId)
-                  .collect(toUnmodifiableList());
+                  .toList();
 
           linkMonitorFollowingStudents(
               userRepository
@@ -109,5 +109,18 @@ public class MonitoringStudentService {
         .latitude(monitor.getCoordinates().getLatitude())
         .highSchoolOrigin(monitor.getHighSchoolOrigin())
         .build();
+  }
+
+  public User getStudentByIdAndMonitorId(String studentId, String monitorId)
+      throws BadRequestException {
+    var optionalStudent = userRepository.findById(studentId);
+    if (optionalStudent.isEmpty() || optionalStudent.get().getRole() != User.Role.STUDENT) {
+      throw new BadRequestException("Student with id: " + studentId + " does not exist");
+    }
+    if (!monitoringStudentRepository.getAllMonitorsIdsByStudentId(studentId).contains(monitorId)) {
+      throw new BadRequestException(
+          "Monitor with id: " + monitorId + " does not have a student with id: " + studentId);
+    }
+    return optionalStudent.get();
   }
 }
