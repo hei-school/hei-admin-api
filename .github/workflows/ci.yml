@@ -33,10 +33,10 @@ jobs:
       - run: chmod +x gradlew
       - run: chmod +x .shell/publish_gen_to_maven_local.sh
 
-      - name: Compile only (debug)
-        run: ./gradlew compileJava --debug
+      - name: Compile only with Lombok debug
+        run: ./gradlew compileJava --stacktrace -Plombok.debug=true
 
-      - run: ./gradlew test --stacktrace --info
+      - run: ./gradlew test
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v4.2.2
