@@ -1,7 +1,10 @@
 package school.hei.haapi.service;
 
 import static java.math.BigDecimal.ZERO;
-import static java.math.MathContext.*;
+import static java.math.MathContext.UNLIMITED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 
 import java.math.BigDecimal;
 import java.util.Arrays;
@@ -11,10 +14,11 @@ import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
-import school.hei.haapi.model.exception.CourseCreditsSumZero;
+import school.hei.haapi.model.exception.CoursesCreditSumZero;
 
 @Service
 @AllArgsConstructor
@@ -29,14 +33,16 @@ public class GradeResultService {
         .level(level)
         .weightedAverage(courseResultService.weightedSumOfCourseResults(courseResults))
         .obtainedCredits(courseResultService.obtainedCreditsOfCourseResults(courseResults))
-        .courseResults(courseResults);
+        .courseResults(courseResults)
+        .status(courseResultService.courseValidationFromCourseResult(courseResults))
+        .totalCredits(BigDecimal.valueOf(courseResultService.getSumCredits(courseResults)));
   }
 
   private Optional<YearlyResult> findLeveledYearlyResultByStudentId(
       StudentLevel level, String studentId) {
     try {
       return Optional.of(getLeveledYearlyResultByStudentId(level, studentId));
-    } catch (CourseCreditsSumZero e) {
+    } catch (CoursesCreditSumZero e) {
       log.error(
           "Course results for the level {} of the student id {} coefficient sum is 0",
           level,
@@ -76,6 +82,24 @@ public class GradeResultService {
     return new ResultSummary()
         .yearlyResults(yearlyResultList)
         .obtainedCredits(obtainedCredits)
-        .weightedAverage(weightedAverage);
+        .weightedAverage(weightedAverage)
+        .status(resultSummaryStatusFromYearlyResults(yearlyResultList))
+        .totalCredits(
+            yearlyResultList.parallelStream()
+                .map(YearlyResult::getTotalCredits)
+                .reduce(ZERO, BigDecimal::add));
+  }
+
+  private ResultOverviewStatus resultSummaryStatusFromYearlyResults(
+      List<YearlyResult> yearlyResultList) {
+    var yearlyResultsStatus = yearlyResultList.stream().map(YearlyResult::getStatus).toList();
+
+    if (yearlyResultsStatus.stream().anyMatch(IN_PROGRESS::equals)) {
+      return IN_PROGRESS;
+    } else if (yearlyResultsStatus.stream().allMatch(VALIDATED::equals)) {
+      return VALIDATED;
+    } else {
+      return INVALIDATED;
+    }
   }
 }

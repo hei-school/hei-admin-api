@@ -1,7 +1,7 @@
 package school.hei.haapi.model;
 
 import static java.math.BigDecimal.ZERO;
-import static java.math.MathContext.*;
+import static java.math.MathContext.UNLIMITED;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import org.hibernate.annotations.CreationTimestamp;
+import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 
 @Entity
 @Table(name = "\"grade\"")
@@ -67,6 +68,8 @@ public class Grade implements Serializable {
                         .multiply(BigDecimal.valueOf(grade.getScore())))
             .reduce(BigDecimal::add)
             .orElse(ZERO);
+
+    if (ZERO.equals(sumCoefficients)) throw new ExamsCoefficientSumZero();
 
     return weightedSum.divide(sumCoefficients, UNLIMITED);
   }
