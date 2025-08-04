@@ -8,7 +8,9 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.model.User;
@@ -18,7 +20,8 @@ import school.hei.haapi.model.User;
 @EqualsAndHashCode(callSuper = false)
 @Builder
 @ToString
-@Data
+@Getter
+@Setter
 public class AnnouncementEmailSendRequested extends PojaEvent {
   @JsonProperty("id")
   private String id;
