@@ -17,7 +17,7 @@ import lombok.ToString;
 @Builder
 @ToString
 @Getter
-@Data
+@Setter
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class OcsData {
   @JsonProperty("ocs")

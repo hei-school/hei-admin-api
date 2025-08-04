@@ -15,7 +15,7 @@ import school.hei.haapi.model.User;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @ToString
 @Data

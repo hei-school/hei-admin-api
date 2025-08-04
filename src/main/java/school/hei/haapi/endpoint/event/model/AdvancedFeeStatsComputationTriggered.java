@@ -16,7 +16,7 @@ import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountT
 import school.hei.haapi.service.utils.DateUtils;
 import school.hei.haapi.service.utils.DateUtils.TimeRange;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @ToString
 @Getter
 public class AdvancedFeeStatsComputationTriggered extends PojaEvent {

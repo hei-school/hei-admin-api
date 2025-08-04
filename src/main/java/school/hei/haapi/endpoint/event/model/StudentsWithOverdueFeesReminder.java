@@ -8,7 +8,7 @@ import school.hei.haapi.model.Fee;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @ToString
 @Getter

@@ -5,16 +5,18 @@ import java.time.Duration;
 import java.time.Instant;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.Setter;
 import lombok.ToString;
 import school.hei.haapi.model.User;
 
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @ToString
 @AllArgsConstructor
-@Data
+@Getter
+@Setter
 public class UnpaidFeesReminder extends PojaEvent {
   @JsonProperty("concerned_student")
   UnpaidFeesUser user;

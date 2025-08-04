@@ -4,9 +4,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.time.Duration;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.ToString;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.Payment;
@@ -14,9 +15,10 @@ import school.hei.haapi.model.User;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Builder
-@Data
+@Getter
+@Setter
 @ToString
 public class PaidFeeByMpbsFailedNotificationBody extends PojaEvent {
   @JsonProperty("mpbs_author")

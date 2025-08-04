@@ -9,11 +9,7 @@ import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.api.function.Executable;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.jupiter.MockitoExtension;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.repository.MonitoringStudentRepository;
@@ -22,7 +18,8 @@ import school.hei.haapi.repository.UserRepository;
 public class MonitoringStudentServiceTest {
   private final UserRepository userRepository = mock();
   private final MonitoringStudentRepository monitoringStudentRepository = mock();
-  private final MonitoringStudentService subject = new MonitoringStudentService(userRepository, mock(), mock(), monitoringStudentRepository);
+  private final MonitoringStudentService subject =
+      new MonitoringStudentService(userRepository, mock(), mock(), monitoringStudentRepository);
 
   @Test
   void getStudentByIdAndMonitorId_with_unexistingStudentId_ko() {

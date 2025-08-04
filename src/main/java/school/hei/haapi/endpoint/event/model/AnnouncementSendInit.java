@@ -9,10 +9,11 @@ import school.hei.haapi.model.notEntity.Group;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @ToString
-@Data
+@Getter
+@Setter
 public class AnnouncementSendInit extends PojaEvent {
   @JsonProperty("id")
   private String id;

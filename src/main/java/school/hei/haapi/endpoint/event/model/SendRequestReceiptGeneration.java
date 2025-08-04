@@ -13,7 +13,7 @@ import school.hei.haapi.model.dto.PaymentDto;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @ToString
 @Getter

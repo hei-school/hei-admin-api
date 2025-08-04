@@ -7,7 +7,7 @@ import school.hei.haapi.endpoint.rest.model.LetterStatus;
 
 @AllArgsConstructor
 @NoArgsConstructor
-@EqualsAndHashCode
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @ToString
 @Getter
