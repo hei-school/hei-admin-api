@@ -21,6 +21,7 @@ jobs:
 
     env:
       AWS_REGION: eu-west-3
+      JAVA_TOOL_OPTIONS: "-Dlombok.debug=true"
 
     steps:
       - uses: actions/checkout@v4.1.6
@@ -31,7 +32,7 @@ jobs:
           distribution: 'corretto'
       - run: chmod +x gradlew
       - run: chmod +x .shell/publish_gen_to_maven_local.sh
-      - run: ./gradlew test
+      - run: ./gradlew test --stacktrace --info
 
       - name: Cache SonarCloud packages
         uses: actions/cache@v4.2.2
