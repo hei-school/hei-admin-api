@@ -1,6 +1,7 @@
 package school.hei.haapi.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Optional.empty;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
@@ -68,11 +69,25 @@ public class Promotion {
     };
   }
 
+  public Optional<String> getLevelStringAt(Instant from) {
+    return findLevelAt(from).map(Promotion::getLevelString);
+  }
+
+  public static String getLevelString(StudentLevel level) {
+    return switch (level) {
+      case L1 -> "Première";
+      case L2 -> "Deuxième";
+      case L3 -> "Troisième";
+      case M1 -> "Quatrième";
+      case M2 -> "Cinquième";
+    };
+  }
+
   public Optional<StudentLevel> findLevelAt(Instant levelInstant) {
     try {
       return Optional.of(getLevelAt(levelInstant));
     } catch (PromotionLevelOutOfRange e) {
-      return Optional.empty();
+      return empty();
     }
   }
 }

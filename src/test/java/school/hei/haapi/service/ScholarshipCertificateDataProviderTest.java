@@ -20,16 +20,16 @@ import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.utils.ScholarshipCertificateDataProvider;
-import school.hei.haapi.service.utils.SchoolYearGetter;
+import school.hei.haapi.service.utils.SchoolYearSupplier;
 
 class ScholarshipCertificateDataProviderTest extends FacadeITMockedThirdParties {
-  @MockBean private SchoolYearGetter schoolYearGetter;
+  @MockBean private SchoolYearSupplier schoolYearSupplier;
   @MockBean private PromotionService promotionService;
   private ScholarshipCertificateDataProvider subject;
 
   @BeforeEach
   void setUp() {
-    subject = new ScholarshipCertificateDataProvider(schoolYearGetter, promotionService);
+    subject = new ScholarshipCertificateDataProvider(schoolYearSupplier, promotionService);
   }
 
   @Test

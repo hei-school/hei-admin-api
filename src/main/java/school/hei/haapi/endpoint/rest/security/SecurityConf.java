@@ -570,6 +570,8 @@ public class SecurityConf {
                     .requestMatchers(
                         new SelfMatcher(GET, "/students/*/results_summary", "students"))
                     .hasAnyRole(STUDENT.getRole())
+                    .requestMatchers(GET, "/students/*/yearly_results/*")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new StudentMonitorMatcher(
                             GET,
@@ -577,8 +579,6 @@ public class SecurityConf {
                             "students",
                             monitoringStudentService))
                     .hasAnyRole(MONITOR.getRole())
-                    .requestMatchers(GET, "/students/*/yearly_results/*")
-                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(
                         new SelfMatcher(GET, "/students/*/yearly_results/*", "students"))
                     .hasAnyRole(STUDENT.getRole())

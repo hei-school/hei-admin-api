@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Relevé de notes</title>
+    <style>
+        h2 {
+            font-size: 24px;
+        }
+
+        body {
+            margin: 2% 5%;
+        }
+
+        header {
+            font-family: Georgia, 'Times New Roman', Times, serif;
+            text-align: center;
+            font-size: 20px;
+        }
+
+        .logo {
+            height: 100px;
+            width: 100px;
+            text-align: center;
+        }
+
+        .logo-content {
+            width: 100%;
+            height: 100%;
+            margin: 0 auto;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+        
+        h1 {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 30px;
+            text-align: center;
+            margin-top: 32px;
+            margin-bottom: 32px;
+        }
+
+        main,
+        footer {
+            font-family: Arial, Helvetica, sans-serif;
+            font-size: 18px;
+        }
+
+        main div {
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
+
+        .course-results {
+            border-collapse: collapse;
+            width: 100%;
+        }
+
+        .course-results thead {
+            background-color: #dea308;
+        }
+
+        .course-results th,
+        .course-results tbody tr td {
+            padding-top: 4px;
+            padding-bottom: 4px;
+            line-height: 1.6;
+        }
+
+        .course-results td,
+        .course-results th {
+            border: solid 1px black;
+            text-align: left;
+            padding-left: 8px;
+        }
+
+        .course-results th {
+            font-weight: bold;
+        }
+
+        .course-results tfoot tr td p {
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        footer {
+            position: relative;
+            left: 40%;
+            margin-top: 36px;
+        }
+
+        ul li {
+            margin-top: 5px;
+            margin-bottom: 5px;
+        }
+
+        .bold {
+            font-weight: bold;
+        }
+
+        .center {
+            text-align: center !important;
+            padding-left: 0 !important;
+        }
+
+        .student-info {
+            margin-top: 16px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+
+        #signature {
+            margin-top: 48px;
+            margin-bottom: 48px;
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <div class="logo">
+            <div class="logo-content" th:style="'background-image: url(data:image/png;base64,'+${logo}+');'"></div>
+        </div>
+        <h2>Haute École d'Informatique</h2>
+        <p>Lot 2J 161 R Ivandry, 101 Antananarivo, Madagascar</p>
+        <p>+261 34 94 041 16</p>
+        <p>contact@mail.hei.school</p>
+    </header>
+    <h1>Relevé de notes {student_level}</h1>
+    <main>
+        <div class="student-info">
+            <table>
+                <tr>
+                    <td><strong>Nom :</strong></td>
+                    <td th:text="${last_name}"></td>
+                </tr>
+                <tr>
+                    <td><strong>Prénom(s) :</strong></td>
+                    <td th:text="${first_name}"></td>
+                </tr>
+                <tr>
+                    <td><strong>Numéro d'inscription :</strong></td>
+                    <td>{ref}</td>
+                </tr>
+            </table>
+        </div>
+        <p>Inscrit(e) en <span class="bold">{student_level_full_letters} - {specialization}</span>, pour l'année
+            scolaire {promotion},</p>
+        <p>A obtenu les notes suivantes :</p>
+        <table class="course-results">
+            <thead>
+                <tr>
+                    <th>Code UE</th>
+                    <th>Intitulé UE</th>
+                    <th class="center">Crédits acquérables</th>
+                    <th class="center">Note sur 20</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="courseResult : ${courseResults}">
+                    <td class="bold" th:text="${courseResult.course_name}"></td>
+                    <td th:text="${couresResult.course_full_name}"></td>
+                    <td class="center" th:text="${courseResult.credits}"></td>
+                    <td class="center" th:text="${courseResult.weighted_average}"></td>
+                </tr>
+            </tbody>
+            <tfoot>
+                <tr>
+                    <td colspan="4">
+                        <p>Nombre d'absences : <span th:text="${total_absences}"></span></p>
+                        <p>Justification d'absence:
+                            <span th:text="${justified_count}"></span> /
+                            <span th:text="${total_absences}"></span>
+                        </p>
+                        <p>Malus des absences : <span th:text="${malus_total}"></span></p>
+                    </td>
+                </tr>
+            </tfoot>
+        </table>
+        <div class="bold">
+            Résultat
+            <ul>
+                <li>Crédits acquis : <span th:text="${acquired_credits}"></span> / <span th:text="${total_credits}"></span></li>
+                <li>Moyenne pondérée par les crédits : <span th:text="${yearly_average}"></span> / 20</li>
+            </ul>
+        </div>
+    </main>
+    <footer>
+        <p>
+            Fait à Antananarivo, le {current_date}
+        </p>
+        <p>
+            Le directeur pédagogique
+        </p>
+        <div id="signature" th:style="'background-image: url(data:image/png;base64,'+${emailSignature}+');'"></div>
+        <p>
+            Dr Fonenantsoa MAURICA A.
+        </p>
+    </footer>
+</body>
+
+</html>

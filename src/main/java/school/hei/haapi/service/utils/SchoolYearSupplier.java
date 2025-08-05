@@ -7,13 +7,15 @@ import static java.time.Month.OCTOBER;
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.List;
+import java.util.function.Supplier;
+
 import org.springframework.stereotype.Component;
 
 @Component
-public class SchoolYearGetter {
+public class SchoolYearSupplier implements Supplier<String> {
   private final List<Month> schoolYearStartMonths = List.of(OCTOBER, NOVEMBER, DECEMBER);
 
-  public String getSchoolYear() {
+  private String getSchoolYear() {
     LocalDate now = LocalDate.now();
     LocalDate nextYear = now.plusYears(1L);
     LocalDate precedentYear = now.minusYears(1L);
@@ -23,5 +25,10 @@ public class SchoolYearGetter {
     }
 
     return precedentYear.getYear() + " - " + now.getYear();
+  }
+
+  @Override
+  public String get() {
+    return getSchoolYear();
   }
 }
