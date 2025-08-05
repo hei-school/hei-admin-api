@@ -79,6 +79,11 @@ public class GradeService {
     return gradeRepository.saveAll(grades.stream().map(this::checkAndCreateOrModifyGrade).toList());
   }
 
+  @Transactional
+  public Grade crupdateParticipantGrade(Grade grade) {
+    return crupdateParticipantGrade(List.of(grade)).getFirst();
+  }
+
   public List<Grade> getParticipantsGradeForExam(
       String exam_id, PageFromOne page, BoundedPageSize pageSize) {
     return gradeDao.getGradesByExamId(

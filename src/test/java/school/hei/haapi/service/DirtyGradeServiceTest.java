@@ -14,6 +14,7 @@ import static school.hei.haapi.integration.test_data.StudentTestData.axel;
 import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
 import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
 
+import com.github.javafaker.Faker;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -52,6 +53,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   @Autowired CourseAssignmentRepository courseAssignmentRepository;
   @Autowired ExamRepository examRepository;
   @Autowired GradeRepository gradeRepository;
+  private Faker faker = new Faker();
 
   private User studentAxel;
   private User studentTolojanahary;
@@ -127,6 +129,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   void crupdate_grade_ok() {
     PageFromOne page = new PageFromOne(1);
     BoundedPageSize pageSize = new BoundedPageSize(20);
+    List<Grade> initialGrades = List.copyOf(gradesExam1Prog1);
     List<Grade> savedGrades = subject.crupdateParticipantGrade(gradesExam1Prog1);
 
     assertEquals(2, savedGrades.size());
@@ -135,5 +138,22 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
         subject
             .getParticipantsGradeForExam(exam1Prog1.getId(), page, pageSize)
             .containsAll(savedGrades));
+    assertEquals(gradesExam1Prog1.getFirst(), savedGrades.getFirst());
+    assertEquals(gradesExam1Prog1.get(1), savedGrades.get(1));
+
+    gradesExam1Prog1.forEach(grade -> grade.setScore(faker.number().randomDouble(2, 0, 20)));
+
+    List<Grade> updatedGrades = subject.crupdateParticipantGrade(gradesExam1Prog1);
+
+    assertEquals(2, updatedGrades.size());
+    assertNotNull(updatedGrades.getFirst().getId());
+    assertTrue(
+        subject
+            .getParticipantsGradeForExam(exam1Prog1.getId(), page, pageSize)
+            .containsAll(updatedGrades));
+    assertEquals(gradesExam1Prog1.getFirst(), savedGrades.getFirst());
+    assertEquals(gradesExam1Prog1.get(1), savedGrades.get(1));
+
+    gradesExam1Prog1 = initialGrades;
   }
 }
