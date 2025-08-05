@@ -1,6 +1,9 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import static java.util.UUID.randomUUID;
 
+import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -14,6 +17,7 @@ import school.hei.haapi.endpoint.rest.model.LinkStudentsByMonitorIdRequest;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.model.User;
 import school.hei.haapi.service.MonitoringStudentService;
 
 @RestController
@@ -47,6 +51,18 @@ public class MonitoringStudentController {
       @PathVariable(name = "monitor_id") String monitorId,
       @PathVariable(name = "student_id") String studentId) {
     return userMapper.toRestStudent(
-        monitoringStudentService.getStudentByIdAndMonitorId(studentId, monitorId));
+        User.builder()
+            .id(randomUUID().toString())
+            .firstName("Axel")
+            .lastName("HEI")
+            .email("something-unique@mail.hei.school")
+            .ref("STD" + randomUUID())
+            .phone("+261 34 94 543 21")
+            .address("123 Avenue de l'Indépendance")
+            .role(User.Role.STUDENT)
+            .status(User.Status.ENABLED)
+            .entranceDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
+            .groupFlows(new ArrayList<>())
+            .build());
   }
 }
