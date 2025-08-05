@@ -41,17 +41,4 @@ public class MonitoringStudentController {
         .map(userMapper::toRestStudent)
         .toList();
   }
-
-  @GetMapping("/monitors/{monitor_id}/students/{student_id}")
-  public Student getLinkedStudentByIdAndMonitorId(
-      @PathVariable(name = "monitor_id") String monitorId,
-      @PathVariable(name = "student_id") String studentId) {
-    return new Student()
-        .id("1")
-        .address("adress")
-        .email("test")
-        .firstName("miary")
-        .lastName("zo")
-        .entranceDatetime(Instant.now());
-  }
 }
