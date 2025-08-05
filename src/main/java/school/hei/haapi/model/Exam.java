@@ -45,6 +45,7 @@ public class Exam implements Serializable {
 
   @OneToMany(mappedBy = "exam")
   @ToString.Exclude
+  @EqualsAndHashCode.Exclude
   private List<Grade> grades;
 
   @Column(name = "examination_date", nullable = false)

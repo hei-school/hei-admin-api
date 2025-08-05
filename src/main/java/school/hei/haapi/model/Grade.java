@@ -48,10 +48,11 @@ public class Grade implements Serializable {
   private Exam exam;
 
   private Double score;
-  @CreationTimestamp private Instant creationDatetime;
 
-  public Grade(Exam exam, User student) {
-    this.score = 0.0;
+  @EqualsAndHashCode.Exclude @CreationTimestamp private Instant creationDatetime;
+
+  public Grade(Exam exam, User student, double score) {
+    this.score = score;
     this.student = student;
     this.exam = exam;
   }

@@ -52,7 +52,7 @@ public class ExamService {
   private Grade initializeExamGrade(Exam exam, User user) {
     return gradeRepository
         .getGradeByExamIdAndStudentId(exam.getId(), user.getId())
-        .orElse(new Grade(exam, user));
+        .orElse(new Grade(exam, user, 0));
   }
 
   private List<Grade> initializeExamGrades(Exam exam) {

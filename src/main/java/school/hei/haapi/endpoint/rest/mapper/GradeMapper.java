@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
@@ -78,25 +77,13 @@ public class GradeMapper {
       CrupdateGrade grade, String examId, String studentRef) {
     validator.accept(grade);
 
-    Exam exam = examService.getExamById(examId);
-    double scoreFinal = 0.0;
-
-    if (exam.getCoefficient() > 0 && grade.getScore() != null && grade.getScore() >= 0) {
-      scoreFinal = grade.getScore() * exam.getCoefficient();
-    }
-
-    school.hei.haapi.model.Grade resultGrade =
-        gradeRepository
-            .getGradeByExamIdAndStudentRef(examId, studentRef)
-            .orElse(
-                service
-                    .crupdateParticipantGrade(
-                        List.of(
-                            new school.hei.haapi.model.Grade(
-                                exam, userService.findByRef(studentRef))))
-                    .getFirst());
-
-    resultGrade.setScore(scoreFinal);
-    return resultGrade;
+    return gradeRepository
+        .getGradeByExamIdAndStudentRef(examId, studentRef)
+        .orElse(
+            service.crupdateParticipantGrade(
+                new school.hei.haapi.model.Grade(
+                    examService.getExamById(examId),
+                    userService.findByRef(studentRef),
+                    grade.getScore())));
   }
 }
