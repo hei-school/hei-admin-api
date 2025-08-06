@@ -1,6 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
