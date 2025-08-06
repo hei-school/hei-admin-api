@@ -14,6 +14,8 @@ import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 
 import java.util.List;
+import java.util.Optional;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
@@ -25,10 +27,16 @@ import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
+import school.hei.haapi.service.utils.Base64Converter;
+import school.hei.haapi.service.utils.ClassPathResourceResolver;
+import school.hei.haapi.service.utils.HtmlParser;
+import school.hei.haapi.service.utils.PdfRenderer;
 
 class GradeResultServiceTest {
   private final GradeDao gradeDao = mock();
@@ -37,11 +45,25 @@ class GradeResultServiceTest {
   private final GradeResultService subject =
       new GradeResultService(
           new CourseResultService(courseAssignmentDao, gradeDao, new CourseMapper(), examService));
+  private final YearlyResultGenerationService yearlyResultGenerationService = new YearlyResultGenerationService(
+      new HtmlParser(),
+      new PdfRenderer(),
+      new Base64Converter(),
+      new ClassPathResourceResolver());
 
-  private final User student1 = User.builder().id("good student").build();
   private final User student2 = User.builder().id("bad student").build();
   private final User student3 = User.builder().id("student with missing grade").build();
 
+  private final User student1 = mock();
+  private final Promotion promotion = Promotion.builder()
+      .ref("prom1")
+      .name("Promotion de test")
+      .build();
+  private final Group group = Group.builder()
+      .name("Groupe test")
+      .ref("GRP_TST")
+      .promotion(promotion)
+      .build();
   private final Exam mgt1Exam = Exam.builder().id("mgt1 exam").coefficient(1).build();
   private final Exam prog1Exam = Exam.builder().id("prog1 exam").coefficient(1).build();
   private final Exam donnees1Exam = Exam.builder().id("donnees1 exam").coefficient(1).build();
@@ -97,6 +119,12 @@ class GradeResultServiceTest {
   @BeforeEach
   void setUp() {
     // Mock student1 grades
+    when(student1.getId()).thenReturn("id");
+    when(student1.getFirstName()).thenReturn("Student");
+    when(student1.getLastName()).thenReturn("One");
+    when(student1.getRef()).thenReturn("STD1");
+    when(student1.findCurrentGroup()).thenReturn(Optional.of(group));
+
     when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
         .thenReturn(List.of(student1Mgt1Grade));
     when(gradeDao.getStudentGradesByCourseId(prog1Course.getId(), student1.getId()))
@@ -205,6 +233,16 @@ class GradeResultServiceTest {
     assertEquals(13.493, result.getWeightedAverage().doubleValue());
     assertEquals(IN_PROGRESS, result.getStatus());
     assertEquals(30., result.getTotalCredits().doubleValue());
+  }
+
+  @Test
+  void generate_result_pdf_okay() throws CourseCreditsSumZero {
+    var targetLevel = L1;
+
+    YearlyResult result =
+        gradeResultService.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
+
+    yearlyResultGenerationService.generateYealyResultFile(student1, result).getAbsolutePath();
   }
 
   @Test

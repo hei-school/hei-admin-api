@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="fr" xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
+    <meta charset="UTF-8"/>
     <title>Relevé de notes</title>
     <style>
         h2 {
-            font-size: 24px;
+            font-size: 20px;
         }
 
         body {
@@ -19,23 +19,23 @@
         }
 
         .logo {
-            height: 100px;
-            width: 100px;
             text-align: center;
+            width: 100%;
+            height: 100%;
         }
 
         .logo-content {
-            width: 100%;
-            height: 100%;
+            height: 100px;
+            width: 100px;
             margin: 0 auto;
             background-size: contain;
             background-position: center;
             background-repeat: no-repeat;
         }
-        
+
         h1 {
             font-family: Arial, Helvetica, sans-serif;
-            font-size: 30px;
+            font-size: 25px;
             text-align: center;
             margin-top: 32px;
             margin-bottom: 32px;
@@ -127,7 +127,7 @@
         <p>+261 34 94 041 16</p>
         <p>contact@mail.hei.school</p>
     </header>
-    <h1>Relevé de notes {student_level}</h1>
+    <h1>Relevé de notes <span th:text="${student_level}"></span></h1>
     <main>
         <div class="student-info">
             <table>
@@ -141,11 +141,11 @@
                 </tr>
                 <tr>
                     <td><strong>Numéro d'inscription :</strong></td>
-                    <td>{ref}</td>
+                    <td th:text="${ref}"></td>
                 </tr>
             </table>
         </div>
-        <p>Inscrit(e) en <span class="bold">{student_level_full_letters} - {specialization}</span>, pour l'année
+        <p>Inscrit(e) en <span class="bold"><span th:text="${student_level_full_letters}"></span> année - <span th:text="${specialization}"></span></span>, pour l'année
             scolaire {promotion},</p>
         <p>A obtenu les notes suivantes :</p>
         <table class="course-results">
@@ -158,11 +158,11 @@
                 </tr>
             </thead>
             <tbody>
-                <tr th:each="courseResult : ${courseResults}">
-                    <td class="bold" th:text="${courseResult.course_name}"></td>
-                    <td th:text="${couresResult.course_full_name}"></td>
-                    <td class="center" th:text="${courseResult.credits}"></td>
-                    <td class="center" th:text="${courseResult.weighted_average}"></td>
+                <tr th:each="course_result : ${course_results}">
+                    <td class="bold" th:text="${course_result.course.code}"></td>
+                    <td th:text="${course_result.course.name}"></td>
+                    <td class="center" th:text="${course_result.course.credits}"></td>
+                    <td class="center" th:text="${course_result.weightedAverage}"></td>
                 </tr>
             </tbody>
             <tfoot>
@@ -181,7 +181,7 @@
         <div class="bold">
             Résultat
             <ul>
-                <li>Crédits acquis : <span th:text="${acquired_credits}"></span> / <span th:text="${total_credits}"></span></li>
+                <li>Crédits acquis : <span th:text="${obtained_credits}"></span> / <span th:text="${total_credits}"></span></li>
                 <li>Moyenne pondérée par les crédits : <span th:text="${yearly_average}"></span> / 20</li>
             </ul>
         </div>
@@ -193,7 +193,7 @@
         <p>
             Le directeur pédagogique
         </p>
-        <div id="signature" th:style="'background-image: url(data:image/png;base64,'+${emailSignature}+');'"></div>
+        <div id="signature" th:style="'background-image: url(data:image/jpg;base64,'+${email_signature}+');'"></div>
         <p>
             Dr Fonenantsoa MAURICA A.
         </p>
