@@ -111,17 +111,16 @@ public class MonitoringStudentService {
         .build();
   }
 
-  //  public User getStudentByIdAndMonitorId(String studentId, String monitorId)
-  //      throws NotFoundException {
-  //    var optionalStudent = userRepository.findById(studentId);
-  //    if (optionalStudent.isEmpty() || optionalStudent.get().getRole() != User.Role.STUDENT) {
-  //      throw new NotFoundException("Student with id: " + studentId + " does not exist");
-  //    }
-  //    if
-  // (!monitoringStudentRepository.getAllMonitorsIdsByStudentId(studentId).contains(monitorId)) {
-  //      throw new NotFoundException(
-  //          "Monitor with id: " + monitorId + " does not have a student with id: " + studentId);
-  //    }
-  //    return optionalStudent.get();
-  //  }
+  public User getStudentByIdAndMonitorId(String studentId, String monitorId)
+      throws NotFoundException {
+    var optionalStudent = userRepository.findById(studentId);
+    if (optionalStudent.isEmpty() || optionalStudent.get().getRole() != User.Role.STUDENT) {
+      throw new NotFoundException("Student with id: " + studentId + " does not exist");
+    }
+    if (!monitoringStudentRepository.getAllMonitorsIdsByStudentId(studentId).contains(monitorId)) {
+      throw new NotFoundException(
+          "Monitor with id: " + monitorId + " does not have a student with id: " + studentId);
+    }
+    return optionalStudent.get();
+  }
 }

@@ -40,4 +40,12 @@ public class MonitoringStudentController {
         .map(userMapper::toRestStudent)
         .toList();
   }
+
+  @GetMapping("/monitors/{monitor_id}/students/{student_id}")
+  public Student getLinkedStudentByIdAndMonitorId(
+      @PathVariable(name = "monitor_id") String monitorId,
+      @PathVariable(name = "student_id") String studentId) {
+    return userMapper.toRestStudent(
+        monitoringStudentService.getStudentByIdAndMonitorId(studentId, monitorId));
+  }
 }
