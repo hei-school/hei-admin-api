@@ -11,14 +11,12 @@ import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.service.ExamService;
-import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
 
 @Component
 @AllArgsConstructor
 public class GradeMapper {
   private final UserMapper userMapper;
-  private final GradeService service;
   private final ExamService examService;
   private final UserService userService;
   private final GradeValidator validator;
@@ -80,10 +78,9 @@ public class GradeMapper {
     return gradeRepository
         .getGradeByExamIdAndStudentRef(examId, studentRef)
         .orElse(
-            service.crupdateParticipantGrade(
-                new school.hei.haapi.model.Grade(
-                    examService.getExamById(examId),
-                    userService.findByRef(studentRef),
-                    grade.getScore())));
+            new school.hei.haapi.model.Grade(
+                examService.getExamById(examId),
+                userService.findByRef(studentRef),
+                grade.getScore()));
   }
 }
