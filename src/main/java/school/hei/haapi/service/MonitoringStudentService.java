@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.model.User.Role.STUDENT;
 
 import java.util.List;
 import java.util.UUID;
@@ -114,10 +115,10 @@ public class MonitoringStudentService {
   public User getStudentByIdAndMonitorId(String studentId, String monitorId)
       throws NotFoundException {
     var optionalStudent = userRepository.findById(studentId);
-    if (optionalStudent.isEmpty() || optionalStudent.get().getRole() != User.Role.STUDENT) {
+    if (optionalStudent.isEmpty() || optionalStudent.get().getRole() != STUDENT) {
       throw new NotFoundException("Student with id: " + studentId + " does not exist");
     }
-    if (!monitoringStudentRepository.getAllMonitorsIdsByStudentId(studentId).contains(monitorId)) {
+    if (!monitoringStudentRepository.existsByIdAndMonitors_Id(monitorId, studentId)) {
       throw new NotFoundException(
           "Monitor with id: " + monitorId + " does not have a student with id: " + studentId);
     }
