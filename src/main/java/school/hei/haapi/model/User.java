@@ -137,6 +137,7 @@ public class User implements Serializable {
 
   // RELATION (MONITOR - STUDENT): Which Monitor follows which students or which student is
   // following by which monitor
+  // TODO: check if joinColumns and inversJoinColumns are in the correct place, refactor if need be.
   @ManyToMany(fetch = LAZY)
   @JoinTable(
       name = "\"monitor_following_student\"",
