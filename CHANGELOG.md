@@ -1,3 +1,18 @@
+# [1.108.0](https://github.com/hei-school/hei-admin-api/compare/v1.107.0...v1.108.0) (2025-08-07)
+
+
+### Bug Fixes
+
+* do not apply coefficient when crupdate grade ([ebc1f10](https://github.com/hei-school/hei-admin-api/commit/ebc1f100d114f5e30f4367d5e0aa8eeacdad9a13))
+* yearly result security conf ([f849816](https://github.com/hei-school/hei-admin-api/commit/f849816e979e5a401df3b9ccf03e3444ec393b6d))
+
+
+### Features
+
+* add getStudentByIdAndMonitorId for monitors ([fc0afe0](https://github.com/hei-school/hei-admin-api/commit/fc0afe0941868e6c33ba782bf83e8bd4063415ba))
+
+
+
 # [1.107.0](https://github.com/hei-school/hei-admin-api/compare/v1.106.0...v1.107.0) (2025-08-01)
 
 
@@ -102,15 +117,6 @@
 
 * get all event attendances & filter by status ([4bb28d6](https://github.com/hei-school/hei-admin-api/commit/4bb28d6aec5c84786f1e8d70abb8b6e797c7cc52))
 * getAllEventParticipants filters ([a5be603](https://github.com/hei-school/hei-admin-api/commit/a5be60386d3dbc6a9fffc98fae981a7e851a7b94))
-
-
-
-## [1.102.1](https://github.com/hei-school/hei-admin-api/compare/v1.102.0...v1.102.1) (2025-04-04)
-
-
-### Bug Fixes
-
-* modify grade requirement ([703e1d1](https://github.com/hei-school/hei-admin-api/commit/703e1d1d4c73ed7705ccfe63fd4e9fb1ce41b17a))
 
 
 
