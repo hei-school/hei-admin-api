@@ -18,7 +18,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import school.hei.haapi.service.utils.SchoolYearSupplier;
 
 @ExtendWith(MockitoExtension.class)
-public class SchoolYearSupplierTest {
+class SchoolYearSupplierTest {
 
   @InjectMocks private SchoolYearSupplier subject;
 

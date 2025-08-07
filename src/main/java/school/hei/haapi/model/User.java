@@ -268,8 +268,7 @@ public class User implements Serializable {
   }
 
   public String getSpecializationFieldString() {
-    SpecializationField specializationField = this.getSpecializationField();
-    return switch (specializationField) {
+    return switch (this.specializationField) {
       case COMMON_CORE -> "Tronc commun";
       case TN -> "Transformation Numérique";
       case EL -> "Écosystème Logiciel";

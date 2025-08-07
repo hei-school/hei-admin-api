@@ -21,12 +21,12 @@ public class YearlyResultGenerationService {
   private final PdfRenderer pdfRenderer;
   private final Base64Converter base64Converter;
   private final ClassPathResourceResolver classPathResourceResolver;
-  private final String YEARLY_RESULT_FILENAME_PREFIX = "Bulletin-";
+  private static final String YEARLY_RESULT_FILENAME_PREFIX = "Bulletin-";
 
   public File generateYealyResultFile(User student, YearlyResult yearlyResult) {
     Context context = loadContext(student, yearlyResult);
     String html = htmlParser.apply("yearlyResult", context);
-    String filename = YEARLY_RESULT_FILENAME_PREFIX + "placeholder";
+    String filename = YEARLY_RESULT_FILENAME_PREFIX + context.getVariable("promotion");
     return createFileFromBytes(pdfRenderer.apply(html), filename, ".pdf");
   }
 

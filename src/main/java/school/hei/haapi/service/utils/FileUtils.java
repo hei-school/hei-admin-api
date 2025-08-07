@@ -10,6 +10,7 @@ import java.util.Set;
 import org.apache.commons.lang3.SystemUtils;
 
 public class FileUtils {
+  private FileUtils() {}
 
   public static File createFileFromBytes(byte[] bytes, String filename, String suffix) {
     try {
@@ -27,7 +28,7 @@ public class FileUtils {
       org.apache.commons.io.FileUtils.writeByteArrayToFile(file, bytes);
       return file;
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new FileCreationException(e.getMessage());
     }
   }
 }
