@@ -16,7 +16,6 @@ import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
-
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
@@ -46,11 +45,12 @@ class GradeResultServiceTest {
   private final GradeResultService subject =
       new GradeResultService(
           new CourseResultService(courseAssignmentDao, gradeDao, new CourseMapper(), examService));
-  private final YearlyResultGenerationService yearlyResultGenerationService = new YearlyResultGenerationService(
-      new HtmlParser(),
-      new PdfRenderer(),
-      new Base64Converter(),
-      new ClassPathResourceResolver());
+  private final YearlyResultGenerationService yearlyResultGenerationService =
+      new YearlyResultGenerationService(
+          new HtmlParser(),
+          new PdfRenderer(),
+          new Base64Converter(),
+          new ClassPathResourceResolver());
 
   private final User student2 = User.builder().id("bad student").build();
   private final User student3 = User.builder().id("student with missing grade").build();
@@ -237,11 +237,10 @@ class GradeResultServiceTest {
   }
 
   @Test
-  void generate_result_pdf_okay() throws CourseCreditsSumZero {
+  void generate_result_pdf_okay() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    YearlyResult result =
-        gradeResultService.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
+    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
 
     System.out.println(
         yearlyResultGenerationService.generateYealyResultFile(student1, result).getAbsolutePath());
