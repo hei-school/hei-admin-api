@@ -12,6 +12,7 @@ import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 
 import java.time.Instant;
 import java.time.LocalDate;
+import java.time.ZoneId;
 import org.junit.jupiter.api.Test;
 
 class PromotionTest {
@@ -47,5 +48,20 @@ class PromotionTest {
         .plusDays(daysOffset)
         .atTime(MIDNIGHT)
         .toInstant(UTC);
+  }
+
+  @Test
+  void getPromotionYearString_shouldReturnCorrectYearRanges() {
+    Promotion promotion =
+        Promotion.builder()
+            .startDatetime(
+                LocalDate.of(2023, 10, 1).atStartOfDay(ZoneId.systemDefault()).toInstant())
+            .build();
+
+    assertEquals("2023 - 2024", promotion.getPromotionYearString(L1));
+    assertEquals("2024 - 2025", promotion.getPromotionYearString(L2));
+    assertEquals("2025 - 2026", promotion.getPromotionYearString(L3));
+    assertEquals("2026 - 2027", promotion.getPromotionYearString(M1));
+    assertEquals("2027 - 2028", promotion.getPromotionYearString(M2));
   }
 }

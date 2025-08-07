@@ -93,15 +93,16 @@ public class Promotion {
   }
 
   public String getPromotionYearString(StudentLevel level) {
-    var promotionEntranceYear = getStartDatetime().atOffset(ZoneOffset.of("+3")).getYear();
-    var endYear = promotionEntranceYear + 1;
+    int promotionEntranceYear = getStartDatetime().atOffset(ZoneOffset.of("+3")).getYear();
+    int endYear = promotionEntranceYear + 1;
+    String yearStringFormat = "%d - %d";
 
     return switch (level) {
-      case L1 -> String.format("%d - %d", promotionEntranceYear, endYear);
-      case L2 -> String.format("%d - %d", promotionEntranceYear + 1, endYear + 1);
-      case L3 -> String.format("%d - %d", promotionEntranceYear + 2, endYear + 2);
-      case M1 -> String.format("%d - %d", promotionEntranceYear + 3, endYear + 3);
-      case M2 -> String.format("%d - %d", promotionEntranceYear + 4, endYear + 4);
+      case L1 -> String.format(yearStringFormat, promotionEntranceYear, endYear);
+      case L2 -> String.format(yearStringFormat, promotionEntranceYear + 1, endYear + 1);
+      case L3 -> String.format(yearStringFormat, promotionEntranceYear + 2, endYear + 2);
+      case M1 -> String.format(yearStringFormat, promotionEntranceYear + 3, endYear + 3);
+      case M2 -> String.format(yearStringFormat, promotionEntranceYear + 4, endYear + 4);
     };
   }
 }

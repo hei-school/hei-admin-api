@@ -16,14 +16,14 @@ public class SchoolYearSupplier implements Supplier<String> {
 
   private String getSchoolYear() {
     LocalDate now = LocalDate.now();
-    LocalDate nextYear = now.plusYears(1L);
-    LocalDate precedentYear = now.minusYears(1L);
+    int nextYear = now.getYear() + 1;
+    int precedentYear = now.getYear() - 1;
 
     if (schoolYearStartMonths.contains(now.getMonth())) {
-      return now.getYear() + " - " + nextYear.getYear();
+      return now.getYear() + " - " + nextYear;
     }
 
-    return precedentYear.getYear() + " - " + now.getYear();
+    return precedentYear + " - " + now.getYear();
   }
 
   @Override
