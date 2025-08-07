@@ -13,6 +13,7 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATE
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 
+import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
 
@@ -55,15 +56,14 @@ class GradeResultServiceTest {
   private final User student3 = User.builder().id("student with missing grade").build();
 
   private final User student1 = mock();
-  private final Promotion promotion = Promotion.builder()
-      .ref("prom1")
-      .name("Promotion de test")
-      .build();
-  private final Group group = Group.builder()
-      .name("Groupe test")
-      .ref("GRP_TST")
-      .promotion(promotion)
-      .build();
+  private final Promotion promotion =
+      Promotion.builder()
+          .ref("prom1")
+          .name("Promotion de test")
+          .startDatetime(Instant.now())
+          .build();
+  private final Group group =
+      Group.builder().name("Groupe test").ref("GRP_TST").promotion(promotion).build();
   private final Exam mgt1Exam = Exam.builder().id("mgt1 exam").coefficient(1).build();
   private final Exam prog1Exam = Exam.builder().id("prog1 exam").coefficient(1).build();
   private final Exam donnees1Exam = Exam.builder().id("donnees1 exam").coefficient(1).build();
@@ -123,6 +123,7 @@ class GradeResultServiceTest {
     when(student1.getFirstName()).thenReturn("Student");
     when(student1.getLastName()).thenReturn("One");
     when(student1.getRef()).thenReturn("STD1");
+    when(student1.getSpecializationFieldString()).thenReturn("Transformation Numérique");
     when(student1.findCurrentGroup()).thenReturn(Optional.of(group));
 
     when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
@@ -242,7 +243,8 @@ class GradeResultServiceTest {
     YearlyResult result =
         gradeResultService.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
 
-    yearlyResultGenerationService.generateYealyResultFile(student1, result).getAbsolutePath();
+    System.out.println(
+        yearlyResultGenerationService.generateYealyResultFile(student1, result).getAbsolutePath());
   }
 
   @Test

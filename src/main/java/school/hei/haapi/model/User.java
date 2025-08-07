@@ -267,7 +267,7 @@ public class User implements Serializable {
     ORGANIZER;
   }
 
-  public String getSpecializationFiledString() {
+  public String getSpecializationFieldString() {
     SpecializationField specializationField = this.getSpecializationField();
     return switch (specializationField) {
       case COMMON_CORE -> "Tronc commun";

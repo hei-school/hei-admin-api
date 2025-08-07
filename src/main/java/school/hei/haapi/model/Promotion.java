@@ -16,6 +16,7 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -89,5 +90,18 @@ public class Promotion {
     } catch (PromotionLevelOutOfRange e) {
       return empty();
     }
+  }
+
+  public String getPromotionYearString(StudentLevel level) {
+    var promotionEntranceYear = getStartDatetime().atOffset(ZoneOffset.of("+3")).getYear();
+    var endYear = promotionEntranceYear + 1;
+
+    return switch (level) {
+      case L1 -> String.format("%d - %d", promotionEntranceYear, endYear);
+      case L2 -> String.format("%d - %d", promotionEntranceYear + 1, endYear + 1);
+      case L3 -> String.format("%d - %d", promotionEntranceYear + 2, endYear + 2);
+      case M1 -> String.format("%d - %d", promotionEntranceYear + 3, endYear + 3);
+      case M2 -> String.format("%d - %d", promotionEntranceYear + 4, endYear + 4);
+    };
   }
 }

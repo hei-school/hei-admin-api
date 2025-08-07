@@ -113,6 +113,10 @@
         #signature {
             margin-top: 48px;
             margin-bottom: 48px;
+            height: 50px;
+            background-size: contain;
+            background-position: center;
+            background-repeat: no-repeat;
         }
     </style>
 </head>
@@ -146,7 +150,7 @@
             </table>
         </div>
         <p>Inscrit(e) en <span class="bold"><span th:text="${student_level_full_letters}"></span> année - <span th:text="${specialization}"></span></span>, pour l'année
-            scolaire {promotion},</p>
+            scolaire <span th:text="${promotion}"></span> ,</p>
         <p>A obtenu les notes suivantes :</p>
         <table class="course-results">
             <thead>
@@ -188,12 +192,12 @@
     </main>
     <footer>
         <p>
-            Fait à Antananarivo, le {current_date}
+            Fait à Antananarivo, le <span th:text="${current_date}"></span>
         </p>
         <p>
             Le directeur pédagogique
         </p>
-        <div id="signature" th:style="'background-image: url(data:image/jpg;base64,'+${email_signature}+');'"></div>
+        <div id="signature" th:style="'background-image: url(data:image/png;base64,'+${email_signature}+');'"></div>
         <p>
             Dr Fonenantsoa MAURICA A.
         </p>

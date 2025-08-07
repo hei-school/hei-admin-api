@@ -14,9 +14,11 @@ public class ScholarshipCertificateDataProvider {
   private final PromotionService promotionService;
 
   public String getAcademicYearSentence(User student) {
-    String academicYear = findLastStudentPromotion(student).getLevelStringAt(Instant.now())
-        .orElse("Non defini");
-    return academicYear + " année d'informatique - parcours " + student.getSpecializationFiledString();
+    String academicYear =
+        findLastStudentPromotion(student).getLevelStringAt(Instant.now()).orElse("Non defini");
+    return academicYear
+        + " année d'informatique - parcours "
+        + student.getSpecializationFieldString();
   }
 
   public String getAcademicYearPromotion(User student) {
