@@ -526,7 +526,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/YearlyResultGenerationState"
+                $ref: "#/components/schemas/YearlyResultGenerationTranscript"
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -6643,7 +6643,7 @@ components:
           type: array
           items:
             $ref: "#/components/schemas/CourseResult"
-    YearlyResultGenerationState:
+    YearlyResultGenerationTranscript:
       type: object
       properties:
         status:
