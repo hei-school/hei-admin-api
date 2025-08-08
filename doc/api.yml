@@ -511,7 +511,7 @@ paths:
     get:
       tags:
         - Grades
-      summary: Get the yearly result generation state of a given student for the given level.
+      summary: Get the yearly result transcript of a given student for the given level.
       operationId: getYearlyResultTranscript
       parameters:
         - $ref: "#/components/parameters/PathStudentId"
@@ -522,7 +522,7 @@ paths:
             $ref: "#/components/schemas/StudentLevel"
       responses:
         '200':
-          description: State of the Yearly result generation the specified student.
+          description: Yearly result transcript for the specified student.
           content:
             application/json:
               schema:
