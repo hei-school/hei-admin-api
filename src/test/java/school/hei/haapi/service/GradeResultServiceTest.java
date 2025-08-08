@@ -248,7 +248,7 @@ class GradeResultServiceTest {
     YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
     File resultFile = yearlyResultGenerationService.generateYealyResultFile(student1, result);
     assertTrue(resultFile.isFile());
-}
+  }
 
   @Test
   void correct_result_yearly_result_M2_empty_ko() {
