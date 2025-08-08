@@ -1,8 +1,7 @@
 package school.hei.haapi.service;
 
 import static java.math.BigDecimal.ZERO;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
@@ -13,6 +12,7 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATE
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 
+import java.io.File;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -93,12 +93,18 @@ class GradeResultServiceTest {
   private final Grade student3Sys1Grade = Grade.builder().score(13.).exam(sys1Exam).build();
   private final Grade student3GradeForBadExam = Grade.builder().score(13.59).exam(badExam).build();
 
-  private final Course mgt1Course = Course.builder().id("mgt1").credits(4).build();
-  private final Course prog1Course = Course.builder().id("prog1").credits(6).build();
-  private final Course donne1Course = Course.builder().id("donne1").credits(4).build();
-  private final Course web1Course = Course.builder().id("web1").credits(6).build();
-  private final Course sys1Course = Course.builder().id("sys1").credits(6).build();
-  private final Course lv1Course = Course.builder().id("lv1").credits(4).build();
+  private final Course mgt1Course =
+      Course.builder().id("mgt1").code("MGT1").name("Mgt 1").credits(4).build();
+  private final Course prog1Course =
+      Course.builder().id("prog1").code("PROG1").name("Programation 1").credits(6).build();
+  private final Course donne1Course =
+      Course.builder().id("donne1").code("DONNES1").name("Donnees 1").credits(4).build();
+  private final Course web1Course =
+      Course.builder().id("web1").code("WEB1").name("Web 1").credits(6).build();
+  private final Course sys1Course =
+      Course.builder().id("sys1").code("SYS1").name("Systeme et reseau 1").credits(6).build();
+  private final Course lv1Course =
+      Course.builder().id("lv1").code("LV1").name("Langue vivante 1").credits(4).build();
   private final Course badCourse = Course.builder().id("bad course").credits(0).build();
 
   private final CourseAssignment mgt1CourseAssignment =
@@ -239,12 +245,10 @@ class GradeResultServiceTest {
   @Test
   void generate_result_pdf_okay() throws CoursesCreditSumZero {
     var targetLevel = L1;
-
     YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
-
-    System.out.println(
-        yearlyResultGenerationService.generateYealyResultFile(student1, result).getAbsolutePath());
-  }
+    File resultFile = yearlyResultGenerationService.generateYealyResultFile(student1, result);
+    assertTrue(resultFile.isFile());
+}
 
   @Test
   void correct_result_yearly_result_M2_empty_ko() {

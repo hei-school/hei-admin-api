@@ -49,8 +49,9 @@ public class YearlyResultGenerationService {
     context.setVariable("promotion", studentPromotionString);
     context.setVariable("course_results", yearlyResult.getCourseResults());
     context.setVariable("obtained_credits", yearlyResult.getObtainedCredits());
+      context.setVariable("total_credits", yearlyResult.getTotalCredits());
     context.setVariable(
-        "yearly_average", yearlyResult.getWeightedAverage().round(new MathContext(2)));
+        "yearly_average", yearlyResult.getWeightedAverage().round(new MathContext(4)));
     context.setVariable("current_date", instantToCommonDate(now()));
     var signatureRessource = classPathResourceResolver.apply("signature", ".png");
     context.setVariable("email_signature", base64Converter.apply(signatureRessource));
