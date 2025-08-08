@@ -512,7 +512,7 @@ paths:
       tags:
         - Grades
       summary: Get the yearly result generation state of a given student for the given level.
-      operationId: getYearlyResultTranscriptState
+      operationId: getYearlyResultTranscript
       parameters:
         - $ref: "#/components/parameters/PathStudentId"
         - name: student_level
