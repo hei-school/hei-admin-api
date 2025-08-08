@@ -507,12 +507,12 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{student_id}/yearly_results/{student_level}/raw:
+  /students/{student_id}/yearly_results/{student_level}/transcript:
     get:
       tags:
         - Grades
-      summary: Get the yearly result of a given student for the given level into a pdf file.
-      operationId: getYearlyResultFile
+      summary: Get the yearly result generation state of a given student for the given level.
+      operationId: getYearlyResultTranscriptState
       parameters:
         - $ref: "#/components/parameters/PathStudentId"
         - name: student_level
@@ -526,7 +526,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: "#/components/schemas/YearlyResultGenerationStatus"
+                $ref: "#/components/schemas/YearlyResultGenerationState"
         '400':
           $ref: '#/components/responses/400'
         '403':
