@@ -141,7 +141,8 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
     assertEquals(gradesExam1Prog1.getFirst(), savedGrades.getFirst());
     assertEquals(gradesExam1Prog1.get(1), savedGrades.get(1));
 
-    gradesExam1Prog1.forEach(grade -> grade.setScore(faker.number().randomDouble(2, 0, 20)));
+    gradesExam1Prog1.forEach(
+        grade -> grade.setScore(faker.number().randomDouble(2, 0, 20), "change for test"));
 
     List<Grade> updatedGrades = subject.crupdateParticipantGrade(gradesExam1Prog1);
 

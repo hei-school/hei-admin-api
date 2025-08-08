@@ -2,18 +2,23 @@ package school.hei.haapi.model;
 
 import static java.math.BigDecimal.ZERO;
 import static java.math.MathContext.UNLIMITED;
+import static java.util.Comparator.comparing;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -21,6 +26,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CreationTimestamp;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 
@@ -47,14 +54,41 @@ public class Grade implements Serializable {
   @JoinColumn(name = "exam_id", updatable = false)
   private Exam exam;
 
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @Column(updatable = false)
   private Double score;
 
-  @EqualsAndHashCode.Exclude @CreationTimestamp private Instant creationDatetime;
+  @Column(updatable = false)
+  @EqualsAndHashCode.Exclude
+  @CreationTimestamp
+  private Instant creationDatetime;
+
+  @OneToMany(mappedBy = "grade")
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  @Cascade(CascadeType.ALL)
+  private final List<GradeChangeHistory> gradeChangeHistories = new ArrayList<>();
 
   public Grade(Exam exam, User student, double score) {
     this.score = score;
     this.student = student;
     this.exam = exam;
+  }
+
+  public void setScore(Double score, String comment) {
+    this.gradeChangeHistories.add(new GradeChangeHistory(this, score, comment));
+  }
+
+  public Double getScore() {
+    var lastChange =
+        gradeChangeHistories.stream().max(comparing(GradeChangeHistory::getChangeInstant));
+
+    return lastChange.map(GradeChangeHistory::getScore).orElse(getInitialScore());
+  }
+
+  public Double getInitialScore() {
+    return score;
   }
 
   public static BigDecimal weightedAverageOfGrades(List<Grade> grades) {

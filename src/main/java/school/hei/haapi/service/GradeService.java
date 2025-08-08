@@ -45,6 +45,7 @@ public class GradeService {
   }
 
   // TODO: make this obey the single-responsibility rule, at least in the name.
+  // TODO: split in create and update grade
   @Transactional
   private Grade checkGrade(Grade grade) {
     String examId = grade.getExam().getId();
@@ -53,7 +54,8 @@ public class GradeService {
     Optional<Grade> existingGrade = gradeRepository.findByExamIdAndStudentId(examId, studentId);
     if (existingGrade.isPresent()) {
       Grade presentGrade = existingGrade.get();
-      presentGrade.setScore(grade.getScore());
+      presentGrade.setScore(
+          grade.getScore(), ""); // Todo: need to give reason for each change in the grade score
       return presentGrade;
     }
 
