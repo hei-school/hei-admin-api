@@ -542,8 +542,12 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/students/*/fees/*/payments")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(
+                        new StudentMonitorMatcher(
+                            GET, "/students/*", "students", monitoringStudentService))
+                    .hasAnyRole(MONITOR.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*", "students"))
-                    .hasAnyRole(STUDENT.getRole(), ADMIN.getRole())
+                    .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     // TODO: clarify PUT STUDENTS/** FOR MANAGERS
