@@ -6217,6 +6217,7 @@ components:
         - DOCUMENT
         - WORK_DOCUMENT
         - OTHER
+        - PROFILE_PICTURE
     EventType:
       type: string
       enum:
