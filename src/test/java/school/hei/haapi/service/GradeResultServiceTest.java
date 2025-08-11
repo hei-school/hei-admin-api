@@ -1,6 +1,8 @@
 package school.hei.haapi.service;
 
 import static java.math.BigDecimal.ZERO;
+import static java.util.Optional.empty;
+import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -12,8 +14,13 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGR
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
+import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.AVAILABLE;
+import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
 
 import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -26,14 +33,17 @@ import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
+import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
@@ -339,5 +349,62 @@ class GradeResultServiceTest {
     assertEquals(ZERO, result.getWeightedAverage());
     assertEquals(1, result.getCourseResults().size());
     assertEquals(0, result.getObtainedCredits().doubleValue());
+  }
+
+  @Test
+  void yearly_result_generation_should_return_available_transcript_when_file_exists()
+      throws MalformedURLException {
+    YearlyResult yearlyResult = mock();
+
+    when(subject.getLeveledYearlyResultByStudentId(L1, student1.getId())).thenReturn(yearlyResult);
+    when(yearlyResult.getStatus()).thenReturn(VALIDATED);
+    when(userService.findById(anyString())).thenReturn(student1);
+    when(fileInfoService.findTranscriptInfoByName(anyString()))
+        .thenReturn(
+            Optional.of(
+                FileInfo.builder()
+                    .id(randomUUID().toString())
+                    .user(student1)
+                    .filePath("dummy_path")
+                    .build()));
+    when(bucketComponent.presign(anyString(), any()))
+        .thenReturn(URL.of(URI.create("https://example.com/transcript.pdf"), null));
+
+    YearlyResultGenerationTranscript result =
+        subject.getYearlyResultTranscript(student1.getId(), L1);
+    assertEquals(AVAILABLE, result.getStatus());
+    assertFalse(result.getLink().isEmpty());
+  }
+
+  @Test
+  void yearly_result_generation_should_return_generating_status_when_file_is_missing() {
+    YearlyResult yearlyResult = mock();
+
+    when(subject.getLeveledYearlyResultByStudentId(L1, student1.getId())).thenReturn(yearlyResult);
+    when(yearlyResult.getStatus()).thenReturn(VALIDATED);
+    when(userService.findById(anyString())).thenReturn(student1);
+    when(fileInfoService.findTranscriptInfoByName(anyString())).thenReturn(empty());
+
+    YearlyResultGenerationTranscript result =
+        subject.getYearlyResultTranscript(student1.getId(), L1);
+
+    assertEquals(GENERATING, result.getStatus());
+    assertNull(result.getLink());
+  }
+
+  @Test
+  void yearly_result_generation_should_return_bad_request_when_level_in_progress() {
+    YearlyResult yearlyResult = mock();
+    String studentId = student3.getId();
+
+    when(yearlyResult.getStatus()).thenReturn(IN_PROGRESS);
+
+    String exceptionMessage =
+        assertThrows(
+                BadRequestException.class, () -> subject.getYearlyResultTranscript(studentId, L1))
+            .getMessage();
+    assertEquals(
+        "Cannot generate transcript for this level. This level is not yet completed",
+        exceptionMessage);
   }
 }

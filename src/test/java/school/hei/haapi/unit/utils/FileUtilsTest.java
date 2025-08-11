@@ -11,7 +11,7 @@ import org.junit.jupiter.api.io.TempDir;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.service.utils.FileUtils;
 
-public class FileUtilsTest {
+class FileUtilsTest {
   @TempDir Path tempDir;
 
   @Test

@@ -1,5 +1,7 @@
 package school.hei.haapi.service.utils;
 
+import static org.apache.commons.io.FileUtils.writeByteArrayToFile;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -28,7 +30,7 @@ public class FileUtils {
         file.setWritable(true, true);
         file.setExecutable(true, true);
       }
-      org.apache.commons.io.FileUtils.writeByteArrayToFile(file, bytes);
+      writeByteArrayToFile(file, bytes);
       return file;
     } catch (IOException e) {
       throw new FileCreationException(e.getMessage());
