@@ -354,10 +354,7 @@ class GradeResultServiceTest {
   @Test
   void yearly_result_generation_should_return_available_transcript_when_file_exists()
       throws MalformedURLException {
-    YearlyResult yearlyResult = mock();
 
-    when(subject.getLeveledYearlyResultByStudentId(L1, student1.getId())).thenReturn(yearlyResult);
-    when(yearlyResult.getStatus()).thenReturn(VALIDATED);
     when(userService.findById(anyString())).thenReturn(student1);
     when(fileInfoService.findTranscriptInfoByName(anyString()))
         .thenReturn(
@@ -378,10 +375,6 @@ class GradeResultServiceTest {
 
   @Test
   void yearly_result_generation_should_return_generating_status_when_file_is_missing() {
-    YearlyResult yearlyResult = mock();
-
-    when(subject.getLeveledYearlyResultByStudentId(L1, student1.getId())).thenReturn(yearlyResult);
-    when(yearlyResult.getStatus()).thenReturn(VALIDATED);
     when(userService.findById(anyString())).thenReturn(student1);
     when(fileInfoService.findTranscriptInfoByName(anyString())).thenReturn(empty());
 
@@ -394,10 +387,7 @@ class GradeResultServiceTest {
 
   @Test
   void yearly_result_generation_should_return_bad_request_when_level_in_progress() {
-    YearlyResult yearlyResult = mock();
     String studentId = student3.getId();
-
-    when(yearlyResult.getStatus()).thenReturn(IN_PROGRESS);
 
     String exceptionMessage =
         assertThrows(
