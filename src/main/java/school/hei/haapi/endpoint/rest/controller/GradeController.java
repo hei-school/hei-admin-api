@@ -18,6 +18,7 @@ import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
+import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.endpoint.rest.validator.GradeValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -98,5 +99,12 @@ public class GradeController {
     return gradeService.getGradesByStudentAndCourseId(studentId, courseId).stream()
         .map(gradeMapper::toRest)
         .toList();
+  }
+
+  @GetMapping("/students/{student_id}/yearly_results/{student_level}/transcript")
+  public YearlyResultGenerationTranscript getYearlyResultTranscript(
+      @PathVariable("student_id") String studentId,
+      @PathVariable("student_level") StudentLevel studentLevel) {
+    return gradeResultService.getYearlyResultTranscript(studentId, studentLevel);
   }
 }

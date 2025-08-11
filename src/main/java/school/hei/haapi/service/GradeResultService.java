@@ -133,7 +133,8 @@ public class GradeResultService {
         fileInfoService.findTranscriptInfoByName(fileName);
     if (studentTranscriptFileInfo.isPresent()) {
       var presignedTranscriptUrl =
-          bucketComponent.presign(fileName + ".pdf", Duration.of(10, MINUTES));
+          bucketComponent.presign(
+              studentTranscriptFileInfo.get().getFilePath(), Duration.of(10, MINUTES));
       return new YearlyResultGenerationTranscript()
           .status(AVAILABLE)
           .link(presignedTranscriptUrl.toString());

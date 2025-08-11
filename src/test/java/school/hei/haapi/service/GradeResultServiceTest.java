@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static java.math.BigDecimal.ZERO;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
@@ -18,6 +19,7 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
@@ -207,6 +209,10 @@ class GradeResultServiceTest {
                 web1CourseAssignment,
                 sys1CourseAssignment,
                 lv1CourseAssignment));
+
+    when(userService.findById(anyString()))
+        .thenAnswer(
+            (Answer<User>) invocation -> User.builder().id(invocation.getArgument(0)).build());
   }
 
   @Test
