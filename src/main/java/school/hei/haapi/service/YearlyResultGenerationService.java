@@ -23,7 +23,7 @@ public class YearlyResultGenerationService {
   private final ClassPathResourceResolver classPathResourceResolver;
   private static final String YEARLY_RESULT_FILENAME_PREFIX = "Bulletin-";
 
-  public File generateYealyResultFile(User student, YearlyResult yearlyResult) {
+  public File generateYearlyResultTranscript(User student, YearlyResult yearlyResult) {
     Context context = loadContext(student, yearlyResult);
     String html = htmlParser.apply("yearlyResult", context);
     String filename = YEARLY_RESULT_FILENAME_PREFIX + context.getVariable("promotion");

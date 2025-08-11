@@ -99,7 +99,7 @@ public class FileInfoService {
     return fileInfoRepository.save(fileInfo);
   }
 
-  public Optional<FileInfo> findTrasncriptInfoByName(String name) {
+  public Optional<FileInfo> findTranscriptInfoByName(String name) {
     return fileInfoRepository.findByNameAndFileType(name, TRANSCRIPT);
   }
 }

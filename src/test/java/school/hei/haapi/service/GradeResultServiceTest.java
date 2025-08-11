@@ -18,11 +18,13 @@ import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
@@ -42,15 +44,25 @@ class GradeResultServiceTest {
   private final GradeDao gradeDao = mock();
   private final CourseAssignmentDao courseAssignmentDao = mock();
   private final ExamService examService = mock();
-  private final GradeResultService subject =
-      new GradeResultService(
-          new CourseResultService(courseAssignmentDao, gradeDao, new CourseMapper(), examService));
+  private final UserService userService = mock();
+  private final BucketComponent bucketComponent = mock();
+  private final FileInfoService fileInfoService = mock();
+  private final EventProducer eventProducer = mock();
   private final YearlyResultGenerationService yearlyResultGenerationService =
       new YearlyResultGenerationService(
           new HtmlParser(),
           new PdfRenderer(),
           new Base64Converter(),
           new ClassPathResourceResolver());
+  private final GradeResultService subject =
+      new GradeResultService(
+          new CourseResultService(
+              courseAssignmentDao, gradeDao, new CourseMapper(), examService, userService),
+          yearlyResultGenerationService,
+          bucketComponent,
+          userService,
+          fileInfoService,
+          eventProducer);
 
   private final User student2 = User.builder().id("bad student").build();
   private final User student3 = User.builder().id("student with missing grade").build();
@@ -246,7 +258,8 @@ class GradeResultServiceTest {
   void generate_result_pdf_okay() throws CoursesCreditSumZero {
     var targetLevel = L1;
     YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
-    File resultFile = yearlyResultGenerationService.generateYealyResultFile(student1, result);
+    File resultFile =
+        yearlyResultGenerationService.generateYearlyResultTranscript(student1, result);
     assertTrue(resultFile.isFile());
   }
 
