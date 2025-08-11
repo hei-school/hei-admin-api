@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component;
 public class SchoolYearSupplier implements Supplier<String> {
   private final List<Month> schoolYearStartMonths = List.of(OCTOBER, NOVEMBER, DECEMBER);
 
-  private String getSchoolYear() {
+  @Override
+  public String get() {
     LocalDate now = LocalDate.now();
     int nextYear = now.getYear() + 1;
     int precedentYear = now.getYear() - 1;
@@ -24,10 +25,5 @@ public class SchoolYearSupplier implements Supplier<String> {
     }
 
     return precedentYear + " - " + now.getYear();
-  }
-
-  @Override
-  public String get() {
-    return getSchoolYear();
   }
 }

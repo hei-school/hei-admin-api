@@ -15,7 +15,7 @@ public class YearlyResultTranscriptGenerationService
   @Override
   public void accept(YearlyResultTranscriptGeneration yearlyResultTranscriptGeneration) {
     gradeResultService.uploadYearlyResultTranscript(
-        yearlyResultTranscriptGeneration.getUser(),
+        yearlyResultTranscriptGeneration.getUserId(),
         yearlyResultTranscriptGeneration.getYearlyResult());
   }
 }

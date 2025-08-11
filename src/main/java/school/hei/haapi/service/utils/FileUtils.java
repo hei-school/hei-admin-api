@@ -1,6 +1,7 @@
 package school.hei.haapi.service.utils;
 
 import static org.apache.commons.io.FileUtils.writeByteArrayToFile;
+import static org.apache.commons.lang3.SystemUtils.IS_OS_UNIX;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -10,7 +11,6 @@ import java.nio.file.attribute.FileAttribute;
 import java.nio.file.attribute.PosixFilePermission;
 import java.nio.file.attribute.PosixFilePermissions;
 import java.util.Set;
-import org.apache.commons.lang3.SystemUtils;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -20,15 +20,14 @@ public class FileUtils {
   public static File createFileFromBytes(byte[] bytes, String filename, String suffix) {
     try {
       File file;
-      if (SystemUtils.IS_OS_UNIX) {
+      if (IS_OS_UNIX) {
         FileAttribute<Set<PosixFilePermission>> attr =
-            PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
+            PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------"));
         file = Files.createTempFile(filename, suffix, attr).toFile();
       } else {
         file = Files.createTempFile(filename, suffix).toFile();
         file.setReadable(true, true);
         file.setWritable(true, true);
-        file.setExecutable(true, true);
       }
       writeByteArrayToFile(file, bytes);
       return file;

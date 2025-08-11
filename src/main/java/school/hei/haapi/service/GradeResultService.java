@@ -143,13 +143,14 @@ public class GradeResultService {
     eventProducer.accept(
         List.of(
             YearlyResultTranscriptGeneration.builder()
-                .user(student)
+                .userId(student.getId())
                 .yearlyResult(studentYearlyResult)
                 .build()));
     return new YearlyResultGenerationTranscript().status(GENERATING);
   }
 
-  public void uploadYearlyResultTranscript(User student, YearlyResult yearlyResult) {
+  public void uploadYearlyResultTranscript(String studentId, YearlyResult yearlyResult) {
+    User student = userService.findById(studentId);
     File yearlyResultTranscript =
         yearlyResultGenerationService.generateYearlyResultTranscript(student, yearlyResult);
     String fileName =

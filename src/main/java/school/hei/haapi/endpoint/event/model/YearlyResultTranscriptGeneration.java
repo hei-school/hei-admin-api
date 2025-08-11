@@ -5,13 +5,12 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
-import school.hei.haapi.model.User;
 
 @Data
 @Builder
 @EqualsAndHashCode(callSuper = false)
 public class YearlyResultTranscriptGeneration extends PojaEvent {
-  private final User user;
+  private final String userId;
   private final YearlyResult yearlyResult;
 
   @Override
