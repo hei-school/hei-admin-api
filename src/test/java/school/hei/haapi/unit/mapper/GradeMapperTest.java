@@ -31,9 +31,8 @@ class GradeMapperTest {
 
   @Test
   void valid_grade_update_ok() {
-    UpdateGrade grade =
-        new UpdateGrade().comment("New comment").grade(new CreateGrade().score(20.));
-    String studentRef = "ref";
+    var grade = new UpdateGrade().comment("New comment").grade(new CreateGrade().score(20.));
+    var studentRef = "ref";
     when(userService.findByRef(anyString())).thenReturn(User.builder().ref(studentRef).build());
 
     var domain = subject.toDomain(grade, "", studentRef);
@@ -45,13 +44,22 @@ class GradeMapperTest {
 
   @Test
   void invalid_grade_update_ko() {
-    UpdateGrade updateGrade = new UpdateGrade().comment("").grade(new CreateGrade().score(20.));
+    var grade = new CreateGrade().score(20.);
+    var updateGradeEmptyComment = new UpdateGrade().comment("").grade(grade);
+    var updateGradeNullComment = new UpdateGrade().grade(grade);
 
-    BadRequestException badRequestException =
-        assertThrows(BadRequestException.class, () -> subject.toDomain(updateGrade, "", ""));
+    BadRequestException badRequestExceptionEmptyComment =
+        assertThrows(
+            BadRequestException.class, () -> subject.toDomain(updateGradeEmptyComment, "", ""));
+    BadRequestException badRequestExceptionNullComment =
+        assertThrows(
+            BadRequestException.class, () -> subject.toDomain(updateGradeNullComment, "", ""));
 
     assertEquals(
         "Grade modification must be followed by comment about the change",
-        badRequestException.getMessage());
+        badRequestExceptionEmptyComment.getMessage());
+    assertEquals(
+        "Grade modification must be followed by comment about the change",
+        badRequestExceptionNullComment.getMessage());
   }
 }
