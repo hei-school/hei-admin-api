@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static java.math.BigDecimal.ZERO;
 import static java.math.MathContext.UNLIMITED;
+import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static school.hei.haapi.endpoint.rest.model.FileType.TRANSCRIPT;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
@@ -23,10 +24,14 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
-import school.hei.haapi.endpoint.rest.model.*;
+import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
+import school.hei.haapi.endpoint.rest.model.ResultSummary;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
+import school.hei.haapi.endpoint.rest.model.YearlyResult;
+import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.file.bucket.BucketComponent;
-import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 
@@ -41,6 +46,7 @@ public class GradeResultService {
   private final FileInfoService fileInfoService;
   private final EventProducer<YearlyResultTranscriptGeneration> eventProducer;
   private static final String TRANSCRIPT_FILENAME_FORMAT = "Bulletin - %s - %s";
+  private static final Duration TRANSCRIPT_GENERATION_TIMEOUT = Duration.ofMinutes(30);
 
   public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
     var courseResults = courseResultService.courseResultsForLevelOfStudent(level, studentId);
@@ -129,35 +135,58 @@ public class GradeResultService {
 
     User student = userService.findById(studentId);
     var fileName = String.format(TRANSCRIPT_FILENAME_FORMAT, student.getRef(), level);
-    Optional<FileInfo> studentTranscriptFileInfo =
-        fileInfoService.findTranscriptInfoByName(fileName);
-    if (studentTranscriptFileInfo.isPresent()) {
-      var presignedTranscriptUrl =
-          bucketComponent.presign(
-              studentTranscriptFileInfo.get().getFilePath(), Duration.of(10, MINUTES));
-      return new YearlyResultGenerationTranscript()
-          .status(AVAILABLE)
-          .link(presignedTranscriptUrl.toString());
+    Optional<YearlyResultGenerationRequest> studentTranscriptRequestInfo =
+        yearlyResultGenerationService.findGenerationRequestByFileName(fileName);
+    if (studentTranscriptRequestInfo.isPresent()) {
+      var request = studentTranscriptRequestInfo.get();
+      if (AVAILABLE.equals(request.getStatus())) {
+        var presignedTranscriptUrl =
+            bucketComponent.presign(request.getFileInfo().getFilePath(), Duration.of(10, MINUTES));
+        return new YearlyResultGenerationTranscript()
+            .status(AVAILABLE)
+            .link(presignedTranscriptUrl.toString());
+      }
+      if (Duration.between(request.getDatetime(), now())
+          .minus(TRANSCRIPT_GENERATION_TIMEOUT)
+          .isPositive()) {
+        generateUnavailableTranscript(studentId, studentYearlyResult);
+      }
     }
+    return new YearlyResultGenerationTranscript().status(GENERATING);
+  }
 
+  private void generateUnavailableTranscript(String studentId, YearlyResult studentYearlyResult) {
     eventProducer.accept(
         List.of(
             YearlyResultTranscriptGeneration.builder()
-                .userId(student.getId())
+                .userId(studentId)
                 .yearlyResult(studentYearlyResult)
                 .build()));
-    return new YearlyResultGenerationTranscript().status(GENERATING);
   }
 
   public void uploadYearlyResultTranscript(String studentId, YearlyResult yearlyResult) {
     User student = userService.findById(studentId);
-    File yearlyResultTranscript =
-        yearlyResultGenerationService.generateYearlyResultTranscript(student, yearlyResult);
     String fileName =
         String.format(TRANSCRIPT_FILENAME_FORMAT, student.getRef(), yearlyResult.getLevel());
+    yearlyResultGenerationService.saveGenerationRequest(
+        YearlyResultGenerationRequest.builder()
+            .datetime(now())
+            .fileName(fileName)
+            .status(GENERATING)
+            .build());
+    File yearlyResultTranscript =
+        yearlyResultGenerationService.generateYearlyResultTranscript(student, yearlyResult);
     String transcriptKey = fileName + ".pdf";
     bucketComponent.upload(yearlyResultTranscript, transcriptKey);
-    fileInfoService.uploadFile(
-        fileName, TRANSCRIPT, student.getId(), multipartFileFromFile(yearlyResultTranscript));
+    var uploadedTranscriptFileInfo =
+        fileInfoService.uploadFile(
+            fileName, TRANSCRIPT, student.getId(), multipartFileFromFile(yearlyResultTranscript));
+    yearlyResultGenerationService.saveGenerationRequest(
+        YearlyResultGenerationRequest.builder()
+            .datetime(now())
+            .fileName(fileName)
+            .status(AVAILABLE)
+            .fileInfo(uploadedTranscriptFileInfo)
+            .build());
   }
 }

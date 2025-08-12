@@ -1,13 +1,17 @@
 package school.hei.haapi.service;
 
 import static java.math.BigDecimal.ZERO;
+import static java.time.Instant.now;
 import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
@@ -21,7 +25,7 @@ import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
-import java.time.Instant;
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,8 +47,10 @@ import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
+import school.hei.haapi.repository.YearlyResultGenerationRequestRepository;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.utils.Base64Converter;
@@ -60,11 +66,14 @@ class GradeResultServiceTest {
   private final BucketComponent bucketComponent = mock();
   private final FileInfoService fileInfoService = mock();
   private final EventProducer eventProducer = mock();
+  private final YearlyResultGenerationRequestRepository yearlyResultGenerationRequestRepository =
+      mock();
   private final YearlyResultGenerationService yearlyResultGenerationService =
       new YearlyResultGenerationService(
           new HtmlParser(),
           new PdfRenderer(),
           new Base64Converter(),
+          yearlyResultGenerationRequestRepository,
           new ClassPathResourceResolver());
   private final GradeResultService subject =
       new GradeResultService(
@@ -81,11 +90,7 @@ class GradeResultServiceTest {
 
   private final User student1 = mock();
   private final Promotion promotion =
-      Promotion.builder()
-          .ref("prom1")
-          .name("Promotion de test")
-          .startDatetime(Instant.now())
-          .build();
+      Promotion.builder().ref("prom1").name("Promotion de test").startDatetime(now()).build();
   private final Group group =
       Group.builder().name("Groupe test").ref("GRP_TST").promotion(promotion).build();
   private final Exam mgt1Exam = Exam.builder().id("mgt1 exam").coefficient(1).build();
@@ -356,13 +361,18 @@ class GradeResultServiceTest {
       throws MalformedURLException {
 
     when(userService.findById(anyString())).thenReturn(student1);
-    when(fileInfoService.findTranscriptInfoByName(anyString()))
+    when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
         .thenReturn(
             Optional.of(
-                FileInfo.builder()
-                    .id(randomUUID().toString())
-                    .user(student1)
-                    .filePath("dummy_path")
+                YearlyResultGenerationRequest.builder()
+                    .fileInfo(
+                        FileInfo.builder()
+                            .id(randomUUID().toString())
+                            .user(student1)
+                            .filePath("dummy_path")
+                            .build())
+                    .status(AVAILABLE)
+                    .datetime(now())
                     .build()));
     when(bucketComponent.presign(anyString(), any()))
         .thenReturn(URL.of(URI.create("https://example.com/transcript.pdf"), null));
@@ -376,13 +386,32 @@ class GradeResultServiceTest {
   @Test
   void yearly_result_generation_should_return_generating_status_when_file_is_missing() {
     when(userService.findById(anyString())).thenReturn(student1);
-    when(fileInfoService.findTranscriptInfoByName(anyString())).thenReturn(empty());
+    when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
+        .thenReturn(empty());
 
     YearlyResultGenerationTranscript result =
         subject.getYearlyResultTranscript(student1.getId(), L1);
 
     assertEquals(GENERATING, result.getStatus());
     assertNull(result.getLink());
+  }
+
+  @Test
+  void yearly_result_generation_should_regenerate_when_generation_times_out() {
+
+    when(userService.findById(anyString())).thenReturn(student1);
+    when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
+        .thenReturn(
+            Optional.of(
+                YearlyResultGenerationRequest.builder()
+                    .status(GENERATING)
+                    .datetime(now().minus(Duration.ofHours(1L)))
+                    .build()));
+
+    YearlyResultGenerationTranscript result =
+        subject.getYearlyResultTranscript(student1.getId(), L1);
+    assertEquals(GENERATING, result.getStatus());
+    verify(eventProducer, only()).accept(anyList());
   }
 
   @Test

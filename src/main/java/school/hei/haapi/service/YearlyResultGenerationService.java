@@ -6,12 +6,15 @@ import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
 
 import java.io.File;
 import java.math.MathContext;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.YearlyResultGenerationRequest;
+import school.hei.haapi.repository.YearlyResultGenerationRequestRepository;
 import school.hei.haapi.service.utils.*;
 
 @Service
@@ -20,6 +23,7 @@ public class YearlyResultGenerationService {
   private final HtmlParser htmlParser;
   private final PdfRenderer pdfRenderer;
   private final Base64Converter base64Converter;
+  private final YearlyResultGenerationRequestRepository yearlyResultGenerationRequestRepository;
   private final ClassPathResourceResolver classPathResourceResolver;
   private static final String YEARLY_RESULT_FILENAME_PREFIX = "Bulletin-";
 
@@ -28,6 +32,16 @@ public class YearlyResultGenerationService {
     String html = htmlParser.apply("yearlyResult", context);
     String filename = YEARLY_RESULT_FILENAME_PREFIX + context.getVariable("promotion");
     return createFileFromBytes(pdfRenderer.apply(html), filename, ".pdf");
+  }
+
+  public Optional<YearlyResultGenerationRequest> findGenerationRequestByFileName(String fileName) {
+    return yearlyResultGenerationRequestRepository
+        .findFirstYearlyResultGenerationRequestByFileNameContainsIgnoreCaseOrderByFileNameDesc(
+            fileName);
+  }
+
+  public void saveGenerationRequest(YearlyResultGenerationRequest toSave) {
+    yearlyResultGenerationRequestRepository.save(toSave);
   }
 
   private Context loadContext(User student, YearlyResult yearlyResult) {
