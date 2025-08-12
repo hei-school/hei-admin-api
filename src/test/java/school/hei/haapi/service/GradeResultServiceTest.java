@@ -32,6 +32,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.stubbing.Answer;
 import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
@@ -53,6 +54,7 @@ import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.repository.YearlyResultGenerationRequestRepository;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
+import school.hei.haapi.service.event.YearlyResultTranscriptGenerationService;
 import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
 import school.hei.haapi.service.utils.HtmlParser;
@@ -84,6 +86,8 @@ class GradeResultServiceTest {
           userService,
           fileInfoService,
           eventProducer);
+  private final YearlyResultTranscriptGenerationService yearlyResultTranscriptGenerationService =
+      new YearlyResultTranscriptGenerationService(subject);
 
   private final User student2 = User.builder().id("bad student").build();
   private final User student3 = User.builder().id("student with missing grade").build();
@@ -425,5 +429,21 @@ class GradeResultServiceTest {
     assertEquals(
         "Cannot generate transcript for this level. This level is not yet completed",
         exceptionMessage);
+  }
+
+  @Test
+  void yearly_result_event_handler_ok() {
+    String studentId = student1.getId();
+    YearlyResult student1YearlyResult = subject.getLeveledYearlyResultByStudentId(L1, studentId);
+
+    when(userService.findById(anyString())).thenReturn(student1);
+    assertDoesNotThrow(
+        () -> {
+          yearlyResultTranscriptGenerationService.accept(
+              YearlyResultTranscriptGeneration.builder()
+                  .yearlyResult(student1YearlyResult)
+                  .userId(studentId)
+                  .build());
+        });
   }
 }
