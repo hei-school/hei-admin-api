@@ -14,6 +14,7 @@ import school.hei.haapi.model.Group;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.model.notEntity.UpdateGrade;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -45,18 +46,16 @@ public class GradeService {
   }
 
   // TODO: make this obey the single-responsibility rule, at least in the name.
-  // TODO: split in create and update grade
-  @Transactional
-  private Grade checkGrade(Grade grade) {
+  private Grade checkGradeToSave(Grade grade) {
     String examId = grade.getExam().getId();
     String studentId = grade.getStudent().getId();
 
     Optional<Grade> existingGrade = gradeRepository.findByExamIdAndStudentId(examId, studentId);
     if (existingGrade.isPresent()) {
-      Grade presentGrade = existingGrade.get();
-      presentGrade.setScore(
-          grade.getScore(), ""); // Todo: need to give reason for each change in the grade score
-      return presentGrade;
+      String error =
+          String.format(
+              "Grade for the student %s for the exam %s already exist", studentId, examId);
+      throw new BadRequestException(error);
     }
 
     Optional<Group> studentGroup = grade.getStudent().findCurrentGroup();
@@ -76,15 +75,35 @@ public class GradeService {
     return grade;
   }
 
+  private Grade checkGradeToUpdate(UpdateGrade grade) {
+    String examId = grade.getExam().getId();
+    String studentId = grade.getStudent().getId();
+
+    Optional<Grade> existingGrade = gradeRepository.findByExamIdAndStudentId(examId, studentId);
+    if (existingGrade.isEmpty()) {
+      throw new BadRequestException(
+          "Grade for the student " + studentId + " for the exam " + examId + " not found");
+    }
+
+    Grade presentGrade = existingGrade.get();
+    presentGrade.setScore(grade.getGrade().getScore(), grade.getComment());
+    return presentGrade;
+  }
+
   @Transactional
-  public List<Grade> crupdateParticipantGrade(List<Grade> grades) {
-    return gradeRepository.saveAll(grades.stream().map(this::checkGrade).toList());
+  public List<Grade> saveParticipantGrade(List<Grade> grades) {
+    return gradeRepository.saveAll(grades.stream().map(this::checkGradeToSave).toList());
+  }
+
+  @Transactional
+  public List<Grade> updateParticipantGrade(List<UpdateGrade> grades) {
+    return gradeRepository.saveAll(grades.stream().map(this::checkGradeToUpdate).toList());
   }
 
   public List<Grade> getParticipantsGradeForExam(
-      String exam_id, PageFromOne page, BoundedPageSize pageSize) {
+      String examId, PageFromOne page, BoundedPageSize pageSize) {
     return gradeDao.getGradesByExamId(
-        exam_id,
+        examId,
         (page == null || pageSize == null)
             ? Pageable.unpaged()
             : PageRequest.of((page.getValue() - 1), pageSize.getValue()));

@@ -13,11 +13,13 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
+import lombok.NoArgsConstructor;
 import org.hibernate.annotations.CreationTimestamp;
 
 @Entity
 @Table(name = "\"grade_change_history\"")
 @AllArgsConstructor
+@NoArgsConstructor
 @Builder(toBuilder = true)
 @Getter
 public class GradeChangeHistory implements Serializable {

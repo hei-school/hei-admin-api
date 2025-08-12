@@ -3,10 +3,12 @@ package school.hei.haapi.endpoint.rest.mapper;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
+import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.validator.GradeValidator;
+import school.hei.haapi.endpoint.rest.validator.UpdateGradeValidator;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.GradeRepository;
@@ -19,7 +21,8 @@ public class GradeMapper {
   private final UserMapper userMapper;
   private final ExamService examService;
   private final UserService userService;
-  private final GradeValidator validator;
+  private final GradeValidator gradeValidator;
+  private final UpdateGradeValidator updateGradeValidator;
   private final ExamMapper examMapper;
   private final GradeRepository gradeRepository;
 
@@ -37,7 +40,6 @@ public class GradeMapper {
         .exam(examMapper.toRest(grade.getExam()))
         .createdAt(grade.getCreationDatetime())
         .score(grade.getScore());
-    // TODO: implement update time or better yet : grade history here !
   }
 
   public StudentGrade toRestStudentGrade(school.hei.haapi.model.Grade grade) {
@@ -61,19 +63,9 @@ public class GradeMapper {
     return getStudentGrade;
   }
 
-  //  public ExamDetail toRestExamDetail(Exam exam, List<school.hei.haapi.model.Grade> grades) {
-  //    return new ExamDetail()
-  //        .id(exam.getId())
-  //        .coefficient(exam.getCoefficient())
-  //        .title(exam.getTitle())
-  //        .examinationDate(exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
-  //        .participants(
-  //            grades.stream().map(grade -> this.toRestStudentGrade(grade)).collect(toList()));
-  //  }
-
   public school.hei.haapi.model.Grade toDomain(
-      CrupdateGrade grade, String examId, String studentRef) {
-    validator.accept(grade);
+      CreateGrade grade, String examId, String studentRef) {
+    gradeValidator.accept(grade);
 
     return gradeRepository
         .getGradeByExamIdAndStudentRef(examId, studentRef)
@@ -82,5 +74,22 @@ public class GradeMapper {
                 examService.getExamById(examId),
                 userService.findByRef(studentRef),
                 grade.getScore()));
+  }
+
+  public school.hei.haapi.model.notEntity.UpdateGrade toDomain(
+      UpdateGrade grade, String examId, String studentRef) {
+    updateGradeValidator.accept(grade);
+
+    return new school.hei.haapi.model.notEntity.UpdateGrade(
+        gradeRepository
+            .getGradeByExamIdAndStudentRef(examId, studentRef)
+            .orElse(
+                new school.hei.haapi.model.Grade(
+                    examService.getExamById(examId),
+                    userService.findByRef(studentRef),
+                    grade.getGrade().getScore())),
+        userService.findByRef(studentRef),
+        grade.getComment(),
+        examService.getExamById(examId));
   }
 }

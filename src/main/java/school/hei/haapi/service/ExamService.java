@@ -5,6 +5,7 @@ import static org.springframework.data.domain.Sort.Direction.DESC;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -45,14 +46,14 @@ public class ExamService {
     List<Exam> savedExams = examRepository.saveAll(exams);
     List<Grade> gradesToInitialize = new ArrayList<>();
     savedExams.forEach(exam -> gradesToInitialize.addAll(initializeExamGrades(exam)));
-    gradeService.crupdateParticipantGrade(gradesToInitialize);
+    gradeService.saveParticipantGrade(gradesToInitialize);
     return savedExams;
   }
 
-  private Grade initializeExamGrade(Exam exam, User user) {
-    return gradeRepository
-        .getGradeByExamIdAndStudentId(exam.getId(), user.getId())
-        .orElse(new Grade(exam, user, 0));
+  private Optional<Grade> initializeExamGrade(Exam exam, User user) {
+    if (gradeRepository.getGradeByExamIdAndStudentId(exam.getId(), user.getId()).isPresent())
+      return Optional.empty();
+    return Optional.of(new Grade(exam, user, 0));
   }
 
   private List<Grade> initializeExamGrades(Exam exam) {
@@ -61,6 +62,8 @@ public class ExamService {
         .flatMap(List::stream)
         .distinct()
         .map(user -> initializeExamGrade(exam, user))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
         .toList();
   }
 

@@ -36,7 +36,7 @@ import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 @Getter
 @Setter
 @ToString
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
