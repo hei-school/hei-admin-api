@@ -1,3 +1,17 @@
+# [1.109.0](https://github.com/hei-school/hei-admin-api/compare/v1.108.0...v1.109.0) (2025-08-12)
+
+
+### Bug Fixes
+
+* getStudentById Monitor ([d5be86f](https://github.com/hei-school/hei-admin-api/commit/d5be86f554fc2274239fde5eda37ac25aa02b302))
+
+
+### Features
+
+* YearlyResult transcript ([25f4552](https://github.com/hei-school/hei-admin-api/commit/25f4552735972ba0cc4314490b7d3cb4836ed18e))
+
+
+
 # [1.108.0](https://github.com/hei-school/hei-admin-api/compare/v1.107.0...v1.108.0) (2025-08-07)
 
 
@@ -101,22 +115,6 @@
 ### Bug Fixes
 
 * fee having list of mpbs ([074b6d2](https://github.com/hei-school/hei-admin-api/commit/074b6d2372cb0ad4e6bc99c2da3c22d694f0bcc0))
-
-
-
-# [1.103.0](https://github.com/hei-school/hei-admin-api/compare/v1.102.1...v1.103.0) (2025-04-25)
-
-
-### Bug Fixes
-
-* advanced fee statistics generation endpoint ([e3e6398](https://github.com/hei-school/hei-admin-api/commit/e3e63980a906115df8f04c0be2a0bd7ecfcd9b6a))
-* getAllEventParticipants without date parameters ([f0c20f1](https://github.com/hei-school/hei-admin-api/commit/f0c20f190d8657b1853eaa262eb6b245ceb3163e))
-
-
-### Features
-
-* get all event attendances & filter by status ([4bb28d6](https://github.com/hei-school/hei-admin-api/commit/4bb28d6aec5c84786f1e8d70abb8b6e797c7cc52))
-* getAllEventParticipants filters ([a5be603](https://github.com/hei-school/hei-admin-api/commit/a5be60386d3dbc6a9fffc98fae981a7e851a7b94))
 
 
 
