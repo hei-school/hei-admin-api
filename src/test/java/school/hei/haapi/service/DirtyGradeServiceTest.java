@@ -156,7 +156,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
         examService
             .getParticipantsGradeForExam(exam1Prog1.getId(), page, pageSize)
             .containsAll(updatedGrades));
-    assertEquals(rectifiedGrades.getFirst().getGrade(), updatedGrades.getFirst());
-    assertEquals(rectifiedGrades.get(1).getGrade(), updatedGrades.get(1));
+    assertEquals(rectifiedGrades.getFirst().grade(), updatedGrades.getFirst());
+    assertEquals(rectifiedGrades.get(1).grade(), updatedGrades.get(1));
   }
 }

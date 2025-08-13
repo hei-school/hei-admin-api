@@ -37,9 +37,9 @@ class GradeMapperTest {
 
     var domain = subject.toDomain(grade, "", studentRef);
 
-    assertEquals(grade.getGrade().getScore(), domain.getGrade().getScore());
-    assertEquals(grade.getComment(), domain.getComment());
-    assertEquals(studentRef, domain.getStudent().getRef());
+    assertEquals(grade.getGrade().getScore(), domain.grade().getScore());
+    assertEquals(grade.getComment(), domain.comment());
+    assertEquals(studentRef, domain.student().getRef());
   }
 
   @Test

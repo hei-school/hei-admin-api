@@ -230,7 +230,7 @@ class GradeIT extends FacadeITMockedThirdParties {
     updateGrade.setGrade(new CreateGrade().score(90.0));
 
     assertThrowsForbiddenException(
-        () -> api.updateParticipantGrade(EXAM1_ID, STUDENT1_ID, updateGrade));
+        () -> api.correctParticipantGrade(EXAM1_ID, STUDENT1_ID, updateGrade));
   }
 
   @Test
