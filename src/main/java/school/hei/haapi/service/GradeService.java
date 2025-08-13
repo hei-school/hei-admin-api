@@ -44,7 +44,7 @@ public class GradeService {
   }
 
   // TODO: make this obey the single-responsibility rule, at least in the name.
-  private Grade checkGradeToSave(Grade grade) {
+  private Grade checkGradeToCreate(Grade grade) {
     String examId = grade.getExam().getId();
     String studentId = grade.getStudent().getId();
 
@@ -83,8 +83,8 @@ public class GradeService {
   }
 
   @Transactional
-  public List<Grade> saveParticipantGrade(List<Grade> grades) {
-    return gradeRepository.saveAll(grades.stream().map(this::checkGradeToSave).toList());
+  public List<Grade> createParticipantGrade(List<Grade> grades) {
+    return gradeRepository.saveAll(grades.stream().map(this::checkGradeToCreate).toList());
   }
 
   @Transactional

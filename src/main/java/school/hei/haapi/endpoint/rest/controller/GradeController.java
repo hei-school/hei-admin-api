@@ -53,7 +53,7 @@ public class GradeController {
       @RequestBody CreateGrade grade) {
     gradeValidator.accept(grade);
     var toSave = gradeMapper.toDomain(grade, examId, userService.findById(studentId).getRef());
-    return gradeMapper.toRest(gradeService.saveParticipantGrade(List.of(toSave)).getFirst());
+    return gradeMapper.toRest(gradeService.createParticipantGrade(List.of(toSave)).getFirst());
   }
 
   @PostMapping(value = "/exams/{exam_id}/students/{student_id}/grade/update")

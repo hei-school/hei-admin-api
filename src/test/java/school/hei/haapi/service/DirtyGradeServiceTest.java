@@ -123,16 +123,16 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   void crupdate_grade_ok() {
     PageFromOne page = new PageFromOne(1);
     BoundedPageSize pageSize = new BoundedPageSize(20);
-    List<Grade> savedGrades = subject.saveParticipantGrade(gradesExam1Prog1);
+    List<Grade> createdGrades = subject.createParticipantGrade(gradesExam1Prog1);
 
-    assertEquals(2, savedGrades.size());
-    assertNotNull(savedGrades.getFirst().getId());
+    assertEquals(2, createdGrades.size());
+    assertNotNull(createdGrades.getFirst().getId());
     assertTrue(
         examService
             .getParticipantsGradeForExam(exam1Prog1.getId(), page, pageSize)
-            .containsAll(savedGrades));
-    assertEquals(gradesExam1Prog1.getFirst(), savedGrades.getFirst());
-    assertEquals(gradesExam1Prog1.get(1), savedGrades.get(1));
+            .containsAll(createdGrades));
+    assertEquals(gradesExam1Prog1.getFirst(), createdGrades.getFirst());
+    assertEquals(gradesExam1Prog1.get(1), createdGrades.get(1));
 
     var rectifiedGrades =
         gradesExam1Prog1.stream()
