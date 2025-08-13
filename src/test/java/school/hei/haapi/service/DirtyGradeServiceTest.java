@@ -122,7 +122,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   @Transactional
   void crupdate_grade_ok() {
     PageFromOne page = new PageFromOne(1);
-    BoundedPageSize pageSize = new BoundedPageSize(20);
+    BoundedPageSize pageSize = new BoundedPageSize(100);
     List<Grade> createdGrades = subject.createParticipantGrade(gradesExam1Prog1);
 
     assertEquals(2, createdGrades.size());
