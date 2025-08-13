@@ -3,6 +3,7 @@ package school.hei.haapi.integration;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.integration.StudentIT.student1;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.AXEL_MONITOR_TOKEN;
@@ -15,6 +16,7 @@ import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT2_ID;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT3_ID;
 import static school.hei.haapi.integration.conf.TestUtils.TEACHER1_TOKEN;
+import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
@@ -265,7 +267,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void student_get_course_grades_ko() throws ApiException {
+  void student_get_course_grades_ko() {
     GradesApi studentApi = new GradesApi(anApiClient(STUDENT1_TOKEN));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
@@ -273,7 +275,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void get_grades_for_student_with_unassigned_course_ko() throws ApiException {
+  void get_grades_for_student_with_unassigned_course_ko() {
     setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
 
@@ -284,7 +286,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void monitor_get_grades_of_other_student_ko() throws ApiException {
+  void monitor_get_grades_of_other_student_ko() {
     setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
     assertThrowsApiException(
@@ -300,6 +302,39 @@ class GradeIT extends FacadeITMockedThirdParties {
 
     assertGradeExists(axelGrades, studentAxelGradeExam1Prog1);
     assertGradeExists(axelGrades, studentAxelGradeExam2Prog1);
+  }
+
+  @Test
+  void monitor_get_own_yearly_result_transcript_ok() {
+    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
+    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
+
+    assertBadRequestException(
+        "Cannot generate transcript for this level. This level is not yet completed",
+        () -> {
+          monitorApi.getYearlyResultTranscript(studentAxel.getId(), L1);
+        });
+  }
+
+  @Test
+  void monitor_get_else_yearly_result_transcript_ko() {
+    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
+    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
+
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> monitorApi.getYearlyResultTranscript(studentTolojanahary.getId(), L1));
+  }
+
+  @Test
+  void manager_get_any_yearly_result() {
+    GradesApi managerApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
+
+    assertBadRequestException(
+        "Cannot generate transcript for this level. This level is not yet completed",
+        () -> {
+          managerApi.getYearlyResultTranscript(studentAxel.getId(), L1);
+        });
   }
 
   private void setUpCasdoorMonitor(
