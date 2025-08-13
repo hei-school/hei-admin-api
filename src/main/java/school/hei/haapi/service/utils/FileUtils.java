@@ -15,19 +15,22 @@ import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.web.multipart.MultipartFile;
 
 public class FileUtils {
-  private FileUtils() {}
+  private FileUtils() throws IOException {}
 
   public static File createFileFromBytes(byte[] bytes, String filename, String suffix) {
     try {
-      File file;
-      if (IS_OS_UNIX) {
-        FileAttribute<Set<PosixFilePermission>> attr =
-            PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------"));
-        file = Files.createTempFile(filename, suffix, attr).toFile();
-      } else {
+      FileAttribute<Set<PosixFilePermission>> attr =
+          PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rw-------"));
+      File tempDir = Files.createTempDirectory("haapi-temp", attr).toFile();
+      File file = File.createTempFile(filename, suffix, tempDir);
+      if (!IS_OS_UNIX) {
         file = Files.createTempFile(filename, suffix).toFile();
-        file.setReadable(true, true);
-        file.setWritable(true, true);
+        boolean readableResult = file.setReadable(true, true);
+        boolean writableResult = file.setWritable(true, true);
+
+        if (!(readableResult && writableResult)) {
+          throw new IOException("Cannot set file permission");
+        }
       }
       writeByteArrayToFile(file, bytes);
       return file;
