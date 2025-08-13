@@ -51,13 +51,13 @@ class GradeMapperTest {
     BadRequestException badRequestExceptionEmptyComment =
         assertThrows(
             BadRequestException.class, () -> subject.toDomain(updateGradeEmptyComment, "", ""));
-    BadRequestException badRequestExceptionNullComment =
-        assertThrows(
-            BadRequestException.class, () -> subject.toDomain(updateGradeNullComment, "", ""));
-
     assertEquals(
         "Grade modification must be followed by comment about the change",
         badRequestExceptionEmptyComment.getMessage());
+
+    BadRequestException badRequestExceptionNullComment =
+        assertThrows(
+            BadRequestException.class, () -> subject.toDomain(updateGradeNullComment, "", ""));
     assertEquals(
         "Grade modification must be followed by comment about the change",
         badRequestExceptionNullComment.getMessage());

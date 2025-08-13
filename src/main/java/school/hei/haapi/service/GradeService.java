@@ -68,8 +68,8 @@ public class GradeService {
   }
 
   private Grade checkGradeToUpdate(UpdateGrade grade) {
-    String examId = grade.getExam().getId();
-    String studentId = grade.getStudent().getId();
+    String examId = grade.grade().getExam().getId();
+    String studentId = grade.grade().getStudent().getId();
 
     Optional<Grade> existingGrade = gradeRepository.findByExamIdAndStudentId(examId, studentId);
     if (existingGrade.isEmpty()) {
@@ -78,7 +78,7 @@ public class GradeService {
     }
 
     Grade presentGrade = existingGrade.get();
-    presentGrade.setScore(grade.getGrade().getScore(), grade.getComment());
+    presentGrade.setScore(grade.grade().getScore(), grade.comment());
     return presentGrade;
   }
 
