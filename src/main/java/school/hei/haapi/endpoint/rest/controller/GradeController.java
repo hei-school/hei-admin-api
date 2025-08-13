@@ -1,5 +1,6 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import java.math.MathContext;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -86,7 +87,9 @@ public class GradeController {
 
   @GetMapping("/students/{student_id}/results_summary")
   public ResultSummary getResultSummary(@PathVariable("student_id") String studentId) {
-    return gradeResultService.getStudentResultSummary(studentId);
+    var studentResultSummary = gradeResultService.getStudentResultSummary(studentId);
+    return studentResultSummary.weightedAverage(
+        studentResultSummary.getWeightedAverage().round(new MathContext(4)));
   }
 
   @GetMapping("/students/{student_id}/courses/{course_id}/grades")
