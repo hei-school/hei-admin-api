@@ -1932,7 +1932,7 @@ paths:
           schema:
             type: string
       requestBody:
-        description: Created grade for a specific student
+        description: Specific student's grade which should be creates
         required: true
         content:
           application/json:
@@ -1940,7 +1940,7 @@ paths:
               $ref: '#/components/schemas/CreateGrade'
       responses:
         '200':
-          description: The specified participant with his grade
+          description: The created grade for the specified student
           content:
             application/json:
               schema:
@@ -1959,8 +1959,8 @@ paths:
     post:
       tags:
         - Grades
-      summary: Update a participant exam grade
-      operationId: updateParticipantGrade
+      summary: Correct a participant exam grade
+      operationId: correctParticipantGrade
       parameters:
         - name: exam_id
           in: path
