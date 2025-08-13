@@ -46,7 +46,7 @@ import school.hei.haapi.repository.UserRepository;
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   @Autowired GradeService subject;
-  @Autowired ExamService examService;
+  @Autowired ExamParticipantService examParticipantService;
   @Autowired UserRepository userRepository;
   @Autowired GroupRepository groupRepository;
   @Autowired GroupFlowRepository groupFlowRepository;
@@ -128,7 +128,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
     assertEquals(2, createdGrades.size());
     assertNotNull(createdGrades.getFirst().getId());
     assertTrue(
-        examService
+        examParticipantService
             .getParticipantsGradeForExam(exam1Prog1.getId(), page, pageSize)
             .containsAll(createdGrades));
     assertEquals(gradesExam1Prog1.getFirst(), createdGrades.getFirst());
@@ -153,7 +153,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
     assertEquals(2, updatedGrades.size());
     assertNotNull(updatedGrades.getFirst().getId());
     assertTrue(
-        examService
+        examParticipantService
             .getParticipantsGradeForExam(exam1Prog1.getId(), page, pageSize)
             .containsAll(updatedGrades));
     assertEquals(rectifiedGrades.getFirst().grade(), updatedGrades.getFirst());

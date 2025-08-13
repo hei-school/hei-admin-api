@@ -24,6 +24,7 @@ import school.hei.haapi.endpoint.rest.validator.GradeValidator;
 import school.hei.haapi.endpoint.rest.validator.UpdateGradeValidator;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
+import school.hei.haapi.service.ExamParticipantService;
 import school.hei.haapi.service.ExamService;
 import school.hei.haapi.service.GradeResultService;
 import school.hei.haapi.service.GradeService;
@@ -39,6 +40,7 @@ public class GradeController {
   private final GradeMapper gradeMapper;
   private final GradeResultService gradeResultService;
   private final ExamService examService;
+  private final ExamParticipantService examParticipantService;
 
   // todo: to review all class
   @GetMapping("/students/{student_id}/grades")
@@ -71,7 +73,7 @@ public class GradeController {
       @PathVariable(value = "exam_id") String examId,
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize) {
-    return examService.getParticipantsGradeForExam(examId, page, pageSize);
+    return examParticipantService.getParticipantsGradeForExam(examId, page, pageSize);
   }
 
   @PutMapping(value = "/exams/{exam_id}/grades")
