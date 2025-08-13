@@ -4,20 +4,17 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
-import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
-import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.notEntity.UpdateGrade;
+import school.hei.haapi.model.validator.IsNewGradeChecker;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.GradeRepository;
-import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.GradeDao;
 
 @Service
@@ -25,11 +22,12 @@ import school.hei.haapi.repository.dao.GradeDao;
 public class GradeService {
   private final GradeRepository gradeRepository;
   private final GradeDao gradeDao;
-  private final UserRepository userRepository;
+  private final UserService userService;
   private final CourseAssignmentRepository courseAssignmentRepository;
+  private final IsNewGradeChecker isNewGradeChecker;
 
   public List<Grade> getGradesByStudentId(String studentId) {
-    var student = userRepository.getById(studentId);
+    var student = userService.findById(studentId);
     return gradeRepository.getAllByStudent(student);
   }
 
@@ -50,13 +48,7 @@ public class GradeService {
     String examId = grade.getExam().getId();
     String studentId = grade.getStudent().getId();
 
-    Optional<Grade> existingGrade = gradeRepository.findByExamIdAndStudentId(examId, studentId);
-    if (existingGrade.isPresent()) {
-      String error =
-          String.format(
-              "Grade for the student %s for the exam %s already exist", studentId, examId);
-      throw new BadRequestException(error);
-    }
+    isNewGradeChecker.accept(grade);
 
     Optional<Group> studentGroup = grade.getStudent().findCurrentGroup();
     if (studentGroup.isEmpty()) {
@@ -100,15 +92,6 @@ public class GradeService {
     return gradeRepository.saveAll(grades.stream().map(this::checkGradeToUpdate).toList());
   }
 
-  public List<Grade> getParticipantsGradeForExam(
-      String examId, PageFromOne page, BoundedPageSize pageSize) {
-    return gradeDao.getGradesByExamId(
-        examId,
-        (page == null || pageSize == null)
-            ? Pageable.unpaged()
-            : PageRequest.of((page.getValue() - 1), pageSize.getValue()));
-  }
-
   private double getExamAverageGrade(String examId) {
     var averageOfGradeResult =
         gradeDao.getGradesByExamId(examId).stream().mapToDouble(Grade::getScore).average();
@@ -131,7 +114,7 @@ public class GradeService {
   }
 
   public List<Grade> getGradesByStudentAndCourseId(String studentId, String courseId) {
-    var student = userRepository.getById(studentId);
+    var student = userService.findById(studentId);
     var studentCurrentGroup = student.findCurrentGroup();
     if (studentCurrentGroup.isEmpty()) {
       throw new BadRequestException(String.format("Student with id: %s not in any group", student));
