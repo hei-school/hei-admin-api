@@ -15,7 +15,7 @@ public class YearlyResultTranscriptGeneration extends PojaEvent {
 
   @Override
   public Duration maxConsumerDuration() {
-    return Duration.ofMinutes(10);
+    return Duration.ofMinutes(5);
   }
 
   @Override
