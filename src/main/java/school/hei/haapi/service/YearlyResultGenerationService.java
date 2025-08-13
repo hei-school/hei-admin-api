@@ -69,6 +69,10 @@ public class YearlyResultGenerationService {
     context.setVariable("current_date", instantToCommonDate(now()));
     var signatureRessource = classPathResourceResolver.apply("signature", ".png");
     context.setVariable("email_signature", base64Converter.apply(signatureRessource));
+    context.setVariable("total_absences", "Non disponible");
+    context.setVariable("justified_count", "Non disponible");
+    context.setVariable("total_absences", "Non disponible");
+    context.setVariable("malus_total", "Non disponible");
 
     return context;
   }
