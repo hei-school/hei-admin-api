@@ -3,7 +3,6 @@ package school.hei.haapi.service;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -16,6 +15,7 @@ import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.ExamValidator;
 import school.hei.haapi.repository.ExamRepository;
@@ -43,17 +43,13 @@ public class ExamService {
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
     validator.accept(exams);
-    List<Exam> savedExams = examRepository.saveAll(exams);
-    List<Grade> gradesToInitialize = new ArrayList<>();
-    savedExams.forEach(exam -> gradesToInitialize.addAll(initializeExamGrades(exam)));
-    gradeService.saveParticipantGrade(gradesToInitialize);
-    return savedExams;
+      return examRepository.saveAll(exams);
   }
 
-  private Optional<Grade> initializeExamGrade(Exam exam, User user) {
+  private Grade initializeExamGrade(Exam exam, User user) {
     if (gradeRepository.getGradeByExamIdAndStudentId(exam.getId(), user.getId()).isPresent())
-      return Optional.empty();
-    return Optional.of(new Grade(exam, user, 0));
+      throw new BadRequestException("Grade already exists");
+    return new Grade(exam, user, 0);
   }
 
   private List<Grade> initializeExamGrades(Exam exam) {
@@ -62,8 +58,6 @@ public class ExamService {
         .flatMap(List::stream)
         .distinct()
         .map(user -> initializeExamGrade(exam, user))
-        .filter(Optional::isPresent)
-        .map(Optional::get)
         .toList();
   }
 
