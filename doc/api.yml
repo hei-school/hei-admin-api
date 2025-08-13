@@ -1915,11 +1915,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    put:
+    post:
       tags:
         - Grades
-      summary: Create or update a participant exam grade
-      operationId: crupdateParticipantGrade
+      summary: Create a participant exam grade
+      operationId: createParticipantGrade
       parameters:
         - name: exam_id
           in: path
@@ -1932,12 +1932,53 @@ paths:
           schema:
             type: string
       requestBody:
-        description: Crupdate grade for a specific student
+        description: Specific student's grade which should be creates
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CrupdateGrade'
+              $ref: '#/components/schemas/CreateGrade'
+      responses:
+        '200':
+          description: The created grade for the specified student
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Grade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /exams/{exam_id}/students/{student_id}/grade/update:
+    post:
+      tags:
+        - Grades
+      summary: Correct a participant exam grade
+      operationId: correctParticipantGrade
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Updated grade for a specific student
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateGrade'
       responses:
         '200':
           description: The specified participant with his grade
@@ -6664,12 +6705,9 @@ components:
           example: 12.5
         student:
           $ref: '#/components/schemas/UserIdentifier'
-    CrupdateGrade:
+    CreateGrade:
       type: object
       properties:
-        id:
-          type: string
-          description: Id of the Grade
         score:
           type: number
           format: double
@@ -6700,8 +6738,10 @@ components:
     UpdateGrade:
       properties:
         grade:
-          $ref: '#/components/schemas/CrupdateGrade'
+          $ref: '#/components/schemas/CreateGrade'
         student_ref:
+          type: string
+        comment:
           type: string
     CourseAssignmentExam:
       allOf:
