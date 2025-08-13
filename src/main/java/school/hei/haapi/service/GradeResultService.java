@@ -46,7 +46,7 @@ public class GradeResultService {
   private final FileInfoService fileInfoService;
   private final EventProducer<YearlyResultTranscriptGeneration> eventProducer;
   private static final String TRANSCRIPT_FILENAME_FORMAT = "Bulletin - %s - %s";
-  private static final Duration TRANSCRIPT_GENERATION_TIMEOUT = Duration.ofMinutes(10);
+  private static final Duration TRANSCRIPT_GENERATION_TIMEOUT = Duration.ofMinutes(5);
 
   public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
     var courseResults = courseResultService.courseResultsForLevelOfStudent(level, studentId);
