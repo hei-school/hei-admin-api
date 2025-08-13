@@ -127,7 +127,11 @@ public class AdvancedFeeStatsService {
     Instant dayStart = fromDate.atStartOfDay().toInstant(UTC);
     Instant dayEnd = toDate.atTime(23, 59, 59).toInstant(UTC);
 
-    List<Fee> allFees = feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
+    List<Fee> allFees =
+        switch (type) {
+          case ACCOUNTING -> feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
+          case RECEIPT -> feeRepository.findAllByStatusHistoriesDatetimeBetween(dayStart, dayEnd);
+        };
 
     Collection<AdvancedFeeStats> stats =
         feeDao.getAdvancedFeeStatsOnDateBetween(fromDate, toDate, type).values();

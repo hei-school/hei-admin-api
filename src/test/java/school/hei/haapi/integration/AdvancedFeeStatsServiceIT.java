@@ -17,6 +17,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.ACCOUNTING;
+import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.RECEIPT;
 
 import java.time.Instant;
 import java.time.LocalDate;
@@ -157,6 +158,25 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
   }
 
   @Test
+  void receipt_fee_due_june_paid_july_counts_as_paid_july() {
+    when(feeRepositoryMock.findAllByStatusHistoriesDatetimeBetween(any(), any()))
+        .thenReturn(feeDueJunePaidInJuly);
+    subject.updateAdvancedFeeStats(
+        Optional.of(Instant.parse("2025-06-01T00:00:00Z")),
+        Optional.of(Instant.parse("2025-07-31T23:59:59Z")),
+        Optional.of(RECEIPT));
+
+    var generatedJuneStats =
+        subject.getAdvancedFeeStats(
+            LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30), Optional.of(RECEIPT));
+    var generatedJulyStats =
+        subject.getAdvancedFeeStats(
+            LocalDate.of(2025, 7, 1), LocalDate.of(2025, 7, 31), Optional.of(RECEIPT));
+    assertEquals(0, generatedJuneStats.getPaidFeesCount().getMonthly());
+    assertEquals(1, generatedJulyStats.getPaidFeesCount().getMonthly());
+  }
+
+  @Test
   void request_accounting_not_available_trigger_generation() {
     var generatedAugustStats =
         subject.getAdvancedFeeStats(
@@ -185,9 +205,32 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
     var generatedMayStats =
         subject.getAdvancedFeeStats(
             LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 31), Optional.empty());
-    System.out.println(generatedJuneStats);
     assertEquals(1, generatedJuneStats.getPaidFeesCount().getMonthly());
     assertEquals(0, generatedMayStats.getPaidFeesCount().getMonthly());
+  }
+
+  @Test
+  void receipt_fee_due_june_paid_may_counts_as_paid_may() {
+    when(feeRepositoryMock.findAllByStatusHistoriesDatetimeBetween(any(), any()))
+        .thenReturn(feeDueJunePaidInMay);
+    subject.updateAdvancedFeeStats(
+        Optional.of(Instant.parse("2025-05-01T00:00:00Z")),
+        Optional.of(Instant.parse("2025-05-30T23:59:59Z")),
+        Optional.of(RECEIPT));
+    when(feeRepositoryMock.findAllByDueDatetimeBetween(any(), any())).thenReturn(List.of());
+    subject.updateAdvancedFeeStats(
+        Optional.of(Instant.parse("2025-05-01T00:00:00Z")),
+        Optional.of(Instant.parse("2025-06-30T23:59:59Z")),
+        Optional.of(RECEIPT));
+
+    var generatedJuneStats =
+        subject.getAdvancedFeeStats(
+            LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30), Optional.of(RECEIPT));
+    var generatedMayStats =
+        subject.getAdvancedFeeStats(
+            LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 31), Optional.of(RECEIPT));
+    assertEquals(0, generatedJuneStats.getPaidFeesCount().getMonthly());
+    assertEquals(1, generatedMayStats.getPaidFeesCount().getMonthly());
   }
 
   @Test

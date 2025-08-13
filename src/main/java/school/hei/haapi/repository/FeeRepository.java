@@ -70,4 +70,6 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
       @Param(value = "toCompare") Instant toCompare,
       @Param("studentId") String studentId,
       @Param("status") FeeStatusEnum status);
+
+  List<Fee> findAllByStatusHistoriesDatetimeBetween(Instant dayStart, Instant dayEnd);
 }
