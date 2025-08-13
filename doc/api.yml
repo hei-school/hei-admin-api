@@ -6709,9 +6709,6 @@ components:
     CreateGrade:
       type: object
       properties:
-        id:
-          type: string
-          description: Id of the Grade
         score:
           type: number
           format: double
