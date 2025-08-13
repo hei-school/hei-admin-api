@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="fr" xmlns:th="http://www.thymeleaf.org">
+<html lang="fr" xmlns:th="http://www.thymeleaf.org" xmlns="http://www.w3.org/1999/html">
 <head>
     <meta charset="UTF-8"/>
     <title>Relevé de notes</title>
@@ -42,6 +42,10 @@
             text-align: center;
             margin-top: 15px;
             margin-bottom: 15px;
+        }
+
+        .introduction {
+            line-height: 12px;
         }
 
         main,
@@ -108,8 +112,8 @@
         }
 
         .student-info {
-            margin-top: 16px;
-            margin-bottom: 16px;
+            margin-top: 5px;
+            margin-bottom: 5px;
             line-height: 1.6;
         }
 
@@ -152,9 +156,8 @@
                 </tr>
             </table>
         </div>
-        <p>Inscrit(e) en <span class="bold"><span th:text="${student_level_full_letters}"></span> année - <span th:text="${specialization}"></span></span>, pour l'année
-            scolaire <span th:text="${promotion}"></span> ,</p>
-        <p>A obtenu les notes suivantes :</p>
+        <p class="introduction">Inscrit(e) en <span class="bold"><span th:text="${student_level_full_letters}"></span> année - <span th:text="${specialization}"></span></span>, pour l'année
+            scolaire <span th:text="${promotion}"></span> ,<br/> A obtenu les notes suivantes :</p>
         <table class="course-results">
             <thead>
                 <tr>
