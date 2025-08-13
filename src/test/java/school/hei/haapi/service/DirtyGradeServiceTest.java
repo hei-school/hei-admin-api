@@ -138,11 +138,11 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
         gradesExam1Prog1.stream()
             .map(
                 grade -> {
-                  var upatedGrade =
+                  var updatedGrade =
                       grade.toBuilder().score(faker.number().randomDouble(2, 0, 20)).build();
                   return new UpdateGrade(
-                      upatedGrade,
-                      upatedGrade.getStudent(),
+                      updatedGrade,
+                      updatedGrade.getStudent(),
                       "Rectification for student %s".formatted(studentAxel.getRef()),
                       exam1Prog1);
                 })
