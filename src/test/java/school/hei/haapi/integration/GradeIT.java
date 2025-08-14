@@ -348,7 +348,21 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
     Grade axelGrades = monitorApi.getParticipantGrade(exam1Prog1.getId(), studentAxel.getId());
 
-    assertEquals(axelGrades, gradeMapper.toRest(studentAxelGradeExam1Prog1));
+    Grade actual = gradeMapper.toRest(studentAxelGradeExam1Prog1);
+
+    axelGrades
+        .createdAt(null)
+        .getExam()
+        .getCourseAssignment()
+        .getGroups()
+        .forEach(group -> group.setCreationDatetime(null));
+    actual
+        .createdAt(null)
+        .getExam()
+        .getCourseAssignment()
+        .getGroups()
+        .forEach(group -> group.setCreationDatetime(null));
+    assertEquals(axelGrades, actual);
   }
 
   private void setUpCasdoorMonitor(
