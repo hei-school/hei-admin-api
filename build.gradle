@@ -63,7 +63,7 @@ task generateJavaClient(type: GenerateTask) {
     library = "native"
 
     groupId = 'school.hei'
-    id = 'haapi-gen'
+    id = 'haapi-b0fc7615-gen'
     skipValidateSpec = false
     logToStderr = true
     generateAliasAsModel = false
@@ -79,7 +79,7 @@ task generateTsClient(type: org.openapitools.generator.gradle.plugin.tasks.Gener
     ]
     additionalProperties = [
             enumPropertyNaming: "original",
-            npmName           : "@haapi/typescript-client",
+            npmName           : "@haapi-b0fc7615/typescript-client",
             npmVersion        : project.properties["args"] ?: "latest"
     ]
 }
@@ -206,7 +206,6 @@ dependencies {
     testImplementation 'org.testcontainers:junit-jupiter:1.19.1'
     testImplementation 'org.junit-pioneer:junit-pioneer:2.2.0'
 
-
     implementation 'io.sentry:sentry-logback:7.6.0'
     implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.4.0'
     implementation 'school.hei:haapi-gen:latest'
@@ -229,18 +228,6 @@ testImplementation 'org.mockito:mockito-core:5.3.1'
 implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
 implementation 'org.casbin:casdoor-spring-boot-starter:1.7.1'
 
-
-    tasks.withType(JavaCompile).configureEach {
-        options.fork = true
-        options.forkOptions.jvmArgs << "-Xss2m"
-    }
-
-    tasks.withType(Test).configureEach {
-        jvmArgs "-Xss2m"
-    }
-
-    bootRun {
-        jvmArgs = ["-Xss2m"]
-    }
+    
 
 }
