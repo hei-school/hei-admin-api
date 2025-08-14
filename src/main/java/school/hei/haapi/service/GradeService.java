@@ -32,12 +32,9 @@ public class GradeService {
   }
 
   public Grade getGradeByExamIdAndStudentId(String examId, String studentId) {
-    return findGradeByExamIdAndStudentId(examId, studentId)
+    return gradeRepository
+        .getGradeByExamIdAndStudentId(examId, studentId)
         .orElseThrow(() -> new NotFoundException("Grade not found"));
-  }
-
-  public Optional<Grade> findGradeByExamIdAndStudentId(String examId, String studentId) {
-    return gradeRepository.getGradeByExamIdAndStudentId(examId, studentId);
   }
 
   public Grade getById(String id) {

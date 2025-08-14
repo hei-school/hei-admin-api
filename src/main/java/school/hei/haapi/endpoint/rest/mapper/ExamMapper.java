@@ -1,7 +1,6 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
 import java.util.List;
-import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateExam;
@@ -53,10 +52,7 @@ public class ExamMapper {
     return examList.stream().map(this::toRest).toList();
   }
 
-  public Optional<StudentExamGrade> toRestStudentExamGrade(
-      String studentId, school.hei.haapi.model.Exam exam) {
-    var correspondingGrade = gradeService.findGradeByExamIdAndStudentId(exam.getId(), studentId);
-    return correspondingGrade.map(
-        grade -> new StudentExamGrade().exam(toRest(exam)).score(grade.getScore()));
+  public StudentExamGrade toRestStudentExamGrade(school.hei.haapi.model.Grade grade) {
+    return new StudentExamGrade().exam(toRest(grade.getExam())).score(grade.getScore());
   }
 }
