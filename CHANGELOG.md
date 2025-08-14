@@ -1,3 +1,18 @@
+# [1.110.0](https://github.com/hei-school/hei-admin-api/compare/v1.109.0...v1.110.0) (2025-08-14)
+
+
+### Bug Fixes
+
+* getResultsSummary error on irrational numbers ([a10ecdd](https://github.com/hei-school/hei-admin-api/commit/a10ecdd6d15231d6029a699b88b6c1fc4c899b84))
+
+
+### Features
+
+* generate yearly result pdf ([0155b1d](https://github.com/hei-school/hei-admin-api/commit/0155b1d28cd90baa5605fb4891d3c32e34083e1a))
+* grade change history ([35c6221](https://github.com/hei-school/hei-admin-api/commit/35c62218f71e55b8495d125a854bb3bd791dc147))
+
+
+
 # [1.109.0](https://github.com/hei-school/hei-admin-api/compare/v1.108.0...v1.109.0) (2025-08-12)
 
 
@@ -106,15 +121,6 @@
 ### Reverts
 
 * Revert "chore: fix casdoor env variables" (#893) ([615ff34](https://github.com/hei-school/hei-admin-api/commit/615ff34cb520cee058e0920a49461ffbfbbc0a6c)), closes [#893](https://github.com/hei-school/hei-admin-api/issues/893)
-
-
-
-## [1.103.1](https://github.com/hei-school/hei-admin-api/compare/v1.103.0...v1.103.1) (2025-05-07)
-
-
-### Bug Fixes
-
-* fee having list of mpbs ([074b6d2](https://github.com/hei-school/hei-admin-api/commit/074b6d2372cb0ad4e6bc99c2da3c22d694f0bcc0))
 
 
 
