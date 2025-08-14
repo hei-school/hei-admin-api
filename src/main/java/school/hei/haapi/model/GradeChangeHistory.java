@@ -23,7 +23,7 @@ import org.hibernate.annotations.CreationTimestamp;
 @NoArgsConstructor
 @Builder(toBuilder = true)
 @Getter
-public class GradeChangeHistory implements Serializable {
+public class GradeChangeHistory {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
