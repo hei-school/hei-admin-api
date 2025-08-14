@@ -1,6 +1,7 @@
 package school.hei.haapi.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Optional.empty;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L3;
@@ -15,6 +16,7 @@ import jakarta.persistence.Table;
 import java.time.Instant;
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.time.ZoneOffset;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
@@ -68,11 +70,39 @@ public class Promotion {
     };
   }
 
+  public Optional<String> getLevelStringAt(Instant from) {
+    return findLevelAt(from).map(Promotion::getLevelString);
+  }
+
+  public static String getLevelString(StudentLevel level) {
+    return switch (level) {
+      case L1 -> "Première";
+      case L2 -> "Deuxième";
+      case L3 -> "Troisième";
+      case M1 -> "Quatrième";
+      case M2 -> "Cinquième";
+    };
+  }
+
   public Optional<StudentLevel> findLevelAt(Instant levelInstant) {
     try {
       return Optional.of(getLevelAt(levelInstant));
     } catch (PromotionLevelOutOfRange e) {
-      return Optional.empty();
+      return empty();
     }
+  }
+
+  public String getPromotionYearString(StudentLevel level) {
+    int promotionEntranceYear = getStartDatetime().atOffset(ZoneOffset.of("+3")).getYear();
+    int endYear = promotionEntranceYear + 1;
+    String yearStringFormat = "%d - %d";
+
+    return switch (level) {
+      case L1 -> String.format(yearStringFormat, promotionEntranceYear, endYear);
+      case L2 -> String.format(yearStringFormat, promotionEntranceYear + 1, endYear + 1);
+      case L3 -> String.format(yearStringFormat, promotionEntranceYear + 2, endYear + 2);
+      case M1 -> String.format(yearStringFormat, promotionEntranceYear + 3, endYear + 3);
+      case M2 -> String.format(yearStringFormat, promotionEntranceYear + 4, endYear + 4);
+    };
   }
 }

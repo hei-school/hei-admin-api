@@ -6,6 +6,7 @@ import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.User.Status.*;
+import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.Column;
@@ -41,6 +42,7 @@ import org.hibernate.annotations.JdbcTypeCode;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.Where;
 import school.hei.haapi.endpoint.rest.model.SpecializationField;
+import school.hei.haapi.model.exception.ApiException;
 
 @Entity
 @Table(name = "\"user\"")
@@ -263,5 +265,14 @@ public class User implements Serializable {
     TEACHER,
     MANAGER,
     ORGANIZER;
+  }
+
+  public String getSpecializationFieldString() {
+    return switch (this.specializationField) {
+      case COMMON_CORE -> "Tronc commun";
+      case TN -> "Transformation Numérique";
+      case EL -> "Écosystème Logiciel";
+      default -> throw new ApiException(SERVER_EXCEPTION, "Invalid specialization field");
+    };
   }
 }

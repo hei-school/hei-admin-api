@@ -32,17 +32,19 @@ public class CourseResultService {
   private GradeDao gradeDao;
   private CourseMapper courseMapper;
   private ExamService examService;
+  private UserService userService;
 
   public List<CourseResult> courseResultsForLevelOfStudent(StudentLevel level, String studentId) {
     var coursesForSpecificLevel =
         courseAssignmentDao.findByCriteria(null, null, level, Pageable.unpaged());
+    var student = userService.findById(studentId);
 
     return coursesForSpecificLevel.stream()
         .map(
             courseAssignment -> {
               var studentGrades =
                   gradeDao.getStudentGradesByCourseId(
-                      courseAssignment.getCourse().getId(), studentId);
+                      courseAssignment.getCourse().getId(), student.getId());
               var examsOfTheCourse =
                   examService.getExamsByCourseAssignmentId(courseAssignment.getId());
 

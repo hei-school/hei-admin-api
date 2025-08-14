@@ -10,7 +10,7 @@ import static school.hei.haapi.model.User.Sex.M;
 import static school.hei.haapi.model.User.Status.DISABLED;
 import static school.hei.haapi.model.User.Status.ENABLED;
 import static school.hei.haapi.model.User.Status.SUSPENDED;
-import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
+import static school.hei.haapi.service.aws.FileService.getFormattedProfilePictureKey;
 
 import java.io.File;
 import java.time.Instant;
@@ -68,7 +68,7 @@ public class UserService {
     User user = findById(userId);
     File savedProfilePicture = fileConverter.apply(profilePictureAsMultipartFile);
     String bucketKey =
-        getFormattedBucketKey(user, "PROFILE_PICTURE")
+        getFormattedProfilePictureKey(user)
             + fileService.getFileExtension(profilePictureAsMultipartFile);
     user.setProfilePictureKey(bucketKey);
     userRepository.save(user);
@@ -110,6 +110,7 @@ public class UserService {
     return userToRefresh;
   }
 
+  // TODO: This is getById
   public User findById(String userId) {
     return userRepository
         .findById(userId)

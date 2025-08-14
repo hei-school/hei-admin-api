@@ -1,47 +1,102 @@
 package school.hei.haapi.service;
 
 import static java.math.BigDecimal.ZERO;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
+import static java.time.Instant.now;
+import static java.util.Optional.empty;
+import static java.util.UUID.randomUUID;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyList;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.only;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
+import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.AVAILABLE;
+import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
 
+import java.io.File;
+import java.net.MalformedURLException;
+import java.net.URI;
+import java.net.URL;
+import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.stubbing.Answer;
+import school.hei.haapi.endpoint.event.EventProducer;
+import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
+import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
+import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.FileInfo;
 import school.hei.haapi.model.Grade;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.YearlyResultGenerationRequest;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
+import school.hei.haapi.repository.YearlyResultGenerationRequestRepository;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
+import school.hei.haapi.service.event.YearlyResultTranscriptGenerationService;
+import school.hei.haapi.service.utils.Base64Converter;
+import school.hei.haapi.service.utils.ClassPathResourceResolver;
+import school.hei.haapi.service.utils.HtmlParser;
+import school.hei.haapi.service.utils.PdfRenderer;
 
 class GradeResultServiceTest {
   private final GradeDao gradeDao = mock();
   private final CourseAssignmentDao courseAssignmentDao = mock();
   private final ExamService examService = mock();
+  private final UserService userService = mock();
+  private final BucketComponent bucketComponent = mock();
+  private final FileInfoService fileInfoService = mock();
+  private final EventProducer eventProducer = mock();
+  private final YearlyResultGenerationRequestRepository yearlyResultGenerationRequestRepository =
+      mock();
+  private final YearlyResultGenerationService yearlyResultGenerationService =
+      new YearlyResultGenerationService(
+          new HtmlParser(),
+          new PdfRenderer(),
+          new Base64Converter(),
+          yearlyResultGenerationRequestRepository,
+          new ClassPathResourceResolver());
   private final GradeResultService subject =
       new GradeResultService(
-          new CourseResultService(courseAssignmentDao, gradeDao, new CourseMapper(), examService));
+          new CourseResultService(
+              courseAssignmentDao, gradeDao, new CourseMapper(), examService, userService),
+          yearlyResultGenerationService,
+          bucketComponent,
+          userService,
+          fileInfoService,
+          eventProducer);
+  private final YearlyResultTranscriptGenerationService yearlyResultTranscriptGenerationService =
+      new YearlyResultTranscriptGenerationService(subject);
 
-  private final User student1 = User.builder().id("good student").build();
   private final User student2 = User.builder().id("bad student").build();
   private final User student3 = User.builder().id("student with missing grade").build();
 
+  private final User student1 = mock();
+  private final Promotion promotion =
+      Promotion.builder().ref("prom1").name("Promotion de test").startDatetime(now()).build();
+  private final Group group =
+      Group.builder().name("Groupe test").ref("GRP_TST").promotion(promotion).build();
   private final Exam mgt1Exam = Exam.builder().id("mgt1 exam").coefficient(1).build();
   private final Exam prog1Exam = Exam.builder().id("prog1 exam").coefficient(1).build();
   private final Exam donnees1Exam = Exam.builder().id("donnees1 exam").coefficient(1).build();
@@ -71,12 +126,18 @@ class GradeResultServiceTest {
   private final Grade student3Sys1Grade = Grade.builder().score(13.).exam(sys1Exam).build();
   private final Grade student3GradeForBadExam = Grade.builder().score(13.59).exam(badExam).build();
 
-  private final Course mgt1Course = Course.builder().id("mgt1").credits(4).build();
-  private final Course prog1Course = Course.builder().id("prog1").credits(6).build();
-  private final Course donne1Course = Course.builder().id("donne1").credits(4).build();
-  private final Course web1Course = Course.builder().id("web1").credits(6).build();
-  private final Course sys1Course = Course.builder().id("sys1").credits(6).build();
-  private final Course lv1Course = Course.builder().id("lv1").credits(4).build();
+  private final Course mgt1Course =
+      Course.builder().id("mgt1").code("MGT1").name("Mgt 1").credits(4).build();
+  private final Course prog1Course =
+      Course.builder().id("prog1").code("PROG1").name("Programation 1").credits(6).build();
+  private final Course donne1Course =
+      Course.builder().id("donne1").code("DONNES1").name("Donnees 1").credits(4).build();
+  private final Course web1Course =
+      Course.builder().id("web1").code("WEB1").name("Web 1").credits(6).build();
+  private final Course sys1Course =
+      Course.builder().id("sys1").code("SYS1").name("Systeme et reseau 1").credits(6).build();
+  private final Course lv1Course =
+      Course.builder().id("lv1").code("LV1").name("Langue vivante 1").credits(4).build();
   private final Course badCourse = Course.builder().id("bad course").credits(0).build();
 
   private final CourseAssignment mgt1CourseAssignment =
@@ -97,6 +158,13 @@ class GradeResultServiceTest {
   @BeforeEach
   void setUp() {
     // Mock student1 grades
+    when(student1.getId()).thenReturn("id");
+    when(student1.getFirstName()).thenReturn("Student");
+    when(student1.getLastName()).thenReturn("One");
+    when(student1.getRef()).thenReturn("STD1");
+    when(student1.getSpecializationFieldString()).thenReturn("Transformation Numérique");
+    when(student1.findCurrentGroup()).thenReturn(Optional.of(group));
+
     when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
         .thenReturn(List.of(student1Mgt1Grade));
     when(gradeDao.getStudentGradesByCourseId(prog1Course.getId(), student1.getId()))
@@ -160,6 +228,10 @@ class GradeResultServiceTest {
                 web1CourseAssignment,
                 sys1CourseAssignment,
                 lv1CourseAssignment));
+
+    when(userService.findById(anyString()))
+        .thenAnswer(
+            (Answer<User>) invocation -> User.builder().id(invocation.getArgument(0)).build());
   }
 
   @Test
@@ -205,6 +277,15 @@ class GradeResultServiceTest {
     assertEquals(13.493, result.getWeightedAverage().doubleValue());
     assertEquals(IN_PROGRESS, result.getStatus());
     assertEquals(30., result.getTotalCredits().doubleValue());
+  }
+
+  @Test
+  void generate_result_pdf_okay() throws CoursesCreditSumZero {
+    var targetLevel = L1;
+    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
+    File resultFile =
+        yearlyResultGenerationService.generateYearlyResultTranscript(student1, result);
+    assertTrue(resultFile.isFile());
   }
 
   @Test
@@ -277,5 +358,92 @@ class GradeResultServiceTest {
     assertEquals(ZERO, result.getWeightedAverage());
     assertEquals(1, result.getCourseResults().size());
     assertEquals(0, result.getObtainedCredits().doubleValue());
+  }
+
+  @Test
+  void yearly_result_generation_should_return_available_transcript_when_file_exists()
+      throws MalformedURLException {
+
+    when(userService.findById(anyString())).thenReturn(student1);
+    when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
+        .thenReturn(
+            Optional.of(
+                YearlyResultGenerationRequest.builder()
+                    .fileInfo(
+                        FileInfo.builder()
+                            .id(randomUUID().toString())
+                            .user(student1)
+                            .filePath("dummy_path")
+                            .build())
+                    .status(AVAILABLE)
+                    .datetime(now())
+                    .build()));
+    when(bucketComponent.presign(anyString(), any()))
+        .thenReturn(URL.of(URI.create("https://example.com/transcript.pdf"), null));
+
+    YearlyResultGenerationTranscript result =
+        subject.getYearlyResultTranscript(student1.getId(), L1);
+    assertEquals(AVAILABLE, result.getStatus());
+    assertFalse(result.getLink().isEmpty());
+  }
+
+  @Test
+  void yearly_result_generation_should_return_generating_status_when_file_is_missing() {
+    when(userService.findById(anyString())).thenReturn(student1);
+    when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
+        .thenReturn(empty());
+
+    YearlyResultGenerationTranscript result =
+        subject.getYearlyResultTranscript(student1.getId(), L1);
+
+    assertEquals(GENERATING, result.getStatus());
+    assertNull(result.getLink());
+  }
+
+  @Test
+  void yearly_result_generation_should_regenerate_when_generation_times_out() {
+
+    when(userService.findById(anyString())).thenReturn(student1);
+    when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
+        .thenReturn(
+            Optional.of(
+                YearlyResultGenerationRequest.builder()
+                    .status(GENERATING)
+                    .datetime(now().minus(Duration.ofHours(1L)))
+                    .build()));
+
+    YearlyResultGenerationTranscript result =
+        subject.getYearlyResultTranscript(student1.getId(), L1);
+    assertEquals(GENERATING, result.getStatus());
+    verify(eventProducer, only()).accept(anyList());
+  }
+
+  @Test
+  void yearly_result_generation_should_return_bad_request_when_level_in_progress() {
+    String studentId = student3.getId();
+
+    String exceptionMessage =
+        assertThrows(
+                BadRequestException.class, () -> subject.getYearlyResultTranscript(studentId, L1))
+            .getMessage();
+    assertEquals(
+        "Cannot generate transcript for this level. This level is not yet completed",
+        exceptionMessage);
+  }
+
+  @Test
+  void yearly_result_event_handler_ok() {
+    String studentId = student1.getId();
+    YearlyResult student1YearlyResult = subject.getLeveledYearlyResultByStudentId(L1, studentId);
+
+    when(userService.findById(anyString())).thenReturn(student1);
+    assertDoesNotThrow(
+        () -> {
+          yearlyResultTranscriptGenerationService.accept(
+              YearlyResultTranscriptGeneration.builder()
+                  .yearlyResult(student1YearlyResult)
+                  .userId(studentId)
+                  .build());
+        });
   }
 }

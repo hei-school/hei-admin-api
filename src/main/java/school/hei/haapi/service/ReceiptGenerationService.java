@@ -5,6 +5,7 @@ import static school.hei.haapi.endpoint.rest.security.AuthProvider.getPrincipal;
 import static school.hei.haapi.service.event.StudentsWithOverdueFeesReminderService.internetAddress;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToReadable;
 import static school.hei.haapi.service.utils.DataFormatterUtils.numberToWords;
+import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
 import static school.hei.haapi.service.utils.InstantUtils.UTC3;
 import static school.hei.haapi.service.utils.TemplateUtils.htmlToString;
 
@@ -16,7 +17,6 @@ import java.time.LocalDate;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.io.FileUtils;
 import org.springframework.core.io.Resource;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
@@ -85,16 +85,6 @@ public class ReceiptGenerationService {
     String html = htmlParser.apply("paidFeeReceipt", context);
     String filename = RECEIPT_FILENAME_PREFIX + paymentDto.getSequence().getStringSequence();
     return createFileFromBytes(pdfRenderer.apply(html), filename, ".pdf");
-  }
-
-  private File createFileFromBytes(byte[] bytes, String filename, String suffix) {
-    try {
-      File file = File.createTempFile(filename, suffix);
-      FileUtils.writeByteArrayToFile(file, bytes);
-      return file;
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
   }
 
   private void sendResultEmail(long fileCount, String presignedUrl, String destinationEmail) {

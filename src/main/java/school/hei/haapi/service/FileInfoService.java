@@ -1,10 +1,13 @@
 package school.hei.haapi.service;
 
 import static java.io.File.pathSeparator;
+import static school.hei.haapi.endpoint.rest.model.FileType.TRANSCRIPT;
+import static school.hei.haapi.endpoint.rest.model.FileType.WORK_DOCUMENT;
 import static school.hei.haapi.service.aws.FileService.getFormattedBucketKey;
 
 import java.io.File;
 import java.time.Instant;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -39,7 +42,7 @@ public class FileInfoService {
     filenameValidator.accept(filename);
     // STUDENT/REF/WORK_DOCUMENT/filename
     String filePath =
-        getFormattedBucketKey(student, "WORK_DOCUMENT", filename)
+        getFormattedBucketKey(student, WORK_DOCUMENT, filename)
             + fileService.getFileExtension(workFile);
 
     WorkDocument workDocumentToSave =
@@ -94,5 +97,9 @@ public class FileInfoService {
             .creationDatetime(Instant.now())
             .build();
     return fileInfoRepository.save(fileInfo);
+  }
+
+  public Optional<FileInfo> findTranscriptInfoByName(String name) {
+    return fileInfoRepository.findByNameAndFileType(name, TRANSCRIPT);
   }
 }
