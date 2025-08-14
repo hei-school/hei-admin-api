@@ -227,7 +227,6 @@ class GradeIT extends FacadeITMockedThirdParties {
     UpdateGrade updateGrade = new UpdateGrade();
     updateGrade.setComment("Rectification");
     updateGrade.setStudentRef(student1().getRef());
-    // TODO: remove id for CreateGrade
     updateGrade.setGrade(new CreateGrade().score(90.0));
 
     assertThrowsForbiddenException(
