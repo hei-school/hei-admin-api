@@ -10,7 +10,7 @@ plugins {
 
     id 'jacoco'
 
-    id "org.sonarqube" version "4.4.1.3373"
+    id "org.sonarqube" version "4.4.1.3373" 
 }
 
 jacoco {
@@ -22,7 +22,7 @@ sonarqube {
         property "sonar.java.source", "21"
         property "sonar.java.target", "21"
     }
-}
+} 
 
 repositories {
 mavenLocal()
@@ -228,16 +228,6 @@ testImplementation 'org.mockito:mockito-core:5.3.1'
 implementation 'org.springdoc:springdoc-openapi-ui:1.7.0'
 implementation 'org.casbin:casdoor-spring-boot-starter:1.7.1'
 
-  tasks.withType(JavaCompile).configureEach {
-    options.fork = true
-    options.forkOptions.jvmArgs << "-Xss2m"
-  }
+    
 
-  tasks.withType(Test).configureEach {
-    jvmArgs "-Xss2m"
-  }
-
-  bootRun {
-    jvmArgs = ["-Xss2m"]
-  }
 }
