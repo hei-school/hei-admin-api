@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
@@ -53,6 +55,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   @Autowired CourseRepository courseRepository;
   @Autowired CourseAssignmentRepository courseAssignmentRepository;
   @Autowired ExamRepository examRepository;
+  @Autowired GradeMapper gradeMapper;
   private final Faker faker = new Faker();
 
   private User studentAxel;
@@ -124,13 +127,15 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
     PageFromOne page = new PageFromOne(1);
     BoundedPageSize pageSize = new BoundedPageSize(100);
     List<Grade> createdGrades = subject.createParticipantGrade(gradesExam1Prog1);
+    List<StudentGrade> restCreatedGrades =
+        createdGrades.stream().map(grade1 -> gradeMapper.toRestStudentGrade(grade1)).toList();
 
     assertEquals(2, createdGrades.size());
     assertNotNull(createdGrades.getFirst().getId());
     assertTrue(
         examParticipantService
             .getParticipantsGradeForExam(exam1Prog1.getId(), page, pageSize)
-            .containsAll(createdGrades));
+            .containsAll(restCreatedGrades));
     assertEquals(gradesExam1Prog1.getFirst(), createdGrades.getFirst());
     assertEquals(gradesExam1Prog1.get(1), createdGrades.get(1));
 
@@ -149,13 +154,15 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
             .toList();
 
     List<Grade> updatedGrades = subject.updateParticipantGrade(rectifiedGrades);
+    List<StudentGrade> restUpdatedGrades =
+        updatedGrades.stream().map(gradeMapper::toRestStudentGrade).toList();
 
     assertEquals(2, updatedGrades.size());
     assertNotNull(updatedGrades.getFirst().getId());
     assertTrue(
         examParticipantService
             .getParticipantsGradeForExam(exam1Prog1.getId(), page, pageSize)
-            .containsAll(updatedGrades));
+            .containsAll(restUpdatedGrades));
     assertEquals(rectifiedGrades.getFirst().grade(), updatedGrades.getFirst());
     assertEquals(rectifiedGrades.get(1).grade(), updatedGrades.get(1));
   }

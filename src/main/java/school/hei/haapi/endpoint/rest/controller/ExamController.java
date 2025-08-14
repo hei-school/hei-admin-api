@@ -4,6 +4,7 @@ import static java.util.stream.Collectors.toList;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -103,6 +104,8 @@ public class ExamController {
       @PathVariable(value = "student_id") String studentId) {
     return examService.getExamsByCourseId(courseId).stream()
         .map(exam -> examMapper.toRestStudentExamGrade(studentId, exam))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
         .toList();
   }
 }
