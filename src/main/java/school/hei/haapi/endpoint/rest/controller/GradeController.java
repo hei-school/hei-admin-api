@@ -122,4 +122,10 @@ public class GradeController {
       @PathVariable("student_level") StudentLevel studentLevel) {
     return gradeResultService.getYearlyResultTranscript(studentId, studentLevel);
   }
+
+  @GetMapping("/exams/{exam_id}/students/{student_id}/grade")
+  public Grade getParticipantGrade(
+      @PathVariable("exam_id") String examId, @PathVariable("student_id") String studentId) {
+    return gradeMapper.toRest(gradeService.getGradeByExamIdAndStudentId(examId, studentId));
+  }
 }

@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
@@ -339,6 +340,15 @@ class GradeIT extends FacadeITMockedThirdParties {
         () -> {
           managerApi.getYearlyResultTranscript(studentAxel.getId(), L1);
         });
+  }
+
+  @Test
+  void monitor_get_exam_own_grades_ok() throws ApiException {
+    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
+    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
+    Grade axelGrades = monitorApi.getParticipantGrade(exam1Prog1.getId(), studentAxel.getId());
+
+    assertEquals(axelGrades, gradeMapper.toRest(studentAxelGradeExam1Prog1));
   }
 
   private void setUpCasdoorMonitor(
