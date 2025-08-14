@@ -149,13 +149,13 @@ public class GradeResultService {
       if (Duration.between(request.getDatetime(), now())
           .minus(TRANSCRIPT_GENERATION_TIMEOUT)
           .isPositive()) {
-        generateUnavailableTranscript(studentId, studentYearlyResult);
+        generateTranscript(studentId, studentYearlyResult);
       }
     }
     return new YearlyResultGenerationTranscript().status(GENERATING);
   }
 
-  private void generateUnavailableTranscript(String studentId, YearlyResult studentYearlyResult) {
+  private void generateTranscript(String studentId, YearlyResult studentYearlyResult) {
     eventProducer.accept(
         List.of(
             YearlyResultTranscriptGeneration.builder()
