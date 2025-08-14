@@ -3,7 +3,6 @@ package school.hei.haapi.service;
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -12,13 +11,10 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Exam;
-import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.model.validator.ExamValidator;
 import school.hei.haapi.repository.ExamRepository;
-import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.dao.ExamDao;
 
 @Service
@@ -26,9 +22,6 @@ import school.hei.haapi.repository.dao.ExamDao;
 public class ExamService {
   private final ExamRepository examRepository;
   private final ExamDao examDao;
-  private final UserService userService;
-  private final GradeService gradeService;
-  private final GradeRepository gradeRepository;
   private final ExamValidator validator;
 
   public List<Exam> getExamsFromAwardedCourseIdAndGroupId(
@@ -42,26 +35,7 @@ public class ExamService {
 
   public List<Exam> updateOrSaveAll(List<Exam> exams) {
     validator.accept(exams);
-    List<Exam> savedExams = examRepository.saveAll(exams);
-    List<Grade> gradesToInitialize = new ArrayList<>();
-    savedExams.forEach(exam -> gradesToInitialize.addAll(initializeExamGrades(exam)));
-    gradeService.crupdateParticipantGrade(gradesToInitialize);
-    return savedExams;
-  }
-
-  private Grade initializeExamGrade(Exam exam, User user) {
-    return gradeRepository
-        .getGradeByExamIdAndStudentId(exam.getId(), user.getId())
-        .orElse(new Grade(exam, user, 0));
-  }
-
-  private List<Grade> initializeExamGrades(Exam exam) {
-    return exam.getCourseAssignment().getGroups().stream()
-        .map(group -> userService.getByGroupId(group.getId()))
-        .flatMap(List::stream)
-        .distinct()
-        .map(user -> initializeExamGrade(exam, user))
-        .toList();
+    return examRepository.saveAll(exams);
   }
 
   public Exam getExamById(String id) {
@@ -89,10 +63,6 @@ public class ExamService {
         examinationDateStart,
         examinationDateEnd,
         awardedCourseId);
-  }
-
-  public List<Exam> getExamsByCourseId(String courseId) {
-    return examRepository.findExamsByCourseId(courseId);
   }
 
   public List<Exam> getExamsByCourseAssignmentId(String courseId) {

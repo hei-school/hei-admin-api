@@ -52,10 +52,7 @@ public class ExamMapper {
     return examList.stream().map(this::toRest).toList();
   }
 
-  public StudentExamGrade toRestStudentExamGrade(
-      String studentId, school.hei.haapi.model.Exam exam) {
-    return new StudentExamGrade()
-        .exam(toRest(exam))
-        .score(gradeService.getGradeByExamIdAndStudentId(exam.getId(), studentId).getScore());
+  public StudentExamGrade toRestStudentExamGrade(school.hei.haapi.model.Grade grade) {
+    return new StudentExamGrade().exam(toRest(grade.getExam())).score(grade.getScore());
   }
 }

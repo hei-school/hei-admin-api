@@ -20,6 +20,7 @@ import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.ExamService;
+import school.hei.haapi.service.GradeService;
 
 @RestController
 @AllArgsConstructor
@@ -27,6 +28,7 @@ public class ExamController {
   private final ExamService examService;
   private final CourseAssignmentService courseAssignmentService;
   private final ExamMapper examMapper;
+  private final GradeService gradeService;
 
   @GetMapping("/course_assignments/{course_assignment_id}/exams")
   public List<Exam> getExamsByAwardedCourse(
@@ -101,8 +103,8 @@ public class ExamController {
   public List<StudentExamGrade> getStudentExamsGrade(
       @PathVariable(value = "course_id") String courseId,
       @PathVariable(value = "student_id") String studentId) {
-    return examService.getExamsByCourseId(courseId).stream()
-        .map(exam -> examMapper.toRestStudentExamGrade(studentId, exam))
+    return gradeService.getGradesByStudentAndCourseId(studentId, courseId).stream()
+        .map(examMapper::toRestStudentExamGrade)
         .toList();
   }
 }

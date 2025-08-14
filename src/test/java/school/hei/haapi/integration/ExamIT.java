@@ -40,7 +40,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.testcontainers.junit.jupiter.Testcontainers;
 import school.hei.haapi.endpoint.rest.api.ExamsApi;
 import school.hei.haapi.endpoint.rest.api.GradesApi;
-import school.hei.haapi.endpoint.rest.api.GroupsApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Exam;
@@ -88,19 +87,16 @@ class ExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void teacher_create_exam_and_initialize_grades_ok() throws ApiException {
+  void teacher_create_exam_ok() throws ApiException {
     ExamsApi examsApi = new ExamsApi(anApiClient(TEACHER1_TOKEN));
-    GradesApi gradesApi = new GradesApi(anApiClient(TEACHER1_TOKEN));
-    GroupsApi groupsApi = new GroupsApi(anApiClient(TEACHER1_TOKEN));
 
-    List<Exam> exams = examsApi.createOrUpdateExams(COURSE_ASSIGNMENT1_ID, List.of(createExam()));
+    var crupdatedExam = createExam();
+    var exams = examsApi.createOrUpdateExams(COURSE_ASSIGNMENT1_ID, List.of(crupdatedExam));
     assertEquals(1, exams.size());
     Exam exam = exams.getFirst();
-
-    List<StudentGrade> studentGrades = gradesApi.getStudentGradesForExam(exam.getId(), 1, 10);
-    assertEquals(
-        groupsApi.getStudentsByGroupId(group1().getId(), 1, 10, null).size(), studentGrades.size());
-    assertTrue(studentGrades.stream().allMatch(grade -> grade.getGrade().getScore() == 0));
+    assertEquals(crupdatedExam.getCoefficient(), exam.getCoefficient());
+    assertEquals(crupdatedExam.getExaminationDate(), exam.getExaminationDate());
+    assertEquals(crupdatedExam.getTitle(), exam.getTitle());
   }
 
   // TODO : check test data because student_1 is now in group_2 according to group_flows4_id

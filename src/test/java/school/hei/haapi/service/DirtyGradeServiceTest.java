@@ -24,6 +24,8 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.annotation.DirtiesContext;
 import org.testcontainers.junit.jupiter.Testcontainers;
+import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
@@ -34,10 +36,10 @@ import school.hei.haapi.model.Group;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.notEntity.UpdateGrade;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.CourseRepository;
 import school.hei.haapi.repository.ExamRepository;
-import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.repository.GroupFlowRepository;
 import school.hei.haapi.repository.GroupRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -46,21 +48,22 @@ import school.hei.haapi.repository.UserRepository;
 @DirtiesContext(classMode = BEFORE_EACH_TEST_METHOD)
 class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   @Autowired GradeService subject;
+  @Autowired ExamParticipantService examParticipantService;
   @Autowired UserRepository userRepository;
   @Autowired GroupRepository groupRepository;
   @Autowired GroupFlowRepository groupFlowRepository;
   @Autowired CourseRepository courseRepository;
   @Autowired CourseAssignmentRepository courseAssignmentRepository;
   @Autowired ExamRepository examRepository;
-  @Autowired GradeRepository gradeRepository;
-  private Faker faker = new Faker();
+  @Autowired GradeMapper gradeMapper;
+  private final Faker faker = new Faker();
 
   private User studentAxel;
   private User studentTolojanahary;
   private Course courseProg1;
   private User teacherToky;
   private Exam exam1Prog1;
-  private CourseAssignment assign_prog1_toToky;
+  private CourseAssignment assignProg1ToToky;
   private Group groupG1;
   private List<Grade> gradesExam1Prog1;
   private GroupFlow groupFlowsAxel;
@@ -80,12 +83,6 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
     studentTolojanahary = tolojanahary();
     courseProg1 = prog1();
     teacherToky = toky();
-    groupFlowsAxel = createGroupFlow(studentAxel, groupG1);
-    groupFlowsTolojanahary = createGroupFlow(studentTolojanahary, groupG1);
-    assign_prog1_toToky = createCourseAssignment(courseProg1, teacherToky, List.of(groupG1));
-    exam1Prog1 = createExam(Instant.parse("2025-07-22T10:15:30Z"), assign_prog1_toToky);
-    gradesExam1Prog1 = someGrade(List.of(studentAxel, studentTolojanahary), exam1Prog1);
-    exam1Prog1.setGrades(gradesExam1Prog1);
 
     groupRepository.save(groupG1);
     userRepository.saveAll(List.of(studentAxel, studentTolojanahary, teacherToky));
@@ -93,14 +90,14 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
     groupFlowsAxel = createGroupFlow(studentAxel, groupG1);
     groupFlowsTolojanahary = createGroupFlow(studentTolojanahary, groupG1);
     groupFlowRepository.saveAll(List.of(groupFlowsAxel, groupFlowsTolojanahary));
-    assign_prog1_toToky = createCourseAssignment(courseProg1, teacherToky, List.of(groupG1));
-    courseAssignmentRepository.save(assign_prog1_toToky);
-    exam1Prog1 = createExam(Instant.parse("2025-07-22T10:15:30Z"), assign_prog1_toToky);
+    assignProg1ToToky = createCourseAssignment(courseProg1, teacherToky, List.of(groupG1));
+    courseAssignmentRepository.save(assignProg1ToToky);
+    exam1Prog1 = createExam(Instant.parse("2025-07-22T10:15:30Z"), assignProg1ToToky);
     examRepository.save(exam1Prog1);
 
+    studentAxel.getGroupFlows().add(groupFlowsAxel);
+    studentTolojanahary.getGroupFlows().add(groupFlowsTolojanahary);
     gradesExam1Prog1 = someGrade(List.of(studentAxel, studentTolojanahary), exam1Prog1);
-    gradeRepository.saveAll(gradesExam1Prog1);
-    exam1Prog1.setGrades(gradesExam1Prog1);
     examRepository.save(exam1Prog1);
 
     groupIds.add(groupG1.getId());
@@ -108,7 +105,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
     groupFlowIds.addAll(List.of(groupFlowsAxel.getId(), groupFlowsTolojanahary.getId()));
     teacherIds.add(teacherToky.getId());
     courseIds.add(courseProg1.getId());
-    courseAssignmentIds.add(assign_prog1_toToky.getId());
+    courseAssignmentIds.add(assignProg1ToToky.getId());
     examIds.add(exam1Prog1.getId());
     gradeIds.addAll(List.of(gradesExam1Prog1.get(0).getId(), gradesExam1Prog1.get(1).getId()));
   }
@@ -128,32 +125,45 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   @Transactional
   void crupdate_grade_ok() {
     PageFromOne page = new PageFromOne(1);
-    BoundedPageSize pageSize = new BoundedPageSize(20);
-    List<Grade> initialGrades = List.copyOf(gradesExam1Prog1);
-    List<Grade> savedGrades = subject.crupdateParticipantGrade(gradesExam1Prog1);
+    BoundedPageSize pageSize = new BoundedPageSize(100);
+    List<Grade> createdGrades = subject.createParticipantGrade(gradesExam1Prog1);
+    List<StudentGrade> restCreatedGrades =
+        createdGrades.stream().map(grade1 -> gradeMapper.toRestStudentGrade(grade1)).toList();
 
-    assertEquals(2, savedGrades.size());
-    assertNotNull(savedGrades.getFirst().getId());
+    assertEquals(2, createdGrades.size());
+    assertNotNull(createdGrades.getFirst().getId());
     assertTrue(
-        subject
+        examParticipantService
             .getParticipantsGradeForExam(exam1Prog1.getId(), page, pageSize)
-            .containsAll(savedGrades));
-    assertEquals(gradesExam1Prog1.getFirst(), savedGrades.getFirst());
-    assertEquals(gradesExam1Prog1.get(1), savedGrades.get(1));
+            .containsAll(restCreatedGrades));
+    assertEquals(gradesExam1Prog1.getFirst(), createdGrades.getFirst());
+    assertEquals(gradesExam1Prog1.get(1), createdGrades.get(1));
 
-    gradesExam1Prog1.forEach(grade -> grade.setScore(faker.number().randomDouble(2, 0, 20)));
+    var rectifiedGrades =
+        gradesExam1Prog1.stream()
+            .map(
+                grade -> {
+                  var updatedGrade =
+                      grade.toBuilder().score(faker.number().randomDouble(2, 0, 20)).build();
+                  return new UpdateGrade(
+                      updatedGrade,
+                      updatedGrade.getStudent(),
+                      "Rectification for student %s".formatted(studentAxel.getRef()),
+                      exam1Prog1);
+                })
+            .toList();
 
-    List<Grade> updatedGrades = subject.crupdateParticipantGrade(gradesExam1Prog1);
+    List<Grade> updatedGrades = subject.updateParticipantGrade(rectifiedGrades);
+    List<StudentGrade> restUpdatedGrades =
+        updatedGrades.stream().map(gradeMapper::toRestStudentGrade).toList();
 
     assertEquals(2, updatedGrades.size());
     assertNotNull(updatedGrades.getFirst().getId());
     assertTrue(
-        subject
+        examParticipantService
             .getParticipantsGradeForExam(exam1Prog1.getId(), page, pageSize)
-            .containsAll(updatedGrades));
-    assertEquals(gradesExam1Prog1.getFirst(), savedGrades.getFirst());
-    assertEquals(gradesExam1Prog1.get(1), savedGrades.get(1));
-
-    gradesExam1Prog1 = initialGrades;
+            .containsAll(restUpdatedGrades));
+    assertEquals(rectifiedGrades.getFirst().grade(), updatedGrades.getFirst());
+    assertEquals(rectifiedGrades.get(1).grade(), updatedGrades.get(1));
   }
 }

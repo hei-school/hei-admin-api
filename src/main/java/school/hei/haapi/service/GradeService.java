@@ -4,19 +4,17 @@ import jakarta.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
-import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.Group;
-import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.model.notEntity.UpdateGrade;
+import school.hei.haapi.model.validator.IsNewGradeChecker;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.GradeRepository;
-import school.hei.haapi.repository.UserRepository;
 import school.hei.haapi.repository.dao.GradeDao;
 
 @Service
@@ -24,11 +22,12 @@ import school.hei.haapi.repository.dao.GradeDao;
 public class GradeService {
   private final GradeRepository gradeRepository;
   private final GradeDao gradeDao;
-  private final UserRepository userRepository;
+  private final UserService userService;
   private final CourseAssignmentRepository courseAssignmentRepository;
+  private final IsNewGradeChecker isNewGradeChecker;
 
   public List<Grade> getGradesByStudentId(String studentId) {
-    var student = userRepository.getById(studentId);
+    var student = userService.findById(studentId);
     return gradeRepository.getAllByStudent(student);
   }
 
@@ -45,17 +44,11 @@ public class GradeService {
   }
 
   // TODO: make this obey the single-responsibility rule, at least in the name.
-  @Transactional
-  private Grade checkGrade(Grade grade) {
+  private Grade checkGradeToCreate(Grade grade) {
     String examId = grade.getExam().getId();
     String studentId = grade.getStudent().getId();
 
-    Optional<Grade> existingGrade = gradeRepository.findByExamIdAndStudentId(examId, studentId);
-    if (existingGrade.isPresent()) {
-      Grade presentGrade = existingGrade.get();
-      presentGrade.setScore(grade.getScore());
-      return presentGrade;
-    }
+    isNewGradeChecker.accept(grade);
 
     Optional<Group> studentGroup = grade.getStudent().findCurrentGroup();
     if (studentGroup.isEmpty()) {
@@ -74,18 +67,29 @@ public class GradeService {
     return grade;
   }
 
-  @Transactional
-  public List<Grade> crupdateParticipantGrade(List<Grade> grades) {
-    return gradeRepository.saveAll(grades.stream().map(this::checkGrade).toList());
+  private Grade checkGradeToUpdate(UpdateGrade grade) {
+    String examId = grade.grade().getExam().getId();
+    String studentId = grade.grade().getStudent().getId();
+
+    Optional<Grade> existingGrade = gradeRepository.findByExamIdAndStudentId(examId, studentId);
+    if (existingGrade.isEmpty()) {
+      throw new BadRequestException(
+          "Grade for the student " + studentId + " for the exam " + examId + " not found");
+    }
+
+    Grade presentGrade = existingGrade.get();
+    presentGrade.setScore(grade.grade().getScore(), grade.comment());
+    return presentGrade;
   }
 
-  public List<Grade> getParticipantsGradeForExam(
-      String exam_id, PageFromOne page, BoundedPageSize pageSize) {
-    return gradeDao.getGradesByExamId(
-        exam_id,
-        (page == null || pageSize == null)
-            ? Pageable.unpaged()
-            : PageRequest.of((page.getValue() - 1), pageSize.getValue()));
+  @Transactional
+  public List<Grade> createParticipantGrade(List<Grade> grades) {
+    return gradeRepository.saveAll(grades.stream().map(this::checkGradeToCreate).toList());
+  }
+
+  @Transactional
+  public List<Grade> updateParticipantGrade(List<UpdateGrade> grades) {
+    return gradeRepository.saveAll(grades.stream().map(this::checkGradeToUpdate).toList());
   }
 
   private double getExamAverageGrade(String examId) {
@@ -110,7 +114,7 @@ public class GradeService {
   }
 
   public List<Grade> getGradesByStudentAndCourseId(String studentId, String courseId) {
-    var student = userRepository.getById(studentId);
+    var student = userService.findById(studentId);
     var studentCurrentGroup = student.findCurrentGroup();
     if (studentCurrentGroup.isEmpty()) {
       throw new BadRequestException(String.format("Student with id: %s not in any group", student));

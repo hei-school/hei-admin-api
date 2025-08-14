@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
 import static org.mockito.Mockito.when;
@@ -51,8 +52,9 @@ import school.hei.haapi.endpoint.rest.api.GradesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
-import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
+import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
@@ -194,18 +196,18 @@ class GradeIT extends FacadeITMockedThirdParties {
   void manager_crupdate_invalid_grade_ko() {
     ApiClient managerClient = anApiClient(MANAGER1_TOKEN);
     GradesApi api = new GradesApi(managerClient);
-    CrupdateGrade newGrade = new CrupdateGrade();
+    CreateGrade newGrade = new CreateGrade();
     newGrade.setScore(28.2);
 
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"score must be between 0 and 20\"}",
-        () -> api.crupdateParticipantGrade(EXAM1_ID, STUDENT3_ID, newGrade));
+        () -> api.createParticipantGrade(EXAM1_ID, STUDENT3_ID, newGrade));
   }
 
   @Test
   void manager_crupdate_grade_invalid_student_ko() {
     GradesApi api = new GradesApi(anApiClient(MANAGER1_TOKEN));
-    CrupdateGrade newGrade = new CrupdateGrade();
+    CreateGrade newGrade = new CreateGrade();
     newGrade.setScore(18.2);
 
     assertThrowsApiException(
@@ -214,7 +216,7 @@ class GradeIT extends FacadeITMockedThirdParties {
             + " is not in exam "
             + EXAM3_ID
             + "\"}",
-        () -> api.crupdateParticipantGrade(EXAM3_ID, STUDENT3_ID, newGrade));
+        () -> api.createParticipantGrade(EXAM3_ID, STUDENT3_ID, newGrade));
   }
 
   @Test
@@ -222,11 +224,13 @@ class GradeIT extends FacadeITMockedThirdParties {
     ApiClient studentClient = anApiClient(STUDENT1_TOKEN);
     GradesApi api = new GradesApi(studentClient);
 
-    CrupdateGrade newCrupdateGrade = new CrupdateGrade();
-    newCrupdateGrade.setScore(90.0);
+    UpdateGrade updateGrade = new UpdateGrade();
+    updateGrade.setComment("Rectification");
+    updateGrade.setStudentRef(student1().getRef());
+    updateGrade.setGrade(new CreateGrade().score(90.0));
 
     assertThrowsForbiddenException(
-        () -> api.crupdateParticipantGrade(EXAM1_ID, STUDENT1_ID, newCrupdateGrade));
+        () -> api.correctParticipantGrade(EXAM1_ID, STUDENT1_ID, updateGrade));
   }
 
   @Test
@@ -335,6 +339,29 @@ class GradeIT extends FacadeITMockedThirdParties {
         () -> {
           managerApi.getYearlyResultTranscript(studentAxel.getId(), L1);
         });
+  }
+
+  @Test
+  void monitor_get_exam_own_grades_ok() throws ApiException {
+    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
+    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
+    Grade axelGrades = monitorApi.getParticipantGrade(exam1Prog1.getId(), studentAxel.getId());
+
+    Grade actual = gradeMapper.toRest(studentAxelGradeExam1Prog1);
+
+    axelGrades
+        .createdAt(null)
+        .getExam()
+        .getCourseAssignment()
+        .getGroups()
+        .forEach(group -> group.setCreationDatetime(null));
+    actual
+        .createdAt(null)
+        .getExam()
+        .getCourseAssignment()
+        .getGroups()
+        .forEach(group -> group.setCreationDatetime(null));
+    assertEquals(axelGrades, actual);
   }
 
   private void setUpCasdoorMonitor(

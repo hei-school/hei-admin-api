@@ -4,14 +4,15 @@ import java.util.Objects;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
+import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.model.exception.BadRequestException;
 
 @Component
 @AllArgsConstructor
-public class GradeValidator implements Consumer<CrupdateGrade> {
+public class GradeValidator implements Consumer<CreateGrade> {
+
   @Override
-  public void accept(CrupdateGrade crupdateGrade) {
+  public void accept(CreateGrade crupdateGrade) {
     if (crupdateGrade == null) {
       throw new BadRequestException("Grade is null");
     }

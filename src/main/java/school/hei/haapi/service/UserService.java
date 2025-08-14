@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.*;
 import static school.hei.haapi.model.User.Role.STUDENT;
@@ -117,6 +116,7 @@ public class UserService {
         .orElseThrow(() -> new NotFoundException("User with id: " + userId + " not found"));
   }
 
+  // TODO: Must be get, find must return Optional
   public User findByRef(String userRef) {
     return userRepository
         .findByRef(userRef)
@@ -132,8 +132,7 @@ public class UserService {
     userValidator.accept(users);
     // TODO: do not nullify profile picture here
     List<User> savedUsers = userRepository.saveAll(users);
-    eventProducer.accept(
-        users.stream().map(this::toUserUpsertedEvent).collect(toUnmodifiableList()));
+    eventProducer.accept(users.stream().map(this::toUserUpsertedEvent).toList());
     return savedUsers;
   }
 
@@ -143,8 +142,7 @@ public class UserService {
     List<User> users = new ArrayList<>(userPaymentFrequencyMap.keySet());
     userValidator.accept(users);
     List<User> savedUsers = userRepository.saveAll(users);
-    eventProducer.accept(
-        users.stream().map(this::toUserUpsertedEvent).collect(toUnmodifiableList()));
+    eventProducer.accept(users.stream().map(this::toUserUpsertedEvent).toList());
 
     // TODO: handle existing users exception when creating fees automatically
     for (Map.Entry<User, PaymentFrequency> entry : userPaymentFrequencyMap.entrySet()) {
@@ -369,12 +367,7 @@ public class UserService {
                 () ->
                     new NotFoundException("Promotion with id #" + promotionId + " does not exist"));
     List<User> students = new ArrayList<>();
-    promotion
-        .getGroups()
-        .forEach(
-            group -> {
-              students.addAll(getByGroupId(group.getId()));
-            });
+    promotion.getGroups().forEach(group -> students.addAll(getByGroupId(group.getId())));
     return userXlsxCellsGenerator.apply(students, List.of("firstName", "lastName", "email", "sex"));
   }
 
