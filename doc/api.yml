@@ -6730,6 +6730,7 @@ components:
         - VALIDATED
         - INVALIDATED
         - IN_PROGRESS
+        - NOT_STARTED
     StudentGrade:
       properties:
         grade:

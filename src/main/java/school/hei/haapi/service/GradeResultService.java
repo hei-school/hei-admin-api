@@ -7,6 +7,7 @@ import static java.time.temporal.ChronoUnit.MINUTES;
 import static school.hei.haapi.endpoint.rest.model.FileType.TRANSCRIPT;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.AVAILABLE;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
@@ -34,7 +35,6 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
-import school.hei.haapi.model.exception.NoCourseResults;
 
 @Service
 @AllArgsConstructor
@@ -51,11 +51,11 @@ public class GradeResultService {
 
   public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
     var courseResults = courseResultService.courseResultsForLevelOfStudent(level, studentId);
+    var yearlyResult = new YearlyResult().level(level);
 
-    if (courseResults.isEmpty()) throw new NoCourseResults();
+    if (courseResults.isEmpty()) return yearlyResult.status(ResultOverviewStatus.NOT_STARTED);
 
-    return new YearlyResult()
-        .level(level)
+    return yearlyResult
         .weightedAverage(courseResultService.weightedSumOfCourseResults(courseResults))
         .obtainedCredits(courseResultService.obtainedCreditsOfCourseResults(courseResults))
         .courseResults(courseResults)
@@ -74,46 +74,48 @@ public class GradeResultService {
           studentId,
           e);
       return Optional.empty();
-    } catch (NoCourseResults e) {
-      log.error("The student of id {} has no course result for the level {}", studentId, level, e);
-      return Optional.empty();
     }
   }
 
   public ResultSummary getStudentResultSummary(String studentId) {
-    List<YearlyResult> yearlyResultList =
+    List<YearlyResult> yearlyResults =
         Arrays.stream(StudentLevel.values())
             .map(level -> findLeveledYearlyResultByStudentId(level, studentId))
             .filter(Optional::isPresent)
             .map(Optional::get)
             .toList();
+    List<YearlyResult> yearlyResultsDone =
+        yearlyResults.stream()
+            .filter(yearlyResult -> !NOT_STARTED.equals(yearlyResult.getStatus()))
+            .toList();
 
     BigDecimal obtainedCredits =
-        yearlyResultList.stream()
+        yearlyResultsDone.stream()
             .map(YearlyResult::getObtainedCredits)
             .filter(Objects::nonNull)
             .reduce(BigDecimal::add)
             .orElse(ZERO);
 
-    List<BigDecimal> yearlyResults =
-        yearlyResultList.stream()
+    List<BigDecimal> yearlyResultWeightedAverages =
+        yearlyResultsDone.stream()
             .map(YearlyResult::getWeightedAverage)
             .filter(Objects::nonNull)
             .toList();
 
     BigDecimal yearlyResultsWeightedAverageSum =
-        yearlyResults.stream().reduce(BigDecimal::add).orElse(ZERO);
+        yearlyResultWeightedAverages.stream().reduce(BigDecimal::add).orElse(ZERO);
 
     BigDecimal weightedAverage =
-        yearlyResultsWeightedAverageSum.divide(BigDecimal.valueOf(yearlyResults.size()), UNLIMITED);
+        yearlyResultsWeightedAverageSum.divide(
+            BigDecimal.valueOf(yearlyResultWeightedAverages.size()), UNLIMITED);
 
     return new ResultSummary()
-        .yearlyResults(yearlyResultList)
+        .yearlyResults(yearlyResultsDone)
         .obtainedCredits(obtainedCredits)
         .weightedAverage(weightedAverage)
-        .status(resultSummaryStatusFromYearlyResults(yearlyResultList))
+        .status(resultSummaryStatusFromYearlyResults(yearlyResultsDone))
         .totalCredits(
-            yearlyResultList.parallelStream()
+            yearlyResultsDone.parallelStream()
                 .map(YearlyResult::getTotalCredits)
                 .reduce(ZERO, BigDecimal::add));
   }
