@@ -110,7 +110,7 @@ public class GradeResultService {
             BigDecimal.valueOf(yearlyResultWeightedAverages.size()), UNLIMITED);
 
     return new ResultSummary()
-        .yearlyResults(yearlyResultsDone)
+        .yearlyResults(yearlyResults)
         .obtainedCredits(obtainedCredits)
         .weightedAverage(weightedAverage)
         .status(resultSummaryStatusFromYearlyResults(yearlyResultsDone))

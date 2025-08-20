@@ -306,7 +306,7 @@ class GradeResultServiceTest {
   void correct_result_result_summary_student1_validated() {
     ResultSummary result = subject.getStudentResultSummary(student1.getId());
 
-    assertEquals(1, result.getYearlyResults().size());
+    assertEquals(5, result.getYearlyResults().size());
     assertEquals(30., result.getObtainedCredits().doubleValue());
     assertEquals(15.3476666666666667, result.getWeightedAverage().doubleValue());
     assertEquals(VALIDATED, result.getStatus());
@@ -317,7 +317,7 @@ class GradeResultServiceTest {
   void correct_result_result_summary_student2_invalidated() {
     ResultSummary result = subject.getStudentResultSummary(student2.getId());
 
-    assertEquals(1, result.getYearlyResults().size());
+    assertEquals(5, result.getYearlyResults().size());
     assertEquals(10., result.getObtainedCredits().doubleValue());
     assertEquals(7.68, result.getWeightedAverage().doubleValue());
     assertEquals(INVALIDATED, result.getStatus());
@@ -328,7 +328,7 @@ class GradeResultServiceTest {
   void correct_result_result_summary_student3_in_progress() {
     ResultSummary result = subject.getStudentResultSummary(student3.getId());
 
-    assertEquals(1, result.getYearlyResults().size());
+    assertEquals(5, result.getYearlyResults().size());
     assertEquals(26., result.getObtainedCredits().doubleValue());
     assertEquals(13.493, result.getWeightedAverage().doubleValue());
     assertEquals(IN_PROGRESS, result.getStatus());
