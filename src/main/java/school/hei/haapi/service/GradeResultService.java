@@ -34,6 +34,7 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
+import school.hei.haapi.model.exception.NoCourseResults;
 
 @Service
 @AllArgsConstructor
@@ -50,6 +51,8 @@ public class GradeResultService {
 
   public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
     var courseResults = courseResultService.courseResultsForLevelOfStudent(level, studentId);
+
+    if (courseResults.isEmpty()) throw new NoCourseResults();
 
     return new YearlyResult()
         .level(level)
@@ -70,6 +73,9 @@ public class GradeResultService {
           level,
           studentId,
           e);
+      return Optional.empty();
+    } catch (NoCourseResults e) {
+      log.error("The student of id {} has no course result for the level {}", studentId, level, e);
       return Optional.empty();
     }
   }

@@ -51,6 +51,7 @@ import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
+import school.hei.haapi.model.exception.NoCourseResults;
 import school.hei.haapi.repository.YearlyResultGenerationRequestRepository;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
@@ -293,7 +294,7 @@ class GradeResultServiceTest {
     String studentId = student1.getId();
 
     assertThrows(
-        CoursesCreditSumZero.class, () -> subject.getLeveledYearlyResultByStudentId(M2, studentId));
+        NoCourseResults.class, () -> subject.getLeveledYearlyResultByStudentId(M2, studentId));
   }
 
   @Test
