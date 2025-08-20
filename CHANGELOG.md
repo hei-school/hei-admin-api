@@ -1,3 +1,15 @@
+## [1.110.1](https://github.com/hei-school/hei-admin-api/compare/v1.110.0...v1.110.1) (2025-08-20)
+
+
+### Bug Fixes
+
+* create and update grades ([00d4bb3](https://github.com/hei-school/hei-admin-api/commit/00d4bb3431cfcbe1388e7b370a27dd6dc5b574d2))
+* handle student without course results ([bc37732](https://github.com/hei-school/hei-admin-api/commit/bc3773287515b3e6abe06f1161061e57da9cf33c))
+* increase stack size for build ([2efe473](https://github.com/hei-school/hei-admin-api/commit/2efe473db3f99b9ae62c41958f5e798cb2bdeb17))
+* multiple course results on multiple awarded course ([e4ddede](https://github.com/hei-school/hei-admin-api/commit/e4ddede537728830791d4fd25d08f45a29087316))
+
+
+
 # [1.110.0](https://github.com/hei-school/hei-admin-api/compare/v1.109.0...v1.110.0) (2025-08-14)
 
 
@@ -100,27 +112,6 @@
 ### Reverts
 
 * Revert "promotion: preprod to prod" ([c21886b](https://github.com/hei-school/hei-admin-api/commit/c21886bf666f864d3043d82adaad540a6bff0cec))
-
-
-
-# [1.104.0](https://github.com/hei-school/hei-admin-api/compare/v1.103.1...v1.104.0) (2025-05-27)
-
-
-### Bug Fixes
-
-* casdoor custom redirect uri, add casdoor env vars ([9be5583](https://github.com/hei-school/hei-admin-api/commit/9be5583937d4734648c67d2f756e040da89c54b3))
-* student status going from disabled to suspended ([2d9ffd1](https://github.com/hei-school/hei-admin-api/commit/2d9ffd1d798404459ccbdf9afe3388ffb429558e))
-
-
-### Features
-
-* casdoor authentication ([#890](https://github.com/hei-school/hei-admin-api/issues/890)) ([5679e1e](https://github.com/hei-school/hei-admin-api/commit/5679e1e68dbfa6a902132204943d4a7864a4c3b9))
-* **not-implemented:** course grade and exam grades stats ([b16f960](https://github.com/hei-school/hei-admin-api/commit/b16f960bae3165660fee6758fbba6a2fc6ce9b66))
-
-
-### Reverts
-
-* Revert "chore: fix casdoor env variables" (#893) ([615ff34](https://github.com/hei-school/hei-admin-api/commit/615ff34cb520cee058e0920a49461ffbfbbc0a6c)), closes [#893](https://github.com/hei-school/hei-admin-api/issues/893)
 
 
 
