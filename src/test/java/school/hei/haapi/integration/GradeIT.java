@@ -54,6 +54,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
@@ -374,6 +375,57 @@ class GradeIT extends FacadeITMockedThirdParties {
     assertBadRequestException(
         "Grade for the student %s for the exam %s already exist".formatted(axelId, examId),
         () -> gradesApi.createParticipantsGradeForExam(examId, createGrades));
+  }
+
+  @Test
+  void create_grade_ok() throws ApiException {
+    var groupRandomG3 = g1();
+    var studentRandomAxel = axel();
+    var courseRandomProg3 = prog1();
+    var teacherRandomToky = toky();
+    var assign_prog3_toTeacherRandom_forGroup3 =
+        createCourseAssignment(courseRandomProg3, teacherRandomToky, List.of(groupRandomG3));
+
+    var monitorOfRandomStudent = monitorOfAxel();
+    studentRandomAxel.setMonitors(List.of(monitorOfRandomStudent));
+    var groupFlowsRandomAxel = createGroupFlow(studentRandomAxel, groupRandomG3);
+
+    var exam1RandomProg3 =
+        createExam(Instant.parse("2025-07-22T10:15:30Z"), assign_prog3_toTeacherRandom_forGroup3);
+
+    groupRepository.saveAll(List.of(groupRandomG3));
+    userRepository.saveAll(List.of(monitorOfRandomStudent));
+    userRepository.saveAll(List.of(studentRandomAxel));
+    monitoringStudentRepository.saveMonitorFollowingStudents(
+        monitorOfRandomStudent.getId(), studentRandomAxel.getId());
+    userRepository.saveAll(List.of(teacherRandomToky));
+    courseRepository.saveAll(List.of(courseRandomProg3));
+    groupFlowRepository.saveAll(List.of(groupFlowsRandomAxel));
+    courseAssignmentRepository.saveAll(List.of(assign_prog3_toTeacherRandom_forGroup3));
+    examRepository.save(exam1RandomProg3);
+
+    groupIds.add(groupRandomG3.getId());
+    studentIds.add(studentRandomAxel.getId());
+    groupFlowIds.add(groupFlowsRandomAxel.getId());
+    teacherIds.add(teacherRandomToky.getId());
+    courseIds.add(courseRandomProg3.getId());
+    courseAssignmentIds.add(assign_prog3_toTeacherRandom_forGroup3.getId());
+    examIds.add(exam1RandomProg3.getId());
+
+    GradesApi gradesApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
+    String axelId = studentRandomAxel.getId();
+    String examId = exam1RandomProg3.getId();
+    CreateGrade createGrade = new CreateGrade().score(10.).studentId(axelId);
+    List<CreateGrade> createGrades = List.of(createGrade);
+
+    List<StudentGrade> createdGrades =
+        gradesApi.createParticipantsGradeForExam(examId, createGrades);
+
+    assertEquals(1, createdGrades.size());
+    StudentGrade createdGrade = createdGrades.getFirst();
+    assertEquals(axelId, createdGrade.getStudent().getId());
+    assertEquals(examId, createdGrade.getGrade().getExam().getId());
+    assertEquals(createGrade.getScore(), createdGrade.getGrade().getScore());
   }
 
   private void setUpCasdoorMonitor(
