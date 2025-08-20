@@ -81,7 +81,7 @@ public class GradeController {
     return gradeService
         .createParticipantGrade(
             grades.stream()
-                .map(grade1 -> gradeMapper.toDomain(grade1, examId, grade1.getStudentId()))
+                .map(grade -> gradeMapper.toDomain(grade, examId, grade.getStudentId()))
                 .toList())
         .stream()
         .map(gradeMapper::toRestStudentGrade)

@@ -364,6 +364,18 @@ class GradeIT extends FacadeITMockedThirdParties {
     assertEquals(axelGrades, actual);
   }
 
+  @Test
+  void create_existing_grade_ko() {
+    GradesApi gradesApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
+    String axelId = studentAxel.getId();
+    String examId = exam1Prog1.getId();
+    List<CreateGrade> createGrades = List.of(new CreateGrade().score(10.).studentId(axelId));
+
+    assertBadRequestException(
+        "Grade for the student %s for the exam %s already exist".formatted(axelId, examId),
+        () -> gradesApi.createParticipantsGradeForExam(examId, createGrades));
+  }
+
   private void setUpCasdoorMonitor(
       CasdoorAuthService casdoorAuthService, CertificateLoader certificateLoader, User monitor) {
     given(certificateLoader.getCertificate()).willReturn("mocked-certificate");
