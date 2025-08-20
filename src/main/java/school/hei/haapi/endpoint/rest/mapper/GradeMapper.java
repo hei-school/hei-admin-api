@@ -63,17 +63,15 @@ public class GradeMapper {
     return getStudentGrade;
   }
 
-  public school.hei.haapi.model.Grade toDomain(
-      CreateGrade grade, String examId, String studentRef) {
+  public school.hei.haapi.model.Grade toDomain(CreateGrade grade, String examId, String studentId) {
     gradeValidator.accept(grade);
 
+    var student = userService.findById(studentId);
     return gradeRepository
-        .getGradeByExamIdAndStudentRef(examId, studentRef)
+        .getGradeByExamIdAndStudentRef(examId, student.getRef())
         .orElse(
             new school.hei.haapi.model.Grade(
-                examService.getExamById(examId),
-                userService.findByRef(studentRef),
-                grade.getScore()));
+                examService.getExamById(examId), student, grade.getScore()));
   }
 
   public school.hei.haapi.model.notEntity.UpdateGrade toDomain(

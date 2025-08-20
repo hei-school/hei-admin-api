@@ -2038,11 +2038,11 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-    put:
+    post:
       tags:
         - Grades
-      summary: Modify student grades in exam
-      operationId: updateParticipantsGradeForExam
+      summary: Create student grades in exam
+      operationId: createParticipantsGradeForExam
       parameters:
         - name: exam_id
           in: path
@@ -2050,7 +2050,46 @@ paths:
           schema:
             type: string
       requestBody:
-        description: Update grades for a specific students in exam
+        description: Created grades for a specific students in exam
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/CreateGrade'
+      responses:
+        '200':
+          description: All students grades from an exam specific
+          content:
+            application/json:
+              schema:
+                items:
+                  $ref: '#/components/schemas/StudentGrade'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /exams/{exam_id}/grades/update:
+    post:
+      tags:
+        - Grades
+      summary: Correct student grades in exam
+      operationId: correctParticipantsGradeForExam
+      parameters:
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
+      requestBody:
+        description: Corrected grades for a specific students in exam
         required: true
         content:
           application/json:
@@ -6713,6 +6752,8 @@ components:
           type: number
           format: double
           example: 12.5
+        student_id:
+          type: string
     ResultsOverview:
       type: object
       properties:
