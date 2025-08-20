@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
@@ -37,6 +38,7 @@ import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.ResultSummary;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
 import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.file.bucket.BucketComponent;
@@ -290,11 +292,14 @@ class GradeResultServiceTest {
   }
 
   @Test
-  void correct_result_yearly_result_M2_empty_ko() {
+  void correct_result_yearly_result_M2_empty_notStarted() {
     String studentId = student1.getId();
 
-    assertThrows(
-        CoursesCreditSumZero.class, () -> subject.getLeveledYearlyResultByStudentId(M2, studentId));
+    StudentLevel expectedLevel = M2;
+    YearlyResult yearlyResult = subject.getLeveledYearlyResultByStudentId(expectedLevel, studentId);
+
+    assertEquals(expectedLevel, yearlyResult.getLevel());
+    assertEquals(NOT_STARTED, yearlyResult.getStatus());
   }
 
   @Test
