@@ -13,7 +13,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
@@ -22,34 +21,29 @@ import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
-import school.hei.haapi.repository.dao.CourseAssignmentDao;
 import school.hei.haapi.repository.dao.GradeDao;
 
 @Component
 @AllArgsConstructor
 public class CourseResultService {
-  private CourseAssignmentDao courseAssignmentDao;
+  private CourseService courseService;
   private GradeDao gradeDao;
   private CourseMapper courseMapper;
   private ExamService examService;
   private UserService userService;
 
   public List<CourseResult> courseResultsForLevelOfStudent(StudentLevel level, String studentId) {
-    var coursesForSpecificLevel =
-        courseAssignmentDao.findByCriteria(null, null, level, Pageable.unpaged());
+    var coursesForSpecificLevel = courseService.getByStudentLevel(level);
     var student = userService.findById(studentId);
 
     return coursesForSpecificLevel.stream()
         .map(
-            courseAssignment -> {
+            course -> {
               var studentGrades =
-                  gradeDao.getStudentGradesByCourseId(
-                      courseAssignment.getCourse().getId(), student.getId());
-              var examsOfTheCourse =
-                  examService.getExamsByCourseAssignmentId(courseAssignment.getId());
+                  gradeDao.getStudentGradesByCourseId(course.getId(), student.getId());
+              var examsOfTheCourse = examService.getExamsByCourseId(course.getId());
 
-              var courseResult =
-                  new CourseResult().course(courseMapper.toRest(courseAssignment.getCourse()));
+              var courseResult = new CourseResult().course(courseMapper.toRest(course));
               try {
                 courseResult.weightedAverage(weightedAverageOfGrades(studentGrades));
               } catch (ExamsCoefficientSumZero e) {
