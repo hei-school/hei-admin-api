@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.BDDMockito.given;
@@ -306,6 +307,22 @@ class GradeIT extends FacadeITMockedThirdParties {
 
     assertGradeExists(axelGrades, studentAxelGradeExam1Prog1);
     assertGradeExists(axelGrades, studentAxelGradeExam2Prog1);
+  }
+
+  @Test
+  void monitor_get_own_yearly_result_ok() throws ApiException {
+    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
+    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
+    assertDoesNotThrow(() -> monitorApi.getYearlyResult(studentAxel.getId(), L1));
+  }
+
+  @Test
+  void monitor_get_other_yearly_result_ko() throws ApiException {
+    setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
+    GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
+    assertThrowsApiException(
+        "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
+        () -> monitorApi.getYearlyResult(studentTolojanahary.getId(), L1));
   }
 
   @Test

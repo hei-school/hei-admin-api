@@ -65,7 +65,7 @@ public class ExamService {
         awardedCourseId);
   }
 
-  public List<Exam> getExamsByCourseAssignmentId(String courseId) {
+  public List<Exam> getExamsByCourseId(String courseId) {
     return examRepository.findExamsByCourseId(courseId);
   }
 }

@@ -63,6 +63,7 @@ import school.hei.haapi.service.utils.PdfRenderer;
 class GradeResultServiceTest {
   private final GradeDao gradeDao = mock();
   private final CourseAssignmentDao courseAssignmentDao = mock();
+  private final CourseService courseService = mock();
   private final ExamService examService = mock();
   private final UserService userService = mock();
   private final BucketComponent bucketComponent = mock();
@@ -80,7 +81,7 @@ class GradeResultServiceTest {
   private final GradeResultService subject =
       new GradeResultService(
           new CourseResultService(
-              courseAssignmentDao, gradeDao, new CourseMapper(), examService, userService),
+              courseService, gradeDao, new CourseMapper(), examService, userService),
           yearlyResultGenerationService,
           bucketComponent,
           userService,
@@ -205,29 +206,29 @@ class GradeResultServiceTest {
         .thenReturn(List.of(student3Sys1Grade));
 
     // Mock exam from course assignment
-    when(examService.getExamsByCourseAssignmentId(mgt1CourseAssignment.getId()))
+    when(examService.getExamsByCourseId(mgt1CourseAssignment.getCourse().getId()))
         .thenReturn(List.of(mgt1Exam));
-    when(examService.getExamsByCourseAssignmentId(prog1CourseAssignment.getId()))
+    when(examService.getExamsByCourseId(prog1CourseAssignment.getCourse().getId()))
         .thenReturn(List.of(prog1Exam));
-    when(examService.getExamsByCourseAssignmentId(donnee1CourseAssignment.getId()))
+    when(examService.getExamsByCourseId(donnee1CourseAssignment.getCourse().getId()))
         .thenReturn(List.of(donnees1Exam));
-    when(examService.getExamsByCourseAssignmentId(web1CourseAssignment.getId()))
+    when(examService.getExamsByCourseId(web1CourseAssignment.getCourse().getId()))
         .thenReturn(List.of(web1Exam));
-    when(examService.getExamsByCourseAssignmentId(sys1CourseAssignment.getId()))
+    when(examService.getExamsByCourseId(sys1CourseAssignment.getCourse().getId()))
         .thenReturn(List.of(sys1Exam));
-    when(examService.getExamsByCourseAssignmentId(lv1CourseAssignment.getId()))
+    when(examService.getExamsByCourseId(lv1CourseAssignment.getCourse().getId()))
         .thenReturn(List.of(lv1Exam));
 
-    // Mock course assignment from course level
-    when(courseAssignmentDao.findByCriteria(any(), any(), eq(L1), any()))
+    // Mock course for student level L1
+    when(courseService.getByStudentLevel(eq(L1)))
         .thenReturn(
             List.of(
-                mgt1CourseAssignment,
-                prog1CourseAssignment,
-                donnee1CourseAssignment,
-                web1CourseAssignment,
-                sys1CourseAssignment,
-                lv1CourseAssignment));
+                mgt1CourseAssignment.getCourse(),
+                prog1CourseAssignment.getCourse(),
+                donnee1CourseAssignment.getCourse(),
+                web1CourseAssignment.getCourse(),
+                sys1CourseAssignment.getCourse(),
+                lv1CourseAssignment.getCourse()));
 
     when(userService.findById(anyString()))
         .thenAnswer(
@@ -333,10 +334,10 @@ class GradeResultServiceTest {
   void yearly_result_with_course_credits_sum_zero_ko() {
     when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
         .thenReturn(List.of(student1Mgt1Grade));
-    when(examService.getExamsByCourseAssignmentId(badCourseAssignment.getId()))
+    when(examService.getExamsByCourseId(badCourseAssignment.getCourse().getId()))
         .thenReturn(List.of(mgt1Exam));
-    when(courseAssignmentDao.findByCriteria(any(), any(), eq(L1), any()))
-        .thenReturn(List.of(badCourseAssignment));
+    when(courseService.getByStudentLevel(eq(L1)))
+        .thenReturn(List.of(badCourseAssignment.getCourse()));
 
     assertThrows(
         CoursesCreditSumZero.class,
@@ -347,10 +348,10 @@ class GradeResultServiceTest {
   void course_result_with_exams_coefficient_sum_zero_is_inProgress() {
     when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
         .thenReturn(List.of(student3GradeForBadExam));
-    when(examService.getExamsByCourseAssignmentId(mgt1CourseAssignment.getId()))
+    when(examService.getExamsByCourseId(mgt1CourseAssignment.getCourse().getId()))
         .thenReturn(List.of(badExam));
-    when(courseAssignmentDao.findByCriteria(any(), any(), eq(L1), any()))
-        .thenReturn(List.of(mgt1CourseAssignment));
+    when(courseService.getByStudentLevel(eq(L1)))
+        .thenReturn(List.of(mgt1CourseAssignment.getCourse()));
 
     var result = subject.getLeveledYearlyResultByStudentId(L1, student1.getId());
 

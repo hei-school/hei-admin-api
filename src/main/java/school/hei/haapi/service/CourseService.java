@@ -10,6 +10,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import school.hei.haapi.endpoint.rest.model.CourseDirection;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.PageFromOne;
@@ -93,5 +94,9 @@ public class CourseService {
     return courseRepository
         .findById(id)
         .orElseThrow(() -> new NotFoundException("Course with id #" + id + " not found"));
+  }
+
+  public List<Course> getByStudentLevel(StudentLevel studentLevel) {
+    return courseRepository.getByStudentLevel(studentLevel);
   }
 }
