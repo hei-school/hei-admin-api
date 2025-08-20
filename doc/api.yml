@@ -2057,7 +2057,7 @@ paths:
             schema:
               type: array
               items:
-                $ref: '#/components/schemas/UpdateGrade'
+                $ref: '#/components/schemas/CreateGrade'
       responses:
         '200':
           description: All students grades from an exam specific
@@ -6752,6 +6752,8 @@ components:
           type: number
           format: double
           example: 12.5
+        student_id:
+          type: string
     ResultsOverview:
       type: object
       properties:

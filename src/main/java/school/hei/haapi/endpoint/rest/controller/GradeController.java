@@ -6,7 +6,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
@@ -54,7 +53,7 @@ public class GradeController {
       @PathVariable("student_id") String studentId,
       @RequestBody CreateGrade grade) {
     gradeValidator.accept(grade);
-    var toSave = gradeMapper.toDomain(grade, examId, userService.findById(studentId).getRef());
+    var toSave = gradeMapper.toDomain(grade, examId, studentId);
     return gradeMapper.toRest(gradeService.createParticipantGrade(List.of(toSave)).getFirst());
   }
 
@@ -76,8 +75,21 @@ public class GradeController {
     return examParticipantService.getParticipantsGradeForExam(examId, page, pageSize);
   }
 
-  @PutMapping(value = "/exams/{exam_id}/grades")
-  public List<StudentGrade> updateParticipantsGradeForExam(
+  @PostMapping(value = "/exams/{exam_id}/grades")
+  public List<StudentGrade> createParticipantsGradeForExam(
+      @PathVariable("exam_id") String examId, @RequestBody List<CreateGrade> grades) {
+    return gradeService
+        .createParticipantGrade(
+            grades.stream()
+                .map(grade1 -> gradeMapper.toDomain(grade1, examId, grade1.getStudentId()))
+                .toList())
+        .stream()
+        .map(gradeMapper::toRestStudentGrade)
+        .toList();
+  }
+
+  @PostMapping(value = "/exams/{exam_id}/grades/update")
+  public List<StudentGrade> correctParticipantsGradeForExam(
       @PathVariable("exam_id") String examId, @RequestBody List<UpdateGrade> grades) {
     return gradeService
         .updateParticipantGrade(
