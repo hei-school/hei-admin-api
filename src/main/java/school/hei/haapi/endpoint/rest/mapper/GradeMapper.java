@@ -39,7 +39,8 @@ public class GradeMapper {
         .id(grade.getId())
         .exam(examMapper.toRest(grade.getExam()))
         .createdAt(grade.getCreationDatetime())
-        .score(grade.getScore());
+        .score(grade.getScore())
+        .updateDate(grade.getUpdateDatetime());
   }
 
   public StudentGrade toRestStudentGrade(school.hei.haapi.model.Grade grade) {
@@ -79,13 +80,10 @@ public class GradeMapper {
     updateGradeValidator.accept(grade);
 
     return new school.hei.haapi.model.notEntity.UpdateGrade(
-        gradeRepository
-            .getGradeByExamIdAndStudentRef(examId, studentRef)
-            .orElse(
-                new school.hei.haapi.model.Grade(
-                    examService.getExamById(examId),
-                    userService.findByRef(studentRef),
-                    grade.getGrade().getScore())),
+        new school.hei.haapi.model.Grade(
+            examService.getExamById(examId),
+            userService.findByRef(studentRef),
+            grade.getGrade().getScore()),
         userService.findByRef(studentRef),
         grade.getComment(),
         examService.getExamById(examId));

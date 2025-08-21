@@ -369,12 +369,14 @@ class GradeIT extends FacadeITMockedThirdParties {
 
     axelGrades
         .createdAt(null)
+        .updateDate(null)
         .getExam()
         .getCourseAssignment()
         .getGroups()
         .forEach(group -> group.setCreationDatetime(null));
     actual
         .createdAt(null)
+        .updateDate(null)
         .getExam()
         .getCourseAssignment()
         .getGroups()

@@ -18,6 +18,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -81,10 +82,15 @@ public class Grade implements Serializable {
   }
 
   public Double getScore() {
-    var lastChange =
-        gradeChangeHistories.stream().max(comparing(GradeChangeHistory::getChangeInstant));
+    return getLastChange().map(GradeChangeHistory::getScore).orElse(getInitialScore());
+  }
 
-    return lastChange.map(GradeChangeHistory::getScore).orElse(getInitialScore());
+  private Optional<GradeChangeHistory> getLastChange() {
+    return gradeChangeHistories.stream().max(comparing(GradeChangeHistory::getChangeInstant));
+  }
+
+  public Instant getUpdateDatetime() {
+    return getLastChange().map(GradeChangeHistory::getChangeInstant).orElse(creationDatetime);
   }
 
   public Double getInitialScore() {
