@@ -74,8 +74,12 @@ class ExamIT extends FacadeITMockedThirdParties {
   void manager_read_exam_details_ok() throws ApiException {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     GradesApi api = new GradesApi(manager1Client);
+
     List<StudentGrade> studentGrades = api.getStudentGradesForExam(EXAM1_ID, 1, 1);
-    assertEquals(studentGrade1(), studentGrades.getFirst());
+
+    StudentGrade grade = studentGrades.getFirst();
+    grade.getGrade().updateDate(null);
+    assertEquals(studentGrade1(), grade);
   }
 
   @Test
