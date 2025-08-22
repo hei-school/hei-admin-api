@@ -1,3 +1,12 @@
+## [1.110.2](https://github.com/hei-school/hei-admin-api/compare/v1.110.1...v1.110.2) (2025-08-22)
+
+
+### Bug Fixes
+
+* grade mapper ([7ae21f8](https://github.com/hei-school/hei-admin-api/commit/7ae21f8aac9585bc28f3260d7086f8c0834c57de))
+
+
+
 ## [1.110.1](https://github.com/hei-school/hei-admin-api/compare/v1.110.0...v1.110.1) (2025-08-20)
 
 
@@ -96,22 +105,6 @@
 ### Bug Fixes
 
 * advanced fee stats not updating expired field ([db595c1](https://github.com/hei-school/hei-admin-api/commit/db595c1583bd5f1b6272f5103955ddf3c95a4ede))
-
-
-
-## [1.104.1](https://github.com/hei-school/hei-admin-api/compare/v1.104.0...v1.104.1) (2025-07-10)
-
-
-### Bug Fixes
-
-* advanced fee stats null stat_date on update ([887a199](https://github.com/hei-school/hei-admin-api/commit/887a1994f69dabbb72d15f434c504e1bbdd2745b))
-* db backup neon ([2ff60d0](https://github.com/hei-school/hei-admin-api/commit/2ff60d0b4058e775e5d9f0c45c242d2d884c9759))
-* not failling mpbs ([45811cf](https://github.com/hei-school/hei-admin-api/commit/45811cfa844a9a4bffb0e9a4ab6e5c66c1d4d0e2))
-
-
-### Reverts
-
-* Revert "promotion: preprod to prod" ([c21886b](https://github.com/hei-school/hei-admin-api/commit/c21886bf666f864d3043d82adaad540a6bff0cec))
 
 
 
