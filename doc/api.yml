@@ -544,6 +544,9 @@ paths:
       summary: Get the Grades of a given student for a given course.
       operationId: getCourseGrades
       parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SortUpdateDate'
         - $ref: "#/components/parameters/PathStudentId"
         - $ref: "#/components/parameters/PathCourseId"
       responses:
@@ -1002,6 +1005,9 @@ paths:
         - Grades
       summary: Get students grade for exams in a specific course
       parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/SortUpdateDate'
         - $ref: '#/components/parameters/PathCourseId'
         - $ref: '#/components/parameters/GroupRef'
       operationId: getCourseStudentsGrade
@@ -6111,8 +6117,8 @@ paths:
         - $ref: '#/components/parameters/PathGradeId'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
-        - $ref: '#/components/parameters/DateFilterFrom'
-        - $ref: '#/components/parameters/DateFilterTo'
+        - $ref: '#/components/parameters/CreationDatetimeFilterFrom'
+        - $ref: '#/components/parameters/CreationDatetimeFilterTo'
         - name: comment
           in: query
           description: filter results if the string matches this one given
@@ -6160,22 +6166,29 @@ components:
       description: Page number for the retrieved ressources
       schema:
         $ref: '#/components/schemas/Page'
-    DateFilterFrom:
+    CreationDatetimeFilterFrom:
       name: from
       in: query
-      description: Filter result by a given date
+      description: Filter creation date result by a given date
       schema:
         type: string
         format: date-time
       required: false
-    DateFilterTo:
+    CreationDatetimeFilterTo:
       name: to
       in: query
-      description: Filter result by a given date
+      description: Filter creation date result by a given date
       schema:
         type: string
         format: date-time
       required: false
+    SortUpdateDate:
+      name: sortDate
+      in: query
+      description: Sort update date result, no sort by default
+      required: false
+      schema:
+        $ref: '#/components/schemas/SortOrder'
     GroupRef:
       name: group_ref
       in: query
@@ -6300,6 +6313,11 @@ components:
           $ref: '#/components/schemas/PlaceEnum'
         student:
           $ref: '#/components/schemas/Student'
+    SortOrder:
+      type: string
+      enum:
+        - ASCENDING
+        - DESCENDING
     CrupdateUser:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
