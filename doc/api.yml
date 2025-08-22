@@ -6101,6 +6101,33 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/grades/{grade_id}/change_history':
+    get:
+      tags:
+        - Grades
+      operationId: getGradeChangeHistory
+      summary: Get the change history for specific garde
+      parameters:
+        - $ref: '#/components/parameters/PathGradeId'
+      responses:
+        '200':
+          description: Change history for specific garde
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradeChangeHistory'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
@@ -6160,6 +6187,12 @@ components:
         type: string
     PathStudentId:
       name: student_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathGradeId:
+      name: grade_id
       in: path
       required: true
       schema:
@@ -6784,6 +6817,17 @@ components:
           $ref: '#/components/schemas/CreateGrade'
         student_ref:
           type: string
+        comment:
+          type: string
+    GradeChangeHistory:
+      properties:
+        change_instant:
+          type: string
+          format: datetime
+        score:
+          type: number
+          format: double
+          example: 12.5
         comment:
           type: string
     CourseAssignmentExam:
