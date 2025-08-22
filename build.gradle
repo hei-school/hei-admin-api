@@ -10,19 +10,14 @@ plugins {
 
     id 'jacoco'
 
-    id "org.sonarqube" version "4.4.1.3373" 
+    
 }
 
 jacoco {
     toolVersion = "0.8.11"
 }
 
-sonarqube {
-    properties {
-        property "sonar.java.source", "21"
-        property "sonar.java.target", "21"
-    }
-} 
+
 
 repositories {
 mavenLocal()
@@ -63,7 +58,7 @@ task generateJavaClient(type: GenerateTask) {
     library = "native"
 
     groupId = 'school.hei'
-    id = 'haapi-gen'
+    id = 'haapi-b0fc7615-gen'
     skipValidateSpec = false
     logToStderr = true
     generateAliasAsModel = false
@@ -79,7 +74,7 @@ task generateTsClient(type: org.openapitools.generator.gradle.plugin.tasks.Gener
     ]
     additionalProperties = [
             enumPropertyNaming: "original",
-            npmName           : "@haapi/typescript-client",
+            npmName           : "@haapi-b0fc7615/typescript-client",
             npmVersion        : project.properties["args"] ?: "latest"
     ]
 }
@@ -205,7 +200,6 @@ dependencies {
     testImplementation 'org.springframework.boot:spring-boot-starter-test'
     testImplementation 'org.testcontainers:junit-jupiter:1.19.1'
     testImplementation 'org.junit-pioneer:junit-pioneer:2.2.0'
-
 
     implementation 'io.sentry:sentry-logback:7.6.0'
     implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.4.0'
