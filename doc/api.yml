@@ -6109,6 +6109,16 @@ paths:
       summary: Get the change history for specific garde
       parameters:
         - $ref: '#/components/parameters/PathGradeId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/DateFilterFrom'
+        - $ref: '#/components/parameters/DateFilterTo'
+        - name: comment
+          in: query
+          description: filter results if the string matches this one given
+          required: false
+          schema:
+            type: string
       responses:
         '200':
           description: Change history for specific garde
@@ -6150,6 +6160,22 @@ components:
       description: Page number for the retrieved ressources
       schema:
         $ref: '#/components/schemas/Page'
+    DateFilterFrom:
+      name: from
+      in: query
+      description: Filter result by a given date
+      schema:
+        type: string
+        format: date-time
+      required: false
+    DateFilterTo:
+      name: to
+      in: query
+      description: Filter result by a given date
+      schema:
+        type: string
+        format: date-time
+      required: false
     GroupRef:
       name: group_ref
       in: query
