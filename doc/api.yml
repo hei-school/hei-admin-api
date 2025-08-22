@@ -546,7 +546,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
-        - $ref: '#/components/parameters/SortUpdateDate'
+        - $ref: '#/components/parameters/UpdateDateSort'
         - $ref: "#/components/parameters/PathStudentId"
         - $ref: "#/components/parameters/PathCourseId"
       responses:
@@ -1007,7 +1007,7 @@ paths:
       parameters:
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
-        - $ref: '#/components/parameters/SortUpdateDate'
+        - $ref: '#/components/parameters/UpdateDateSort'
         - $ref: '#/components/parameters/PathCourseId'
         - $ref: '#/components/parameters/GroupRef'
       operationId: getCourseStudentsGrade
@@ -6112,12 +6112,12 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  '/grades/{grade_id}/change_history':
+  '/grades/{grade_id}/history':
     get:
       tags:
         - Grades
-      operationId: getGradeChangeHistory
-      summary: Get the change history for specific garde
+      operationId: getGradeHistory
+      summary: Get the history for specific garde
       parameters:
         - $ref: '#/components/parameters/PathGradeId'
         - $ref: '#/components/parameters/Page'
@@ -6138,7 +6138,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/GradeChangeHistory'
+                  $ref: '#/components/schemas/GradeHistory'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -6868,9 +6868,9 @@ components:
           type: string
         comment:
           type: string
-    GradeChangeHistory:
+    GradeHistory:
       properties:
-        change_instant:
+        created_at:
           type: string
           format: date-time
         score:
