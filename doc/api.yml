@@ -6187,7 +6187,7 @@ components:
         type: string
         format: date-time
       required: false
-    SortUpdateDate:
+    UpdateDateSort:
       name: sortDate
       in: query
       description: Sort update date result, no sort by default
