@@ -1135,6 +1135,11 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: level
+          in: query
+          description: Filter by student academic level
+          schema:
+            $ref: '#/components/schemas/StudentLevel'
       responses:
         '200':
           description: List of all courses
