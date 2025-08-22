@@ -1,27 +1,31 @@
 package school.hei.haapi.endpoint.rest.controller;
 
+import java.math.MathContext;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import school.hei.haapi.endpoint.rest.mapper.AwardedCourseMapper;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
-import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
+import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.ExamGradeStats;
+import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.ResultSummary;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
+import school.hei.haapi.endpoint.rest.model.YearlyResult;
+import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.endpoint.rest.validator.GradeValidator;
-import school.hei.haapi.model.AwardedCourse;
+import school.hei.haapi.endpoint.rest.validator.UpdateGradeValidator;
 import school.hei.haapi.model.BoundedPageSize;
-import school.hei.haapi.model.Grade;
 import school.hei.haapi.model.PageFromOne;
-import school.hei.haapi.model.User;
-import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.service.ExamParticipantService;
+import school.hei.haapi.service.ExamService;
+import school.hei.haapi.service.GradeResultService;
 import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
 
@@ -29,55 +33,68 @@ import school.hei.haapi.service.UserService;
 @AllArgsConstructor
 public class GradeController {
   private final UserService userService;
-  private final AwardedCourseService awardedCourseService;
-  private final AwardedCourseMapper awardedCourseMapper;
-  private final GradeValidator validator;
+  private final UpdateGradeValidator updateGradeValidator;
+  private final GradeValidator gradeValidator;
   private final GradeService gradeService;
   private final GradeMapper gradeMapper;
+  private final GradeResultService gradeResultService;
+  private final ExamService examService;
+  private final ExamParticipantService examParticipantService;
 
   // todo: to review all class
   @GetMapping("/students/{student_id}/grades")
-  public List<AwardedCourseExam> getAllGradesOfStudent(
-      @PathVariable("student_id") String studentId) {
-    List<AwardedCourse> awardedCourses = awardedCourseService.getByStudentId(studentId);
-    User student = userService.findById(studentId);
-    return awardedCourseMapper.toRest(awardedCourses, student);
+  public List<Grade> getGradesByStudentId(@PathVariable("student_id") String studentId) {
+    return gradeService.getGradesByStudentId(studentId).stream().map(gradeMapper::toRest).toList();
   }
 
-  @GetMapping(value = "/exams/{exam_id}/students/{student_id}/grade")
-  public StudentGrade getGradeOfStudentInOneExam(
-      @PathVariable("exam_id") String examId, @PathVariable("student_id") String studentId) {
-    Grade grade = gradeService.getGradeByExamIdAndStudentId(examId, studentId);
-    return gradeMapper.toRestStudentGrade(grade);
-  }
-
-  @PutMapping(value = "/exams/{exam_id}/students/{student_id}/grade")
-  public school.hei.haapi.endpoint.rest.model.Grade crupdateParticipantGrade(
+  @PostMapping(value = "/exams/{exam_id}/students/{student_id}/grade")
+  public Grade createParticipantGrade(
       @PathVariable("exam_id") String examId,
       @PathVariable("student_id") String studentId,
-      @RequestBody CrupdateGrade grade) {
-    validator.accept(grade);
-    Grade toSave = gradeMapper.toDomain(grade, examId, userService.findById(studentId).getRef());
-    return gradeMapper.toRest(gradeService.crupdateParticipantGrade(List.of(toSave)).getFirst());
+      @RequestBody CreateGrade grade) {
+    gradeValidator.accept(grade);
+    var toSave = gradeMapper.toDomain(grade, examId, studentId);
+    return gradeMapper.toRest(gradeService.createParticipantGrade(List.of(toSave)).getFirst());
+  }
+
+  @PostMapping(value = "/exams/{exam_id}/students/{student_id}/grade/update")
+  public Grade updateParticipantGrade(
+      @PathVariable("exam_id") String examId,
+      @PathVariable("student_id") String studentId,
+      @RequestBody UpdateGrade grade) {
+    updateGradeValidator.accept(grade);
+    var toUpdate = gradeMapper.toDomain(grade, examId, userService.findById(studentId).getRef());
+    return gradeMapper.toRest(gradeService.updateParticipantGrade(List.of(toUpdate)).getFirst());
   }
 
   @GetMapping(value = "/exams/{exam_id}/grades")
-  public List<StudentGrade> getParticipantsGradeForExam(
+  public List<StudentGrade> getStudentGradesForExam(
       @PathVariable(value = "exam_id") String examId,
       @RequestParam PageFromOne page,
       @RequestParam("page_size") BoundedPageSize pageSize) {
-    return gradeService.getParticipantsGradeForExam(examId, page, pageSize).stream()
+    return examParticipantService.getParticipantsGradeForExam(examId, page, pageSize);
+  }
+
+  @PostMapping(value = "/exams/{exam_id}/grades")
+  public List<StudentGrade> createParticipantsGradeForExam(
+      @PathVariable("exam_id") String examId, @RequestBody List<CreateGrade> grades) {
+    return gradeService
+        .createParticipantGrade(
+            grades.stream()
+                .map(grade -> gradeMapper.toDomain(grade, examId, grade.getStudentId()))
+                .toList())
+        .stream()
         .map(gradeMapper::toRestStudentGrade)
         .toList();
   }
 
-  @PutMapping(value = "/exams/{exam_id}/grades")
-  public List<StudentGrade> updateParticipantsGradeForExam(
+  @PostMapping(value = "/exams/{exam_id}/grades/update")
+  public List<StudentGrade> correctParticipantsGradeForExam(
       @PathVariable("exam_id") String examId, @RequestBody List<UpdateGrade> grades) {
     return gradeService
-        .crupdateParticipantGrade(
+        .updateParticipantGrade(
             grades.stream()
-                .map(grade -> gradeMapper.toDomain(grade.getGrade(), examId, grade.getStudentRef()))
+                .map(grade -> gradeMapper.toDomain(grade, examId, grade.getStudentRef()))
                 .toList())
         .stream()
         .map(gradeMapper::toRestStudentGrade)
@@ -87,5 +104,40 @@ public class GradeController {
   @GetMapping(value = "/exams/{exam_id}/grade/stats")
   public ExamGradeStats getExamGradeStats(@PathVariable(value = "exam_id") String examsId) {
     return gradeService.getExamGradeStats(examsId);
+  }
+
+  @GetMapping("/students/{student_id}/yearly_results/{student_level}")
+  public YearlyResult getYearlyResult(
+      @PathVariable("student_id") String studentId,
+      @PathVariable("student_level") StudentLevel studentLevel) {
+    return gradeResultService.getLeveledYearlyResultByStudentId(studentLevel, studentId);
+  }
+
+  @GetMapping("/students/{student_id}/results_summary")
+  public ResultSummary getResultSummary(@PathVariable("student_id") String studentId) {
+    var studentResultSummary = gradeResultService.getStudentResultSummary(studentId);
+    return studentResultSummary.weightedAverage(
+        studentResultSummary.getWeightedAverage().round(new MathContext(4)));
+  }
+
+  @GetMapping("/students/{student_id}/courses/{course_id}/grades")
+  public List<Grade> getCourseGrades(
+      @PathVariable("student_id") String studentId, @PathVariable("course_id") String courseId) {
+    return gradeService.getGradesByStudentAndCourseId(studentId, courseId).stream()
+        .map(gradeMapper::toRest)
+        .toList();
+  }
+
+  @GetMapping("/students/{student_id}/yearly_results/{student_level}/transcript")
+  public YearlyResultGenerationTranscript getYearlyResultTranscript(
+      @PathVariable("student_id") String studentId,
+      @PathVariable("student_level") StudentLevel studentLevel) {
+    return gradeResultService.getYearlyResultTranscript(studentId, studentLevel);
+  }
+
+  @GetMapping("/exams/{exam_id}/students/{student_id}/grade")
+  public Grade getParticipantGrade(
+      @PathVariable("exam_id") String examId, @PathVariable("student_id") String studentId) {
+    return gradeMapper.toRest(gradeService.getGradeByExamIdAndStudentId(examId, studentId));
   }
 }

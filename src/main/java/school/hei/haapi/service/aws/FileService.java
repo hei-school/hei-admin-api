@@ -1,6 +1,7 @@
 package school.hei.haapi.service.aws;
 
 import static jxl.biff.FormatRecord.logger;
+import static school.hei.haapi.endpoint.rest.model.FileType.PROFILE_PICTURE;
 import static school.hei.haapi.model.User.Role.ADMIN;
 import static school.hei.haapi.model.User.Role.MANAGER;
 import static school.hei.haapi.model.User.Role.ORGANIZER;
@@ -54,16 +55,20 @@ public class FileService {
     return "." + Objects.requireNonNull(file.getContentType()).split("/")[1];
   }
 
-  public static String getFormattedBucketKey(User user, String fileType) {
+  public static String getFormattedProfilePictureKey(User user) {
     return switch (user.getRole()) {
-      case MANAGER -> String.format("%s/%s/%s_%s", MANAGER, user.getRef(), fileType, user.getRef());
-      case TEACHER -> String.format("%s/%s/%s_%s", TEACHER, user.getRef(), fileType, user.getRef());
-      case STUDENT -> String.format("%s/%s/%s_%s", STUDENT, user.getRef(), fileType, user.getRef());
+      case MANAGER ->
+          String.format("%s/%s/%s_%s", MANAGER, user.getRef(), PROFILE_PICTURE, user.getRef());
+      case TEACHER ->
+          String.format("%s/%s/%s_%s", TEACHER, user.getRef(), PROFILE_PICTURE, user.getRef());
+      case STUDENT ->
+          String.format("%s/%s/%s_%s", STUDENT, user.getRef(), PROFILE_PICTURE, user.getRef());
       case STAFF_MEMBER ->
-          String.format("%s/%s/%s_%s", STAFF_MEMBER, user.getRef(), fileType, user.getRef());
-      case ADMIN -> String.format("%s/%s/%s_%s", ADMIN, user.getRef(), fileType, user.getRef());
+          String.format("%s/%s/%s_%s", STAFF_MEMBER, user.getRef(), PROFILE_PICTURE, user.getRef());
+      case ADMIN ->
+          String.format("%s/%s/%s_%s", ADMIN, user.getRef(), PROFILE_PICTURE, user.getRef());
       case ORGANIZER ->
-          String.format("%s/%s/%s_%s", ORGANIZER, user.getRef(), fileType, user.getRef());
+          String.format("%s/%s/%s_%s", ORGANIZER, user.getRef(), PROFILE_PICTURE, user.getRef());
       default -> throw new BadRequestException("Unexpected type " + user.getRole());
     };
   }
@@ -82,16 +87,7 @@ public class FileService {
   }
 
   public static String getFormattedBucketKey(User user, FileType fileType, String fileName) {
-    return switch (user.getRole()) {
-      case MANAGER -> String.format("%s/%s/%s/%s", MANAGER, user.getRef(), fileType, fileName);
-      case TEACHER -> String.format("%s/%s/%s/%s", TEACHER, user.getRef(), fileType, fileName);
-      case STUDENT -> String.format("%s/%s/%s/%s", STUDENT, user.getRef(), fileType, fileName);
-      case STAFF_MEMBER ->
-          String.format("%s/%s/%s/%s", STAFF_MEMBER, user.getRef(), fileType, fileName);
-      case ADMIN -> String.format("%s/%s/%s/%s", ADMIN, user.getRef(), fileType, fileName);
-      case ORGANIZER -> String.format("%s/%s/%s/%s", ORGANIZER, user.getRef(), fileType, fileName);
-      default -> throw new BadRequestException("Unexpected type " + user.getRole());
-    };
+    return getFormattedBucketKey(user, fileType.toString(), fileName);
   }
 
   /* Use the JDK HttpClient (since v11) class to do the download. */

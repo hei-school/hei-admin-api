@@ -1,28 +1,29 @@
 package school.hei.haapi.endpoint.rest.mapper;
 
-import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
-import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
+import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.validator.GradeValidator;
+import school.hei.haapi.endpoint.rest.validator.UpdateGradeValidator;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.GradeRepository;
 import school.hei.haapi.service.ExamService;
-import school.hei.haapi.service.GradeService;
 import school.hei.haapi.service.UserService;
 
 @Component
 @AllArgsConstructor
 public class GradeMapper {
   private final UserMapper userMapper;
-  private final GradeService service;
   private final ExamService examService;
   private final UserService userService;
-  private final GradeValidator validator;
+  private final GradeValidator gradeValidator;
+  private final UpdateGradeValidator updateGradeValidator;
+  private final ExamMapper examMapper;
   private final GradeRepository gradeRepository;
 
   // todo: to review all class
@@ -36,9 +37,10 @@ public class GradeMapper {
   public Grade toRest(school.hei.haapi.model.Grade grade) {
     return new Grade()
         .id(grade.getId())
+        .exam(examMapper.toRest(grade.getExam()))
         .createdAt(grade.getCreationDatetime())
-        .score(grade.getScore().doubleValue())
-        .updateDate(grade.getCreationDatetime());
+        .score(grade.getScore())
+        .updateDate(grade.getUpdateDatetime());
   }
 
   public StudentGrade toRestStudentGrade(school.hei.haapi.model.Grade grade) {
@@ -62,39 +64,28 @@ public class GradeMapper {
     return getStudentGrade;
   }
 
-  //  public ExamDetail toRestExamDetail(Exam exam, List<school.hei.haapi.model.Grade> grades) {
-  //    return new ExamDetail()
-  //        .id(exam.getId())
-  //        .coefficient(exam.getCoefficient())
-  //        .title(exam.getTitle())
-  //        .examinationDate(exam.getExaminationDate().atZone(ZoneId.systemDefault()).toInstant())
-  //        .participants(
-  //            grades.stream().map(grade -> this.toRestStudentGrade(grade)).collect(toList()));
-  //  }
+  public school.hei.haapi.model.Grade toDomain(CreateGrade grade, String examId, String studentId) {
+    gradeValidator.accept(grade);
 
-  public school.hei.haapi.model.Grade toDomain(
-      CrupdateGrade grade, String examId, String studentRef) {
-    validator.accept(grade);
+    var student = userService.findById(studentId);
+    return gradeRepository
+        .getGradeByExamIdAndStudentRef(examId, student.getRef())
+        .orElse(
+            new school.hei.haapi.model.Grade(
+                examService.getExamById(examId), student, grade.getScore()));
+  }
 
-    Exam exam = examService.getExamById(examId);
-    double scoreFinal = 0.0;
+  public school.hei.haapi.model.notEntity.UpdateGrade toDomain(
+      UpdateGrade grade, String examId, String studentRef) {
+    updateGradeValidator.accept(grade);
 
-    if (exam.getCoefficient() > 0 && grade.getScore() != null && grade.getScore() >= 0) {
-      scoreFinal = grade.getScore() * exam.getCoefficient();
-    }
-
-    school.hei.haapi.model.Grade resultGrade =
-        gradeRepository
-            .getGradeByExamIdAndStudentRef(examId, studentRef)
-            .orElse(
-                service
-                    .crupdateParticipantGrade(
-                        List.of(
-                            new school.hei.haapi.model.Grade(
-                                exam, userService.findByRef(studentRef))))
-                    .getFirst());
-
-    resultGrade.setScore(scoreFinal);
-    return resultGrade;
+    return new school.hei.haapi.model.notEntity.UpdateGrade(
+        new school.hei.haapi.model.Grade(
+            examService.getExamById(examId),
+            userService.findByRef(studentRef),
+            grade.getGrade().getScore()),
+        userService.findByRef(studentRef),
+        grade.getComment(),
+        examService.getExamById(examId));
   }
 }

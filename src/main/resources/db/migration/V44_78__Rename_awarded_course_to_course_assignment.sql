@@ -1,0 +1,1 @@
+alter table awarded_course rename to course_assignment;

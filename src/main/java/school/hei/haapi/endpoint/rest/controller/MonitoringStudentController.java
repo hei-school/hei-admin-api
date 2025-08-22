@@ -1,7 +1,5 @@
 package school.hei.haapi.endpoint.rest.controller;
 
-import static java.util.stream.Collectors.toUnmodifiableList;
-
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -30,7 +28,7 @@ public class MonitoringStudentController {
         .linkMonitorFollowingStudents(id, request.getStudentsIds())
         .stream()
         .map(userMapper::toRestStudent)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @GetMapping(value = "/monitors/{id}/students")
@@ -40,6 +38,14 @@ public class MonitoringStudentController {
       @RequestParam(name = "page_size") BoundedPageSize pageSize) {
     return monitoringStudentService.getStudentsByMonitorId(id, page, pageSize).stream()
         .map(userMapper::toRestStudent)
-        .collect(toUnmodifiableList());
+        .toList();
+  }
+
+  @GetMapping("/monitors/{monitor_id}/students/{student_id}")
+  public Student getLinkedStudentByIdAndMonitorId(
+      @PathVariable(name = "monitor_id") String monitorId,
+      @PathVariable(name = "student_id") String studentId) {
+    return userMapper.toRestStudent(
+        monitoringStudentService.getStudentByIdAndMonitorId(studentId, monitorId));
   }
 }

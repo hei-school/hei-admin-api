@@ -14,8 +14,8 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
-import school.hei.haapi.model.AwardedCourse;
 import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.model.Exam;
 import school.hei.haapi.model.Group;
 
@@ -31,28 +31,31 @@ public class ExamDao {
       String groupRef,
       Instant examinationDateStart,
       Instant examinationDateEnd,
-      String awardedCourseId) {
+      String courseAssignmentId) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Exam> query = builder.createQuery(Exam.class);
     Root<Exam> root = query.from(Exam.class);
     ArrayList<Predicate> predicates = new ArrayList<>();
-
     if (title != null && !title.isEmpty()) {
-      predicates.add(builder.like(root.get("title"), "%" + title.toLowerCase() + "%"));
+      predicates.add(
+          builder.like(builder.lower(root.get("title")), "%" + title.toLowerCase() + "%"));
     }
 
-    Join<Exam, AwardedCourse> awardedCourseJoin = root.join("awardedCourse", JoinType.LEFT);
+    Join<Exam, CourseAssignment> courseAssignmentJoin =
+        root.join("courseAssignment", JoinType.LEFT);
+    predicates.add(builder.equal(courseAssignmentJoin.get("isDeleted"), false));
     if (courseCode != null && !courseCode.isEmpty()) {
-      Join<AwardedCourse, Course> courseJoin = awardedCourseJoin.join("course", JoinType.LEFT);
+      Join<CourseAssignment, Course> courseJoin =
+          courseAssignmentJoin.join("course", JoinType.LEFT);
       predicates.add(
           builder.like(
               builder.lower(courseJoin.get("code")), "%" + courseCode.toLowerCase() + "%"));
     }
-    if (awardedCourseId != null && !awardedCourseId.isEmpty()) {
-      predicates.add(builder.equal(awardedCourseJoin.get("id"), awardedCourseId));
+    if (courseAssignmentId != null && !courseAssignmentId.isEmpty()) {
+      predicates.add(builder.equal(courseAssignmentJoin.get("id"), courseAssignmentId));
     }
     if (groupRef != null && !groupRef.isEmpty()) {
-      Join<AwardedCourse, Group> groupJoin = awardedCourseJoin.join("group", JoinType.LEFT);
+      Join<CourseAssignment, Group> groupJoin = courseAssignmentJoin.join("groups", JoinType.LEFT);
       predicates.add(
           builder.like(builder.lower(groupJoin.get("ref")), "%" + groupRef.toLowerCase() + "%"));
     }

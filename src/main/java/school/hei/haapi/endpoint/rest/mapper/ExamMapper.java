@@ -4,57 +4,55 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateExam;
-import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.Exam;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
-import school.hei.haapi.model.AwardedCourse;
-import school.hei.haapi.model.Exam;
-import school.hei.haapi.service.AwardedCourseService;
+import school.hei.haapi.model.CourseAssignment;
+import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.GradeService;
 
 @Component
 @AllArgsConstructor
 public class ExamMapper {
-  private AwardedCourseMapper awardedCourseMapper;
-  private AwardedCourseService awardedCourseService;
+  private CourseAssignmentMapper courseAssignmentMapper;
+  private CourseAssignmentService courseAssignmentService;
   private GradeService gradeService;
 
-  public ExamInfo toRest(Exam exam) {
-    return new ExamInfo()
+  public Exam toRest(school.hei.haapi.model.Exam exam) {
+    return new Exam()
         .id(exam.getId())
         .coefficient(exam.getCoefficient())
         .title(exam.getTitle())
         .examinationDate(exam.getExaminationDate())
-        .awardedCourse(awardedCourseMapper.toRest(exam.getAwardedCourse()));
+        .courseAssignment(courseAssignmentMapper.toRest(exam.getCourseAssignment()));
   }
 
-  public Exam toDomain(ExamInfo examInfo, AwardedCourse awardedCourse) {
-    return Exam.builder()
+  public school.hei.haapi.model.Exam toDomain(Exam examInfo, CourseAssignment courseAssignment) {
+    return school.hei.haapi.model.Exam.builder()
         .id(examInfo.getId())
         .coefficient(examInfo.getCoefficient())
         .title(examInfo.getTitle())
         .examinationDate(examInfo.getExaminationDate())
-        .awardedCourse(awardedCourse)
+        .courseAssignment(courseAssignment)
         .build();
   }
 
-  public Exam toDomain(CrupdateExam createExam) {
-    AwardedCourse awardedCourse = awardedCourseService.findById(createExam.getAwardedCourseId());
-    return Exam.builder()
+  public school.hei.haapi.model.Exam toDomain(CrupdateExam createExam) {
+    CourseAssignment courseAssignment =
+        courseAssignmentService.getCourseAssignmentById(createExam.getCourseAssignmentId());
+    return school.hei.haapi.model.Exam.builder()
         .id(createExam.getId())
         .coefficient(createExam.getCoefficient())
         .title(createExam.getTitle())
         .examinationDate(createExam.getExaminationDate())
-        .awardedCourse(awardedCourse)
+        .courseAssignment(courseAssignment)
         .build();
   }
 
-  public List<ExamInfo> toRestList(List<Exam> examList) {
+  public List<Exam> toRestList(List<school.hei.haapi.model.Exam> examList) {
     return examList.stream().map(this::toRest).toList();
   }
 
-  public StudentExamGrade toRestStudentExamGrade(String studentId, Exam exam) {
-    return new StudentExamGrade()
-        .exam(toRest(exam))
-        .score(gradeService.getGradeByExamIdAndStudentId(exam.getId(), studentId).getScore());
+  public StudentExamGrade toRestStudentExamGrade(school.hei.haapi.model.Grade grade) {
+    return new StudentExamGrade().exam(toRest(grade.getExam())).score(grade.getScore());
   }
 }

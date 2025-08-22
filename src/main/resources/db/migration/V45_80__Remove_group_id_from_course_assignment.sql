@@ -1,0 +1,1 @@
+alter table course_assignment drop column group_id;

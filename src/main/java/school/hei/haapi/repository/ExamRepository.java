@@ -11,22 +11,18 @@ import school.hei.haapi.model.Exam;
 
 @Repository
 public interface ExamRepository extends JpaRepository<Exam, String> {
-  @Query(
-      "select e from Exam e where e.awardedCourse.group.id = :group_id "
-          + "and e.awardedCourse.id = :awarded_course_id and e.id = :exam_id")
-  Exam findExamsByIdAndGroupIdAndAwardedGroupId(
-      @Param("exam_id") String examId,
-      @Param("awarded_course_id") String awardedCourseId,
-      @Param("group_id") String groupId);
-
-  @Query("select e from Exam e where e.awardedCourse.course.id = :course_id ")
+  @Query("select e from Exam e where e.courseAssignment.course.id = :course_id ")
   List<Exam> findExamsByCourseId(@Param("course_id") String courseId);
 
+  @Query("select e from Exam e where e.courseAssignment.id = :course_assignment_id ")
+  List<Exam> findExamsByCourseAssignmentId(
+      @Param("course_assignment_id") String courseAssignmentId);
+
   @Query(
-      "select e from Exam e where e.awardedCourse.group.id = :group_id and "
-          + "e.awardedCourse.id = :awarded_course_id")
-  Page<Exam> findExamsByGroupIdAndAwardedGroupId(
+      "select e from Exam e join e.courseAssignment.groups g where g.id = :group_id and "
+          + "e.courseAssignment.id = :course_assignment_id")
+  Page<Exam> findExamsByGroupIdAndCourseAssignmentId(
       @Param("group_id") String courseId,
-      @Param("awarded_course_id") String awardedCourseId,
+      @Param("course_assignment_id") String courseAssignmentId,
       Pageable pageable);
 }

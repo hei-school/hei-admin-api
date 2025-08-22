@@ -1,5 +1,6 @@
 package school.hei.haapi.repository;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -33,6 +34,14 @@ public interface MonitoringStudentRepository extends JpaRepository<User, String>
           "INSERT INTO monitor_following_student (student_id, monitor_id) VALUES (:studentId,"
               + " :monitorId)",
       nativeQuery = true)
+  @Transactional
   void saveMonitorFollowingStudents(
       @Param("monitorId") String monitorId, @Param("studentId") String studentId);
+
+  @Query(
+      value = "SELECT monitor_id FROM monitor_following_student WHERE student_id = :studentId",
+      nativeQuery = true)
+  List<String> getAllMonitorsIdsByStudentId(@Param("studentId") String studentId);
+
+  boolean existsByIdAndMonitors_Id(String monitorId, String studentId);
 }

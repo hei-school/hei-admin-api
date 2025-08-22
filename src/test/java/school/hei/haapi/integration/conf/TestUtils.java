@@ -1,6 +1,8 @@
 package school.hei.haapi.integration.conf;
 
 import static java.util.UUID.randomUUID;
+import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
@@ -20,9 +22,6 @@ import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.RECEIVED;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.AIRTEL_MONEY;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
-import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
 import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
@@ -31,6 +30,7 @@ import static school.hei.haapi.endpoint.rest.model.Scope.STUDENT;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
 import static school.hei.haapi.endpoint.rest.model.SpecializationField.COMMON_CORE;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.ADD;
 import static school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup.TypeEnum.REMOVE;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
@@ -57,6 +57,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.stream.Collectors;
 import org.apache.commons.io.FileUtils;
 import org.casbin.casdoor.entity.CasdoorRole;
 import org.casbin.casdoor.entity.CasdoorUser;
@@ -71,19 +72,17 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Announcement;
 import school.hei.haapi.endpoint.rest.model.AnnouncementAuthor;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
-import school.hei.haapi.endpoint.rest.model.AwardedCourse;
-import school.hei.haapi.endpoint.rest.model.AwardedCourseExam;
 import school.hei.haapi.endpoint.rest.model.Comment;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
 import school.hei.haapi.endpoint.rest.model.Course;
+import school.hei.haapi.endpoint.rest.model.CourseAssignment;
+import school.hei.haapi.endpoint.rest.model.CourseAssignmentExam;
 import school.hei.haapi.endpoint.rest.model.CreateAnnouncement;
-import school.hei.haapi.endpoint.rest.model.CreateAwardedCourse;
 import school.hei.haapi.endpoint.rest.model.CreateComment;
 import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.CreateFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateFeeTemplate;
-import school.hei.haapi.endpoint.rest.model.CrupdateGrade;
 import school.hei.haapi.endpoint.rest.model.CrupdateMonitor;
 import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
@@ -92,7 +91,7 @@ import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.endpoint.rest.model.EventType;
-import school.hei.haapi.endpoint.rest.model.ExamInfo;
+import school.hei.haapi.endpoint.rest.model.Exam;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
@@ -109,6 +108,7 @@ import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
+import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.Teacher;
 import school.hei.haapi.endpoint.rest.model.UpdatePromotionSGroup;
 import school.hei.haapi.endpoint.rest.model.UserIdentifier;
@@ -116,7 +116,6 @@ import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.Cert
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.service.aws.FileService;
-import school.hei.haapi.service.mobileMoney.MobileMoneyApiFacade;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsResponse;
@@ -149,11 +148,10 @@ public class TestUtils {
   public static final String COURSE1_ID = "course1_id";
   public static final String COURSE2_ID = "course2_id";
   public static final String COURSE3_ID = "course3_id";
-  public static final String COURSE4_ID = "course4_id";
-  public static final String AWARDED_COURSE1_ID = "awarded_course1_id";
-  public static final String AWARDED_COURSE2_ID = "awarded_course2_id";
-  public static final String AWARDED_COURSE3_ID = "awarded_course3_id";
-  public static final String AWARDED_COURSE4_ID = "awarded_course4_id";
+  public static final String COURSE_ASSIGNMENT1_ID = "course_assignment1_id";
+  public static final String COURSE_ASSIGNMENT2_ID = "course_assignment2_id";
+  public static final String COURSE_ASSIGNMENT3_ID = "course_assignment3_id";
+  public static final String COURSE_ASSIGNMENT4_ID = "course_assignment4_id";
   public static final String EXAM1_ID = "exam1_id";
   public static final String EXAM2_ID = "exam2_id";
   public static final String EXAM3_ID = "exam3_id";
@@ -175,6 +173,7 @@ public class TestUtils {
   public static final String STUDENT13_TOKEN = "student13_token";
   public static final String TEACHER1_TOKEN = "teacher1_token";
   public static final String MONITOR1_TOKEN = "monitor1_token";
+  public static final String AXEL_MONITOR_TOKEN = "axel_monitor_token";
   public static final String MONITOR2_TOKEN = "monitor2_token";
   public static final String MANAGER1_TOKEN = "manager1_token";
   public static final String STAFF_MEMBER1_TOKEN = "staff1_token";
@@ -216,7 +215,6 @@ public class TestUtils {
   public static final String EVENT_PARTICIPANT5_ID = "event_participant5_id";
 
   public static final String ORGANIZER1_ID = "organizer1_id";
-  public static final String ORGANIZER2_ID = "organizer2_id";
   public static final String ORGANIZER1_TOKEN = "organizer1_token";
   public static final String ORGANIZER2_TOKEN = "organizer2_token";
 
@@ -382,14 +380,6 @@ public class TestUtils {
     return client;
   }
 
-  public static void setUpMobilePaymentApi(MobileMoneyApiFacade mobilePaymentApi) {
-    when(mobilePaymentApi.getByTransactionRef(MVOLA, "psp2_id")).thenReturn(psp2Verification());
-    when(mobilePaymentApi.getByTransactionRef(ORANGE_MONEY, "psp2_id"))
-        .thenThrow(school.hei.haapi.model.exception.ApiException.class);
-    when(mobilePaymentApi.getByTransactionRef(AIRTEL_MONEY, "psp2_id"))
-        .thenThrow(school.hei.haapi.model.exception.ApiException.class);
-  }
-
   public static void setUpCognito(CognitoComponent cognitoComponent) {
     when(cognitoComponent.getEmailByIdToken(BAD_TOKEN)).thenReturn(null);
     when(cognitoComponent.getEmailByIdToken(STUDENT1_TOKEN)).thenReturn("test+ryan@hei.school");
@@ -515,45 +505,12 @@ public class TestUtils {
     return new Course().code(code).name("Collaborative work like GWSP").credits(12).totalHours(5);
   }
 
-  public static CreateAwardedCourse updateAwardedCourse1() {
-    return new CreateAwardedCourse()
-        .id(AWARDED_COURSE1_ID)
-        .courseId("course1_id")
-        .groupId("group1_id")
-        .mainTeacherId("teacher1_id");
-  }
-
-  public static AwardedCourse updatedAwardedCourse2() {
-    return new AwardedCourse()
-        .id(AWARDED_COURSE2_ID)
-        .course(course2())
-        .group(group2())
-        .mainTeacher(teacher2());
-  }
-
-  public static List<CreateAwardedCourse> someAwardedCoursesToCrupdate() {
-    return List.of(
-        new CreateAwardedCourse()
-            .id(AWARDED_COURSE2_ID)
-            .courseId("course2_id")
-            .groupId("group2_id")
-            .mainTeacherId("teacher2_id"),
-        new CreateAwardedCourse()
-            .courseId("course2_id")
-            .groupId("group1_id")
-            .mainTeacherId("teacher2_id"));
-  }
-
-  public static ExamInfo createExam() {
-    return new ExamInfo()
+  public static Exam createExam() {
+    return new Exam()
         .coefficient(10)
         .title("createExam")
         .examinationDate(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .awardedCourse(awardedCourse1());
-  }
-
-  public static CrupdateGrade createGrade() {
-    return new CrupdateGrade().score(20.0);
+        .courseAssignment(courseAssignment1());
   }
 
   public static List<CrupdateTeacher> someCreatableTeacherList(int nbOfTeacher) {
@@ -572,9 +529,9 @@ public class TestUtils {
     return courseList;
   }
 
-  public static List<ExamInfo> someCreatableExamInfoList(int nbOfExamInfo) {
-    List<ExamInfo> examInfoList = new ArrayList<>();
-    for (int i = 0; i < nbOfExamInfo; i++) {
+  public static List<Exam> someCreatableExamInfoList(int nbOfExam) {
+    List<Exam> examInfoList = new ArrayList<>();
+    for (int i = 0; i < nbOfExam; i++) {
       examInfoList.add(createExam());
     }
     return examInfoList;
@@ -646,7 +603,7 @@ public class TestUtils {
     student.setWorkStudyStatus(WORKING);
     student.setProfessionalExperience(WORKER_STUDENT);
     student.setCommitmentBeginDate(Instant.parse("2021-11-08T08:25:24Z"));
-    student.setGroups(List.of(group1(), group2()));
+    student.setGroups(List.of(group1()));
     student.setIsRepeatingYear(false);
     return student;
   }
@@ -900,11 +857,23 @@ public class TestUtils {
   }
 
   public static Course course1() {
-    return new Course().id(COURSE1_ID).code("PROG1").credits(6).totalHours(20).name("Algorithmics");
+    return new Course()
+        .id(COURSE1_ID)
+        .code("PROG1")
+        .credits(6)
+        .totalHours(20)
+        .name("Algorithmics")
+        .level(StudentLevel.L1);
   }
 
   public static Course course2() {
-    return new Course().id(COURSE2_ID).code("PROG3").credits(6).totalHours(24).name("Advanced OOP");
+    return new Course()
+        .id(COURSE2_ID)
+        .code("PROG3")
+        .credits(6)
+        .totalHours(24)
+        .name("Advanced OOP")
+        .level(L2);
   }
 
   public static Course course3() {
@@ -913,47 +882,39 @@ public class TestUtils {
         .code("IA2")
         .credits(null)
         .totalHours(null)
-        .name("Implemented IA");
+        .name("Implemented IA")
+        .level(L2);
   }
 
-  public static Course course4() {
-    return new Course()
-        .id(COURSE4_ID)
-        .code("donne1")
-        .credits(4)
-        .totalHours(30)
-        .name("relational data base");
-  }
-
-  public static AwardedCourse awardedCourse1() {
-    return new AwardedCourse()
-        .id(AWARDED_COURSE1_ID)
+  public static CourseAssignment courseAssignment1() {
+    return new CourseAssignment()
+        .id(COURSE_ASSIGNMENT1_ID)
         .course(course1())
-        .group(group1())
+        .groups(List.of(group1()))
         .mainTeacher(teacher1());
   }
 
-  public static AwardedCourse awardedCourse2() {
-    return new AwardedCourse()
-        .id(AWARDED_COURSE2_ID)
+  public static CourseAssignment courseAssignment2() {
+    return new CourseAssignment()
+        .id(COURSE_ASSIGNMENT2_ID)
         .course(course1())
-        .group(group1())
+        .groups(List.of(group1()))
         .mainTeacher(teacher2());
   }
 
-  public static AwardedCourse awardedCourse3() {
-    return new AwardedCourse()
-        .id(AWARDED_COURSE3_ID)
+  public static CourseAssignment courseAssignment3() {
+    return new CourseAssignment()
+        .id(COURSE_ASSIGNMENT3_ID)
         .course(course1())
-        .group(group2())
+        .groups(List.of(group2()))
         .mainTeacher(teacher2());
   }
 
-  public static AwardedCourse awardedCourse4() {
-    return new AwardedCourse()
-        .id(AWARDED_COURSE4_ID)
+  public static CourseAssignment courseAssignment4() {
+    return new CourseAssignment()
+        .id(COURSE_ASSIGNMENT4_ID)
         .course(course2())
-        .group(group1())
+        .groups(List.of(group1()))
         .mainTeacher(teacher4());
   }
 
@@ -961,52 +922,52 @@ public class TestUtils {
     return new CrupdateExam()
         .coefficient(2)
         .title("Algorithmics")
-        .awardedCourseId(awardedCourse1().getId())
+        .courseAssignmentId(courseAssignment1().getId())
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
-  public static ExamInfo exam1() {
-    return new ExamInfo()
+  public static Exam exam1() {
+    return new Exam()
         .id(EXAM1_ID)
         .coefficient(2)
         .title("Algorithmics")
-        .awardedCourse(awardedCourse1())
+        .courseAssignment(courseAssignment1())
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
-  public static ExamInfo exam2() {
-    return new ExamInfo()
+  public static Exam exam2() {
+    return new Exam()
         .id(EXAM2_ID)
         .coefficient(3)
         .title("Algorithmics final")
-        .awardedCourse(awardedCourse1())
+        .courseAssignment(courseAssignment1())
         .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
-  public static ExamInfo exam3() {
-    return new ExamInfo()
+  public static Exam exam3() {
+    return new Exam()
         .id(EXAM3_ID)
         .coefficient(2)
         .title("Algorithmics")
-        .awardedCourse(awardedCourse3())
+        .courseAssignment(courseAssignment3())
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
-  public static ExamInfo exam4() {
-    return new ExamInfo()
+  public static Exam exam4() {
+    return new Exam()
         .id(EXAM4_ID)
         .coefficient(3)
         .title("Algorithmics2")
-        .awardedCourse(awardedCourse2())
+        .courseAssignment(courseAssignment2())
         .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
-  public static ExamInfo exam5() {
-    return new ExamInfo()
+  public static Exam exam5() {
+    return new Exam()
         .id(EXAM5_ID)
         .coefficient(1)
         .title("Prog2 final")
-        .awardedCourse(awardedCourse4())
+        .courseAssignment(courseAssignment4())
         .examinationDate(Instant.parse("2022-12-09T08:25:24Z"));
   }
 
@@ -1014,8 +975,8 @@ public class TestUtils {
     return new Grade()
         .id(GRADE1_ID)
         .score(8.0)
-        .createdAt(Instant.parse("2022-10-09T08:25:24Z"))
-        .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
+        .exam(exam1())
+        .createdAt(Instant.parse("2022-10-09T08:25:24Z"));
   }
 
   public static Grade grade2() {
@@ -1031,7 +992,7 @@ public class TestUtils {
         .id(GRADE3_ID)
         .score(11.0)
         .createdAt(Instant.parse("2022-11-09T08:25:24Z"))
-        .updateDate(Instant.parse("2022-10-09T08:25:24Z"));
+        .updateDate(Instant.parse("2022-11-09T08:25:24Z"));
   }
 
   public static Grade grade4() {
@@ -1169,39 +1130,39 @@ public class TestUtils {
         .type(TUITION);
   }
 
-  public static AwardedCourseExam awardedCourseExam1() {
-    return new AwardedCourseExam()
-        .id(AWARDED_COURSE1_ID)
-        .mainTeacher(awardedCourse1().getMainTeacher())
-        .course(awardedCourse1().getCourse())
-        .group(awardedCourse1().getGroup())
+  public static CourseAssignmentExam courseAssignmentExam1() {
+    return new CourseAssignmentExam()
+        .id(COURSE_ASSIGNMENT1_ID)
+        .mainTeacher(courseAssignment1().getMainTeacher())
+        .course(courseAssignment1().getCourse())
+        .groups(courseAssignment1().getGroups())
         .exams(List.of(studentExamGrade1(), studentExamGrade2()));
   }
 
-  public static AwardedCourseExam awardedCourseExam2() {
-    return new AwardedCourseExam()
-        .id(AWARDED_COURSE2_ID)
-        .mainTeacher(awardedCourse2().getMainTeacher())
-        .course(awardedCourse2().getCourse())
-        .group(awardedCourse2().getGroup())
+  public static CourseAssignmentExam courseAssignmentExam2() {
+    return new CourseAssignmentExam()
+        .id(COURSE_ASSIGNMENT2_ID)
+        .mainTeacher(courseAssignment2().getMainTeacher())
+        .course(courseAssignment2().getCourse())
+        .groups(courseAssignment2().getGroups())
         .exams(List.of(studentExamGrade4()));
   }
 
-  public static AwardedCourseExam awardedCourseExam3() {
-    return new AwardedCourseExam()
-        .id(AWARDED_COURSE3_ID)
-        .mainTeacher(awardedCourse3().getMainTeacher())
-        .course(awardedCourse3().getCourse())
-        .group(awardedCourse3().getGroup())
+  public static CourseAssignmentExam courseAssignmentExam3() {
+    return new CourseAssignmentExam()
+        .id(COURSE_ASSIGNMENT3_ID)
+        .mainTeacher(courseAssignment3().getMainTeacher())
+        .course(courseAssignment3().getCourse())
+        .groups(courseAssignment3().getGroups())
         .exams(List.of(studentExamGrade3()));
   }
 
-  public static AwardedCourseExam awardedCourseExam4() {
-    return new AwardedCourseExam()
-        .id(AWARDED_COURSE4_ID)
-        .mainTeacher(awardedCourse4().getMainTeacher())
-        .course(awardedCourse4().getCourse())
-        .group(awardedCourse4().getGroup())
+  public static CourseAssignmentExam courseAssignmentExam4() {
+    return new CourseAssignmentExam()
+        .id(COURSE_ASSIGNMENT4_ID)
+        .mainTeacher(courseAssignment4().getMainTeacher())
+        .course(courseAssignment4().getCourse())
+        .groups(courseAssignment4().getGroups())
         .exams(List.of(studentExamGrade5()));
   }
 
@@ -1849,5 +1810,45 @@ public class TestUtils {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  // TODO: remove all these custom asserts once the auto-now on all creationTimestamp is by-passed
+  public static void assertCourseAssignmentsIgnoringGroupCreationDateTime(
+      List<CourseAssignment> actual, List<CourseAssignment> expected) {
+    if (actual == null || expected == null) {
+      fail("One of the lists is null");
+      return;
+    }
+    List<CourseAssignment> actualCloned =
+        actual.stream().map(TestUtils::cloneCourseAssignmentNoTimestamp).toList();
+    List<CourseAssignment> expectedCloned =
+        expected.stream().map(TestUtils::cloneCourseAssignmentNoTimestamp).toList();
+    assertTrue(
+        "Actual list does not contain all expected elements"
+            + actualCloned
+            + " did not contain "
+            + expectedCloned,
+        actualCloned.containsAll(expectedCloned));
+  }
+
+  private static CourseAssignment cloneCourseAssignmentNoTimestamp(CourseAssignment original) {
+    CourseAssignment clone = new CourseAssignment();
+    clone.setId(original.getId());
+    clone.setMainTeacher(original.getMainTeacher());
+    clone.setCourse(original.getCourse());
+    clone.setGroups(
+        original.getGroups().stream()
+            .map(TestUtils::cloneGroupNoTimestamp)
+            .collect(Collectors.toList()));
+    return clone;
+  }
+
+  public static Group cloneGroupNoTimestamp(Group original) {
+    return new Group()
+        .id(original.getId())
+        .name(original.getName())
+        .ref(original.getRef())
+        .size(original.getSize())
+        .attributedColor(original.getAttributedColor());
   }
 }

@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.model.User.Role.STUDENT;
 
 import java.util.List;
 import java.util.UUID;
@@ -50,7 +51,7 @@ public class MonitoringStudentService {
                       }
                       return mappedMonitor;
                     })
-                .collect(toUnmodifiableList()));
+                .toList());
 
     monitors.forEach(
         monitor -> {
@@ -75,6 +76,10 @@ public class MonitoringStudentService {
 
   public List<User> getMonitorsByStudentId(String studentId) {
     return monitoringStudentRepository.findAllMonitorsByStudentId(studentId);
+  }
+
+  public List<String> getMonitorIdsByStudentId(String studentId) {
+    return monitoringStudentRepository.getAllMonitorsIdsByStudentId(studentId);
   }
 
   public List<User> getStudentsByMonitorId(
@@ -105,5 +110,18 @@ public class MonitoringStudentService {
         .latitude(monitor.getCoordinates().getLatitude())
         .highSchoolOrigin(monitor.getHighSchoolOrigin())
         .build();
+  }
+
+  public User getStudentByIdAndMonitorId(String studentId, String monitorId)
+      throws NotFoundException {
+    var optionalStudent = userRepository.findById(studentId);
+    if (optionalStudent.isEmpty() || optionalStudent.get().getRole() != STUDENT) {
+      throw new NotFoundException("Student with id: " + studentId + " does not exist");
+    }
+    if (!monitoringStudentRepository.existsByIdAndMonitors_Id(monitorId, studentId)) {
+      throw new NotFoundException(
+          "Monitor with id: " + monitorId + " does not have a student with id: " + studentId);
+    }
+    return optionalStudent.get();
   }
 }

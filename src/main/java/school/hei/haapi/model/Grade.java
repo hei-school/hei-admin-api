@@ -1,14 +1,25 @@
 package school.hei.haapi.model;
 
+import static java.math.BigDecimal.ZERO;
+import static java.math.MathContext.UNLIMITED;
+import static java.util.Comparator.comparing;
+
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
+import java.math.BigDecimal;
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -16,14 +27,17 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.hibernate.annotations.Cascade;
+import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CreationTimestamp;
+import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 
 @Entity
 @Table(name = "\"grade\"")
 @Getter
 @Setter
 @ToString
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
@@ -41,12 +55,63 @@ public class Grade implements Serializable {
   @JoinColumn(name = "exam_id", updatable = false)
   private Exam exam;
 
+  @Getter(AccessLevel.NONE)
+  @Setter(AccessLevel.NONE)
+  @Column(updatable = false)
   private Double score;
-  @CreationTimestamp private Instant creationDatetime;
 
-  public Grade(Exam exam, User student) {
-    this.score = 0.0;
+  @Column(updatable = false)
+  @EqualsAndHashCode.Exclude
+  @CreationTimestamp
+  private Instant creationDatetime;
+
+  @OneToMany(mappedBy = "grade")
+  @ToString.Exclude
+  @EqualsAndHashCode.Exclude
+  @Cascade(CascadeType.ALL)
+  private final List<GradeChangeHistory> gradeChangeHistories = new ArrayList<>();
+
+  public Grade(Exam exam, User student, double score) {
+    this.score = score;
     this.student = student;
     this.exam = exam;
+  }
+
+  public void setScore(Double score, String comment) {
+    this.gradeChangeHistories.add(new GradeChangeHistory(this, score, comment));
+  }
+
+  public Double getScore() {
+    return getLastChange().map(GradeChangeHistory::getScore).orElse(getInitialScore());
+  }
+
+  private Optional<GradeChangeHistory> getLastChange() {
+    return gradeChangeHistories.stream().max(comparing(GradeChangeHistory::getChangeInstant));
+  }
+
+  public Instant getUpdateDatetime() {
+    return getLastChange().map(GradeChangeHistory::getChangeInstant).orElse(creationDatetime);
+  }
+
+  public Double getInitialScore() {
+    return score;
+  }
+
+  public static BigDecimal weightedAverageOfGrades(List<Grade> grades) {
+    var sumCoefficients =
+        BigDecimal.valueOf(
+            grades.stream().map(Grade::getExam).mapToInt(Exam::getCoefficient).sum());
+    var weightedSum =
+        grades.stream()
+            .map(
+                grade ->
+                    BigDecimal.valueOf(grade.getExam().getCoefficient())
+                        .multiply(BigDecimal.valueOf(grade.getScore())))
+            .reduce(BigDecimal::add)
+            .orElse(ZERO);
+
+    if (ZERO.equals(sumCoefficients)) throw new ExamsCoefficientSumZero();
+
+    return weightedSum.divide(sumCoefficients, UNLIMITED);
   }
 }

@@ -12,8 +12,7 @@ import org.springframework.http.HttpMethod;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import school.hei.haapi.endpoint.rest.security.model.Principal;
-import school.hei.haapi.model.User;
-import school.hei.haapi.service.UserService;
+import school.hei.haapi.service.MonitoringStudentService;
 
 @Slf4j
 @AllArgsConstructor
@@ -21,7 +20,7 @@ public class StudentMonitorMatcher implements RequestMatcher {
   private final HttpMethod method;
   private final String antPattern;
   private final String stringBeforeId;
-  private final UserService userService;
+  private final MonitoringStudentService monitoringStudentService;
 
   @Override
   public boolean matches(HttpServletRequest request) {
@@ -31,7 +30,7 @@ public class StudentMonitorMatcher implements RequestMatcher {
     }
     Principal principal = getPrincipal();
     String followedStudentId = getFollowedStudentId(request);
-    List<String> monitorsId = toIds(userService.findMonitorsByStudentId(followedStudentId));
+    List<String> monitorsId = monitoringStudentService.getMonitorIdsByStudentId(followedStudentId);
     return monitorsId.contains(principal.getUserId());
   }
 
@@ -39,9 +38,5 @@ public class StudentMonitorMatcher implements RequestMatcher {
     Pattern SELFABLE_URI_PATTERN = Pattern.compile(stringBeforeId + "/(?<id>[^/]+)(/.*)?");
     Matcher uriMatcher = SELFABLE_URI_PATTERN.matcher(request.getRequestURI());
     return uriMatcher.find() ? uriMatcher.group("id") : null;
-  }
-
-  private List<String> toIds(List<User> monitors) {
-    return monitors.stream().map(User::getId).toList();
   }
 }
