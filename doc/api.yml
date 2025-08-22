@@ -6872,7 +6872,7 @@ components:
       properties:
         change_instant:
           type: string
-          format: datetime
+          format: date-time
         score:
           type: number
           format: double
