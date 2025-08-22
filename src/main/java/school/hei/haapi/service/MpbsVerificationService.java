@@ -8,7 +8,6 @@ import static school.hei.haapi.service.utils.DateUtils.convertStringToInstant;
 import io.micrometer.common.util.StringUtils;
 import jakarta.transaction.Transactional;
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.time.Instant;
 import java.util.ArrayList;
@@ -19,11 +18,11 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.poi.hssf.usermodel.HSSFWorkbook;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
+import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
@@ -138,7 +137,7 @@ public class MpbsVerificationService {
 
   public Workbook generateWorkBook(File file) throws IOException {
     try {
-      return new HSSFWorkbook(new FileInputStream(file));
+      return WorkbookFactory.create(file);
     } catch (Exception e) {
       throw new IOException(e);
     }
