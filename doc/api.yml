@@ -6122,11 +6122,11 @@ paths:
         - $ref: '#/components/parameters/PathGradeId'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
-        - $ref: '#/components/parameters/CreationDatetimeFilterFrom'
-        - $ref: '#/components/parameters/CreationDatetimeFilterTo'
+        - $ref: '#/components/parameters/DatetimeFromFilter'
+        - $ref: '#/components/parameters/DatetimeToFilter'
         - name: comment
           in: query
-          description: filter results if the string matches this one given
+          description: filter results if the string contains this one given - case insensitive
           required: false
           schema:
             type: string
@@ -6171,7 +6171,7 @@ components:
       description: Page number for the retrieved ressources
       schema:
         $ref: '#/components/schemas/Page'
-    CreationDatetimeFilterFrom:
+    DatetimeFromFilter:
       name: from
       in: query
       description: Filter creation date result by a given date
@@ -6179,7 +6179,7 @@ components:
         type: string
         format: date-time
       required: false
-    CreationDatetimeFilterTo:
+    DatetimeToFilter:
       name: to
       in: query
       description: Filter creation date result by a given date
