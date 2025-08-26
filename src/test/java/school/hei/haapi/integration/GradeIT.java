@@ -38,6 +38,7 @@ import static school.hei.haapi.integration.test_data.StudentTestData.axel;
 import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
 import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
 
+import com.github.javafaker.Faker;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.GradeHistory;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
@@ -87,6 +89,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   @Autowired MonitoringStudentRepository monitoringStudentRepository;
   @Autowired ExamRepository examRepository;
   @Autowired GradeMapper gradeMapper;
+  private final Faker faker = new Faker();
   private User studentAxel;
   private User studentTolojanahary;
   private User monitorOfAxel;
@@ -450,6 +453,27 @@ class GradeIT extends FacadeITMockedThirdParties {
     assertEquals(axelId, createdGrade.getStudent().getId());
     assertEquals(examId, createdGrade.getGrade().getExam().getId());
     assertEquals(createGrade.getScore(), createdGrade.getGrade().getScore());
+  }
+
+  @Test
+  void monitor_get_grade_history_ok() throws ApiException {
+    GradesApi gradesApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
+    var initialGradesExam1Prog1 = List.copyOf(gradesExam1Prog1);
+    gradeRepository.saveAll(initialGradesExam1Prog1);
+    gradeRepository.saveAll(
+        gradesExam1Prog1.stream()
+            .peek(
+                grade ->
+                    grade.setScore(
+                        faker.number().randomDouble(0, 20, 2), faker.lorem().paragraph(2)))
+            .toList());
+
+    List<GradeHistory> gradeChangeHistory =
+        gradesApi.getGradeHistory(
+            gradesExam1Prog1.getFirst().getId(), null, null, null, null, null);
+
+    assertEquals(
+        initialGradesExam1Prog1.getFirst().getScore(), gradeChangeHistory.getFirst().getScore());
   }
 
   private void setUpCasdoorMonitor(
