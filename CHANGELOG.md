@@ -1,3 +1,17 @@
+# [1.111.0](https://github.com/hei-school/hei-admin-api/compare/v1.110.2...v1.111.0) (2025-08-26)
+
+
+### Bug Fixes
+
+* mpbs xlsx verification failing on new excel format ([1c4916d](https://github.com/hei-school/hei-admin-api/commit/1c4916dbb719e388f9f6831f8b355fe03abe21e3))
+
+
+### Features
+
+* **not-implemented:** get grade change history and additional filter ([b626c9b](https://github.com/hei-school/hei-admin-api/commit/b626c9ba939a4c7d3b7dc69628ff98d2914e00f1))
+
+
+
 ## [1.110.2](https://github.com/hei-school/hei-admin-api/compare/v1.110.1...v1.110.2) (2025-08-22)
 
 
@@ -96,15 +110,6 @@
 ### Features
 
 * **not-implemented:** add course_results and yearly_results endpoint ([5044897](https://github.com/hei-school/hei-admin-api/commit/50448978e5639aa45420fa75b2dfeabed7c96105))
-
-
-
-## [1.104.2](https://github.com/hei-school/hei-admin-api/compare/v1.104.1...v1.104.2) (2025-07-24)
-
-
-### Bug Fixes
-
-* advanced fee stats not updating expired field ([db595c1](https://github.com/hei-school/hei-admin-api/commit/db595c1583bd5f1b6272f5103955ddf3c95a4ede))
 
 
 
