@@ -248,11 +248,11 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi teacherApi = new GradesApi(anApiClient(TEACHER1_TOKEN));
 
     List<Grade> adminAxelGrades =
-        adminApi.getCourseGrades(studentAxel.getId(), courseProg1.getId());
+        adminApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null);
     List<Grade> managerAxelGrades =
-        managerApi.getCourseGrades(studentAxel.getId(), courseProg1.getId());
+        managerApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null);
     List<Grade> teacherAxelGrades =
-        teacherApi.getCourseGrades(studentAxel.getId(), courseProg1.getId());
+        teacherApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null);
 
     assertGradeExists(adminAxelGrades, studentAxelGradeExam1Prog1);
     assertGradeExists(adminAxelGrades, studentAxelGradeExam2Prog1);
@@ -277,7 +277,8 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi studentApi = new GradesApi(anApiClient(STUDENT1_TOKEN));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> studentApi.getCourseGrades(studentAxel.getId(), courseProg1.getId()));
+        () ->
+            studentApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null));
   }
 
   @Test
@@ -288,7 +289,8 @@ class GradeIT extends FacadeITMockedThirdParties {
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Student's current group is not assigned to course with id: %s\"}"
             .formatted(courseProg2.getId()),
-        () -> monitorApi.getCourseGrades(studentAxel.getId(), courseProg2.getId()));
+        () ->
+            monitorApi.getCourseGrades(studentAxel.getId(), courseProg2.getId(), null, null, null));
   }
 
   @Test
@@ -297,14 +299,17 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> monitorApi.getCourseGrades(studentTolojanahary.getId(), courseProg1.getId()));
+        () ->
+            monitorApi.getCourseGrades(
+                studentTolojanahary.getId(), courseProg1.getId(), null, null, null));
   }
 
   @Test
   void monitor_get_own_grades_ok() throws ApiException {
     setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
-    List<Grade> axelGrades = monitorApi.getCourseGrades(studentAxel.getId(), courseProg1.getId());
+    List<Grade> axelGrades =
+        monitorApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null);
 
     assertGradeExists(axelGrades, studentAxelGradeExam1Prog1);
     assertGradeExists(axelGrades, studentAxelGradeExam2Prog1);
