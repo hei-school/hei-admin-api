@@ -3484,6 +3484,32 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /mpbs/{mpbs_id}/pend:
+    post:
+      tags:
+        - Paying
+      summary: Pend failed mobile payment
+      description: Convert failed mobile payment to pending
+      parameters:
+        - $ref: '#/components/parameters/PathMpbsId'
+      operationId: pendFailedMpbs
+      responses:
+        '200':
+          description: The pended mobile payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mpbs'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /students/{student_id}/fees/{fee_id}/mpbs:
     get:
       tags:
@@ -6237,6 +6263,12 @@ components:
         type: string
     PathGradeId:
       name: grade_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathMpbsId:
+      name: mpbs_id
       in: path
       required: true
       schema:
