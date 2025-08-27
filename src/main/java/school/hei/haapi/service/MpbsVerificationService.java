@@ -31,7 +31,6 @@ import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
-import school.hei.haapi.model.Mpbs.TypedMobileMoneyTransaction;
 import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
@@ -145,10 +144,6 @@ public class MpbsVerificationService {
 
   private List<String> generateMobileTransactionDetailsFromXlsFile(File file) throws IOException {
     log.info("Reading XLS file...");
-    List<String> pendingMpbsPspIds =
-        mpbsRepository.findAllByStatus(PENDING).stream()
-            .map(TypedMobileMoneyTransaction::getPspId)
-            .toList();
 
     List<MobileTransactionDetails> transactions = new ArrayList<>();
 
@@ -176,8 +171,7 @@ public class MpbsVerificationService {
           dateCell.getStringCellValue().trim() + " " + timeCell.getStringCellValue().trim();
       String ref = refCell.getStringCellValue().trim();
 
-      if (pendingMpbsPspIds.contains(ref)) {
-
+      if (ref.matches("^MP.{18}$")) {
         Instant transactionCreationTime;
         try {
           transactionCreationTime = Instant.from(convertStringToInstant(dateTimeStr));
