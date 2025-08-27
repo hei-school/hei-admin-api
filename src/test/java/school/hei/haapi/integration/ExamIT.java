@@ -30,6 +30,7 @@ import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
 import static school.hei.haapi.integration.conf.TestUtils.studentGrade1;
+import static school.hei.haapi.integration.conf.TestUtils.teacher1;
 
 import java.time.Instant;
 import java.util.List;
@@ -179,7 +180,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     List<Exam> filteredExams =
         api.getAllExams(
             null,
-            null,
+            teacher1().getId(),
             exam2().getTitle(),
             course1().getCode(),
             group1().getRef(),
