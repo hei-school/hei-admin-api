@@ -25,7 +25,7 @@ import school.hei.haapi.service.GradeService;
 @Component
 public class GradeHistoryDao {
   private GradeService gradeService;
-  private final EntityManager entityManager;
+  private EntityManager entityManager;
 
   /** Filter Grade history by criteria, order by change date ascendant */
   public List<GradeChangeHistory> findByCriteria(
