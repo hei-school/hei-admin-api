@@ -36,7 +36,7 @@ public class GradeHistoryDao {
       Instant creationDateTo,
       String comment) {
     return findByCriteria(
-        PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "changeInstant")),
+        PageRequest.of(page.getValue() - 1, pageSize.getValue()),
         gradeId,
         creationDateFrom,
         creationDateTo,
@@ -75,7 +75,7 @@ public class GradeHistoryDao {
     query
         .distinct(true)
         .where(predicates.toArray(new Predicate[0]))
-        .orderBy(QueryUtils.toOrders(pageable.getSort(), root, builder));
+        .orderBy(QueryUtils.toOrders(Sort.by(ASC, "changeInstant"), root, builder));
 
     return entityManager
         .createQuery(query)
