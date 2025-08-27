@@ -1,9 +1,8 @@
 package school.hei.haapi.service;
 
 import java.util.List;
+import java.util.stream.Stream;
 import lombok.AllArgsConstructor;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.mapper.UserMapper;
@@ -36,23 +35,29 @@ public class ExamParticipantService {
     return studentGrade;
   }
 
-  private List<User> getExamParticipants(Exam exam) {
-    return exam.getCourseAssignment().getGroups().stream()
-        .flatMap(group -> userService.getByGroupId(group.getId()).stream())
-        .toList();
+  /**
+   * Todo: performance issues, create something to not fetch all student for each group before the
+   * pagination
+   */
+  private List<User> getExamParticipants(Exam exam, PageFromOne page, BoundedPageSize pageSize) {
+    Stream<User> examParticipants =
+        exam.getCourseAssignment().getGroups().stream()
+            .flatMap(group -> userService.getByGroupId(group.getId()).stream());
+
+    return (page == null || pageSize == null)
+        ? examParticipants.toList()
+        : examParticipants
+            .skip((long) (page.getValue() - 1) * pageSize.getValue())
+            .limit(pageSize.getValue())
+            .toList();
   }
 
   public List<StudentGrade> getParticipantsGradeForExam(
       String examId, PageFromOne page, BoundedPageSize pageSize) {
-    List<Grade> existingGrades =
-        gradeDao.getGradesByExamId(
-            examId,
-            (page == null || pageSize == null)
-                ? Pageable.unpaged()
-                : PageRequest.of((page.getValue() - 1), pageSize.getValue()));
+    List<Grade> existingGrades = gradeDao.getGradesByExamId(examId);
     var exam = examService.getExamById(examId);
 
-    return getExamParticipants(exam).stream()
+    return getExamParticipants(exam, page, pageSize).stream()
         .map(user -> correspondingGradeForStudentIn(user, existingGrades))
         .toList();
   }
