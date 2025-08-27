@@ -67,12 +67,18 @@ public class PendingMpbsCheckRequestedService implements Consumer<PendingMpbsChe
             .build();
 
     // Update mpbs ...
+    var mpbsNewStatus =
+        defineMpbsStatusFromOrangeTransactionDetails(correspondingMobileTransaction);
     mpbs.setSuccessfullyVerifiedOn(now);
-    mpbs.setStatus(defineMpbsStatusFromOrangeTransactionDetails(correspondingMobileTransaction));
+    mpbs.setStatus(mpbsNewStatus);
     mpbs.setPspOwnDatetimeVerification(
         correspondingMobileTransaction.getPspOwnDatetimeVerification());
+    if (SUCCESS.equals(mpbsNewStatus)) {
+      mpbs.setAmount(correspondingMobileTransaction.getPspTransactionAmount());
+      ;
+    }
     var successfullyVerifiedMpbs = mpbsService.save(mpbs);
-    log.info("Mpbs has successfully verified = {}", mpbs.toString());
+    log.info("Mpbs has successfully verified = {}", mpbs);
 
     // ... then save the verification
     verifiedMobileTransaction.setMobileMoneyType(successfullyVerifiedMpbs.getMobileMoneyType());
