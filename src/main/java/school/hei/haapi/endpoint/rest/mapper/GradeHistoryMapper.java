@@ -4,7 +4,7 @@ import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.GradeHistory;
 
 @Component
-public class GradeChangeHistoryMapper {
+public class GradeHistoryMapper {
   public GradeHistory toRest(school.hei.haapi.model.GradeChangeHistory domain) {
     return new GradeHistory()
         .comment(domain.getComment())

@@ -468,12 +468,13 @@ class GradeIT extends FacadeITMockedThirdParties {
     secondModification.setScore(secondModificationGrade, faker.lorem().paragraph(2));
     gradeRepository.save(secondModification);
 
-    List<GradeHistory> gradeChangeHistory =
+    List<GradeHistory> gradeHistory =
         gradesApi.getGradeHistory(
             initialGradesAxelExam1Prog1.getId(), null, null, null, null, null);
 
-    assertEquals(firstModificationGrade, gradeChangeHistory.getFirst().getScore());
-    assertEquals(secondModificationGrade, gradeChangeHistory.get(1).getScore());
+    assertEquals(2, gradeHistory.size());
+    assertEquals(firstModificationGrade, gradeHistory.getFirst().getScore());
+    assertEquals(secondModificationGrade, gradeHistory.get(1).getScore());
   }
 
   private void setUpCasdoorMonitor(
