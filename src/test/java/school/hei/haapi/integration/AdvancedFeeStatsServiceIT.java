@@ -163,6 +163,10 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
         .thenReturn(feeDueJunePaidInJuly);
     subject.updateAdvancedFeeStats(
         Optional.of(Instant.parse("2025-06-01T00:00:00Z")),
+        Optional.of(Instant.parse("2025-06-30T23:59:59Z")),
+        Optional.of(RECEIPT));
+    subject.updateAdvancedFeeStats(
+        Optional.of(Instant.parse("2025-07-01T00:00:00Z")),
         Optional.of(Instant.parse("2025-07-31T23:59:59Z")),
         Optional.of(RECEIPT));
 
@@ -215,11 +219,12 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
         .thenReturn(feeDueJunePaidInMay);
     subject.updateAdvancedFeeStats(
         Optional.of(Instant.parse("2025-05-01T00:00:00Z")),
-        Optional.of(Instant.parse("2025-05-30T23:59:59Z")),
+        Optional.of(Instant.parse("2025-05-31T23:59:59Z")),
         Optional.of(RECEIPT));
-    when(feeRepositoryMock.findAllByDueDatetimeBetween(any(), any())).thenReturn(List.of());
+    when(feeRepositoryMock.findAllByStatusHistoriesDatetimeBetween(any(), any()))
+        .thenReturn(List.of());
     subject.updateAdvancedFeeStats(
-        Optional.of(Instant.parse("2025-05-01T00:00:00Z")),
+        Optional.of(Instant.parse("2025-06-01T00:00:00Z")),
         Optional.of(Instant.parse("2025-06-30T23:59:59Z")),
         Optional.of(RECEIPT));
 
@@ -229,8 +234,8 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
     var generatedMayStats =
         subject.getAdvancedFeeStats(
             LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 31), Optional.of(RECEIPT));
-    assertEquals(0, generatedJuneStats.getPaidFeesCount().getMonthly());
     assertEquals(1, generatedMayStats.getPaidFeesCount().getMonthly());
+    assertEquals(0, generatedJuneStats.getPaidFeesCount().getMonthly());
   }
 
   @Test
