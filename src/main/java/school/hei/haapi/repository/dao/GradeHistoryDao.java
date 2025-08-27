@@ -73,7 +73,6 @@ public class GradeHistoryDao {
     }
 
     query
-        .distinct(true)
         .where(predicates.toArray(new Predicate[0]))
         .orderBy(QueryUtils.toOrders(Sort.by(ASC, "changeInstant"), root, builder));
 
