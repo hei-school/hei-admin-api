@@ -64,4 +64,9 @@ public class MpbsController {
                 .build()));
     return List.of();
   }
+
+  @PostMapping(value = "/mpbs/{mpbs_id}/pend")
+  public Mpbs pendFailedMpbs(@PathVariable("mpbs_id") String mpbsId) {
+    return mapper.toRest(mpbsService.pendFailedMpbs(mpbsId));
+  }
 }

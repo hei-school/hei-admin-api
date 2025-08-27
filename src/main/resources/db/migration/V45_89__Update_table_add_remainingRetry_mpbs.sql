@@ -1,0 +1,1 @@
+alter table "mpbs" add column if not exists remaining_retry integer not null default 3;

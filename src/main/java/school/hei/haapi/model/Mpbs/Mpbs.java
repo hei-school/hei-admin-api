@@ -19,6 +19,7 @@ import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -69,6 +70,8 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
   private List<MpbsStatusHistory> statusHistory;
+
+  @Builder.Default private Integer remainingRetry = 3;
 
   private static final int EXPIRATION_DURATION_IN_DAYS = 2;
 

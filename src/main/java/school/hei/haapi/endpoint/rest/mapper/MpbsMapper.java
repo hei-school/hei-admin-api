@@ -29,7 +29,8 @@ public class MpbsMapper {
         .successfullyVerifiedOn(domain.getSuccessfullyVerifiedOn())
         .lastDatetimeVerification(domain.getLastVerificationDatetime())
         .pspOwnDatetimeVerification(domain.getPspOwnDatetimeVerification())
-        .status(domain.getStatus());
+        .status(domain.getStatus())
+        .remainingRetry(domain.getRemainingRetry());
   }
 
   public school.hei.haapi.model.Mpbs.Mpbs toDomain(CrupdateMpbs rest) {
