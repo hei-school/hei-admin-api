@@ -1,6 +1,7 @@
 package school.hei.haapi.repository.dao;
 
 import static org.springframework.data.domain.Sort.Direction.ASC;
+import static school.hei.haapi.model.GradeChangeHistory.CHANGE_INSTANT;
 
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
@@ -60,11 +61,11 @@ public class GradeHistoryDao {
     }
 
     if (creationDateFrom != null) {
-      predicates.add(builder.greaterThanOrEqualTo(root.get("creationDate"), creationDateFrom));
+      predicates.add(builder.greaterThanOrEqualTo(root.get(CHANGE_INSTANT), creationDateFrom));
     }
 
     if (creationDateTo != null) {
-      predicates.add(builder.lessThanOrEqualTo(root.get("creationDate"), creationDateTo));
+      predicates.add(builder.lessThanOrEqualTo(root.get(CHANGE_INSTANT), creationDateTo));
     }
 
     if (comment != null) {
@@ -74,7 +75,7 @@ public class GradeHistoryDao {
 
     query
         .where(predicates.toArray(new Predicate[0]))
-        .orderBy(QueryUtils.toOrders(Sort.by(ASC, "changeInstant"), root, builder));
+        .orderBy(QueryUtils.toOrders(Sort.by(ASC, CHANGE_INSTANT), root, builder));
 
     return entityManager
         .createQuery(query)
