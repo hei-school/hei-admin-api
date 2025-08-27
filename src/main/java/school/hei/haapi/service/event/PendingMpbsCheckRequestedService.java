@@ -75,7 +75,6 @@ public class PendingMpbsCheckRequestedService implements Consumer<PendingMpbsChe
         correspondingMobileTransaction.getPspOwnDatetimeVerification());
     if (SUCCESS.equals(mpbsNewStatus)) {
       mpbs.setAmount(correspondingMobileTransaction.getPspTransactionAmount());
-      ;
     }
     var successfullyVerifiedMpbs = mpbsService.save(mpbs);
     log.info("Mpbs has successfully verified = {}", mpbs);
