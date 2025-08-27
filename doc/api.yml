@@ -6116,7 +6116,7 @@ paths:
     get:
       tags:
         - Grades
-      operationId: getGradeHistory
+      operationId: getOrderedGradeHistory
       summary: Get the history for specific garde
       parameters:
         - $ref: '#/components/parameters/PathGradeId'
