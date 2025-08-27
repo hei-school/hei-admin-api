@@ -458,22 +458,22 @@ class GradeIT extends FacadeITMockedThirdParties {
   @Test
   void monitor_get_grade_history_ok() throws ApiException {
     GradesApi gradesApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
-    var initialGradesExam1Prog1 = List.copyOf(gradesExam1Prog1);
-    gradeRepository.saveAll(initialGradesExam1Prog1);
-    gradeRepository.saveAll(
-        gradesExam1Prog1.stream()
-            .peek(
-                grade ->
-                    grade.setScore(
-                        faker.number().randomDouble(0, 20, 2), faker.lorem().paragraph(2)))
-            .toList());
+    var initialGradesAxelExam1Prog1 = gradeRepository.save(gradesExam1Prog1.getFirst());
+    var firstModificationGrade = faker.number().randomDouble(0, 20, 2);
+    var firstModification = initialGradesAxelExam1Prog1.toBuilder().build();
+    firstModification.setScore(firstModificationGrade, faker.lorem().paragraph(2));
+    firstModification = gradeRepository.save(firstModification);
+    var secondModificationGrade = faker.number().randomDouble(0, 20, 2);
+    var secondModification = firstModification.toBuilder().build();
+    secondModification.setScore(secondModificationGrade, faker.lorem().paragraph(2));
+    gradeRepository.save(secondModification);
 
     List<GradeHistory> gradeChangeHistory =
         gradesApi.getGradeHistory(
-            gradesExam1Prog1.getFirst().getId(), null, null, null, null, null);
+            initialGradesAxelExam1Prog1.getId(), null, null, null, null, null);
 
-    assertEquals(
-        initialGradesExam1Prog1.getFirst().getScore(), gradeChangeHistory.getFirst().getScore());
+    assertEquals(firstModificationGrade, gradeChangeHistory.getFirst().getScore());
+    assertEquals(secondModificationGrade, gradeChangeHistory.get(1).getScore());
   }
 
   private void setUpCasdoorMonitor(
