@@ -28,27 +28,26 @@ public class GradeHistoryDao {
   private GradeService gradeService;
   private EntityManager entityManager;
 
-  /** Filter Grade history by criteria, order by change date ascendant */
-  public List<GradeChangeHistory> findByCriteria(
+  public List<GradeChangeHistory> findByCriteriaOrderedByChangeInstant(
       PageFromOne page,
       BoundedPageSize pageSize,
       String gradeId,
-      Instant creationDateFrom,
-      Instant creationDateTo,
+      Instant changeInstantFrom,
+      Instant changeInstantTo,
       String comment) {
-    return findByCriteria(
+    return findByCriteriaOrderedByChangeInstant(
         PageRequest.of(page.getValue() - 1, pageSize.getValue()),
         gradeId,
-        creationDateFrom,
-        creationDateTo,
+        changeInstantFrom,
+        changeInstantTo,
         comment);
   }
 
-  public List<GradeChangeHistory> findByCriteria(
+  public List<GradeChangeHistory> findByCriteriaOrderedByChangeInstant(
       Pageable pageable,
       String gradeId,
-      Instant creationDateFrom,
-      Instant creationDateTo,
+      Instant changeInstantFrom,
+      Instant changeInstantTo,
       String comment) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<GradeChangeHistory> query = builder.createQuery(GradeChangeHistory.class);
@@ -60,12 +59,12 @@ public class GradeHistoryDao {
       predicates.add(builder.equal(root.get("grade").get("id"), gradeId));
     }
 
-    if (creationDateFrom != null) {
-      predicates.add(builder.greaterThanOrEqualTo(root.get(CHANGE_INSTANT), creationDateFrom));
+    if (changeInstantFrom != null) {
+      predicates.add(builder.greaterThanOrEqualTo(root.get(CHANGE_INSTANT), changeInstantFrom));
     }
 
-    if (creationDateTo != null) {
-      predicates.add(builder.lessThanOrEqualTo(root.get(CHANGE_INSTANT), creationDateTo));
+    if (changeInstantTo != null) {
+      predicates.add(builder.lessThanOrEqualTo(root.get(CHANGE_INSTANT), changeInstantTo));
     }
 
     if (comment != null) {

@@ -20,7 +20,7 @@ public class GradeHistoryController {
   private GradeHistoryDao gradeHistoryDao;
 
   @GetMapping("/grades/{grade_id}/history")
-  public List<GradeHistory> getGradeHistory(
+  public List<GradeHistory> getOrderedGradeHistory(
       @PathVariable("grade_id") String gradeId,
       @RequestParam(value = "page", required = false, defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", required = false, defaultValue = "15")
@@ -28,7 +28,9 @@ public class GradeHistoryController {
       @RequestParam(required = false) Instant from,
       @RequestParam(required = false) Instant to,
       @RequestParam(required = false) String comment) {
-    return gradeHistoryDao.findByCriteria(page, pageSize, gradeId, from, to, comment).stream()
+    return gradeHistoryDao
+        .findByCriteriaOrderedByChangeInstant(page, pageSize, gradeId, from, to, comment)
+        .stream()
         .map(gradeHistoryMapper::toRest)
         .toList();
   }

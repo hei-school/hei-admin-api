@@ -469,7 +469,7 @@ class GradeIT extends FacadeITMockedThirdParties {
     gradeRepository.save(secondModification);
 
     List<GradeHistory> gradeHistory =
-        gradesApi.getGradeHistory(
+        gradesApi.getOrderedGradeHistory(
             initialGradesAxelExam1Prog1.getId(), null, null, null, null, null);
 
     assertEquals(2, gradeHistory.size());
