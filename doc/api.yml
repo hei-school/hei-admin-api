@@ -7184,6 +7184,8 @@ components:
           format: date-time
         status:
           $ref: '#/components/schemas/MpbsStatus'
+        remainingRetry:
+          type: integer
     MpbsVerification:
       allOf:
         - $ref: '#/components/schemas/CrupdateMpbs'
