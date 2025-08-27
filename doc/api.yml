@@ -1286,6 +1286,11 @@ paths:
           required: false
           schema:
             type: string
+        - name: teacher_id
+          in: query
+          required: false
+          schema:
+            type: string
         - name: title
           in: query
           required: false

@@ -28,6 +28,7 @@ public class ExamDao {
       Pageable pageable,
       String title,
       String courseCode,
+      String teacherId,
       String groupRef,
       Instant examinationDateStart,
       Instant examinationDateEnd,
@@ -54,6 +55,14 @@ public class ExamDao {
     if (courseAssignmentId != null && !courseAssignmentId.isEmpty()) {
       predicates.add(builder.equal(courseAssignmentJoin.get("id"), courseAssignmentId));
     }
+
+    if (teacherId != null && !teacherId.isEmpty()) {
+      predicates.add(
+          builder.like(
+              builder.lower(courseAssignmentJoin.get("mainTeacher").get("id")),
+              "%" + teacherId.toLowerCase() + "%"));
+    }
+
     if (groupRef != null && !groupRef.isEmpty()) {
       Join<CourseAssignment, Group> groupJoin = courseAssignmentJoin.join("groups", JoinType.LEFT);
       predicates.add(

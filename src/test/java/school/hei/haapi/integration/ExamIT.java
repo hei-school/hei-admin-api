@@ -107,10 +107,11 @@ class ExamIT extends FacadeITMockedThirdParties {
   @Test
   void exam_creation_create_only_one_exam() throws ApiException {
     ExamsApi api = new ExamsApi(anApiClient(TEACHER1_TOKEN));
-    int examCount = api.getAllExams(null, null, null, null, null, null, null, null).size();
+    int examCount = api.getAllExams(null, null, null, null, null, null, null, null, null).size();
     api.createOrUpdateExams(COURSE_ASSIGNMENT1_ID, List.of(createExam()));
     assertEquals(
-        examCount + 1, api.getAllExams(null, null, null, null, null, null, null, null).size());
+        examCount + 1,
+        api.getAllExams(null, null, null, null, null, null, null, null, null).size());
   }
 
   @Test
@@ -161,7 +162,8 @@ class ExamIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     ExamsApi api = new ExamsApi(manager1Client);
     List<Exam> actual =
-        api.getAllExams(null, null, null, null, Instant.parse("2022-10-09T08:25:24Z"), null, 1, 10);
+        api.getAllExams(
+            null, null, null, null, null, Instant.parse("2022-10-09T08:25:24Z"), null, 1, 10);
 
     assertTrue(actual.contains(exam1()));
     assertTrue(actual.contains(exam2()));
@@ -176,6 +178,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     ExamsApi api = new ExamsApi(manager1Client);
     List<Exam> filteredExams =
         api.getAllExams(
+            null,
             null,
             exam2().getTitle(),
             course1().getCode(),
@@ -194,7 +197,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     ExamsApi api = new ExamsApi(student1Client);
     assertThrowsForbiddenException(
-        () -> api.getAllExams(null, null, null, null, null, null, 1, 10));
+        () -> api.getAllExams(null, null, null, null, null, null, null, 1, 10));
   }
 
   @Test
@@ -202,7 +205,7 @@ class ExamIT extends FacadeITMockedThirdParties {
   void teacher_read_ok() throws ApiException {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     ExamsApi api = new ExamsApi(teacher1Client);
-    List<Exam> actual = api.getAllExams(null, null, "", "", null, null, 1, 10);
+    List<Exam> actual = api.getAllExams(null, null, null, "", "", null, null, 1, 10);
 
     assertTrue(actual.contains(exam1()));
     assertTrue(actual.contains(exam2()));
