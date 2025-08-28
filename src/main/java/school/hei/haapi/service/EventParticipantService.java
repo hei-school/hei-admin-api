@@ -66,7 +66,7 @@ public class EventParticipantService {
   public void createEventParticipantsForAGroup(Group group, Event event) {
     String groupId = group.getId();
     String eventId = event.getId();
-    List<User> users = userService.getByGroupId(groupId);
+    List<User> users = userService.getByGroupId(groupId, Pageable.unpaged());
     List<EventParticipant> eventParticipants = new ArrayList<>();
     Group actualGroup = groupService.findById(groupId);
     users.forEach(

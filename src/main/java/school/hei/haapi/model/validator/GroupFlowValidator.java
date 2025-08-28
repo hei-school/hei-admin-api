@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -27,7 +28,7 @@ public class GroupFlowValidator implements Consumer<GroupFlow> {
 
   @Override
   public void accept(GroupFlow groupFlow) {
-    var studentsGroup = userService.getByGroupId(groupFlow.getGroup().getId());
+    var studentsGroup = userService.getByGroupId(groupFlow.getGroup().getId(), Pageable.unpaged());
     boolean isStudentInGroup = studentsGroup.contains(groupFlow.getStudent());
     GroupFlow.GroupFlowType groupFlowType = groupFlow.getGroupFlowType();
 
