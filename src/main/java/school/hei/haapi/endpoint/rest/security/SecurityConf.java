@@ -28,6 +28,7 @@ import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.MonitoringStudentService;
+import school.hei.haapi.service.MpbsService;
 
 @Configuration
 @Slf4j
@@ -38,17 +39,20 @@ public class SecurityConf {
   private final MonitoringStudentService monitoringStudentService;
   private final AbstractUserDetailsAuthenticationProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
+  private final MpbsService mpbsService;
 
   public SecurityConf(
       CasdoorAuthProvider authProvider,
       // InternalToExternalErrorHandler behind
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
       CourseAssignmentService courseAssignmentService,
-      MonitoringStudentService monitoringStudentService) {
+      MonitoringStudentService monitoringStudentService,
+      MpbsService mpbsService) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
     this.courseAssignmentService = courseAssignmentService;
     this.monitoringStudentService = monitoringStudentService;
+    this.mpbsService = mpbsService;
   }
 
   @Bean
@@ -214,6 +218,7 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/results_summary"),
                     antMatcher(GET, "/students/*/attendance"),
                     antMatcher(GET, "/comments"),
+                    antMatcher(POST, "/mpbs/*/pend"),
                     antMatcher(GET, "/students/*/comments"),
                     antMatcher(POST, "/students/*/comments"),
                     antMatcher(GET, "/events/participants/*/stats"),
@@ -452,6 +457,11 @@ public class SecurityConf {
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(POST, "/mpbs/verify")
                     .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(POST, "/mpbs/*/pend")
+                    .hasAnyRole(MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(
+                        new MpbsStudentMatcher(POST, "/mpbs/*/pend", "mpbs", mpbsService))
+                    .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(new SelfMatcher(GET, "/students/*/fees/*/mpbs", "students"))
                     .hasAnyRole(STUDENT.getRole(), ADMIN.getRole())
                     .requestMatchers(

@@ -5,6 +5,7 @@ import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 
 import java.util.Comparator;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -75,7 +76,7 @@ public class MpbsService {
     return mpbsRepository.countMpbsByStatusAndStudentId(PENDING, studentId);
   }
 
-  private Mpbs getById(String mpbsId) {
+  public Mpbs getById(String mpbsId) {
     return mpbsRepository
         .findById(mpbsId)
         .orElseThrow(() -> new NotFoundException("Mpbs not found #" + mpbsId));
@@ -90,5 +91,9 @@ public class MpbsService {
     mpbs.setStatus(PENDING);
     mpbs.setRemainingRetry(mpbs.getRemainingRetry() - 1);
     return save(mpbs);
+  }
+
+  public Optional<Mpbs> findByIdAndStudentId(String id, String studentId) {
+    return mpbsRepository.findByIdAndStudentId(id, studentId);
   }
 }
