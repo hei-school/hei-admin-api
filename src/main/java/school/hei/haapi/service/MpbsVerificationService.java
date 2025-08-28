@@ -97,6 +97,11 @@ public class MpbsVerificationService {
                 "payment %s could not be verified because fee %s has no remaining amount"
                     .formatted(pendingMbps.getId(), pendingMbps.getFee().getId()),
                 e);
+          } catch (RuntimeException e) {
+            log.error(
+                "Mpbs of ref {} could not be verified because of error {}",
+                pendingMbps.getPspId(),
+                e.getMessage());
           }
         } else {
           log.info(
