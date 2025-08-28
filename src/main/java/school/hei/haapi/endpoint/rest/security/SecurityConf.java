@@ -924,6 +924,8 @@ public class SecurityConf {
                     .authenticated()
                     .requestMatchers(GET, "/courses/*/exams")
                     .authenticated()
+                    .requestMatchers(GET, "/students/*/attendance")
+                    .authenticated()
                     .requestMatchers(GET, "/courses/*/exams/*")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(GET, "/courses/*" + "/exams/*/details")

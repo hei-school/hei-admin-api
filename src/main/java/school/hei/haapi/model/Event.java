@@ -59,11 +59,11 @@ public class Event {
   // TODO : Add promotion
 
   @Column(name = "begin_datetime")
-  @ToString.Exclude
+  // @ToString.Exclude
   private Instant beginDatetime;
 
   @Column(name = "end_datetime")
-  @ToString.Exclude
+  // @ToString.Exclude
   private Instant endDatetime;
 
   @ManyToOne
