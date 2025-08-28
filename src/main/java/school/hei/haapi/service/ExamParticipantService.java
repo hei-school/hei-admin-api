@@ -34,10 +34,9 @@ public class ExamParticipantService {
             .filter(grade -> user.getId().equals(grade.getStudent().getId()))
             .findFirst();
 
-    var studentGrade = new StudentGrade();
-    studentGrade.setStudent(userMapper.toRestStudent(user));
-    correspondingGrade.ifPresent(grade -> studentGrade.setGrade(gradeMapper.toRest(grade)));
-    return studentGrade;
+    return new StudentGrade()
+        .student(userMapper.toRestStudent(user))
+        .grade(correspondingGrade.map(gradeMapper::toRest).orElse(null));
   }
 
   private List<User> getExamParticipants(Exam exam, PageFromOne page, BoundedPageSize pageSize) {
