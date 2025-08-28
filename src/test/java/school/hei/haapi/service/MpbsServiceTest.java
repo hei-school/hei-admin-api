@@ -1,7 +1,8 @@
 package school.hei.haapi.service;
 
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
+import static java.time.temporal.ChronoUnit.MINUTES;
+import static java.util.Arrays.stream;
+import static java.util.Collections.reverse;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -12,12 +13,12 @@ import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 
 import java.time.Instant;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsStatusHistory;
 import school.hei.haapi.model.exception.BadRequestException;
@@ -35,21 +36,12 @@ class MpbsServiceTest {
 
   @Test
   void pend_failed_mpbs_decrease_to_2_remainingRetry_ok() {
-    var now = Instant.now();
-    List<MpbsStatusHistory> statusHistory =
-        new ArrayList<>(
-            asList(
-                MpbsStatusHistory.builder()
-                    .status(FAILED)
-                    .creationInstant(now)
-                    .updateInstant(now)
-                    .build(),
-                MpbsStatusHistory.builder()
-                    .status(PENDING)
-                    .creationInstant(now.minus(10, ChronoUnit.MINUTES))
-                    .updateInstant(now.minus(10, ChronoUnit.MINUTES))
-                    .build()));
-    Mpbs mpbs = Mpbs.builder().id("mpbs").status(FAILED).statusHistory(statusHistory).build();
+    Mpbs mpbs =
+        Mpbs.builder()
+            .id("mpbs")
+            .status(FAILED)
+            .statusHistory(generateHistory(PENDING, FAILED))
+            .build();
     when(mpbsRepository.findById(mpbs.getId())).thenReturn(Optional.of(mpbs.toBuilder().build()));
 
     Mpbs pended = subject.pendFailedMpbs(mpbs.getId());
@@ -60,25 +52,11 @@ class MpbsServiceTest {
 
   @Test
   void pend_failed_mpbs_without_remainingRetry_ko() {
-    var now = Instant.now();
-    List<MpbsStatusHistory> statusHistory =
-        new ArrayList<>(
-            asList(
-                MpbsStatusHistory.builder()
-                    .status(FAILED)
-                    .creationInstant(now)
-                    .updateInstant(now)
-                    .build(),
-                MpbsStatusHistory.builder()
-                    .status(PENDING)
-                    .creationInstant(now.minus(10, ChronoUnit.MINUTES))
-                    .updateInstant(now.minus(10, ChronoUnit.MINUTES))
-                    .build()));
     Mpbs mpbs =
         Mpbs.builder()
             .id("mpbs")
             .status(FAILED)
-            .statusHistory(statusHistory)
+            .statusHistory(generateHistory(PENDING, FAILED))
             .remainingRetry(0)
             .build();
     String mpbsId = mpbs.getId();
@@ -91,24 +69,11 @@ class MpbsServiceTest {
 
   @Test
   void pend_not_failed_mpbs_ko() {
-    var now = Instant.now();
     Mpbs mpbsSuccess =
         Mpbs.builder()
             .id("mpbsSuccess")
             .status(SUCCESS)
-            .statusHistory(
-                new ArrayList<>(
-                    asList(
-                        MpbsStatusHistory.builder()
-                            .status(SUCCESS)
-                            .creationInstant(now)
-                            .updateInstant(now)
-                            .build(),
-                        MpbsStatusHistory.builder()
-                            .status(PENDING)
-                            .creationInstant(now.minus(10, ChronoUnit.MINUTES))
-                            .updateInstant(now.minus(10, ChronoUnit.MINUTES))
-                            .build())))
+            .statusHistory(generateHistory(PENDING, SUCCESS))
             .build();
     String mpbsSuccessId = mpbsSuccess.getId();
     when(mpbsRepository.findById(mpbsSuccessId))
@@ -117,14 +82,7 @@ class MpbsServiceTest {
         Mpbs.builder()
             .id("mpbsPending")
             .status(PENDING)
-            .statusHistory(
-                new ArrayList<>(
-                    singletonList(
-                        MpbsStatusHistory.builder()
-                            .status(PENDING)
-                            .creationInstant(now.minus(10, ChronoUnit.MINUTES))
-                            .updateInstant(now.minus(10, ChronoUnit.MINUTES))
-                            .build())))
+            .statusHistory(generateHistory(PENDING))
             .build();
     String mpbsPendingId = mpbsPending.getId();
     when(mpbsRepository.findById(mpbsPendingId))
@@ -137,5 +95,22 @@ class MpbsServiceTest {
     var badRequestExceptionPending =
         assertThrows(BadRequestException.class, () -> subject.pendFailedMpbs(mpbsSuccessId));
     assertEquals("Mpbs must be fail #" + mpbsSuccessId, badRequestExceptionPending.getMessage());
+  }
+
+  private List<MpbsStatusHistory> generateHistory(MpbsStatus... statuses) {
+    var now = Instant.now();
+    var history = new ArrayList<MpbsStatusHistory>();
+    List<MpbsStatus> reversedStatuses = new ArrayList<>(stream(statuses).toList());
+    reverse(reversedStatuses);
+    for (MpbsStatus status : reversedStatuses) {
+      history.add(
+          MpbsStatusHistory.builder()
+              .status(status)
+              .creationInstant(now)
+              .updateInstant(now)
+              .build());
+      now = now.minus(10, MINUTES);
+    }
+    return history;
   }
 }
