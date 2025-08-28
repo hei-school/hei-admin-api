@@ -1,6 +1,7 @@
 package school.hei.haapi.repository;
 
 import jakarta.validation.constraints.NotBlank;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.domain.Page;
@@ -94,7 +95,7 @@ public interface UserRepository extends JpaRepository<User, String> {
               FROM
                   group_flow gf
               WHERE
-                  gf.group_id = ?1
+                  gf.group_id IN ?1
               GROUP BY
                   gf.group_id,
                   gf.student_id
@@ -114,7 +115,7 @@ public interface UserRepository extends JpaRepository<User, String> {
                   sgf.student_id = u.id
           where u.status <> 'DISABLED'
           """)
-  List<User> findAllRemainingStudentsByGroupId(String groupId);
+  List<User> findAllRemainingStudentsByGroupIds(Collection<String> groupIds, Pageable pageable);
 
   @Query(
       nativeQuery = true,

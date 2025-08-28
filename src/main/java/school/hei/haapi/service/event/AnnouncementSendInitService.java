@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.function.Consumer;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.AnnouncementEmailSendRequested;
@@ -30,7 +31,7 @@ public class AnnouncementSendInitService implements Consumer<AnnouncementSendIni
   private List<User> getStudents(AnnouncementSendInit domain) {
     List<User> students = new ArrayList<>();
     for (Group group : domain.getGroups()) {
-      List<User> byGroupId = userService.getByGroupId(group.getId());
+      List<User> byGroupId = userService.getByGroupId(group.getId(), Pageable.unpaged());
       students.addAll(byGroupId);
     }
     return students;
