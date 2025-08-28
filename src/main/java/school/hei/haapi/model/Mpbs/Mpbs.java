@@ -15,6 +15,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.Min;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
@@ -71,7 +72,9 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   @ToString.Exclude
   private List<MpbsStatusHistory> statusHistory;
 
-  @Builder.Default private Integer remainingRetry = 3;
+  @Min(0)
+  @Builder.Default
+  private Integer remainingRetry = 3;
 
   private static final int EXPIRATION_DURATION_IN_DAYS = 2;
 
