@@ -99,9 +99,7 @@ public class MpbsVerificationService {
                 e);
           } catch (RuntimeException e) {
             log.error(
-                "Mpbs of ref {} could not be verified because of error {}",
-                pendingMbps.getPspId(),
-                e.getMessage());
+                "Mpbs of ref {} could not be verified because of error", pendingMbps.getPspId(), e);
           }
         } else {
           log.info(
