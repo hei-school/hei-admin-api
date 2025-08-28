@@ -5881,7 +5881,44 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+  /students/{id}/attendance:
+    get:
+      tags:
+        - Attendance
+      operationId: getStudentAttendance
+      summary: Get student attendance between date intervals
+      parameters:
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date-time
+          required: true
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date-time
+          required: true
+        - in: path
+          name: id
+          schema:
+            type: string
+          required: true
+        - in: query
+          name: attendanceStatus
+          schema:
+            $ref: '#/components/schemas/AttendanceStatus'
+          description: Filter student attendance by status
+      responses:
+        200:
+          description: List of student attendance between date intervals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentGlobalAttendance'
   '/teachers/announcements':
     get:
       tags:
@@ -6422,6 +6459,25 @@ components:
         - SUPPORT_SESSION
         - OTHER
 
+    ### TODO: Rename to StudentAttendance when actual is renamed into StudentEventAttendance 
+    StudentGlobalAttendance:
+      type: object
+      properties:
+        attendanceStatus:
+          $ref: '#/components/schemas/AttendanceStatus'
+        beginDatetime:
+          type: string
+          format: date-time
+        endDatetime:
+          type: string
+          format: date-time
+        eventType:
+          $ref: '#/components/schemas/EventType'
+        eventTitle:
+          type: string
+        eventDescription:
+          type: string
+    ### TODO: rename to StudentEventAttendance or it is Student Attendance for a specific course
     StudentAttendance:
       type: object
       properties:
