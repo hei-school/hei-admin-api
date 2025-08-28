@@ -107,7 +107,8 @@ class AdvancedFeeStatsServiceTest extends FacadeITMockedThirdParties {
                 .countType(RECEIPT)
                 .build());
 
-    when(feeRepository.findAllByDueDatetimeBetween(any(), any())).thenReturn(getFeeList());
+    when(feeRepository.findDistinctByStatusHistoriesDatetimeBetween(any(), any()))
+        .thenReturn(getFeeList());
     when(feeDao.getAdvancedFeeStatsOnDateBetween(any(), any(), any())).thenReturn(Map.of());
     List<AdvancedFeeStats> stats = subject.generateAdvancedFeeStats(rangeDate, rangeDate, RECEIPT);
     Set<AdvancedFeeStats> actualStats =

@@ -22,7 +22,6 @@ import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.model.fee.PaymentType.BANK;
 import static school.hei.haapi.model.fee.PaymentType.MPBS;
 import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.ACCOUNTING;
-import static school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType.RECEIPT;
 
 import jakarta.transaction.Transactional;
 import java.math.BigDecimal;
@@ -127,7 +126,12 @@ public class AdvancedFeeStatsService {
     Instant dayStart = fromDate.atStartOfDay().toInstant(UTC);
     Instant dayEnd = toDate.atTime(23, 59, 59).toInstant(UTC);
 
-    List<Fee> allFees = feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
+    List<Fee> allFees =
+        switch (type) {
+          case ACCOUNTING -> feeRepository.findAllByDueDatetimeBetween(dayStart, dayEnd);
+          case RECEIPT ->
+              feeRepository.findDistinctByStatusHistoriesDatetimeBetween(dayStart, dayEnd);
+        };
 
     Collection<AdvancedFeeStats> stats =
         feeDao.getAdvancedFeeStatsOnDateBetween(fromDate, toDate, type).values();
