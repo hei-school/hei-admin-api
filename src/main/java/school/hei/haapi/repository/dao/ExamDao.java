@@ -57,10 +57,7 @@ public class ExamDao {
     }
 
     if (teacherId != null && !teacherId.isEmpty()) {
-      predicates.add(
-          builder.like(
-              builder.lower(courseAssignmentJoin.get("mainTeacher").get("id")),
-              "%" + teacherId.toLowerCase() + "%"));
+      predicates.add(builder.equal(courseAssignmentJoin.get("mainTeacher").get("id"), teacherId));
     }
 
     if (groupRef != null && !groupRef.isEmpty()) {

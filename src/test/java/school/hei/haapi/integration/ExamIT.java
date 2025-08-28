@@ -16,6 +16,7 @@ import static school.hei.haapi.integration.conf.TestUtils.assertBadRequestExcept
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsApiException;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenException;
 import static school.hei.haapi.integration.conf.TestUtils.course1;
+import static school.hei.haapi.integration.conf.TestUtils.courseAssignment1;
 import static school.hei.haapi.integration.conf.TestUtils.createExam;
 import static school.hei.haapi.integration.conf.TestUtils.createExam1;
 import static school.hei.haapi.integration.conf.TestUtils.exam1;
@@ -179,7 +180,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     ExamsApi api = new ExamsApi(manager1Client);
     List<Exam> filteredExams =
         api.getAllExams(
-            null,
+            courseAssignment1().getId(),
             teacher1().getId(),
             exam2().getTitle(),
             course1().getCode(),
