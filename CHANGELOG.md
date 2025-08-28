@@ -1,3 +1,17 @@
+# [1.112.0](https://github.com/hei-school/hei-admin-api/compare/v1.111.0...v1.112.0) (2025-08-28)
+
+
+### Bug Fixes
+
+* exam participants pagination ([2b085b9](https://github.com/hei-school/hei-admin-api/commit/2b085b9b595ca43cb649560324678836105549d1))
+
+
+### Features
+
+* **not-implemented:** pend failed mpbs ([e5db94d](https://github.com/hei-school/hei-admin-api/commit/e5db94dd834f59f4d770a2d764edf2b786effbdb))
+
+
+
 # [1.111.0](https://github.com/hei-school/hei-admin-api/compare/v1.110.2...v1.111.0) (2025-08-26)
 
 
@@ -101,15 +115,6 @@
 ### Bug Fixes
 
 * student grade wrong model ([ae7e73b](https://github.com/hei-school/hei-admin-api/commit/ae7e73b918fbc462abd20fe41116fe8236454a1a))
-
-
-
-# [1.105.0](https://github.com/hei-school/hei-admin-api/compare/v1.104.2...v1.105.0) (2025-07-24)
-
-
-### Features
-
-* **not-implemented:** add course_results and yearly_results endpoint ([5044897](https://github.com/hei-school/hei-admin-api/commit/50448978e5639aa45420fa75b2dfeabed7c96105))
 
 
 
