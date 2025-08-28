@@ -544,6 +544,9 @@ paths:
       summary: Get the Grades of a given student for a given course.
       operationId: getCourseGrades
       parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/UpdateDateSort'
         - $ref: "#/components/parameters/PathStudentId"
         - $ref: "#/components/parameters/PathCourseId"
       responses:
@@ -1002,6 +1005,9 @@ paths:
         - Grades
       summary: Get students grade for exams in a specific course
       parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/UpdateDateSort'
         - $ref: '#/components/parameters/PathCourseId'
         - $ref: '#/components/parameters/GroupRef'
       operationId: getCourseStudentsGrade
@@ -1129,6 +1135,11 @@ paths:
           description: Set value to 15 by default if null is provided
           schema:
             $ref: '#/components/schemas/PageSize'
+        - name: level
+          in: query
+          description: Filter by student academic level
+          schema:
+            $ref: '#/components/schemas/StudentLevel'
       responses:
         '200':
           description: List of all courses
@@ -3463,6 +3474,32 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/Mpbs'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /mpbs/{mpbs_id}/pend:
+    post:
+      tags:
+        - Paying
+      summary: Pend failed mobile payment
+      description: Convert failed mobile payment to pending
+      parameters:
+        - $ref: '#/components/parameters/PathMpbsId'
+      operationId: pendFailedMpbs
+      responses:
+        '200':
+          description: The pended mobile payment
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Mpbs'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -6101,6 +6138,43 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/grades/{grade_id}/history':
+    get:
+      tags:
+        - Grades
+      operationId: getOrderedGradeHistory
+      summary: Get the history for specific garde
+      parameters:
+        - $ref: '#/components/parameters/PathGradeId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/DatetimeFromFilter'
+        - $ref: '#/components/parameters/DatetimeToFilter'
+        - name: comment
+          in: query
+          description: filter results if the string contains this one given - case insensitive
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Change history for specific garde
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/GradeHistory'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
 components:
   securitySchemes:
     BearerAuth:
@@ -6123,6 +6197,29 @@ components:
       description: Page number for the retrieved ressources
       schema:
         $ref: '#/components/schemas/Page'
+    DatetimeFromFilter:
+      name: from
+      in: query
+      description: Filter creation date result by a given date
+      schema:
+        type: string
+        format: date-time
+      required: false
+    DatetimeToFilter:
+      name: to
+      in: query
+      description: Filter creation date result by a given date
+      schema:
+        type: string
+        format: date-time
+      required: false
+    UpdateDateSort:
+      name: sortDate
+      in: query
+      description: Sort update date result, no sort by default
+      required: false
+      schema:
+        $ref: '#/components/schemas/SortOrder'
     GroupRef:
       name: group_ref
       in: query
@@ -6160,6 +6257,18 @@ components:
         type: string
     PathStudentId:
       name: student_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathGradeId:
+      name: grade_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathMpbsId:
+      name: mpbs_id
       in: path
       required: true
       schema:
@@ -6241,6 +6350,11 @@ components:
           $ref: '#/components/schemas/PlaceEnum'
         student:
           $ref: '#/components/schemas/Student'
+    SortOrder:
+      type: string
+      enum:
+        - ASCENDING
+        - DESCENDING
     CrupdateUser:
       allOf:
         - $ref: '#/components/schemas/UserIdentifier'
@@ -6786,6 +6900,17 @@ components:
           type: string
         comment:
           type: string
+    GradeHistory:
+      properties:
+        created_at:
+          type: string
+          format: date-time
+        score:
+          type: number
+          format: double
+          example: 12.5
+        comment:
+          type: string
     CourseAssignmentExam:
       allOf:
         - $ref: '#/components/schemas/CourseAssignment'
@@ -7059,6 +7184,8 @@ components:
           format: date-time
         status:
           $ref: '#/components/schemas/MpbsStatus'
+        remainingRetry:
+          type: integer
     MpbsVerification:
       allOf:
         - $ref: '#/components/schemas/CrupdateMpbs'

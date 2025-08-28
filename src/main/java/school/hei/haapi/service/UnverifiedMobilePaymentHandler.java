@@ -40,7 +40,7 @@ public class UnverifiedMobilePaymentHandler implements Consumer<List<Mpbs>> {
           "Update mpbs status failed, mpbs: {} is already successfully verified", mpbs.getId());
       return mpbs;
     }
-    log.info("update the payment {} for the fee {}", mpbs.getId(), mpbs.getFee());
+    log.info("Update the payment {} for the fee {}", mpbs.getId(), mpbs.getFee());
     return mpbs.toBuilder()
         .fee(mpbs.getFee())
         .lastVerificationDatetime(now)

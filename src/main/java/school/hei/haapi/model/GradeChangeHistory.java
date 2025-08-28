@@ -33,6 +33,7 @@ public class GradeChangeHistory {
 
   private Double score;
 
+  public static final String CHANGE_INSTANT = "changeInstant";
   @EqualsAndHashCode.Exclude @CreationTimestamp private Instant changeInstant;
 
   private String comment;

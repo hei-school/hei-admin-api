@@ -46,6 +46,7 @@ public class ComputeVerifiedMobilePayment {
     mpbs.setStatus(SUCCESS);
     mpbs.setPspOwnDatetimeVerification(
         correspondingMobileTransaction.getPspOwnDatetimeVerification());
+    mpbs.setAmount(correspondingMobileTransaction.getPspTransactionAmount());
     var successfullyVerifiedMpbs = mpbsService.save(mpbs);
 
     // ... then save the verification

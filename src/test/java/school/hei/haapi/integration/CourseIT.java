@@ -53,7 +53,8 @@ class CourseIT extends FacadeITMockedThirdParties {
     ApiClient student1Client = anApiClient(STUDENT1_TOKEN);
     CoursesApi api = new CoursesApi(student1Client);
 
-    List<Course> actualList = api.getCourses(null, null, null, null, null, null, null, null, null);
+    List<Course> actualList =
+        api.getCourses(null, null, null, null, null, null, null, null, null, null);
     Course actual = api.getCourseById(COURSE1_ID);
 
     assertEquals(4, actualList.size());
@@ -67,7 +68,8 @@ class CourseIT extends FacadeITMockedThirdParties {
     ApiClient teacher1Client = anApiClient(TEACHER1_TOKEN);
     CoursesApi api = new CoursesApi(teacher1Client);
 
-    List<Course> actualList = api.getCourses(null, null, null, null, null, null, null, null, null);
+    List<Course> actualList =
+        api.getCourses(null, null, null, null, null, null, null, null, null, null);
     assertEquals(4, actualList.size());
     assertTrue(actualList.contains(course2()));
 
@@ -82,25 +84,25 @@ class CourseIT extends FacadeITMockedThirdParties {
     CoursesApi api = new CoursesApi(manager1Client);
 
     List<Course> actualByCode =
-        api.getCourses("PROG1", null, null, null, null, null, null, null, null);
+        api.getCourses("PROG1", null, null, null, null, null, null, null, null, null);
 
     List<Course> actualByCode2 =
-        api.getCourses("PROG", null, null, null, null, null, null, null, null);
+        api.getCourses("PROG", null, null, null, null, null, null, null, null, null);
 
     List<Course> actualByCredits2 =
-        api.getCourses(null, null, 6, null, null, null, null, null, null);
+        api.getCourses(null, null, 6, null, null, null, null, null, null, null);
 
     List<Course> actualByLastName =
-        api.getCourses(null, null, null, null, "tEaC", null, null, null, null);
+        api.getCourses(null, null, null, null, "tEaC", null, null, null, null, null);
 
     List<Course> actualByCodeAndName =
-        api.getCourses("i", "i", null, null, null, null, null, null, null);
+        api.getCourses("i", "i", null, null, null, null, null, null, null, null);
 
     List<Course> actualByCreditsOrderedAsc =
-        api.getCourses(null, null, null, null, null, CourseDirection.ASC, null, null, null);
+        api.getCourses(null, null, null, null, null, CourseDirection.ASC, null, null, null, null);
 
     List<Course> actualByCreditsOrderedDesc =
-        api.getCourses(null, null, null, null, null, CourseDirection.DESC, null, null, null);
+        api.getCourses(null, null, null, null, null, CourseDirection.DESC, null, null, null, null);
 
     assertEquals(1, actualByCode.size());
     assertTrue(actualByCode.contains(course1()));
@@ -151,7 +153,7 @@ class CourseIT extends FacadeITMockedThirdParties {
     assertTrue(actualAdd.contains(coursesToAdd.getFirst().id(actualAdd.getFirst().getId())));
 
     List<Course> actualCourseList =
-        api.getCourses(null, null, null, null, null, CourseDirection.DESC, null, null, null);
+        api.getCourses(null, null, null, null, null, CourseDirection.DESC, null, null, null, null);
 
     assertEquals(4 + numberOfCourseToAdd, actualCourseList.size());
   }

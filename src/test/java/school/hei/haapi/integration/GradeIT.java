@@ -38,6 +38,7 @@ import static school.hei.haapi.integration.test_data.StudentTestData.axel;
 import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
 import static school.hei.haapi.integration.test_data.TeacherTestData.toky;
 
+import com.github.javafaker.Faker;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,6 +56,7 @@ import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.mapper.GradeMapper;
 import school.hei.haapi.endpoint.rest.model.CreateGrade;
 import school.hei.haapi.endpoint.rest.model.Grade;
+import school.hei.haapi.endpoint.rest.model.GradeHistory;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.endpoint.rest.model.UpdateGrade;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
@@ -87,6 +89,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   @Autowired MonitoringStudentRepository monitoringStudentRepository;
   @Autowired ExamRepository examRepository;
   @Autowired GradeMapper gradeMapper;
+  private final Faker faker = new Faker();
   private User studentAxel;
   private User studentTolojanahary;
   private User monitorOfAxel;
@@ -248,11 +251,11 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi teacherApi = new GradesApi(anApiClient(TEACHER1_TOKEN));
 
     List<Grade> adminAxelGrades =
-        adminApi.getCourseGrades(studentAxel.getId(), courseProg1.getId());
+        adminApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null);
     List<Grade> managerAxelGrades =
-        managerApi.getCourseGrades(studentAxel.getId(), courseProg1.getId());
+        managerApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null);
     List<Grade> teacherAxelGrades =
-        teacherApi.getCourseGrades(studentAxel.getId(), courseProg1.getId());
+        teacherApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null);
 
     assertGradeExists(adminAxelGrades, studentAxelGradeExam1Prog1);
     assertGradeExists(adminAxelGrades, studentAxelGradeExam2Prog1);
@@ -277,7 +280,8 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi studentApi = new GradesApi(anApiClient(STUDENT1_TOKEN));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> studentApi.getCourseGrades(studentAxel.getId(), courseProg1.getId()));
+        () ->
+            studentApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null));
   }
 
   @Test
@@ -288,7 +292,8 @@ class GradeIT extends FacadeITMockedThirdParties {
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"Student's current group is not assigned to course with id: %s\"}"
             .formatted(courseProg2.getId()),
-        () -> monitorApi.getCourseGrades(studentAxel.getId(), courseProg2.getId()));
+        () ->
+            monitorApi.getCourseGrades(studentAxel.getId(), courseProg2.getId(), null, null, null));
   }
 
   @Test
@@ -297,14 +302,17 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
     assertThrowsApiException(
         "{\"type\":\"403 FORBIDDEN\",\"message\":\"Access is denied\"}",
-        () -> monitorApi.getCourseGrades(studentTolojanahary.getId(), courseProg1.getId()));
+        () ->
+            monitorApi.getCourseGrades(
+                studentTolojanahary.getId(), courseProg1.getId(), null, null, null));
   }
 
   @Test
   void monitor_get_own_grades_ok() throws ApiException {
     setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
-    List<Grade> axelGrades = monitorApi.getCourseGrades(studentAxel.getId(), courseProg1.getId());
+    List<Grade> axelGrades =
+        monitorApi.getCourseGrades(studentAxel.getId(), courseProg1.getId(), null, null, null);
 
     assertGradeExists(axelGrades, studentAxelGradeExam1Prog1);
     assertGradeExists(axelGrades, studentAxelGradeExam2Prog1);
@@ -445,6 +453,28 @@ class GradeIT extends FacadeITMockedThirdParties {
     assertEquals(axelId, createdGrade.getStudent().getId());
     assertEquals(examId, createdGrade.getGrade().getExam().getId());
     assertEquals(createGrade.getScore(), createdGrade.getGrade().getScore());
+  }
+
+  @Test
+  void monitor_get_grade_history_ok() throws ApiException {
+    GradesApi gradesApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
+    var initialGradesAxelExam1Prog1 = gradeRepository.save(gradesExam1Prog1.getFirst());
+    var firstModificationGrade = faker.number().randomDouble(0, 20, 2);
+    var firstModification = initialGradesAxelExam1Prog1.toBuilder().build();
+    firstModification.setScore(firstModificationGrade, faker.lorem().paragraph(2));
+    firstModification = gradeRepository.save(firstModification);
+    var secondModificationGrade = faker.number().randomDouble(0, 20, 2);
+    var secondModification = firstModification.toBuilder().build();
+    secondModification.setScore(secondModificationGrade, faker.lorem().paragraph(2));
+    gradeRepository.save(secondModification);
+
+    List<GradeHistory> gradeHistory =
+        gradesApi.getOrderedGradeHistory(
+            initialGradesAxelExam1Prog1.getId(), null, null, null, null, null);
+
+    assertEquals(2, gradeHistory.size());
+    assertEquals(firstModificationGrade, gradeHistory.getFirst().getScore());
+    assertEquals(secondModificationGrade, gradeHistory.get(1).getScore());
   }
 
   private void setUpCasdoorMonitor(
