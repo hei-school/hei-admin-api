@@ -13,6 +13,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
@@ -23,6 +24,7 @@ import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.dao.GradeDao;
 
+@Slf4j
 @Component
 @AllArgsConstructor
 public class CourseResultService {
