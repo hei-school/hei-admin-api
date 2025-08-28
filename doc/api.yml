@@ -1281,11 +1281,6 @@ paths:
         - Exams
       summary: Get all exam infos.
       parameters:
-        - name: course_assignment_id
-          in: query
-          required: false
-          schema:
-            type: string
         - name: teacher_id
           in: query
           required: false
