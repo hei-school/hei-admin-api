@@ -14,6 +14,7 @@ import static school.hei.haapi.service.aws.FileService.getFormattedProfilePictur
 import java.io.File;
 import java.time.Instant;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -265,12 +266,16 @@ public class UserService {
         excludeGroupIds);
   }
 
-  public List<User> getByGroupId(String groupId) {
-    return userRepository.findAllRemainingStudentsByGroupId(groupId);
+  public List<User> getByGroupId(String groupId, Pageable pageable) {
+    return getByGroupIds(List.of(groupId), pageable);
+  }
+
+  public List<User> getByGroupIds(Collection<String> groupId, Pageable pageable) {
+    return userRepository.findAllRemainingStudentsByGroupIds(groupId, pageable);
   }
 
   public byte[] generateStudentsGroup(String groupId) {
-    List<User> studentsGroup = getByGroupId(groupId);
+    List<User> studentsGroup = getByGroupId(groupId, Pageable.unpaged());
     return userXlsxCellsGenerator.apply(studentsGroup, List.of("ref", "firstName", "lastName"));
   }
 
@@ -367,7 +372,9 @@ public class UserService {
                 () ->
                     new NotFoundException("Promotion with id #" + promotionId + " does not exist"));
     List<User> students = new ArrayList<>();
-    promotion.getGroups().forEach(group -> students.addAll(getByGroupId(group.getId())));
+    promotion
+        .getGroups()
+        .forEach(group -> students.addAll(getByGroupId(group.getId(), Pageable.unpaged())));
     return userXlsxCellsGenerator.apply(students, List.of("firstName", "lastName", "email", "sex"));
   }
 
