@@ -71,5 +71,5 @@ public interface FeeRepository extends JpaRepository<Fee, String> {
       @Param("studentId") String studentId,
       @Param("status") FeeStatusEnum status);
 
-  List<Fee> findAllByStatusHistoriesDatetimeBetween(Instant dayStart, Instant dayEnd);
+  List<Fee> findDistinctByStatusHistoriesDatetimeBetween(Instant dayStart, Instant dayEnd);
 }

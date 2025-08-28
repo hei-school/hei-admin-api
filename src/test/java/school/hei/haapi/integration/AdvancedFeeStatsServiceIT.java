@@ -159,7 +159,7 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
 
   @Test
   void receipt_fee_due_june_paid_july_counts_as_paid_july() {
-    when(feeRepositoryMock.findAllByStatusHistoriesDatetimeBetween(any(), any()))
+    when(feeRepositoryMock.findDistinctByStatusHistoriesDatetimeBetween(any(), any()))
         .thenReturn(feeDueJunePaidInJuly);
     subject.updateAdvancedFeeStats(
         Optional.of(Instant.parse("2025-06-01T00:00:00Z")),
@@ -215,13 +215,13 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
 
   @Test
   void receipt_fee_due_june_paid_may_counts_as_paid_may() {
-    when(feeRepositoryMock.findAllByStatusHistoriesDatetimeBetween(any(), any()))
+    when(feeRepositoryMock.findDistinctByStatusHistoriesDatetimeBetween(any(), any()))
         .thenReturn(feeDueJunePaidInMay);
     subject.updateAdvancedFeeStats(
         Optional.of(Instant.parse("2025-05-01T00:00:00Z")),
         Optional.of(Instant.parse("2025-05-31T23:59:59Z")),
         Optional.of(RECEIPT));
-    when(feeRepositoryMock.findAllByStatusHistoriesDatetimeBetween(any(), any()))
+    when(feeRepositoryMock.findDistinctByStatusHistoriesDatetimeBetween(any(), any()))
         .thenReturn(List.of());
     subject.updateAdvancedFeeStats(
         Optional.of(Instant.parse("2025-06-01T00:00:00Z")),
