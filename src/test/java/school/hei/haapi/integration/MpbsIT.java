@@ -259,7 +259,8 @@ public class MpbsIT extends FacadeITMockedThirdParties {
         .amount(8000)
         .successfullyVerifiedOn(Instant.parse("2021-11-08T08:25:24.00Z"))
         .creationDatetime(Instant.parse("2021-11-08T08:25:24.00Z"))
-        .status(PENDING);
+        .status(PENDING)
+        .remainingRetry(3);
   }
 
   public static CrupdateMpbs createableMpbs1() {
