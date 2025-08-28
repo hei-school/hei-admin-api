@@ -212,6 +212,7 @@ public class SecurityConf {
                     antMatcher(GET, "/students/*/yearly_results/*"),
                     antMatcher(GET, "/students/*/yearly_results/*/transcript"),
                     antMatcher(GET, "/students/*/results_summary"),
+                    antMatcher(GET, "/students/*/attendance"),
                     antMatcher(GET, "/comments"),
                     antMatcher(GET, "/students/*/comments"),
                     antMatcher(POST, "/students/*/comments"),
