@@ -90,11 +90,11 @@ class MpbsServiceTest {
 
     var badRequestExceptionSuccess =
         assertThrows(BadRequestException.class, () -> subject.pendFailedMpbs(mpbsSuccessId));
-    assertEquals("Mpbs must be fail #" + mpbsSuccessId, badRequestExceptionSuccess.getMessage());
+    assertEquals("Mpbs must be failing #" + mpbsSuccessId, badRequestExceptionSuccess.getMessage());
 
     var badRequestExceptionPending =
         assertThrows(BadRequestException.class, () -> subject.pendFailedMpbs(mpbsSuccessId));
-    assertEquals("Mpbs must be fail #" + mpbsSuccessId, badRequestExceptionPending.getMessage());
+    assertEquals("Mpbs must be failing #" + mpbsSuccessId, badRequestExceptionPending.getMessage());
   }
 
   private List<MpbsStatusHistory> generateHistory(MpbsStatus... statuses) {

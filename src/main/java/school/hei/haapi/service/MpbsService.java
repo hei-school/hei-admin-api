@@ -87,7 +87,7 @@ public class MpbsService {
     if (mpbs.getRemainingRetry() <= 0)
       throw new BadRequestException("Mpbs has no remaining retry #" + mpbsId);
     if (!FAILED.equals(mpbs.getStatus()))
-      throw new BadRequestException("Mpbs must be fail #" + mpbsId);
+      throw new BadRequestException("Mpbs must be failing #" + mpbsId);
     mpbs.setStatus(PENDING);
     mpbs.setRemainingRetry(mpbs.getRemainingRetry() - 1);
     return save(mpbs);
