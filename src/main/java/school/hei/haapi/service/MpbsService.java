@@ -94,6 +94,7 @@ public class MpbsService {
   }
 
   public Optional<Mpbs> findByIdAndStudentId(String id, String studentId) {
+    getById(id);
     return mpbsRepository.findByIdAndStudentId(id, studentId);
   }
 }

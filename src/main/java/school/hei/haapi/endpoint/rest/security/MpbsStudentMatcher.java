@@ -27,7 +27,6 @@ public class MpbsStudentMatcher implements RequestMatcher {
     }
     Principal principal = getPrincipal();
     String mpbsId = getMpbsId(request);
-    mpbsService.getById(mpbsId);
     return mpbsService.findByIdAndStudentId(mpbsId, principal.getUserId()).isPresent();
   }
 

@@ -4,6 +4,7 @@ import static java.time.Instant.now;
 import static java.time.Month.APRIL;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.UNKNOWN;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.MVOLA;
@@ -44,6 +45,7 @@ import school.hei.haapi.endpoint.rest.model.*;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.User;
+import school.hei.haapi.service.MpbsService;
 import school.hei.haapi.service.UserService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
@@ -52,6 +54,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 public class MpbsIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @Autowired private UserService userService;
+  @Autowired private MpbsService mpbsService;
 
   @BeforeEach
   void setUp() {
@@ -192,6 +195,20 @@ public class MpbsIT extends FacadeITMockedThirdParties {
 
     Fee studentFee = payingApi.getStudentFeeById(savedStudent.getId(), savedStudentFee.getId());
     assertEquals(2, studentFee.getMpbs().size());
+  }
+
+  @Test
+  void get_student1_own_mpbs_present() {
+    var mpbs =
+        mpbsService.findByIdAndStudentId(expectedMpbs1().getId(), expectedMpbs1().getStudentId());
+    assertTrue(mpbs.isPresent());
+    assertEquals(expectedMpbs1().getId(), mpbs.get().getId());
+  }
+
+  @Test
+  void get_student1_other_mpbs_empty() {
+    var mpbs = mpbsService.findByIdAndStudentId(expectedMpbs1().getId(), STUDENT2_ID);
+    assertTrue(mpbs.isEmpty());
   }
 
   private CrupdateMpbs createRandomMpbs(String studentId, String feeId) {
