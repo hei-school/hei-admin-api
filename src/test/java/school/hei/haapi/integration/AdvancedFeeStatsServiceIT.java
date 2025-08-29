@@ -1,5 +1,6 @@
 package school.hei.haapi.integration;
 
+import static java.util.Optional.empty;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -141,8 +142,7 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
         Optional.of(Instant.parse("2025-06-30T23:59:59Z")),
         Optional.of(ACCOUNTING));
     var generatedJuneStats =
-        subject.getAdvancedFeeStats(
-            LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30), Optional.empty());
+        subject.getAdvancedFeeStats(LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30), empty());
 
     when(feeRepositoryMock.findAllByDueDatetimeBetween(any(), any())).thenReturn(List.of());
     subject.updateAdvancedFeeStats(
@@ -150,8 +150,7 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
         Optional.of(Instant.parse("2025-07-31T23:59:59Z")),
         Optional.of(ACCOUNTING));
     var generatedJulyStats =
-        subject.getAdvancedFeeStats(
-            LocalDate.of(2025, 7, 1), LocalDate.of(2025, 7, 31), Optional.empty());
+        subject.getAdvancedFeeStats(LocalDate.of(2025, 7, 1), LocalDate.of(2025, 7, 31), empty());
 
     assertEquals(1, generatedJuneStats.getPaidFeesCount().getMonthly());
     assertEquals(0, generatedJulyStats.getPaidFeesCount().getMonthly());
@@ -183,8 +182,7 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
   @Test
   void request_accounting_not_available_trigger_generation() {
     var generatedAugustStats =
-        subject.getAdvancedFeeStats(
-            LocalDate.of(2026, 7, 1), LocalDate.of(2026, 7, 31), Optional.empty());
+        subject.getAdvancedFeeStats(LocalDate.of(2026, 7, 1), LocalDate.of(2026, 7, 31), empty());
 
     assertTrue(generatedAugustStats.getExpired());
   }
@@ -204,11 +202,9 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
         Optional.of(ACCOUNTING));
 
     var generatedJuneStats =
-        subject.getAdvancedFeeStats(
-            LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30), Optional.empty());
+        subject.getAdvancedFeeStats(LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30), empty());
     var generatedMayStats =
-        subject.getAdvancedFeeStats(
-            LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 31), Optional.empty());
+        subject.getAdvancedFeeStats(LocalDate.of(2025, 5, 1), LocalDate.of(2025, 5, 31), empty());
     assertEquals(1, generatedJuneStats.getPaidFeesCount().getMonthly());
     assertEquals(0, generatedMayStats.getPaidFeesCount().getMonthly());
   }
@@ -250,8 +246,7 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
         Optional.of(ACCOUNTING));
 
     var generatedJuneStats =
-        subject.getAdvancedFeeStats(
-            LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30), Optional.empty());
+        subject.getAdvancedFeeStats(LocalDate.of(2025, 6, 1), LocalDate.of(2025, 6, 30), empty());
 
     assertEquals(0, generatedJuneStats.getPaidFeesCount().getMonthly());
   }
@@ -265,7 +260,9 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
     var payingApi = new PayingApi(client);
 
     assertDoesNotThrow(
-        () -> payingApi.getAdvancedFeesStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate()));
+        () ->
+            payingApi.getAdvancedFeesStats(
+                fromDateTime.toLocalDate(), toDateTime.toLocalDate(), null));
   }
 
   @Test
@@ -277,6 +274,8 @@ class AdvancedFeeStatsServiceIT extends FacadeITMockedThirdParties {
     var payingApi = new PayingApi(client);
 
     assertDoesNotThrow(
-        () -> payingApi.getAdvancedFeesStats(fromDateTime.toLocalDate(), toDateTime.toLocalDate()));
+        () ->
+            payingApi.getAdvancedFeesStats(
+                fromDateTime.toLocalDate(), toDateTime.toLocalDate(), null));
   }
 }
