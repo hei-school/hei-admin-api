@@ -1,7 +1,7 @@
 package school.hei.haapi.service;
 
 import static java.math.BigDecimal.ZERO;
-import static java.math.MathContext.UNLIMITED;
+import static java.math.MathContext.DECIMAL128;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.MINUTES;
 import static school.hei.haapi.endpoint.rest.model.FileType.TRANSCRIPT;
@@ -107,7 +107,7 @@ public class GradeResultService {
 
     BigDecimal weightedAverage =
         yearlyResultsWeightedAverageSum.divide(
-            BigDecimal.valueOf(yearlyResultWeightedAverages.size()), UNLIMITED);
+            BigDecimal.valueOf(yearlyResultWeightedAverages.size()), DECIMAL128);
 
     return new ResultSummary()
         .yearlyResults(yearlyResults)
