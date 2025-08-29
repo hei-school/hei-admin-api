@@ -1,7 +1,7 @@
 package school.hei.haapi.model;
 
 import static java.math.BigDecimal.ZERO;
-import static java.math.MathContext.UNLIMITED;
+import static java.math.MathContext.DECIMAL128;
 import static java.util.Comparator.comparing;
 
 import jakarta.persistence.Column;
@@ -112,6 +112,6 @@ public class Grade implements Serializable {
 
     if (ZERO.equals(sumCoefficients)) throw new ExamsCoefficientSumZero();
 
-    return weightedSum.divide(sumCoefficients, UNLIMITED);
+    return weightedSum.divide(sumCoefficients, DECIMAL128);
   }
 }
