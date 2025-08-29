@@ -99,7 +99,6 @@ public class MpbsVerificationService {
       }
 
       try {
-        log.info("mobile transaction found = {}", lastTransactionDetails);
         TransactionDetails transactionDetails =
             externalResponseMapper.toExternalTransactionDetails(lastTransactionDetails);
         log.info("mapped transaction details = {}", transactionDetails);
