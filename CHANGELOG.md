@@ -1,3 +1,13 @@
+## [1.113.1](https://github.com/hei-school/hei-admin-api/compare/v1.113.0...v1.113.1) (2025-08-29)
+
+
+### Bug Fixes
+
+* add missing type query parameter to getAdvancedFeeStats ([6f13992](https://github.com/hei-school/hei-admin-api/commit/6f139924eb119a32659058f786898977a6ce6093))
+* handle runtime exceptions in mpbs verifications ([6e94e2b](https://github.com/hei-school/hei-admin-api/commit/6e94e2bb9df7c4530c2b92354ac3d597e866e014))
+
+
+
 # [1.113.0](https://github.com/hei-school/hei-admin-api/compare/v1.111.0...v1.113.0) (2025-08-29)
 
 
@@ -109,15 +119,6 @@
 ### Features
 
 * ResultOverview add status and total credits ([95441ba](https://github.com/hei-school/hei-admin-api/commit/95441bae528139507089e2bb4dd1e6167be0c9c7))
-
-
-
-## [1.105.1](https://github.com/hei-school/hei-admin-api/compare/v1.105.0...v1.105.1) (2025-07-24)
-
-
-### Bug Fixes
-
-* student grade wrong model ([ae7e73b](https://github.com/hei-school/hei-admin-api/commit/ae7e73b918fbc462abd20fe41116fe8236454a1a))
 
 
 
