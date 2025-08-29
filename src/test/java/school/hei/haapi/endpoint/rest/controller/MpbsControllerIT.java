@@ -1,4 +1,4 @@
-package school.hei.haapi.integration;
+package school.hei.haapi.endpoint.rest.controller;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -32,7 +32,7 @@ import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 
 @Testcontainers
 @AutoConfigureMockMvc
-class DirtyMpbsIT extends FacadeITMockedThirdParties {
+class MpbsControllerIT extends FacadeITMockedThirdParties {
   @MockBean private EventBridgeClient eventBridgeClientMock;
   @MockBean private MpbsService mpbsService;
   private final String mpbsId = expectedMpbs1().getId();
