@@ -861,7 +861,7 @@ public class StudentIT extends FacadeITMockedThirdParties {
 
     List<Student> students =
         api.getStudents(
-            1, 10, null, null, null, null, null, null, null, null, List.of("group1_id"));
+            1, 50, null, null, null, null, null, null, null, null, List.of("group1_id"));
 
     assertTrue(students.contains(student3()));
     assertFalse(students.contains(student1()));
