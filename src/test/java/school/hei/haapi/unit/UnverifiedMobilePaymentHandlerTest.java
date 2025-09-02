@@ -8,10 +8,12 @@ import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import school.hei.haapi.model.Mpbs.Mpbs;
+import school.hei.haapi.model.Mpbs.MpbsStatusHistory;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
 import school.hei.haapi.service.MpbsService;
 import school.hei.haapi.service.UnverifiedMobilePaymentHandler;
@@ -60,6 +62,82 @@ class UnverifiedMobilePaymentHandlerTest {
                 expectedPendingMpbs(lastVerificationDatetime),
                 expectedPendingMpbs(lastVerificationDatetime),
                 expectedPendingMpbs(lastVerificationDatetime))));
+  }
+
+  @Test
+  void rePended_mpbs_validity_period_start_with_last_history() {
+    var mpbsRePended =
+        Mpbs.builder()
+            .creationDatetime(now().minus(25L, DAYS))
+            .status(PENDING)
+            .statusHistory(
+                new ArrayList<>(
+                    List.of(
+                        MpbsStatusHistory.builder()
+                            .creationInstant(now().minus(1L, DAYS))
+                            .status(PENDING)
+                            .build(),
+                        MpbsStatusHistory.builder()
+                            .creationInstant(now().minus(10L, DAYS))
+                            .status(FAILED)
+                            .build(),
+                        MpbsStatusHistory.builder()
+                            .creationInstant(now().minus(25L, DAYS))
+                            .status(PENDING)
+                            .build())))
+            .build();
+
+    assertDoesNotThrow(() -> subject.accept(List.of(mpbsRePended)));
+
+    var listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(failedMobilePaymentNotificationMock, times(1)).accept(listCaptor.capture());
+    verify(mpbsServiceMock, times(1)).saveAll(listCaptor.capture());
+    List<Mpbs> actualFailedMpbs = (List<Mpbs>) listCaptor.getAllValues().getFirst();
+    List<Mpbs> actualVerifiedMpbs = (List<Mpbs>) listCaptor.getAllValues().getLast();
+
+    assertTrue(actualFailedMpbs.isEmpty());
+    assertEquals(1, actualVerifiedMpbs.size());
+    assertEquals(0, actualVerifiedMpbs.stream().filter(m -> FAILED.equals(m.getStatus())).count());
+    assertEquals(1, actualVerifiedMpbs.stream().filter(m -> PENDING.equals(m.getStatus())).count());
+  }
+
+  @Test
+  void failed_rePended_mpbs_validity_period_start_with_last_history() {
+    var mpbsFailedRePended =
+        Mpbs.builder()
+            .creationDatetime(now().minus(25L, DAYS))
+            .status(PENDING)
+            .statusHistory(
+                new ArrayList<>(
+                    List.of(
+                        MpbsStatusHistory.builder()
+                            .creationInstant(now().minus(4L, DAYS))
+                            .status(PENDING)
+                            .build(),
+                        MpbsStatusHistory.builder()
+                            .creationInstant(now().minus(10L, DAYS))
+                            .status(FAILED)
+                            .build(),
+                        MpbsStatusHistory.builder()
+                            .creationInstant(now().minus(25L, DAYS))
+                            .status(PENDING)
+                            .build())))
+            .build();
+
+    assertDoesNotThrow(() -> subject.accept(List.of(mpbsFailedRePended)));
+
+    var listCaptor = ArgumentCaptor.forClass(List.class);
+    verify(failedMobilePaymentNotificationMock, times(1)).accept(listCaptor.capture());
+    verify(mpbsServiceMock, times(1)).saveAll(listCaptor.capture());
+    List<Mpbs> actualFailedMpbs = (List<Mpbs>) listCaptor.getAllValues().getFirst();
+    List<Mpbs> actualVerifiedMpbs = (List<Mpbs>) listCaptor.getAllValues().getLast();
+
+    assertFalse(actualFailedMpbs.isEmpty());
+    assertFalse(actualVerifiedMpbs.isEmpty());
+    assertEquals(1, actualFailedMpbs.size());
+    assertEquals(1, actualVerifiedMpbs.size());
+    assertEquals(FAILED, actualFailedMpbs.getFirst().getStatus());
+    assertEquals(actualFailedMpbs, actualVerifiedMpbs);
   }
 
   private Mpbs expectedFailedMpbs(Instant lastVerificationDatetime) {
