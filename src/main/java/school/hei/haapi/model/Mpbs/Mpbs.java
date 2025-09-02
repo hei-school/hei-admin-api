@@ -5,6 +5,8 @@ import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.Comparator.comparing;
+import static java.util.Objects.isNull;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -17,13 +19,10 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
+import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
+import java.util.Optional;
+import lombok.*;
 import lombok.experimental.SuperBuilder;
 import org.hibernate.annotations.JdbcTypeCode;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
@@ -68,11 +67,22 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   @JsonIgnore
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  private List<MpbsStatusHistory> statusHistory;
+  @Builder.Default
+  private List<MpbsStatusHistory> statusHistory = new ArrayList<>();
 
   private static final int EXPIRATION_DURATION_IN_DAYS = 2;
 
+  private Optional<MpbsStatusHistory> lastStatusHistory() {
+    return statusHistory.stream()
+        .filter(mpbsStatusHistory -> !isNull(mpbsStatusHistory.getCreationInstant()))
+        .max(comparing(MpbsStatusHistory::getCreationInstant));
+  }
+
   public boolean exceedsValidationDate() {
-    return getCreationDatetime().until(now(), DAYS) > EXPIRATION_DURATION_IN_DAYS;
+    return lastStatusHistory()
+            .map(MpbsStatusHistory::getCreationInstant)
+            .orElse(getCreationDatetime())
+            .until(now(), DAYS)
+        > EXPIRATION_DURATION_IN_DAYS;
   }
 }
