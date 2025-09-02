@@ -35,7 +35,8 @@ public class Exam implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  private Integer coefficient;
+  private Integer coefficientNumerator;
+  private Integer coefficientDenominator;
   private String title;
 
   @ManyToOne
