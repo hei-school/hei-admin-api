@@ -100,13 +100,20 @@ class GradeResultServiceTest {
       Promotion.builder().ref("prom1").name("Promotion de test").startDatetime(now()).build();
   private final Group group =
       Group.builder().name("Groupe test").ref("GRP_TST").promotion(promotion).build();
-  private final Exam mgt1Exam = Exam.builder().id("mgt1 exam").coefficient(1).build();
-  private final Exam prog1Exam = Exam.builder().id("prog1 exam").coefficient(1).build();
-  private final Exam donnees1Exam = Exam.builder().id("donnees1 exam").coefficient(1).build();
-  private final Exam web1Exam = Exam.builder().id("web1 exam").coefficient(1).build();
-  private final Exam sys1Exam = Exam.builder().id("sys1 exam").coefficient(1).build();
-  private final Exam lv1Exam = Exam.builder().id("lv1 exam").coefficient(1).build();
-  private final Exam badExam = Exam.builder().id("bad exam").coefficient(0).build();
+  private final Exam mgt1Exam =
+      Exam.builder().id("mgt1 exam").coefficientNumerator(1).coefficientDenominator(1).build();
+  private final Exam prog1Exam =
+      Exam.builder().id("prog1 exam").coefficientNumerator(1).coefficientDenominator(1).build();
+  private final Exam donnees1Exam =
+      Exam.builder().id("donnees1 exam").coefficientNumerator(1).coefficientDenominator(1).build();
+  private final Exam web1Exam =
+      Exam.builder().id("web1 exam").coefficientNumerator(1).coefficientDenominator(1).build();
+  private final Exam sys1Exam =
+      Exam.builder().id("sys1 exam").coefficientNumerator(1).coefficientDenominator(1).build();
+  private final Exam lv1Exam =
+      Exam.builder().id("lv1 exam").coefficientNumerator(1).coefficientDenominator(1).build();
+  private final Exam badExam =
+      Exam.builder().id("bad exam").coefficientNumerator(0).coefficientDenominator(1).build();
 
   private final Grade student1Mgt1Grade = Grade.builder().score(17.75).exam(mgt1Exam).build();
   private final Grade student1Prog1Grade = Grade.builder().score(13.59).exam(prog1Exam).build();
