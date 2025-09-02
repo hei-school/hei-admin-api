@@ -28,10 +28,10 @@ public class ExamDao {
       Pageable pageable,
       String title,
       String courseCode,
+      String teacherId,
       String groupRef,
       Instant examinationDateStart,
-      Instant examinationDateEnd,
-      String courseAssignmentId) {
+      Instant examinationDateEnd) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Exam> query = builder.createQuery(Exam.class);
     Root<Exam> root = query.from(Exam.class);
@@ -51,9 +51,11 @@ public class ExamDao {
           builder.like(
               builder.lower(courseJoin.get("code")), "%" + courseCode.toLowerCase() + "%"));
     }
-    if (courseAssignmentId != null && !courseAssignmentId.isEmpty()) {
-      predicates.add(builder.equal(courseAssignmentJoin.get("id"), courseAssignmentId));
+
+    if (teacherId != null && !teacherId.isEmpty()) {
+      predicates.add(builder.equal(courseAssignmentJoin.get("mainTeacher").get("id"), teacherId));
     }
+
     if (groupRef != null && !groupRef.isEmpty()) {
       Join<CourseAssignment, Group> groupJoin = courseAssignmentJoin.join("groups", JoinType.LEFT);
       predicates.add(
