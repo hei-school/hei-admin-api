@@ -10,7 +10,6 @@ import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.validator.FractionValidator;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.service.CourseAssignmentService;
-import school.hei.haapi.service.GradeService;
 
 @Component
 @AllArgsConstructor
@@ -22,9 +21,10 @@ public class ExamMapper {
   public Exam toRest(school.hei.haapi.model.Exam exam) {
     return new Exam()
         .id(exam.getId())
-        .coefficient(new Fraction()
-            .numerator(exam.getCoefficientNumerator())
-            .denominator(exam.getCoefficientDenominator()))
+        .coefficient(
+            new Fraction()
+                .numerator(exam.getCoefficientNumerator())
+                .denominator(exam.getCoefficientDenominator()))
         .title(exam.getTitle())
         .examinationDate(exam.getExaminationDate())
         .courseAssignment(courseAssignmentMapper.toRest(exam.getCourseAssignment()));

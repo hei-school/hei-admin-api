@@ -21,8 +21,11 @@ public class ExamValidator implements Consumer<Exam> {
   @Override
   public void accept(Exam exam) {
     Set<String> violationMessages = new HashSet<>();
-    if (exam.getCoefficient() < 0) {
-      violationMessages.add("Coefficient can't be less than 0");
+    if (exam.getCoefficientNumerator() <= 0) {
+      violationMessages.add("Coefficient numerator can't be less than 0");
+    }
+    if (exam.getCoefficientDenominator() <= 0) {
+      violationMessages.add("Coefficient denominator can't be less than 0");
     }
     if (exam.getTitle() == null) {
       violationMessages.add("Title is mandatory");
