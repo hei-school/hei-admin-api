@@ -93,10 +93,8 @@ public class CourseResultService {
   public ResultOverviewStatus courseValidationFromCourseResult(List<CourseResult> courseResults) {
     var coursesResultStatus = courseResults.parallelStream().map(CourseResult::getStatus).toList();
     if (coursesResultStatus.stream()
-        .map(Optional::ofNullable)
-        .allMatch(
-            courseResultStatus ->
-                courseResultStatus.filter(CourseResultStatus.VALIDATED::equals).isPresent())) {
+        .filter(Objects::nonNull)
+        .allMatch(CourseResultStatus.VALIDATED::equals)) {
       return VALIDATED;
     }
     if (coursesResultStatus.stream().anyMatch(CourseResultStatus.IN_PROGRESS::equals)) {

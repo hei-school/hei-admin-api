@@ -98,25 +98,18 @@ public class Grade implements Serializable {
   public static Optional<Fraction> weightedAverageOfGrades(List<Grade> grades) {
     var sumCoefficients =
         grades.stream()
-            .map(
-                grade ->
-                    Fraction.getFraction(
-                        grade.getExam().getCoefficientNumerator(),
-                        grade.getExam().getCoefficientDenominator()))
+            .map(grade -> grade.getExam().getCoefficientFraction())
             .reduce(Fraction::add);
     var weightedSum =
         grades.stream()
             .map(
                 grade -> {
-                  var coefficientFrac =
-                      Fraction.getFraction(
-                          grade.getExam().getCoefficientNumerator(),
-                          grade.getExam().getCoefficientDenominator());
+                  var coefficientFrac = grade.getExam().getCoefficientFraction();
                   return coefficientFrac.multiplyBy(Fraction.getFraction(grade.getScore()));
                 })
             .reduce(Fraction::add);
 
-    if (sumCoefficients.isEmpty() || sumCoefficients.get().getNumerator() == 0)
+    if (sumCoefficients.isEmpty() || sumCoefficients.get().compareTo(Fraction.ZERO) == 0)
       throw new ExamsCoefficientSumZero();
     return weightedSum.map(fraction -> fraction.divideBy(sumCoefficients.get()));
   }

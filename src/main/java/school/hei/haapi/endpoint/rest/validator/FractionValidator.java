@@ -1,13 +1,11 @@
 package school.hei.haapi.endpoint.rest.validator;
 
 import java.util.function.Consumer;
-import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Fraction;
 import school.hei.haapi.model.exception.BadRequestException;
 
 @Component
-@AllArgsConstructor
 public class FractionValidator implements Consumer<Fraction> {
 
   @Override

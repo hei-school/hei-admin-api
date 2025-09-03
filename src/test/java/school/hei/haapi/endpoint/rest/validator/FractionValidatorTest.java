@@ -1,30 +1,21 @@
 package school.hei.haapi.endpoint.rest.validator;
 
+import static java.lang.Integer.MAX_VALUE;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.model.Fraction;
 import school.hei.haapi.model.exception.BadRequestException;
 
 class FractionValidatorTest {
 
-  private FractionValidator fractionValidator;
-  private Fraction validFraction;
-
-  @BeforeEach
-  void setUp() {
-    fractionValidator = new FractionValidator();
-    validFraction = new Fraction();
-    validFraction.setNumerator(1);
-    validFraction.setDenominator(2);
-  }
+  private final FractionValidator fractionValidator = new FractionValidator();
 
   @Test
   void accept_WithValidFraction_ShouldNotThrowException() {
-    assertDoesNotThrow(() -> fractionValidator.accept(validFraction));
+    assertDoesNotThrow(() -> fractionValidator.accept(aFraction(1, 2)));
   }
 
   @Test
@@ -36,9 +27,7 @@ class FractionValidatorTest {
 
   @Test
   void accept_WithNullNumerator_ShouldThrowBadRequestException() {
-    Fraction fraction = new Fraction();
-    fraction.setNumerator(null);
-    fraction.setDenominator(2);
+    var fraction = aFraction(null, 1);
 
     BadRequestException exception =
         assertThrows(BadRequestException.class, () -> fractionValidator.accept(fraction));
@@ -47,9 +36,7 @@ class FractionValidatorTest {
 
   @Test
   void accept_WithNullDenominator_ShouldThrowBadRequestException() {
-    Fraction fraction = new Fraction();
-    fraction.setNumerator(1);
-    fraction.setDenominator(null);
+    var fraction = aFraction(1, null);
 
     BadRequestException exception =
         assertThrows(BadRequestException.class, () -> fractionValidator.accept(fraction));
@@ -58,9 +45,7 @@ class FractionValidatorTest {
 
   @Test
   void accept_WithBothNullComponents_ShouldThrowBadRequestException() {
-    Fraction fraction = new Fraction();
-    fraction.setNumerator(null);
-    fraction.setDenominator(null);
+    var fraction = aFraction(null, null);
 
     BadRequestException exception =
         assertThrows(BadRequestException.class, () -> fractionValidator.accept(fraction));
@@ -69,9 +54,7 @@ class FractionValidatorTest {
 
   @Test
   void accept_WithZeroNumerator_ShouldThrowBadRequestException() {
-    Fraction fraction = new Fraction();
-    fraction.setNumerator(0);
-    fraction.setDenominator(2);
+    var fraction = aFraction(0, 2);
 
     BadRequestException exception =
         assertThrows(BadRequestException.class, () -> fractionValidator.accept(fraction));
@@ -81,9 +64,7 @@ class FractionValidatorTest {
 
   @Test
   void accept_WithNegativeNumerator_ShouldThrowBadRequestException() {
-    Fraction fraction = new Fraction();
-    fraction.setNumerator(-5);
-    fraction.setDenominator(2);
+    var fraction = aFraction(-5, 2);
 
     BadRequestException exception =
         assertThrows(BadRequestException.class, () -> fractionValidator.accept(fraction));
@@ -93,9 +74,7 @@ class FractionValidatorTest {
 
   @Test
   void accept_WithZeroDenominator_ShouldThrowBadRequestException() {
-    Fraction fraction = new Fraction();
-    fraction.setNumerator(1);
-    fraction.setDenominator(0);
+    var fraction = aFraction(1, 0);
 
     BadRequestException exception =
         assertThrows(BadRequestException.class, () -> fractionValidator.accept(fraction));
@@ -105,9 +84,7 @@ class FractionValidatorTest {
 
   @Test
   void accept_WithNegativeDenominator_ShouldThrowBadRequestException() {
-    Fraction fraction = new Fraction();
-    fraction.setNumerator(1);
-    fraction.setDenominator(-3);
+    var fraction = aFraction(2, -3);
 
     BadRequestException exception =
         assertThrows(BadRequestException.class, () -> fractionValidator.accept(fraction));
@@ -117,9 +94,7 @@ class FractionValidatorTest {
 
   @Test
   void accept_WithBothNegativeComponents_ShouldThrowBadRequestException() {
-    Fraction fraction = new Fraction();
-    fraction.setNumerator(-1);
-    fraction.setDenominator(-2);
+    var fraction = aFraction(-2, -3);
 
     BadRequestException exception =
         assertThrows(BadRequestException.class, () -> fractionValidator.accept(fraction));
@@ -129,9 +104,7 @@ class FractionValidatorTest {
 
   @Test
   void accept_WithBothZeroComponents_ShouldThrowBadRequestException() {
-    Fraction fraction = new Fraction();
-    fraction.setNumerator(0);
-    fraction.setDenominator(0);
+    var fraction = aFraction(0, 0);
 
     BadRequestException exception =
         assertThrows(BadRequestException.class, () -> fractionValidator.accept(fraction));
@@ -141,19 +114,19 @@ class FractionValidatorTest {
 
   @Test
   void accept_WithLargePositiveValues_ShouldNotThrowException() {
-    Fraction fraction = new Fraction();
-    fraction.setNumerator(Integer.MAX_VALUE);
-    fraction.setDenominator(Integer.MAX_VALUE);
+    var fraction = aFraction(MAX_VALUE, MAX_VALUE);
 
     assertDoesNotThrow(() -> fractionValidator.accept(fraction));
   }
 
   @Test
   void accept_WithMinimumPositiveValues_ShouldNotThrowException() {
-    Fraction fraction = new Fraction();
-    fraction.setNumerator(1);
-    fraction.setDenominator(1);
+    var fraction = aFraction(1, 1);
 
     assertDoesNotThrow(() -> fractionValidator.accept(fraction));
+  }
+
+  private Fraction aFraction(Integer numerator, Integer denominator) {
+    return new Fraction().numerator(numerator).denominator(denominator);
   }
 }

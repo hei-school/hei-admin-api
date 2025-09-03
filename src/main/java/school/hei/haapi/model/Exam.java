@@ -13,6 +13,7 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -20,6 +21,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.lang3.math.Fraction;
 
 @Entity
 @Table(name = "\"exam\"")
@@ -35,8 +37,12 @@ public class Exam implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
+  @Setter(AccessLevel.NONE)
   private Integer coefficientNumerator;
+
+  @Setter(AccessLevel.NONE)
   private Integer coefficientDenominator;
+
   private String title;
 
   @ManyToOne
@@ -51,4 +57,13 @@ public class Exam implements Serializable {
 
   @Column(name = "examination_date", nullable = false)
   private Instant examinationDate;
+
+  public Fraction getCoefficientFraction() {
+    return Fraction.getFraction(coefficientNumerator, coefficientDenominator);
+  }
+
+  public void setCoefficientFraction(Fraction fraction) {
+    this.coefficientNumerator = fraction.getNumerator();
+    this.coefficientDenominator = fraction.getDenominator();
+  }
 }

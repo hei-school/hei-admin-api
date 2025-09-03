@@ -116,6 +116,7 @@ import school.hei.haapi.endpoint.rest.model.UserIdentifier;
 import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.CertificateLoader;
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
+import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -439,6 +440,10 @@ public class TestUtils {
   public static void assertBadRequestException(String exceptedMessage, Executable executable) {
     assertThrowsApiException(
         "{\"type\":\"400 BAD_REQUEST\",\"message\":\"%s\"}".formatted(exceptedMessage), executable);
+  }
+
+  public static BadRequestException assertThrowsDomainBadRequestException(Executable executable) {
+    return assertThrows(BadRequestException.class, executable);
   }
 
   public static File getMockedFile(String fileName, String extension) {

@@ -14,9 +14,9 @@ import school.hei.haapi.service.CourseAssignmentService;
 @Component
 @AllArgsConstructor
 public class ExamMapper {
-  private CourseAssignmentMapper courseAssignmentMapper;
-  private CourseAssignmentService courseAssignmentService;
-  private FractionValidator fractionValidator;
+  private final CourseAssignmentMapper courseAssignmentMapper;
+  private final CourseAssignmentService courseAssignmentService;
+  private final FractionValidator fractionValidator;
 
   public Exam toRest(school.hei.haapi.model.Exam exam) {
     return new Exam()

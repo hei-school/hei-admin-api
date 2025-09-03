@@ -1,11 +1,13 @@
 package school.hei.haapi.unit.validator;
 
 import static java.time.Instant.now;
-import static org.junit.jupiter.api.Assertions.*;
+import static java.util.Collections.emptyList;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
 
-import java.util.ArrayList;
 import java.util.List;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -17,109 +19,59 @@ import school.hei.haapi.model.validator.ExamValidator;
 @ExtendWith(MockitoExtension.class)
 class ExamValidatorTest {
 
-  private ExamValidator examValidator;
-  private Exam validExam;
+  private final ExamValidator subject = new ExamValidator();
 
-  @BeforeEach
-  void setUp() {
-    examValidator = new ExamValidator();
-
-    // Create a valid exam for base testing
-    validExam = new Exam();
-    validExam.setCoefficientNumerator(1);
-    validExam.setCoefficientDenominator(1);
-    validExam.setTitle("Math Exam");
-    validExam.setCourseAssignment(new CourseAssignment()); // Assuming this exists
-    validExam.setExaminationDate(now());
+  private static Exam validExam() {
+    return Exam.builder()
+        .title("Math Exam")
+        .courseAssignment(new CourseAssignment())
+        .examinationDate(now())
+        .build();
   }
 
   @Test
   void acceptSingleExam_WithValidExam_ShouldNotThrowException() {
-    assertDoesNotThrow(() -> examValidator.accept(validExam));
+    assertDoesNotThrow(() -> subject.accept(validExam()));
   }
 
   @Test
   void acceptListOfExams_WithValidExams_ShouldNotThrowException() {
-    List<Exam> exams = List.of(validExam, validExam);
+    List<Exam> exams = List.of(validExam(), validExam());
 
-    assertDoesNotThrow(() -> examValidator.accept(exams));
+    assertDoesNotThrow(() -> subject.accept(exams));
   }
 
   @Test
   void acceptSingleExam_WithNullTitle_ShouldThrowBadRequestException() {
-    Exam exam = createCopy(validExam);
+    Exam exam = validExam();
     exam.setTitle(null);
 
     BadRequestException exception =
-        assertThrows(BadRequestException.class, () -> examValidator.accept(exam));
+        assertThrowsDomainBadRequestException(() -> subject.accept(exam));
 
     assertTrue(exception.getMessage().contains("Title is mandatory"));
   }
 
   @Test
   void acceptSingleExam_WithNullCourseAssignment_ShouldThrowBadRequestException() {
-    Exam exam = createCopy(validExam);
+    Exam exam = validExam();
     exam.setCourseAssignment(null);
 
     BadRequestException exception =
-        assertThrows(BadRequestException.class, () -> examValidator.accept(exam));
+        assertThrowsDomainBadRequestException(() -> subject.accept(exam));
 
     assertTrue(exception.getMessage().contains("Awarded course is mandatory"));
   }
 
   @Test
   void acceptSingleExam_WithNullExaminationDate_ShouldThrowBadRequestException() {
-    Exam exam = createCopy(validExam);
+    Exam exam = validExam();
     exam.setExaminationDate(null);
 
     BadRequestException exception =
-        assertThrows(BadRequestException.class, () -> examValidator.accept(exam));
+        assertThrowsDomainBadRequestException(() -> subject.accept(exam));
 
     assertTrue(exception.getMessage().contains("Examination date is mandatory"));
-  }
-
-  @Test
-  void acceptSingleExam_WithZeroCoefficientNumerator_ShouldThrowBadRequestException() {
-    Exam exam = createCopy(validExam);
-    exam.setCoefficientNumerator(0);
-
-    BadRequestException exception =
-        assertThrows(BadRequestException.class, () -> examValidator.accept(exam));
-
-    assertTrue(exception.getMessage().contains("Coefficient numerator can't be less than 0"));
-  }
-
-  @Test
-  void acceptSingleExam_WithNegativeCoefficientNumerator_ShouldThrowBadRequestException() {
-    Exam exam = createCopy(validExam);
-    exam.setCoefficientNumerator(-5);
-
-    BadRequestException exception =
-        assertThrows(BadRequestException.class, () -> examValidator.accept(exam));
-
-    assertTrue(exception.getMessage().contains("Coefficient numerator can't be less than 0"));
-  }
-
-  @Test
-  void acceptSingleExam_WithZeroCoefficientDenominator_ShouldThrowBadRequestException() {
-    Exam exam = createCopy(validExam);
-    exam.setCoefficientDenominator(0);
-
-    BadRequestException exception =
-        assertThrows(BadRequestException.class, () -> examValidator.accept(exam));
-
-    assertTrue(exception.getMessage().contains("Coefficient denominator can't be less than 0"));
-  }
-
-  @Test
-  void acceptSingleExam_WithNegativeCoefficientDenominator_ShouldThrowBadRequestException() {
-    Exam exam = createCopy(validExam);
-    exam.setCoefficientDenominator(-3);
-
-    BadRequestException exception =
-        assertThrows(BadRequestException.class, () -> examValidator.accept(exam));
-
-    assertTrue(exception.getMessage().contains("Coefficient denominator can't be less than 0"));
   }
 
   @Test
@@ -127,8 +79,7 @@ class ExamValidatorTest {
     Exam exam = new Exam();
 
     BadRequestException exception =
-        assertThrows(BadRequestException.class, () -> examValidator.accept(exam));
-
+        assertThrowsDomainBadRequestException(() -> subject.accept(exam));
     String message = exception.getMessage();
     assertTrue(message.contains("Title is mandatory"));
     assertTrue(message.contains("Awarded course is mandatory"));
@@ -138,48 +89,38 @@ class ExamValidatorTest {
 
   @Test
   void acceptListOfExams_WithOneInvalidExam_ShouldThrowExceptionOnFirstInvalid() {
-    Exam invalidExam = createCopy(validExam);
+    Exam invalidExam = validExam();
     invalidExam.setTitle(null);
 
-    List<Exam> exams = List.of(validExam, invalidExam);
+    List<Exam> exams = List.of(validExam(), invalidExam);
 
     BadRequestException exception =
-        assertThrows(BadRequestException.class, () -> examValidator.accept(exams));
+        assertThrowsDomainBadRequestException(() -> subject.accept(exams));
 
     assertTrue(exception.getMessage().contains("Title is mandatory"));
   }
 
   @Test
   void acceptListOfExams_WithEmptyList_ShouldNotThrowException() {
-    List<Exam> emptyList = new ArrayList<>();
+    List<Exam> emptyList = emptyList();
 
-    assertDoesNotThrow(() -> examValidator.accept(emptyList));
+    assertDoesNotThrow(() -> subject.accept(emptyList));
   }
 
   @Test
   void acceptListOfExams_WithAllInvalidExams_ShouldThrowExceptionOnFirstExam() {
-    Exam invalidExam1 = createCopy(validExam);
+    Exam invalidExam1 = validExam();
     invalidExam1.setTitle(null);
 
-    Exam invalidExam2 = createCopy(validExam);
+    Exam invalidExam2 = validExam();
     invalidExam2.setCourseAssignment(null);
 
     List<Exam> exams = List.of(invalidExam1, invalidExam2);
 
     BadRequestException exception =
-        assertThrows(BadRequestException.class, () -> examValidator.accept(exams));
+        assertThrowsDomainBadRequestException(() -> subject.accept(exams));
 
     assertTrue(exception.getMessage().contains("Title is mandatory"));
     assertFalse(exception.getMessage().contains("Awarded course is mandatory"));
-  }
-
-  private Exam createCopy(Exam original) {
-    Exam copy = new Exam();
-    copy.setCoefficientNumerator(original.getCoefficientNumerator());
-    copy.setCoefficientDenominator(original.getCoefficientDenominator());
-    copy.setTitle(original.getTitle());
-    copy.setCourseAssignment(original.getCourseAssignment());
-    copy.setExaminationDate(original.getExaminationDate());
-    return copy;
   }
 }
