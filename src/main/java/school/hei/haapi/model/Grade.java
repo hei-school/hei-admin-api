@@ -116,7 +116,8 @@ public class Grade implements Serializable {
                 })
             .reduce(Fraction::add);
 
-    if (sumCoefficients.isEmpty()) throw new ExamsCoefficientSumZero();
+    if (sumCoefficients.isEmpty() || sumCoefficients.get().getNumerator() == 0)
+      throw new ExamsCoefficientSumZero();
     return weightedSum.map(fraction -> fraction.divideBy(sumCoefficients.get()));
   }
 }

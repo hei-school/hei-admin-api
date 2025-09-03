@@ -19,11 +19,16 @@ public class FileUtils {
 
   public static File createFileFromBytes(byte[] bytes, String filename, String suffix) {
     try {
-      FileAttribute<Set<PosixFilePermission>> attr =
-          PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
-      File tempDir = Files.createTempDirectory("haapi-temp", attr).toFile();
-      File file = File.createTempFile(filename, suffix, tempDir);
-      if (!IS_OS_UNIX) {
+      File file;
+      File tempDir;
+      if (IS_OS_UNIX) {
+        FileAttribute<Set<PosixFilePermission>> attr =
+            PosixFilePermissions.asFileAttribute(PosixFilePermissions.fromString("rwx------"));
+        tempDir = Files.createTempDirectory("haapi-temp", attr).toFile();
+        file = File.createTempFile(filename, suffix, tempDir);
+      } else {
+        tempDir = Files.createTempDirectory("haapi-temp").toFile();
+        file = File.createTempFile(filename, suffix, tempDir);
         boolean readableResult = file.setReadable(true, true);
         boolean writableResult = file.setWritable(true, true);
         if (!(readableResult && writableResult)) {
