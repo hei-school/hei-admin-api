@@ -14,7 +14,6 @@ import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -99,20 +98,19 @@ class UnverifiedMobilePaymentHandlerTest {
             .creationDatetime(now().minus(25, DAYS))
             .status(PENDING)
             .statusHistory(
-                new ArrayList<>(
-                    List.of(
-                        MpbsStatusHistory.builder()
-                            .creationInstant(now().minus(1, DAYS))
-                            .status(PENDING)
-                            .build(),
-                        MpbsStatusHistory.builder()
-                            .creationInstant(now().minus(10, DAYS))
-                            .status(FAILED)
-                            .build(),
-                        MpbsStatusHistory.builder()
-                            .creationInstant(now().minus(25, DAYS))
-                            .status(PENDING)
-                            .build())))
+                List.of(
+                    MpbsStatusHistory.builder()
+                        .creationInstant(now().minus(1, DAYS))
+                        .status(PENDING)
+                        .build(),
+                    MpbsStatusHistory.builder()
+                        .creationInstant(now().minus(10, DAYS))
+                        .status(FAILED)
+                        .build(),
+                    MpbsStatusHistory.builder()
+                        .creationInstant(now().minus(25, DAYS))
+                        .status(PENDING)
+                        .build()))
             .build();
 
     assertDoesNotThrow(() -> subject.accept(List.of(mpbsRetried)));
@@ -137,20 +135,19 @@ class UnverifiedMobilePaymentHandlerTest {
             .creationDatetime(now().minus(25, DAYS))
             .status(PENDING)
             .statusHistory(
-                new ArrayList<>(
-                    List.of(
-                        MpbsStatusHistory.builder()
-                            .creationInstant(now().minus(4, DAYS))
-                            .status(PENDING)
-                            .build(),
-                        MpbsStatusHistory.builder()
-                            .creationInstant(now().minus(10, DAYS))
-                            .status(FAILED)
-                            .build(),
-                        MpbsStatusHistory.builder()
-                            .creationInstant(now().minus(25, DAYS))
-                            .status(PENDING)
-                            .build())))
+                List.of(
+                    MpbsStatusHistory.builder()
+                        .creationInstant(now().minus(4, DAYS))
+                        .status(PENDING)
+                        .build(),
+                    MpbsStatusHistory.builder()
+                        .creationInstant(now().minus(10, DAYS))
+                        .status(FAILED)
+                        .build(),
+                    MpbsStatusHistory.builder()
+                        .creationInstant(now().minus(25, DAYS))
+                        .status(PENDING)
+                        .build()))
             .build();
 
     assertDoesNotThrow(() -> subject.accept(List.of(mpbsFailedRetried)));
