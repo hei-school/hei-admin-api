@@ -65,8 +65,8 @@ class UnverifiedMobilePaymentHandlerTest {
   }
 
   @Test
-  void rePended_mpbs_validity_period_start_with_last_history() {
-    var mpbsRePended =
+  void retried_mpbs_validity_period_start_with_last_history() {
+    var mpbsRetried =
         Mpbs.builder()
             .creationDatetime(now().minus(25L, DAYS))
             .status(PENDING)
@@ -87,7 +87,7 @@ class UnverifiedMobilePaymentHandlerTest {
                             .build())))
             .build();
 
-    assertDoesNotThrow(() -> subject.accept(List.of(mpbsRePended)));
+    assertDoesNotThrow(() -> subject.accept(List.of(mpbsRetried)));
 
     var listCaptor = ArgumentCaptor.forClass(List.class);
     verify(failedMobilePaymentNotificationMock, times(1)).accept(listCaptor.capture());
@@ -102,8 +102,8 @@ class UnverifiedMobilePaymentHandlerTest {
   }
 
   @Test
-  void failed_rePended_mpbs_validity_period_start_with_last_history() {
-    var mpbsFailedRePended =
+  void failed_retried_mpbs_validity_period_start_with_last_history() {
+    var mpbsFailedRetried =
         Mpbs.builder()
             .creationDatetime(now().minus(25L, DAYS))
             .status(PENDING)
@@ -124,7 +124,7 @@ class UnverifiedMobilePaymentHandlerTest {
                             .build())))
             .build();
 
-    assertDoesNotThrow(() -> subject.accept(List.of(mpbsFailedRePended)));
+    assertDoesNotThrow(() -> subject.accept(List.of(mpbsFailedRetried)));
 
     var listCaptor = ArgumentCaptor.forClass(List.class);
     verify(failedMobilePaymentNotificationMock, times(1)).accept(listCaptor.capture());
