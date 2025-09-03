@@ -84,7 +84,7 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
         .max(comparing(MpbsStatusHistory::getCreationInstant));
   }
 
-  public boolean exceedsValidationDate() {
+  public boolean doesExceedsValidationDate() {
     return lastStatusHistory()
             .map(MpbsStatusHistory::getCreationInstant)
             .orElseGet(this::getCreationDatetime)
