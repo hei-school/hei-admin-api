@@ -219,8 +219,9 @@ class ExamIT extends FacadeITMockedThirdParties {
     ExamsApi api = new ExamsApi(teacher1Client);
     Exam actualCreate = api.createOrUpdateExamsInfos(createExam1());
 
+    var expectedCoefficient = new Fraction().numerator(2).denominator(1);
     assertEquals("Algorithmics", actualCreate.getTitle());
-    assertEquals(2, actualCreate.getCoefficient());
+    assertEquals(expectedCoefficient, actualCreate.getCoefficient());
   }
 
   @Test
@@ -249,9 +250,9 @@ class ExamIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     ExamsApi api = new ExamsApi(manager1Client);
     Exam actualCreate = api.createOrUpdateExamsInfos(createExam1());
-
+    var expectedCoefficient = new Fraction().numerator(2).denominator(1);
     assertEquals("Algorithmics", actualCreate.getTitle());
-    assertEquals(2, actualCreate.getCoefficient());
+    assertEquals(expectedCoefficient, actualCreate.getCoefficient());
   }
 
   @Test

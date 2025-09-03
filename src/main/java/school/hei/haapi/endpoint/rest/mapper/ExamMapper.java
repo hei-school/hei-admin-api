@@ -31,9 +31,12 @@ public class ExamMapper {
   }
 
   public school.hei.haapi.model.Exam toDomain(Exam examInfo, CourseAssignment courseAssignment) {
+    fractionValidator.accept(examInfo.getCoefficient());
     return school.hei.haapi.model.Exam.builder()
         .id(examInfo.getId())
         .title(examInfo.getTitle())
+        .coefficientNumerator(examInfo.getCoefficient().getNumerator())
+        .coefficientDenominator(examInfo.getCoefficient().getDenominator())
         .examinationDate(examInfo.getExaminationDate())
         .courseAssignment(courseAssignment)
         .build();
