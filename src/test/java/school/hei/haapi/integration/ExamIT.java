@@ -44,6 +44,7 @@ import school.hei.haapi.endpoint.rest.api.GradesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Exam;
+import school.hei.haapi.endpoint.rest.model.Fraction;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
@@ -227,8 +228,15 @@ class ExamIT extends FacadeITMockedThirdParties {
     ExamsApi api = new ExamsApi(anApiClient(TEACHER1_TOKEN));
 
     assertBadRequestException(
-        "Coefficient can't be less than 0",
-        () -> api.createOrUpdateExamsInfos(createExam1().coefficient(-1)));
+        "Components of the fraction cannot be less or equal than 0",
+        () ->
+            api.createOrUpdateExamsInfos(
+                createExam1().coefficient(new Fraction().numerator(-2).denominator(0))));
+
+    assertBadRequestException(
+        "Components of the fraction cannot be null",
+        () ->
+            api.createOrUpdateExamsInfos(createExam1().coefficient(new Fraction().numerator(-2))));
     assertBadRequestException(
         "Title is mandatory", () -> api.createOrUpdateExamsInfos(createExam1().title(null)));
     assertBadRequestException(

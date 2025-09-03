@@ -95,6 +95,7 @@ import school.hei.haapi.endpoint.rest.model.Exam;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeTemplate;
+import school.hei.haapi.endpoint.rest.model.Fraction;
 import school.hei.haapi.endpoint.rest.model.Grade;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.GroupIdentifier;
@@ -507,7 +508,7 @@ public class TestUtils {
 
   public static Exam createExam() {
     return new Exam()
-        .coefficient(10)
+        .coefficient(new Fraction().numerator(10).denominator(1))
         .title("createExam")
         .examinationDate(Instant.parse("2021-11-08T08:25:24.00Z"))
         .courseAssignment(courseAssignment1());
@@ -920,7 +921,7 @@ public class TestUtils {
 
   public static CrupdateExam createExam1() {
     return new CrupdateExam()
-        .coefficient(2)
+        .coefficient(new Fraction().numerator(2).denominator(1))
         .title("Algorithmics")
         .courseAssignmentId(courseAssignment1().getId())
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
@@ -929,7 +930,7 @@ public class TestUtils {
   public static Exam exam1() {
     return new Exam()
         .id(EXAM1_ID)
-        .coefficient(2)
+        .coefficient(new Fraction().numerator(2).denominator(1))
         .title("Algorithmics")
         .courseAssignment(courseAssignment1())
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
@@ -938,7 +939,7 @@ public class TestUtils {
   public static Exam exam2() {
     return new Exam()
         .id(EXAM2_ID)
-        .coefficient(3)
+        .coefficient(new Fraction().numerator(3).denominator(1))
         .title("Algorithmics final")
         .courseAssignment(courseAssignment1())
         .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
@@ -947,7 +948,7 @@ public class TestUtils {
   public static Exam exam3() {
     return new Exam()
         .id(EXAM3_ID)
-        .coefficient(2)
+        .coefficient(new Fraction().numerator(2).denominator(1))
         .title("Algorithmics")
         .courseAssignment(courseAssignment3())
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));
@@ -956,7 +957,7 @@ public class TestUtils {
   public static Exam exam4() {
     return new Exam()
         .id(EXAM4_ID)
-        .coefficient(3)
+        .coefficient(new Fraction().numerator(2).denominator(1))
         .title("Algorithmics2")
         .courseAssignment(courseAssignment2())
         .examinationDate(Instant.parse("2022-11-09T08:25:24Z"));
@@ -965,7 +966,7 @@ public class TestUtils {
   public static Exam exam5() {
     return new Exam()
         .id(EXAM5_ID)
-        .coefficient(1)
+        .coefficient(new Fraction().numerator(1).denominator(1))
         .title("Prog2 final")
         .courseAssignment(courseAssignment4())
         .examinationDate(Instant.parse("2022-12-09T08:25:24Z"));

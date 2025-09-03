@@ -15,7 +15,8 @@ public class ExamTestData {
         .grades(new ArrayList<>())
         .examinationDate(examinationDate)
         .courseAssignment(courseAssignment)
-        .coefficient(2)
+        .coefficientNumerator(2)
+        .coefficientDenominator(1)
         .build();
   }
 }
