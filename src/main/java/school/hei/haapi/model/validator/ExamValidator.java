@@ -21,11 +21,15 @@ public class ExamValidator implements Consumer<Exam> {
   @Override
   public void accept(Exam exam) {
     Set<String> violationMessages = new HashSet<>();
-    if (exam.getCoefficientNumerator() <= 0) {
-      violationMessages.add("Coefficient numerator can't be less than 0");
-    }
-    if (exam.getCoefficientDenominator() <= 0) {
-      violationMessages.add("Coefficient denominator can't be less than 0");
+    if (exam.getCoefficientNumerator() != null || exam.getCoefficientDenominator() != null) {
+      if (exam.getCoefficientNumerator() <= 0) {
+        violationMessages.add("Coefficient numerator can't be less than 0");
+      }
+      if (exam.getCoefficientDenominator() <= 0) {
+        violationMessages.add("Coefficient denominator can't be less than 0");
+      }
+    } else {
+      violationMessages.add("Coefficient numerator or denominator cannot be null");
     }
     if (exam.getTitle() == null) {
       violationMessages.add("Title is mandatory");
