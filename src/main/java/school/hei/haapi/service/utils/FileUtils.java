@@ -28,6 +28,12 @@ public class FileUtils {
         file = File.createTempFile(filename, suffix, tempDir);
       } else {
         tempDir = Files.createTempDirectory("haapi-temp").toFile();
+        var readableDirResult = tempDir.setReadable(true, true);
+        var writableDirResult = tempDir.setWritable(true, true);
+        var executableDirResult = tempDir.setExecutable(true, true);
+        if (!(readableDirResult && writableDirResult && executableDirResult)) {
+          throw new IOException("Cannot set temp dir permission");
+        }
         file = File.createTempFile(filename, suffix, tempDir);
         boolean readableResult = file.setReadable(true, true);
         boolean writableResult = file.setWritable(true, true);
