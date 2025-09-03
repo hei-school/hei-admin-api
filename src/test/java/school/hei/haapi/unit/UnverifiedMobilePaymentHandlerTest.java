@@ -33,11 +33,32 @@ class UnverifiedMobilePaymentHandlerTest {
 
   @Test
   void save_failed_mpbs_and_trigger_failed_mobile_payment_notification() {
-    var mpbsMock1 = Mpbs.builder().creationDatetime(now()).status(PENDING).build();
-    var mpbsMock2 = Mpbs.builder().creationDatetime(now().minus(1, DAYS)).status(PENDING).build();
-    var mpbsMock3 = Mpbs.builder().creationDatetime(now().minus(2, DAYS)).status(PENDING).build();
-    var mpbsMock4 = Mpbs.builder().creationDatetime(now().minus(3, DAYS)).status(PENDING).build();
-    var mpbsMock5 = Mpbs.builder().creationDatetime(now().minus(25, DAYS)).status(PENDING).build();
+    var mpbsMock1 =
+        Mpbs.builder().creationDatetime(now()).status(PENDING).statusHistory(List.of()).build();
+    var mpbsMock2 =
+        Mpbs.builder()
+            .creationDatetime(now().minus(1, DAYS))
+            .status(PENDING)
+            .statusHistory(List.of())
+            .build();
+    var mpbsMock3 =
+        Mpbs.builder()
+            .creationDatetime(now().minus(2, DAYS))
+            .status(PENDING)
+            .statusHistory(List.of())
+            .build();
+    var mpbsMock4 =
+        Mpbs.builder()
+            .creationDatetime(now().minus(3, DAYS))
+            .status(PENDING)
+            .statusHistory(List.of())
+            .build();
+    var mpbsMock5 =
+        Mpbs.builder()
+            .creationDatetime(now().minus(25, DAYS))
+            .status(PENDING)
+            .statusHistory(List.of())
+            .build();
 
     assertDoesNotThrow(
         () -> subject.accept(List.of(mpbsMock1, mpbsMock2, mpbsMock3, mpbsMock4, mpbsMock5)));

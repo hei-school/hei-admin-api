@@ -19,11 +19,9 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -73,8 +71,7 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
   @JsonIgnore
   @EqualsAndHashCode.Exclude
   @ToString.Exclude
-  @Builder.Default
-  private List<MpbsStatusHistory> statusHistory = new ArrayList<>();
+  private List<MpbsStatusHistory> statusHistory;
 
   private static final int EXPIRATION_DURATION_IN_DAYS = 2;
 

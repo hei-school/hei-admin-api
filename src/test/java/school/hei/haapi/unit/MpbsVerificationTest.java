@@ -110,7 +110,12 @@ class MpbsVerificationTest {
     var student = User.builder().email("email@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
     var badMpbs =
-        Mpbs.builder().pspId("bad").creationDatetime(failedCreationDatetime).fee(fee).build();
+        Mpbs.builder()
+            .pspId("bad")
+            .creationDatetime(failedCreationDatetime)
+            .fee(fee)
+            .statusHistory(List.of())
+            .build();
     var mpbsVerified = someMpbs("verified", pendingCreationDatetime, fee, student);
     var mpbsFailed = someMpbs("pending", failedCreationDatetime, fee, student);
     var correspondingMockTransactionsFromVerifiedMpbs =
@@ -154,6 +159,7 @@ class MpbsVerificationTest {
         .fee(fee)
         .student(student)
         .amount(0)
+        .statusHistory(List.of())
         .build();
   }
 }
