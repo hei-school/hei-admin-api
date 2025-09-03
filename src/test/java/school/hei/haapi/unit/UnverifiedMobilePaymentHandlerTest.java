@@ -17,6 +17,7 @@ import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsStatusHistory;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
@@ -99,18 +100,9 @@ class UnverifiedMobilePaymentHandlerTest {
             .status(PENDING)
             .statusHistory(
                 List.of(
-                    MpbsStatusHistory.builder()
-                        .creationInstant(now().minus(1, DAYS))
-                        .status(PENDING)
-                        .build(),
-                    MpbsStatusHistory.builder()
-                        .creationInstant(now().minus(10, DAYS))
-                        .status(FAILED)
-                        .build(),
-                    MpbsStatusHistory.builder()
-                        .creationInstant(now().minus(25, DAYS))
-                        .status(PENDING)
-                        .build()))
+                    someStatusAt(now().minus(1, DAYS), PENDING),
+                    someStatusAt(now().minus(10, DAYS), FAILED),
+                    someStatusAt(now().minus(25, DAYS), PENDING)))
             .build();
 
     assertDoesNotThrow(() -> subject.accept(List.of(mpbsRetried)));
@@ -136,18 +128,9 @@ class UnverifiedMobilePaymentHandlerTest {
             .status(PENDING)
             .statusHistory(
                 List.of(
-                    MpbsStatusHistory.builder()
-                        .creationInstant(now().minus(4, DAYS))
-                        .status(PENDING)
-                        .build(),
-                    MpbsStatusHistory.builder()
-                        .creationInstant(now().minus(10, DAYS))
-                        .status(FAILED)
-                        .build(),
-                    MpbsStatusHistory.builder()
-                        .creationInstant(now().minus(25, DAYS))
-                        .status(PENDING)
-                        .build()))
+                    someStatusAt(now().minus(4, DAYS), PENDING),
+                    someStatusAt(now().minus(10, DAYS), FAILED),
+                    someStatusAt(now().minus(25, DAYS), PENDING)))
             .build();
 
     assertDoesNotThrow(() -> subject.accept(List.of(mpbsFailedRetried)));
@@ -176,5 +159,9 @@ class UnverifiedMobilePaymentHandlerTest {
         .status(PENDING)
         .lastVerificationDatetime(lastVerificationDatetime)
         .build();
+  }
+
+  private MpbsStatusHistory someStatusAt(Instant statusInstant, MpbsStatus status) {
+    return MpbsStatusHistory.builder().creationInstant(statusInstant).status(status).build();
   }
 }
