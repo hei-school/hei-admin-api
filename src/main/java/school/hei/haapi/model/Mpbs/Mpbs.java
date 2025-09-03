@@ -6,7 +6,7 @@ import static jakarta.persistence.FetchType.EAGER;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.Comparator.comparing;
-import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -80,7 +80,7 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
 
   private Optional<MpbsStatusHistory> lastStatusHistory() {
     return statusHistory.stream()
-        .filter(mpbsStatusHistory -> !isNull(mpbsStatusHistory.getCreationInstant()))
+        .filter(s -> nonNull(s.getCreationInstant()))
         .max(comparing(MpbsStatusHistory::getCreationInstant));
   }
 
