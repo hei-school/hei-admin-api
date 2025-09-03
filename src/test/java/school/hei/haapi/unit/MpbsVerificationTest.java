@@ -64,8 +64,8 @@ class MpbsVerificationTest {
             externalResponseMapper,
             computeVerifiedMobilePaymentMock);
 
-    var mbpsPending = someMpbs("pending", Instant.now(), mock(), null);
-    var mpbsVerified = someMpbs("verified", Instant.now(), mock(), null);
+    var mbpsPending = someMpbs("pending", Instant.now(), null);
+    var mpbsVerified = someMpbs("verified", Instant.now(), null);
     var correspondingMockTransactionsFromVerifiedMpbs =
         MobileTransactionDetails.builder()
             .pspTransactionRef(mpbsVerified.getPspId())
@@ -156,5 +156,13 @@ class MpbsVerificationTest {
         .amount(0)
         .statusHistory(List.of())
         .build();
+  }
+
+  private Mpbs someMpbs(String pspId, Instant creationDateTime, User student) {
+    return someMpbs(pspId, creationDateTime, feeMock(), student);
+  }
+
+  private Fee feeMock() {
+    return mock();
   }
 }
