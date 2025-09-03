@@ -100,9 +100,9 @@ class UnverifiedMobilePaymentHandlerTest {
             .status(PENDING)
             .statusHistory(
                 List.of(
-                    someStatusAt(now().minus(1, DAYS), PENDING),
-                    someStatusAt(now().minus(10, DAYS), FAILED),
-                    someStatusAt(now().minus(25, DAYS), PENDING)))
+                    someStatusAt(PENDING, now().minus(1, DAYS)),
+                    someStatusAt(FAILED, now().minus(10, DAYS)),
+                    someStatusAt(PENDING, now().minus(25, DAYS))))
             .build();
 
     assertDoesNotThrow(() -> subject.accept(List.of(mpbsRetried)));
@@ -128,9 +128,9 @@ class UnverifiedMobilePaymentHandlerTest {
             .status(PENDING)
             .statusHistory(
                 List.of(
-                    someStatusAt(now().minus(4, DAYS), PENDING),
-                    someStatusAt(now().minus(10, DAYS), FAILED),
-                    someStatusAt(now().minus(25, DAYS), PENDING)))
+                    someStatusAt(PENDING, now().minus(4, DAYS)),
+                    someStatusAt(FAILED, now().minus(10, DAYS)),
+                    someStatusAt(PENDING, now().minus(25, DAYS))))
             .build();
 
     assertDoesNotThrow(() -> subject.accept(List.of(mpbsFailedRetried)));
@@ -161,7 +161,7 @@ class UnverifiedMobilePaymentHandlerTest {
         .build();
   }
 
-  private MpbsStatusHistory someStatusAt(Instant statusInstant, MpbsStatus status) {
+  private MpbsStatusHistory someStatusAt(MpbsStatus status, Instant statusInstant) {
     return MpbsStatusHistory.builder().creationInstant(statusInstant).status(status).build();
   }
 }
