@@ -96,28 +96,33 @@ public class GradeResultService {
             .reduce(BigDecimal::add)
             .orElse(ZERO);
 
-    List<BigDecimal> yearlyResultWeightedAverages =
-        yearlyResultsDone.stream()
-            .map(YearlyResult::getWeightedAverage)
-            .filter(Objects::nonNull)
-            .toList();
-
-    BigDecimal yearlyResultsWeightedAverageSum =
-        yearlyResultWeightedAverages.stream().reduce(BigDecimal::add).orElse(ZERO);
-
-    BigDecimal weightedAverage =
-        yearlyResultsWeightedAverageSum.divide(
-            BigDecimal.valueOf(yearlyResultWeightedAverages.size()), DECIMAL128);
+    var weightedAverage =
+        getWeightedAverageFromYearlyResultValues(
+            yearlyResultsDone.stream()
+                .map(YearlyResult::getWeightedAverage)
+                .filter(Objects::nonNull)
+                .toList());
 
     return new ResultSummary()
         .yearlyResults(yearlyResults)
         .obtainedCredits(obtainedCredits)
-        .weightedAverage(weightedAverage)
+        .weightedAverage(weightedAverage.orElse(null))
         .status(resultSummaryStatusFromYearlyResults(yearlyResultsDone))
         .totalCredits(
             yearlyResultsDone.parallelStream()
                 .map(YearlyResult::getTotalCredits)
                 .reduce(ZERO, BigDecimal::add));
+  }
+
+  private Optional<BigDecimal> getWeightedAverageFromYearlyResultValues(
+      List<BigDecimal> yearlyResults) {
+    if (yearlyResults.isEmpty()) return Optional.empty();
+
+    return Optional.of(
+        yearlyResults.stream()
+            .reduce(BigDecimal::add)
+            .orElse(ZERO)
+            .divide(BigDecimal.valueOf(yearlyResults.size()), DECIMAL128));
   }
 
   private ResultOverviewStatus resultSummaryStatusFromYearlyResults(
