@@ -34,10 +34,10 @@ class UnverifiedMobilePaymentHandlerTest {
   @Test
   void save_failed_mpbs_and_trigger_failed_mobile_payment_notification() {
     var mpbsMock1 = Mpbs.builder().creationDatetime(now()).status(PENDING).build();
-    var mpbsMock2 = Mpbs.builder().creationDatetime(now().minus(1L, DAYS)).status(PENDING).build();
-    var mpbsMock3 = Mpbs.builder().creationDatetime(now().minus(2L, DAYS)).status(PENDING).build();
-    var mpbsMock4 = Mpbs.builder().creationDatetime(now().minus(3L, DAYS)).status(PENDING).build();
-    var mpbsMock5 = Mpbs.builder().creationDatetime(now().minus(25L, DAYS)).status(PENDING).build();
+    var mpbsMock2 = Mpbs.builder().creationDatetime(now().minus(1, DAYS)).status(PENDING).build();
+    var mpbsMock3 = Mpbs.builder().creationDatetime(now().minus(2, DAYS)).status(PENDING).build();
+    var mpbsMock4 = Mpbs.builder().creationDatetime(now().minus(3, DAYS)).status(PENDING).build();
+    var mpbsMock5 = Mpbs.builder().creationDatetime(now().minus(25, DAYS)).status(PENDING).build();
 
     assertDoesNotThrow(
         () -> subject.accept(List.of(mpbsMock1, mpbsMock2, mpbsMock3, mpbsMock4, mpbsMock5)));
@@ -74,21 +74,21 @@ class UnverifiedMobilePaymentHandlerTest {
   void retried_mpbs_validity_period_start_with_last_history() {
     var mpbsRetried =
         Mpbs.builder()
-            .creationDatetime(now().minus(25L, DAYS))
+            .creationDatetime(now().minus(25, DAYS))
             .status(PENDING)
             .statusHistory(
                 new ArrayList<>(
                     List.of(
                         MpbsStatusHistory.builder()
-                            .creationInstant(now().minus(1L, DAYS))
+                            .creationInstant(now().minus(1, DAYS))
                             .status(PENDING)
                             .build(),
                         MpbsStatusHistory.builder()
-                            .creationInstant(now().minus(10L, DAYS))
+                            .creationInstant(now().minus(10, DAYS))
                             .status(FAILED)
                             .build(),
                         MpbsStatusHistory.builder()
-                            .creationInstant(now().minus(25L, DAYS))
+                            .creationInstant(now().minus(25, DAYS))
                             .status(PENDING)
                             .build())))
             .build();
@@ -111,21 +111,21 @@ class UnverifiedMobilePaymentHandlerTest {
   void failed_retried_mpbs_validity_period_start_with_last_history() {
     var mpbsFailedRetried =
         Mpbs.builder()
-            .creationDatetime(now().minus(25L, DAYS))
+            .creationDatetime(now().minus(25, DAYS))
             .status(PENDING)
             .statusHistory(
                 new ArrayList<>(
                     List.of(
                         MpbsStatusHistory.builder()
-                            .creationInstant(now().minus(4L, DAYS))
+                            .creationInstant(now().minus(4, DAYS))
                             .status(PENDING)
                             .build(),
                         MpbsStatusHistory.builder()
-                            .creationInstant(now().minus(10L, DAYS))
+                            .creationInstant(now().minus(10, DAYS))
                             .status(FAILED)
                             .build(),
                         MpbsStatusHistory.builder()
-                            .creationInstant(now().minus(25L, DAYS))
+                            .creationInstant(now().minus(25, DAYS))
                             .status(PENDING)
                             .build())))
             .build();
