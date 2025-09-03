@@ -1,5 +1,6 @@
 package school.hei.haapi.unit;
 
+import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -64,8 +65,8 @@ class MpbsVerificationTest {
             externalResponseMapper,
             computeVerifiedMobilePaymentMock);
 
-    var mbpsPending = someMpbs("pending", Instant.now(), null);
-    var mpbsVerified = someMpbs("verified", Instant.now(), null);
+    var mbpsPending = someMpbs("pending", now(), null);
+    var mpbsVerified = someMpbs("verified", now(), null);
     var correspondingMockTransactionsFromVerifiedMpbs =
         MobileTransactionDetails.builder()
             .pspTransactionRef(mpbsVerified.getPspId())
@@ -105,8 +106,8 @@ class MpbsVerificationTest {
             externalResponseMapper,
             computeVerifiedMobilePaymentMock);
 
-    var pendingCreationDatetime = Instant.now().minus(1, DAYS);
-    var failedCreationDatetime = Instant.now().minus(4, DAYS);
+    var pendingCreationDatetime = now().minus(1, DAYS);
+    var failedCreationDatetime = now().minus(4, DAYS);
     var student = User.builder().email("email@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
     var badMpbs = someMpbs("bad", failedCreationDatetime, fee, student);
