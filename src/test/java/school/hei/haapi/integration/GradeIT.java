@@ -347,7 +347,7 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
 
     assertBadRequestException(
-        "Cannot generate transcript for this level. This level is not yet completed",
+        "Cannot generate transcript for this level. This level has not yet been started",
         () -> {
           monitorApi.getYearlyResultTranscript(studentAxel.getId(), L1);
         });
@@ -368,7 +368,7 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi managerApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
 
     assertBadRequestException(
-        "Cannot generate transcript for this level. This level is not yet completed",
+        "Cannot generate transcript for this level. This level has not yet been started",
         () -> {
           managerApi.getYearlyResultTranscript(studentAxel.getId(), L1);
         });

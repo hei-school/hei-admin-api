@@ -53,7 +53,7 @@ public class GradeResultService {
     var courseResults = courseResultService.courseResultsForLevelOfStudent(level, studentId);
     var yearlyResult = new YearlyResult().level(level);
 
-    if (courseResults.isEmpty()) return yearlyResult.status(ResultOverviewStatus.NOT_STARTED);
+    if (courseResults.isEmpty()) return yearlyResult.status(NOT_STARTED);
 
     return yearlyResult
         .weightedAverage(courseResultService.weightedSumOfCourseResults(courseResults))
@@ -136,9 +136,15 @@ public class GradeResultService {
   public YearlyResultGenerationTranscript getYearlyResultTranscript(
       String studentId, StudentLevel level) {
     YearlyResult studentYearlyResult = getLeveledYearlyResultByStudentId(level, studentId);
-    if (IN_PROGRESS.equals(studentYearlyResult.getStatus())) {
-      throw new BadRequestException(
-          "Cannot generate transcript for this level. This level is not yet completed");
+    switch (studentYearlyResult.getStatus()) {
+      case IN_PROGRESS:
+        throw new BadRequestException(
+            "Cannot generate transcript for this level. This level is not yet completed");
+      case NOT_STARTED:
+        throw new BadRequestException(
+            "Cannot generate transcript for this level. This level has not yet been started");
+      case null:
+      default:
     }
 
     User student = userService.findById(studentId);
