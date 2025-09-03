@@ -78,22 +78,23 @@ public class CourseResultService {
             .sum());
   }
 
-  public BigDecimal weightedSumOfCourseResults(List<CourseResult> courseResults) {
+  public Optional<BigDecimal> weightedSumOfCourseResults(List<CourseResult> courseResults) {
     int sumCredits = getSumCredits(courseResults);
 
     if (courseResults.parallelStream()
         .map(CourseResult::getWeightedAverage)
-        .allMatch(Objects::isNull)) return null;
+        .allMatch(Objects::isNull)) return Optional.empty();
 
-    return courseResults.stream()
-        .filter(courseResult -> nonNull(courseResult.getWeightedAverage()))
-        .map(
-            courseResult ->
-                courseResult
-                    .getWeightedAverage()
-                    .multiply(BigDecimal.valueOf(courseResult.getCourse().getCredits())))
-        .reduce(ZERO, BigDecimal::add)
-        .divide(BigDecimal.valueOf(sumCredits), MathContext.DECIMAL128);
+    return Optional.of(
+        courseResults.stream()
+            .filter(courseResult -> nonNull(courseResult.getWeightedAverage()))
+            .map(
+                courseResult ->
+                    courseResult
+                        .getWeightedAverage()
+                        .multiply(BigDecimal.valueOf(courseResult.getCourse().getCredits())))
+            .reduce(ZERO, BigDecimal::add)
+            .divide(BigDecimal.valueOf(sumCredits), MathContext.DECIMAL128));
   }
 
   public ResultOverviewStatus courseValidationFromCourseResult(List<CourseResult> courseResults) {

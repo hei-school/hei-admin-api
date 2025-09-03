@@ -56,7 +56,7 @@ public class GradeResultService {
     if (courseResults.isEmpty()) return yearlyResult.status(NOT_STARTED);
 
     return yearlyResult
-        .weightedAverage(courseResultService.weightedSumOfCourseResults(courseResults))
+        .weightedAverage(courseResultService.weightedSumOfCourseResults(courseResults).orElse(null))
         .obtainedCredits(courseResultService.obtainedCreditsOfCourseResults(courseResults))
         .courseResults(courseResults)
         .status(courseResultService.courseValidationFromCourseResult(courseResults))
