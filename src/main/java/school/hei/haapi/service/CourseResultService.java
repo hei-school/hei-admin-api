@@ -2,8 +2,10 @@ package school.hei.haapi.service;
 
 import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
+import static java.util.Objects.nonNull;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
@@ -48,7 +50,7 @@ public class CourseResultService {
                 courseResult.weightedAverage(
                     BigDecimal.valueOf(weightedAverageOfGrades(studentGrades).doubleValue()));
               } catch (ExamsCoefficientSumZero e) {
-                return courseResult.weightedAverage(ZERO).status(CourseResultStatus.IN_PROGRESS);
+                return courseResult.status(CourseResultStatus.NOT_STARTED);
               }
 
               if (studentGrades.isEmpty()) {
@@ -67,6 +69,7 @@ public class CourseResultService {
   public BigDecimal obtainedCreditsOfCourseResults(List<CourseResult> courseResults) {
     return BigDecimal.valueOf(
         courseResults.stream()
+            .filter(courseResult -> nonNull(courseResult.getWeightedAverage()))
             .mapToDouble(
                 courseResult ->
                     courseResult.getWeightedAverage().doubleValue() >= 10
@@ -78,7 +81,12 @@ public class CourseResultService {
   public BigDecimal weightedSumOfCourseResults(List<CourseResult> courseResults) {
     int sumCredits = getSumCredits(courseResults);
 
+    if (courseResults.parallelStream()
+        .map(CourseResult::getWeightedAverage)
+        .allMatch(Objects::isNull)) return null;
+
     return courseResults.stream()
+        .filter(courseResult -> nonNull(courseResult.getWeightedAverage()))
         .map(
             courseResult ->
                 courseResult
@@ -95,9 +103,12 @@ public class CourseResultService {
         .allMatch(CourseResultStatus.VALIDATED::equals)) {
       return VALIDATED;
     }
-    if (coursesResultStatus.stream().anyMatch(CourseResultStatus.IN_PROGRESS::equals)) {
+    if (coursesResultStatus.stream().allMatch(CourseResultStatus.NOT_STARTED::equals))
+      return NOT_STARTED;
+    if (coursesResultStatus.stream().anyMatch(CourseResultStatus.IN_PROGRESS::equals))
       return IN_PROGRESS;
-    }
+    if (coursesResultStatus.stream().anyMatch(CourseResultStatus.NOT_STARTED::equals))
+      return IN_PROGRESS;
     return INVALIDATED;
   }
 
