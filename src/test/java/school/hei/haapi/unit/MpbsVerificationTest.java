@@ -64,8 +64,8 @@ class MpbsVerificationTest {
             externalResponseMapper,
             computeVerifiedMobilePaymentMock);
 
-    var mbpsPending = Mpbs.builder().pspId("pending").fee(mock()).build();
-    var mpbsVerified = Mpbs.builder().pspId("verified").fee(mock()).build();
+    var mbpsPending = someMpbs("pending", Instant.now(), mock(), null);
+    var mpbsVerified = someMpbs("verified", Instant.now(), mock(), null);
     var correspondingMockTransactionsFromVerifiedMpbs =
         MobileTransactionDetails.builder()
             .pspTransactionRef(mpbsVerified.getPspId())
@@ -109,13 +109,8 @@ class MpbsVerificationTest {
     var failedCreationDatetime = Instant.now().minus(4, DAYS);
     var student = User.builder().email("email@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
-    var badMpbs =
-        Mpbs.builder()
-            .pspId("bad")
-            .creationDatetime(failedCreationDatetime)
-            .fee(fee)
-            .statusHistory(List.of())
-            .build();
+    var badMpbs = someMpbs("bad", failedCreationDatetime, fee, student);
+    badMpbs.setAmount(null);
     var mpbsVerified = someMpbs("verified", pendingCreationDatetime, fee, student);
     var mpbsFailed = someMpbs("pending", failedCreationDatetime, fee, student);
     var correspondingMockTransactionsFromVerifiedMpbs =
