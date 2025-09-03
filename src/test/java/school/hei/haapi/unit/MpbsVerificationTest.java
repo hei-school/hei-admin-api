@@ -110,8 +110,7 @@ class MpbsVerificationTest {
     var failedCreationDatetime = now().minus(4, DAYS);
     var student = User.builder().email("email@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
-    var badMpbs = someMpbs("bad", failedCreationDatetime, fee, student);
-    badMpbs.setAmount(null);
+    var badMpbs = someMpbs("bad", failedCreationDatetime, fee, student, null);
     var mpbsVerified = someMpbs("verified", pendingCreationDatetime, fee, student);
     var mpbsFailed = someMpbs("pending", failedCreationDatetime, fee, student);
     var correspondingMockTransactionsFromVerifiedMpbs =
@@ -148,15 +147,20 @@ class MpbsVerificationTest {
         notificationsRequestSend.getFirst());
   }
 
-  private Mpbs someMpbs(String pspId, Instant creationDateTime, Fee fee, User student) {
+  private Mpbs someMpbs(
+      String pspId, Instant creationDateTime, Fee fee, User student, Integer amount) {
     return Mpbs.builder()
         .pspId(pspId)
         .creationDatetime(creationDateTime)
         .fee(fee)
         .student(student)
-        .amount(0)
+        .amount(amount)
         .statusHistory(List.of())
         .build();
+  }
+
+  private Mpbs someMpbs(String pspId, Instant creationDateTime, Fee fee, User student) {
+    return someMpbs(pspId, creationDateTime, fee, student, 0);
   }
 
   private Mpbs someMpbs(String pspId, Instant creationDateTime, User student) {
