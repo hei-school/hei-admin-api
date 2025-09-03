@@ -147,7 +147,7 @@ class MpbsVerificationTest {
         notificationsRequestSend.getFirst());
   }
 
-  private Mpbs someMpbs(
+  private static Mpbs someMpbs(
       String pspId, Instant creationDateTime, Fee fee, User student, Integer amount) {
     return Mpbs.builder()
         .pspId(pspId)
@@ -159,15 +159,15 @@ class MpbsVerificationTest {
         .build();
   }
 
-  private Mpbs someMpbs(String pspId, Instant creationDateTime, Fee fee, User student) {
+  private static Mpbs someMpbs(String pspId, Instant creationDateTime, Fee fee, User student) {
     return someMpbs(pspId, creationDateTime, fee, student, 0);
   }
 
-  private Mpbs someMpbs(String pspId, Instant creationDateTime, User student) {
+  private static Mpbs someMpbs(String pspId, Instant creationDateTime, User student) {
     return someMpbs(pspId, creationDateTime, feeMock(), student);
   }
 
-  private Fee feeMock() {
+  private static Fee feeMock() {
     return mock();
   }
 }

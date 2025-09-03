@@ -150,18 +150,18 @@ class UnverifiedMobilePaymentHandlerTest {
     assertEquals(actualFailedMpbs, actualVerifiedMpbs);
   }
 
-  private Mpbs expectedFailedMpbs(Instant lastVerificationDatetime) {
+  private static Mpbs expectedFailedMpbs(Instant lastVerificationDatetime) {
     return Mpbs.builder().status(FAILED).lastVerificationDatetime(lastVerificationDatetime).build();
   }
 
-  private Mpbs expectedPendingMpbs(Instant lastVerificationDatetime) {
+  private static Mpbs expectedPendingMpbs(Instant lastVerificationDatetime) {
     return Mpbs.builder()
         .status(PENDING)
         .lastVerificationDatetime(lastVerificationDatetime)
         .build();
   }
 
-  private MpbsStatusHistory someStatusAt(MpbsStatus status, Instant statusInstant) {
+  private static MpbsStatusHistory someStatusAt(MpbsStatus status, Instant statusInstant) {
     return MpbsStatusHistory.builder().creationInstant(statusInstant).status(status).build();
   }
 }
