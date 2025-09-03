@@ -42,11 +42,12 @@ class UnverifiedMobilePaymentHandlerTest {
     assertDoesNotThrow(
         () -> subject.accept(List.of(mpbsMock1, mpbsMock2, mpbsMock3, mpbsMock4, mpbsMock5)));
 
-    var listCaptor = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<List<Mpbs>> listCaptor = ArgumentCaptor.forClass(List.class);
     verify(failedMobilePaymentNotificationMock, times(1)).accept(listCaptor.capture());
     verify(mpbsServiceMock, times(1)).saveAll(listCaptor.capture());
-    List<Mpbs> actualFailedMpbs = (List<Mpbs>) listCaptor.getAllValues().getFirst();
-    List<Mpbs> actualVerifiedMpbs = (List<Mpbs>) listCaptor.getAllValues().getLast();
+    var captorValues = listCaptor.getAllValues();
+    var actualFailedMpbs = captorValues.getFirst();
+    var actualVerifiedMpbs = captorValues.getLast();
 
     assertFalse(actualVerifiedMpbs.isEmpty());
     assertFalse(actualFailedMpbs.isEmpty());
@@ -95,11 +96,12 @@ class UnverifiedMobilePaymentHandlerTest {
 
     assertDoesNotThrow(() -> subject.accept(List.of(mpbsRetried)));
 
-    var listCaptor = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<List<Mpbs>> listCaptor = ArgumentCaptor.forClass(List.class);
     verify(failedMobilePaymentNotificationMock, times(1)).accept(listCaptor.capture());
     verify(mpbsServiceMock, times(1)).saveAll(listCaptor.capture());
-    List<Mpbs> actualFailedMpbs = (List<Mpbs>) listCaptor.getAllValues().getFirst();
-    List<Mpbs> actualVerifiedMpbs = (List<Mpbs>) listCaptor.getAllValues().getLast();
+    var captorValues = listCaptor.getAllValues();
+    var actualFailedMpbs = captorValues.getFirst();
+    var actualVerifiedMpbs = captorValues.getLast();
 
     assertTrue(actualFailedMpbs.isEmpty());
     assertEquals(1, actualVerifiedMpbs.size());
@@ -132,11 +134,12 @@ class UnverifiedMobilePaymentHandlerTest {
 
     assertDoesNotThrow(() -> subject.accept(List.of(mpbsFailedRetried)));
 
-    var listCaptor = ArgumentCaptor.forClass(List.class);
+    ArgumentCaptor<List<Mpbs>> listCaptor = ArgumentCaptor.forClass(List.class);
     verify(failedMobilePaymentNotificationMock, times(1)).accept(listCaptor.capture());
     verify(mpbsServiceMock, times(1)).saveAll(listCaptor.capture());
-    List<Mpbs> actualFailedMpbs = (List<Mpbs>) listCaptor.getAllValues().getFirst();
-    List<Mpbs> actualVerifiedMpbs = (List<Mpbs>) listCaptor.getAllValues().getLast();
+    var captorValues = listCaptor.getAllValues();
+    var actualFailedMpbs = captorValues.getFirst();
+    var actualVerifiedMpbs = captorValues.getLast();
 
     assertFalse(actualFailedMpbs.isEmpty());
     assertFalse(actualVerifiedMpbs.isEmpty());
