@@ -78,14 +78,14 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
 
   private static final int EXPIRATION_DURATION_IN_DAYS = 2;
 
-  private Optional<MpbsStatusHistory> lastStatusHistory() {
+  private Optional<MpbsStatusHistory> getLastStatusHistory() {
     return statusHistory.stream()
         .filter(s -> nonNull(s.getCreationInstant()))
         .max(comparing(MpbsStatusHistory::getCreationInstant));
   }
 
   public boolean doesExceedsValidationDate() {
-    return lastStatusHistory()
+    return getLastStatusHistory()
             .map(MpbsStatusHistory::getCreationInstant)
             .orElseGet(this::getCreationDatetime)
             .until(now(), DAYS)
