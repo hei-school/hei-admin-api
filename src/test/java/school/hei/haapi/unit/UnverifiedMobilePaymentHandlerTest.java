@@ -55,8 +55,8 @@ class UnverifiedMobilePaymentHandlerTest {
     var lastVerificationDatetime = actualFailedMpbs.getFirst().getLastVerificationDatetime();
     assertEquals(
         List.of(
-            expectedFailedMpbs(lastVerificationDatetime),
-            expectedFailedMpbs(lastVerificationDatetime)),
+            expectedFailedMpbs(lastVerificationDatetime, mpbsMock4.getCreationDatetime()),
+            expectedFailedMpbs(lastVerificationDatetime, mpbsMock5.getCreationDatetime())),
         actualFailedMpbs);
     assertEquals(5, actualVerifiedMpbs.size());
     assertEquals(2, actualVerifiedMpbs.stream().filter(m -> FAILED.equals(m.getStatus())).count());
@@ -64,8 +64,8 @@ class UnverifiedMobilePaymentHandlerTest {
     assertTrue(
         actualVerifiedMpbs.containsAll(
             List.of(
-                expectedFailedMpbs(lastVerificationDatetime),
-                expectedFailedMpbs(lastVerificationDatetime),
+                expectedFailedMpbs(lastVerificationDatetime, mpbsMock4.getCreationDatetime()),
+                expectedFailedMpbs(lastVerificationDatetime, mpbsMock5.getCreationDatetime()),
                 expectedPendingMpbs(lastVerificationDatetime),
                 expectedPendingMpbs(lastVerificationDatetime),
                 expectedPendingMpbs(lastVerificationDatetime))));
@@ -129,8 +129,13 @@ class UnverifiedMobilePaymentHandlerTest {
     assertEquals(actualFailedMpbs, actualVerifiedMpbs);
   }
 
-  private static Mpbs expectedFailedMpbs(Instant lastVerificationDatetime) {
-    return Mpbs.builder().status(FAILED).lastVerificationDatetime(lastVerificationDatetime).build();
+  private static Mpbs expectedFailedMpbs(
+      Instant lastVerificationDatetime, Instant creationDatetime) {
+    return Mpbs.builder()
+        .status(FAILED)
+        .lastVerificationDatetime(lastVerificationDatetime)
+        .creationDatetime(creationDatetime)
+        .build();
   }
 
   private static Mpbs expectedPendingMpbs(Instant lastVerificationDatetime) {
@@ -147,6 +152,8 @@ class UnverifiedMobilePaymentHandlerTest {
   private static Mpbs somePendingMpbs(Instant creationDateTime) {
     return MpbsVerificationTest.someMpbs(null, creationDateTime, null).toBuilder()
         .status(PENDING)
+        .amount(null)
+        .fee(null)
         .build();
   }
 }
