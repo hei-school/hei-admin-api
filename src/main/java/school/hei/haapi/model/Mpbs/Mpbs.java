@@ -5,6 +5,8 @@ import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.Comparator.comparing;
+import static java.util.Objects.nonNull;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -18,6 +20,7 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
+import java.util.Optional;
 import lombok.AllArgsConstructor;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
@@ -72,7 +75,17 @@ public class Mpbs extends TypedMobileMoneyTransaction implements Serializable {
 
   private static final int EXPIRATION_DURATION_IN_DAYS = 2;
 
-  public boolean exceedsValidationDate() {
-    return getCreationDatetime().until(now(), DAYS) > EXPIRATION_DURATION_IN_DAYS;
+  private Optional<MpbsStatusHistory> getLastStatusHistory() {
+    return statusHistory.stream()
+        .filter(s -> nonNull(s.getCreationInstant()))
+        .max(comparing(MpbsStatusHistory::getCreationInstant));
+  }
+
+  public boolean doesExceedValidationDate() {
+    return getLastStatusHistory()
+            .map(MpbsStatusHistory::getCreationInstant)
+            .orElseGet(this::getCreationDatetime)
+            .until(now(), DAYS)
+        > EXPIRATION_DURATION_IN_DAYS;
   }
 }

@@ -49,7 +49,7 @@ public class UnverifiedMobilePaymentHandler implements Consumer<List<Mpbs>> {
   }
 
   private MpbsStatus mpbsNewStatus(Mpbs mpbs) {
-    if (mpbs.exceedsValidationDate()) {
+    if (mpbs.doesExceedValidationDate()) {
       log.info("failed transaction: {} with reference: {}", mpbs.getId(), mpbs.getPspId());
       return FAILED;
     }

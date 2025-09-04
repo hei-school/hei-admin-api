@@ -1,5 +1,6 @@
 package school.hei.haapi.unit;
 
+import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -64,8 +65,8 @@ class MpbsVerificationTest {
             externalResponseMapper,
             computeVerifiedMobilePaymentMock);
 
-    var mbpsPending = Mpbs.builder().pspId("pending").fee(mock()).build();
-    var mpbsVerified = Mpbs.builder().pspId("verified").fee(mock()).build();
+    var mbpsPending = someMpbs("pending", now(), null);
+    var mpbsVerified = someMpbs("verified", now(), null);
     var correspondingMockTransactionsFromVerifiedMpbs =
         MobileTransactionDetails.builder()
             .pspTransactionRef(mpbsVerified.getPspId())
@@ -88,7 +89,12 @@ class MpbsVerificationTest {
     ArgumentCaptor<List<Mpbs>> argumentCaptor = ArgumentCaptor.forClass(List.class);
     verify(unverifiedMobilePaymentHandlerMock, times(1)).accept(argumentCaptor.capture());
     List<Mpbs> mobilePaymentUnverified = argumentCaptor.getAllValues().getFirst();
-    verify(computeVerifiedMobilePaymentMock, never()).saveTheVerifiedMpbs(eq(mbpsPending), any());
+    var saveVerifiedMpbsCaptor = ArgumentCaptor.forClass(Mpbs.class);
+    verify(computeVerifiedMobilePaymentMock, times(1))
+        .saveTheVerifiedMpbs(saveVerifiedMpbsCaptor.capture(), any());
+    List<Mpbs> savedMpbs = saveVerifiedMpbsCaptor.getAllValues();
+    assertEquals(1, savedMpbs.size());
+    assertEquals(mpbsVerified, savedMpbs.getFirst());
     assertEquals(1, mobilePaymentUnverified.size());
     assertEquals(mbpsPending, mobilePaymentUnverified.getFirst());
     assertEquals(1, verifiedMpbs.size());
@@ -105,12 +111,11 @@ class MpbsVerificationTest {
             externalResponseMapper,
             computeVerifiedMobilePaymentMock);
 
-    var pendingCreationDatetime = Instant.now().minus(1, DAYS);
-    var failedCreationDatetime = Instant.now().minus(4, DAYS);
+    var pendingCreationDatetime = now().minus(1, DAYS);
+    var failedCreationDatetime = now().minus(4, DAYS);
     var student = User.builder().email("email@gmail.com").build();
     var fee = Fee.builder().id("feeId").student(student).build();
-    var badMpbs =
-        Mpbs.builder().pspId("bad").creationDatetime(failedCreationDatetime).fee(fee).build();
+    var badMpbs = someMpbs("bad", failedCreationDatetime, fee, student, null);
     var mpbsVerified = someMpbs("verified", pendingCreationDatetime, fee, student);
     var mpbsFailed = someMpbs("pending", failedCreationDatetime, fee, student);
     var correspondingMockTransactionsFromVerifiedMpbs =
@@ -147,13 +152,24 @@ class MpbsVerificationTest {
         notificationsRequestSend.getFirst());
   }
 
-  private Mpbs someMpbs(String pspId, Instant creationDateTime, Fee fee, User student) {
+  private static Mpbs someMpbs(
+      String pspId, Instant creationDateTime, Fee fee, User student, Integer amount) {
     return Mpbs.builder()
         .pspId(pspId)
         .creationDatetime(creationDateTime)
         .fee(fee)
         .student(student)
-        .amount(0)
+        .amount(amount)
+        .statusHistory(List.of())
         .build();
+  }
+
+  public static Mpbs someMpbs(String pspId, Instant creationDateTime, Fee fee, User student) {
+    return someMpbs(pspId, creationDateTime, fee, student, 0);
+  }
+
+  public static Mpbs someMpbs(String pspId, Instant creationDateTime, User student) {
+    Fee fee = mock();
+    return someMpbs(pspId, creationDateTime, fee, student);
   }
 }
