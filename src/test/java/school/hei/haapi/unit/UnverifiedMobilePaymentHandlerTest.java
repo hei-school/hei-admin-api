@@ -12,6 +12,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.FAILED;
 import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
+import static school.hei.haapi.unit.MpbsVerificationTest.someMpbs;
 
 import java.time.Instant;
 import java.util.List;
@@ -150,7 +151,7 @@ class UnverifiedMobilePaymentHandlerTest {
   }
 
   private static Mpbs somePendingMpbs(Instant creationDateTime) {
-    return MpbsVerificationTest.someMpbs(null, creationDateTime, null).toBuilder()
+    return someMpbs(null, creationDateTime, null).toBuilder()
         .status(PENDING)
         .amount(null)
         .fee(null)
