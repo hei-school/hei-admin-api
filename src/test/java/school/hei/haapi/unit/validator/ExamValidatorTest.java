@@ -25,6 +25,8 @@ class ExamValidatorTest {
     return Exam.builder()
         .title("Math Exam")
         .courseAssignment(new CourseAssignment())
+        .coefficientNumerator(1)
+        .coefficientDenominator(2)
         .examinationDate(now())
         .build();
   }
