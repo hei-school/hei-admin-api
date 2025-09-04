@@ -34,7 +34,8 @@ public class CourseResultService {
   private ExamService examService;
   private UserService userService;
 
-  public List<CourseResult> courseResultsForLevelOfStudent(StudentLevel level, String studentId) {
+  public List<CourseResult> getCourseResultsForLevelOfStudent(
+      StudentLevel level, String studentId) {
     var coursesForSpecificLevel = courseService.getByStudentLevel(level);
     var student = userService.findById(studentId);
 

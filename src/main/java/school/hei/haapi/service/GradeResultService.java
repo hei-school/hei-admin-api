@@ -50,7 +50,7 @@ public class GradeResultService {
   private static final Duration TRANSCRIPT_GENERATION_TIMEOUT = Duration.ofMinutes(5);
 
   public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
-    var courseResults = courseResultService.courseResultsForLevelOfStudent(level, studentId);
+    var courseResults = courseResultService.getCourseResultsForLevelOfStudent(level, studentId);
     var yearlyResult = new YearlyResult().level(level);
 
     if (courseResults.isEmpty()) return yearlyResult.status(NOT_STARTED);
