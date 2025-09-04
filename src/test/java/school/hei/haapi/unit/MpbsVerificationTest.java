@@ -89,7 +89,12 @@ class MpbsVerificationTest {
     ArgumentCaptor<List<Mpbs>> argumentCaptor = ArgumentCaptor.forClass(List.class);
     verify(unverifiedMobilePaymentHandlerMock, times(1)).accept(argumentCaptor.capture());
     List<Mpbs> mobilePaymentUnverified = argumentCaptor.getAllValues().getFirst();
-    verify(computeVerifiedMobilePaymentMock, never()).saveTheVerifiedMpbs(eq(mbpsPending), any());
+    var saveVerifiedMpbsCaptor = ArgumentCaptor.forClass(Mpbs.class);
+    verify(computeVerifiedMobilePaymentMock, times(1))
+        .saveTheVerifiedMpbs(saveVerifiedMpbsCaptor.capture(), any());
+    List<Mpbs> savedMpbs = saveVerifiedMpbsCaptor.getAllValues();
+    assertEquals(1, savedMpbs.size());
+    assertEquals(mpbsVerified, savedMpbs.getFirst());
     assertEquals(1, mobilePaymentUnverified.size());
     assertEquals(mbpsPending, mobilePaymentUnverified.getFirst());
     assertEquals(1, verifiedMpbs.size());
@@ -164,10 +169,7 @@ class MpbsVerificationTest {
   }
 
   private static Mpbs someMpbs(String pspId, Instant creationDateTime, User student) {
-    return someMpbs(pspId, creationDateTime, feeMock(), student);
-  }
-
-  private static Fee feeMock() {
-    return mock();
+    Fee fee = mock();
+    return someMpbs(pspId, creationDateTime, fee, student);
   }
 }
