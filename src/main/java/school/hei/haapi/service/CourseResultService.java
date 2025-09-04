@@ -83,10 +83,6 @@ public class CourseResultService {
 
     if (presentCourseResults.isEmpty()) return Optional.empty();
 
-    if (presentCourseResults.parallelStream()
-        .map(CourseResult::getWeightedAverage)
-        .allMatch(Objects::isNull)) return Optional.empty();
-
     return Optional.of(
         presentCourseResults.stream()
             .map(
