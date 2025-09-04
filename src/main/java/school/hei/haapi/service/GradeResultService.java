@@ -120,8 +120,7 @@ public class GradeResultService {
 
     return Optional.of(
         yearlyResults.stream()
-            .reduce(BigDecimal::add)
-            .orElse(ZERO)
+            .reduce(ZERO, BigDecimal::add)
             .divide(BigDecimal.valueOf(yearlyResults.size()), DECIMAL128));
   }
 
