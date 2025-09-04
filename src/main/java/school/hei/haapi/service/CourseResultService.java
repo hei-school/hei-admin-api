@@ -105,9 +105,9 @@ public class CourseResultService {
     }
     if (coursesResultStatus.stream().allMatch(CourseResultStatus.NOT_STARTED::equals))
       return NOT_STARTED;
-    if (coursesResultStatus.stream().anyMatch(CourseResultStatus.IN_PROGRESS::equals))
-      return IN_PROGRESS;
     if (coursesResultStatus.stream().anyMatch(CourseResultStatus.NOT_STARTED::equals))
+      return IN_PROGRESS;
+    if (coursesResultStatus.stream().anyMatch(CourseResultStatus.IN_PROGRESS::equals))
       return IN_PROGRESS;
     return INVALIDATED;
   }
