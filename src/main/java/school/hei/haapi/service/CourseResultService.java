@@ -69,12 +69,9 @@ public class CourseResultService {
   public BigDecimal obtainedCreditsOfCourseResults(List<CourseResult> courseResults) {
     return BigDecimal.valueOf(
         courseResults.stream()
-            .filter(courseResult -> nonNull(courseResult.getWeightedAverage()))
+            .filter(c -> nonNull(c.getWeightedAverage()))
             .mapToDouble(
-                courseResult ->
-                    courseResult.getWeightedAverage().doubleValue() >= 10
-                        ? courseResult.getCourse().getCredits()
-                        : 0.)
+                c -> c.getWeightedAverage().doubleValue() >= 10 ? c.getCourse().getCredits() : 0.)
             .sum());
   }
 
@@ -89,10 +86,8 @@ public class CourseResultService {
         courseResults.stream()
             .filter(courseResult -> nonNull(courseResult.getWeightedAverage()))
             .map(
-                courseResult ->
-                    courseResult
-                        .getWeightedAverage()
-                        .multiply(BigDecimal.valueOf(courseResult.getCourse().getCredits())))
+                c ->
+                    c.getWeightedAverage().multiply(BigDecimal.valueOf(c.getCourse().getCredits())))
             .reduce(ZERO, BigDecimal::add)
             .divide(BigDecimal.valueOf(sumCredits), MathContext.DECIMAL128));
   }
