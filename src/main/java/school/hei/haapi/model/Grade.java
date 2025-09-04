@@ -100,6 +100,10 @@ public class Grade implements Serializable {
         grades.stream()
             .map(grade -> grade.getExam().getCoefficientFraction())
             .reduce(Fraction::add);
+
+    if (sumCoefficients.isEmpty() || sumCoefficients.get().compareTo(Fraction.ZERO) == 0)
+      throw new ExamsCoefficientSumZero();
+
     var weightedSum =
         grades.stream()
             .map(
@@ -109,8 +113,6 @@ public class Grade implements Serializable {
                 })
             .reduce(Fraction::add);
 
-    if (sumCoefficients.isEmpty() || sumCoefficients.get().compareTo(Fraction.ZERO) == 0)
-      throw new ExamsCoefficientSumZero();
     return weightedSum.map(fraction -> fraction.divideBy(sumCoefficients.get()));
   }
 }

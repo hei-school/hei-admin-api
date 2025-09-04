@@ -1,6 +1,7 @@
 package school.hei.haapi.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static lombok.AccessLevel.PRIVATE;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -13,7 +14,6 @@ import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.Instant;
 import java.util.List;
-import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -37,10 +37,10 @@ public class Exam implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
-  @Setter(AccessLevel.NONE)
+  @Setter(PRIVATE)
   private Integer coefficientNumerator;
 
-  @Setter(AccessLevel.NONE)
+  @Setter(PRIVATE)
   private Integer coefficientDenominator;
 
   private String title;
@@ -63,7 +63,7 @@ public class Exam implements Serializable {
   }
 
   public void setCoefficientFraction(Fraction fraction) {
-    this.coefficientNumerator = fraction.getNumerator();
-    this.coefficientDenominator = fraction.getDenominator();
+    setCoefficientNumerator(fraction.getNumerator());
+    setCoefficientDenominator(fraction.getDenominator());
   }
 }

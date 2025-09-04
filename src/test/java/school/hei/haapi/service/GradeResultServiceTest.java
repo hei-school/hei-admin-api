@@ -93,91 +93,63 @@ class GradeResultServiceTest {
       yearlyResultTranscriptGenerationService =
           new YearlyResultTranscriptGenerationService(subject);
 
-  private static final User student2 = User.builder().id("bad student").build();
-  private static final User student3 = User.builder().id("student with missing grade").build();
+  private static final User student2 = mockUser("bad student");
+  private static final User student3 = mockUser("student with missing grade");
 
   private static final User student1 = mock();
-  private static final Promotion promotion =
-      Promotion.builder().ref("prom1").name("Promotion de test").startDatetime(now()).build();
-  private static final Group group =
-      Group.builder().name("Groupe test").ref("GRP_TST").promotion(promotion).build();
+  private static final Promotion promotion = mockPromotion();
 
-  private static Exam anExam(String id, int coefficientNumerator, int coefficientDenominator) {
-    return Exam.builder()
-        .id(id)
-        .coefficientNumerator(coefficientNumerator)
-        .coefficientDenominator(coefficientDenominator)
-        .build();
-  }
+  private static final Group group = mockGroup(promotion);
 
-  private static final Exam mgt1Exam = anExam("mgt1 exam", 1, 1);
-  private static final Exam prog1Exam = anExam("prog1 exam", 1, 1);
-  private static final Exam donnees1Exam = anExam("donnees1 exam", 1, 1);
-  private static final Exam web1Exam = anExam("web1 exam", 1, 1);
-  private static final Exam sys1Exam = anExam("sys1 exam", 1, 1);
-  private static final Exam lv1Exam = anExam("lv1 exam", 1, 1);
-  private static final Exam badExam = anExam("bad exam", 0, 1);
+  private static final Exam mgt1Exam = mockExam("mgt1 exam", 1, 1);
+  private static final Exam prog1Exam = mockExam("prog1 exam", 1, 1);
+  private static final Exam donnees1Exam = mockExam("donnees1 exam", 1, 1);
+  private static final Exam web1Exam = mockExam("web1 exam", 1, 1);
+  private static final Exam sys1Exam = mockExam("sys1 exam", 1, 1);
+  private static final Exam lv1Exam = mockExam("lv1 exam", 1, 1);
+  private static final Exam badExam = mockExam("bad exam", 0, 1);
 
-  private static final Grade student1Mgt1Grade =
-      Grade.builder().score(17.75).exam(mgt1Exam).build();
-  private static final Grade student1Prog1Grade =
-      Grade.builder().score(13.59).exam(prog1Exam).build();
-  private static final Grade student1Donnees1Grade =
-      Grade.builder().score(15.4375).exam(donnees1Exam).build();
-  private static final Grade student1Web1Grade =
-      Grade.builder().score(18.75).exam(web1Exam).build();
-  private static final Grade student1Sys1Grade = Grade.builder().score(13.).exam(sys1Exam).build();
-  private static final Grade student1Lv1Grade = Grade.builder().score(13.91).exam(lv1Exam).build();
-  private static final Grade student2Mgt1Grade =
-      Grade.builder().score(14.75).exam(mgt1Exam).build();
-  private static final Grade student2Prog1Grade =
-      Grade.builder().score(4.46).exam(prog1Exam).build();
-  private static final Grade student2Donnees1Grade =
-      Grade.builder().score(6.).exam(donnees1Exam).build();
-  private static final Grade student2Web1Grade = Grade.builder().score(7.5).exam(web1Exam).build();
-  private static final Grade student2Sys1Grade =
-      Grade.builder().score(10.00).exam(sys1Exam).build();
-  private static final Grade student2Lv1Grade = Grade.builder().score(3.91).exam(lv1Exam).build();
-  private static final Grade student3Mgt1Grade =
-      Grade.builder().score(17.75).exam(mgt1Exam).build();
-  private static final Grade student3Prog1Grade =
-      Grade.builder().score(13.59).exam(prog1Exam).build();
-  private static final Grade student3Donnees1Grade =
-      Grade.builder().score(15.4375).exam(donnees1Exam).build();
-  private static final Grade student3Web1Grade =
-      Grade.builder().score(18.75).exam(web1Exam).build();
-  private static final Grade student3Sys1Grade = Grade.builder().score(13.).exam(sys1Exam).build();
-  private static final Grade student3GradeForBadExam =
-      Grade.builder().score(13.59).exam(badExam).build();
+  private static final Grade student1Mgt1Grade = mockGrade(mgt1Exam, 17.75);
+  private static final Grade student1Prog1Grade = mockGrade(prog1Exam, 13.59);
+  private static final Grade student1Donnees1Grade = mockGrade(donnees1Exam, 15.4375);
+  private static final Grade student1Web1Grade = mockGrade(web1Exam, 18.75);
+  private static final Grade student1Sys1Grade = mockGrade(sys1Exam, 13.);
+  private static final Grade student1Lv1Grade = mockGrade(lv1Exam, 13.91);
+  private static final Grade student2Mgt1Grade = mockGrade(mgt1Exam, 14.75);
+  private static final Grade student2Prog1Grade = mockGrade(prog1Exam, 4.46);
+  private static final Grade student2Donnees1Grade = mockGrade(donnees1Exam, 6.);
+  private static final Grade student2Web1Grade = mockGrade(web1Exam, 7.5);
+  private static final Grade student2Sys1Grade = mockGrade(sys1Exam, 10.00);
+  private static final Grade student2Lv1Grade = mockGrade(lv1Exam, 3.91);
+  private static final Grade student3Mgt1Grade = mockGrade(mgt1Exam, 17.75);
+  private static final Grade student3Sys1Grade = mockGrade(sys1Exam, 13.);
+  private static final Grade student3Prog1Grade = mockGrade(prog1Exam, 13.59);
+  private static final Grade student3Donnees1Grade = mockGrade(donnees1Exam, 15.4375);
+  private static final Grade student3Web1Grade = mockGrade(web1Exam, 18.75);
+  private static final Grade student3GradeForBadExam = mockGrade(badExam, 13.59);
 
-  private static final Course mgt1Course =
-      Course.builder().id("mgt1").code("MGT1").name("Mgt 1").credits(4).build();
-  private static final Course prog1Course =
-      Course.builder().id("prog1").code("PROG1").name("Programation 1").credits(6).build();
-  private static final Course donne1Course =
-      Course.builder().id("donne1").code("DONNES1").name("Donnees 1").credits(4).build();
-  private static final Course web1Course =
-      Course.builder().id("web1").code("WEB1").name("Web 1").credits(6).build();
-  private static final Course sys1Course =
-      Course.builder().id("sys1").code("SYS1").name("Systeme et reseau 1").credits(6).build();
-  private static final Course lv1Course =
-      Course.builder().id("lv1").code("LV1").name("Langue vivante 1").credits(4).build();
-  private static final Course badCourse = Course.builder().id("bad course").credits(0).build();
+  private static final Course mgt1Course = mockCourse("mgt1", "MGT1", "Mgt 1", 4);
+  private static final Course prog1Course = mockCourse("prog1", "PROG1", "Programation 1", 6);
+  private static final Course donne1Course = mockCourse("donne1", "DONNES1", "Donnees 1", 4);
+  private static final Course web1Course = mockCourse("web1", "WEB1", "Web 1", 6);
+  private static final Course sys1Course = mockCourse("sys1", "SYS1", "Systeme et reseau 1", 6);
+  private static final Course lv1Course = mockCourse("lv1", "LV1", "Langue vivante 1", 4);
+  private static final Course badCourse = mockCourse("bad course", "bad course", "Bad course", 0);
 
   private static final CourseAssignment mgt1CourseAssignment =
-      CourseAssignment.builder().id("mgt1 courseAssignment").course(mgt1Course).build();
+      mockCourseAssignment("mgt1 courseAssignment", mgt1Course);
   private static final CourseAssignment prog1CourseAssignment =
-      CourseAssignment.builder().id("prog1 courseAssignment").course(prog1Course).build();
+      mockCourseAssignment("prog1 courseAssignment", prog1Course);
   private static final CourseAssignment donnee1CourseAssignment =
-      CourseAssignment.builder().id("donnee1 courseAssignment").course(donne1Course).build();
+      mockCourseAssignment("donnee1 courseAssignment", donne1Course);
   private static final CourseAssignment web1CourseAssignment =
-      CourseAssignment.builder().id("web1 courseAssignment").course(web1Course).build();
+      mockCourseAssignment("web1 courseAssignment", web1Course);
   private static final CourseAssignment sys1CourseAssignment =
-      CourseAssignment.builder().id("sys1 courseAssignment").course(sys1Course).build();
+      mockCourseAssignment("sys1 courseAssignment", sys1Course);
   private static final CourseAssignment lv1CourseAssignment =
-      CourseAssignment.builder().id("lv1 courseAssignment").course(lv1Course).build();
+      mockCourseAssignment("lv1 courseAssignment", lv1Course);
   private static final CourseAssignment badCourseAssignment =
-      CourseAssignment.builder().id("lv1 courseAssignment").course(badCourse).build();
+      mockCourseAssignment("lv1 courseAssignment", badCourse);
 
   @BeforeEach
   void setUp() {
@@ -472,5 +444,37 @@ class GradeResultServiceTest {
                   .userId(studentId)
                   .build());
         });
+  }
+
+  private static Exam mockExam(String id, int coefficientNumerator, int coefficientDenominator) {
+    return Exam.builder()
+        .id(id)
+        .coefficientNumerator(coefficientNumerator)
+        .coefficientDenominator(coefficientDenominator)
+        .build();
+  }
+
+  private static User mockUser(String id) {
+    return User.builder().id(id).build();
+  }
+
+  private static Promotion mockPromotion() {
+    return Promotion.builder().ref("prom1").name("Promotion de test").startDatetime(now()).build();
+  }
+
+  private static Group mockGroup(Promotion promotion) {
+    return Group.builder().name("Groupe test").ref("GRP_TST").promotion(promotion).build();
+  }
+
+  private static Grade mockGrade(Exam exam, double score) {
+    return Grade.builder().score(score).exam(exam).build();
+  }
+
+  private static Course mockCourse(String id, String code, String name, int credits) {
+    return Course.builder().id(id).code(code).name(name).credits(credits).build();
+  }
+
+  private static CourseAssignment mockCourseAssignment(String id, Course course) {
+    return CourseAssignment.builder().id(id).course(course).build();
   }
 }
