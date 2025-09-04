@@ -78,9 +78,7 @@ public class CourseResultService {
   public Optional<BigDecimal> weightedSumOfCourseResults(List<CourseResult> courseResults) {
     int sumCredits = getSumCredits(courseResults);
     var presentCourseResults =
-        courseResults.stream()
-            .filter(courseResult -> nonNull(courseResult.getWeightedAverage()))
-            .toList();
+        courseResults.stream().filter(c -> nonNull(c.getWeightedAverage())).toList();
 
     if (presentCourseResults.isEmpty()) return Optional.empty();
 
