@@ -25,10 +25,10 @@ public class ExamValidator implements Consumer<Exam> {
     Integer coefficientDenominator = exam.getCoefficientDenominator();
     if (coefficientNumerator != null || coefficientDenominator != null) {
       if (coefficientNumerator <= 0) {
-        violationMessages.add("Coefficient numerator can't be less than 0");
+        violationMessages.add("Coefficient numerator can't be less or equal to 0");
       }
       if (coefficientDenominator <= 0) {
-        violationMessages.add("Coefficient denominator can't be less than 0");
+        violationMessages.add("Coefficient denominator can't be less or equal to 0");
       }
     } else {
       violationMessages.add("Coefficient numerator or denominator cannot be null");

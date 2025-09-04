@@ -8,6 +8,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
 
 import java.util.List;
+import org.apache.commons.lang3.math.Fraction;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -124,5 +125,21 @@ class ExamValidatorTest {
 
     assertTrue(exception.getMessage().contains("Title is mandatory"));
     assertFalse(exception.getMessage().contains("Awarded course is mandatory"));
+  }
+
+  @Test
+  void acceptExam_WithInvalidCoefficient_ShouldThrowException() {
+    Exam exam = validExam();
+    exam.setCoefficientFraction(aFraction(0, -2));
+
+    BadRequestException exception =
+        assertThrowsDomainBadRequestException(() -> subject.accept(exam));
+
+    assertTrue(
+        exception.getMessage().contains("Coefficient numerator can't be less or equal to 0"));
+  }
+
+  private static Fraction aFraction(int numerator, int denominator) {
+    return Fraction.getFraction(numerator, denominator);
   }
 }
