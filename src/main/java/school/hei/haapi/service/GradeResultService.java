@@ -140,7 +140,7 @@ public class GradeResultService {
 
   public YearlyResultGenerationTranscript getYearlyResultTranscript(
       String studentId, StudentLevel level) {
-    YearlyResult studentYearlyResult = getLeveledYearlyResultByStudentId(level, studentId);
+    var studentYearlyResult = getLeveledYearlyResultByStudentId(level, studentId);
     switch (studentYearlyResult.getStatus()) {
       case IN_PROGRESS:
         throw new BadRequestException(
