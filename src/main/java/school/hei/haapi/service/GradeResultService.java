@@ -114,7 +114,7 @@ public class GradeResultService {
                 .reduce(ZERO, BigDecimal::add));
   }
 
-  private Optional<BigDecimal> getWeightedAverageFromYearlyResultValues(
+  private static Optional<BigDecimal> getWeightedAverageFromYearlyResultValues(
       List<BigDecimal> yearlyResults) {
     if (yearlyResults.isEmpty()) return Optional.empty();
 
@@ -125,7 +125,7 @@ public class GradeResultService {
             .divide(BigDecimal.valueOf(yearlyResults.size()), DECIMAL128));
   }
 
-  private ResultOverviewStatus resultSummaryStatusFromYearlyResults(
+  private static ResultOverviewStatus resultSummaryStatusFromYearlyResults(
       List<YearlyResult> yearlyResultList) {
     var yearlyResultsStatus = yearlyResultList.stream().map(YearlyResult::getStatus).toList();
 
