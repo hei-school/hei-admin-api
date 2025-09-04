@@ -332,7 +332,6 @@ class GradeResultServiceTest {
     when(examService.getExamsByCourseId(SYS1_COURSE_ID)).thenReturn(List.of(sys1Exam()));
     when(examService.getExamsByCourseId(LV1_COURSE_ID)).thenReturn(List.of(lv1Exam()));
 
-    // Mock course assignment for students at level L1 and M1
     when(courseService.getByStudentLevel(L1))
         .thenReturn(
             List.of(
