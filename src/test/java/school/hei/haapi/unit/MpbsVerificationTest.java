@@ -164,11 +164,11 @@ class MpbsVerificationTest {
         .build();
   }
 
-  private static Mpbs someMpbs(String pspId, Instant creationDateTime, Fee fee, User student) {
+  public static Mpbs someMpbs(String pspId, Instant creationDateTime, Fee fee, User student) {
     return someMpbs(pspId, creationDateTime, fee, student, 0);
   }
 
-  private static Mpbs someMpbs(String pspId, Instant creationDateTime, User student) {
+  public static Mpbs someMpbs(String pspId, Instant creationDateTime, User student) {
     Fee fee = mock();
     return someMpbs(pspId, creationDateTime, fee, student);
   }
