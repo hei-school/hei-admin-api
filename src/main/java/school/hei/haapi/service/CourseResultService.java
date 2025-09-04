@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
+import static java.math.MathContext.DECIMAL128;
 import static java.util.Objects.nonNull;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
@@ -10,7 +11,6 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATE
 import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -89,7 +89,7 @@ public class CourseResultService {
                 c ->
                     c.getWeightedAverage().multiply(BigDecimal.valueOf(c.getCourse().getCredits())))
             .reduce(ZERO, BigDecimal::add)
-            .divide(BigDecimal.valueOf(sumCredits), MathContext.DECIMAL128));
+            .divide(BigDecimal.valueOf(sumCredits), DECIMAL128));
   }
 
   public ResultOverviewStatus courseValidationFromCourseResult(List<CourseResult> courseResults) {
