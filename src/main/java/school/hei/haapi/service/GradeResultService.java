@@ -141,16 +141,13 @@ public class GradeResultService {
   public YearlyResultGenerationTranscript getYearlyResultTranscript(
       String studentId, StudentLevel level) {
     var studentYearlyResult = getLeveledYearlyResultByStudentId(level, studentId);
-    switch (studentYearlyResult.getStatus()) {
-      case IN_PROGRESS:
-        throw new BadRequestException(
-            "Cannot generate transcript for this level. This level is not yet completed");
-      case NOT_STARTED:
-        throw new BadRequestException(
-            "Cannot generate transcript for this level. This level has not yet been started");
-      case null:
-      default:
-    }
+
+    if (IN_PROGRESS.equals(studentYearlyResult.getStatus()))
+      throw new BadRequestException(
+          "Cannot generate transcript for this level. This level is not yet completed");
+    else if (NOT_STARTED.equals(studentYearlyResult.getStatus()))
+      throw new BadRequestException(
+          "Cannot generate transcript for this level. This level has not yet been started");
 
     User student = userService.findById(studentId);
     var fileName = String.format(TRANSCRIPT_FILENAME_FORMAT, student.getRef(), level);
