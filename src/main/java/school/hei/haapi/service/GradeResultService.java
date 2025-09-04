@@ -144,7 +144,7 @@ public class GradeResultService {
     if (IN_PROGRESS.equals(studentYearlyResult.getStatus()))
       throw new BadRequestException(
           "Cannot generate transcript for this level. This level is not yet completed");
-    else if (NOT_STARTED.equals(studentYearlyResult.getStatus()))
+    if (NOT_STARTED.equals(studentYearlyResult.getStatus()))
       throw new BadRequestException(
           "Cannot generate transcript for this level. This level has not yet been started");
 
