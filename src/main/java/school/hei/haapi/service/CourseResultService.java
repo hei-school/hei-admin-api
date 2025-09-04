@@ -77,14 +77,19 @@ public class CourseResultService {
 
   public Optional<BigDecimal> weightedSumOfCourseResults(List<CourseResult> courseResults) {
     int sumCredits = getSumCredits(courseResults);
+    var presentCourseResults =
+        courseResults.stream()
+            .filter(courseResult -> nonNull(courseResult.getWeightedAverage()))
+            .toList();
 
-    if (courseResults.parallelStream()
+    if (presentCourseResults.isEmpty()) return Optional.empty();
+
+    if (presentCourseResults.parallelStream()
         .map(CourseResult::getWeightedAverage)
         .allMatch(Objects::isNull)) return Optional.empty();
 
     return Optional.of(
-        courseResults.stream()
-            .filter(courseResult -> nonNull(courseResult.getWeightedAverage()))
+        presentCourseResults.stream()
             .map(
                 c ->
                     c.getWeightedAverage().multiply(BigDecimal.valueOf(c.getCourse().getCredits())))
