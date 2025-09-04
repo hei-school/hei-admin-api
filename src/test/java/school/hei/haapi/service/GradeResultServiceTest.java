@@ -405,6 +405,7 @@ class GradeResultServiceTest {
     CourseResult lv1Result = result.getCourseResults().get(5);
     assertEquals(LV1_COURSE_ID, lv1Result.getCourse().getId());
     assertEquals(CourseResultStatus.NOT_STARTED, lv1Result.getStatus());
+    assertNull(lv1Result.getWeightedAverage());
     assertEquals(13.493, result.getWeightedAverage().doubleValue());
     assertEquals(IN_PROGRESS, result.getStatus());
     assertEquals(30., result.getTotalCredits().doubleValue());
@@ -426,6 +427,7 @@ class GradeResultServiceTest {
 
     assertEquals(expectedLevel, yearlyResult.getLevel());
     assertEquals(NOT_STARTED, yearlyResult.getStatus());
+    assertNull(yearlyResult.getWeightedAverage());
   }
 
   @Test
