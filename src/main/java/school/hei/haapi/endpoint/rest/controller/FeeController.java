@@ -26,6 +26,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.statistics.AdvancedFeeStats;
+import school.hei.haapi.model.statistics.AdvancedFeeStats.AdvancedFeeStatsCountType;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.model.FeesStats;
 import school.hei.haapi.service.AdvancedFeeStatsService;
@@ -146,8 +147,11 @@ public class FeeController {
   @GetMapping("/fees/advanced-stats")
   public AdvancedFeesStatistics getAdvancedFeesStats(
       @RequestParam(name = "month_from", required = false) LocalDate monthFrom,
-      @RequestParam(name = "month_to", required = false) LocalDate monthTo) {
-    return advancedFeeStatsService.getAdvancedFeeStats(monthFrom, monthTo, empty());
+      @RequestParam(name = "month_to", required = false) LocalDate monthTo,
+      @RequestParam(name = "type", required = false)
+          AdvancedFeeStatsCountType advancedFeeStatsCountType) {
+    return advancedFeeStatsService.getAdvancedFeeStats(
+        monthFrom, monthTo, Optional.ofNullable(advancedFeeStatsCountType));
   }
 
   @PostMapping("/fees/advanced-stats-generate")

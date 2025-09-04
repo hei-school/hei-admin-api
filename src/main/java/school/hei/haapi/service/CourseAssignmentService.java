@@ -19,6 +19,7 @@ import school.hei.haapi.model.GroupFlow;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.model.pagination.PaginationFromPageAndPageSize;
 import school.hei.haapi.model.validator.CourseAssignmentValidator;
 import school.hei.haapi.repository.CourseAssignmentRepository;
 import school.hei.haapi.repository.UserRepository;
@@ -33,6 +34,7 @@ public class CourseAssignmentService {
   private final CourseAssignmentMapper courseAssignmentMapper;
   private final CourseAssignmentValidator courseAssignmentValidator;
   private final CourseAssignmentDao courseAssignmentDao;
+  private final PaginationFromPageAndPageSize pageableFromPageAndSize;
 
   public Optional<CourseAssignment> findById(String courseAssignmentId) {
     return courseAssignmentRepository.findById(courseAssignmentId);
@@ -77,7 +79,7 @@ public class CourseAssignmentService {
 
   public List<CourseAssignment> getByCriteria(
       String teacherId, String courseId, PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
+    Pageable pageable = pageableFromPageAndSize.apply(page, pageSize);
     return courseAssignmentDao.findByCriteria(teacherId, courseId, null, pageable);
   }
 
@@ -87,7 +89,7 @@ public class CourseAssignmentService {
     if (teacher.isEmpty()) {
       throw new NotFoundException("Teacher with id: " + teacherId + " not found");
     }
-    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
+    Pageable pageable = pageableFromPageAndSize.apply(page, pageSize);
     return courseAssignmentRepository.findAllByMainTeacher(teacher.get(), pageable);
   }
 
@@ -101,7 +103,7 @@ public class CourseAssignmentService {
 
   public List<CourseAssignment> getByCourseId(
       String courseId, PageFromOne page, BoundedPageSize pageSize) {
-    Pageable pageable = PageRequest.of(page.getValue() - 1, pageSize.getValue());
+    Pageable pageable = pageableFromPageAndSize.apply(page, pageSize);
     return courseAssignmentRepository.findAllByCourseId(courseId, pageable);
   }
 }
