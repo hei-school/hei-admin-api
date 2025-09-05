@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.math.BigDecimal.ZERO;
 import static java.time.Instant.now;
 import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
@@ -233,12 +232,12 @@ class GradeResultServiceTest {
   private static final String SYS1_COURSE_ID = "sys1";
   private static final String SYS1_COURSE_CODE = "SYS1";
   private static final String SYS1_COURSE_NAME = "Systeme et reseau 1";
-    private static final String LV1_COURSE_ID = "lv1";
-    private static final String LV1_COURSE_CODE = "LV1";
-    private static final String LV1_COURSE_NAME = "Langue vivante 1";
-    private static final String SECU3_COURSE_ID = "secu3";
-    private static final String SECU3_COURSE_CODE = "SECU1";
-    private static final String SECU3_COURSE_NAME = "Securite 3";
+  private static final String LV1_COURSE_ID = "lv1";
+  private static final String LV1_COURSE_CODE = "LV1";
+  private static final String LV1_COURSE_NAME = "Langue vivante 1";
+  private static final String SECU3_COURSE_ID = "secu3";
+  private static final String SECU3_COURSE_CODE = "SECU1";
+  private static final String SECU3_COURSE_NAME = "Securite 3";
   private static final String BAD1_COURSE_ID = "bad course";
   private static final String BAD1_COURSE_CODE = "bad course";
   private static final String BAD1_COURSE_NAME = "Bad course";
@@ -268,7 +267,7 @@ class GradeResultServiceTest {
   }
 
   private static Course secu3Course() {
-      return mockCourse(SECU3_COURSE_ID, SECU3_COURSE_CODE, SECU3_COURSE_NAME, 4);
+    return mockCourse(SECU3_COURSE_ID, SECU3_COURSE_CODE, SECU3_COURSE_NAME, 4);
   }
 
   private static Course badCourse() {
@@ -341,8 +340,7 @@ class GradeResultServiceTest {
                 web1Course(),
                 sys1Course(),
                 lv1Course()));
-      when(courseService.getByStudentLevel(M1))
-              .thenReturn(List.of(secu3Course()));
+    when(courseService.getByStudentLevel(M1)).thenReturn(List.of(secu3Course()));
 
     when(userService.findById(anyString()))
         .thenAnswer(
