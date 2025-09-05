@@ -92,20 +92,27 @@ public class CourseResultService {
             .divide(BigDecimal.valueOf(sumCredits), DECIMAL128));
   }
 
-  public ResultOverviewStatus courseValidationFromCourseResult(List<CourseResult> courseResults) {
+  public Optional<ResultOverviewStatus> courseValidationFromCourseResult(
+      List<CourseResult> courseResults) {
     var coursesResultStatus = courseResults.parallelStream().map(CourseResult::getStatus).toList();
-    if (coursesResultStatus.stream()
-        .filter(Objects::nonNull)
-        .allMatch(CourseResultStatus.VALIDATED::equals)) {
-      return VALIDATED;
-    }
-    if (coursesResultStatus.stream().allMatch(CourseResultStatus.NOT_STARTED::equals))
-      return NOT_STARTED;
-    if (coursesResultStatus.stream().anyMatch(CourseResultStatus.NOT_STARTED::equals))
-      return IN_PROGRESS;
-    if (coursesResultStatus.stream().anyMatch(CourseResultStatus.IN_PROGRESS::equals))
-      return IN_PROGRESS;
-    return INVALIDATED;
+    var courseResultCount = coursesResultStatus.size();
+
+    var notStartedCount =
+        coursesResultStatus.stream().filter(CourseResultStatus.NOT_STARTED::equals).count();
+    var validatedCount =
+        coursesResultStatus.stream().filter(CourseResultStatus.VALIDATED::equals).count();
+    var invalidatedCount =
+        coursesResultStatus.stream().filter(CourseResultStatus.INCOMPLETE::equals).count();
+    var inProgressCount =
+        coursesResultStatus.stream().filter(CourseResultStatus.IN_PROGRESS::equals).count();
+
+    if (inProgressCount > 0) return Optional.of(IN_PROGRESS);
+    if (notStartedCount == courseResultCount) return Optional.of(NOT_STARTED);
+    if (notStartedCount > 0) return Optional.of(IN_PROGRESS);
+    if (validatedCount == courseResultCount) return Optional.of(VALIDATED);
+    if (invalidatedCount > 0) return Optional.of(INVALIDATED);
+
+    return Optional.empty();
   }
 
   public int getSumCredits(List<CourseResult> courses) {
