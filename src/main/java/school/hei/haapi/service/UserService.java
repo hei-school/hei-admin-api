@@ -274,6 +274,14 @@ public class UserService {
     return userRepository.findAllRemainingStudentsByGroupIds(groupId, pageable);
   }
 
+  public List<User> getByStudentRefAndGroupIds(
+      Collection<String> groupId, String studentRef, Pageable pageable) {
+    return studentRef == null || studentRef.isBlank()
+        ? getByGroupIds(groupId, pageable)
+        : userRepository.findAllRemainingStudentsByStudentRefAndGroupIds(
+            groupId, studentRef, pageable);
+  }
+
   public byte[] generateStudentsGroup(String groupId) {
     List<User> studentsGroup = getByGroupId(groupId, Pageable.unpaged());
     return userXlsxCellsGenerator.apply(studentsGroup, List.of("ref", "firstName", "lastName"));

@@ -39,20 +39,22 @@ public class ExamParticipantService {
         .grade(correspondingGrade.map(gradeMapper::toRest).orElse(null));
   }
 
-  private List<User> getExamParticipants(Exam exam, PageFromOne page, BoundedPageSize pageSize) {
-    return userService.getByGroupIds(
+  private List<User> getExamParticipants(
+      Exam exam, PageFromOne page, BoundedPageSize pageSize, String studentRef) {
+    return userService.getByStudentRefAndGroupIds(
         exam.getCourseAssignment().getGroups().stream().map(Group::getId).collect(toSet()),
+        studentRef,
         (page == null || pageSize == null)
             ? Pageable.unpaged()
             : pageableFromPageAndSize.apply(page, pageSize));
   }
 
   public List<StudentGrade> getParticipantsGradeForExam(
-      String examId, PageFromOne page, BoundedPageSize pageSize) {
+      String examId, PageFromOne page, BoundedPageSize pageSize, String studentRef) {
     List<Grade> existingGrades = gradeDao.getGradesByExamId(examId);
     var exam = examService.getExamById(examId);
 
-    return getExamParticipants(exam, page, pageSize).stream()
+    return getExamParticipants(exam, page, pageSize, studentRef).stream()
         .map(user -> correspondingGradeForStudentIn(user, existingGrades))
         .toList();
   }
