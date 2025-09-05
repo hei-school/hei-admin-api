@@ -2,13 +2,15 @@ package school.hei.haapi.service;
 
 import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
+import static java.math.MathContext.DECIMAL128;
+import static java.util.Objects.nonNull;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 import java.math.BigDecimal;
-import java.math.MathContext;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -32,7 +34,8 @@ public class CourseResultService {
   private ExamService examService;
   private UserService userService;
 
-  public List<CourseResult> courseResultsForLevelOfStudent(StudentLevel level, String studentId) {
+  public List<CourseResult> getCourseResultsForLevelOfStudent(
+      StudentLevel level, String studentId) {
     var coursesForSpecificLevel = courseService.getByStudentLevel(level);
     var student = userService.findById(studentId);
 
@@ -48,7 +51,7 @@ public class CourseResultService {
                 courseResult.weightedAverage(
                     BigDecimal.valueOf(weightedAverageOfGrades(studentGrades).doubleValue()));
               } catch (ExamsCoefficientSumZero e) {
-                return courseResult.weightedAverage(ZERO).status(CourseResultStatus.IN_PROGRESS);
+                return courseResult.status(CourseResultStatus.NOT_STARTED);
               }
 
               if (studentGrades.isEmpty()) {
@@ -67,38 +70,49 @@ public class CourseResultService {
   public BigDecimal obtainedCreditsOfCourseResults(List<CourseResult> courseResults) {
     return BigDecimal.valueOf(
         courseResults.stream()
+            .filter(c -> nonNull(c.getWeightedAverage()))
             .mapToDouble(
-                courseResult ->
-                    courseResult.getWeightedAverage().doubleValue() >= 10
-                        ? courseResult.getCourse().getCredits()
-                        : 0.)
+                c -> c.getWeightedAverage().doubleValue() >= 10 ? c.getCourse().getCredits() : 0.)
             .sum());
   }
 
-  public BigDecimal weightedSumOfCourseResults(List<CourseResult> courseResults) {
+  public Optional<BigDecimal> weightedSumOfCourseResults(List<CourseResult> courseResults) {
     int sumCredits = getSumCredits(courseResults);
+    var presentCourseResults =
+        courseResults.stream().filter(c -> nonNull(c.getWeightedAverage())).toList();
 
-    return courseResults.stream()
-        .map(
-            courseResult ->
-                courseResult
-                    .getWeightedAverage()
-                    .multiply(BigDecimal.valueOf(courseResult.getCourse().getCredits())))
-        .reduce(ZERO, BigDecimal::add)
-        .divide(BigDecimal.valueOf(sumCredits), MathContext.DECIMAL128);
+    if (presentCourseResults.isEmpty()) return Optional.empty();
+
+    return Optional.of(
+        presentCourseResults.stream()
+            .map(
+                c ->
+                    c.getWeightedAverage().multiply(BigDecimal.valueOf(c.getCourse().getCredits())))
+            .reduce(ZERO, BigDecimal::add)
+            .divide(BigDecimal.valueOf(sumCredits), DECIMAL128));
   }
 
-  public ResultOverviewStatus courseValidationFromCourseResult(List<CourseResult> courseResults) {
+  public Optional<ResultOverviewStatus> courseValidationFromCourseResult(
+      List<CourseResult> courseResults) {
     var coursesResultStatus = courseResults.parallelStream().map(CourseResult::getStatus).toList();
-    if (coursesResultStatus.stream()
-        .filter(Objects::nonNull)
-        .allMatch(CourseResultStatus.VALIDATED::equals)) {
-      return VALIDATED;
-    }
-    if (coursesResultStatus.stream().anyMatch(CourseResultStatus.IN_PROGRESS::equals)) {
-      return IN_PROGRESS;
-    }
-    return INVALIDATED;
+    var courseResultCount = coursesResultStatus.size();
+
+    var notStartedCount =
+        coursesResultStatus.stream().filter(CourseResultStatus.NOT_STARTED::equals).count();
+    var validatedCount =
+        coursesResultStatus.stream().filter(CourseResultStatus.VALIDATED::equals).count();
+    var invalidatedCount =
+        coursesResultStatus.stream().filter(CourseResultStatus.INCOMPLETE::equals).count();
+    var inProgressCount =
+        coursesResultStatus.stream().filter(CourseResultStatus.IN_PROGRESS::equals).count();
+
+    if (inProgressCount > 0) return Optional.of(IN_PROGRESS);
+    if (notStartedCount == courseResultCount) return Optional.of(NOT_STARTED);
+    if (notStartedCount > 0) return Optional.of(IN_PROGRESS);
+    if (validatedCount == courseResultCount) return Optional.of(VALIDATED);
+    if (invalidatedCount > 0) return Optional.of(INVALIDATED);
+
+    return Optional.empty();
   }
 
   public int getSumCredits(List<CourseResult> courses) {

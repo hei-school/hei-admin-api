@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-import static java.math.BigDecimal.ZERO;
 import static java.time.Instant.now;
 import static java.util.Optional.empty;
 import static java.util.UUID.randomUUID;
@@ -18,6 +17,8 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGR
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.M1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.AVAILABLE;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
@@ -235,6 +236,9 @@ class GradeResultServiceTest {
   private static final String LV1_COURSE_ID = "lv1";
   private static final String LV1_COURSE_CODE = "LV1";
   private static final String LV1_COURSE_NAME = "Langue vivante 1";
+  private static final String SECU3_COURSE_ID = "secu3";
+  private static final String SECU3_COURSE_CODE = "SECU1";
+  private static final String SECU3_COURSE_NAME = "Securite 3";
   private static final String BAD1_COURSE_ID = "bad course";
   private static final String BAD1_COURSE_CODE = "bad course";
   private static final String BAD1_COURSE_NAME = "Bad course";
@@ -261,6 +265,10 @@ class GradeResultServiceTest {
 
   private static Course lv1Course() {
     return mockCourse(LV1_COURSE_ID, LV1_COURSE_CODE, LV1_COURSE_NAME, 4);
+  }
+
+  private static Course secu3Course() {
+    return mockCourse(SECU3_COURSE_ID, SECU3_COURSE_CODE, SECU3_COURSE_NAME, 4);
   }
 
   private static Course badCourse() {
@@ -324,8 +332,7 @@ class GradeResultServiceTest {
     when(examService.getExamsByCourseId(SYS1_COURSE_ID)).thenReturn(List.of(sys1Exam()));
     when(examService.getExamsByCourseId(LV1_COURSE_ID)).thenReturn(List.of(lv1Exam()));
 
-    // Mock course for student level L1
-    when(courseService.getByStudentLevel(eq(L1)))
+    when(courseService.getByStudentLevel(L1))
         .thenReturn(
             List.of(
                 mgt1Course(),
@@ -334,6 +341,7 @@ class GradeResultServiceTest {
                 web1Course(),
                 sys1Course(),
                 lv1Course()));
+    when(courseService.getByStudentLevel(M1)).thenReturn(List.of(secu3Course()));
 
     when(userService.findById(anyString()))
         .thenAnswer(
@@ -344,7 +352,7 @@ class GradeResultServiceTest {
   void correct_result_yearly_result_student1_L1_validate() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
+    var result = subject.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(30., result.getObtainedCredits().doubleValue());
@@ -358,7 +366,7 @@ class GradeResultServiceTest {
   void correct_result_yearly_result_student2_L1_invalidate() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, STUDENT2_ID);
+    var result = subject.getLeveledYearlyResultByStudentId(targetLevel, STUDENT2_ID);
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(10., result.getObtainedCredits().doubleValue());
@@ -369,17 +377,33 @@ class GradeResultServiceTest {
   }
 
   @Test
+  void correct_result_yearly_result_student2_M1_notStated() throws CoursesCreditSumZero {
+    var targetLevel = M1;
+
+    var result = subject.getLeveledYearlyResultByStudentId(targetLevel, STUDENT2_ID);
+
+    assertEquals(targetLevel, result.getLevel());
+    assertEquals(0, result.getObtainedCredits().doubleValue());
+    assertEquals(1, result.getCourseResults().size());
+    assertEquals(CourseResultStatus.NOT_STARTED, result.getCourseResults().getFirst().getStatus());
+    assertNull(result.getWeightedAverage());
+    assertEquals(NOT_STARTED, result.getStatus());
+    assertEquals(4., result.getTotalCredits().doubleValue());
+  }
+
+  @Test
   void correct_result_yearly_result_student3_L1_inProgress() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, STUDENT3_ID);
+    var result = subject.getLeveledYearlyResultByStudentId(targetLevel, STUDENT3_ID);
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(26., result.getObtainedCredits().doubleValue());
     assertEquals(6, result.getCourseResults().size());
     CourseResult lv1Result = result.getCourseResults().get(5);
     assertEquals(LV1_COURSE_ID, lv1Result.getCourse().getId());
-    assertEquals(CourseResultStatus.IN_PROGRESS, lv1Result.getStatus());
+    assertEquals(CourseResultStatus.NOT_STARTED, lv1Result.getStatus());
+    assertNull(lv1Result.getWeightedAverage());
     assertEquals(13.493, result.getWeightedAverage().doubleValue());
     assertEquals(IN_PROGRESS, result.getStatus());
     assertEquals(30., result.getTotalCredits().doubleValue());
@@ -387,7 +411,7 @@ class GradeResultServiceTest {
 
   @Test
   void generate_result_pdf_okay() throws CoursesCreditSumZero {
-    YearlyResult result = subject.getLeveledYearlyResultByStudentId(L1, STUDENT1_ID);
+    var result = subject.getLeveledYearlyResultByStudentId(L1, STUDENT1_ID);
     File resultFile =
         yearlyResultGenerationService.generateYearlyResultTranscript(student1, result);
     assertTrue(resultFile.isFile());
@@ -401,6 +425,7 @@ class GradeResultServiceTest {
 
     assertEquals(expectedLevel, yearlyResult.getLevel());
     assertEquals(NOT_STARTED, yearlyResult.getStatus());
+    assertNull(yearlyResult.getWeightedAverage());
   }
 
   @Test
@@ -457,8 +482,8 @@ class GradeResultServiceTest {
 
     var result = subject.getLeveledYearlyResultByStudentId(L1, STUDENT1_ID);
 
-    assertEquals(IN_PROGRESS, result.getStatus());
-    assertEquals(ZERO, result.getWeightedAverage());
+    assertEquals(NOT_STARTED, result.getStatus());
+    assertNull(result.getWeightedAverage());
     assertEquals(1, result.getCourseResults().size());
     assertEquals(0, result.getObtainedCredits().doubleValue());
   }
@@ -521,13 +546,13 @@ class GradeResultServiceTest {
   }
 
   @Test
-  void yearly_result_generation_should_return_bad_request_when_level_in_progress() {
+  void yearly_result_generation_should_return_bad_request_when_level_notStarted() {
     String exceptionMessage =
         assertThrows(
-                BadRequestException.class, () -> subject.getYearlyResultTranscript(STUDENT3_ID, L1))
+                BadRequestException.class, () -> subject.getYearlyResultTranscript(STUDENT3_ID, L2))
             .getMessage();
     assertEquals(
-        "Cannot generate transcript for this level. This level is not yet completed",
+        "Cannot generate transcript for this level. This level has not yet been started",
         exceptionMessage);
   }
 

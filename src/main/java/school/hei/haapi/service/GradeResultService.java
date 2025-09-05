@@ -50,16 +50,16 @@ public class GradeResultService {
   private static final Duration TRANSCRIPT_GENERATION_TIMEOUT = Duration.ofMinutes(5);
 
   public YearlyResult getLeveledYearlyResultByStudentId(StudentLevel level, String studentId) {
-    var courseResults = courseResultService.courseResultsForLevelOfStudent(level, studentId);
+    var courseResults = courseResultService.getCourseResultsForLevelOfStudent(level, studentId);
     var yearlyResult = new YearlyResult().level(level);
 
-    if (courseResults.isEmpty()) return yearlyResult.status(ResultOverviewStatus.NOT_STARTED);
+    if (courseResults.isEmpty()) return yearlyResult.status(NOT_STARTED);
 
     return yearlyResult
-        .weightedAverage(courseResultService.weightedSumOfCourseResults(courseResults))
+        .weightedAverage(courseResultService.weightedSumOfCourseResults(courseResults).orElse(null))
         .obtainedCredits(courseResultService.obtainedCreditsOfCourseResults(courseResults))
         .courseResults(courseResults)
-        .status(courseResultService.courseValidationFromCourseResult(courseResults))
+        .status(courseResultService.courseValidationFromCourseResult(courseResults).orElse(null))
         .totalCredits(BigDecimal.valueOf(courseResultService.getSumCredits(courseResults)));
   }
 
@@ -96,23 +96,17 @@ public class GradeResultService {
             .reduce(BigDecimal::add)
             .orElse(ZERO);
 
-    List<BigDecimal> yearlyResultWeightedAverages =
-        yearlyResultsDone.stream()
-            .map(YearlyResult::getWeightedAverage)
-            .filter(Objects::nonNull)
-            .toList();
-
-    BigDecimal yearlyResultsWeightedAverageSum =
-        yearlyResultWeightedAverages.stream().reduce(BigDecimal::add).orElse(ZERO);
-
-    BigDecimal weightedAverage =
-        yearlyResultsWeightedAverageSum.divide(
-            BigDecimal.valueOf(yearlyResultWeightedAverages.size()), DECIMAL128);
+    var weightedAverage =
+        getWeightedAverageFromYearlyResultValues(
+            yearlyResultsDone.stream()
+                .map(YearlyResult::getWeightedAverage)
+                .filter(Objects::nonNull)
+                .toList());
 
     return new ResultSummary()
         .yearlyResults(yearlyResults)
         .obtainedCredits(obtainedCredits)
-        .weightedAverage(weightedAverage)
+        .weightedAverage(weightedAverage.orElse(null))
         .status(resultSummaryStatusFromYearlyResults(yearlyResultsDone))
         .totalCredits(
             yearlyResultsDone.parallelStream()
@@ -120,7 +114,17 @@ public class GradeResultService {
                 .reduce(ZERO, BigDecimal::add));
   }
 
-  private ResultOverviewStatus resultSummaryStatusFromYearlyResults(
+  private static Optional<BigDecimal> getWeightedAverageFromYearlyResultValues(
+      List<BigDecimal> yearlyResults) {
+    if (yearlyResults.isEmpty()) return Optional.empty();
+
+    return Optional.of(
+        yearlyResults.stream()
+            .reduce(ZERO, BigDecimal::add)
+            .divide(BigDecimal.valueOf(yearlyResults.size()), DECIMAL128));
+  }
+
+  private static ResultOverviewStatus resultSummaryStatusFromYearlyResults(
       List<YearlyResult> yearlyResultList) {
     var yearlyResultsStatus = yearlyResultList.stream().map(YearlyResult::getStatus).toList();
 
@@ -135,11 +139,11 @@ public class GradeResultService {
 
   public YearlyResultGenerationTranscript getYearlyResultTranscript(
       String studentId, StudentLevel level) {
-    YearlyResult studentYearlyResult = getLeveledYearlyResultByStudentId(level, studentId);
-    if (IN_PROGRESS.equals(studentYearlyResult.getStatus())) {
+    var studentYearlyResult = getLeveledYearlyResultByStudentId(level, studentId);
+
+    if (NOT_STARTED.equals(studentYearlyResult.getStatus()))
       throw new BadRequestException(
-          "Cannot generate transcript for this level. This level is not yet completed");
-    }
+          "Cannot generate transcript for this level. This level has not yet been started");
 
     User student = userService.findById(studentId);
     var fileName = String.format(TRANSCRIPT_FILENAME_FORMAT, student.getRef(), level);
