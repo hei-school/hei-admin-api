@@ -24,7 +24,6 @@ import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
 import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -37,12 +36,8 @@ import org.mockito.stubbing.Answer;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
-import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
-import school.hei.haapi.endpoint.rest.model.ResultSummary;
-import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
-import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
