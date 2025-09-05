@@ -17,6 +17,7 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGR
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
+import static school.hei.haapi.endpoint.rest.model.StudentLevel.L2;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.AVAILABLE;
@@ -545,13 +546,13 @@ class GradeResultServiceTest {
   }
 
   @Test
-  void yearly_result_generation_should_return_bad_request_when_level_in_progress() {
+  void yearly_result_generation_should_return_bad_request_when_level_notStarted() {
     String exceptionMessage =
         assertThrows(
-                BadRequestException.class, () -> subject.getYearlyResultTranscript(STUDENT3_ID, L1))
+                BadRequestException.class, () -> subject.getYearlyResultTranscript(STUDENT3_ID, L2))
             .getMessage();
     assertEquals(
-        "Cannot generate transcript for this level. This level is not yet completed",
+        "Cannot generate transcript for this level. This level has not yet been started",
         exceptionMessage);
   }
 
