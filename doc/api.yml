@@ -2017,6 +2017,7 @@ paths:
         - $ref: '#/components/parameters/PathExamId'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
+        - $ref: '#/components/parameters/StudentRef'
       responses:
         '200':
           description: All students grades from an exam specific
