@@ -66,6 +66,7 @@ public class CourseResultService {
                 return courseResult.status(CourseResultStatus.VALIDATED);
               }
             })
+        .sorted(comparing(courseResult -> courseResult.getStatus().ordinal()))
         .toList();
   }
 
