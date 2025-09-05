@@ -92,145 +92,248 @@ class GradeResultServiceTest {
   private final YearlyResultTranscriptGenerationService yearlyResultTranscriptGenerationService =
       new YearlyResultTranscriptGenerationService(subject);
 
-  private final User student2 = User.builder().id("bad student").build();
-  private final User student3 = User.builder().id("student with missing grade").build();
+  private static final String STUDENT1_ID = "id";
+  private static final String STUDENT2_ID = "bad student";
+  private static final String STUDENT3_ID = "Student with missing grade";
+  private static final String STUDENT1_FIRST_NAME = "Student";
+  private static final String STUDENT1_LAST_NAME = "One";
+  private static final String STUDENT1_REF = "STD1";
+  private static final String STUDENT1_SPECIALIZATION_FIELD_STRING = "Transformation Numérique";
+  private static final User student1 = mock();
 
-  private final User student1 = mock();
-  private final Promotion promotion =
-      Promotion.builder().ref("prom1").name("Promotion de test").startDatetime(now()).build();
-  private final Group group =
-      Group.builder().name("Groupe test").ref("GRP_TST").promotion(promotion).build();
-  private final Exam mgt1Exam = Exam.builder().id("mgt1 exam").coefficient(1).build();
-  private final Exam prog1Exam = Exam.builder().id("prog1 exam").coefficient(1).build();
-  private final Exam donnees1Exam = Exam.builder().id("donnees1 exam").coefficient(1).build();
-  private final Exam web1Exam = Exam.builder().id("web1 exam").coefficient(1).build();
-  private final Exam sys1Exam = Exam.builder().id("sys1 exam").coefficient(1).build();
-  private final Exam lv1Exam = Exam.builder().id("lv1 exam").coefficient(1).build();
-  private final Exam badExam = Exam.builder().id("bad exam").coefficient(0).build();
+  private static Promotion promotion() {
+    return mockPromotion();
+  }
 
-  private final Grade student1Mgt1Grade = Grade.builder().score(17.75).exam(mgt1Exam).build();
-  private final Grade student1Prog1Grade = Grade.builder().score(13.59).exam(prog1Exam).build();
-  private final Grade student1Donnees1Grade =
-      Grade.builder().score(15.4375).exam(donnees1Exam).build();
-  private final Grade student1Web1Grade = Grade.builder().score(18.75).exam(web1Exam).build();
-  private final Grade student1Sys1Grade = Grade.builder().score(13.).exam(sys1Exam).build();
-  private final Grade student1Lv1Grade = Grade.builder().score(13.91).exam(lv1Exam).build();
-  private final Grade student2Mgt1Grade = Grade.builder().score(14.75).exam(mgt1Exam).build();
-  private final Grade student2Prog1Grade = Grade.builder().score(4.46).exam(prog1Exam).build();
-  private final Grade student2Donnees1Grade = Grade.builder().score(6.).exam(donnees1Exam).build();
-  private final Grade student2Web1Grade = Grade.builder().score(7.5).exam(web1Exam).build();
-  private final Grade student2Sys1Grade = Grade.builder().score(10.00).exam(sys1Exam).build();
-  private final Grade student2Lv1Grade = Grade.builder().score(3.91).exam(lv1Exam).build();
-  private final Grade student3Mgt1Grade = Grade.builder().score(17.75).exam(mgt1Exam).build();
-  private final Grade student3Prog1Grade = Grade.builder().score(13.59).exam(prog1Exam).build();
-  private final Grade student3Donnees1Grade =
-      Grade.builder().score(15.4375).exam(donnees1Exam).build();
-  private final Grade student3Web1Grade = Grade.builder().score(18.75).exam(web1Exam).build();
-  private final Grade student3Sys1Grade = Grade.builder().score(13.).exam(sys1Exam).build();
-  private final Grade student3GradeForBadExam = Grade.builder().score(13.59).exam(badExam).build();
+  private static Group group() {
+    return mockGroup(promotion());
+  }
 
-  private final Course mgt1Course =
-      Course.builder().id("mgt1").code("MGT1").name("Mgt 1").credits(4).build();
-  private final Course prog1Course =
-      Course.builder().id("prog1").code("PROG1").name("Programation 1").credits(6).build();
-  private final Course donne1Course =
-      Course.builder().id("donne1").code("DONNES1").name("Donnees 1").credits(4).build();
-  private final Course web1Course =
-      Course.builder().id("web1").code("WEB1").name("Web 1").credits(6).build();
-  private final Course sys1Course =
-      Course.builder().id("sys1").code("SYS1").name("Systeme et reseau 1").credits(6).build();
-  private final Course lv1Course =
-      Course.builder().id("lv1").code("LV1").name("Langue vivante 1").credits(4).build();
-  private final Course badCourse = Course.builder().id("bad course").credits(0).build();
+  private static final String MGT1_EXAM_ID = "mgt1 exam";
+  private static final String PROG1_EXAM_ID = "prog1 exam";
+  private static final String DONNEES1_EXAM_ID = "donnees1 exam";
+  private static final String WEB1_EXAM_ID = "web1 exam";
+  private static final String SYS1_EXAM_ID = "sys1 exam";
+  private static final String LV1_EXAM_ID = "lv1 exam";
+  private static final String BAD_EXAM_ID = "bad exam";
 
-  private final CourseAssignment mgt1CourseAssignment =
-      CourseAssignment.builder().id("mgt1 courseAssignment").course(mgt1Course).build();
-  private final CourseAssignment prog1CourseAssignment =
-      CourseAssignment.builder().id("prog1 courseAssignment").course(prog1Course).build();
-  private final CourseAssignment donnee1CourseAssignment =
-      CourseAssignment.builder().id("donnee1 courseAssignment").course(donne1Course).build();
-  private final CourseAssignment web1CourseAssignment =
-      CourseAssignment.builder().id("web1 courseAssignment").course(web1Course).build();
-  private final CourseAssignment sys1CourseAssignment =
-      CourseAssignment.builder().id("sys1 courseAssignment").course(sys1Course).build();
-  private final CourseAssignment lv1CourseAssignment =
-      CourseAssignment.builder().id("lv1 courseAssignment").course(lv1Course).build();
-  private final CourseAssignment badCourseAssignment =
-      CourseAssignment.builder().id("lv1 courseAssignment").course(badCourse).build();
+  private static Exam mgt1Exam() {
+    return mockExam(MGT1_EXAM_ID, 1, 1);
+  }
+
+  private static Exam prog1Exam() {
+    return mockExam(PROG1_EXAM_ID, 1, 1);
+  }
+
+  private static Exam donnees1Exam() {
+    return mockExam(DONNEES1_EXAM_ID, 1, 1);
+  }
+
+  private static Exam web1Exam() {
+    return mockExam(WEB1_EXAM_ID, 1, 1);
+  }
+
+  private static Exam sys1Exam() {
+    return mockExam(SYS1_EXAM_ID, 1, 1);
+  }
+
+  private static Exam lv1Exam() {
+    return mockExam(LV1_EXAM_ID, 1, 1);
+  }
+
+  private static Exam badExam() {
+    return mockExam(BAD_EXAM_ID, 0, 1);
+  }
+
+  private static Grade student1Mgt1Grade() {
+    return mockGrade(mgt1Exam(), 17.75);
+  }
+
+  private static Grade student1Prog1Grade() {
+    return mockGrade(prog1Exam(), 13.59);
+  }
+
+  private static Grade student1Donnees1Grade() {
+    return mockGrade(donnees1Exam(), 15.4375);
+  }
+
+  private static Grade student1Web1Grade() {
+    return mockGrade(web1Exam(), 18.75);
+  }
+
+  private static Grade student1Sys1Grade() {
+    return mockGrade(sys1Exam(), 13.);
+  }
+
+  private static Grade student1Lv1Grade() {
+    return mockGrade(lv1Exam(), 13.91);
+  }
+
+  private static Grade student2Mgt1Grade() {
+    return mockGrade(mgt1Exam(), 14.75);
+  }
+
+  private static Grade student2Prog1Grade() {
+    return mockGrade(prog1Exam(), 4.46);
+  }
+
+  private static Grade student2Donnees1Grade() {
+    return mockGrade(donnees1Exam(), 6.);
+  }
+
+  private static Grade student2Web1Grade() {
+    return mockGrade(web1Exam(), 7.5);
+  }
+
+  private static Grade student2Sys1Grade() {
+    return mockGrade(sys1Exam(), 10.00);
+  }
+
+  private static Grade student2Lv1Grade() {
+    return mockGrade(lv1Exam(), 3.91);
+  }
+
+  private static Grade student3Mgt1Grade() {
+    return mockGrade(mgt1Exam(), 17.75);
+  }
+
+  private static Grade student3Sys1Grade() {
+    return mockGrade(sys1Exam(), 13.);
+  }
+
+  private static Grade student3Prog1Grade() {
+    return mockGrade(prog1Exam(), 13.59);
+  }
+
+  private static Grade student3Donnees1Grade() {
+    return mockGrade(donnees1Exam(), 15.4375);
+  }
+
+  private static Grade student3Web1Grade() {
+    return mockGrade(web1Exam(), 18.75);
+  }
+
+  private static Grade student3GradeForBadExam() {
+    return mockGrade(badExam(), 13.59);
+  }
+
+  private static final String MGT1_COURSE_ID = "mgt1";
+  private static final String MGT1_COURSE_CODE = "MGT1";
+  private static final String MGT1_COURSE_NAME = "Mgt 1";
+  private static final String PROG1_COURSE_ID = "prog1";
+  private static final String PROG1_COURSE_CODE = "PROG1";
+  private static final String PROG1_COURSE_NAME = "Programation 1";
+  private static final String DONNE1_COURSE_ID = "donne1";
+  private static final String DONNE1_COURSE_CODE = "DONNES1";
+  private static final String DONNE1_COURSE_NAME = "Donnees 1";
+  private static final String WEB1_COURSE_ID = "web1";
+  private static final String WEB1_COURSE_CODE = "WEB1";
+  private static final String WEB1_COURSE_NAME = "Web 1";
+  private static final String SYS1_COURSE_ID = "sys1";
+  private static final String SYS1_COURSE_CODE = "SYS1";
+  private static final String SYS1_COURSE_NAME = "Systeme et reseau 1";
+  private static final String LV1_COURSE_ID = "lv1";
+  private static final String LV1_COURSE_CODE = "LV1";
+  private static final String LV1_COURSE_NAME = "Langue vivante 1";
+  private static final String BAD1_COURSE_ID = "bad course";
+  private static final String BAD1_COURSE_CODE = "bad course";
+  private static final String BAD1_COURSE_NAME = "Bad course";
+
+  private static Course mgt1Course() {
+    return mockCourse(MGT1_COURSE_ID, MGT1_COURSE_CODE, MGT1_COURSE_NAME, 4);
+  }
+
+  private static Course prog1Course() {
+    return mockCourse(PROG1_COURSE_ID, PROG1_COURSE_CODE, PROG1_COURSE_NAME, 6);
+  }
+
+  private static Course donne1Course() {
+    return mockCourse(DONNE1_COURSE_ID, DONNE1_COURSE_CODE, DONNE1_COURSE_NAME, 4);
+  }
+
+  private static Course web1Course() {
+    return mockCourse(WEB1_COURSE_ID, WEB1_COURSE_CODE, WEB1_COURSE_NAME, 6);
+  }
+
+  private static Course sys1Course() {
+    return mockCourse(SYS1_COURSE_ID, SYS1_COURSE_CODE, SYS1_COURSE_NAME, 6);
+  }
+
+  private static Course lv1Course() {
+    return mockCourse(LV1_COURSE_ID, LV1_COURSE_CODE, LV1_COURSE_NAME, 4);
+  }
+
+  private static Course badCourse() {
+    return mockCourse(BAD1_COURSE_ID, BAD1_COURSE_CODE, BAD1_COURSE_NAME, 0);
+  }
 
   @BeforeEach
   void setUp() {
     // Mock student1 grades
-    when(student1.getId()).thenReturn("id");
-    when(student1.getFirstName()).thenReturn("Student");
-    when(student1.getLastName()).thenReturn("One");
-    when(student1.getRef()).thenReturn("STD1");
-    when(student1.getSpecializationFieldString()).thenReturn("Transformation Numérique");
-    when(student1.findCurrentGroup()).thenReturn(Optional.of(group));
+    when(student1.getId()).thenReturn(STUDENT1_ID);
+    when(student1.getFirstName()).thenReturn(STUDENT1_FIRST_NAME);
+    when(student1.getLastName()).thenReturn(STUDENT1_LAST_NAME);
+    when(student1.getRef()).thenReturn(STUDENT1_REF);
+    when(student1.getSpecializationFieldString()).thenReturn(STUDENT1_SPECIALIZATION_FIELD_STRING);
+    when(student1.findCurrentGroup()).thenReturn(Optional.of(group()));
 
-    when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
-        .thenReturn(List.of(student1Mgt1Grade));
-    when(gradeDao.getStudentGradesByCourseId(prog1Course.getId(), student1.getId()))
-        .thenReturn(List.of(student1Prog1Grade));
-    when(gradeDao.getStudentGradesByCourseId(donne1Course.getId(), student1.getId()))
-        .thenReturn(List.of(student1Donnees1Grade));
-    when(gradeDao.getStudentGradesByCourseId(web1Course.getId(), student1.getId()))
-        .thenReturn(List.of(student1Web1Grade));
-    when(gradeDao.getStudentGradesByCourseId(sys1Course.getId(), student1.getId()))
-        .thenReturn(List.of(student1Sys1Grade));
-    when(gradeDao.getStudentGradesByCourseId(lv1Course.getId(), student1.getId()))
-        .thenReturn(List.of(student1Lv1Grade));
+    when(gradeDao.getStudentGradesByCourseId(MGT1_COURSE_ID, STUDENT1_ID))
+        .thenReturn(List.of(student1Mgt1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(PROG1_COURSE_ID, STUDENT1_ID))
+        .thenReturn(List.of(student1Prog1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(DONNE1_COURSE_ID, STUDENT1_ID))
+        .thenReturn(List.of(student1Donnees1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(WEB1_COURSE_ID, STUDENT1_ID))
+        .thenReturn(List.of(student1Web1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(SYS1_COURSE_ID, STUDENT1_ID))
+        .thenReturn(List.of(student1Sys1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(LV1_COURSE_ID, STUDENT1_ID))
+        .thenReturn(List.of(student1Lv1Grade()));
 
     // Mock student2 grades
-    when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student2.getId()))
-        .thenReturn(List.of(student2Mgt1Grade));
-    when(gradeDao.getStudentGradesByCourseId(prog1Course.getId(), student2.getId()))
-        .thenReturn(List.of(student2Prog1Grade));
-    when(gradeDao.getStudentGradesByCourseId(donne1Course.getId(), student2.getId()))
-        .thenReturn(List.of(student2Donnees1Grade));
-    when(gradeDao.getStudentGradesByCourseId(web1Course.getId(), student2.getId()))
-        .thenReturn(List.of(student2Web1Grade));
-    when(gradeDao.getStudentGradesByCourseId(sys1Course.getId(), student2.getId()))
-        .thenReturn(List.of(student2Sys1Grade));
-    when(gradeDao.getStudentGradesByCourseId(lv1Course.getId(), student2.getId()))
-        .thenReturn(List.of(student2Lv1Grade));
+    when(gradeDao.getStudentGradesByCourseId(MGT1_COURSE_ID, STUDENT2_ID))
+        .thenReturn(List.of(student2Mgt1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(PROG1_COURSE_ID, STUDENT2_ID))
+        .thenReturn(List.of(student2Prog1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(DONNE1_COURSE_ID, STUDENT2_ID))
+        .thenReturn(List.of(student2Donnees1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(WEB1_COURSE_ID, STUDENT2_ID))
+        .thenReturn(List.of(student2Web1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(SYS1_COURSE_ID, STUDENT2_ID))
+        .thenReturn(List.of(student2Sys1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(LV1_COURSE_ID, STUDENT2_ID))
+        .thenReturn(List.of(student2Lv1Grade()));
 
     // Mock student3 grades: LV1 is missing
-    when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student3.getId()))
-        .thenReturn(List.of(student3Mgt1Grade));
-    when(gradeDao.getStudentGradesByCourseId(prog1Course.getId(), student3.getId()))
-        .thenReturn(List.of(student3Prog1Grade));
-    when(gradeDao.getStudentGradesByCourseId(donne1Course.getId(), student3.getId()))
-        .thenReturn(List.of(student3Donnees1Grade));
-    when(gradeDao.getStudentGradesByCourseId(web1Course.getId(), student3.getId()))
-        .thenReturn(List.of(student3Web1Grade));
-    when(gradeDao.getStudentGradesByCourseId(sys1Course.getId(), student3.getId()))
-        .thenReturn(List.of(student3Sys1Grade));
+    when(gradeDao.getStudentGradesByCourseId(MGT1_COURSE_ID, STUDENT3_ID))
+        .thenReturn(List.of(student3Mgt1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(PROG1_COURSE_ID, STUDENT3_ID))
+        .thenReturn(List.of(student3Prog1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(DONNE1_COURSE_ID, STUDENT3_ID))
+        .thenReturn(List.of(student3Donnees1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(WEB1_COURSE_ID, STUDENT3_ID))
+        .thenReturn(List.of(student3Web1Grade()));
+    when(gradeDao.getStudentGradesByCourseId(SYS1_COURSE_ID, STUDENT3_ID))
+        .thenReturn(List.of(student3Sys1Grade()));
 
     // Mock exam from course assignment
-    when(examService.getExamsByCourseId(mgt1CourseAssignment.getCourse().getId()))
-        .thenReturn(List.of(mgt1Exam));
-    when(examService.getExamsByCourseId(prog1CourseAssignment.getCourse().getId()))
-        .thenReturn(List.of(prog1Exam));
-    when(examService.getExamsByCourseId(donnee1CourseAssignment.getCourse().getId()))
-        .thenReturn(List.of(donnees1Exam));
-    when(examService.getExamsByCourseId(web1CourseAssignment.getCourse().getId()))
-        .thenReturn(List.of(web1Exam));
-    when(examService.getExamsByCourseId(sys1CourseAssignment.getCourse().getId()))
-        .thenReturn(List.of(sys1Exam));
-    when(examService.getExamsByCourseId(lv1CourseAssignment.getCourse().getId()))
-        .thenReturn(List.of(lv1Exam));
+    when(examService.getExamsByCourseId(MGT1_COURSE_ID)).thenReturn(List.of(mgt1Exam()));
+    when(examService.getExamsByCourseId(PROG1_COURSE_ID)).thenReturn(List.of(prog1Exam()));
+    when(examService.getExamsByCourseId(DONNE1_COURSE_ID)).thenReturn(List.of(donnees1Exam()));
+    when(examService.getExamsByCourseId(WEB1_COURSE_ID)).thenReturn(List.of(web1Exam()));
+    when(examService.getExamsByCourseId(SYS1_COURSE_ID)).thenReturn(List.of(sys1Exam()));
+    when(examService.getExamsByCourseId(LV1_COURSE_ID)).thenReturn(List.of(lv1Exam()));
 
     // Mock course for student level L1
     when(courseService.getByStudentLevel(eq(L1)))
         .thenReturn(
             List.of(
-                mgt1CourseAssignment.getCourse(),
-                prog1CourseAssignment.getCourse(),
-                donnee1CourseAssignment.getCourse(),
-                web1CourseAssignment.getCourse(),
-                sys1CourseAssignment.getCourse(),
-                lv1CourseAssignment.getCourse()));
+                mgt1Course(),
+                prog1Course(),
+                donne1Course(),
+                web1Course(),
+                sys1Course(),
+                lv1Course()));
 
     when(userService.findById(anyString()))
         .thenAnswer(
@@ -255,7 +358,7 @@ class GradeResultServiceTest {
   void correct_result_yearly_result_student2_L1_invalidate() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, student2.getId());
+    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, STUDENT2_ID);
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(10., result.getObtainedCredits().doubleValue());
@@ -269,13 +372,13 @@ class GradeResultServiceTest {
   void correct_result_yearly_result_student3_L1_inProgress() throws CoursesCreditSumZero {
     var targetLevel = L1;
 
-    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, student3.getId());
+    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, STUDENT3_ID);
 
     assertEquals(targetLevel, result.getLevel());
     assertEquals(26., result.getObtainedCredits().doubleValue());
     assertEquals(6, result.getCourseResults().size());
     CourseResult lv1Result = result.getCourseResults().get(5);
-    assertEquals(lv1Course.getId(), lv1Result.getCourse().getId());
+    assertEquals(LV1_COURSE_ID, lv1Result.getCourse().getId());
     assertEquals(CourseResultStatus.IN_PROGRESS, lv1Result.getStatus());
     assertEquals(13.493, result.getWeightedAverage().doubleValue());
     assertEquals(IN_PROGRESS, result.getStatus());
@@ -284,8 +387,7 @@ class GradeResultServiceTest {
 
   @Test
   void generate_result_pdf_okay() throws CoursesCreditSumZero {
-    var targetLevel = L1;
-    YearlyResult result = subject.getLeveledYearlyResultByStudentId(targetLevel, student1.getId());
+    YearlyResult result = subject.getLeveledYearlyResultByStudentId(L1, STUDENT1_ID);
     File resultFile =
         yearlyResultGenerationService.generateYearlyResultTranscript(student1, result);
     assertTrue(resultFile.isFile());
@@ -293,10 +395,9 @@ class GradeResultServiceTest {
 
   @Test
   void correct_result_yearly_result_M2_empty_notStarted() {
-    String studentId = student1.getId();
-
     StudentLevel expectedLevel = M2;
-    YearlyResult yearlyResult = subject.getLeveledYearlyResultByStudentId(expectedLevel, studentId);
+    YearlyResult yearlyResult =
+        subject.getLeveledYearlyResultByStudentId(expectedLevel, STUDENT1_ID);
 
     assertEquals(expectedLevel, yearlyResult.getLevel());
     assertEquals(NOT_STARTED, yearlyResult.getStatus());
@@ -304,7 +405,7 @@ class GradeResultServiceTest {
 
   @Test
   void correct_result_result_summary_student1_validated() {
-    ResultSummary result = subject.getStudentResultSummary(student1.getId());
+    ResultSummary result = subject.getStudentResultSummary(STUDENT1_ID);
 
     assertEquals(5, result.getYearlyResults().size());
     assertEquals(30., result.getObtainedCredits().doubleValue());
@@ -315,7 +416,7 @@ class GradeResultServiceTest {
 
   @Test
   void correct_result_result_summary_student2_invalidated() {
-    ResultSummary result = subject.getStudentResultSummary(student2.getId());
+    ResultSummary result = subject.getStudentResultSummary(STUDENT2_ID);
 
     assertEquals(5, result.getYearlyResults().size());
     assertEquals(10., result.getObtainedCredits().doubleValue());
@@ -326,7 +427,7 @@ class GradeResultServiceTest {
 
   @Test
   void correct_result_result_summary_student3_in_progress() {
-    ResultSummary result = subject.getStudentResultSummary(student3.getId());
+    ResultSummary result = subject.getStudentResultSummary(STUDENT3_ID);
 
     assertEquals(5, result.getYearlyResults().size());
     assertEquals(26., result.getObtainedCredits().doubleValue());
@@ -337,28 +438,24 @@ class GradeResultServiceTest {
 
   @Test
   void yearly_result_with_course_credits_sum_zero_ko() {
-    when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
-        .thenReturn(List.of(student1Mgt1Grade));
-    when(examService.getExamsByCourseId(badCourseAssignment.getCourse().getId()))
-        .thenReturn(List.of(mgt1Exam));
-    when(courseService.getByStudentLevel(eq(L1)))
-        .thenReturn(List.of(badCourseAssignment.getCourse()));
+    when(gradeDao.getStudentGradesByCourseId(MGT1_COURSE_ID, STUDENT1_ID))
+        .thenReturn(List.of(student1Mgt1Grade()));
+    when(examService.getExamsByCourseId(BAD1_COURSE_ID)).thenReturn(List.of(mgt1Exam()));
+    when(courseService.getByStudentLevel(eq(L1))).thenReturn(List.of(badCourse()));
 
     assertThrows(
         CoursesCreditSumZero.class,
-        () -> subject.getLeveledYearlyResultByStudentId(L1, student1.getId()));
+        () -> subject.getLeveledYearlyResultByStudentId(L1, STUDENT1_ID));
   }
 
   @Test
   void course_result_with_exams_coefficient_sum_zero_is_inProgress() {
-    when(gradeDao.getStudentGradesByCourseId(mgt1Course.getId(), student1.getId()))
-        .thenReturn(List.of(student3GradeForBadExam));
-    when(examService.getExamsByCourseId(mgt1CourseAssignment.getCourse().getId()))
-        .thenReturn(List.of(badExam));
-    when(courseService.getByStudentLevel(eq(L1)))
-        .thenReturn(List.of(mgt1CourseAssignment.getCourse()));
+    when(gradeDao.getStudentGradesByCourseId(MGT1_COURSE_ID, STUDENT1_ID))
+        .thenReturn(List.of(student3GradeForBadExam()));
+    when(examService.getExamsByCourseId(MGT1_COURSE_ID)).thenReturn(List.of(badExam()));
+    when(courseService.getByStudentLevel(eq(L1))).thenReturn(List.of(mgt1Course()));
 
-    var result = subject.getLeveledYearlyResultByStudentId(L1, student1.getId());
+    var result = subject.getLeveledYearlyResultByStudentId(L1, STUDENT1_ID);
 
     assertEquals(IN_PROGRESS, result.getStatus());
     assertEquals(ZERO, result.getWeightedAverage());
@@ -418,19 +515,16 @@ class GradeResultServiceTest {
                     .datetime(now().minus(Duration.ofHours(1L)))
                     .build()));
 
-    YearlyResultGenerationTranscript result =
-        subject.getYearlyResultTranscript(student1.getId(), L1);
+    YearlyResultGenerationTranscript result = subject.getYearlyResultTranscript(STUDENT1_ID, L1);
     assertEquals(GENERATING, result.getStatus());
     verify(eventProducer, only()).accept(anyList());
   }
 
   @Test
   void yearly_result_generation_should_return_bad_request_when_level_in_progress() {
-    String studentId = student3.getId();
-
     String exceptionMessage =
         assertThrows(
-                BadRequestException.class, () -> subject.getYearlyResultTranscript(studentId, L1))
+                BadRequestException.class, () -> subject.getYearlyResultTranscript(STUDENT3_ID, L1))
             .getMessage();
     assertEquals(
         "Cannot generate transcript for this level. This level is not yet completed",
@@ -439,8 +533,7 @@ class GradeResultServiceTest {
 
   @Test
   void yearly_result_event_handler_ok() {
-    String studentId = student1.getId();
-    YearlyResult student1YearlyResult = subject.getLeveledYearlyResultByStudentId(L1, studentId);
+    YearlyResult student1YearlyResult = subject.getLeveledYearlyResultByStudentId(L1, STUDENT1_ID);
 
     when(userService.findById(anyString())).thenReturn(student1);
     assertDoesNotThrow(
@@ -448,8 +541,40 @@ class GradeResultServiceTest {
           yearlyResultTranscriptGenerationService.accept(
               YearlyResultTranscriptGeneration.builder()
                   .yearlyResult(student1YearlyResult)
-                  .userId(studentId)
+                  .userId(STUDENT1_ID)
                   .build());
         });
+  }
+
+  private static Exam mockExam(String id, int coefficientNumerator, int coefficientDenominator) {
+    return Exam.builder()
+        .id(id)
+        .coefficientNumerator(coefficientNumerator)
+        .coefficientDenominator(coefficientDenominator)
+        .build();
+  }
+
+  private static User mockUser(String id) {
+    return User.builder().id(id).build();
+  }
+
+  private static Promotion mockPromotion() {
+    return Promotion.builder().ref("prom1").name("Promotion de test").startDatetime(now()).build();
+  }
+
+  private static Group mockGroup(Promotion promotion) {
+    return Group.builder().name("Groupe test").ref("GRP_TST").promotion(promotion).build();
+  }
+
+  private static Grade mockGrade(Exam exam, double score) {
+    return Grade.builder().score(score).exam(exam).build();
+  }
+
+  private static Course mockCourse(String id, String code, String name, int credits) {
+    return Course.builder().id(id).code(code).name(name).credits(credits).build();
+  }
+
+  private static CourseAssignment mockCourseAssignment(String id, Course course) {
+    return CourseAssignment.builder().id(id).course(course).build();
   }
 }

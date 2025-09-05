@@ -1,8 +1,7 @@
 package school.hei.haapi.model;
 
-import static java.math.BigDecimal.ZERO;
-import static java.math.MathContext.DECIMAL128;
 import static java.util.Comparator.comparing;
+import static org.apache.commons.lang3.math.Fraction.ZERO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -14,7 +13,6 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.io.Serializable;
-import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +25,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import org.apache.commons.lang3.math.Fraction;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CascadeType;
 import org.hibernate.annotations.CreationTimestamp;
@@ -97,21 +96,24 @@ public class Grade implements Serializable {
     return score;
   }
 
-  public static BigDecimal weightedAverageOfGrades(List<Grade> grades) {
+  public static Fraction weightedAverageOfGrades(List<Grade> grades) {
     var sumCoefficients =
-        BigDecimal.valueOf(
-            grades.stream().map(Grade::getExam).mapToInt(Exam::getCoefficient).sum());
+        grades.stream()
+            .map(grade -> grade.getExam().getCoefficientFraction())
+            .reduce(Fraction::add);
+
+    if (sumCoefficients.isEmpty() || sumCoefficients.get().compareTo(ZERO) == 0)
+      throw new ExamsCoefficientSumZero();
+
     var weightedSum =
         grades.stream()
             .map(
-                grade ->
-                    BigDecimal.valueOf(grade.getExam().getCoefficient())
-                        .multiply(BigDecimal.valueOf(grade.getScore())))
-            .reduce(BigDecimal::add)
-            .orElse(ZERO);
+                grade -> {
+                  var coefficientFrac = grade.getExam().getCoefficientFraction();
+                  return coefficientFrac.multiplyBy(Fraction.getFraction(grade.getScore()));
+                })
+            .reduce(ZERO, Fraction::add);
 
-    if (ZERO.equals(sumCoefficients)) throw new ExamsCoefficientSumZero();
-
-    return weightedSum.divide(sumCoefficients, DECIMAL128);
+    return weightedSum.divideBy(sumCoefficients.get());
   }
 }

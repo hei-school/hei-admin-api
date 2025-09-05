@@ -13,7 +13,6 @@ import school.hei.haapi.model.exception.BadRequestException;
 @Component
 @AllArgsConstructor
 public class ExamValidator implements Consumer<Exam> {
-
   public void accept(List<Exam> exams) {
     exams.forEach(this);
   }
@@ -21,8 +20,17 @@ public class ExamValidator implements Consumer<Exam> {
   @Override
   public void accept(Exam exam) {
     Set<String> violationMessages = new HashSet<>();
-    if (exam.getCoefficient() < 0) {
-      violationMessages.add("Coefficient can't be less than 0");
+    var coefficientNumerator = exam.getCoefficientNumerator();
+    var coefficientDenominator = exam.getCoefficientDenominator();
+    if (coefficientNumerator != null || coefficientDenominator != null) {
+      if (coefficientNumerator <= 0) {
+        violationMessages.add("Coefficient numerator can't be less than or equal to 0");
+      }
+      if (coefficientDenominator <= 0) {
+        violationMessages.add("Coefficient denominator can't be less than or equal to 0");
+      }
+    } else {
+      violationMessages.add("Coefficient numerator or denominator cannot be null");
     }
     if (exam.getTitle() == null) {
       violationMessages.add("Title is mandatory");

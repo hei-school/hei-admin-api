@@ -45,7 +45,8 @@ public class CourseResultService {
 
               var courseResult = new CourseResult().course(courseMapper.toRest(course));
               try {
-                courseResult.weightedAverage(weightedAverageOfGrades(studentGrades));
+                courseResult.weightedAverage(
+                    BigDecimal.valueOf(weightedAverageOfGrades(studentGrades).doubleValue()));
               } catch (ExamsCoefficientSumZero e) {
                 return courseResult.weightedAverage(ZERO).status(CourseResultStatus.IN_PROGRESS);
               }
@@ -90,10 +91,8 @@ public class CourseResultService {
   public ResultOverviewStatus courseValidationFromCourseResult(List<CourseResult> courseResults) {
     var coursesResultStatus = courseResults.parallelStream().map(CourseResult::getStatus).toList();
     if (coursesResultStatus.stream()
-        .map(Optional::ofNullable)
-        .allMatch(
-            courseResultStatus ->
-                courseResultStatus.filter(CourseResultStatus.VALIDATED::equals).isPresent())) {
+        .filter(Objects::nonNull)
+        .allMatch(CourseResultStatus.VALIDATED::equals)) {
       return VALIDATED;
     }
     if (coursesResultStatus.stream().anyMatch(CourseResultStatus.IN_PROGRESS::equals)) {

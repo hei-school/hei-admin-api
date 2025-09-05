@@ -319,7 +319,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void monitor_get_own_yearly_result_ok() throws ApiException {
+  void monitor_get_own_yearly_result_ok() {
     setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
     assertDoesNotThrow(() -> monitorApi.getYearlyResult(studentAxel.getId(), L1));
@@ -333,7 +333,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void monitor_get_other_yearly_result_ko() throws ApiException {
+  void monitor_get_other_yearly_result_ko() {
     setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
     assertThrowsApiException(

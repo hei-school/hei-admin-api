@@ -6797,7 +6797,7 @@ components:
         id:
           type: string
         coefficient:
-          type: integer
+          $ref: '#/components/schemas/Fraction'
         title:
           type: string
         examination_date:
@@ -6805,13 +6805,20 @@ components:
           format: date-time
         course_assignment:
           $ref: '#/components/schemas/CourseAssignment'
+    Fraction:
+      type: object
+      properties:
+        numerator:
+          type: integer
+        denominator:
+          type: integer
     CrupdateExam:
       type: object
       properties:
         id:
           type: string
         coefficient:
-          type: integer
+          $ref: '#/components/schemas/Fraction'
         title:
           type: string
         examination_date:
