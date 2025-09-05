@@ -1,3 +1,17 @@
+# [1.115.0](https://github.com/hei-school/hei-admin-api/compare/v1.114.0...v1.115.0) (2025-09-05)
+
+
+### Bug Fixes
+
+* not started courseResult ([e5b03ab](https://github.com/hei-school/hei-admin-api/commit/e5b03ab70085edc0856b3ad4c5329829d92ead29))
+
+
+### Features
+
+* filter exam grades by student ref ([a1320f2](https://github.com/hei-school/hei-admin-api/commit/a1320f2b334d0eab968f30ca52e0fb259380fc95))
+
+
+
 # [1.114.0](https://github.com/hei-school/hei-admin-api/compare/v1.113.1...v1.114.0) (2025-09-05)
 
 
@@ -115,15 +129,6 @@
 ### Features
 
 * add getStudentByIdAndMonitorId for monitors ([fc0afe0](https://github.com/hei-school/hei-admin-api/commit/fc0afe0941868e6c33ba782bf83e8bd4063415ba))
-
-
-
-# [1.107.0](https://github.com/hei-school/hei-admin-api/compare/v1.106.0...v1.107.0) (2025-08-01)
-
-
-### Features
-
-* add getCourseGrades to fetch grades for a student for a given course ([3e3b79a](https://github.com/hei-school/hei-admin-api/commit/3e3b79a6c4c72c40900a259a04ab9679bfb88b4d))
 
 
 
