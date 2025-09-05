@@ -100,15 +100,6 @@ class GradeResultServiceTest {
   private static final String STUDENT1_LAST_NAME = "One";
   private static final String STUDENT1_REF = "STD1";
   private static final String STUDENT1_SPECIALIZATION_FIELD_STRING = "Transformation Numérique";
-
-  private static User student2() {
-    return mockUser(STUDENT2_ID);
-  }
-
-  private static User student3() {
-    return mockUser(STUDENT3_ID);
-  }
-
   private static final User student1 = mock();
 
   private static Promotion promotion() {
@@ -276,29 +267,6 @@ class GradeResultServiceTest {
   private static Course badCourse() {
     return mockCourse(BAD1_COURSE_ID, BAD1_COURSE_CODE, BAD1_COURSE_NAME, 0);
   }
-
-  private static final String MGT1_COURSE_ASSIGNMENT_ID = "mgt1 courseAssignment";
-  private static final String PROG1_COURSE_ASSIGNMENT_ID = "prog1 courseAssignment";
-  private static final String DONNE1_COURSE_ASSIGNMENT_ID = "donne1 courseAssignment";
-  private static final String WEB1_COURSE_ASSIGNMENT_ID = "web1 courseAssignment";
-  private static final String SYS1_COURSE_ASSIGNMENT_ID = "sys1 courseAssignment";
-  private static final String LV1_COURSE_ASSIGNMENT_ID = "lv1 courseAssignment";
-  private static final String BAD_COURSE_ASSIGNMENT_ID = "bad courseAssignment";
-
-  private static final CourseAssignment mgt1CourseAssignment =
-      mockCourseAssignment(MGT1_COURSE_ASSIGNMENT_ID, mgt1Course());
-  private static final CourseAssignment prog1CourseAssignment =
-      mockCourseAssignment(PROG1_COURSE_ASSIGNMENT_ID, prog1Course());
-  private static final CourseAssignment donnee1CourseAssignment =
-      mockCourseAssignment(DONNE1_COURSE_ASSIGNMENT_ID, donne1Course());
-  private static final CourseAssignment web1CourseAssignment =
-      mockCourseAssignment(WEB1_COURSE_ASSIGNMENT_ID, web1Course());
-  private static final CourseAssignment sys1CourseAssignment =
-      mockCourseAssignment(SYS1_COURSE_ASSIGNMENT_ID, sys1Course());
-  private static final CourseAssignment lv1CourseAssignment =
-      mockCourseAssignment(LV1_COURSE_ASSIGNMENT_ID, lv1Course());
-  private static final CourseAssignment badCourseAssignment =
-      mockCourseAssignment(BAD_COURSE_ASSIGNMENT_ID, badCourse());
 
   @BeforeEach
   void setUp() {
