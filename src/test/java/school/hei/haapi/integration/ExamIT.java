@@ -234,7 +234,9 @@ class ExamIT extends FacadeITMockedThirdParties {
 
     assertBadRequestException(
         "Components of the fraction cannot be null",
-        () -> api.createOrUpdateExamsInfos(createExam1().coefficient(aFraction(0, -2))));
+        () ->
+            api.createOrUpdateExamsInfos(
+                createExam1().coefficient(new Fraction().denominator(-2))));
     assertBadRequestException(
         "Title is mandatory", () -> api.createOrUpdateExamsInfos(createExam1().title(null)));
     assertBadRequestException(
