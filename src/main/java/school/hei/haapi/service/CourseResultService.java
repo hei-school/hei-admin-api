@@ -3,7 +3,9 @@ package school.hei.haapi.service;
 import static java.math.BigDecimal.TEN;
 import static java.math.BigDecimal.ZERO;
 import static java.math.MathContext.DECIMAL128;
+import static java.util.Comparator.comparing;
 import static java.util.Objects.nonNull;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.*;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
@@ -106,6 +108,7 @@ public class CourseResultService {
     var inProgressCount =
         coursesResultStatus.stream().filter(CourseResultStatus.IN_PROGRESS::equals).count();
 
+    if (courseResultCount == 0) return Optional.of(NOT_STARTED);
     if (inProgressCount > 0) return Optional.of(IN_PROGRESS);
     if (notStartedCount == courseResultCount) return Optional.of(NOT_STARTED);
     if (notStartedCount > 0) return Optional.of(IN_PROGRESS);
