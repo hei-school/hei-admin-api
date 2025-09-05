@@ -1,3 +1,17 @@
+# [1.114.0](https://github.com/hei-school/hei-admin-api/compare/v1.113.1...v1.114.0) (2025-09-05)
+
+
+### Bug Fixes
+
+* result summary computation ([be8119b](https://github.com/hei-school/hei-admin-api/commit/be8119ba92000785225343b4f90e67ab974a9a39))
+
+
+### Features
+
+* filter exam by teacher id ([44e68de](https://github.com/hei-school/hei-admin-api/commit/44e68def3e5be2214d49ed682fc3fb55ac512314))
+
+
+
 ## [1.113.1](https://github.com/hei-school/hei-admin-api/compare/v1.113.0...v1.113.1) (2025-08-29)
 
 
@@ -110,15 +124,6 @@
 ### Features
 
 * add getCourseGrades to fetch grades for a student for a given course ([3e3b79a](https://github.com/hei-school/hei-admin-api/commit/3e3b79a6c4c72c40900a259a04ab9679bfb88b4d))
-
-
-
-# [1.106.0](https://github.com/hei-school/hei-admin-api/compare/v1.105.1...v1.106.0) (2025-08-01)
-
-
-### Features
-
-* ResultOverview add status and total credits ([95441ba](https://github.com/hei-school/hei-admin-api/commit/95441bae528139507089e2bb4dd1e6167be0c9c7))
 
 
 
