@@ -2,6 +2,7 @@ package school.hei.haapi.service;
 
 import static java.util.stream.Collectors.toSet;
 
+import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -49,6 +50,7 @@ public class ExamParticipantService {
             : pageableFromPageAndSize.apply(page, pageSize));
   }
 
+  @Transactional
   public List<StudentGrade> getParticipantsGradeForExam(
       String examId, PageFromOne page, BoundedPageSize pageSize, String studentRef) {
     List<Grade> existingGrades = gradeDao.getGradesByExamId(examId);

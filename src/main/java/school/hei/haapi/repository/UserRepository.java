@@ -148,7 +148,7 @@ public interface UserRepository extends JpaRepository<User, String> {
               ON
                   sgf.student_id = u.id
           where u.status <> 'DISABLED'
-                    AND u.ref IS ?2
+                    AND u.ref = ?2
           """)
   List<User> findAllRemainingStudentsByStudentRefAndGroupIds(
       Collection<String> groupIds, String studentRef, Pageable pageable);
