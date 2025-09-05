@@ -2014,7 +2014,11 @@ paths:
       summary: Return all students with their grade
       operationId: getStudentGradesForExam
       parameters:
-        - $ref: '#/components/parameters/PathExamId'
+        - name: exam_id
+          in: path
+          required: true
+          schema:
+            type: string
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
         - $ref: '#/components/parameters/StudentRef'
