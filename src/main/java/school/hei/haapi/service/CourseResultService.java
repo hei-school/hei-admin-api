@@ -46,9 +46,7 @@ public class CourseResultService {
               var courseResult = new CourseResult().course(courseMapper.toRest(course));
               try {
                 courseResult.weightedAverage(
-                    weightedAverageOfGrades(studentGrades)
-                        .map(e -> BigDecimal.valueOf(e.doubleValue()))
-                        .orElse(ZERO));
+                    BigDecimal.valueOf(weightedAverageOfGrades(studentGrades).doubleValue()));
               } catch (ExamsCoefficientSumZero e) {
                 return courseResult.weightedAverage(ZERO).status(CourseResultStatus.IN_PROGRESS);
               }

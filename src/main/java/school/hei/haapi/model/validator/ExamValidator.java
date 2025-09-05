@@ -13,7 +13,6 @@ import school.hei.haapi.model.exception.BadRequestException;
 @Component
 @AllArgsConstructor
 public class ExamValidator implements Consumer<Exam> {
-
   public void accept(List<Exam> exams) {
     exams.forEach(this);
   }

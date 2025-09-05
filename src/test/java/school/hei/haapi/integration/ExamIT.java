@@ -230,14 +230,11 @@ class ExamIT extends FacadeITMockedThirdParties {
 
     assertBadRequestException(
         "Components of the fraction cannot be less or equal than 0",
-        () ->
-            api.createOrUpdateExamsInfos(
-                createExam1().coefficient(new Fraction().numerator(-2).denominator(0))));
+        () -> api.createOrUpdateExamsInfos(createExam1().coefficient(aFraction(-2, 0))));
 
     assertBadRequestException(
         "Components of the fraction cannot be null",
-        () ->
-            api.createOrUpdateExamsInfos(createExam1().coefficient(new Fraction().numerator(-2))));
+        () -> api.createOrUpdateExamsInfos(createExam1().coefficient(aFraction(0, -2))));
     assertBadRequestException(
         "Title is mandatory", () -> api.createOrUpdateExamsInfos(createExam1().title(null)));
     assertBadRequestException(
@@ -250,7 +247,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     ExamsApi api = new ExamsApi(manager1Client);
     Exam actualCreate = api.createOrUpdateExamsInfos(createExam1());
-    var expectedCoefficient = new Fraction().numerator(2).denominator(1);
+    var expectedCoefficient = aFraction(2, 1);
     assertEquals("Algorithmics", actualCreate.getTitle());
     assertEquals(expectedCoefficient, actualCreate.getCoefficient());
   }
@@ -274,5 +271,9 @@ class ExamIT extends FacadeITMockedThirdParties {
     Exam actual = api.getExamById(COURSE_ASSIGNMENT1_ID, EXAM1_ID);
 
     assertEquals(exam1(), actual);
+  }
+
+  private static Fraction aFraction(int numerator, int denominator) {
+    return new Fraction().numerator(numerator).denominator(denominator);
   }
 }

@@ -63,24 +63,24 @@ import school.hei.haapi.service.utils.HtmlParser;
 import school.hei.haapi.service.utils.PdfRenderer;
 
 class GradeResultServiceTest {
-  private static final GradeDao gradeDao = mock();
-  private static final CourseAssignmentDao courseAssignmentDao = mock();
-  private static final CourseService courseService = mock();
-  private static final ExamService examService = mock();
-  private static final UserService userService = mock();
-  private static final BucketComponent bucketComponent = mock();
-  private static final FileInfoService fileInfoService = mock();
-  private static final EventProducer eventProducer = mock();
-  private static final YearlyResultGenerationRequestRepository
-      yearlyResultGenerationRequestRepository = mock();
-  private static final YearlyResultGenerationService yearlyResultGenerationService =
+  private final GradeDao gradeDao = mock();
+  private final CourseAssignmentDao courseAssignmentDao = mock();
+  private final CourseService courseService = mock();
+  private final ExamService examService = mock();
+  private final UserService userService = mock();
+  private final BucketComponent bucketComponent = mock();
+  private final FileInfoService fileInfoService = mock();
+  private final EventProducer eventProducer = mock();
+  private final YearlyResultGenerationRequestRepository yearlyResultGenerationRequestRepository =
+      mock();
+  private final YearlyResultGenerationService yearlyResultGenerationService =
       new YearlyResultGenerationService(
           new HtmlParser(),
           new PdfRenderer(),
           new Base64Converter(),
           yearlyResultGenerationRequestRepository,
           new ClassPathResourceResolver());
-  private static final GradeResultService subject =
+  private final GradeResultService subject =
       new GradeResultService(
           new CourseResultService(
               courseService, gradeDao, new CourseMapper(), examService, userService),
@@ -89,9 +89,8 @@ class GradeResultServiceTest {
           userService,
           fileInfoService,
           eventProducer);
-  private static final YearlyResultTranscriptGenerationService
-      yearlyResultTranscriptGenerationService =
-          new YearlyResultTranscriptGenerationService(subject);
+  private final YearlyResultTranscriptGenerationService yearlyResultTranscriptGenerationService =
+      new YearlyResultTranscriptGenerationService(subject);
 
   private static final String STUDENT1_ID = "id";
   private static final String STUDENT2_ID = "bad student";

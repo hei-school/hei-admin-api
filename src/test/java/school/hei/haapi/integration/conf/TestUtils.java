@@ -446,6 +446,12 @@ public class TestUtils {
     return assertThrows(BadRequestException.class, executable);
   }
 
+  public static void assertThrowsDomainBadRequestException(
+      String expectedMessage, Executable executable) {
+    var e = assertThrows(BadRequestException.class, executable);
+    assertEquals(expectedMessage, e.getMessage());
+  }
+
   public static File getMockedFile(String fileName, String extension) {
     try {
       Resource resource = new ClassPathResource("mock/" + fileName + extension);

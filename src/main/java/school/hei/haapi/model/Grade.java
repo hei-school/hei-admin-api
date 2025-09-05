@@ -1,6 +1,7 @@
 package school.hei.haapi.model;
 
 import static java.util.Comparator.comparing;
+import static org.apache.commons.lang3.math.Fraction.ZERO;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -95,13 +96,13 @@ public class Grade implements Serializable {
     return score;
   }
 
-  public static Optional<Fraction> weightedAverageOfGrades(List<Grade> grades) {
+  public static Fraction weightedAverageOfGrades(List<Grade> grades) {
     var sumCoefficients =
         grades.stream()
             .map(grade -> grade.getExam().getCoefficientFraction())
             .reduce(Fraction::add);
 
-    if (sumCoefficients.isEmpty() || sumCoefficients.get().compareTo(Fraction.ZERO) == 0)
+    if (sumCoefficients.isEmpty() || sumCoefficients.get().compareTo(ZERO) == 0)
       throw new ExamsCoefficientSumZero();
 
     var weightedSum =
@@ -111,8 +112,8 @@ public class Grade implements Serializable {
                   var coefficientFrac = grade.getExam().getCoefficientFraction();
                   return coefficientFrac.multiplyBy(Fraction.getFraction(grade.getScore()));
                 })
-            .reduce(Fraction::add);
+            .reduce(ZERO, Fraction::add);
 
-    return weightedSum.map(fraction -> fraction.divideBy(sumCoefficients.get()));
+    return weightedSum.divideBy(sumCoefficients.get());
   }
 }
