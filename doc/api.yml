@@ -2014,23 +2014,9 @@ paths:
       summary: Return all students with their grade
       operationId: getStudentGradesForExam
       parameters:
-        - name: exam_id
-          in: path
-          required: true
-          schema:
-            type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
-          required: false
+        - $ref: '#/components/parameters/PathExamId'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: All students grades from an exam specific
