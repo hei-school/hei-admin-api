@@ -107,7 +107,7 @@ public class GradeResultService {
         .yearlyResults(yearlyResults)
         .obtainedCredits(obtainedCredits)
         .weightedAverage(weightedAverage.orElse(null))
-        .status(resultSummaryStatusFromYearlyResults(yearlyResultsDone))
+        .status(resultSummaryStatusFromYearlyResults(yearlyResults))
         .totalCredits(
             yearlyResultsDone.parallelStream()
                 .map(YearlyResult::getTotalCredits)
