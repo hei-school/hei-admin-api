@@ -241,7 +241,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   @Test
   void student_get_all_grade_ko() {
     GradesApi studentApi = new GradesApi(anApiClient(STUDENT1_TOKEN));
-    assertThrowsForbiddenException(() -> studentApi.getStudentGradesForExam(EXAM1_ID, 1, 10));
+    assertThrowsForbiddenException(() -> studentApi.getStudentGradesForExam(EXAM1_ID, 1, 10, null));
   }
 
   @Test
