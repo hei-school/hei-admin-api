@@ -418,6 +418,14 @@ class GradeResultServiceTest {
   }
 
   @Test
+  void generate_result_pdf_year_in_progress_okay() throws CoursesCreditSumZero {
+    YearlyResult result = subject.getLeveledYearlyResultByStudentId(L1, STUDENT3_ID);
+    File resultFile =
+        yearlyResultGenerationService.generateYearlyResultTranscript(student1, result);
+    assertTrue(resultFile.isFile());
+  }
+
+  @Test
   void correct_result_yearly_result_M2_empty_notStarted() {
     StudentLevel expectedLevel = M2;
     YearlyResult yearlyResult =
