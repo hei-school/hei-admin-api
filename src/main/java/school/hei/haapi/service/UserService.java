@@ -272,8 +272,9 @@ public class UserService {
     return getByGroupIds(List.of(groupId), pageable);
   }
 
-  public List<User> getByGroupIds(Collection<String> groupId, Pageable pageable) {
-    return userRepository.findAllRemainingStudentsByGroupIds(groupId, pageable);
+  public List<User> getByGroupIds(Collection<String> groupIds, Pageable pageable) {
+    return userManagerDao.findByCriteria(
+        null, null, null, null, pageable, null, null, null, null, null, null, null, groupIds);
   }
 
   public List<User> getByStudentRefAndGroupIds(
