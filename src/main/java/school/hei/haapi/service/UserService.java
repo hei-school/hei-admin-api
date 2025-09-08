@@ -276,11 +276,21 @@ public class UserService {
   }
 
   public List<User> getByStudentRefAndGroupIds(
-      Collection<String> groupId, String studentRef, Pageable pageable) {
-    return studentRef == null || studentRef.isBlank()
-        ? getByGroupIds(groupId, pageable)
-        : userRepository.findAllRemainingStudentsByStudentRefAndGroupIds(
-            groupId, studentRef, pageable);
+      Collection<String> groupIds, String studentRef, Pageable pageable) {
+    return userManagerDao.findByCriteria(
+        STUDENT,
+        studentRef,
+        null,
+        null,
+        pageable,
+        ENABLED,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        groupIds);
   }
 
   public byte[] generateStudentsGroup(String groupId) {
