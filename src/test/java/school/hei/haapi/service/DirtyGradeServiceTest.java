@@ -168,7 +168,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void filter_grades_ok() {
+  void filter_grades_by_student_ref_ok() {
     subject.createParticipantGrade(gradesExam1Prog1);
 
     var examGrades =
