@@ -101,34 +101,11 @@ public class UserManagerDao {
                   workDocumentJoin.get("commitmentBegin"), commitmentComparison));
     }
 
-    if (excludeGroupIds != null) {
-      Subquery<String> subquery = query.subquery(String.class);
-      Root<GroupFlow> groupFlowRoot = subquery.from(GroupFlow.class);
-
-      subquery.select(groupFlowRoot.get("student").get("id"));
-      //      subquery.where(builder.like(groupFlowRoot.get("group").get("id"), excludeGroupId));
-      subquery.where(groupFlowRoot.get("group").get("id").in(excludeGroupIds));
-
-      subquery.groupBy(
-          groupFlowRoot.get("group").get("id"), groupFlowRoot.get("student").get("id"));
-
-      Expression<Integer> joinCount =
-          builder.sum(
-              builder
-                  .<Integer>selectCase()
-                  .when(builder.equal(groupFlowRoot.get("groupFlowType"), JOIN), 1)
-                  .otherwise(0));
-
-      Expression<Integer> leaveCount =
-          builder.sum(
-              builder
-                  .<Integer>selectCase()
-                  .when(builder.equal(groupFlowRoot.get("groupFlowType"), LEAVE), 1)
-                  .otherwise(0));
-
-      subquery.having(builder.greaterThan(joinCount, leaveCount));
-
-      predicate = builder.and(predicate, builder.not(root.get("id").in(subquery)));
+    if (excludeGroupIds != null && !excludeGroupIds.isEmpty()) {
+      predicate =
+          builder.and(
+              predicate,
+              builder.not(root.get("id").in(currentGroupQuery(excludeGroupIds, query, builder))));
     }
 
     if (role != null) {
@@ -165,6 +142,34 @@ public class UserManagerDao {
         .setFirstResult((pageable.getPageNumber()) * pageable.getPageSize())
         .setMaxResults(pageable.getPageSize())
         .getResultList();
+  }
+
+  private Subquery<String> currentGroupQuery(
+      List<String> excludeGroupIds, CriteriaQuery<User> query, CriteriaBuilder builder) {
+    Subquery<String> subquery = query.subquery(String.class);
+    Root<GroupFlow> groupFlowRoot = subquery.from(GroupFlow.class);
+
+    subquery.select(groupFlowRoot.get("student").get("id"));
+    subquery.where(groupFlowRoot.get("group").get("id").in(excludeGroupIds));
+
+    subquery.groupBy(groupFlowRoot.get("group").get("id"), groupFlowRoot.get("student").get("id"));
+
+    Expression<Integer> joinCount =
+        builder.sum(
+            builder
+                .<Integer>selectCase()
+                .when(builder.equal(groupFlowRoot.get("groupFlowType"), JOIN), 1)
+                .otherwise(0));
+
+    Expression<Integer> leaveCount =
+        builder.sum(
+            builder
+                .<Integer>selectCase()
+                .when(builder.equal(groupFlowRoot.get("groupFlowType"), LEAVE), 1)
+                .otherwise(0));
+
+    subquery.having(builder.greaterThan(joinCount, leaveCount));
+    return subquery;
   }
 
   @Transactional
