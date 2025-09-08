@@ -4,10 +4,14 @@ import static java.util.stream.Collectors.toUnmodifiableList;
 import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 import static school.hei.haapi.model.User.Role.STUDENT;
 
+import java.lang.Exception;
 import java.time.Instant;
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,6 +31,7 @@ import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.service.GroupFlowService;
+import school.hei.haapi.service.StudentElevationService;
 import school.hei.haapi.service.UserService;
 
 @RestController
@@ -37,6 +42,7 @@ public class StudentController {
   private final GroupFlowService groupFlowService;
   private final GroupFlowMapper groupFlowMapper;
   private final StatusEnumMapper statusEnumMapper;
+  private final StudentElevationService studentElevationService;
   private final SexEnumMapper sexEnumMapper;
   private final CoordinatesValidator validator;
 
@@ -119,6 +125,22 @@ public class StudentController {
     validator.accept(toUpdate.getCoordinates());
     return userMapper.toRestStudent(
         userService.updateUser(userMapper.toDomain(toUpdate), studentId));
+  }
+
+  @PutMapping("/students/{studentId}/elevate")
+  public ResponseEntity<Map<String, Object>> elevateStudent(@PathVariable String studentId) {
+      List<Map<String, Object>> results = studentElevationService.elevateStudentByUserIdOrGroupId(List.of(studentId));
+      return ResponseEntity.ok(results.getFirst());
+  }
+
+  @PutMapping("/students/elevate")
+  public ResponseEntity<List<Map<String, Object>>> elevateStudents(@RequestBody List <String> groupId) {
+      try {
+          List<Map<String, Object>> results = studentElevationService.elevateStudentByUserIdOrGroupId(groupId);
+          return ResponseEntity.ok(results);
+      } catch (Exception e) {
+          return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(List.of(Map.of("error", "Unexpected error: " + e.getMessage())));
+      }
   }
 
   @PostMapping("/students/{id}/group_flows")

@@ -722,6 +722,102 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /students/{studentId}/elevate:
+    put:
+      tags:
+        - Students
+      summary: Elevate a single student to ALUMNI
+      operationId: elevateStudentToAlumni
+      parameters:
+        - name: studentId
+          in: path
+          required: true
+          description: id of the student
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Elevation result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "STD25000"
+                  elevated:
+                    type: boolean
+                    example: true
+                  error:
+                    type: string
+                    nullable: true
+                    example: null
+        '400':
+          description: Business logic error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    example: "STD25000"
+                  elevated:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Unsufficient credits"
+  /students/elevate:
+    put:
+      tags:
+        - Students
+      summary: Elevate a group of students to ALUMNI
+      operationId: elevateStudentGroupToAlumni
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: string
+              example: ["G1"]
+      responses:
+        '200':
+          description: Elevations results
+          content:
+            application/json:
+              schema:
+                type: array
+                properties:
+                  id:
+                    type: string
+                    example: "STD25000"
+                  elevated:
+                    type: boolean
+                    example: true
+                  error:
+                    type: string
+                    nullable: true
+                    example: null
+        '400':
+          description: Business logic error
+          content:
+            application/json:
+              schema:
+                type: array
+                properties:
+                  id:
+                    type: string
+                    example: "STD25000"
+                  elevated:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: "Unsufficient credits"
   /monitors/{id}:
     put:
       tags:
@@ -6436,6 +6532,7 @@ components:
         - ENABLED
         - DISABLED
         - SUSPENDED
+        - ALUMNI
     FileType:
       type: string
       enum:

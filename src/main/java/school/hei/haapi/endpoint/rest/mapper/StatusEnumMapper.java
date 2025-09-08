@@ -15,6 +15,7 @@ public class StatusEnumMapper {
       case ENABLED -> EnableStatus.ENABLED;
       case DISABLED -> EnableStatus.DISABLED;
       case SUSPENDED -> EnableStatus.SUSPENDED;
+      case ALUMNI -> EnableStatus.ALUMNI;
       default -> throw new BadRequestException("Unexpected type " + status);
     };
   }

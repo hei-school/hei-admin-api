@@ -254,7 +254,8 @@ public class User implements Serializable {
   public enum Status {
     ENABLED,
     DISABLED,
-    SUSPENDED;
+    SUSPENDED,
+    ALUMNI;
   }
 
   public enum Role {
