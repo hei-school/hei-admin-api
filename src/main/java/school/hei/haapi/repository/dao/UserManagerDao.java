@@ -8,23 +8,37 @@ import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
-import school.hei.haapi.model.*;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseAssignment;
+import school.hei.haapi.model.GroupFlow;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.WorkDocument;
+import school.hei.haapi.service.utils.CollectionUtils;
 
 @Repository
 @AllArgsConstructor
+@Slf4j
 public class UserManagerDao {
   private EntityManager entityManager;
+  private CollectionUtils collectionUtils;
 
   public List<User> findByCriteria(
       User.Role role,
@@ -104,17 +118,26 @@ public class UserManagerDao {
                   workDocumentJoin.get("commitmentBegin"), commitmentComparison));
     }
 
-    if (excludeGroupIds != null && !excludeGroupIds.isEmpty()) {
+    if (isListFilterCriteriaPresent(excludeGroupIds)) {
       predicate =
           builder.and(
               predicate,
               builder.not(root.get("id").in(currentGroupQuery(excludeGroupIds, query, builder))));
     }
 
-    if (includeGroupIds != null && !includeGroupIds.isEmpty()) {
+    if (isListFilterCriteriaPresent(includeGroupIds)) {
       predicate =
           builder.and(
               predicate, root.get("id").in(currentGroupQuery(includeGroupIds, query, builder)));
+
+      if (isListFilterCriteriaPresent(excludeGroupIds)) {
+        var commonElement = collectionUtils.findCommonElement(excludeGroupIds, includeGroupIds);
+        if (!commonElement.isEmpty())
+          log.warn(
+              "Group filter conflict: same group(s) present in both include and exclude filters ->"
+                  + " {}",
+              commonElement);
+      }
     }
 
     if (role != null) {
@@ -154,7 +177,7 @@ public class UserManagerDao {
   }
 
   private Subquery<String> currentGroupQuery(
-      Collection<String> groupIds, CriteriaQuery<User> query, CriteriaBuilder builder) {
+      @NonNull Collection<String> groupIds, CriteriaQuery<User> query, CriteriaBuilder builder) {
     Subquery<String> subquery = query.subquery(String.class);
     Root<GroupFlow> groupFlowRoot = subquery.from(GroupFlow.class);
 
@@ -188,5 +211,9 @@ public class UserManagerDao {
       user.setStatus(status);
       entityManager.merge(user);
     }
+  }
+
+  private static <T> boolean isListFilterCriteriaPresent(Collection<T> criteria) {
+    return criteria != null && !criteria.isEmpty();
   }
 }
