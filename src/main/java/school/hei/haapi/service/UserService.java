@@ -215,7 +215,7 @@ public class UserService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
-        role, ref, firstName, lastName, pageable, null, null, null, null, null, null, null);
+        role, ref, firstName, lastName, pageable, null, null, null, null, null, null, null, null);
   }
 
   public List<User> getByCriteria(
@@ -231,7 +231,7 @@ public class UserService {
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
 
     return userManagerDao.findByCriteria(
-        role, ref, firstName, lastName, pageable, status, sex, null, null, null, null, null);
+        role, ref, firstName, lastName, pageable, status, sex, null, null, null, null, null, null);
   }
 
   public List<User> getByLinkedCourse(
@@ -263,7 +263,8 @@ public class UserService {
         commitmentBeginDate,
         courseId,
         Instant.now(),
-        excludeGroupIds);
+        excludeGroupIds,
+        null);
   }
 
   public List<User> getByGroupId(String groupId, Pageable pageable) {
@@ -405,7 +406,8 @@ public class UserService {
             null,
             courseId,
             Instant.now(),
-            excludeGroupIds);
+            excludeGroupIds,
+            null);
     return userXlsxCellsGenerator.apply(students, List.of("firstName", "lastName", "email", "sex"));
   }
 }

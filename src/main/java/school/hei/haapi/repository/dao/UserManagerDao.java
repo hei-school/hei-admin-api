@@ -11,6 +11,7 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.*;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -36,7 +37,8 @@ public class UserManagerDao {
       Instant commitmentBeginDate,
       String courseId,
       Instant commitmentComparison,
-      List<String> excludeGroupIds) {
+      Collection<String> excludeGroupIds,
+      Collection<String> includeGroupIds) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
@@ -108,6 +110,12 @@ public class UserManagerDao {
               builder.not(root.get("id").in(currentGroupQuery(excludeGroupIds, query, builder))));
     }
 
+    if (includeGroupIds != null && !includeGroupIds.isEmpty()) {
+      predicate =
+          builder.and(
+              predicate, root.get("id").in(currentGroupQuery(includeGroupIds, query, builder)));
+    }
+
     if (role != null) {
       predicate = builder.and(predicate, builder.equal(root.get("role"), role));
     }
@@ -145,12 +153,12 @@ public class UserManagerDao {
   }
 
   private Subquery<String> currentGroupQuery(
-      List<String> excludeGroupIds, CriteriaQuery<User> query, CriteriaBuilder builder) {
+      Collection<String> groupIds, CriteriaQuery<User> query, CriteriaBuilder builder) {
     Subquery<String> subquery = query.subquery(String.class);
     Root<GroupFlow> groupFlowRoot = subquery.from(GroupFlow.class);
 
     subquery.select(groupFlowRoot.get("student").get("id"));
-    subquery.where(groupFlowRoot.get("group").get("id").in(excludeGroupIds));
+    subquery.where(groupFlowRoot.get("group").get("id").in(groupIds));
 
     subquery.groupBy(groupFlowRoot.get("group").get("id"), groupFlowRoot.get("student").get("id"));
 
