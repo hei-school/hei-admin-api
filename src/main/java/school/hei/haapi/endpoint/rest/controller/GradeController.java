@@ -69,9 +69,9 @@ public class GradeController {
   @GetMapping(value = "/exams/{exam_id}/grades")
   public List<StudentGrade> getStudentGradesForExam(
       @PathVariable(value = "exam_id") String examId,
-      @RequestParam PageFromOne page,
-      @RequestParam("page_size") BoundedPageSize pageSize,
-      @RequestParam("student_ref") String studentRef) {
+      @RequestParam(defaultValue = "1") PageFromOne page,
+      @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize,
+      @RequestParam(value = "student_ref", required = false) String studentRef) {
     return examParticipantService.getParticipantsGradeForExam(examId, page, pageSize, studentRef);
   }
 

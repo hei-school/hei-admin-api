@@ -14,6 +14,7 @@ import java.time.Instant;
 import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
@@ -30,7 +31,7 @@ public class UserManagerDao {
       String ref,
       String firstName,
       String lastName,
-      Pageable pageable,
+      @NonNull Pageable pageable,
       User.Status status,
       User.Sex sex,
       WorkStudyStatus workStatus,
@@ -138,7 +139,7 @@ public class UserManagerDao {
                   builder.like(root.get("lastName"), "%" + lastName + "%")));
     }
 
-    if (pageable == null) {
+    if (pageable.isUnpaged()) {
       query.where(predicate);
       return entityManager.createQuery(query).getResultList();
     }

@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static org.springframework.data.domain.Pageable.unpaged;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.*;
 import static school.hei.haapi.model.User.Role.STUDENT;
@@ -294,7 +295,7 @@ public class UserService {
   }
 
   public byte[] generateStudentsGroup(String groupId) {
-    List<User> studentsGroup = getByGroupId(groupId, Pageable.unpaged());
+    List<User> studentsGroup = getByGroupId(groupId, unpaged());
     return userXlsxCellsGenerator.apply(studentsGroup, List.of("ref", "firstName", "lastName"));
   }
 
@@ -391,9 +392,7 @@ public class UserService {
                 () ->
                     new NotFoundException("Promotion with id #" + promotionId + " does not exist"));
     List<User> students = new ArrayList<>();
-    promotion
-        .getGroups()
-        .forEach(group -> students.addAll(getByGroupId(group.getId(), Pageable.unpaged())));
+    promotion.getGroups().forEach(group -> students.addAll(getByGroupId(group.getId(), unpaged())));
     return userXlsxCellsGenerator.apply(students, List.of("firstName", "lastName", "email", "sex"));
   }
 
@@ -409,7 +408,7 @@ public class UserService {
             null,
             null,
             null,
-            null,
+            unpaged(),
             status,
             sex,
             workStatus,
