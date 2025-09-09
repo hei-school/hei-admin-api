@@ -1433,6 +1433,74 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+
+  /remedial:
+    get:
+      tags:
+        - Remedials
+      summary: Get all remedials infos.
+      parameters:
+        - name: teacher_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: title
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: course_code
+          in: query
+          required: false
+          example: PROG1
+          schema:
+            type: string
+        - $ref: "#/components/parameters/GroupRef"
+        - name: remedial_date_from
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: remedial_date_to
+          in: query
+          required: false
+          schema:
+            type: string
+            format: date-time
+        - name: page
+          in: query
+          schema:
+            $ref: '#/components/schemas/Page'
+          description: Set value to 1 by default if null is provided
+          required: false
+        - name: page_size
+          in: query
+          description: Set value to 15 by default if null is provided
+          schema:
+            $ref: '#/components/schemas/PageSize'
+      operationId: getAllRemedials
+      responses:
+        '200':
+          description: List of remedials infos without the participants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Remedials'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+
   /groups/{group_id}/course_assignments:
     get:
       tags:
@@ -2117,6 +2185,10 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+
+
+
+
   '/teachers/{id}':
     get:
       tags:
@@ -6207,6 +6279,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -6977,6 +7050,30 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentGrade'
+
+    CreateRemedial:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        course:
+          $ref: '#/components/schemas/CourseAssignment'
+        datetime:
+          type: string
+          format: date-time
+
+    Remedials:
+      allOf:
+        - $ref: '#/components/schemas/CreateRemedial'
+      type: object
+      properties:
+        students:
+          type: array
+          items:
+            $ref: '#/components/schemas/Student'
+
     CreateAttendanceMovement:
       type: object
       properties:
