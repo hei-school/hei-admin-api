@@ -35,6 +35,7 @@ class UserManagerDaoTest extends FacadeITMockedThirdParties {
             null,
             course1().getId(),
             null,
+            null,
             null);
 
     assertEquals(1, teachers.size());

@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static org.springframework.data.domain.Pageable.unpaged;
 import static org.springframework.data.domain.Sort.Direction.ASC;
 import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.*;
 import static school.hei.haapi.model.User.Role.STUDENT;
@@ -215,7 +216,7 @@ public class UserService {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
     return userManagerDao.findByCriteria(
-        role, ref, firstName, lastName, pageable, null, null, null, null, null, null, null);
+        role, ref, firstName, lastName, pageable, null, null, null, null, null, null, null, null);
   }
 
   public List<User> getByCriteria(
@@ -231,7 +232,7 @@ public class UserService {
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(ASC, "ref"));
 
     return userManagerDao.findByCriteria(
-        role, ref, firstName, lastName, pageable, status, sex, null, null, null, null, null);
+        role, ref, firstName, lastName, pageable, status, sex, null, null, null, null, null, null);
   }
 
   public List<User> getByLinkedCourse(
@@ -263,19 +264,39 @@ public class UserService {
         commitmentBeginDate,
         courseId,
         Instant.now(),
-        excludeGroupIds);
+        excludeGroupIds,
+        null);
   }
 
   public List<User> getByGroupId(String groupId, Pageable pageable) {
     return getByGroupIds(List.of(groupId), pageable);
   }
 
-  public List<User> getByGroupIds(Collection<String> groupId, Pageable pageable) {
-    return userRepository.findAllRemainingStudentsByGroupIds(groupId, pageable);
+  public List<User> getByGroupIds(Collection<String> groupIds, Pageable pageable) {
+    return userManagerDao.findByCriteria(
+        null, null, null, null, pageable, null, null, null, null, null, null, null, groupIds);
+  }
+
+  public List<User> getByStudentRefAndGroupIds(
+      Collection<String> groupIds, String studentRef, Pageable pageable) {
+    return userManagerDao.findByCriteria(
+        STUDENT,
+        studentRef,
+        null,
+        null,
+        pageable,
+        ENABLED,
+        null,
+        null,
+        null,
+        null,
+        null,
+        null,
+        groupIds);
   }
 
   public byte[] generateStudentsGroup(String groupId) {
-    List<User> studentsGroup = getByGroupId(groupId, Pageable.unpaged());
+    List<User> studentsGroup = getByGroupId(groupId, unpaged());
     return userXlsxCellsGenerator.apply(studentsGroup, List.of("ref", "firstName", "lastName"));
   }
 
@@ -372,9 +393,7 @@ public class UserService {
                 () ->
                     new NotFoundException("Promotion with id #" + promotionId + " does not exist"));
     List<User> students = new ArrayList<>();
-    promotion
-        .getGroups()
-        .forEach(group -> students.addAll(getByGroupId(group.getId(), Pageable.unpaged())));
+    promotion.getGroups().forEach(group -> students.addAll(getByGroupId(group.getId(), unpaged())));
     return userXlsxCellsGenerator.apply(students, List.of("firstName", "lastName", "email", "sex"));
   }
 
@@ -390,14 +409,15 @@ public class UserService {
             null,
             null,
             null,
-            null,
+            unpaged(),
             status,
             sex,
             workStatus,
             null,
             courseId,
             Instant.now(),
-            excludeGroupIds);
+            excludeGroupIds,
+            null);
     return userXlsxCellsGenerator.apply(students, List.of("firstName", "lastName", "email", "sex"));
   }
 }

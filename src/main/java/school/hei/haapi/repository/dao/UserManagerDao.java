@@ -8,35 +8,53 @@ import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.LEAVE;
 
 import jakarta.persistence.EntityManager;
-import jakarta.persistence.criteria.*;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Expression;
+import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
+import jakarta.persistence.criteria.Subquery;
 import jakarta.transaction.Transactional;
 import java.time.Instant;
+import java.util.Collection;
 import java.util.List;
 import lombok.AllArgsConstructor;
+import lombok.NonNull;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.query.QueryUtils;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.WorkStudyStatus;
-import school.hei.haapi.model.*;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseAssignment;
+import school.hei.haapi.model.GroupFlow;
+import school.hei.haapi.model.User;
+import school.hei.haapi.model.WorkDocument;
+import school.hei.haapi.service.utils.CollectionUtils;
 
 @Repository
 @AllArgsConstructor
+@Slf4j
 public class UserManagerDao {
   private EntityManager entityManager;
+  private CollectionUtils collectionUtils;
 
+  // TODO: create UserManagerDaoTest
   public List<User> findByCriteria(
       User.Role role,
       String ref,
       String firstName,
       String lastName,
-      Pageable pageable,
+      @NonNull Pageable pageable,
       User.Status status,
       User.Sex sex,
       WorkStudyStatus workStatus,
       Instant commitmentBeginDate,
       String courseId,
       Instant commitmentComparison,
-      List<String> excludeGroupIds) {
+      Collection<String> excludeGroupIds,
+      Collection<String> includeGroupIds) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<User> query = builder.createQuery(User.class);
     Root<User> root = query.from(User.class);
@@ -101,34 +119,26 @@ public class UserManagerDao {
                   workDocumentJoin.get("commitmentBegin"), commitmentComparison));
     }
 
-    if (excludeGroupIds != null) {
-      Subquery<String> subquery = query.subquery(String.class);
-      Root<GroupFlow> groupFlowRoot = subquery.from(GroupFlow.class);
+    if (isListCriteriaPresent(excludeGroupIds)) {
+      predicate =
+          builder.and(
+              predicate,
+              builder.not(root.get("id").in(currentGroupQuery(excludeGroupIds, query, builder))));
+    }
 
-      subquery.select(groupFlowRoot.get("student").get("id"));
-      //      subquery.where(builder.like(groupFlowRoot.get("group").get("id"), excludeGroupId));
-      subquery.where(groupFlowRoot.get("group").get("id").in(excludeGroupIds));
+    if (isListCriteriaPresent(includeGroupIds)) {
+      predicate =
+          builder.and(
+              predicate, root.get("id").in(currentGroupQuery(includeGroupIds, query, builder)));
 
-      subquery.groupBy(
-          groupFlowRoot.get("group").get("id"), groupFlowRoot.get("student").get("id"));
-
-      Expression<Integer> joinCount =
-          builder.sum(
-              builder
-                  .<Integer>selectCase()
-                  .when(builder.equal(groupFlowRoot.get("groupFlowType"), JOIN), 1)
-                  .otherwise(0));
-
-      Expression<Integer> leaveCount =
-          builder.sum(
-              builder
-                  .<Integer>selectCase()
-                  .when(builder.equal(groupFlowRoot.get("groupFlowType"), LEAVE), 1)
-                  .otherwise(0));
-
-      subquery.having(builder.greaterThan(joinCount, leaveCount));
-
-      predicate = builder.and(predicate, builder.not(root.get("id").in(subquery)));
+      if (isListCriteriaPresent(excludeGroupIds)) {
+        var commonElement = collectionUtils.findCommonElement(excludeGroupIds, includeGroupIds);
+        if (!commonElement.isEmpty())
+          log.warn(
+              "Group filter conflict: same group(s) present in both include and exclude filters ->"
+                  + " {}",
+              commonElement);
+      }
     }
 
     if (role != null) {
@@ -153,7 +163,7 @@ public class UserManagerDao {
                   builder.like(root.get("lastName"), "%" + lastName + "%")));
     }
 
-    if (pageable == null) {
+    if (pageable.isUnpaged()) {
       query.where(predicate);
       return entityManager.createQuery(query).getResultList();
     }
@@ -167,6 +177,34 @@ public class UserManagerDao {
         .getResultList();
   }
 
+  private Subquery<String> currentGroupQuery(
+      @NonNull Collection<String> groupIds, CriteriaQuery<User> query, CriteriaBuilder builder) {
+    Subquery<String> subquery = query.subquery(String.class);
+    Root<GroupFlow> groupFlowRoot = subquery.from(GroupFlow.class);
+
+    subquery.select(groupFlowRoot.get("student").get("id"));
+    subquery.where(groupFlowRoot.get("group").get("id").in(groupIds));
+
+    subquery.groupBy(groupFlowRoot.get("group").get("id"), groupFlowRoot.get("student").get("id"));
+
+    Expression<Integer> joinCount =
+        builder.sum(
+            builder
+                .<Integer>selectCase()
+                .when(builder.equal(groupFlowRoot.get("groupFlowType"), JOIN), 1)
+                .otherwise(0));
+
+    Expression<Integer> leaveCount =
+        builder.sum(
+            builder
+                .<Integer>selectCase()
+                .when(builder.equal(groupFlowRoot.get("groupFlowType"), LEAVE), 1)
+                .otherwise(0));
+
+    subquery.having(builder.greaterThan(joinCount, leaveCount));
+    return subquery;
+  }
+
   @Transactional
   public void updateUserStatusById(User.Status status, String userId) {
     User user = entityManager.find(User.class, userId);
@@ -174,5 +212,9 @@ public class UserManagerDao {
       user.setStatus(status);
       entityManager.merge(user);
     }
+  }
+
+  private static <T> boolean isListCriteriaPresent(Collection<T> criteria) {
+    return criteria != null && !criteria.isEmpty();
   }
 }

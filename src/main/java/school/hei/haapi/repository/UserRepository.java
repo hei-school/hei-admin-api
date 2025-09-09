@@ -84,6 +84,8 @@ public interface UserRepository extends JpaRepository<User, String> {
   Page<User> findStudentGroupsWithFilter(
       String groupId, String studentFirstname, Pageable pageable);
 
+  /** Use UserManagerDao::findByCriteria instead */
+  @Deprecated
   @Query(
       nativeQuery = true,
       value =

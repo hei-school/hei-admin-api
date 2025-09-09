@@ -134,7 +134,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
     assertNotNull(createdGrades.getFirst().getId());
     assertTrue(
         examParticipantService
-            .getParticipantsGradeForExam(exam1Prog1.getId(), page, pageSize)
+            .getExamParticipantsGrade(exam1Prog1.getId(), page, pageSize, null)
             .containsAll(restCreatedGrades));
     assertEquals(gradesExam1Prog1.getFirst(), createdGrades.getFirst());
     assertEquals(gradesExam1Prog1.get(1), createdGrades.get(1));
@@ -161,9 +161,23 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
     assertNotNull(updatedGrades.getFirst().getId());
     assertTrue(
         examParticipantService
-            .getParticipantsGradeForExam(exam1Prog1.getId(), page, pageSize)
+            .getExamParticipantsGrade(exam1Prog1.getId(), page, pageSize, null)
             .containsAll(restUpdatedGrades));
     assertEquals(rectifiedGrades.getFirst().grade(), updatedGrades.getFirst());
     assertEquals(rectifiedGrades.get(1).grade(), updatedGrades.get(1));
+  }
+
+  @Test
+  void filter_grades_by_student_ref_ok() {
+    subject.createParticipantGrade(gradesExam1Prog1);
+
+    var examGrades =
+        examParticipantService.getExamParticipantsGrade(
+            exam1Prog1.getId(), null, null, studentAxel.getRef());
+
+    assertEquals(1, examGrades.size());
+    var studentGrade = examGrades.getFirst();
+    assertEquals(studentAxel.getId(), studentGrade.getStudent().getId());
+    assertEquals(gradesExam1Prog1.getFirst().getId(), studentGrade.getGrade().getId());
   }
 }
