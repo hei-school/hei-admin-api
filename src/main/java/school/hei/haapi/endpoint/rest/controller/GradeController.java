@@ -72,7 +72,7 @@ public class GradeController {
       @RequestParam(defaultValue = "1") PageFromOne page,
       @RequestParam(value = "page_size", defaultValue = "15") BoundedPageSize pageSize,
       @RequestParam(value = "student_ref", required = false) String studentRef) {
-    return examParticipantService.getParticipantsGradeForExam(examId, page, pageSize, studentRef);
+    return examParticipantService.getExamParticipantsGrade(examId, page, pageSize, studentRef);
   }
 
   @PostMapping(value = "/exams/{exam_id}/grades")

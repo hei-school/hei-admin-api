@@ -51,7 +51,7 @@ public class ExamParticipantService {
   }
 
   @Transactional
-  public List<StudentGrade> getParticipantsGradeForExam(
+  public List<StudentGrade> getExamParticipantsGrade(
       String examId, PageFromOne page, BoundedPageSize pageSize, String studentRef) {
     List<Grade> existingGrades = gradeDao.getGradesByExamId(examId);
     var exam = examService.getExamById(examId);
