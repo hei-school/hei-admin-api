@@ -118,19 +118,19 @@ public class UserManagerDao {
                   workDocumentJoin.get("commitmentBegin"), commitmentComparison));
     }
 
-    if (isListFilterCriteriaPresent(excludeGroupIds)) {
+    if (isListCriteriaPresent(excludeGroupIds)) {
       predicate =
           builder.and(
               predicate,
               builder.not(root.get("id").in(currentGroupQuery(excludeGroupIds, query, builder))));
     }
 
-    if (isListFilterCriteriaPresent(includeGroupIds)) {
+    if (isListCriteriaPresent(includeGroupIds)) {
       predicate =
           builder.and(
               predicate, root.get("id").in(currentGroupQuery(includeGroupIds, query, builder)));
 
-      if (isListFilterCriteriaPresent(excludeGroupIds)) {
+      if (isListCriteriaPresent(excludeGroupIds)) {
         var commonElement = collectionUtils.findCommonElement(excludeGroupIds, includeGroupIds);
         if (!commonElement.isEmpty())
           log.warn(
@@ -213,7 +213,7 @@ public class UserManagerDao {
     }
   }
 
-  private static <T> boolean isListFilterCriteriaPresent(Collection<T> criteria) {
+  private static <T> boolean isListCriteriaPresent(Collection<T> criteria) {
     return criteria != null && !criteria.isEmpty();
   }
 }
