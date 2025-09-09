@@ -85,6 +85,7 @@ public interface UserRepository extends JpaRepository<User, String> {
       String groupId, String studentFirstname, Pageable pageable);
 
   /** Use UserManagerDao::findByCriteria instead */
+  @Deprecated
   @Query(
       nativeQuery = true,
       value =
@@ -116,7 +117,6 @@ public interface UserRepository extends JpaRepository<User, String> {
                   sgf.student_id = u.id
           where u.status <> 'DISABLED'
           """)
-  @Deprecated
   List<User> findAllRemainingStudentsByGroupIds(Collection<String> groupIds, Pageable pageable);
 
   @Query(
