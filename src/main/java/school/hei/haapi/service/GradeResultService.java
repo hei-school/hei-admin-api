@@ -163,7 +163,7 @@ public class GradeResultService {
           .isPositive()) {
         generateTranscript(studentId, studentYearlyResult);
       }
-    }
+    } else generateTranscript(studentId, studentYearlyResult);
     return new YearlyResultGenerationTranscript().status(GENERATING);
   }
 
@@ -188,8 +188,6 @@ public class GradeResultService {
             .build());
     File yearlyResultTranscript =
         yearlyResultGenerationService.generateYearlyResultTranscript(student, yearlyResult);
-    String transcriptKey = fileName + ".pdf";
-    bucketComponent.upload(yearlyResultTranscript, transcriptKey);
     var uploadedTranscriptFileInfo =
         fileInfoService.uploadFile(
             fileName, TRANSCRIPT, student.getId(), multipartFileFromFile(yearlyResultTranscript));
