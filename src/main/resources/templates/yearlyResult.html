@@ -117,6 +117,15 @@
             line-height: 1.6;
         }
 
+        .temporary-result-container {
+            color: #ff2b2b;
+        }
+
+        .temporary-result-container span {
+            font-weight: bold;
+            text-decoration: underline;
+        }
+
         #signature {
             margin-top: 48px;
             margin-bottom: 48px;
@@ -172,7 +181,10 @@
                     <td class="bold" th:text="${course_result.course.code}"></td>
                     <td th:text="${course_result.course.name}"></td>
                     <td class="center" th:text="${course_result.course.credits}"></td>
-                    <td class="center" th:text="${course_result.weightedAverage}"></td>
+                    <td class="center" >
+                        <span th:if="${course_result.status.toString() == 'VALIDATED'}" th:text="${course_result.weightedAverage}"></span>
+                        <span th:unless="${course_result.status.toString() == 'VALIDATED'}">Non disponible</span>
+                    </td>
                 </tr>
             </tbody>
             <tfoot>
@@ -187,6 +199,8 @@
                 </tr>
             </tfoot>
         </table>
+        <p th:if="${isTemporaryResult}" class="temporary-result-container"> <span>NB</span>: Ce résultat affiche est temporaire et ne reflette pas le resultat final.</p>
+        <p th:unless="${isTemporaryResult}"></p>
         <div class="bold">
             Résultat
             <ul>

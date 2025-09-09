@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
 import static java.time.Instant.now;
+import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATED;
 import static school.hei.haapi.service.utils.DataFormatterUtils.instantToCommonDate;
 import static school.hei.haapi.service.utils.FileUtils.createFileFromBytes;
 
@@ -73,7 +74,8 @@ public class YearlyResultGenerationService {
     context.setVariable("justified_count", "Non disponible");
     context.setVariable("total_absences", "Non disponible");
     context.setVariable("malus_total", "Non disponible");
-
+    var isTemporaryResult = !VALIDATED.equals(yearlyResult.getStatus());
+    context.setVariable("isTemporaryResult", isTemporaryResult);
     return context;
   }
 }

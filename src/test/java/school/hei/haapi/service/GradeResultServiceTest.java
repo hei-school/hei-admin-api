@@ -22,8 +22,8 @@ import static school.hei.haapi.endpoint.rest.model.StudentLevel.M1;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.M2;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.AVAILABLE;
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
+import static school.hei.haapi.integration.conf.TestUtils.assertThrowsDomainBadRequestException;
 
-import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URL;
@@ -36,12 +36,8 @@ import org.mockito.stubbing.Answer;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.YearlyResultTranscriptGeneration;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
-import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
-import school.hei.haapi.endpoint.rest.model.ResultSummary;
-import school.hei.haapi.endpoint.rest.model.StudentLevel;
 import school.hei.haapi.endpoint.rest.model.YearlyResult;
-import school.hei.haapi.endpoint.rest.model.YearlyResultGenerationTranscript;
 import school.hei.haapi.file.bucket.BucketComponent;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.CourseAssignment;
@@ -52,7 +48,6 @@ import school.hei.haapi.model.Group;
 import school.hei.haapi.model.Promotion;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.YearlyResultGenerationRequest;
-import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.repository.YearlyResultGenerationRequestRepository;
 import school.hei.haapi.repository.dao.CourseAssignmentDao;
@@ -400,7 +395,7 @@ class GradeResultServiceTest {
     assertEquals(targetLevel, result.getLevel());
     assertEquals(26., result.getObtainedCredits().doubleValue());
     assertEquals(6, result.getCourseResults().size());
-    CourseResult lv1Result = result.getCourseResults().get(5);
+    var lv1Result = result.getCourseResults().get(5);
     assertEquals(LV1_COURSE_ID, lv1Result.getCourse().getId());
     assertEquals(CourseResultStatus.NOT_STARTED, lv1Result.getStatus());
     assertNull(lv1Result.getWeightedAverage());
@@ -412,16 +407,21 @@ class GradeResultServiceTest {
   @Test
   void generate_result_pdf_okay() throws CoursesCreditSumZero {
     var result = subject.getLeveledYearlyResultByStudentId(L1, STUDENT1_ID);
-    File resultFile =
-        yearlyResultGenerationService.generateYearlyResultTranscript(student1, result);
+    var resultFile = yearlyResultGenerationService.generateYearlyResultTranscript(student1, result);
+    assertTrue(resultFile.isFile());
+  }
+
+  @Test
+  void generate_result_pdf_year_in_progress_okay() throws CoursesCreditSumZero {
+    var result = subject.getLeveledYearlyResultByStudentId(L1, STUDENT3_ID);
+    var resultFile = yearlyResultGenerationService.generateYearlyResultTranscript(student1, result);
     assertTrue(resultFile.isFile());
   }
 
   @Test
   void correct_result_yearly_result_M2_empty_notStarted() {
-    StudentLevel expectedLevel = M2;
-    YearlyResult yearlyResult =
-        subject.getLeveledYearlyResultByStudentId(expectedLevel, STUDENT1_ID);
+    var expectedLevel = M2;
+    var yearlyResult = subject.getLeveledYearlyResultByStudentId(expectedLevel, STUDENT1_ID);
 
     assertEquals(expectedLevel, yearlyResult.getLevel());
     assertEquals(NOT_STARTED, yearlyResult.getStatus());
@@ -430,7 +430,7 @@ class GradeResultServiceTest {
 
   @Test
   void correct_result_result_summary_student1_validated() {
-    ResultSummary result = subject.getStudentResultSummary(STUDENT1_ID);
+    var result = subject.getStudentResultSummary(STUDENT1_ID);
 
     assertEquals(5, result.getYearlyResults().size());
     assertEquals(30., result.getObtainedCredits().doubleValue());
@@ -441,7 +441,7 @@ class GradeResultServiceTest {
 
   @Test
   void correct_result_result_summary_student2_invalidated() {
-    ResultSummary result = subject.getStudentResultSummary(STUDENT2_ID);
+    var result = subject.getStudentResultSummary(STUDENT2_ID);
 
     assertEquals(5, result.getYearlyResults().size());
     assertEquals(10., result.getObtainedCredits().doubleValue());
@@ -452,7 +452,7 @@ class GradeResultServiceTest {
 
   @Test
   void correct_result_result_summary_student3_in_progress() {
-    ResultSummary result = subject.getStudentResultSummary(STUDENT3_ID);
+    var result = subject.getStudentResultSummary(STUDENT3_ID);
 
     assertEquals(5, result.getYearlyResults().size());
     assertEquals(26., result.getObtainedCredits().doubleValue());
@@ -509,8 +509,7 @@ class GradeResultServiceTest {
     when(bucketComponent.presign(anyString(), any()))
         .thenReturn(URL.of(URI.create("https://example.com/transcript.pdf"), null));
 
-    YearlyResultGenerationTranscript result =
-        subject.getYearlyResultTranscript(student1.getId(), L1);
+    var result = subject.getYearlyResultTranscript(student1.getId(), L1);
     assertEquals(AVAILABLE, result.getStatus());
     assertFalse(result.getLink().isEmpty());
   }
@@ -521,8 +520,7 @@ class GradeResultServiceTest {
     when(yearlyResultGenerationService.findGenerationRequestByFileName(anyString()))
         .thenReturn(empty());
 
-    YearlyResultGenerationTranscript result =
-        subject.getYearlyResultTranscript(student1.getId(), L1);
+    var result = subject.getYearlyResultTranscript(student1.getId(), L1);
 
     assertEquals(GENERATING, result.getStatus());
     assertNull(result.getLink());
@@ -540,20 +538,16 @@ class GradeResultServiceTest {
                     .datetime(now().minus(Duration.ofHours(1L)))
                     .build()));
 
-    YearlyResultGenerationTranscript result = subject.getYearlyResultTranscript(STUDENT1_ID, L1);
+    var result = subject.getYearlyResultTranscript(STUDENT1_ID, L1);
     assertEquals(GENERATING, result.getStatus());
     verify(eventProducer, only()).accept(anyList());
   }
 
   @Test
-  void yearly_result_generation_should_return_bad_request_when_level_notStarted() {
-    String exceptionMessage =
-        assertThrows(
-                BadRequestException.class, () -> subject.getYearlyResultTranscript(STUDENT3_ID, L2))
-            .getMessage();
-    assertEquals(
+  void yearly_result_generation_should_return_bad_request_when_level_in_notStarted() {
+    assertThrowsDomainBadRequestException(
         "Cannot generate transcript for this level. This level has not yet been started",
-        exceptionMessage);
+        () -> subject.getYearlyResultTranscript(STUDENT3_ID, L2));
   }
 
   @Test
