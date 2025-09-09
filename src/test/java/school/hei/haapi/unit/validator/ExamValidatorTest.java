@@ -134,7 +134,6 @@ class ExamValidatorTest {
     var exam = validExam();
     exam.setCoefficientFraction(aFraction(3, 2));
     var exception = assertThrowsDomainBadRequestException(() -> subject.accept(exam));
-
     assertTrue(
         exception
             .getMessage()
