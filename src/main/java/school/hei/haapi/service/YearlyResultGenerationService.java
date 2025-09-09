@@ -76,7 +76,6 @@ public class YearlyResultGenerationService {
     context.setVariable("malus_total", "Non disponible");
     var isTemporaryResult = !VALIDATED.equals(yearlyResult.getStatus());
     context.setVariable("isTemporaryResult", isTemporaryResult);
-
     return context;
   }
 }
