@@ -519,7 +519,7 @@ public class TestUtils {
 
   public static Exam createExam() {
     return new Exam()
-        .coefficient(new Fraction().numerator(10).denominator(1))
+        .coefficient(new Fraction().numerator(10).denominator(10))
         .title("createExam")
         .examinationDate(Instant.parse("2021-11-08T08:25:24.00Z"))
         .courseAssignment(courseAssignment1());
@@ -932,7 +932,7 @@ public class TestUtils {
 
   public static CrupdateExam createExam1() {
     return new CrupdateExam()
-        .coefficient(new Fraction().numerator(2).denominator(1))
+        .coefficient(new Fraction().numerator(2).denominator(3))
         .title("Algorithmics")
         .courseAssignmentId(courseAssignment1().getId())
         .examinationDate(Instant.parse("2022-10-09T08:25:24Z"));

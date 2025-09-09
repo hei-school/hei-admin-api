@@ -129,6 +129,17 @@ class ExamValidatorTest {
         exception.getMessage().contains("Coefficient numerator can't be less than or equal to 0"));
   }
 
+  @Test
+  void acceptExam_WithNumeratorGreaterThanDenominator_ShouldThrowException() {
+    var exam = validExam();
+    exam.setCoefficientFraction(aFraction(3, 2));
+    var exception = assertThrowsDomainBadRequestException(() -> subject.accept(exam));
+    assertTrue(
+        exception
+            .getMessage()
+            .contains("Coefficient numerator cannot be greater than coefficient denominator"));
+  }
+
   private static Fraction aFraction(int numerator, int denominator) {
     return Fraction.getFraction(numerator, denominator);
   }
