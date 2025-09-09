@@ -40,6 +40,7 @@ public class UserManagerDao {
   private EntityManager entityManager;
   private CollectionUtils collectionUtils;
 
+  // TODO: create UserManagerDaoTest
   public List<User> findByCriteria(
       User.Role role,
       String ref,
