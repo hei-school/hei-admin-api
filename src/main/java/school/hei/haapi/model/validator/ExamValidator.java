@@ -29,6 +29,10 @@ public class ExamValidator implements Consumer<Exam> {
       if (coefficientDenominator <= 0) {
         violationMessages.add("Coefficient denominator can't be less than or equal to 0");
       }
+      if (coefficientNumerator > coefficientDenominator) {
+        violationMessages.add(
+            "Coefficient numerator cannot be greater than coefficient denominator");
+      }
     } else {
       violationMessages.add("Coefficient numerator or denominator cannot be null");
     }
