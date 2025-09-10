@@ -1433,6 +1433,142 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  /remedials:
+    get:
+      tags:
+        - Remedials
+      summary: Get all remedials infos.
+      parameters:
+        - name: teacher_id
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: title
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: course_code
+          in: query
+          required: false
+          example: PROG1
+          schema:
+            type: string
+        - $ref: "#/components/parameters/GroupRef"
+        - $ref: '#/components/parameters/DatetimeFromFilter'
+        - $ref: '#/components/parameters/DatetimeToFilter'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      operationId: getAllRemedials
+      responses:
+        '200':
+          description: List of remedials infos without the participants
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Remedial'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Remedials
+      summary: Create new remedial or update existing remedial
+      operationId: createOrUpdateRemedialInfos
+      requestBody:
+        required: true
+        description: Remedial to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrupdateRemedial'
+      responses:
+        '200':
+          description: Remedial infos without the students participated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Remedial'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /remedials/{id}:
+    get:
+      tags:
+        - Remedials
+      summary: Get remedial by id
+      operationId: getRemedialById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A specific Remedial
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Remedial'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/remedials:
+    get:
+      tags:
+        - Remedials
+      summary: Get a student remedials.
+      operationId: getStudentRemedials
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: All remedial of a specific student
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RemedialInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /groups/{group_id}/course_assignments:
     get:
       tags:
@@ -1740,7 +1876,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /students/{id}/group_flows:
     post:
       tags:
@@ -2694,7 +2829,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /staff_members/raw/xlsx:
     get:
       tags:
@@ -2720,7 +2854,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /staff_members/{id}:
     get:
       tags:
@@ -2808,7 +2941,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /students/{student_id}/fees/{fee_id}/payments/{payment_id}/receipt/raw:
     get:
       tags:
@@ -6207,6 +6339,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+
 components:
   securitySchemes:
     BearerAuth:
@@ -6977,6 +7110,41 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentGrade'
+    RemedialInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        remedial_date:
+          type: string
+          format: date-
+        course:
+          $ref: "#/components/schemas/Course"
+    CrupdateRemedial:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        remedial_date:
+          type: string
+          format: date-time
+        course_id:
+          type: string
+    Remedial:
+      type: object
+      properties:
+        remedial:
+          $ref: "#/components/schemas/RemedialInfo"
+        students:
+          allOf:
+            - type: array
+              items:
+                $ref: "#/components/schemas/UserIdentifier"
+
     CreateAttendanceMovement:
       type: object
       properties:
