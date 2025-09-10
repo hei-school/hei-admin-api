@@ -7168,9 +7168,11 @@ components:
       properties:
         remedial:
           $ref: "#/components/schemas/RemedialInfo"
-        student:
+        students:
           allOf:
-            - $ref: "#/components/schemas/UserIdentifier"        
+            - type: array
+              items:
+                $ref: "#/components/schemas/UserIdentifier"
     CreateAttendanceMovement:
       type: object
       properties:
