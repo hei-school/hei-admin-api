@@ -1434,7 +1434,7 @@ paths:
         '500':
           $ref: '#/components/responses/500'
 
-  /remedial:
+  /remedials:
     get:
       tags:
         - Remedials
@@ -1500,7 +1500,101 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+    put:
+      tags:
+        - Remedials
+      summary: Create new remedials or update existing remedials
+      operationId: CreateOrUpdateRemedialsInfos
+      requestBody:
+        required: true
+        description: Remedialss to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrupdateRemedial'
+      responses:
+        '200':
+          description: Remedials infos without the students participated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Remedial'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+ 
+  /remedials/{id}:
+    get:
+      tags:
+        - Remedials
+      summary: Get remedial by id
+      operationId: getExamOneRemedialById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A specific Remedial
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Remedial'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    
+    /course_assignments/{course_assignment_id}/remedials/{remedial_id}:
+      get:
+        tags:
+          - Remedials
+        summary: Get a course_assignment remedial.
+        operationId: getRemedialById
+        parameters:
+          - name: course_assignment_id
+            in: path
+            required: true
+            schema:
+              type: string
+          - name: remedial_id
+            in: path
+            required: true
+            schema:
+              type: string
+        responses:
+          '200':
+            description: A specific remedial
+            content:
+              application/json:
+                schema:
+                  $ref: '#/components/schemas/Remedial'
+          '400':
+            $ref: '#/components/responses/400'
+          '403':
+            $ref: '#/components/responses/403'
+          '404':
+            $ref: '#/components/responses/404'
+          '429':
+            $ref: '#/components/responses/429'
+          '500':
+            $ref: '#/components/responses/500'
+  
   /groups/{group_id}/course_assignments:
     get:
       tags:
@@ -7051,22 +7145,35 @@ components:
           items:
             $ref: '#/components/schemas/StudentGrade'
 
-    CreateRemedial:
+    CrupdateRemedial:
       type: object
       properties:
         id:
           type: string
         title:
           type: string
-        course:
-          $ref: '#/components/schemas/CourseAssignment'
-        datetime:
+        remedial_date:
           type: string
           format: date-time
+        course_assignment_id:
+          type: string
+
+    Remedial:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        examination_date:
+          type: string
+          format: date-time
+        course_assignment:
+          $ref: '#/components/schemas/CourseAssignment'
 
     Remedials:
       allOf:
-        - $ref: '#/components/schemas/CreateRemedial'
+        - $ref: '#/components/schemas/Remedial'
       type: object
       properties:
         students:
