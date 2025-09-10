@@ -1433,8 +1433,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
-  /remedial:
+  /remedials:
     get:
       tags:
         - Remedials
@@ -1457,29 +1456,10 @@ paths:
           schema:
             type: string
         - $ref: "#/components/parameters/GroupRef"
-        - name: remedial_date_from
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date-time
-        - name: remedial_date_to
-          in: query
-          required: false
-          schema:
-            type: string
-            format: date-time
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
+        - $ref: '#/components/parameters/DatetimeFromFilter'
+        - $ref: '#/components/parameters/DatetimeToFilter'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
       operationId: getAllRemedials
       responses:
         '200':
@@ -1489,7 +1469,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Remedials'
+                  $ref: '#/components/schemas/Remedial'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1500,7 +1480,124 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
+    put:
+      tags:
+        - Remedials
+      summary: Create new remedial or update existing remedial
+      operationId: CreateOrUpdateRemedialInfos
+      requestBody:
+        required: true
+        description: Remedial to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrupdateRemedial'
+      responses:
+        '200':
+          description: Remedial infos without the students participated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Remedial'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /remedials/{id}:
+    get:
+      tags:
+        - Remedials
+      summary: Get remedial by id
+      operationId: getRemedialById
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A specific Remedial
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Remedial'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/remedials:
+    get:
+      tags:
+        - Remedials
+      summary: Get a student remedial.
+      operationId: getRemedialOfSpecificStudent
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: All remedial of a specific student
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RemedialInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /students/{student_id}/remedials/{remedial_id}:
+    get:
+      tags:
+        - Remedials
+      summary: Get aspecific remedial of specific student.
+      operationId: getRemedialOfSpecificStudent
+      parameters:
+        - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A specific remedial of a specific student
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemedialInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   /groups/{group_id}/course_assignments:
     get:
       tags:
@@ -1808,7 +1905,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /students/{id}/group_flows:
     post:
       tags:
@@ -2185,10 +2281,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
-
-
-
   '/teachers/{id}':
     get:
       tags:
@@ -2766,7 +2858,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /staff_members/raw/xlsx:
     get:
       tags:
@@ -2792,7 +2883,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /staff_members/{id}:
     get:
       tags:
@@ -2880,7 +2970,6 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-
   /students/{student_id}/fees/{fee_id}/payments/{payment_id}/receipt/raw:
     get:
       tags:
@@ -7050,30 +7139,38 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentGrade'
-
-    CreateRemedial:
+    RemedialInfo:
       type: object
       properties:
         id:
           type: string
         title:
           type: string
-        course:
-          $ref: '#/components/schemas/CourseAssignment'
-        datetime:
+        remedial_date:
           type: string
-          format: date-time
-
-    Remedials:
-      allOf:
-        - $ref: '#/components/schemas/CreateRemedial'
+          format: date-
+        course:
+          $ref: "#/components/schemas/Course"
+    CrupdateRemedial:
       type: object
       properties:
-        students:
-          type: array
-          items:
-            $ref: '#/components/schemas/Student'
-
+        id:
+          type: string
+        title:
+          type: string
+        remedial_date:
+          type: string
+          format: date-time
+        course_id:
+          type: string
+    Remedial:
+      type: object
+      properties:
+        remedial:
+          $ref: "#/components/schemas/RemedialInfo"
+        student:
+          allOf:
+            - $ref: "#/components/schemas/UserIdentifier"        
     CreateAttendanceMovement:
       type: object
       properties:
