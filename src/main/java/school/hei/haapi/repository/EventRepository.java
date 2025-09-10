@@ -18,8 +18,8 @@ public interface EventRepository extends JpaRepository<Event, String> {
           "select event_title, event_description, event_type,"
               + " attendance_status, begin_datetime, end_datetime from"
               + " get_event_student_attendance(:reference, cast(:attendanceStatus as"
-              + " attendance_status), :from, :to)",
+              + " attendance_status), :from, :to, :title)",
       nativeQuery = true)
   List<Object[]> getStudentAttendance(
-      String reference, String attendanceStatus, Instant from, Instant to);
+      String reference, String attendanceStatus, Instant from, Instant to, String title);
 }

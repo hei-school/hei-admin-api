@@ -32,7 +32,7 @@ class AttendanceControllerTest {
     var attendanceStatus = MISSING;
 
     when(attendanceServiceMock.getStudentAttendanceByStudentId(
-            studentId, attendanceStatus, from, to))
+            studentId, attendanceStatus, from, to, List.of()))
         .thenReturn(List.of(studentAttendanceStatus(attendanceStatus, from, to)));
 
     var actual = subject.getStudentAttendance(studentId, from, to, attendanceStatus);
