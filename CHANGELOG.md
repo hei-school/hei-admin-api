@@ -1,3 +1,17 @@
+# [1.116.0](https://github.com/hei-school/hei-admin-api/compare/v1.115.0...v1.116.0) (2025-09-10)
+
+
+### Bug Fixes
+
+* yearly result transcript generation blocked on GENERATING ([68c718e](https://github.com/hei-school/hei-admin-api/commit/68c718e730171a0853ab262e0f49a9fdfdcdebd8))
+
+
+### Features
+
+* **not-implemented:** add remedial spec ([2b2cc04](https://github.com/hei-school/hei-admin-api/commit/2b2cc046816831547f036b19663cdd9ac1d0b897))
+
+
+
 # [1.115.0](https://github.com/hei-school/hei-admin-api/compare/v1.114.0...v1.115.0) (2025-09-05)
 
 
@@ -114,21 +128,6 @@
 ### Features
 
 * YearlyResult transcript ([25f4552](https://github.com/hei-school/hei-admin-api/commit/25f4552735972ba0cc4314490b7d3cb4836ed18e))
-
-
-
-# [1.108.0](https://github.com/hei-school/hei-admin-api/compare/v1.107.0...v1.108.0) (2025-08-07)
-
-
-### Bug Fixes
-
-* do not apply coefficient when crupdate grade ([ebc1f10](https://github.com/hei-school/hei-admin-api/commit/ebc1f100d114f5e30f4367d5e0aa8eeacdad9a13))
-* yearly result security conf ([f849816](https://github.com/hei-school/hei-admin-api/commit/f849816e979e5a401df3b9ccf03e3444ec393b6d))
-
-
-### Features
-
-* add getStudentByIdAndMonitorId for monitors ([fc0afe0](https://github.com/hei-school/hei-admin-api/commit/fc0afe0941868e6c33ba782bf83e8bd4063415ba))
 
 
 
