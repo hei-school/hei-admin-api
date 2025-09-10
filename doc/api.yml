@@ -1484,7 +1484,7 @@ paths:
       tags:
         - Remedials
       summary: Create new remedial or update existing remedial
-      operationId: CreateOrUpdateRemedialInfos
+      operationId: createOrUpdateRemedialInfos
       requestBody:
         required: true
         description: Remedial to update
@@ -1542,8 +1542,8 @@ paths:
     get:
       tags:
         - Remedials
-      summary: Get a student remedial.
-      operationId: getRemedialOfSpecificStudent
+      summary: Get a student remedials.
+      operationId: getStudentRemedials
       parameters:
         - name: student_id
           in: path
@@ -1559,35 +1559,6 @@ paths:
                 type: array
                 items:
                   $ref: '#/components/schemas/RemedialInfo'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /students/{student_id}/remedials/{remedial_id}:
-    get:
-      tags:
-        - Remedials
-      summary: Get aspecific remedial of specific student.
-      operationId: getRemedialOfSpecificStudent
-      parameters:
-        - name: student_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: A specific remedial of a specific student
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/RemedialInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -7173,6 +7144,7 @@ components:
             - type: array
               items:
                 $ref: "#/components/schemas/UserIdentifier"
+
     CreateAttendanceMovement:
       type: object
       properties:
