@@ -88,6 +88,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventLocation;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.endpoint.rest.model.EventType;
@@ -104,7 +105,9 @@ import school.hei.haapi.endpoint.rest.model.LetterUser;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Monitor;
 import school.hei.haapi.endpoint.rest.model.Observer;
+import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.endpoint.rest.model.Promotion;
+import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
@@ -1538,6 +1541,7 @@ public class TestUtils {
         .description("Another event")
         .eventType(eventType)
         .plannerId(planerId)
+        .location(new EventLocation().room(RoomEnum.PI).place(PlaceEnum.IVANDRY))
         .groups(groups.stream().map(TestUtils::createGroupIdentifier).toList());
   }
 

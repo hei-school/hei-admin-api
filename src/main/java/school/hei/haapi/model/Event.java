@@ -50,6 +50,14 @@ public class Event {
 
   private String title;
 
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
+  private RoomName room;
+
+  @Enumerated(STRING)
+  @JdbcTypeCode(NAMED_ENUM)
+  private PlaceName place;
+
   private String description;
 
   private String colorCode;
@@ -85,4 +93,18 @@ public class Event {
   private List<Group> groups;
 
   public static final String BEGIN_DATETIME = "beginDatetime";
+
+  public enum RoomName {
+    ALGEBRE,
+    PI,
+    SIGMA,
+    NP,
+    B,
+    UNKNOWN
+  }
+
+  public enum PlaceName {
+    IVANDRY,
+    ANDRAHARO
+  }
 }
