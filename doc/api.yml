@@ -1469,7 +1469,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Remedial'
+                  $ref: '#/components/schemas/RemedialInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -7136,9 +7136,9 @@ components:
           type: string
     Remedial:
       type: object
+      allOf:
+        - $ref: "#/components/schemas/RemedialInfo"
       properties:
-        remedial:
-          $ref: "#/components/schemas/RemedialInfo"
         students:
           allOf:
             - type: array
