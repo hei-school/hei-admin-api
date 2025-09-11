@@ -7136,9 +7136,9 @@ components:
           type: string
     Remedial:
       type: object
+      allOf:
+        - $ref: "#/components/schemas/RemedialInfo"
       properties:
-        remedial:
-          $ref: "#/components/schemas/RemedialInfo"
         students:
           allOf:
             - type: array
