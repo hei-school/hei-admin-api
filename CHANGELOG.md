@@ -1,3 +1,45 @@
+# [1.116.0](https://github.com/hei-school/hei-admin-api/compare/v1.115.0...v1.116.0) (2025-09-10)
+
+
+### Bug Fixes
+
+* yearly result transcript generation blocked on GENERATING ([68c718e](https://github.com/hei-school/hei-admin-api/commit/68c718e730171a0853ab262e0f49a9fdfdcdebd8))
+
+
+### Features
+
+* **not-implemented:** add remedial spec ([2b2cc04](https://github.com/hei-school/hei-admin-api/commit/2b2cc046816831547f036b19663cdd9ac1d0b897))
+
+
+
+# [1.115.0](https://github.com/hei-school/hei-admin-api/compare/v1.114.0...v1.115.0) (2025-09-05)
+
+
+### Bug Fixes
+
+* not started courseResult ([e5b03ab](https://github.com/hei-school/hei-admin-api/commit/e5b03ab70085edc0856b3ad4c5329829d92ead29))
+
+
+### Features
+
+* filter exam grades by student ref ([a1320f2](https://github.com/hei-school/hei-admin-api/commit/a1320f2b334d0eab968f30ca52e0fb259380fc95))
+
+
+
+# [1.114.0](https://github.com/hei-school/hei-admin-api/compare/v1.113.1...v1.114.0) (2025-09-05)
+
+
+### Bug Fixes
+
+* result summary computation ([be8119b](https://github.com/hei-school/hei-admin-api/commit/be8119ba92000785225343b4f90e67ab974a9a39))
+
+
+### Features
+
+* filter exam by teacher id ([44e68de](https://github.com/hei-school/hei-admin-api/commit/44e68def3e5be2214d49ed682fc3fb55ac512314))
+
+
+
 ## [1.113.1](https://github.com/hei-school/hei-admin-api/compare/v1.113.0...v1.113.1) (2025-08-29)
 
 
@@ -86,39 +128,6 @@
 ### Features
 
 * YearlyResult transcript ([25f4552](https://github.com/hei-school/hei-admin-api/commit/25f4552735972ba0cc4314490b7d3cb4836ed18e))
-
-
-
-# [1.108.0](https://github.com/hei-school/hei-admin-api/compare/v1.107.0...v1.108.0) (2025-08-07)
-
-
-### Bug Fixes
-
-* do not apply coefficient when crupdate grade ([ebc1f10](https://github.com/hei-school/hei-admin-api/commit/ebc1f100d114f5e30f4367d5e0aa8eeacdad9a13))
-* yearly result security conf ([f849816](https://github.com/hei-school/hei-admin-api/commit/f849816e979e5a401df3b9ccf03e3444ec393b6d))
-
-
-### Features
-
-* add getStudentByIdAndMonitorId for monitors ([fc0afe0](https://github.com/hei-school/hei-admin-api/commit/fc0afe0941868e6c33ba782bf83e8bd4063415ba))
-
-
-
-# [1.107.0](https://github.com/hei-school/hei-admin-api/compare/v1.106.0...v1.107.0) (2025-08-01)
-
-
-### Features
-
-* add getCourseGrades to fetch grades for a student for a given course ([3e3b79a](https://github.com/hei-school/hei-admin-api/commit/3e3b79a6c4c72c40900a259a04ab9679bfb88b4d))
-
-
-
-# [1.106.0](https://github.com/hei-school/hei-admin-api/compare/v1.105.1...v1.106.0) (2025-08-01)
-
-
-### Features
-
-* ResultOverview add status and total credits ([95441ba](https://github.com/hei-school/hei-admin-api/commit/95441bae528139507089e2bb4dd1e6167be0c9c7))
 
 
 

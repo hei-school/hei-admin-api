@@ -44,6 +44,7 @@ import school.hei.haapi.endpoint.rest.api.GradesApi;
 import school.hei.haapi.endpoint.rest.client.ApiClient;
 import school.hei.haapi.endpoint.rest.client.ApiException;
 import school.hei.haapi.endpoint.rest.model.Exam;
+import school.hei.haapi.endpoint.rest.model.Fraction;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
 import school.hei.haapi.endpoint.rest.model.StudentGrade;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
@@ -76,7 +77,7 @@ class ExamIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     GradesApi api = new GradesApi(manager1Client);
 
-    List<StudentGrade> studentGrades = api.getStudentGradesForExam(EXAM1_ID, 1, 1);
+    List<StudentGrade> studentGrades = api.getStudentGradesForExam(EXAM1_ID, 1, 1, null);
 
     StudentGrade grade = studentGrades.getFirst();
     grade.getGrade().updateDate(null);
@@ -218,8 +219,9 @@ class ExamIT extends FacadeITMockedThirdParties {
     ExamsApi api = new ExamsApi(teacher1Client);
     Exam actualCreate = api.createOrUpdateExamsInfos(createExam1());
 
+    var expectedCoefficient = new Fraction().numerator(2).denominator(3);
     assertEquals("Algorithmics", actualCreate.getTitle());
-    assertEquals(2, actualCreate.getCoefficient());
+    assertEquals(expectedCoefficient, actualCreate.getCoefficient());
   }
 
   @Test
@@ -227,8 +229,14 @@ class ExamIT extends FacadeITMockedThirdParties {
     ExamsApi api = new ExamsApi(anApiClient(TEACHER1_TOKEN));
 
     assertBadRequestException(
-        "Coefficient can't be less than 0",
-        () -> api.createOrUpdateExamsInfos(createExam1().coefficient(-1)));
+        "Components of the fraction cannot be less or equal than 0",
+        () -> api.createOrUpdateExamsInfos(createExam1().coefficient(aFraction(-2, 0))));
+
+    assertBadRequestException(
+        "Components of the fraction cannot be null",
+        () ->
+            api.createOrUpdateExamsInfos(
+                createExam1().coefficient(new Fraction().denominator(-2))));
     assertBadRequestException(
         "Title is mandatory", () -> api.createOrUpdateExamsInfos(createExam1().title(null)));
     assertBadRequestException(
@@ -241,9 +249,9 @@ class ExamIT extends FacadeITMockedThirdParties {
     ApiClient manager1Client = anApiClient(MANAGER1_TOKEN);
     ExamsApi api = new ExamsApi(manager1Client);
     Exam actualCreate = api.createOrUpdateExamsInfos(createExam1());
-
+    var expectedCoefficient = aFraction(2, 3);
     assertEquals("Algorithmics", actualCreate.getTitle());
-    assertEquals(2, actualCreate.getCoefficient());
+    assertEquals(expectedCoefficient, actualCreate.getCoefficient());
   }
 
   @Test
@@ -265,5 +273,9 @@ class ExamIT extends FacadeITMockedThirdParties {
     Exam actual = api.getExamById(COURSE_ASSIGNMENT1_ID, EXAM1_ID);
 
     assertEquals(exam1(), actual);
+  }
+
+  private static Fraction aFraction(int numerator, int denominator) {
+    return new Fraction().numerator(numerator).denominator(denominator);
   }
 }

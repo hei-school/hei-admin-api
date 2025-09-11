@@ -241,7 +241,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   @Test
   void student_get_all_grade_ko() {
     GradesApi studentApi = new GradesApi(anApiClient(STUDENT1_TOKEN));
-    assertThrowsForbiddenException(() -> studentApi.getStudentGradesForExam(EXAM1_ID, 1, 10));
+    assertThrowsForbiddenException(() -> studentApi.getStudentGradesForExam(EXAM1_ID, 1, 10, null));
   }
 
   @Test
@@ -319,7 +319,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void monitor_get_own_yearly_result_ok() throws ApiException {
+  void monitor_get_own_yearly_result_ok() {
     setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
     assertDoesNotThrow(() -> monitorApi.getYearlyResult(studentAxel.getId(), L1));
@@ -333,7 +333,7 @@ class GradeIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  void monitor_get_other_yearly_result_ko() throws ApiException {
+  void monitor_get_other_yearly_result_ko() {
     setUpCasdoorMonitor(casdoorAuthServiceMock, certificateLoaderMock, monitorOfAxel);
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
     assertThrowsApiException(
@@ -347,7 +347,7 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi monitorApi = new GradesApi(anApiClient(AXEL_MONITOR_TOKEN));
 
     assertBadRequestException(
-        "Cannot generate transcript for this level. This level is not yet completed",
+        "Cannot generate transcript for this level. This level has not yet been started",
         () -> {
           monitorApi.getYearlyResultTranscript(studentAxel.getId(), L1);
         });
@@ -368,7 +368,7 @@ class GradeIT extends FacadeITMockedThirdParties {
     GradesApi managerApi = new GradesApi(anApiClient(MANAGER1_TOKEN));
 
     assertBadRequestException(
-        "Cannot generate transcript for this level. This level is not yet completed",
+        "Cannot generate transcript for this level. This level has not yet been started",
         () -> {
           managerApi.getYearlyResultTranscript(studentAxel.getId(), L1);
         });

@@ -5,32 +5,38 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateExam;
 import school.hei.haapi.endpoint.rest.model.Exam;
+import school.hei.haapi.endpoint.rest.model.Fraction;
 import school.hei.haapi.endpoint.rest.model.StudentExamGrade;
+import school.hei.haapi.endpoint.rest.validator.FractionValidator;
 import school.hei.haapi.model.CourseAssignment;
 import school.hei.haapi.service.CourseAssignmentService;
-import school.hei.haapi.service.GradeService;
 
 @Component
 @AllArgsConstructor
 public class ExamMapper {
-  private CourseAssignmentMapper courseAssignmentMapper;
-  private CourseAssignmentService courseAssignmentService;
-  private GradeService gradeService;
+  private final CourseAssignmentMapper courseAssignmentMapper;
+  private final CourseAssignmentService courseAssignmentService;
+  private final FractionValidator fractionValidator;
 
   public Exam toRest(school.hei.haapi.model.Exam exam) {
     return new Exam()
         .id(exam.getId())
-        .coefficient(exam.getCoefficient())
+        .coefficient(
+            new Fraction()
+                .numerator(exam.getCoefficientNumerator())
+                .denominator(exam.getCoefficientDenominator()))
         .title(exam.getTitle())
         .examinationDate(exam.getExaminationDate())
         .courseAssignment(courseAssignmentMapper.toRest(exam.getCourseAssignment()));
   }
 
   public school.hei.haapi.model.Exam toDomain(Exam examInfo, CourseAssignment courseAssignment) {
+    fractionValidator.accept(examInfo.getCoefficient());
     return school.hei.haapi.model.Exam.builder()
         .id(examInfo.getId())
-        .coefficient(examInfo.getCoefficient())
         .title(examInfo.getTitle())
+        .coefficientNumerator(examInfo.getCoefficient().getNumerator())
+        .coefficientDenominator(examInfo.getCoefficient().getDenominator())
         .examinationDate(examInfo.getExaminationDate())
         .courseAssignment(courseAssignment)
         .build();
@@ -39,9 +45,11 @@ public class ExamMapper {
   public school.hei.haapi.model.Exam toDomain(CrupdateExam createExam) {
     CourseAssignment courseAssignment =
         courseAssignmentService.getCourseAssignmentById(createExam.getCourseAssignmentId());
+    fractionValidator.accept(createExam.getCoefficient());
     return school.hei.haapi.model.Exam.builder()
         .id(createExam.getId())
-        .coefficient(createExam.getCoefficient())
+        .coefficientNumerator(createExam.getCoefficient().getNumerator())
+        .coefficientDenominator(createExam.getCoefficient().getDenominator())
         .title(createExam.getTitle())
         .examinationDate(createExam.getExaminationDate())
         .courseAssignment(courseAssignment)
