@@ -2,9 +2,12 @@ package school.hei.haapi.service;
 
 import static school.hei.haapi.endpoint.rest.model.MobileMoneyType.ORANGE_MONEY;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.http.mapper.ExternalResponseMapper;
 import school.hei.haapi.http.model.TransactionDetails;
@@ -16,6 +19,7 @@ import school.hei.haapi.repository.MobilePaymentRepository;
 import school.hei.haapi.repository.MobileTransactionDetailsRepository;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
 
+@Slf4j
 @Service
 @AllArgsConstructor
 public class MobilePaymentService implements MobilePaymentRepository {
@@ -62,6 +66,18 @@ public class MobilePaymentService implements MobilePaymentRepository {
 
   public List<MobileTransactionDetails> saveAll(
       List<MobileTransactionDetails> mobileTransactionDetails) {
-    return mobileTransactionDetailsRepository.saveAll(mobileTransactionDetails);
+    var savedTransactions = new ArrayList<MobileTransactionDetails>();
+    for (MobileTransactionDetails transaction : mobileTransactionDetails) {
+      try {
+        var saved = mobileTransactionDetailsRepository.save(transaction);
+        savedTransactions.add(saved);
+      } catch (DataIntegrityViolationException e) {
+        log.warn(
+            "Error saving mobile transaction of ref {} because of error",
+            transaction.getPspTransactionRef(),
+            e);
+      }
+    }
+    return savedTransactions;
   }
 }

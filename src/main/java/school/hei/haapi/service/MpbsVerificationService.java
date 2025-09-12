@@ -35,6 +35,7 @@ import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.service.aws.FileService;
+import school.hei.haapi.service.utils.CollectionUtils;
 
 @Service
 @AllArgsConstructor
@@ -48,6 +49,7 @@ public class MpbsVerificationService {
   private final FileService fileService;
   private final UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandler;
   private final ComputeVerifiedMobilePayment computeVerifiedMobilePayment;
+  private final CollectionUtils collectionUtils;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
@@ -203,7 +205,11 @@ public class MpbsVerificationService {
         log.info("Unverified mobile transaction psp id {}", ref);
       }
     }
-    mobilePaymentService.saveAll(transactions);
+    mobilePaymentService.saveAll(
+        collectionUtils
+            .filterDistinctByField(transactions, MobileTransactionDetails::getPspTransactionRef)
+            .stream()
+            .toList());
     log.info("Verification done...");
     return transactions.stream()
         .map(MobileTransactionDetails::getPspTransactionRef)
