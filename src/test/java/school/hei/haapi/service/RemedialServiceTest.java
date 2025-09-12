@@ -33,9 +33,7 @@ class RemedialServiceTest extends FacadeITMockedThirdParties {
         remedial.setStudents(List.of(student));
         when(remedialDaoMock.findByCriteria(any(), any(), any(), any(), any(), any(), any()))
                 .thenReturn(List.of(remedial));
-
         List<Remedial> remedials = subject.getAllRemedials(new PageFromOne(1),new BoundedPageSize(2),null,null,null,null,null,null);
-
         assertEquals("Weather prediction", remedials.getFirst().getTitle());
    }
 }

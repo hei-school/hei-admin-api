@@ -36,5 +36,4 @@ public class RemedialService {
         return remedialDao.findByCriteria(
                 pageable, teacherId, title, courseCode, groupRef, examinationDateStart, examinationDateEnd);
     }
-
 }

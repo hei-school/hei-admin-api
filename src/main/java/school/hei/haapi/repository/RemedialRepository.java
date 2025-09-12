@@ -11,6 +11,6 @@ import school.hei.haapi.model.Remedial;
 @Repository
 public interface RemedialRepository extends JpaRepository<Remedial, String> {
     @Query("select r from Remedial r where r.courseAssignment.course.id = :course_id ")
-    List<Remedial> findExamsByCourseId(@Param("course_id") String courseId);
+    List<Remedial> findRemedialByCourseId(@Param("course_id") String courseId);
 }
 
