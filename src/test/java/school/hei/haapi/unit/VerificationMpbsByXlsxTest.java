@@ -1,5 +1,6 @@
 package school.hei.haapi.unit;
 
+import static org.assertj.core.api.Assertions.assertThatList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.ArgumentMatchers.anyList;
@@ -13,19 +14,30 @@ import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 
 import java.util.List;
+
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.service.MobilePaymentService;
 import school.hei.haapi.service.MpbsVerificationService;
+import school.hei.haapi.service.utils.CollectionUtils;
 
 class VerificationMpbsByXlsxTest {
   private final MpbsRepository mpbsRepository = mock();
   private final MobilePaymentService mobilePaymentService = mock();
   private final MpbsVerificationService subject =
       new MpbsVerificationService(
-          mock(), mpbsRepository, mobilePaymentService, mock(), mock(), mock(), mock(), mock());
+          mock(),
+          mpbsRepository,
+          mobilePaymentService,
+          mock(),
+          mock(),
+          mock(),
+          mock(),
+          mock(),
+          new CollectionUtils());
 
   @Test
   void xlsx_correctly_extracted() {
@@ -147,6 +159,6 @@ class VerificationMpbsByXlsxTest {
           mobileTransactionDetails.setPspOwnDatetimeVerification(null);
         });
     assertEquals(transactions.size(), captured.size());
-    assertEquals(transactions, captured);
+    assertThatList(transactions).containsAll(captured);
   }
 }

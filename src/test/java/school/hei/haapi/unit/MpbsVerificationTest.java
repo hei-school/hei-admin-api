@@ -32,6 +32,7 @@ import school.hei.haapi.service.FailedMobilePaymentNotification;
 import school.hei.haapi.service.MobilePaymentService;
 import school.hei.haapi.service.MpbsVerificationService;
 import school.hei.haapi.service.UnverifiedMobilePaymentHandler;
+import school.hei.haapi.service.utils.CollectionUtils;
 
 class MpbsVerificationTest {
   MobilePaymentService mobilePaymentServiceMock = mock();
@@ -53,7 +54,8 @@ class MpbsVerificationTest {
         mock(),
         mock(),
         unverifiedMobilePaymentHandlerMock,
-        computeVerifiedMobilePayment);
+        computeVerifiedMobilePayment,
+        new CollectionUtils());
   }
 
   @Test
