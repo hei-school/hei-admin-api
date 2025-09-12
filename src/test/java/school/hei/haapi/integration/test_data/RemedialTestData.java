@@ -9,15 +9,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.util.UUID.randomUUID;
+import static school.hei.haapi.integration.test_data.StudentTestData.axel;
+import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
 
 public class RemedialTestData {
-    public static Remedial createRemedial(Instant remedialDate, CourseAssignment course, List<User> students) {
+    public static Remedial createRemedial(CourseAssignment courseAssignment) {
         return Remedial.builder()
                 .id(randomUUID().toString())
                 .title("Remedial title")
-                .remedialDate(remedialDate)
-                .courseAssignment(course)
-                .students(students != null ? students : new ArrayList<>())
+                .remedialDate(Instant.now())
+                .courseAssignment(courseAssignment)
+                .students(List.of(axel(), tolojanahary()))
                 .build();
     }
 }

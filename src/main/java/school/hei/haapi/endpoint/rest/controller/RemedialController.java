@@ -3,10 +3,11 @@ package school.hei.haapi.endpoint.rest.controller;
 import java.time.Instant;
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.*;
 
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import school.hei.haapi.endpoint.rest.model.CrupdateExam;
+import school.hei.haapi.endpoint.rest.model.CrupdateRemedial;
+import school.hei.haapi.endpoint.rest.model.Exam;
 import school.hei.haapi.endpoint.rest.model.Remedial;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.PageFromOne;
@@ -41,5 +42,11 @@ public class RemedialController {
                         groupRef,
                         remedialDateFrom,
                         remedialDateTo));
+    }
+
+    @PutMapping("/remedials")
+    public Remedial createOrUpdateRemedialsInfos(@RequestBody CrupdateRemedial remedialInfo) {
+        return remedialMapper.toRest(
+                 remedialService.updateOrSaveAll(List.of(remedialMapper.toDomain(remedialInfo))).getFirst());
     }
 }

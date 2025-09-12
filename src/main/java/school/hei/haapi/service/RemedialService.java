@@ -14,6 +14,7 @@ import school.hei.haapi.repository.dao.RemedialDao;
 
 import java.time.Instant;
 import java.util.List;
+import java.util.SequencedCollection;
 
 import static org.springframework.data.domain.Sort.Direction.DESC;
 
@@ -35,5 +36,8 @@ public class RemedialService {
                 PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "examinationDate"));
         return remedialDao.findByCriteria(
                 pageable, teacherId, title, courseCode, groupRef, examinationDateStart, examinationDateEnd);
+    }
+    public List<Remedial> updateOrSaveAll(List<Remedial> remedials) {
+       return remedialRepository.saveAll(remedials);
     }
 }
