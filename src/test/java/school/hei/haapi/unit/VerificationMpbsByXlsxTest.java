@@ -14,8 +14,6 @@ import static school.hei.haapi.endpoint.rest.model.MpbsStatus.SUCCESS;
 import static school.hei.haapi.integration.conf.TestUtils.getMockedFile;
 
 import java.util.List;
-
-import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import school.hei.haapi.model.MobileTransactionDetails;
