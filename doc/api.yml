@@ -6339,6 +6339,83 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+  '/cors':
+    get:
+      tags:
+        - Cor
+      operationId: getCor
+      summary: Get all CORs
+      parameters:
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      responses:
+        '200':
+          description: List of COR
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Cor"
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  '/cors/{cor_id}':
+    get:
+      tags:
+        - Cor
+      operationId: getCorById
+      summary: Get COR by id
+      parameters:
+        - $ref: '#/components/parameters/PathCorId'
+      responses:
+        '200':
+          description: The COR with the corresponding id
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cor"
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    delete:
+      tags:
+        - Cor
+      operationId: deleteCorById
+      summary: Delete COR by id
+      parameters:
+        - $ref: '#/components/parameters/PathCorId'
+      responses:
+        '200':
+          description: The deleted COR
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Cor"
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
   '/students/{student_id}/cors':
     get:
       tags:
@@ -6352,17 +6429,8 @@ paths:
           required: true
           schema:
             type: string
-        - name: page
-          in: query
-          schema:
-            $ref: '#/components/schemas/Page'
-          description: Set value to 1 by default if null is provided
-          required: false
-        - name: page_size
-          in: query
-          description: Set value to 15 by default if null is provided
-          schema:
-            $ref: '#/components/schemas/PageSize'
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
       responses:
         '200':
           description: List of COR for the given student_id
@@ -6515,6 +6583,12 @@ components:
         type: string
     PathMpbsId:
       name: mpbs_id
+      in: path
+      required: true
+      schema:
+        type: string
+    PathCorId:
+      name: cor_id
       in: path
       required: true
       schema:
