@@ -19,7 +19,7 @@ public class AttendanceRestMapper {
         .location(
             new EventLocation()
                 .room(roomMapper.toRest(s.room()))
-                .place(placeMapper.toRest(s.place()))).get
+                .place(placeMapper.toRest(s.place())))
         .eventType(s.eventType())
         .attendanceStatus(s.attendanceStatus())
         .beginDatetime(s.beginDatetime())

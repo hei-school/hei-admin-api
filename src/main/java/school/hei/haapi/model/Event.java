@@ -4,6 +4,8 @@ import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.EAGER;
 import static jakarta.persistence.GenerationType.IDENTITY;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
+import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
+import static school.hei.haapi.model.Event.RoomName.UNKNOWN;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -52,11 +54,12 @@ public class Event {
 
   @Enumerated(STRING)
   @JdbcTypeCode(NAMED_ENUM)
-  private RoomName room;
+  private RoomName room = UNKNOWN;
 
   @Enumerated(STRING)
   @JdbcTypeCode(NAMED_ENUM)
-  private PlaceName place;
+  @Builder.Default
+  private PlaceName place = IVANDRY;
 
   private String description;
 
