@@ -27,7 +27,7 @@ import lombok.ToString;
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
-public class Cor implements Serializable {
+public class Cor {
   @Id
   @GeneratedValue(strategy = IDENTITY)
   private String id;
