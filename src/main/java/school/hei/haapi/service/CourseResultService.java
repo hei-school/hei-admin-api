@@ -5,7 +5,6 @@ import static java.math.BigDecimal.ZERO;
 import static java.math.MathContext.DECIMAL128;
 import static java.util.Comparator.comparing;
 import static java.util.Objects.nonNull;
-import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.*;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.IN_PROGRESS;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.NOT_STARTED;
@@ -13,61 +12,98 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATE
 import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 import java.math.BigDecimal;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
-import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
 import school.hei.haapi.endpoint.rest.model.CourseResultStatus;
 import school.hei.haapi.endpoint.rest.model.ResultOverviewStatus;
 import school.hei.haapi.endpoint.rest.model.StudentLevel;
+import school.hei.haapi.model.Course;
+import school.hei.haapi.model.CourseAssignment;
+import school.hei.haapi.model.Exam;
+import school.hei.haapi.model.Group;
+import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.CoursesCreditSumZero;
 import school.hei.haapi.model.exception.ExamsCoefficientSumZero;
 import school.hei.haapi.repository.dao.GradeDao;
+import school.hei.haapi.service.utils.CollectionUtils;
 
-@Component
+@Service
 @AllArgsConstructor
 public class CourseResultService {
-  private CourseService courseService;
-  private GradeDao gradeDao;
-  private CourseMapper courseMapper;
-  private ExamService examService;
-  private UserService userService;
+  private final CourseService courseService;
+  private final GradeDao gradeDao;
+  private final CourseMapper courseMapper;
+  private final ExamService examService;
+  private final UserService userService;
+  private final CollectionUtils collectionUtils;
+
+  private List<Group> findStudentGroupByExams(User student, List<Exam> exams) {
+    return collectionUtils
+        .filterDistinctByField(
+            exams.stream()
+                .map(e -> student.findGroupAt(e.getExaminationDate()))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
+                .toList(),
+            Group::getId)
+        .stream()
+        .toList();
+  }
 
   public List<CourseResult> getCourseResultsForLevelOfStudent(
       StudentLevel level, String studentId) {
-    var coursesForSpecificLevel = courseService.getByStudentLevel(level);
     var student = userService.findById(studentId);
-
-    return coursesForSpecificLevel.stream()
-        .map(
-            course -> {
-              var studentGrades =
-                  gradeDao.getStudentGradesByCourseId(course.getId(), student.getId());
-              var examsOfTheCourse = examService.getExamsByCourseId(course.getId());
-
-              var courseResult = new CourseResult().course(courseMapper.toRest(course));
-              try {
-                courseResult.weightedAverage(
-                    BigDecimal.valueOf(weightedAverageOfGrades(studentGrades).doubleValue()));
-              } catch (ExamsCoefficientSumZero e) {
-                return courseResult.status(CourseResultStatus.NOT_STARTED);
-              }
-
-              if (studentGrades.isEmpty()) {
-                return courseResult.status(CourseResultStatus.NOT_STARTED);
-              } else if (studentGrades.size() < examsOfTheCourse.size()) {
-                return courseResult.status(CourseResultStatus.INCOMPLETE);
-              } else if (TEN.compareTo(courseResult.getWeightedAverage()) > 0) {
-                return courseResult.status(CourseResultStatus.INCOMPLETE);
-              } else {
-                return courseResult.status(CourseResultStatus.VALIDATED);
-              }
-            })
+    var courseForSpecificLevel = courseService.getByStudentLevel(level);
+    var courseForSpecificStudent =
+        courseForSpecificLevel.stream()
+            .map(Course::getCourseAssignments)
+            .filter(
+                ca -> {
+                  var courseAssignmentGroups =
+                      ca.stream()
+                          .map(CourseAssignment::getGroups)
+                          .flatMap(Collection::stream)
+                          .toList();
+                  var caIds = ca.stream().map(CourseAssignment::getId).toList();
+                  var exams = examService.getExamsByCourseAssignmentIds(caIds);
+                  var studentExamGroups = findStudentGroupByExams(student, exams);
+                  return courseAssignmentGroups.stream().anyMatch(studentExamGroups::contains);
+                })
+            .flatMap(e -> e.stream().map(CourseAssignment::getCourse))
+            .toList();
+    return courseForSpecificStudent.stream()
+        .map(course -> computeCourseResult(course, student))
         .sorted(comparing(courseResult -> courseResult.getStatus().ordinal()))
         .toList();
+  }
+
+  private CourseResult computeCourseResult(Course course, User student) {
+    var studentGrades = gradeDao.getStudentGradesByCourseId(course.getId(), student.getId());
+    var examsOfTheCourse = examService.getExamsByCourseId(course.getId());
+
+    var courseResult = new CourseResult().course(courseMapper.toRest(course));
+    try {
+      courseResult.weightedAverage(
+          BigDecimal.valueOf(weightedAverageOfGrades(studentGrades).doubleValue()));
+    } catch (ExamsCoefficientSumZero e) {
+      return courseResult.status(CourseResultStatus.NOT_STARTED);
+    }
+
+    if (studentGrades.isEmpty()) {
+      return courseResult.status(CourseResultStatus.NOT_STARTED);
+    } else if (studentGrades.size() < examsOfTheCourse.size()) {
+      return courseResult.status(CourseResultStatus.INCOMPLETE);
+    } else if (TEN.compareTo(courseResult.getWeightedAverage()) > 0) {
+      return courseResult.status(CourseResultStatus.INCOMPLETE);
+    } else {
+      return courseResult.status(CourseResultStatus.VALIDATED);
+    }
   }
 
   public BigDecimal obtainedCreditsOfCourseResults(List<CourseResult> courseResults) {

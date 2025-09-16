@@ -246,6 +246,16 @@ public class User implements Serializable {
     return lastGroupFlow.map(GroupFlow::getGroup);
   }
 
+  public Optional<Group> findGroupAt(Instant instant) {
+    return this.getGroupFlows().stream()
+        .filter(
+            groupFlow ->
+                JOIN.equals(groupFlow.getGroupFlowType())
+                    && instant.isBefore(groupFlow.getFlowDatetime()))
+        .max(Comparator.comparing(GroupFlow::getFlowDatetime))
+        .map(GroupFlow::getGroup);
+  }
+
   public enum Sex {
     M,
     F;

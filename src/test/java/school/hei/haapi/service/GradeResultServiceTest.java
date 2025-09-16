@@ -55,6 +55,7 @@ import school.hei.haapi.repository.dao.GradeDao;
 import school.hei.haapi.service.event.YearlyResultTranscriptGenerationService;
 import school.hei.haapi.service.utils.Base64Converter;
 import school.hei.haapi.service.utils.ClassPathResourceResolver;
+import school.hei.haapi.service.utils.CollectionUtils;
 import school.hei.haapi.service.utils.HtmlParser;
 import school.hei.haapi.service.utils.PdfRenderer;
 
@@ -79,7 +80,12 @@ class GradeResultServiceTest {
   private final GradeResultService subject =
       new GradeResultService(
           new CourseResultService(
-              courseService, gradeDao, new CourseMapper(), examService, userService),
+              courseService,
+              gradeDao,
+              new CourseMapper(),
+              examService,
+              userService,
+              new CollectionUtils()),
           yearlyResultGenerationService,
           bucketComponent,
           userService,
