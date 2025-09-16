@@ -10,4 +10,6 @@ public record StudentAttendanceStatus(
     EventType eventType,
     AttendanceStatus attendanceStatus,
     Instant beginDatetime,
-    Instant endDatetime) {}
+    Instant endDatetime,
+    Event.RoomName room,
+    Event.PlaceName place) {}

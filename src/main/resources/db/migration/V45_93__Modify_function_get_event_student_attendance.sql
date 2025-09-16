@@ -11,7 +11,9 @@ CREATE OR REPLACE FUNCTION public.get_event_student_attendance(reference charact
                 end_datetime      timestamp with time zone,
                 event_type        event_type,
                 event_title       character varying,
-                event_description character varying
+                event_description character varying,
+                room              room_name,
+                place             place_name
             )
     LANGUAGE plpgsql
 AS
@@ -23,7 +25,9 @@ RETURN QUERY SELECT "user".ref                 as "user_reference",
                         "event".end_datetime,
                         "event".type               as "event_type",
                         "event".title              as "event_title",
-                        "event".description        as "event_description"
+                        "event".description        as "event_description",
+                        "event".room               as "room",
+                        "event".place              as "place"
                  FROM "event_participant"
                           JOIN "user" ON "event_participant".participant_id = "user".id
                           JOIN "event" ON "event_participant".event_id = "event".id

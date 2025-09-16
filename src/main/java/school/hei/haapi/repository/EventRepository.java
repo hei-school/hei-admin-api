@@ -16,7 +16,7 @@ public interface EventRepository extends JpaRepository<Event, String> {
   @Query(
       value =
           "select event_title, event_description, event_type,"
-              + " attendance_status, begin_datetime, end_datetime from"
+              + " attendance_status, begin_datetime, end_datetime, room, place from"
               + " get_event_student_attendance(:reference, cast(:attendanceStatus as"
               + " attendance_status), :from, :to, :title)",
       nativeQuery = true)

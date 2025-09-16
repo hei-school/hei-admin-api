@@ -8,18 +8,26 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
+import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
+import static school.hei.haapi.model.Event.RoomName.PI;
 
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.mapper.AttendanceRestMapper;
+import school.hei.haapi.endpoint.rest.mapper.PlaceMapper;
+import school.hei.haapi.endpoint.rest.mapper.RoomMapper;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
+import school.hei.haapi.endpoint.rest.model.EventLocation;
+import school.hei.haapi.endpoint.rest.model.PlaceEnum;
+import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.StudentGlobalAttendance;
 import school.hei.haapi.model.StudentAttendanceStatus;
 import school.hei.haapi.service.AttendanceService;
 
 class AttendanceControllerTest {
-  AttendanceRestMapper attendanceRestMapper = new AttendanceRestMapper();
+  AttendanceRestMapper attendanceRestMapper =
+      new AttendanceRestMapper(new RoomMapper(), new PlaceMapper());
   AttendanceService attendanceServiceMock = mock();
   AttendanceController subject =
       new AttendanceController(attendanceServiceMock, attendanceRestMapper);
@@ -37,11 +45,13 @@ class AttendanceControllerTest {
 
     var actual = subject.getStudentAttendance(studentId, from, to, attendanceStatus);
 
+    // TODO: use assertThatList
     assertEquals(
         List.of(
             new StudentGlobalAttendance()
-                .eventTitle("eventTile")
-                .eventDescription("eventDescription")
+                .title("eventTile")
+                .description("eventDescription")
+                .location(new EventLocation().room(RoomEnum.PI).place(PlaceEnum.IVANDRY))
                 .eventType(COURSE)
                 .attendanceStatus(MISSING)
                 .beginDatetime(from)
@@ -52,6 +62,6 @@ class AttendanceControllerTest {
   private StudentAttendanceStatus studentAttendanceStatus(
       AttendanceStatus attendanceStatus, Instant from, Instant to) {
     return new StudentAttendanceStatus(
-        "eventTile", "eventDescription", COURSE, attendanceStatus, from, to);
+        "eventTile", "eventDescription", COURSE, attendanceStatus, from, to, PI, IVANDRY);
   }
 }
