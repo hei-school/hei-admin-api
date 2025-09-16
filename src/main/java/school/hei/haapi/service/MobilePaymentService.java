@@ -15,14 +15,14 @@ import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.NotFoundException;
-import school.hei.haapi.repository.MobilePaymentRepository;
 import school.hei.haapi.repository.MobileTransactionDetailsRepository;
+import school.hei.haapi.repository.TransactionProvider;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
 
 @Slf4j
 @Service
 @AllArgsConstructor
-public class MobilePaymentService implements MobilePaymentRepository {
+public class MobilePaymentService implements TransactionProvider {
   private final MobileTransactionDetailsRepository mobileTransactionDetailsRepository;
   private final ExternalResponseMapper externalResponseMapper;
   private final MobileMoneyApi mobileMoneyApi;
@@ -30,7 +30,8 @@ public class MobilePaymentService implements MobilePaymentRepository {
   @Override
   public TransactionDetails findTransactionByMpbs(Mpbs mpbs) throws ApiException {
     String transactionRef = mpbs.getPspId();
-    return externalResponseMapper.toExternalTransactionDetails(findTransactionById(transactionRef));
+    return externalResponseMapper.toExternalTransactionDetails(
+        findTransactionByRef(transactionRef));
   }
 
   @Override
@@ -41,26 +42,26 @@ public class MobilePaymentService implements MobilePaymentRepository {
 
   public Optional<MobileTransactionDetails> findTransactionByMpbsWithoutException(Mpbs mpbs) {
     String transactionRef = mpbs.getPspId();
-    return findTransactionByIdWithoutException(transactionRef);
+    return findTransactionByRefWithoutException(transactionRef);
   }
 
   public List<MobileTransactionDetails> findAllTransactionByMpbs(List<Mpbs> mpbsList) {
     List<String> transactionRefs = mpbsList.stream().map(Mpbs::getPspId).toList();
-    return findAllTransactionById(transactionRefs);
+    return findAllTransactionByRef(transactionRefs);
   }
 
-  private List<MobileTransactionDetails> findAllTransactionById(List<String> transactionRefs) {
+  private List<MobileTransactionDetails> findAllTransactionByRef(List<String> transactionRefs) {
     return mobileTransactionDetailsRepository.findAllByPspTransactionRefIn(transactionRefs);
   }
 
-  public MobileTransactionDetails findTransactionById(String pspId) {
+  public MobileTransactionDetails findTransactionByRef(String pspId) {
     return mobileTransactionDetailsRepository
         .findByPspTransactionRef(pspId)
         .orElseThrow(
-            () -> new NotFoundException("Mobile transaction with ref." + pspId + " not found"));
+            () -> new NotFoundException("Mobile transaction with ref " + pspId + " not found"));
   }
 
-  public Optional<MobileTransactionDetails> findTransactionByIdWithoutException(String pspId) {
+  public Optional<MobileTransactionDetails> findTransactionByRefWithoutException(String pspId) {
     return mobileTransactionDetailsRepository.findByPspTransactionRef(pspId);
   }
 

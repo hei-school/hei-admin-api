@@ -121,6 +121,7 @@ import school.hei.haapi.endpoint.rest.security.casdoorAuthentication.config.Cert
 import school.hei.haapi.endpoint.rest.security.cognito.CognitoComponent;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.service.aws.FileService;
 import software.amazon.awssdk.services.eventbridge.EventBridgeClient;
 import software.amazon.awssdk.services.eventbridge.model.PutEventsRequest;
@@ -453,6 +454,12 @@ public class TestUtils {
   public static void assertThrowsDomainBadRequestException(
       String expectedMessage, Executable executable) {
     var e = assertThrows(BadRequestException.class, executable);
+    assertEquals(expectedMessage, e.getMessage());
+  }
+
+  public static void asserThrowsDomainNotFoundException(
+      String expectedMessage, Executable executable) {
+    var e = assertThrows(NotFoundException.class, executable);
     assertEquals(expectedMessage, e.getMessage());
   }
 
