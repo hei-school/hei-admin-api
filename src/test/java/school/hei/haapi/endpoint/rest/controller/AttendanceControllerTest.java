@@ -3,23 +3,31 @@ package school.hei.haapi.endpoint.rest.controller;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
+import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
+import static school.hei.haapi.model.Event.RoomName.PI;
 
 import java.time.Instant;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.mapper.AttendanceRestMapper;
+import school.hei.haapi.endpoint.rest.mapper.PlaceMapper;
+import school.hei.haapi.endpoint.rest.mapper.RoomMapper;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
+import school.hei.haapi.endpoint.rest.model.EventLocation;
+import school.hei.haapi.endpoint.rest.model.PlaceEnum;
+import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.StudentGlobalAttendance;
 import school.hei.haapi.model.StudentAttendanceStatus;
 import school.hei.haapi.service.AttendanceService;
 
 class AttendanceControllerTest {
-  AttendanceRestMapper attendanceRestMapper = new AttendanceRestMapper();
+  AttendanceRestMapper attendanceRestMapper =
+      new AttendanceRestMapper(new RoomMapper(), new PlaceMapper());
   AttendanceService attendanceServiceMock = mock();
   AttendanceController subject =
       new AttendanceController(attendanceServiceMock, attendanceRestMapper);
@@ -32,26 +40,26 @@ class AttendanceControllerTest {
     var attendanceStatus = MISSING;
 
     when(attendanceServiceMock.getStudentAttendanceByStudentId(
-            studentId, attendanceStatus, from, to))
+            studentId, attendanceStatus, from, to, List.of()))
         .thenReturn(List.of(studentAttendanceStatus(attendanceStatus, from, to)));
 
     var actual = subject.getStudentAttendance(studentId, from, to, attendanceStatus);
 
-    assertEquals(
-        List.of(
+    assertThatList(actual)
+        .containsOnly(
             new StudentGlobalAttendance()
-                .eventTitle("eventTile")
-                .eventDescription("eventDescription")
+                .title("eventTile")
+                .description("eventDescription")
+                .location(new EventLocation().room(RoomEnum.PI).place(PlaceEnum.IVANDRY))
                 .eventType(COURSE)
                 .attendanceStatus(MISSING)
                 .beginDatetime(from)
-                .endDatetime(to)),
-        actual);
+                .endDatetime(to));
   }
 
   private StudentAttendanceStatus studentAttendanceStatus(
       AttendanceStatus attendanceStatus, Instant from, Instant to) {
     return new StudentAttendanceStatus(
-        "eventTile", "eventDescription", COURSE, attendanceStatus, from, to);
+        "eventTile", "eventDescription", COURSE, attendanceStatus, from, to, PI, IVANDRY);
   }
 }

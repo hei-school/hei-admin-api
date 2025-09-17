@@ -7369,24 +7369,16 @@ components:
           items:
             $ref: '#/components/schemas/EventParticipantLetter'
     Event:
+      allOf:
+        - $ref: '#/components/schemas/EventProperty'
       type: object
       properties:
         id:
           type: string
         type:
           $ref: '#/components/schemas/EventType'
-        title:
-          type: string
         color:
           type: string
-        description:
-          type: string
-        begin_datetime:
-          type: string
-          format: date-time
-        end_datetime:
-          type: string
-          format: date-time
         planner:
           $ref: '#/components/schemas/UserIdentifier'
         course:

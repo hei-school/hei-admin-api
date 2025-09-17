@@ -7,6 +7,8 @@ import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
+import static school.hei.haapi.model.Event.RoomName.UNKNOWN;
 
 import com.github.javafaker.Faker;
 import java.time.Instant;
@@ -115,6 +117,8 @@ public class FakeDataProvider {
         UUID.randomUUID().toString(),
         faker.options().option(EventType.class),
         faker.lorem().sentence(2),
+        UNKNOWN,
+        IVANDRY,
         faker.lorem().sentence(10),
         null,
         false,

@@ -88,6 +88,7 @@ import school.hei.haapi.endpoint.rest.model.CrupdatePromotion;
 import school.hei.haapi.endpoint.rest.model.CrupdateStudentFee;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
 import school.hei.haapi.endpoint.rest.model.Event;
+import school.hei.haapi.endpoint.rest.model.EventLocation;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.EventStats;
 import school.hei.haapi.endpoint.rest.model.EventType;
@@ -104,7 +105,9 @@ import school.hei.haapi.endpoint.rest.model.LetterUser;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Monitor;
 import school.hei.haapi.endpoint.rest.model.Observer;
+import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.endpoint.rest.model.Promotion;
+import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.Scope;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.endpoint.rest.model.Student;
@@ -1406,6 +1409,7 @@ public class TestUtils {
         .title("PROG1")
         .planner(planner1())
         .count(new EventStats().late(0).missing(1).present(1).total(2))
+        .location(new EventLocation())
         .groups(List.of(createGroupIdentifier(group1())));
   }
 
@@ -1435,6 +1439,7 @@ public class TestUtils {
         .title("Integration Day")
         .count(new EventStats().total(3).missing(1).present(2).late(0))
         .description("HEI students integration day")
+        .location(new EventLocation())
         .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
   }
 
@@ -1457,6 +1462,7 @@ public class TestUtils {
         .course(null)
         .color("#0000")
         .count(new EventStats().late(0).present(0).missing(0).total(0))
+        .location(new EventLocation())
         .groups(List.of());
   }
 
@@ -1538,6 +1544,7 @@ public class TestUtils {
         .description("Another event")
         .eventType(eventType)
         .plannerId(planerId)
+        .location(new EventLocation().room(RoomEnum.PI).place(PlaceEnum.IVANDRY))
         .groups(groups.stream().map(TestUtils::createGroupIdentifier).toList());
   }
 
