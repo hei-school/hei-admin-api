@@ -24,7 +24,10 @@ import static school.hei.haapi.endpoint.rest.model.LetterStatus.PENDING;
 import static school.hei.haapi.endpoint.rest.model.LetterStatus.RECEIVED;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.MANAGER;
 import static school.hei.haapi.endpoint.rest.model.Observer.RoleEnum.TEACHER;
+import static school.hei.haapi.endpoint.rest.model.PlaceEnum.ANDRAHARO;
+import static school.hei.haapi.endpoint.rest.model.PlaceEnum.IVANDRY;
 import static school.hei.haapi.endpoint.rest.model.ProfessionalExperienceFileTypeEnum.WORKER_STUDENT;
+import static school.hei.haapi.endpoint.rest.model.RoomEnum.B;
 import static school.hei.haapi.endpoint.rest.model.Scope.GLOBAL;
 import static school.hei.haapi.endpoint.rest.model.Scope.STUDENT;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
@@ -1409,7 +1412,7 @@ public class TestUtils {
         .title("PROG1")
         .planner(planner1())
         .count(new EventStats().late(0).missing(1).present(1).total(2))
-        .location(new EventLocation())
+        .location(new EventLocation().place(ANDRAHARO).room(RoomEnum.UNKNOWN))
         .groups(List.of(createGroupIdentifier(group1())));
   }
 
@@ -1439,7 +1442,7 @@ public class TestUtils {
         .title("Integration Day")
         .count(new EventStats().total(3).missing(1).present(2).late(0))
         .description("HEI students integration day")
-        .location(new EventLocation())
+        .location(new EventLocation().place(IVANDRY).room(B))
         .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
   }
 
