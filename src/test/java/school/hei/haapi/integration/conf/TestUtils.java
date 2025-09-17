@@ -1409,6 +1409,7 @@ public class TestUtils {
         .title("PROG1")
         .planner(planner1())
         .count(new EventStats().late(0).missing(1).present(1).total(2))
+        .location(new EventLocation())
         .groups(List.of(createGroupIdentifier(group1())));
   }
 
@@ -1438,6 +1439,7 @@ public class TestUtils {
         .title("Integration Day")
         .count(new EventStats().total(3).missing(1).present(2).late(0))
         .description("HEI students integration day")
+        .location(new EventLocation())
         .groups(List.of(createGroupIdentifier(group1()), createGroupIdentifier(group2())));
   }
 
@@ -1460,6 +1462,7 @@ public class TestUtils {
         .course(null)
         .color("#0000")
         .count(new EventStats().late(0).present(0).missing(0).total(0))
+        .location(new EventLocation())
         .groups(List.of());
   }
 

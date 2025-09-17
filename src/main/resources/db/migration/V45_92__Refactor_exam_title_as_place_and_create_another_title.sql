@@ -8,8 +8,8 @@ ALTER TABLE event
 
 UPDATE event
 SET room = CASE
-               WHEN room_str = ANY (enum_range(NULL::room_name)::text[])
-                   THEN room_str::status_enum
+               WHEN title = ANY (enum_range(NULL::room_name)::text[])
+                   THEN title::room_name
                ELSE NULL
     END;
 

@@ -1,5 +1,6 @@
 package school.hei.haapi.service;
 
+import static java.text.MessageFormat.format;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 
 import java.time.Instant;
@@ -41,7 +42,7 @@ public class AttendanceService {
             attendanceStatus,
             from,
             to,
-            "%" + titles.stream().findFirst().orElse("") + "%");
+            titles.stream().findFirst().map(t -> format("%{0}%", t)).orElse(null));
     return studentAttendanceObject.stream().map(this::toStudentAttendanceStatus).toList();
   }
 

@@ -2,7 +2,7 @@ CREATE OR REPLACE FUNCTION public.get_event_student_attendance(reference charact
                                                                event_participant_status attendance_status,
                                                                from_datetime timestamp without time zone,
                                                                to_datetime timestamp without time zone,
-                                                               title character varying)
+                                                               filter_title character varying)
     RETURNS TABLE
             (
                 user_reference    character varying,
@@ -35,6 +35,6 @@ RETURN QUERY SELECT "user".ref                 as "user_reference",
                    AND "event_participant".status = event_participant_status
                    AND "event".begin_datetime >= from_datetime
                    AND "event".end_datetime <= to_datetime
-                   AND "title" ILIKE title;
+                   and "event".title ILIKE COALESCE(filter_title, '%%');
 END;
 $function$
