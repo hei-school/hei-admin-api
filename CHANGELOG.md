@@ -1,3 +1,12 @@
+## [1.116.1](https://github.com/hei-school/hei-admin-api/compare/v1.116.0...v1.116.1) (2025-09-17)
+
+
+### Bug Fixes
+
+* **remedial:** restructure remedial component ([e43b116](https://github.com/hei-school/hei-admin-api/commit/e43b116776ddb8e91f19c4202f93c721cfac1be2))
+
+
+
 # [1.116.0](https://github.com/hei-school/hei-admin-api/compare/v1.115.0...v1.116.0) (2025-09-10)
 
 
@@ -114,20 +123,6 @@
 
 * generate yearly result pdf ([0155b1d](https://github.com/hei-school/hei-admin-api/commit/0155b1d28cd90baa5605fb4891d3c32e34083e1a))
 * grade change history ([35c6221](https://github.com/hei-school/hei-admin-api/commit/35c62218f71e55b8495d125a854bb3bd791dc147))
-
-
-
-# [1.109.0](https://github.com/hei-school/hei-admin-api/compare/v1.108.0...v1.109.0) (2025-08-12)
-
-
-### Bug Fixes
-
-* getStudentById Monitor ([d5be86f](https://github.com/hei-school/hei-admin-api/commit/d5be86f554fc2274239fde5eda37ac25aa02b302))
-
-
-### Features
-
-* YearlyResult transcript ([25f4552](https://github.com/hei-school/hei-admin-api/commit/25f4552735972ba0cc4314490b7d3cb4836ed18e))
 
 
 
