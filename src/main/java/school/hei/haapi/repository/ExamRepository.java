@@ -14,9 +14,9 @@ public interface ExamRepository extends JpaRepository<Exam, String> {
   @Query("select e from Exam e where e.courseAssignment.course.id = :course_id ")
   List<Exam> findExamsByCourseId(@Param("course_id") String courseId);
 
-  @Query("select e from Exam e where e.courseAssignment.id = :course_assignment_id ")
-  List<Exam> findExamsByCourseAssignmentId(
-      @Param("course_assignment_id") String courseAssignmentId);
+  @Query("select e from Exam e where e.courseAssignment.id in :course_assignment_ids ")
+  List<Exam> findExamsByCourseAssignmentIdIn(
+      @Param("course_assignment_ids") List<String> courseAssignmentIds);
 
   @Query(
       "select e from Exam e join e.courseAssignment.groups g where g.id = :group_id and "
