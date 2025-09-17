@@ -5,7 +5,6 @@ import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
-import school.hei.haapi.endpoint.rest.model.CrupdateExam;
 import school.hei.haapi.endpoint.rest.model.CrupdateRemedial;
 import school.hei.haapi.endpoint.rest.model.Exam;
 import school.hei.haapi.endpoint.rest.model.Remedial;
@@ -19,7 +18,6 @@ import school.hei.haapi.service.RemedialService;
 @AllArgsConstructor
 public class RemedialController {
     private final RemedialService remedialService;
-    private final CourseAssignmentService courseAssignmentService;
     private final RemedialMapper remedialMapper;
 
     @GetMapping("/remedials")
@@ -48,5 +46,10 @@ public class RemedialController {
     public Remedial createOrUpdateRemedialsInfos(@RequestBody CrupdateRemedial remedialInfo) {
         return remedialMapper.toRest(
                  remedialService.updateOrSaveAll(List.of(remedialMapper.toDomain(remedialInfo))).getFirst());
+    }
+
+    @GetMapping("/remedials/{id}")
+    public Remedial getRemedial(@PathVariable(name = "id") String id) {
+        return remedialMapper.toRest(remedialService.getRemedialById(id));
     }
 }

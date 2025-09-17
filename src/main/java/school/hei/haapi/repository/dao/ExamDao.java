@@ -30,8 +30,8 @@ public class ExamDao {
       String courseCode,
       String teacherId,
       String groupRef,
-      Instant examinationDateStart,
-      Instant examinationDateEnd) {
+      Instant remedialDateStart,
+      Instant remedialDateEnd) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Exam> query = builder.createQuery(Exam.class);
     Root<Exam> root = query.from(Exam.class);
@@ -62,7 +62,7 @@ public class ExamDao {
           builder.like(builder.lower(groupJoin.get("ref")), "%" + groupRef.toLowerCase() + "%"));
     }
     addExaminationDateRangePredicates(
-        examinationDateStart, examinationDateEnd, predicates, builder, root);
+        remedialDateStart, remedialDateEnd, predicates, builder, root);
     query
         .distinct(true)
         .where(predicates.toArray(new Predicate[0]))
@@ -75,20 +75,20 @@ public class ExamDao {
   }
 
   private static void addExaminationDateRangePredicates(
-      Instant examinationDateStart,
-      Instant examinationDateEnd,
+      Instant remedialDateStart,
+      Instant remedialDateEnd,
       ArrayList<Predicate> predicates,
       CriteriaBuilder builder,
       Root<Exam> root) {
-    if (examinationDateStart != null && examinationDateEnd != null) {
+    if (remedialDateStart != null && remedialDateEnd != null) {
       predicates.add(
-          builder.between(root.get("examinationDate"), examinationDateStart, examinationDateEnd));
-    } else if (examinationDateStart == null && examinationDateEnd != null) {
+          builder.between(root.get("remedialDate"), remedialDateStart, remedialDateEnd));
+    } else if (remedialDateStart == null && remedialDateEnd != null) {
       predicates.add(
-          builder.between(root.get("examinationDate"), Instant.now(), examinationDateEnd));
-    } else if (examinationDateEnd == null && examinationDateStart != null) {
+          builder.between(root.get("remedialDate"), Instant.now(), remedialDateEnd));
+    } else if (remedialDateStart != null) {
       predicates.add(
-          builder.between(root.get("examinationDate"), examinationDateStart, Instant.now()));
+          builder.between(root.get("remedialDate"), remedialDateStart, Instant.now()));
     }
   }
 }

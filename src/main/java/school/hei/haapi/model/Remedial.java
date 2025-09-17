@@ -14,7 +14,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
-import school.hei.haapi.endpoint.rest.model.CrupdateRemedial;
 
 @Entity
 @Table(name = "\"remedial\"")

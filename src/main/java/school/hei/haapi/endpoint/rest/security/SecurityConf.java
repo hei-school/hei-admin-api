@@ -247,6 +247,10 @@ public class SecurityConf {
                     antMatcher(PUT, "/organizers"),
                     antMatcher(POST, "/organizers/*/picture/raw"),
                     antMatcher(PUT, "/students/*/courses"),
+                    antMatcher(GET, "/remedials"),
+                    antMatcher(PUT, "/remedials"),
+                    antMatcher(POST, "/remedials"),
+                    antMatcher(GET, "/remedials/*"),
                     nonAccessibleBySuspendedUserPath)),
             AnonymousAuthenticationFilter.class)
         .addFilterAfter(
@@ -736,6 +740,14 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/exams")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/remedials")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
+                    .requestMatchers(PUT, "/remedials")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(POST, "/remedials")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/remedials/*")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
                     .requestMatchers(
                         new CourseAssignmentTeacherMatcher(
                             courseAssignmentService, PUT, "/groups/*/course_assignments/*/exams"))
