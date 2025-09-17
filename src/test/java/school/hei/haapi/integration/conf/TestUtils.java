@@ -1,6 +1,5 @@
 package school.hei.haapi.integration.conf;
 
-import static java.util.UUID.randomUUID;
 import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -94,7 +93,6 @@ import school.hei.haapi.endpoint.rest.model.Event;
 import school.hei.haapi.endpoint.rest.model.EventLocation;
 import school.hei.haapi.endpoint.rest.model.EventParticipant;
 import school.hei.haapi.endpoint.rest.model.EventStats;
-import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.Exam;
 import school.hei.haapi.endpoint.rest.model.Fee;
 import school.hei.haapi.endpoint.rest.model.FeeFrequency;
@@ -108,7 +106,6 @@ import school.hei.haapi.endpoint.rest.model.LetterUser;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Monitor;
 import school.hei.haapi.endpoint.rest.model.Observer;
-import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.endpoint.rest.model.Promotion;
 import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.Scope;
@@ -1518,37 +1515,6 @@ public class TestUtils {
         .eventType(COURSE)
         .plannerId(MANAGER_ID)
         .groups(List.of(createGroupIdentifier(group1())));
-  }
-
-  public static CreateEvent someCreatableEventByManager1(EventType eventType) {
-    return someCreatableEvent(
-        eventType,
-        MANAGER_ID,
-        Instant.parse("2023-12-08T08:00:00.00Z"),
-        Instant.parse("2023-12-08T10:00:00.00Z"));
-  }
-
-  public static CreateEvent someCreatableEvent(
-      EventType eventType, String planerId, Instant beginDatetime, Instant endDatetime) {
-    return someCreatableEvent(eventType, planerId, beginDatetime, endDatetime, List.of(group1()));
-  }
-
-  public static CreateEvent someCreatableEvent(
-      EventType eventType,
-      String planerId,
-      Instant beginDatetime,
-      Instant endDatetime,
-      List<Group> groups) {
-    return new CreateEvent()
-        .id("event" + randomUUID() + "_id")
-        .courseId(COURSE1_ID)
-        .beginDatetime(beginDatetime)
-        .endDatetime(endDatetime)
-        .description("Another event")
-        .eventType(eventType)
-        .plannerId(planerId)
-        .location(new EventLocation().room(RoomEnum.PI).place(PlaceEnum.IVANDRY))
-        .groups(groups.stream().map(TestUtils::createGroupIdentifier).toList());
   }
 
   public static CreateFee createFeeForTest() {
