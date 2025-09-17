@@ -12,11 +12,11 @@ import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.VALIDATE
 import static school.hei.haapi.model.Grade.weightedAverageOfGrades;
 
 import java.math.BigDecimal;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import lombok.AllArgsConstructor;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.model.CourseResult;
@@ -61,33 +61,49 @@ public class CourseResultService {
     var student = userService.findById(studentId);
     var courseForSpecificLevel = courseService.getByStudentLevel(level);
     var courseForSpecificStudent =
-        courseForSpecificLevel.stream()
-            .map(Course::getCourseAssignments)
-            .filter(
-                ca -> {
-                  var courseAssignmentGroups =
-                      ca.stream()
-                          .map(CourseAssignment::getGroups)
-                          .flatMap(Collection::stream)
-                          .toList();
-                  var caIds = ca.stream().map(CourseAssignment::getId).toList();
-                  var exams = examService.getExamsByCourseAssignmentIds(caIds);
-                  var studentExamGroups = findStudentGroupByExams(student, exams);
-                  return courseAssignmentGroups.stream().anyMatch(studentExamGroups::contains);
-                })
-            .flatMap(e -> e.stream().map(CourseAssignment::getCourse))
-            .toList();
+        collectionUtils.filterDistinctByField(
+            getCourseInStudentGroup(courseForSpecificLevel, student), Course::getId);
     return courseForSpecificStudent.stream()
         .map(course -> computeCourseResult(course, student))
         .sorted(comparing(courseResult -> courseResult.getStatus().ordinal()))
         .toList();
   }
 
+  @NotNull
+  private List<Course> getCourseInStudentGroup(List<Course> courseForSpecificLevel, User student) {
+    return courseForSpecificLevel.stream()
+        .map(Course::getCourseAssignments)
+        .filter(
+            ca -> {
+              var courseAssignmentGroupIds =
+                  ca.stream()
+                      .map(CourseAssignment::getGroups)
+                      .flatMap(e -> e.stream().map(Group::getId))
+                      .toList();
+              var caIds = ca.stream().map(CourseAssignment::getId).toList();
+              var exams = examService.getExamsByCourseAssignmentIds(caIds);
+              if (exams.isEmpty()) {
+                return true;
+              }
+
+              var studentExamGroupIds =
+                  findStudentGroupByExams(student, exams).stream().map(Group::getId).toList();
+              return courseAssignmentGroupIds.stream().anyMatch(studentExamGroupIds::contains);
+            })
+        .flatMap(e -> e.stream().map(CourseAssignment::getCourse))
+        .toList();
+  }
+
   private CourseResult computeCourseResult(Course course, User student) {
+    var courseExams = examService.getExamsByCourseId(course.getId());
     var studentGrades = gradeDao.getStudentGradesByCourseId(course.getId(), student.getId());
     var examsOfTheCourse = examService.getExamsByCourseId(course.getId());
-
     var courseResult = new CourseResult().course(courseMapper.toRest(course));
+
+    if (courseExams.isEmpty()) {
+      return courseResult.status(CourseResultStatus.NOT_STARTED);
+    }
+
     try {
       courseResult.weightedAverage(
           BigDecimal.valueOf(weightedAverageOfGrades(studentGrades).doubleValue()));
@@ -96,7 +112,7 @@ public class CourseResultService {
     }
 
     if (studentGrades.isEmpty()) {
-      return courseResult.status(CourseResultStatus.NOT_STARTED);
+      return courseResult.status(CourseResultStatus.IN_PROGRESS);
     } else if (studentGrades.size() < examsOfTheCourse.size()) {
       return courseResult.status(CourseResultStatus.INCOMPLETE);
     } else if (TEN.compareTo(courseResult.getWeightedAverage()) > 0) {
