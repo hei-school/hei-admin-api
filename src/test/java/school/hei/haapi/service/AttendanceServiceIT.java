@@ -7,8 +7,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.PRESENT;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
-import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
-import static school.hei.haapi.model.Event.RoomName.UNKNOWN;
+import static school.hei.haapi.model.Event.PlaceName.ANDRAHARO;
+import static school.hei.haapi.model.Event.RoomName.ALGEBRE;
 import static school.hei.haapi.model.User.Role.STUDENT;
 import static school.hei.haapi.model.User.Status.ENABLED;
 
@@ -135,8 +135,8 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         MISSING,
         startOfActualMonth.plus(1L, DAYS),
         startOfActualMonth.plus(2L, DAYS),
-        UNKNOWN,
-        IVANDRY);
+        ALGEBRE,
+        ANDRAHARO);
   }
 
   private StudentAttendanceStatus presentStudentAttendanceStatus() {
@@ -147,8 +147,8 @@ class AttendanceServiceIT extends FacadeITMockedThirdParties {
         PRESENT,
         startOfActualMonth.plus(1L, DAYS),
         startOfActualMonth.plus(2L, DAYS),
-        UNKNOWN,
-        IVANDRY);
+        ALGEBRE,
+        ANDRAHARO);
   }
 
   private LocalDate startOfActualMonth() {

@@ -39,11 +39,12 @@ class AttendanceControllerTest {
     var to = now().plus(1L, DAYS);
     var attendanceStatus = MISSING;
 
+    var titlesFilter = List.of("event");
     when(attendanceServiceMock.getStudentAttendanceByStudentId(
-            studentId, attendanceStatus, from, to, List.of()))
+            studentId, attendanceStatus, from, to, titlesFilter))
         .thenReturn(List.of(studentAttendanceStatus(attendanceStatus, from, to)));
 
-    var actual = subject.getStudentAttendance(studentId, from, to, attendanceStatus);
+    var actual = subject.getStudentAttendance(studentId, from, to, attendanceStatus, titlesFilter);
 
     assertThatList(actual)
         .containsOnly(
