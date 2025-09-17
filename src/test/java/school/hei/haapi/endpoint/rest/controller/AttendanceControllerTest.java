@@ -8,7 +8,9 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
 import static school.hei.haapi.endpoint.rest.model.EventType.COURSE;
+import static school.hei.haapi.model.Event.PlaceName.ANDRAHARO;
 import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
+import static school.hei.haapi.model.Event.RoomName.ALGEBRE;
 import static school.hei.haapi.model.Event.RoomName.PI;
 
 import java.time.Instant;
@@ -22,6 +24,7 @@ import school.hei.haapi.endpoint.rest.model.EventLocation;
 import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.StudentGlobalAttendance;
+import school.hei.haapi.model.Event;
 import school.hei.haapi.model.StudentAttendanceStatus;
 import school.hei.haapi.service.AttendanceService;
 
@@ -39,12 +42,11 @@ class AttendanceControllerTest {
     var to = now().plus(1L, DAYS);
     var attendanceStatus = MISSING;
 
-    var titlesFilter = List.of("event");
     when(attendanceServiceMock.getStudentAttendanceByStudentId(
-            studentId, attendanceStatus, from, to, titlesFilter))
-        .thenReturn(List.of(studentAttendanceStatus(attendanceStatus, from, to)));
+            studentId, attendanceStatus, from, to, List.of()))
+        .thenReturn(List.of(studentAttendanceStatus(attendanceStatus, from, to, PI, IVANDRY)));
 
-    var actual = subject.getStudentAttendance(studentId, from, to, attendanceStatus, titlesFilter);
+    var actual = subject.getStudentAttendance(studentId, from, to, attendanceStatus, List.of());
 
     assertThatList(actual)
         .containsOnly(
@@ -58,9 +60,40 @@ class AttendanceControllerTest {
                 .endDatetime(to));
   }
 
+  @Test
+  void return_student_global_attendance_filter_by_title() {
+    var studentId = randomUUID().toString();
+    var from = now();
+    var to = now().plus(1L, DAYS);
+    var attendanceStatus = MISSING;
+
+    var titlesFilter = List.of("event");
+    when(attendanceServiceMock.getStudentAttendanceByStudentId(
+            studentId, attendanceStatus, from, to, titlesFilter))
+        .thenReturn(
+            List.of(studentAttendanceStatus(attendanceStatus, from, to, ALGEBRE, ANDRAHARO)));
+
+    var actual = subject.getStudentAttendance(studentId, from, to, attendanceStatus, titlesFilter);
+
+    assertThatList(actual)
+        .containsOnly(
+            new StudentGlobalAttendance()
+                .title("eventTile")
+                .description("eventDescription")
+                .location(new EventLocation().room(RoomEnum.ALGEBRE).place(PlaceEnum.ANDRAHARO))
+                .eventType(COURSE)
+                .attendanceStatus(MISSING)
+                .beginDatetime(from)
+                .endDatetime(to));
+  }
+
   private StudentAttendanceStatus studentAttendanceStatus(
-      AttendanceStatus attendanceStatus, Instant from, Instant to) {
+      AttendanceStatus attendanceStatus,
+      Instant from,
+      Instant to,
+      Event.RoomName room,
+      Event.PlaceName place) {
     return new StudentAttendanceStatus(
-        "eventTile", "eventDescription", COURSE, attendanceStatus, from, to, PI, IVANDRY);
+        "eventTile", "eventDescription", COURSE, attendanceStatus, from, to, room, place);
   }
 }
