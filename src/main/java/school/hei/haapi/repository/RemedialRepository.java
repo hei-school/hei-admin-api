@@ -1,6 +1,5 @@
 package school.hei.haapi.repository;
 
-
 import java.util.List;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -10,7 +9,6 @@ import school.hei.haapi.model.Remedial;
 
 @Repository
 public interface RemedialRepository extends JpaRepository<Remedial, String> {
-    @Query("select r from Remedial r where r.courseAssignment.course.id = :course_id ")
-    List<Remedial> findRemedialByCourseId(@Param("course_id") String courseId);
+  @Query("select r from Remedial r where r.courseAssignment.course.id = :course_id ")
+  List<Remedial> findRemedialByCourseId(@Param("course_id") String courseId);
 }
-

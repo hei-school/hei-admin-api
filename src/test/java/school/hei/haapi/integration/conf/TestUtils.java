@@ -37,8 +37,6 @@ import static school.hei.haapi.endpoint.rest.model.WorkStudyStatus.WORKING;
 import static school.hei.haapi.integration.ManagerIT.manager1;
 import static school.hei.haapi.integration.MpbsIT.expectedMpbs1;
 import static school.hei.haapi.integration.StudentIT.student3;
-import static school.hei.haapi.integration.test_data.StudentTestData.axel;
-import static school.hei.haapi.integration.test_data.StudentTestData.tolojanahary;
 import static school.hei.haapi.model.exception.ApiException.ExceptionType.SERVER_EXCEPTION;
 import static software.amazon.awssdk.core.internal.util.ChunkContentUtils.CRLF;
 
@@ -1867,21 +1865,21 @@ public class TestUtils {
         .attributedColor(original.getAttributedColor());
   }
 
-  public static Remedial remedial1(){
-      return  new Remedial()
-          .id("REMEDIAL1_ID")
-          .title("Remedial 1")
-          .remedialDate(String.valueOf(Instant.now()))
-          .course(courseAssignment1().getCourse())
-          .students(List.of());
+  public static Remedial remedial1() {
+    return new Remedial()
+        .id("REMEDIAL1_ID")
+        .title("Remedial 1")
+        .remedialDate(String.valueOf(Instant.now()))
+        .course(courseAssignment1().getCourse())
+        .students(List.of());
   }
 
-  public static Remedial remedial2(){
-      return new Remedial()
-            .id("REMEDIAL2_ID")
-            .title("Remedial 2")
-            .remedialDate(String.valueOf(Instant.now()))
-            .course(courseAssignment2().getCourse())
-            .students(List.of());
+  public static Remedial remedial2() {
+    return new Remedial()
+        .id("REMEDIAL2_ID")
+        .title("Remedial 2")
+        .remedialDate(String.valueOf(Instant.now()))
+        .course(courseAssignment2().getCourse())
+        .students(List.of());
   }
 }

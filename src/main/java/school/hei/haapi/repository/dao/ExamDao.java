@@ -81,14 +81,11 @@ public class ExamDao {
       CriteriaBuilder builder,
       Root<Exam> root) {
     if (remedialDateStart != null && remedialDateEnd != null) {
-      predicates.add(
-          builder.between(root.get("remedialDate"), remedialDateStart, remedialDateEnd));
+      predicates.add(builder.between(root.get("remedialDate"), remedialDateStart, remedialDateEnd));
     } else if (remedialDateStart == null && remedialDateEnd != null) {
-      predicates.add(
-          builder.between(root.get("remedialDate"), Instant.now(), remedialDateEnd));
+      predicates.add(builder.between(root.get("remedialDate"), Instant.now(), remedialDateEnd));
     } else if (remedialDateStart != null) {
-      predicates.add(
-          builder.between(root.get("remedialDate"), remedialDateStart, Instant.now()));
+      predicates.add(builder.between(root.get("remedialDate"), remedialDateStart, Instant.now()));
     }
   }
 }

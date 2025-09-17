@@ -1469,7 +1469,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/Remedial'
+                  $ref: '#/components/schemas/RemedialInfo'
         '400':
           $ref: '#/components/responses/400'
         '403':
