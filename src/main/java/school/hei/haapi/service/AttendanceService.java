@@ -11,7 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import school.hei.haapi.endpoint.rest.model.AttendanceStatus;
 import school.hei.haapi.endpoint.rest.model.EventType;
-import school.hei.haapi.model.Event;
+import school.hei.haapi.model.Event.PlaceName;
+import school.hei.haapi.model.Event.RoomName;
 import school.hei.haapi.model.StudentAttendanceStatus;
 import school.hei.haapi.model.exception.NotImplementedException;
 import school.hei.haapi.repository.EventRepository;
@@ -54,7 +55,7 @@ public class AttendanceService {
         AttendanceStatus.valueOf((String) objElement[3]),
         (Instant) objElement[4],
         (Instant) objElement[5],
-        Event.RoomName.valueOf((String) objElement[6]),
-        Event.PlaceName.valueOf((String) objElement[7]));
+        RoomName.valueOf((String) objElement[6]),
+        PlaceName.valueOf((String) objElement[7]));
   }
 }

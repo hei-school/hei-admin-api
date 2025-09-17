@@ -3,7 +3,7 @@ package school.hei.haapi.endpoint.rest.controller;
 import static java.time.Instant.now;
 import static java.time.temporal.ChronoUnit.DAYS;
 import static java.util.UUID.randomUUID;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.assertj.core.api.Assertions.assertThatList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.AttendanceStatus.MISSING;
@@ -45,9 +45,8 @@ class AttendanceControllerTest {
 
     var actual = subject.getStudentAttendance(studentId, from, to, attendanceStatus);
 
-    // TODO: use assertThatList
-    assertEquals(
-        List.of(
+    assertThatList(actual)
+        .containsOnly(
             new StudentGlobalAttendance()
                 .title("eventTile")
                 .description("eventDescription")
@@ -55,8 +54,7 @@ class AttendanceControllerTest {
                 .eventType(COURSE)
                 .attendanceStatus(MISSING)
                 .beginDatetime(from)
-                .endDatetime(to)),
-        actual);
+                .endDatetime(to));
   }
 
   private StudentAttendanceStatus studentAttendanceStatus(
