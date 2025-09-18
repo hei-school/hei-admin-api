@@ -11,20 +11,20 @@ import school.hei.haapi.model.Event;
 @Component
 public class PlaceMapper {
   public Event.PlaceName toDomain(PlaceEnum rest) {
+    if (rest == null) return UNKNOWN;
     return switch (rest) {
       case IVANDRY -> IVANDRY;
       case ANDRAHARO -> ANDRAHARO;
       case UNKNOWN -> UNKNOWN;
-      case null -> UNKNOWN;
     };
   }
 
   public PlaceEnum toRest(Event.PlaceName domain) {
+    if (domain == null) return PlaceEnum.UNKNOWN;
     return switch (domain) {
       case IVANDRY -> PlaceEnum.IVANDRY;
       case ANDRAHARO -> PlaceEnum.ANDRAHARO;
       case UNKNOWN -> PlaceEnum.UNKNOWN;
-      case null -> PlaceEnum.UNKNOWN;
     };
   }
 }

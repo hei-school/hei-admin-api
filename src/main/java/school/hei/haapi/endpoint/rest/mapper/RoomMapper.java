@@ -14,6 +14,7 @@ import school.hei.haapi.model.Event;
 @Component
 public class RoomMapper {
   public Event.RoomName toDomain(RoomEnum rest) {
+    if (rest == null) return UNKNOWN;
     return switch (rest) {
       case B -> B;
       case NP -> NP;
@@ -21,11 +22,11 @@ public class RoomMapper {
       case SIGMA -> SIGMA;
       case ALGEBRE -> ALGEBRE;
       case UNKNOWN -> UNKNOWN;
-      case null -> UNKNOWN;
     };
   }
 
   public RoomEnum toRest(Event.RoomName domain) {
+    if (domain == null) return RoomEnum.UNKNOWN;
     return switch (domain) {
       case B -> RoomEnum.B;
       case NP -> RoomEnum.NP;
@@ -33,7 +34,6 @@ public class RoomMapper {
       case SIGMA -> RoomEnum.SIGMA;
       case ALGEBRE -> RoomEnum.ALGEBRE;
       case UNKNOWN -> RoomEnum.UNKNOWN;
-      case null -> RoomEnum.UNKNOWN;
     };
   }
 }
