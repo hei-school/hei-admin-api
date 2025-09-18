@@ -1429,29 +1429,40 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /remedial_sessions:
+  ### TODO later
+  /retake_exam_sessions:
     get:
       tags:
-        - Remedials
-      summary: Get all remedial sessions infos.
+        - RetakeExam
+      summary: Get list of retake exams sessions infos filtered by criteria.
       parameters:
         - name: title
           in: query
           required: false
           schema:
             type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date-time
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date-time
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
-      operationId: getAllRemedialSessions
+      operationId: getRetakeExamSessions
       responses:
         '200':
-          description: List of remedial sessions info
+          description: List of retake exam sessions info
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RemedialSessionInfo'
+                  $ref: '#/components/schemas/RetakeExamSession'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1464,23 +1475,23 @@ paths:
           $ref: '#/components/responses/500'
     put:
       tags:
-        - Remedials
-      summary: Create new remedial session or update existing remedial session
-      operationId: createOrUpdateRemedialSessionsInfos
+        - RetakeExam
+      summary: Create or update list of retake exam sessions
+      operationId: createOrUpdateRetakeExamSessions
       requestBody:
         required: true
-        description: Remedial sessions to update
+        description: List of retake exam sessions to save
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CrupdateRemedialSession'
+              $ref: '#/components/schemas/RetakeExamSession'
       responses:
         '200':
-          description: Sessions infos without remedials
+          description: List of retake exam sessions saved
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/RemedialSession'
+                $ref: '#/components/schemas/RetakeExamSession'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1491,11 +1502,12 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /remedial_sessions/{session_id}/remedials:
+  /retake_exam_sessions/{session_id}/retakeExams:
+    ### TODO later
     get:
       tags:
-        - Remedials
-      summary: Get all remedials infos inside a specific session.
+        - RetakeExam
+      summary: Get all retake exams infos for a specific session
       parameters:
         - name: session_id
           in: path
@@ -1503,11 +1515,6 @@ paths:
           schema:
             type: string
         - $ref: '#/components/parameters/TeacherId'
-        - name: title
-          in: query
-          required: false
-          schema:
-            type: string
         - name: course_code
           in: query
           required: false
@@ -1519,16 +1526,16 @@ paths:
         - $ref: '#/components/parameters/DatetimeToFilter'
         - $ref: '#/components/parameters/Page'
         - $ref: '#/components/parameters/PageSize'
-      operationId: getAllRemedials
+      operationId: getRetakeExamBySessionId
       responses:
         '200':
-          description: List of remedials infos inside a specific session
+          description: List of retake exams for a specific session
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RemedialInfo'
+                  $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1539,31 +1546,36 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
+    ### TODO now
     put:
       tags:
-        - Remedials
-      summary: Create new remedial or update existing remedial
+        - RetakeExam
+      summary: Create or update existing list of retake exam
       parameters:
         - name: session_id
           in: path
           required: true
           schema:
             type: string
-      operationId: createOrUpdateRemedialInfos
+      operationId: createOrUpdateRetakeExam
       requestBody:
         required: true
-        description: Remedial to update
+        description: List of retake exams to save
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/CrupdateRemedial'
+              type: array
+              items:
+                $ref: '#/components/schemas/CrupdateRetakeExam'
       responses:
         '200':
-          description: Remedial infos without the students participated
+          description: List of retake exams created or updated
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Remedial'
+                type: array
+                items:
+                  $ref: '#/components/schemas/StudentRetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -1574,41 +1586,13 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /remedials/{remedial_id}:
+  /students/{student_id}/sessions/{session_id}/retakeExams:
+    ### TODO now
     get:
       tags:
-        - Remedials
-      summary: Get a specific remedial a session
-      operationId: getRemedialById
-      parameters:
-        - name: remedial_id
-          in: path
-          required: true
-          schema:
-            type: string
-      responses:
-        '200':
-          description: A specific Remedial by Id
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/Remedial'
-        '400':
-          $ref: '#/components/responses/400'
-        '403':
-          $ref: '#/components/responses/403'
-        '404':
-          $ref: '#/components/responses/404'
-        '429':
-          $ref: '#/components/responses/429'
-        '500':
-          $ref: '#/components/responses/500'
-  /students/{student_id}/sessions/{session_id}/remedials:
-    get:
-      tags:
-        - Remedials
-      summary: Get a student remedials inside a session.
-      operationId: getStudentRemedialsInSession
+        - RetakeExam
+      summary: Get a student retake exams for a session
+      operationId: getStudentRetakeExamBySession
       parameters:
         - name: student_id
           in: path
@@ -1622,13 +1606,13 @@ paths:
             type: string
       responses:
         '200':
-          description: All remedial of a specific student
+          description: List of retake exams for a specific student
           content:
             application/json:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/RemedialInfo'
+                  $ref: '#/components/schemas/RetakeExam'
         '400':
           $ref: '#/components/responses/400'
         '403':
@@ -7187,7 +7171,7 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentGrade'
-    RemedialSessionInfo:
+    RetakeExamSession:
       type: object
       properties:
         id:
@@ -7200,53 +7184,33 @@ components:
         date_to:
           type: string
           format: date-time
-    CrupdateRemedialSession:
-      type: object
-      allOf:
-        - $ref: "#/components/schemas/RemedialSessionInfo"
-    RemedialSession:
-      type: object
-      allOf:
-        - $ref: "#/components/schemas/RemedialSessionInfo"
-      properties:
-        remedials:
-          type: array
-          items:
-            $ref: "#/components/schemas/RemedialInfo"
-    RemedialInfo:
+    RetakeExam:
       type: object
       properties:
         id:
           type: string
-        title:
-          type: string
-        remedial_date:
-          type: string
-          format: date-time
         course:
           $ref: "#/components/schemas/Course"
-        remedial_session:
-          $ref: "#/components/schemas/RemedialSessionInfo"
-    CrupdateRemedial:
+        session:
+          $ref: "#/components/schemas/RetakeExamSession"
+    CrupdateRetakeExam:
       type: object
       properties:
         id:
           type: string
-        title:
-          type: string
-        remedial_date:
-          type: string
-          format: date-time
         course_id:
           type: string
-        remedial_session_id:
+        session_id:
           type: string
-    Remedial:
+        student_id:
+          type: string
+    StudentRetakeExam:
       type: object
       allOf:
-        - $ref: "#/components/schemas/RemedialInfo"
+        - $ref: "#/components/schemas/RetakeExam"
       properties:
-        student:
+        ### TODO: must be Student resource ou some attributes only ?
+        student_identifier:
           $ref: "#/components/schemas/UserIdentifier"
     CreateAttendanceMovement:
       type: object
@@ -7976,7 +7940,7 @@ components:
       type: object
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"
-        - $ref: "#/components/schemas/RemedialFeesCount"
+        - $ref: "#/components/schemas/RetakeExamFeesCount"
       properties:
         mobile_money:
           type: number
@@ -7988,16 +7952,16 @@ components:
       type: object
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"
-        - $ref: "#/components/schemas/RemedialFeesCount"
+        - $ref: "#/components/schemas/RetakeExamFeesCount"
     LateFeesStats:
       type: object
       allOf:
         - $ref: "#/components/schemas/BaseFeesStats"
-        - $ref: "#/components/schemas/RemedialFeesCount"
-    RemedialFeesCount:
+        - $ref: "#/components/schemas/RetakeExamFeesCount"
+    RetakeExamFeesCount:
       type: object
       properties:
-        remedial_fees_count:
+        retakeExam_fees_count:
           type: number
           format: int64
     FeesStatistics:
