@@ -1,3 +1,12 @@
+# [1.118.0](https://github.com/hei-school/hei-admin-api/compare/v1.117.0...v1.118.0) (2025-09-18)
+
+
+### Features
+
+* **not-implemented:** event filter by teacher ([a80fb25](https://github.com/hei-school/hei-admin-api/commit/a80fb25f974de9452191a0e1cb2b44a26cc9a142))
+
+
+
 # [1.117.0](https://github.com/hei-school/hei-admin-api/compare/v1.116.2...v1.117.0) (2025-09-18)
 
 
@@ -106,15 +115,6 @@
 ### Features
 
 * **not-implemented:** get grade change history and additional filter ([b626c9b](https://github.com/hei-school/hei-admin-api/commit/b626c9ba939a4c7d3b7dc69628ff98d2914e00f1))
-
-
-
-## [1.110.2](https://github.com/hei-school/hei-admin-api/compare/v1.110.1...v1.110.2) (2025-08-22)
-
-
-### Bug Fixes
-
-* grade mapper ([7ae21f8](https://github.com/hei-school/hei-admin-api/commit/7ae21f8aac9585bc28f3260d7086f8c0834c57de))
 
 
 
