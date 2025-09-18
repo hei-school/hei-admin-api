@@ -1,3 +1,13 @@
+## [1.116.2](https://github.com/hei-school/hei-admin-api/compare/v1.116.1...v1.116.2) (2025-09-18)
+
+
+### Bug Fixes
+
+* course-result fetch course by student exam participation ([c66dc95](https://github.com/hei-school/hei-admin-api/commit/c66dc95450e5158068ca99fd042d2d79c7a495b2))
+* **remedial:** restructure remedial component ([b15c9bf](https://github.com/hei-school/hei-admin-api/commit/b15c9bfdc19257c4c4c58447b12c60e17f7499f2))
+
+
+
 ## [1.116.1](https://github.com/hei-school/hei-admin-api/compare/v1.116.0...v1.116.1) (2025-09-17)
 
 
@@ -108,21 +118,6 @@
 * handle student without course results ([bc37732](https://github.com/hei-school/hei-admin-api/commit/bc3773287515b3e6abe06f1161061e57da9cf33c))
 * increase stack size for build ([2efe473](https://github.com/hei-school/hei-admin-api/commit/2efe473db3f99b9ae62c41958f5e798cb2bdeb17))
 * multiple course results on multiple awarded course ([e4ddede](https://github.com/hei-school/hei-admin-api/commit/e4ddede537728830791d4fd25d08f45a29087316))
-
-
-
-# [1.110.0](https://github.com/hei-school/hei-admin-api/compare/v1.109.0...v1.110.0) (2025-08-14)
-
-
-### Bug Fixes
-
-* getResultsSummary error on irrational numbers ([a10ecdd](https://github.com/hei-school/hei-admin-api/commit/a10ecdd6d15231d6029a699b88b6c1fc4c899b84))
-
-
-### Features
-
-* generate yearly result pdf ([0155b1d](https://github.com/hei-school/hei-admin-api/commit/0155b1d28cd90baa5605fb4891d3c32e34083e1a))
-* grade change history ([35c6221](https://github.com/hei-school/hei-admin-api/commit/35c62218f71e55b8495d125a854bb3bd791dc147))
 
 
 
