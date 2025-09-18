@@ -1433,12 +1433,79 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /remedials:
+  /remedial_sessions:
     get:
       tags:
         - Remedials
-      summary: Get all remedials infos.
+      summary: Get all remedial sessions infos.
       parameters:
+        - name: title
+          in: query
+          required: false
+          schema:
+            type: string
+        - $ref: '#/components/parameters/Page'
+        - $ref: '#/components/parameters/PageSize'
+      operationId: getAllRemedialSessions
+      responses:
+        '200':
+          description: List of remedial sessions info
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/RemedialSessionInfo'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+    put:
+      tags:
+        - Remedials
+      summary: Create new remedial session or update existing remedial session
+      operationId: createOrUpdateRemedialSessionsInfos
+      requestBody:
+        required: true
+        description: Remedial sessions to update
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CrupdateRemedialSession'
+      responses:
+        '200':
+          description: Sessions infos without remedials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RemedialSession'
+        '400':
+          $ref: '#/components/responses/400'
+        '403':
+          $ref: '#/components/responses/403'
+        '404':
+          $ref: '#/components/responses/404'
+        '429':
+          $ref: '#/components/responses/429'
+        '500':
+          $ref: '#/components/responses/500'
+  /remedial_sessions/{session_id}/remedials:
+    get:
+      tags:
+        - Remedials
+      summary: Get all remedials infos inside a specific session.
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
         - name: teacher_id
           in: query
           required: false
@@ -1463,7 +1530,7 @@ paths:
       operationId: getAllRemedials
       responses:
         '200':
-          description: List of remedials infos without the participants
+          description: List of remedials infos inside a specific session
           content:
             application/json:
               schema:
@@ -1484,6 +1551,12 @@ paths:
       tags:
         - Remedials
       summary: Create new remedial or update existing remedial
+      parameters:
+        - name: session_id
+          in: path
+          required: true
+          schema:
+            type: string
       operationId: createOrUpdateRemedialInfos
       requestBody:
         required: true
@@ -1509,21 +1582,21 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /remedials/{id}:
+  /remedials/{remedial_id}:
     get:
       tags:
         - Remedials
-      summary: Get remedial by id
+      summary: Get a specific remedial a session
       operationId: getRemedialById
       parameters:
-        - name: id
+        - name: remedial_id
           in: path
           required: true
           schema:
             type: string
       responses:
         '200':
-          description: A specific Remedial
+          description: A specific Remedial by Id
           content:
             application/json:
               schema:
@@ -1538,14 +1611,19 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  /students/{student_id}/remedials:
+  /students/{student_id}/sessions/{session_id}/remedials:
     get:
       tags:
         - Remedials
-      summary: Get a student remedials.
-      operationId: getStudentRemedials
+      summary: Get a student remedials inside a session.
+      operationId: getStudentRemedialsInSession
       parameters:
         - name: student_id
+          in: path
+          required: true
+          schema:
+            type: string
+        - name: session_id
           in: path
           required: true
           schema:
@@ -7110,6 +7188,32 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/StudentGrade'
+    RemedialSessionInfo:
+      type: object
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        date_from:
+          type: string
+          format: date-time
+        date_to:
+          type: string
+          format: date-time
+    CrupdateRemedialSession:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/RemedialSessionInfo"
+    RemedialSession:
+      type: object
+      allOf:
+        - $ref: "#/components/schemas/RemedialSessionInfo"
+      properties:
+        remedials:
+          type: array
+          items:
+            $ref: "#/components/schemas/RemedialInfo"
     RemedialInfo:
       type: object
       properties:
@@ -7119,9 +7223,11 @@ components:
           type: string
         remedial_date:
           type: string
-          format: date-
+          format: date-time
         course:
           $ref: "#/components/schemas/Course"
+        remedial_session:
+          $ref: "#/components/schemas/RemedialSessionInfo"
     CrupdateRemedial:
       type: object
       properties:
@@ -7134,17 +7240,15 @@ components:
           format: date-time
         course_id:
           type: string
+        remedial_session_id:
+          type: string
     Remedial:
       type: object
       allOf:
         - $ref: "#/components/schemas/RemedialInfo"
       properties:
-        students:
-          allOf:
-            - type: array
-              items:
-                $ref: "#/components/schemas/UserIdentifier"
-
+        student:
+          $ref: "#/components/schemas/UserIdentifier"
     CreateAttendanceMovement:
       type: object
       properties:
