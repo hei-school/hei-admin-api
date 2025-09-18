@@ -26,9 +26,9 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import school.hei.haapi.endpoint.event.model.PendingMpbsCheckRequested;
+import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.User;
 import school.hei.haapi.repository.FeeRepository;
@@ -84,16 +84,16 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
     mpbsCreated.setPspId("----");
     Mpbs mpbs = mpbsService.saveMpbs(mpbsCreated);
 
-    when(mobilePaymentService.findTransactionByMpbsWithoutException(any()))
+    when(mobilePaymentService.findTransactionByMpbs(any()))
         .thenReturn(
             Optional.of(
-                new MobileTransactionDetails(
-                    null,
-                    mpbs.getAmount(),
-                    Instant.now(),
-                    Instant.now(),
-                    "pspTransactionRef",
-                    SUCCESS)));
+                TransactionDetails.builder()
+                    .pspTransactionAmount(mpbs.getAmount())
+                    .pspDatetimeTransactionCreation(Instant.now())
+                    .pspOwnDatetimeVerification(Instant.now())
+                    .pspTransactionRef("pspTransactionRef")
+                    .status(SUCCESS)
+                    .build()));
 
     assertDoesNotThrow(
         () ->

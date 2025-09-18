@@ -1,7 +1,6 @@
 package school.hei.haapi.service;
 
 import static java.util.UUID.randomUUID;
-import static org.assertj.core.api.Assertions.assertThatList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.conf.TestUtils.asserThrowsDomainNotFoundException;
@@ -50,9 +49,9 @@ class MobilePaymentServiceTest extends FacadeITMockedThirdParties {
     var savedMobileTransaction = mobilePaymentService.saveAll(toSaveMobileTransactionDetails);
     assertTrue(savedMobileTransaction.containsAll(toSaveMobileTransactionDetails));
     assertTrue(
-            mobilePaymentService.saveAll(
-                savedMobileTransaction.stream().peek(e -> e.setId(null)).toList())
-        .isEmpty());
+        mobilePaymentService
+            .saveAll(savedMobileTransaction.stream().peek(e -> e.setId(null)).toList())
+            .isEmpty());
   }
 
   @Test
@@ -62,8 +61,10 @@ class MobilePaymentServiceTest extends FacadeITMockedThirdParties {
 
     mobilePaymentService.saveAll(toSaveMobileTransactionDetails);
 
-    assertTrue(mobilePaymentService.findAllTransactionByMpbs(toSaveMobileTransactionMpbs)
-        .containsAll(toSaveMobileTransactionDetails));
+    assertTrue(
+        mobilePaymentService
+            .findAllTransactionByMpbs(toSaveMobileTransactionMpbs)
+            .containsAll(toSaveMobileTransactionDetails));
   }
 
   @Test
@@ -73,7 +74,7 @@ class MobilePaymentServiceTest extends FacadeITMockedThirdParties {
 
     mobilePaymentService.saveAll(toSaveMobileTransactionDetails);
 
-    var actual = mobilePaymentService.findTransactionByRef(expected.getPspTransactionRef());
+    var actual = mobilePaymentService.getTransactionByRef(expected.getPspTransactionRef());
     assertEquals(actual, expected);
   }
 
@@ -84,7 +85,7 @@ class MobilePaymentServiceTest extends FacadeITMockedThirdParties {
 
     mobilePaymentService.saveAll(toSaveMobileTransactionDetails);
 
-    var actual = mobilePaymentService.findTransactionByRef(expected.getPspTransactionRef());
+    var actual = mobilePaymentService.getTransactionByRef(expected.getPspTransactionRef());
     assertEquals(actual, expected);
   }
 
@@ -97,7 +98,7 @@ class MobilePaymentServiceTest extends FacadeITMockedThirdParties {
 
     asserThrowsDomainNotFoundException(
         "Mobile transaction with ref " + randomTransactionRef + " not found",
-        () -> mobilePaymentService.findTransactionByRef(randomTransactionRef));
+        () -> mobilePaymentService.getTransactionByRef(randomTransactionRef));
   }
 
   private List<Mpbs> mpbsFromTransactions(List<MobileTransactionDetails> mobileTransactionDetails) {

@@ -22,7 +22,6 @@ import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.Payment;
@@ -141,15 +140,12 @@ public class PendingMpbsCheckRequestedService implements Consumer<PendingMpbsChe
     var verifyAt = pendingMpbsCheckRequested.getVerifyAt();
     log.info("Verifying {}", mpbs.getId());
     // Find transaction in database
-    Optional<MobileTransactionDetails> mobileTransactionResponseDetails =
-        mobilePaymentService.findTransactionByMpbsWithoutException(mpbs);
+    Optional<TransactionDetails> mobileTransactionResponseDetails =
+        mobilePaymentService.findTransactionByMpbs(mpbs);
 
     // TIPS: do not use exception to continue script
     if (mobileTransactionResponseDetails.isPresent()) {
-      TransactionDetails transactionDetails =
-          transactionDetailsMapper.toExternalTransactionDetails(
-              mobileTransactionResponseDetails.get());
-      saveTheVerifiedMpbs(mpbs, transactionDetails, verifyAt);
+      saveTheVerifiedMpbs(mpbs, mobileTransactionResponseDetails.get(), verifyAt);
       return;
     }
     saveTheUnverifiedMpbs(mpbs, verifyAt);

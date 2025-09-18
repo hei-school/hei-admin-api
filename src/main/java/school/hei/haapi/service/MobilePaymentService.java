@@ -13,7 +13,6 @@ import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
-import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.MobileTransactionDetailsRepository;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
@@ -28,21 +27,16 @@ public class MobilePaymentService implements MobileTransactionProvider {
   private final MobileMoneyApi mobileMoneyApi;
 
   @Override
-  public TransactionDetails findTransactionByMpbs(Mpbs mpbs) throws ApiException {
-    String transactionRef = mpbs.getPspId();
-    return transactionDetailsMapper.toExternalTransactionDetails(
-        findTransactionByRef(transactionRef));
-  }
-
-  @Override
   public List<TransactionDetails> fetchThenSaveTransactionDetails() {
     // TODO: for each mobile money type fetch transaction
     return mobileMoneyApi.fetchThenSaveTransactionsDetails(ORANGE_MONEY);
   }
 
-  public Optional<MobileTransactionDetails> findTransactionByMpbsWithoutException(Mpbs mpbs) {
+  @Override
+  public Optional<TransactionDetails> findTransactionByMpbs(Mpbs mpbs) {
     String transactionRef = mpbs.getPspId();
-    return findTransactionByRefWithoutException(transactionRef);
+    return findTransactionByRef(transactionRef)
+        .map(transactionDetailsMapper::toExternalTransactionDetails);
   }
 
   public List<MobileTransactionDetails> findAllTransactionByMpbs(List<Mpbs> mpbsList) {
@@ -54,14 +48,14 @@ public class MobilePaymentService implements MobileTransactionProvider {
     return mobileTransactionDetailsRepository.findAllByPspTransactionRefIn(transactionRefs);
   }
 
-  public MobileTransactionDetails findTransactionByRef(String pspId) {
+  public MobileTransactionDetails getTransactionByRef(String pspId) {
     return mobileTransactionDetailsRepository
         .findByPspTransactionRef(pspId)
         .orElseThrow(
             () -> new NotFoundException("Mobile transaction with ref " + pspId + " not found"));
   }
 
-  public Optional<MobileTransactionDetails> findTransactionByRefWithoutException(String pspId) {
+  public Optional<MobileTransactionDetails> findTransactionByRef(String pspId) {
     return mobileTransactionDetailsRepository.findByPspTransactionRef(pspId);
   }
 
