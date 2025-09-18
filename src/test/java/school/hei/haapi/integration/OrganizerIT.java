@@ -7,6 +7,7 @@ import static org.junit.jupiter.api.Assertions.assertThrows;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.Sex.F;
 import static school.hei.haapi.endpoint.rest.model.Sex.M;
+import static school.hei.haapi.integration.conf.FakeDataProvider.someCreatableEvent;
 import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.EVENT1_ID;
 import static school.hei.haapi.integration.conf.TestUtils.ORGANIZER1_ID;
@@ -18,7 +19,6 @@ import static school.hei.haapi.integration.conf.TestUtils.assertThrowsForbiddenE
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpEventBridge;
-import static school.hei.haapi.integration.conf.TestUtils.someCreatableEvent;
 import static school.hei.haapi.integration.conf.TestUtils.student1MissEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.student3AttendEvent1;
 import static school.hei.haapi.integration.conf.TestUtils.uploadProfilePicture;

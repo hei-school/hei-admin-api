@@ -1,12 +1,18 @@
 package school.hei.haapi.integration.conf;
 
 import static java.time.ZoneOffset.UTC;
+import static java.util.UUID.randomUUID;
 import static java.util.concurrent.TimeUnit.DAYS;
 import static school.hei.haapi.endpoint.rest.model.EnableStatus.ENABLED;
 import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
 import static school.hei.haapi.endpoint.rest.model.FeeFrequency.MONTHLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PENDING;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
+import static school.hei.haapi.integration.conf.TestUtils.COURSE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.MANAGER_ID;
+import static school.hei.haapi.integration.conf.TestUtils.group1;
+import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
+import static school.hei.haapi.model.Event.RoomName.UNKNOWN;
 
 import com.github.javafaker.Faker;
 import java.time.Instant;
@@ -17,11 +23,15 @@ import java.util.List;
 import java.util.UUID;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.Coordinates;
+import school.hei.haapi.endpoint.rest.model.CreateEvent;
 import school.hei.haapi.endpoint.rest.model.CrupdateCourseAssignment;
 import school.hei.haapi.endpoint.rest.model.CrupdateTeacher;
+import school.hei.haapi.endpoint.rest.model.EventLocation;
 import school.hei.haapi.endpoint.rest.model.EventType;
 import school.hei.haapi.endpoint.rest.model.Group;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
+import school.hei.haapi.endpoint.rest.model.PlaceEnum;
+import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Event;
@@ -115,6 +125,8 @@ public class FakeDataProvider {
         UUID.randomUUID().toString(),
         faker.options().option(EventType.class),
         faker.lorem().sentence(2),
+        UNKNOWN,
+        IVANDRY,
         faker.lorem().sentence(10),
         null,
         false,
@@ -138,5 +150,42 @@ public class FakeDataProvider {
         .fee(someFee(student))
         .amount(faker.number().numberBetween(100, 10_000))
         .build();
+  }
+
+  public static CreateEvent someCreatableEvent(
+      EventType eventType,
+      String planerId,
+      Instant beginDatetime,
+      Instant endDatetime,
+      List<Group> groups) {
+    return new CreateEvent()
+        .id("event" + randomUUID() + "_id")
+        .courseId(COURSE1_ID)
+        .beginDatetime(beginDatetime)
+        .endDatetime(endDatetime)
+        .description("Another event")
+        .eventType(eventType)
+        .plannerId(planerId)
+        .location(someLocation())
+        .groups(groups.stream().map(TestUtils::createGroupIdentifier).toList());
+  }
+
+  private static EventLocation someLocation() {
+    return new EventLocation()
+        .room(faker.options().option(RoomEnum.class))
+        .place(faker.options().option(PlaceEnum.class));
+  }
+
+  public static CreateEvent someCreatableEvent(
+      EventType eventType, String planerId, Instant beginDatetime, Instant endDatetime) {
+    return someCreatableEvent(eventType, planerId, beginDatetime, endDatetime, List.of(group1()));
+  }
+
+  public static CreateEvent someCreatableEventByManager1(EventType eventType) {
+    return someCreatableEvent(
+        eventType,
+        MANAGER_ID,
+        Instant.parse("2023-12-08T08:00:00.00Z"),
+        Instant.parse("2023-12-08T10:00:00.00Z"));
   }
 }

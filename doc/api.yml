@@ -6115,6 +6115,15 @@ paths:
           schema:
             $ref: '#/components/schemas/AttendanceStatus'
           description: Filter student attendance by status. Default value is MISSING.
+        - in: query
+          name: title
+          schema:
+            type: array
+            items:
+              type: string
+          description: |
+            Filter student attendance by list of titles. Usually, title substitutes course code, for example PROG1.
+          required: false
       responses:
         200:
           description: List of student attendance between date intervals
@@ -6667,22 +6676,13 @@ components:
 
     ### TODO: Rename to StudentAttendance when actual is renamed into StudentEventAttendance
     StudentGlobalAttendance:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
       type: object
       properties:
-        attendanceStatus:
+        attendance_status:
           $ref: '#/components/schemas/AttendanceStatus'
-        beginDatetime:
-          type: string
-          format: date-time
-        endDatetime:
-          type: string
-          format: date-time
-        eventType:
-          $ref: '#/components/schemas/EventType'
-        eventTitle:
-          type: string
-        eventDescription:
-          type: string
+
     ### TODO: rename to StudentEventAttendance or it is Student Attendance for a specific course
     StudentAttendance:
       type: object
@@ -7273,6 +7273,7 @@ components:
       enum:
         - IVANDRY
         - ANDRAHARO
+        - UNKNOWN
     RoleParamEnum:
       type: string
       enum:
@@ -7537,16 +7538,12 @@ components:
         comment:
           type: string
           description: In particular, PSP error messages go here
-    CreateEvent:
+    EventBase:
       type: object
       properties:
-        id:
-          type: string
         title:
           type: string
         description:
-          type: string
-        color:
           type: string
         begin_datetime:
           type: string
@@ -7556,6 +7553,17 @@ components:
           format: date-time
         event_type:
           $ref: '#/components/schemas/EventType'
+        location:
+          $ref: '#/components/schemas/EventLocation'
+    CreateEvent:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
+      type: object
+      properties:
+        id:
+          type: string
+        color:
+          type: string
         planner_id:
           description: user id
           type: string
@@ -7565,6 +7573,22 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/GroupIdentifier'
+    EventLocation:
+      type: object
+      properties:
+        room:
+          $ref: '#/components/schemas/RoomEnum'
+        place:
+          $ref: '#/components/schemas/PlaceEnum'
+    RoomEnum:
+      type: string
+      enum:
+        - ALGEBRE
+        - PI
+        - SIGMA
+        - NP
+        - B
+        - UNKNOWN
     AttendanceStatus:
       type: string
       enum:
@@ -7618,24 +7642,16 @@ components:
           items:
             $ref: '#/components/schemas/EventParticipantLetter'
     Event:
+      allOf:
+        - $ref: '#/components/schemas/EventBase'
       type: object
       properties:
         id:
           type: string
         type:
           $ref: '#/components/schemas/EventType'
-        title:
-          type: string
         color:
           type: string
-        description:
-          type: string
-        begin_datetime:
-          type: string
-          format: date-time
-        end_datetime:
-          type: string
-          format: date-time
         planner:
           $ref: '#/components/schemas/UserIdentifier'
         course:
