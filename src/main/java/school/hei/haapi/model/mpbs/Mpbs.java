@@ -1,4 +1,4 @@
-package school.hei.haapi.model.Mpbs;
+package school.hei.haapi.model.mpbs;
 
 import static jakarta.persistence.CascadeType.ALL;
 import static jakarta.persistence.EnumType.STRING;

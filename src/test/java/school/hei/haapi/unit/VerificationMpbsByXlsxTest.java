@@ -138,8 +138,8 @@ class VerificationMpbsByXlsxTest {
         excelTransactionDetails().stream()
             .map(
                 t ->
-                    (school.hei.haapi.model.Mpbs.Mpbs)
-                        school.hei.haapi.model.Mpbs.Mpbs.builder()
+                    (school.hei.haapi.model.mpbs.Mpbs)
+                        school.hei.haapi.model.mpbs.Mpbs.builder()
                             .pspId(t.getPspTransactionRef())
                             .build())
             .toList();

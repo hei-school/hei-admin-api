@@ -8,9 +8,9 @@ import static school.hei.haapi.endpoint.rest.model.MpbsStatus.PENDING;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.integration.conf.FakeDataProvider;
-import school.hei.haapi.model.Mpbs.Mpbs;
-import school.hei.haapi.model.Mpbs.MpbsStatusHistory;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.mpbs.Mpbs;
+import school.hei.haapi.model.mpbs.MpbsStatusHistory;
 
 class MpbsStatusHistoryTest {
   FakeDataProvider fakeDataProvider = new FakeDataProvider();

@@ -12,7 +12,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
-import school.hei.haapi.model.Mpbs.Mpbs;
+import school.hei.haapi.model.mpbs.Mpbs;
 
 @Component
 @AllArgsConstructor

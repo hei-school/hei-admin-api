@@ -38,8 +38,8 @@ import school.hei.haapi.endpoint.rest.model.FeeFrequency;
 import school.hei.haapi.endpoint.rest.model.FeeStatusEnum;
 import school.hei.haapi.endpoint.rest.model.FeeTypeEnum;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
-import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.fee.PaymentType;
+import school.hei.haapi.model.mpbs.Mpbs;
 
 @Entity
 @Table(name = "\"fee\"")

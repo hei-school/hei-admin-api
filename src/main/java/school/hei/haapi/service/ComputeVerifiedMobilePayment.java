@@ -8,9 +8,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.Mpbs.Mpbs;
-import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.exception.BadRequestException;
+import school.hei.haapi.model.mpbs.Mpbs;
+import school.hei.haapi.model.mpbs.MpbsVerification;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 
 @Component

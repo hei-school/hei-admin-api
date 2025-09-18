@@ -11,8 +11,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
-import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.Payment;
+import school.hei.haapi.model.mpbs.Mpbs;
 
 @Slf4j
 @Component

@@ -5,7 +5,7 @@ import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
-import school.hei.haapi.model.Mpbs.Mpbs;
+import school.hei.haapi.model.mpbs.Mpbs;
 
 @Repository
 public interface MpbsRepository extends JpaRepository<Mpbs, String> {

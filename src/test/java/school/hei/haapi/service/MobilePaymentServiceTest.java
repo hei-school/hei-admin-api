@@ -13,7 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
 import school.hei.haapi.integration.conf.FacadeITMockedThirdParties;
 import school.hei.haapi.model.MobileTransactionDetails;
-import school.hei.haapi.model.Mpbs.Mpbs;
+import school.hei.haapi.model.mpbs.Mpbs;
 
 class MobilePaymentServiceTest extends FacadeITMockedThirdParties {
   private static final Faker faker = new Faker();

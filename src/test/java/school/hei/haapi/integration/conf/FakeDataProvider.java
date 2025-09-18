@@ -36,8 +36,8 @@ import school.hei.haapi.endpoint.rest.model.Sex;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.Event;
 import school.hei.haapi.model.Fee;
-import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.mpbs.Mpbs;
 
 /**
  * Utility class for generating realistic fake data for testing purposes
