@@ -1,5 +1,8 @@
 package school.hei.haapi.service;
 
+import static java.time.Instant.now;
+import static java.time.temporal.ChronoUnit.DAYS;
+import static java.util.Collections.emptyList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -7,44 +10,64 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+import static school.hei.haapi.endpoint.rest.model.FeeCategory.L1;
+import static school.hei.haapi.endpoint.rest.model.FeeFrequency.YEARLY;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.LATE;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.PAID;
 import static school.hei.haapi.endpoint.rest.model.FeeStatusEnum.UNPAID;
 import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.HARDWARE;
+import static school.hei.haapi.endpoint.rest.model.FeeTypeEnum.TUITION;
 import static school.hei.haapi.endpoint.rest.model.Payment.TypeEnum.CASH;
 import static school.hei.haapi.integration.conf.TestUtils.FEE1_ID;
+import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_ID;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
-import org.junit.jupiter.api.BeforeEach;
+import java.util.stream.IntStream;
 import org.junit.jupiter.api.Test;
 import school.hei.haapi.endpoint.event.EventProducer;
-import school.hei.haapi.endpoint.rest.mapper.AdvancedFeeStatsMapper;
 import school.hei.haapi.integration.conf.TestUtils;
 import school.hei.haapi.model.*;
 import school.hei.haapi.model.exception.BadRequestException;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
-import school.hei.haapi.repository.AdvancedFeeStatsRepository;
 import school.hei.haapi.repository.FeeRepository;
 import school.hei.haapi.repository.dao.FeeDao;
-import school.hei.haapi.service.utils.DateUtils;
+import school.hei.haapi.repository.model.FeesStats;
 
 class FeeServiceTest {
-  FeeService subject;
-  FeeRepository feeRepository;
-  FeeValidator feeValidator = new FeeValidator();
-  EventProducer eventProducer;
-  UpdateFeeValidator updateFeeValidator;
-  AdvancedFeeStatsRepository advancedFeeStatsRepository;
-  AdvancedFeeStatsMapper advancedFeeStatsMapper;
-  UserService userService;
-  FeeDao feeDao;
-  FeeTemplateService feeTemplateService;
-  DateUtils dateUtils;
-  FeeStatusHistoryService feeStatusHistoryService;
+  private static FeeRepository feeRepository = mock(FeeRepository.class);
+  private static FeeValidator feeValidator = new FeeValidator();
+  private static EventProducer eventProducer = mock(EventProducer.class);
+  private static UpdateFeeValidator updateFeeValidator = mock(UpdateFeeValidator.class);
+  private static FeeDao feeDao = mock(FeeDao.class);
+  private static FeeTemplateService feeTemplateService = mock(FeeTemplateService.class);
+  private static FeeStatusHistoryService feeStatusHistoryService =
+      mock(FeeStatusHistoryService.class);
+  private static FeeService subject =
+      new FeeService(
+          feeRepository,
+          feeValidator,
+          updateFeeValidator,
+          eventProducer,
+          feeDao,
+          feeTemplateService,
+          feeStatusHistoryService);
+
+  private static FeesStats emptyFeeStats() {
+    return FeesStats.builder()
+        .totalYearlyFees(0L)
+        .totalMonthlyFees(0L)
+        .totalFees(0L)
+        .countOfPendingTransaction(0L)
+        .countOfSuccessTransaction(0L)
+        .totalLateFees(0L)
+        .totalUnpaidFees(0L)
+        .totalPaidFees(0L)
+        .build();
+  }
 
   static User student1() {
     return User.builder().id(TestUtils.STUDENT1_ID).build();
@@ -119,28 +142,6 @@ class FeeServiceTest {
         .comment(null)
         .creationDatetime(creationDatetime)
         .build();
-  }
-
-  @BeforeEach
-  void setUp() {
-    feeRepository = mock(FeeRepository.class);
-    updateFeeValidator = mock(UpdateFeeValidator.class);
-    eventProducer = mock(EventProducer.class);
-    userService = mock(UserService.class);
-    feeDao = mock(FeeDao.class);
-    feeTemplateService = mock(FeeTemplateService.class);
-    advancedFeeStatsRepository = mock(AdvancedFeeStatsRepository.class);
-    advancedFeeStatsMapper = mock(AdvancedFeeStatsMapper.class);
-    feeStatusHistoryService = mock(FeeStatusHistoryService.class);
-    subject =
-        new FeeService(
-            feeRepository,
-            feeValidator,
-            updateFeeValidator,
-            eventProducer,
-            feeDao,
-            feeTemplateService,
-            feeStatusHistoryService);
   }
 
   @Test
@@ -218,6 +219,24 @@ class FeeServiceTest {
   }
 
   @Test
+  void fee_stats_handle_null_data_ok() {
+    when(feeDao.getStatByCriteria(any(), any(), any(), any(), any(), any(), any()))
+        .thenReturn(emptyList());
+    var actual = subject.getFeesStats(null, null, null, null, null, false, null);
+    assertEquals(emptyFeeStats(), actual);
+  }
+
+  @Test
+  void update_fee_status_to_late_ok() {
+    when(feeRepository.save(any(Fee.class)))
+        .thenAnswer(invocationOnMock -> invocationOnMock.getArgument(0));
+    when(feeRepository.getUnpaidFees(any()))
+        .thenReturn(IntStream.range(0, 10).mapToObj(ignored -> mockFee()).toList());
+    var result = subject.updateFeesStatusToLate();
+    assertTrue(result.stream().allMatch(e -> LATE.equals(e.getStatus())));
+  }
+
+  @Test
   void fees_by_status_with_exceeded_page() {
     PageFromOne page1 = new PageFromOne(1);
     PageFromOne page2 = new PageFromOne(2);
@@ -249,5 +268,24 @@ class FeeServiceTest {
     var badRequestException =
         assertThrows(BadRequestException.class, () -> subject.saveAll(feesWithoutStudent));
     assertEquals("Student is mandatory", badRequestException.getMessage());
+  }
+
+  private static User mockUser() {
+    return User.builder().id(STUDENT1_ID).build();
+  }
+
+  private static Fee mockFee() {
+    return Fee.builder()
+        .student(mockUser())
+        .category(L1)
+        .status(UNPAID)
+        .dueDatetime(now())
+        .comment("Dummy comment")
+        .dueDatetime(Instant.now().minus(30, DAYS))
+        .remainingAmount(100)
+        .totalAmount(100)
+        .frequency(YEARLY)
+        .type(TUITION)
+        .build();
   }
 }

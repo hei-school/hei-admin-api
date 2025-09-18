@@ -291,9 +291,6 @@ public class FeeService {
                   + fee.getId()
                   + " is going to be updated from UNPAID to "
                   + fee.getStatus());
-          /*if (PAID.equals(modifiedFee.getStatus())) {
-            paidFees.add(modifiedFee);
-          } else*/
           if (LATE.equals(modifiedFee.getStatus())) {
             lateFees.add(modifiedFee);
           }
@@ -318,7 +315,7 @@ public class FeeService {
         .build();
   }
 
-  public UnpaidFeesReminder toUnpaidFeesReminder(Fee fee) {
+  private UnpaidFeesReminder toUnpaidFeesReminder(Fee fee) {
     return UnpaidFeesReminder.builder()
         .user(UnpaidFeesReminder.UnpaidFeesUser.from(fee.getStudent()))
         .remainingAmount(fee.getRemainingAmount())
@@ -326,7 +323,7 @@ public class FeeService {
         .build();
   }
 
-  public StudentsWithOverdueFeesReminder toStudentsWithOverdueFeesReminder(List<Fee> fees) {
+  private StudentsWithOverdueFeesReminder toStudentsWithOverdueFeesReminder(List<Fee> fees) {
     return StudentsWithOverdueFeesReminder.builder()
         .id(String.valueOf(randomUUID()))
         .students(
@@ -340,11 +337,13 @@ public class FeeService {
   public void sendLateFeesEmail() {
     List<Fee> lateFees = feeRepository.findAllByStatus(LATE);
     log.info("Late fees size: " + lateFees.size());
+    List<PojaEvent> lateFeeEvents = new ArrayList<>();
     lateFees.forEach(
         fee -> {
-          eventProducer.accept(List.of(toLateFeeEvent(fee)));
+          lateFeeEvents.add(toLateFeeEvent(fee));
           log.info("Late Fee with id." + fee.getId() + " is sent to Queue");
         });
+    eventProducer.accept(lateFeeEvents);
   }
 
   public void sendUnpaidFeesEmail() {
@@ -352,11 +351,13 @@ public class FeeService {
         feeRepository.getUnpaidFeesForTheMonthSpecified(
             Instant.now().atZone(ZoneId.of("UTC+3")).getMonthValue());
     log.info("Unpaid fees size: {}", unpaidFees.size());
+    List<PojaEvent> unpaidFeeEvents = new ArrayList<>();
     unpaidFees.forEach(
         unpaidFee -> {
-          eventProducer.accept(List.of(toUnpaidFeesReminder(unpaidFee)));
+          unpaidFeeEvents.add(toUnpaidFeesReminder(unpaidFee));
           log.info("Unpaid fee with id.{} is sent to Queue", unpaidFee.getId());
         });
+    eventProducer.accept(unpaidFeeEvents);
   }
 
   public Fee pendFeeForMpbs(Fee fee) {
