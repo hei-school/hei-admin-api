@@ -225,6 +225,6 @@ public class MpbsVerificationService {
   }
 
   public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {
-    return mobilePaymentService.fetchThenSaveTransactionDetails();
+    return mobilePaymentService.fetchTransactionDetails();
   }
 }

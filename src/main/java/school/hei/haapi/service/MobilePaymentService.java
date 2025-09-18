@@ -27,7 +27,7 @@ public class MobilePaymentService implements MobileTransactionProvider {
   private final MobileMoneyApi mobileMoneyApi;
 
   @Override
-  public List<TransactionDetails> fetchThenSaveTransactionDetails() {
+  public List<TransactionDetails> fetchTransactionDetails() {
     // TODO: for each mobile money type fetch transaction
     return mobileMoneyApi.fetchThenSaveTransactionsDetails(ORANGE_MONEY);
   }

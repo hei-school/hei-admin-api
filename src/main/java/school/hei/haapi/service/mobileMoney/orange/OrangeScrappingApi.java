@@ -69,7 +69,7 @@ class OrangeScrappingApi implements MobileMoneyApi {
   }
 
   private List<TransactionDetails> mapTransactions(OrangeDailyTransactionScrappingDetails a) {
-    var mappedResponseList = a.getTransactions().stream().map(responseMapper::from).toList();
+    var mappedResponseList = a.getTransactions().stream().map(responseMapper::toModel).toList();
 
     // store the collected data ...
     var savedResponseList =

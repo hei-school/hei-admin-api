@@ -139,7 +139,6 @@ public class PendingMpbsCheckRequestedService implements Consumer<PendingMpbsChe
     Mpbs mpbs = pendingMpbsCheckRequested.getToVerify();
     var verifyAt = pendingMpbsCheckRequested.getVerifyAt();
     log.info("Verifying {}", mpbs.getId());
-    // Find transaction in database
     Optional<TransactionDetails> mobileTransactionResponseDetails =
         mobilePaymentService.findTransactionByMpbs(mpbs);
 

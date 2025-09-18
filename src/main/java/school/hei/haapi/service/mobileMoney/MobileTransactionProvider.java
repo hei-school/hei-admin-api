@@ -8,5 +8,5 @@ import school.hei.haapi.model.mpbs.Mpbs;
 public interface MobileTransactionProvider {
   Optional<TransactionDetails> findTransactionByMpbs(Mpbs mpbs);
 
-  List<TransactionDetails> fetchThenSaveTransactionDetails();
+  List<TransactionDetails> fetchTransactionDetails();
 }

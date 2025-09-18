@@ -323,7 +323,7 @@ public class FeeService {
         .build();
   }
 
-  private StudentsWithOverdueFeesReminder toStudentsWithOverdueFeesReminder(List<Fee> fees) {
+  private static StudentsWithOverdueFeesReminder toStudentsWithOverdueFeesReminder(List<Fee> fees) {
     return StudentsWithOverdueFeesReminder.builder()
         .id(String.valueOf(randomUUID()))
         .students(
@@ -337,12 +337,14 @@ public class FeeService {
   public void sendLateFeesEmail() {
     List<Fee> lateFees = feeRepository.findAllByStatus(LATE);
     log.info("Late fees size: " + lateFees.size());
-    List<PojaEvent> lateFeeEvents = new ArrayList<>();
-    lateFees.forEach(
-        fee -> {
-          lateFeeEvents.add(toLateFeeEvent(fee));
-          log.info("Late Fee with id." + fee.getId() + " is sent to Queue");
-        });
+    List<PojaEvent> lateFeeEvents =
+        lateFees.stream()
+            .map(
+                lateFee -> {
+                  log.info("Late Fee with id." + lateFee.getId() + " is sent to Queue");
+                  return (PojaEvent) toLateFeeEvent(lateFee);
+                })
+            .toList();
     eventProducer.accept(lateFeeEvents);
   }
 
@@ -351,12 +353,14 @@ public class FeeService {
         feeRepository.getUnpaidFeesForTheMonthSpecified(
             Instant.now().atZone(ZoneId.of("UTC+3")).getMonthValue());
     log.info("Unpaid fees size: {}", unpaidFees.size());
-    List<PojaEvent> unpaidFeeEvents = new ArrayList<>();
-    unpaidFees.forEach(
-        unpaidFee -> {
-          unpaidFeeEvents.add(toUnpaidFeesReminder(unpaidFee));
-          log.info("Unpaid fee with id.{} is sent to Queue", unpaidFee.getId());
-        });
+    List<PojaEvent> unpaidFeeEvents =
+        unpaidFees.stream()
+            .map(
+                unpaidFee -> {
+                  log.info("Unpaid fee with id.{} is sent to Queue", unpaidFee.getId());
+                  return (PojaEvent) toUnpaidFeesReminder(unpaidFee);
+                })
+            .toList();
     eventProducer.accept(unpaidFeeEvents);
   }
 

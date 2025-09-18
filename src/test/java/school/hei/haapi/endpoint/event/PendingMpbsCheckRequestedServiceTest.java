@@ -61,7 +61,7 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void verify_mpbs_to_unverified() {
-    Fee actualFee = feeService.getById(FEE1_ID);
+    var actualFee = feeService.getById(FEE1_ID);
     assertDoesNotThrow(
         () ->
             subject.accept(
@@ -70,15 +70,15 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
                         mpbsService.getStudentMobilePaymentByFeeId(STUDENT1_ID, FEE1_ID).getFirst())
                     .verifyAt(now())
                     .build()));
-    Fee updatedFee = feeService.getById(FEE1_ID);
+    var updatedFee = feeService.getById(FEE1_ID);
 
     assertEquals(actualFee, updatedFee);
   }
 
   @Test
   void verify_mpbs() {
-    Fee fee = feeService.saveAll(List.of(someFeeFor(mockStudent()))).getFirst();
-    Mpbs mpbsCreated =
+    var fee = feeService.saveAll(List.of(someFeeFor(mockStudent()))).getFirst();
+    var mpbsCreated =
         Mpbs.builder()
             .status(PENDING)
             .student(mockStudent())
@@ -88,7 +88,7 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
             .build();
     mpbsCreated.setMobileMoneyType(ORANGE_MONEY);
     mpbsCreated.setPspId("----");
-    Mpbs mpbs = mpbsService.saveMpbs(mpbsCreated);
+    var mpbs = mpbsService.saveMpbs(mpbsCreated);
 
     when(mobilePaymentService.findTransactionByMpbs(any()))
         .thenReturn(
@@ -112,8 +112,8 @@ class PendingMpbsCheckRequestedServiceTest extends FacadeITMockedThirdParties {
 
   @Test
   void unverifed_mpbs_ok() {
-    Fee toFailFee = feeService.saveAll(List.of(someFeeFor(mockStudent()))).getFirst();
-    Fee toPendFee = feeService.saveAll(List.of(someFeeFor(mockStudent()))).getFirst();
+    var toFailFee = feeService.saveAll(List.of(someFeeFor(mockStudent()))).getFirst();
+    var toPendFee = feeService.saveAll(List.of(someFeeFor(mockStudent()))).getFirst();
     when(mobilePaymentService.findTransactionByMpbs(any())).thenReturn(empty());
     assertDoesNotThrow(
         () ->
