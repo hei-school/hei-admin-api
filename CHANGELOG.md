@@ -1,3 +1,12 @@
+## [1.118.1](https://github.com/hei-school/hei-admin-api/compare/v1.118.0...v1.118.1) (2025-09-18)
+
+
+### Bug Fixes
+
+* **doc:** rename Remedials to RetakeExam and refactor components ([0356a58](https://github.com/hei-school/hei-admin-api/commit/0356a58e8643194e96d7367aab00c189b5fa54ee))
+
+
+
 # [1.118.0](https://github.com/hei-school/hei-admin-api/compare/v1.117.0...v1.118.0) (2025-09-18)
 
 
@@ -101,20 +110,6 @@
 * add receipt advanced fee stats ([cf9d4a8](https://github.com/hei-school/hei-admin-api/commit/cf9d4a81d01948fef8708d4ebbd89cb09e9464d0))
 * GET /students/{id}/attendance ([445aed9](https://github.com/hei-school/hei-admin-api/commit/445aed91fb2dff43e3a8ff5ac3980d68c90221da))
 * **not-implemented:** pend failed mpbs ([e5db94d](https://github.com/hei-school/hei-admin-api/commit/e5db94dd834f59f4d770a2d764edf2b786effbdb))
-
-
-
-# [1.111.0](https://github.com/hei-school/hei-admin-api/compare/v1.110.2...v1.111.0) (2025-08-26)
-
-
-### Bug Fixes
-
-* mpbs xlsx verification failing on new excel format ([1c4916d](https://github.com/hei-school/hei-admin-api/commit/1c4916dbb719e388f9f6831f8b355fe03abe21e3))
-
-
-### Features
-
-* **not-implemented:** get grade change history and additional filter ([b626c9b](https://github.com/hei-school/hei-admin-api/commit/b626c9ba939a4c7d3b7dc69628ff98d2914e00f1))
 
 
 
