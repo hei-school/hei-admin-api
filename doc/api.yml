@@ -6466,7 +6466,7 @@ components:
     ### TODO: Rename to StudentAttendance when actual is renamed into StudentEventAttendance
     StudentGlobalAttendance:
       allOf:
-        - $ref: '#/components/schemas/EventProperty'
+        - $ref: '#/components/schemas/EventBase'
       type: object
       properties:
         attendance_status:
@@ -7266,7 +7266,7 @@ components:
         comment:
           type: string
           description: In particular, PSP error messages go here
-    EventProperty:
+    EventBase:
       type: object
       properties:
         title:
@@ -7285,7 +7285,7 @@ components:
           $ref: '#/components/schemas/EventLocation'
     CreateEvent:
       allOf:
-        - $ref: '#/components/schemas/EventProperty'
+        - $ref: '#/components/schemas/EventBase'
       type: object
       properties:
         id:
@@ -7371,7 +7371,7 @@ components:
             $ref: '#/components/schemas/EventParticipantLetter'
     Event:
       allOf:
-        - $ref: '#/components/schemas/EventProperty'
+        - $ref: '#/components/schemas/EventBase'
       type: object
       properties:
         id:
