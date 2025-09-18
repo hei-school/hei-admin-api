@@ -1281,11 +1281,7 @@ paths:
         - Exams
       summary: Get all exam infos.
       parameters:
-        - name: teacher_id
-          in: query
-          required: false
-          schema:
-            type: string
+        - $ref: '#/components/parameters/TeacherId'
         - name: title
           in: query
           required: false
@@ -1506,11 +1502,7 @@ paths:
           required: true
           schema:
             type: string
-        - name: teacher_id
-          in: query
-          required: false
-          schema:
-            type: string
+        - $ref: '#/components/parameters/TeacherId'
         - name: title
           in: query
           required: false
@@ -6124,6 +6116,7 @@ paths:
           description: |
             Filter student attendance by list of titles. Usually, title substitutes course code, for example PROG1.
           required: false
+        - $ref: '#/components/parameters/TeacherId'
       responses:
         200:
           description: List of student attendance between date intervals
@@ -6493,6 +6486,12 @@ components:
       in: query
       required: false
       description: Filter by student first name or last name
+      schema:
+        type: string
+    TeacherId:
+      name: teacher_id
+      in: query
+      required: false
       schema:
         type: string
     PathExamId:
