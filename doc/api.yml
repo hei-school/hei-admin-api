@@ -1429,7 +1429,7 @@ paths:
           $ref: '#/components/responses/429'
         '500':
           $ref: '#/components/responses/500'
-  ### TODO later
+  ## TODO later
   /retake_exam_sessions:
     get:
       tags:
