@@ -11,7 +11,7 @@ do
 $$
     begin
         if not exists(select from pg_type where typname = 'place_name') then
-            create type "place_name" as enum ('IVANDRY', 'ANDRAHARO');
+            create type "place_name" as enum ('IVANDRY', 'ANDRAHARO', 'UNKNOWN');
         end if;
     end
 $$;

@@ -2,6 +2,7 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import static school.hei.haapi.model.Event.PlaceName.ANDRAHARO;
 import static school.hei.haapi.model.Event.PlaceName.IVANDRY;
+import static school.hei.haapi.model.Event.PlaceName.UNKNOWN;
 
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.PlaceEnum;
@@ -13,7 +14,8 @@ public class PlaceMapper {
     return switch (rest) {
       case IVANDRY -> IVANDRY;
       case ANDRAHARO -> ANDRAHARO;
-      case null -> null;
+      case UNKNOWN -> UNKNOWN;
+      case null -> UNKNOWN;
     };
   }
 
@@ -21,7 +23,8 @@ public class PlaceMapper {
     return switch (domain) {
       case IVANDRY -> PlaceEnum.IVANDRY;
       case ANDRAHARO -> PlaceEnum.ANDRAHARO;
-      case null -> null;
+      case UNKNOWN -> PlaceEnum.UNKNOWN;
+      case null -> PlaceEnum.UNKNOWN;
     };
   }
 }

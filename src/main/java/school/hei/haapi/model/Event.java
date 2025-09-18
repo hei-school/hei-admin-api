@@ -108,6 +108,7 @@ public class Event {
 
   public enum PlaceName {
     IVANDRY,
-    ANDRAHARO
+    ANDRAHARO,
+    UNKNOWN
   }
 }

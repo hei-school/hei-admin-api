@@ -7001,6 +7001,7 @@ components:
       enum:
         - IVANDRY
         - ANDRAHARO
+        - UNKNOWN
     RoleParamEnum:
       type: string
       enum:

@@ -106,6 +106,7 @@ import school.hei.haapi.endpoint.rest.model.LetterUser;
 import school.hei.haapi.endpoint.rest.model.Manager;
 import school.hei.haapi.endpoint.rest.model.Monitor;
 import school.hei.haapi.endpoint.rest.model.Observer;
+import school.hei.haapi.endpoint.rest.model.PlaceEnum;
 import school.hei.haapi.endpoint.rest.model.Promotion;
 import school.hei.haapi.endpoint.rest.model.RoomEnum;
 import school.hei.haapi.endpoint.rest.model.Scope;
@@ -1409,7 +1410,7 @@ public class TestUtils {
         .title("PROG1")
         .planner(planner1())
         .count(new EventStats().late(0).missing(1).present(1).total(2))
-        .location(new EventLocation().place(ANDRAHARO).room(RoomEnum.UNKNOWN))
+        .location(unknownLocationEvent().place(ANDRAHARO))
         .groups(List.of(createGroupIdentifier(group1())));
   }
 
@@ -1462,7 +1463,7 @@ public class TestUtils {
         .course(null)
         .color("#0000")
         .count(new EventStats().late(0).present(0).missing(0).total(0))
-        .location(new EventLocation())
+        .location(unknownLocationEvent())
         .groups(List.of());
   }
 
@@ -1838,5 +1839,9 @@ public class TestUtils {
         .ref(original.getRef())
         .size(original.getSize())
         .attributedColor(original.getAttributedColor());
+  }
+
+  public static EventLocation unknownLocationEvent() {
+    return new EventLocation().place(PlaceEnum.UNKNOWN).room(RoomEnum.UNKNOWN);
   }
 }
