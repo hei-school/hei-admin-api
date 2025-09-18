@@ -77,14 +77,14 @@ public class EventMapper {
         .title(domain.getTitle())
         .planner(userMapper.toIdentifier(domain.getPlanner()))
         .count(eventParticipantService.getEventParticipantsStats(domain.getId()))
-        .location(locationToEventLocation(domain))
+        .location(toEventLocation(domain))
         .groups(
             Objects.isNull(groups)
                 ? List.of()
                 : groups.stream().map(groupMapper::toRestGroupIdentifier).toList());
   }
 
-  private EventLocation locationToEventLocation(Event domain) {
+  private EventLocation toEventLocation(Event domain) {
     return new EventLocation()
         .place(placeMapper.toRest(domain.getPlace()))
         .room(roomMapper.toRest(domain.getRoom()));
