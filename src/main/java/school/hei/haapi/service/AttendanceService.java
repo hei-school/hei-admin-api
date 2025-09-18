@@ -22,6 +22,14 @@ import school.hei.haapi.repository.UserRepository;
 public class AttendanceService {
   private final EventRepository eventRepository;
   private final UserRepository userRepository;
+  private static final int EVENT_TITLE = 0;
+  private static final int EVENT_DESCRIPTION = 1;
+  private static final int EVENT_TYPE = 2;
+  private static final int ATTENDANCE_STATUS = 3;
+  private static final int BEGIN_DATETIME = 4;
+  private static final int END_DATETIME = 5;
+  private static final int ROOM = 6;
+  private static final int PLACE = 7;
 
   public List<StudentAttendanceStatus> getStudentAttendanceByStudentId(
       String studentId,
@@ -48,13 +56,13 @@ public class AttendanceService {
 
   private StudentAttendanceStatus toStudentAttendanceStatus(Object[] objElement) {
     return new StudentAttendanceStatus(
-        (String) objElement[0],
-        (String) objElement[1],
-        EventType.valueOf((String) objElement[2]),
-        AttendanceStatus.valueOf((String) objElement[3]),
-        (Instant) objElement[4],
-        (Instant) objElement[5],
-        RoomName.valueOf((String) objElement[6]),
-        PlaceName.valueOf((String) objElement[7]));
+        (String) objElement[EVENT_TITLE],
+        (String) objElement[EVENT_DESCRIPTION],
+        EventType.valueOf((String) objElement[EVENT_TYPE]),
+        AttendanceStatus.valueOf((String) objElement[ATTENDANCE_STATUS]),
+        (Instant) objElement[BEGIN_DATETIME],
+        (Instant) objElement[END_DATETIME],
+        RoomName.valueOf((String) objElement[ROOM]),
+        PlaceName.valueOf((String) objElement[PLACE]));
   }
 }
