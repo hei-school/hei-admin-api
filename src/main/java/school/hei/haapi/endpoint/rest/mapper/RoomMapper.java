@@ -21,7 +21,7 @@ public class RoomMapper {
       case SIGMA -> SIGMA;
       case ALGEBRE -> ALGEBRE;
       case UNKNOWN -> UNKNOWN;
-      case null -> null;
+      case null -> UNKNOWN;
     };
   }
 
@@ -33,7 +33,7 @@ public class RoomMapper {
       case SIGMA -> RoomEnum.SIGMA;
       case ALGEBRE -> RoomEnum.ALGEBRE;
       case UNKNOWN -> RoomEnum.UNKNOWN;
-      case null -> null;
+      case null -> RoomEnum.UNKNOWN;
     };
   }
 }
