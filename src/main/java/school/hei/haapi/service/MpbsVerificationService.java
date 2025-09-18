@@ -26,7 +26,7 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
-import school.hei.haapi.http.mapper.ExternalResponseMapper;
+import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
@@ -44,7 +44,7 @@ public class MpbsVerificationService {
   private final MpbsVerificationRepository repository;
   private final MpbsRepository mpbsRepository;
   private final MobilePaymentService mobilePaymentService;
-  private final ExternalResponseMapper externalResponseMapper;
+  private final TransactionDetailsMapper transactionDetailsMapper;
   private final MultipartFileConverter multipartFileConverter;
   private final FileService fileService;
   private final UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandler;
@@ -102,7 +102,7 @@ public class MpbsVerificationService {
 
       try {
         TransactionDetails transactionDetails =
-            externalResponseMapper.toExternalTransactionDetails(lastTransactionDetails);
+            transactionDetailsMapper.toExternalTransactionDetails(lastTransactionDetails);
         log.info("mapped transaction details = {}", transactionDetails);
 
         verifiedMpbs.add(

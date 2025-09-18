@@ -1,8 +1,8 @@
 package school.hei.haapi.unit;
 
-import static org.assertj.core.api.Assertions.assertThatList;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -160,6 +160,6 @@ class VerificationMpbsByXlsxTest {
           mobileTransactionDetails.setPspOwnDatetimeVerification(null);
         });
     assertEquals(excelTransactionDetails().size(), captured.size());
-    assertThatList(excelTransactionDetails()).containsAll(captured);
+    assertTrue(excelTransactionDetails().containsAll(captured));
   }
 }

@@ -19,7 +19,7 @@ import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody
 import school.hei.haapi.endpoint.event.model.PendingMpbsCheckRequested;
 import school.hei.haapi.endpoint.event.model.PojaEvent;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
-import school.hei.haapi.http.mapper.ExternalResponseMapper;
+import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.MobileTransactionDetails;
@@ -36,7 +36,7 @@ import school.hei.haapi.service.PaymentService;
 @AllArgsConstructor
 @Slf4j
 public class PendingMpbsCheckRequestedService implements Consumer<PendingMpbsCheckRequested> {
-  private final ExternalResponseMapper externalResponseMapper;
+  private final TransactionDetailsMapper transactionDetailsMapper;
   private final MpbsVerificationRepository repository;
   private final MpbsService mpbsService;
   private final FeeService feeService;
@@ -147,7 +147,7 @@ public class PendingMpbsCheckRequestedService implements Consumer<PendingMpbsChe
     // TIPS: do not use exception to continue script
     if (mobileTransactionResponseDetails.isPresent()) {
       TransactionDetails transactionDetails =
-          externalResponseMapper.toExternalTransactionDetails(
+          transactionDetailsMapper.toExternalTransactionDetails(
               mobileTransactionResponseDetails.get());
       saveTheVerifiedMpbs(mpbs, transactionDetails, verifyAt);
       return;

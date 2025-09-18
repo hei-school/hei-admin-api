@@ -9,28 +9,28 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
-import school.hei.haapi.http.mapper.ExternalResponseMapper;
+import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
 import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.MobileTransactionDetailsRepository;
-import school.hei.haapi.repository.TransactionProvider;
 import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
+import school.hei.haapi.service.mobileMoney.MobileTransactionProvider;
 
 @Slf4j
 @Service
 @AllArgsConstructor
-public class MobilePaymentService implements TransactionProvider {
+public class MobilePaymentService implements MobileTransactionProvider {
   private final MobileTransactionDetailsRepository mobileTransactionDetailsRepository;
-  private final ExternalResponseMapper externalResponseMapper;
+  private final TransactionDetailsMapper transactionDetailsMapper;
   private final MobileMoneyApi mobileMoneyApi;
 
   @Override
   public TransactionDetails findTransactionByMpbs(Mpbs mpbs) throws ApiException {
     String transactionRef = mpbs.getPspId();
-    return externalResponseMapper.toExternalTransactionDetails(
+    return transactionDetailsMapper.toExternalTransactionDetails(
         findTransactionByRef(transactionRef));
   }
 
@@ -67,18 +67,23 @@ public class MobilePaymentService implements TransactionProvider {
 
   public List<MobileTransactionDetails> saveAll(
       List<MobileTransactionDetails> mobileTransactionDetails) {
-    var savedTransactions = new ArrayList<MobileTransactionDetails>();
+    List<MobileTransactionDetails> savedTransactions = new ArrayList<>();
     for (MobileTransactionDetails transaction : mobileTransactionDetails) {
-      try {
-        var saved = mobileTransactionDetailsRepository.save(transaction);
-        savedTransactions.add(saved);
-      } catch (DataIntegrityViolationException e) {
-        log.warn(
-            "Error saving mobile transaction of ref {} because of error",
-            transaction.getPspTransactionRef(),
-            e);
-      }
+      attemptSaveTransaction(transaction, savedTransactions);
     }
     return savedTransactions;
+  }
+
+  private void attemptSaveTransaction(
+      MobileTransactionDetails transaction, List<MobileTransactionDetails> savedTransactions) {
+    try {
+      var saved = mobileTransactionDetailsRepository.save(transaction);
+      savedTransactions.add(saved);
+    } catch (DataIntegrityViolationException e) {
+      log.info(
+          "Error saving mobile transaction of ref {} because of error",
+          transaction.getPspTransactionRef(),
+          e);
+    }
   }
 }

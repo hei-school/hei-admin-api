@@ -3,6 +3,7 @@ package school.hei.haapi.service;
 import static java.util.UUID.randomUUID;
 import static org.assertj.core.api.Assertions.assertThatList;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 import static school.hei.haapi.integration.conf.TestUtils.asserThrowsDomainNotFoundException;
 
 import com.github.javafaker.Faker;
@@ -24,7 +25,7 @@ class MobilePaymentServiceTest extends FacadeITMockedThirdParties {
   private static List<MobileTransactionDetails> toSaveMobileTransactionDetails() {
     return IntStream.range(0, 10)
         .mapToObj(
-            _ignored ->
+            ignored ->
                 MobileTransactionDetails.builder()
                     .id(randomUUID().toString())
                     .pspTransactionRef(faker.regexify(MPBS_REF_GENERATION_PATTERN))
@@ -39,7 +40,7 @@ class MobilePaymentServiceTest extends FacadeITMockedThirdParties {
     var toSaveMobileTransactionDetails = toSaveMobileTransactionDetails();
 
     var savedMobileTransaction = mobilePaymentService.saveAll(toSaveMobileTransactionDetails);
-    assertThatList(savedMobileTransaction).containsAll(toSaveMobileTransactionDetails);
+    assertTrue(savedMobileTransaction.containsAll(toSaveMobileTransactionDetails));
   }
 
   @Test
@@ -47,11 +48,11 @@ class MobilePaymentServiceTest extends FacadeITMockedThirdParties {
     var toSaveMobileTransactionDetails = toSaveMobileTransactionDetails();
 
     var savedMobileTransaction = mobilePaymentService.saveAll(toSaveMobileTransactionDetails);
-    assertThatList(savedMobileTransaction).containsAll(toSaveMobileTransactionDetails);
-    assertThatList(
+    assertTrue(savedMobileTransaction.containsAll(toSaveMobileTransactionDetails));
+    assertTrue(
             mobilePaymentService.saveAll(
-                savedMobileTransaction.stream().peek(e -> e.setId(null)).toList()))
-        .isEmpty();
+                savedMobileTransaction.stream().peek(e -> e.setId(null)).toList())
+        .isEmpty());
   }
 
   @Test
@@ -61,12 +62,23 @@ class MobilePaymentServiceTest extends FacadeITMockedThirdParties {
 
     mobilePaymentService.saveAll(toSaveMobileTransactionDetails);
 
-    assertThatList(mobilePaymentService.findAllTransactionByMpbs(toSaveMobileTransactionMpbs))
-        .containsAll(toSaveMobileTransactionDetails);
+    assertTrue(mobilePaymentService.findAllTransactionByMpbs(toSaveMobileTransactionMpbs)
+        .containsAll(toSaveMobileTransactionDetails));
   }
 
   @Test
   void find_transaction_by_ref_ok() {
+    var toSaveMobileTransactionDetails = toSaveMobileTransactionDetails();
+    var expected = toSaveMobileTransactionDetails.get(faker.number().numberBetween(0, 10));
+
+    mobilePaymentService.saveAll(toSaveMobileTransactionDetails);
+
+    var actual = mobilePaymentService.findTransactionByRef(expected.getPspTransactionRef());
+    assertEquals(actual, expected);
+  }
+
+  @Test
+  void find_transaction_by_mpbs() {
     var toSaveMobileTransactionDetails = toSaveMobileTransactionDetails();
     var expected = toSaveMobileTransactionDetails.get(faker.number().numberBetween(0, 10));
 

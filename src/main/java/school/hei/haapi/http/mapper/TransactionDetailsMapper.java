@@ -17,7 +17,7 @@ import school.hei.haapi.model.MobileTransactionDetails;
 @Component
 @AllArgsConstructor
 @Slf4j
-public class ExternalResponseMapper {
+public class TransactionDetailsMapper {
 
   public TransactionDetails from(OrangeTransactionDetails orangeRest) {
     return TransactionDetails.builder()
