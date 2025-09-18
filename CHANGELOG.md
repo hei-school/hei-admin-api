@@ -1,3 +1,12 @@
+# [1.117.0](https://github.com/hei-school/hei-admin-api/compare/v1.116.2...v1.117.0) (2025-09-18)
+
+
+### Features
+
+* event place/room and student attendance filter ([f737ca4](https://github.com/hei-school/hei-admin-api/commit/f737ca41732ebc9309675c1eb3a1550932f576b8))
+
+
+
 ## [1.116.2](https://github.com/hei-school/hei-admin-api/compare/v1.116.1...v1.116.2) (2025-09-18)
 
 
@@ -106,18 +115,6 @@
 ### Bug Fixes
 
 * grade mapper ([7ae21f8](https://github.com/hei-school/hei-admin-api/commit/7ae21f8aac9585bc28f3260d7086f8c0834c57de))
-
-
-
-## [1.110.1](https://github.com/hei-school/hei-admin-api/compare/v1.110.0...v1.110.1) (2025-08-20)
-
-
-### Bug Fixes
-
-* create and update grades ([00d4bb3](https://github.com/hei-school/hei-admin-api/commit/00d4bb3431cfcbe1388e7b370a27dd6dc5b574d2))
-* handle student without course results ([bc37732](https://github.com/hei-school/hei-admin-api/commit/bc3773287515b3e6abe06f1161061e57da9cf33c))
-* increase stack size for build ([2efe473](https://github.com/hei-school/hei-admin-api/commit/2efe473db3f99b9ae62c41958f5e798cb2bdeb17))
-* multiple course results on multiple awarded course ([e4ddede](https://github.com/hei-school/hei-admin-api/commit/e4ddede537728830791d4fd25d08f45a29087316))
 
 
 
