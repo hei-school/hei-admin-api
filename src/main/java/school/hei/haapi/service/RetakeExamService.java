@@ -34,18 +34,23 @@ public class RetakeExamService {
     RetakeExamSession retakeExamSession = retakeExamSessionService.getById(sessionId);
     if (retakeExamSession != null) {
       crupdateRetakeExams.forEach(
-          crupdateRetakeExam -> crupdateRetakeExam.sessionId(String.valueOf(retakeExamSession)));
+          crupdateRetakeExam -> crupdateRetakeExam.sessionId(retakeExamSession.getId()));
     }
     List<CrupdateRetakeExam> crupdateRetakeExamsNotExisted =
         crupdateRetakeExams.stream()
-            .filter(crupdateRetakeExam -> !isExisted(crupdateRetakeExam.getStudentId()))
+            .filter(crupdateRetakeExam -> !isExisted(crupdateRetakeExam))
             .toList();
     return retakeExamRepository.saveAll(
         retakeExamMapper.toDoMainList(crupdateRetakeExamsNotExisted));
   }
 
-  private Boolean isExisted(String studentId) {
-    return retakeExamRepository.findById(studentId).isPresent();
+  private Boolean isExisted(CrupdateRetakeExam crupdateRetakeExam) {
+    return retakeExamRepository
+        .findByCourse_IdAndStudent_IdAndSession_Id(
+            crupdateRetakeExam.getStudentId(),
+            crupdateRetakeExam.getCourseId(),
+            crupdateRetakeExam.getSessionId())
+        .isPresent();
   }
 
   public List<RetakeExam> getStudentRetakeExams(String sessionId, String studentId) {

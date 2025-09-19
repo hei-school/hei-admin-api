@@ -4,6 +4,7 @@ import static java.math.BigDecimal.ONE;
 import static java.math.BigDecimal.TEN;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyList;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
@@ -20,9 +21,7 @@ import static school.hei.haapi.integration.test_data.RetakeExamSessionTestData.s
 import java.util.List;
 import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.testcontainers.junit.jupiter.Testcontainers;
@@ -41,7 +40,7 @@ import school.hei.haapi.service.GradeResultService;
 @Testcontainers
 @AutoConfigureMockMvc
 public class RetakeExamIT extends FacadeITMockedThirdParties {
-  @Autowired RetakeExamRepository retakeExamRepository;
+  @MockBean RetakeExamRepository retakeExamRepository;
   @MockBean GradeResultService gradeResultService;
 
   private ApiClient anApiClient(String token) {
@@ -66,32 +65,37 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
                             .course(course1())
                             .status(CourseResultStatus.INCOMPLETE)
                             .weightedAverage(ONE))));
+    when(retakeExamRepository.saveAll(anyList())).thenAnswer(i -> i.getArgument(0));
   }
 
   @Test
   public void get_course_need_retake_by_student_ok() throws ApiException {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
+
     var retakeExams = api.getStudentRetakeExamBySession("student1_id", "session1_id");
+
     assertNotNull(retakeExams);
     assertEquals(
         Objects.requireNonNull(retakeExams.getFirst().getCourse()).getName(), course1().getName());
   }
 
   @Test
-  @Disabled("Dirty must be in test, not IT")
   public void student_create_retake_exam_ok() throws ApiException {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
-    CrupdateRetakeExam retakeExam = new CrupdateRetakeExam();
+    var retakeExam = new CrupdateRetakeExam();
     retakeExam.setStudentId(student1().getId());
     retakeExam.setCourseId(course1().getId());
     retakeExam.setSessionId(session1().getId());
-    var retakeExamCreated = api.createOrUpdateRetakeExam(session1().getId(), List.of(retakeExam));
-    assertNotNull(retakeExamCreated);
 
-    var reatakeExamExisted =
-        api.getStudentRetakeExamBySession(session1().getId(), student1().getId());
-    assertNotNull(reatakeExamExisted);
+    var retakeExamsCreated = api.createOrUpdateRetakeExam(session1().getId(), List.of(retakeExam));
+
+    assertNotNull(retakeExamsCreated);
+    assertEquals(1, retakeExamsCreated.size());
+    var retakeExamCreated = retakeExamsCreated.getFirst();
+    assertEquals(retakeExam.getSessionId(), retakeExamCreated.getSession().getId());
+    assertEquals(retakeExam.getCourseId(), retakeExamCreated.getCourse().getId());
+    assertEquals(retakeExam.getStudentId(), retakeExamCreated.getStudentIdentifier().getId());
   }
 }

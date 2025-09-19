@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
+import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.RetakeExamSession;
 import school.hei.haapi.model.User;
@@ -21,6 +22,7 @@ public class RetakeExamMapper {
   @Autowired UserService userService;
   @Autowired CourseService courseService;
   @Autowired private RetakeExamSessionService retakeExamSessionService;
+  private final UserMapper userMapper;
 
   public school.hei.haapi.model.RetakeExam toDomainCrupDate(CrupdateRetakeExam crupdateRetakeExam) {
     User studentUser = userService.findById(crupdateRetakeExam.getStudentId());
@@ -57,5 +59,17 @@ public class RetakeExamMapper {
   public List<school.hei.haapi.model.RetakeExam> toDoMainList(
       List<CrupdateRetakeExam> crupdateRetakeExams) {
     return crupdateRetakeExams.stream().map(this::toDomainCrupDate).toList();
+  }
+
+  public List<StudentRetakeExam> toStudentRetakeRestList(
+      List<school.hei.haapi.model.RetakeExam> retakeExams) {
+    return retakeExams.stream()
+        .map(
+            r ->
+                new StudentRetakeExam()
+                    .studentIdentifier(userMapper.toIdentifier(r.getStudent()))
+                    .course(courseMapper.toRest(r.getCourse()))
+                    .session(retakeExamSessionMapper.toRest(r.getSession())))
+        .toList();
   }
 }

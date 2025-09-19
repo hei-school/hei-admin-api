@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RestController;
 import school.hei.haapi.endpoint.rest.mapper.RetakeExamMapper;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
+import school.hei.haapi.endpoint.rest.model.StudentRetakeExam;
 import school.hei.haapi.service.RetakeExamService;
 
 @RestController
@@ -20,10 +21,10 @@ public class RetakeExamController {
   @Autowired RetakeExamMapper retakeExamMapper;
 
   @PutMapping("/retake_exam_sessions/{session_id}/retakeExams")
-  public List<RetakeExam> createOrUpdateRetakeExam(
+  public List<StudentRetakeExam> createOrUpdateRetakeExam(
       @PathVariable("session_id") String sessionId,
       @RequestBody List<CrupdateRetakeExam> crupdateRetakeExams) {
-    return retakeExamMapper.toRestList(
+    return retakeExamMapper.toStudentRetakeRestList(
         retakeExamService.crupdateRetakeExams(sessionId, crupdateRetakeExams));
   }
 
