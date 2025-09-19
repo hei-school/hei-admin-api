@@ -13,7 +13,6 @@ import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.
 import static school.hei.haapi.endpoint.rest.model.YearlyResultGenerationStatus.GENERATING;
 import static school.hei.haapi.service.utils.FileUtils.multipartFileFromFile;
 
-import jakarta.transaction.Transactional;
 import java.io.File;
 import java.math.BigDecimal;
 import java.time.Duration;
@@ -177,7 +176,6 @@ public class GradeResultService {
                 .build()));
   }
 
-  @Transactional
   public void uploadYearlyResultTranscript(String studentId, YearlyResult yearlyResult) {
     User student = userService.findById(studentId);
     String fileName =

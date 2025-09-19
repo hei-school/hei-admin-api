@@ -37,7 +37,7 @@ public class YearlyResultGenerationService {
 
   public Optional<YearlyResultGenerationRequest> findGenerationRequestByFileName(String fileName) {
     return yearlyResultGenerationRequestRepository
-        .findFirstYearlyResultGenerationRequestByFileNameContainsIgnoreCaseOrderByFileNameDesc(
+        .findFirstYearlyResultGenerationRequestByFileNameContainsIgnoreCaseOrderByDatetimeDesc(
             fileName);
   }
 
