@@ -5,7 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PathVariable;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
@@ -21,13 +21,14 @@ import school.hei.haapi.model.RetakeExamSession;
 import school.hei.haapi.repository.RetakeExamRepository;
 
 @Component
+@AllArgsConstructor
 public class RetakeExamService {
-  @Autowired RetakeExamRepository retakeExamRepository;
-  @Autowired RetakeExamSessionService retakeExamSessionService;
-  @Autowired RetakeExamMapper retakeExamMapper;
-  @Autowired GradeResultService gradeResultService;
-  @Autowired CourseAssignmentService courseAssignmentService;
-  @Autowired private CourseMapper courseMapper;
+  private final RetakeExamRepository retakeExamRepository;
+  private final RetakeExamSessionService retakeExamSessionService;
+  private final RetakeExamMapper retakeExamMapper;
+  private final GradeResultService gradeResultService;
+  private final CourseAssignmentService courseAssignmentService;
+  private final CourseMapper courseMapper;
 
   public List<RetakeExam> crupdateRetakeExams(
       @PathVariable String sessionId, List<CrupdateRetakeExam> crupdateRetakeExams) {

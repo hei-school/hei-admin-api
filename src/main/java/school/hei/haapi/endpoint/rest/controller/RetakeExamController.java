@@ -1,7 +1,7 @@
 package school.hei.haapi.endpoint.rest.controller;
 
 import java.util.List;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -16,9 +16,10 @@ import school.hei.haapi.service.RetakeExamService;
 
 @RestController
 @RequestMapping
+@AllArgsConstructor
 public class RetakeExamController {
-  @Autowired RetakeExamService retakeExamService;
-  @Autowired RetakeExamMapper retakeExamMapper;
+  private final RetakeExamService retakeExamService;
+  private final RetakeExamMapper retakeExamMapper;
 
   @PutMapping("/retake_exam_sessions/{session_id}/retakeExams")
   public List<StudentRetakeExam> createOrUpdateRetakeExam(
