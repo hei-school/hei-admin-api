@@ -1,6 +1,7 @@
 package school.hei.haapi.service;
 
-import java.math.BigDecimal;
+import static school.hei.haapi.endpoint.rest.model.CourseResultStatus.INCOMPLETE;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -56,6 +57,26 @@ public class RetakeExamService {
 
   public List<RetakeExam> getStudentRetakeExams(String sessionId, String studentId) {
     var session = retakeExamSessionService.getById(sessionId);
+    var coursesToRetake = getCourseResultToRetake(studentId);
+
+    return coursesToRetake.stream()
+        .map(courseResult -> courseResultAndSessionToRetake(courseResult, session))
+        .toList();
+  }
+
+  private RetakeExam courseResultAndSessionToRetake(
+      CourseResult courseResult, RetakeExamSession session) {
+    Course course = courseResult.getCourse();
+    if (course == null) {
+      throw new IllegalStateException("Course must not be null for CourseResult: " + courseResult);
+    }
+    RetakeExam retakeExam = new RetakeExam();
+    retakeExam.setCourse(courseMapper.toDomain(course));
+    retakeExam.setSession(session);
+    return retakeExam;
+  }
+
+  private List<CourseResult> getCourseResultToRetake(String studentId) {
     List<CourseAssignment> courses = courseAssignmentService.getByStudentId(studentId);
     Set<StudentLevel> studentLevels =
         courses.stream()
@@ -68,31 +89,12 @@ public class RetakeExamService {
             .filter(Objects::nonNull)
             .toList();
 
-    List<CourseResult> coursesToRetake =
-        yearlyResults.stream()
-            .filter(Objects::nonNull)
-            .map(YearlyResult::getCourseResults)
-            .filter(Objects::nonNull)
-            .flatMap(List::stream)
-            .filter(
-                courseResult ->
-                    courseResult.getWeightedAverage() != null
-                        && courseResult.getWeightedAverage().compareTo(BigDecimal.TEN) <= 0)
-            .toList();
-
-    return coursesToRetake.stream()
-        .map(
-            courseResult -> {
-              Course course = courseResult.getCourse();
-              if (course == null) {
-                throw new IllegalStateException(
-                    "Course must not be null for CourseResult: " + courseResult);
-              }
-              RetakeExam retakeExam = new RetakeExam();
-              retakeExam.setCourse(courseMapper.toDomain(course));
-              retakeExam.setSession(session);
-              return retakeExam;
-            })
+    return yearlyResults.stream()
+        .filter(Objects::nonNull)
+        .map(YearlyResult::getCourseResults)
+        .filter(Objects::nonNull)
+        .flatMap(List::stream)
+        .filter(courseResult -> INCOMPLETE.equals(courseResult.getStatus()))
         .toList();
   }
 }
