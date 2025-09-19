@@ -26,6 +26,7 @@ import org.springframework.security.web.util.matcher.OrRequestMatcher;
 import org.springframework.security.web.util.matcher.RequestMatcher;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 import school.hei.haapi.model.exception.ForbiddenException;
+import school.hei.haapi.repository.CorRepository;
 import school.hei.haapi.service.CourseAssignmentService;
 import school.hei.haapi.service.MonitoringStudentService;
 
@@ -38,17 +39,20 @@ public class SecurityConf {
   private final MonitoringStudentService monitoringStudentService;
   private final AbstractUserDetailsAuthenticationProvider authProvider;
   private final HandlerExceptionResolver exceptionResolver;
+  private final CorRepository corRepository;
 
   public SecurityConf(
       CasdoorAuthProvider authProvider,
       // InternalToExternalErrorHandler behind
       @Qualifier("handlerExceptionResolver") HandlerExceptionResolver exceptionResolver,
       CourseAssignmentService courseAssignmentService,
-      MonitoringStudentService monitoringStudentService) {
+      MonitoringStudentService monitoringStudentService,
+      CorRepository corRepository) {
     this.authProvider = authProvider;
     this.exceptionResolver = exceptionResolver;
     this.courseAssignmentService = courseAssignmentService;
     this.monitoringStudentService = monitoringStudentService;
+    this.corRepository = corRepository;
   }
 
   @Bean
@@ -926,6 +930,9 @@ public class SecurityConf {
                     //
                     // Cors resources
                     //
+                    .requestMatchers(
+                        new StudentCorMatcher(GET, "/students/*/cors", "students", corRepository))
+                    .hasAnyRole(STUDENT.getRole())
                     .requestMatchers(GET, "/students/*/cors")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/students/*/cors")
