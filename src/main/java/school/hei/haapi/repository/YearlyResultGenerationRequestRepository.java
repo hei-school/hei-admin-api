@@ -9,6 +9,6 @@ import school.hei.haapi.model.YearlyResultGenerationRequest;
 public interface YearlyResultGenerationRequestRepository
     extends JpaRepository<YearlyResultGenerationRequest, String> {
   Optional<YearlyResultGenerationRequest>
-      findFirstYearlyResultGenerationRequestByFileNameContainsIgnoreCaseOrderByFileNameDesc(
+      findFirstYearlyResultGenerationRequestByFileNameContainsIgnoreCaseOrderByDatetimeDesc(
           String fileName);
 }
