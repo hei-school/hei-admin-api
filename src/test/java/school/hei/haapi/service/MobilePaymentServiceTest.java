@@ -103,13 +103,12 @@ class MobilePaymentServiceTest extends FacadeITMockedThirdParties {
 
   private List<Mpbs> mpbsFromTransactions(List<MobileTransactionDetails> mobileTransactionDetails) {
     return mobileTransactionDetails.stream()
-        .map(
+        .<Mpbs>map(
             transaction ->
-                (Mpbs)
-                    Mpbs.builder()
-                        .pspId(transaction.getPspTransactionRef())
-                        .amount(transaction.getPspTransactionAmount())
-                        .build())
+                Mpbs.builder()
+                    .pspId(transaction.getPspTransactionRef())
+                    .amount(transaction.getPspTransactionAmount())
+                    .build())
         .toList();
   }
 }
