@@ -6,6 +6,8 @@ import school.hei.haapi.model.RetakeExamSession;
 import school.hei.haapi.model.exception.NotFoundException;
 import school.hei.haapi.repository.RetakeExamSessionRepository;
 
+import java.util.List;
+
 @Component
 @AllArgsConstructor
 public class RetakeExamSessionService {
@@ -16,4 +18,7 @@ public class RetakeExamSessionService {
         .findById(id)
         .orElseThrow(() -> new NotFoundException("Retake exam session not found"));
   }
+    public List<RetakeExamSession> getRetakeExamSessions() {
+      return retakeExamSessionRepository.findAll();
+    }
 }

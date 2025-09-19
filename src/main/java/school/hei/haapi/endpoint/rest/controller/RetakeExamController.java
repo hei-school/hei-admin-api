@@ -31,7 +31,7 @@ public class RetakeExamController {
   }
 
   @GetMapping("students/{student_id}/sessions/{session_id}/retakeExams")
-  public List<RetakeExam> getStudentRetakeExamBySession(
+  public List<RetakeExam> aetStudentRetakeExamBySession(
       @PathVariable("student_id") String studentId, @PathVariable("session_id") String sessionId) {
     return retakeExamMapper.toRestList(
         retakeExamService.getStudentRetakeExams(sessionId, studentId));
