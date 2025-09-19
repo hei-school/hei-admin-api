@@ -27,6 +27,7 @@ import static school.hei.haapi.integration.conf.TestUtils.event1;
 import static school.hei.haapi.integration.conf.TestUtils.event2;
 import static school.hei.haapi.integration.conf.TestUtils.event3;
 import static school.hei.haapi.integration.conf.TestUtils.group1;
+import static school.hei.haapi.integration.conf.TestUtils.planner1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCognito;
 import static school.hei.haapi.integration.conf.TestUtils.setUpS3Service;
@@ -150,6 +151,12 @@ public class EventIT extends FacadeITMockedThirdParties {
     assertTrue(eventsFilterByTitle.contains(event1()));
     assertFalse(eventsFilterByTitle.contains(event3()));
     assertFalse(eventsFilterByTitle.contains(event2()));
+
+    var eventsFilterByTeacher =
+        api.getEvents(1, 15, null, null, null, null, null, planner1().getId());
+    assertTrue(eventsFilterByTeacher.contains(event1()));
+    assertTrue(eventsFilterByTeacher.contains(event2()));
+    assertFalse(eventsFilterByTitle.contains(event3()));
   }
 
   @Test

@@ -78,7 +78,7 @@ public class EventService {
     }
 
     List<Event> filteredEvents =
-        eventDao.findByCriteria(null, fromInstant, toInstant, null, null, null);
+        eventDao.findByCriteria(null, fromInstant, toInstant, null, null, null, null);
     List<String> filteredEventIds =
         filteredEvents.stream().map(Event::getId).collect(toUnmodifiableList());
     return eventParticipantService.getEventParticipantsStats(filteredEventIds);
@@ -96,11 +96,12 @@ public class EventService {
       String title,
       EventType eventType,
       Group group,
+      String plannerId,
       PageFromOne page,
       BoundedPageSize pageSize) {
     Pageable pageable =
         PageRequest.of(page.getValue() - 1, pageSize.getValue(), Sort.by(DESC, "beginDatetime"));
-    return eventDao.findByCriteria(title, from, to, eventType, group, pageable);
+    return eventDao.findByCriteria(title, from, to, eventType, group, plannerId, pageable);
   }
 
   private List<Event> generateEventFromFrequency(

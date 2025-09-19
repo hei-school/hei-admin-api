@@ -80,10 +80,13 @@ public class EventController {
       @RequestParam(name = "group", required = false) Group group,
       @RequestParam(required = false) String title,
       @RequestParam(required = false) Instant from,
-      @RequestParam(required = false) Instant to) {
-    return eventService.getEvents(from, to, title, eventType, group, page, pageSize).stream()
+      @RequestParam(required = false) Instant to,
+      @RequestParam(name = "teacher_id", required = false) String teacherId) {
+    return eventService
+        .getEvents(from, to, title, eventType, group, teacherId, page, pageSize)
+        .stream()
         .map(mapper::toRest)
-        .collect(toUnmodifiableList());
+        .toList();
   }
 
   @GetMapping("/events/{event_id}")

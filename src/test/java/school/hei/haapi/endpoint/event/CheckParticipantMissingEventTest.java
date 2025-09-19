@@ -49,7 +49,13 @@ class CheckParticipantMissingEventTest extends FacadeITMockedThirdParties {
   @Test
   void participant_missing_event_received_email() {
     when(eventDao.findByCriteria(
-            eq(null), any(Instant.class), any(Instant.class), eq(null), eq(null), eq(null)))
+            eq(null),
+            any(Instant.class),
+            any(Instant.class),
+            eq(null),
+            eq(null),
+            eq(null),
+            eq(null)))
         .thenReturn(List.of(fakeDataProvider.someEvent(), fakeDataProvider.someEvent()));
 
     subject.accept(new CheckParticipantMissedEventTriggered());
