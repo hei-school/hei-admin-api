@@ -248,7 +248,7 @@ public class SecurityConf {
                     antMatcher(POST, "/organizers/*/picture/raw"),
                     antMatcher(PUT, "/students/*/courses"),
                     antMatcher(PUT, "/retake_exam_sessions/*/retakeExams"),
-                    antMatcher(GET, "students/*/sessions/*/retakeExams"),
+                    antMatcher(GET, "/students/*/sessions/*/retakeExams"),
                     nonAccessibleBySuspendedUserPath)),
             AnonymousAuthenticationFilter.class)
         .addFilterAfter(
@@ -741,7 +741,7 @@ public class SecurityConf {
                     .requestMatchers(PUT, "/retake_exam_sessions/*/retakeExams")
                     .hasAnyRole(
                         MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())
-                    .requestMatchers(GET, "students/*/sessions/*/retakeExams")
+                    .requestMatchers(GET, "/students/*/sessions/*/retakeExams")
                     .hasAnyRole(
                         MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())
                     .requestMatchers(

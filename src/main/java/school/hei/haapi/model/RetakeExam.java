@@ -2,6 +2,7 @@ package school.hei.haapi.model;
 
 import static jakarta.persistence.GenerationType.IDENTITY;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
@@ -32,10 +33,11 @@ public class RetakeExam implements Serializable {
   private String id;
 
   @ManyToOne
-  @JoinColumn(name = "retake_exam_session_id", nullable = false)
-  private RetakeExamSession retakeExamSession;
+  @JoinColumn(name = "session_id", nullable = false)
+  @JsonManagedReference
+  private RetakeExamSession session;
 
-  @ManyToOne
+  @ManyToOne(optional = true)
   @JoinColumn(name = "course_id", nullable = false)
   private Course course;
 

@@ -11,7 +11,6 @@ import school.hei.haapi.repository.RetakeExamRepository;
 @Component
 @AllArgsConstructor
 public class RetakeExamSessionMapper {
-
   @Autowired RetakeExamRepository retakeExamRepository;
 
   public RetakeExamSession toRest(school.hei.haapi.model.RetakeExamSession retakeExamSession) {
@@ -23,7 +22,7 @@ public class RetakeExamSessionMapper {
 
   public school.hei.haapi.model.RetakeExamSession toDomain(RetakeExamSession retakeExamSession) {
     List<RetakeExam> retakeExams =
-        retakeExamRepository.findByRetakeExamSessionId(retakeExamSession.getId());
+        retakeExamRepository.findRetakeExamsBySession_Id(retakeExamSession.getId());
     return school.hei.haapi.model.RetakeExamSession.builder()
         .id(retakeExamSession.getId())
         .dateFrom(retakeExamSession.getDateFrom())

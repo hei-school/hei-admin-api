@@ -9,31 +9,28 @@ import school.hei.haapi.endpoint.rest.model.RetakeExam;
 import school.hei.haapi.model.Course;
 import school.hei.haapi.model.RetakeExamSession;
 import school.hei.haapi.model.User;
-import school.hei.haapi.repository.CourseRepository;
-import school.hei.haapi.repository.RetakeExamSessionRepository;
-import school.hei.haapi.repository.UserRepository;
+import school.hei.haapi.service.CourseService;
+import school.hei.haapi.service.RetakeExamSessionService;
+import school.hei.haapi.service.UserService;
 
 @Component
 @AllArgsConstructor
 public class RetakeExamMapper {
   @Autowired CourseMapper courseMapper;
-
   @Autowired RetakeExamSessionMapper retakeExamSessionMapper;
-  @Autowired UserRepository userRepository;
-  @Autowired RetakeExamSessionRepository retakeExamSessionRepository;
-  @Autowired CourseRepository courseRepository;
+  @Autowired UserService userService;
+  @Autowired CourseService courseService;
+  @Autowired private RetakeExamSessionService retakeExamSessionService;
 
-  public school.hei.haapi.model.RetakeExam toDomain(CrupdateRetakeExam crupdateRetakeExam) {
-    assert crupdateRetakeExam.getStudentId() != null;
-    User studentUser = userRepository.findById(crupdateRetakeExam.getStudentId()).orElse(null);
-    assert crupdateRetakeExam.getSessionId() != null;
+  public school.hei.haapi.model.RetakeExam toDomainCrupDate(CrupdateRetakeExam crupdateRetakeExam) {
+    User studentUser = userService.findById(crupdateRetakeExam.getStudentId());
     RetakeExamSession retakeExamSession =
-        retakeExamSessionRepository.findById(crupdateRetakeExam.getSessionId()).orElse(null);
-    Course course = courseRepository.getCourseById(crupdateRetakeExam.getCourseId());
+        retakeExamSessionService.getById(crupdateRetakeExam.getSessionId());
+    Course course = courseService.getById(crupdateRetakeExam.getCourseId());
     return school.hei.haapi.model.RetakeExam.builder()
         .id(crupdateRetakeExam.getId())
         .student(studentUser)
-        .retakeExamSession(retakeExamSession)
+        .session(retakeExamSession)
         .course(course)
         .build();
   }
@@ -42,16 +39,14 @@ public class RetakeExamMapper {
     return new RetakeExam()
         .id(retakeExam.getId())
         .course(courseMapper.toRest(retakeExam.getCourse()))
-        .session(retakeExamSessionMapper.toRest(retakeExam.getRetakeExamSession()));
+        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()));
   }
 
   public school.hei.haapi.model.RetakeExam toDomain(RetakeExam retakeExam) {
-    assert retakeExam.getCourse() != null;
-    assert retakeExam.getSession() != null;
     return school.hei.haapi.model.RetakeExam.builder()
         .id(retakeExam.getId())
         .course(courseMapper.toDomain(retakeExam.getCourse()))
-        .retakeExamSession(retakeExamSessionMapper.toDomain(retakeExam.getSession()))
+        .session(retakeExamSessionMapper.toDomain(retakeExam.getSession()))
         .build();
   }
 
@@ -61,6 +56,6 @@ public class RetakeExamMapper {
 
   public List<school.hei.haapi.model.RetakeExam> toDoMainList(
       List<CrupdateRetakeExam> crupdateRetakeExams) {
-    return crupdateRetakeExams.stream().map(this::toDomain).toList();
+    return crupdateRetakeExams.stream().map(this::toDomainCrupDate).toList();
   }
 }
