@@ -62,7 +62,7 @@ public class MobilePaymentService implements MobileTransactionProvider {
   public List<MobileTransactionDetails> saveAll(
       List<MobileTransactionDetails> mobileTransactionDetails) {
     List<MobileTransactionDetails> savedTransactions = new ArrayList<>();
-    for (MobileTransactionDetails transaction : mobileTransactionDetails) {
+    for (var transaction : mobileTransactionDetails) {
       attemptSaveTransaction(transaction, savedTransactions);
     }
     return savedTransactions;
