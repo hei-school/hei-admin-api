@@ -60,15 +60,10 @@ public class RetakeExamMapper {
     return crupdateRetakeExams.stream().map(this::toDomainCrupDate).toList();
   }
 
-  public List<StudentRetakeExam> toStudentRetakeRestList(
-      List<school.hei.haapi.model.RetakeExam> retakeExams) {
-    return retakeExams.stream()
-        .map(
-            r ->
-                new StudentRetakeExam()
-                    .studentIdentifier(userMapper.toIdentifier(r.getStudent()))
-                    .course(courseMapper.toRest(r.getCourse()))
-                    .session(retakeExamSessionMapper.toRest(r.getSession())))
-        .toList();
+  public StudentRetakeExam toStudentRetakeRest(school.hei.haapi.model.RetakeExam retakeExam) {
+    return new StudentRetakeExam()
+        .studentIdentifier(userMapper.toIdentifier(retakeExam.getStudent()))
+        .course(courseMapper.toRest(retakeExam.getCourse()))
+        .session(retakeExamSessionMapper.toRest(retakeExam.getSession()));
   }
 }

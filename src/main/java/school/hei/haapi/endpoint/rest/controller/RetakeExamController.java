@@ -25,8 +25,9 @@ public class RetakeExamController {
   public List<StudentRetakeExam> createOrUpdateRetakeExam(
       @PathVariable("session_id") String sessionId,
       @RequestBody List<CrupdateRetakeExam> crupdateRetakeExams) {
-    return retakeExamMapper.toStudentRetakeRestList(
-        retakeExamService.crupdateRetakeExams(sessionId, crupdateRetakeExams));
+    return retakeExamService.crupdateRetakeExams(sessionId, crupdateRetakeExams).stream()
+        .map(retakeExamMapper::toStudentRetakeRest)
+        .toList();
   }
 
   @GetMapping("students/{student_id}/sessions/{session_id}/retakeExams")
