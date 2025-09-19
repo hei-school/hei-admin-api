@@ -10,7 +10,7 @@ import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.SendVerifyMpbsByXlsEventEmail;
 import school.hei.haapi.endpoint.event.model.VerifyMpbsByXlsEvent;
 import school.hei.haapi.file.bucket.BucketComponent;
-import school.hei.haapi.model.Mpbs.Mpbs;
+import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.service.MpbsVerificationService;
 
 @AllArgsConstructor

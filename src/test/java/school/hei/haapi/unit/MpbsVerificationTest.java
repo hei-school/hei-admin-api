@@ -19,41 +19,43 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
 import school.hei.haapi.endpoint.event.EventProducer;
 import school.hei.haapi.endpoint.event.model.PaidFeeByMpbsFailedNotificationBody;
-import school.hei.haapi.http.mapper.ExternalResponseMapper;
+import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.MobileTransactionDetails;
-import school.hei.haapi.model.Mpbs.Mpbs;
-import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.Payment;
 import school.hei.haapi.model.User;
+import school.hei.haapi.model.mpbs.Mpbs;
+import school.hei.haapi.model.mpbs.MpbsVerification;
 import school.hei.haapi.service.ComputeVerifiedMobilePayment;
 import school.hei.haapi.service.FailedMobilePaymentNotification;
 import school.hei.haapi.service.MobilePaymentService;
 import school.hei.haapi.service.MpbsVerificationService;
 import school.hei.haapi.service.UnverifiedMobilePaymentHandler;
+import school.hei.haapi.service.utils.CollectionUtils;
 
 class MpbsVerificationTest {
   MobilePaymentService mobilePaymentServiceMock = mock();
   UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandlerMock = mock();
   ComputeVerifiedMobilePayment computeVerifiedMobilePaymentMock = mock();
-  ExternalResponseMapper externalResponseMapper = new ExternalResponseMapper();
+  TransactionDetailsMapper transactionDetailsMapper = new TransactionDetailsMapper();
   EventProducer<PaidFeeByMpbsFailedNotificationBody> eventProducerMock = mock();
 
   private MpbsVerificationService initMpbsVerificationService(
       UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandlerMock,
       MobilePaymentService mobilePaymentService,
-      ExternalResponseMapper externalResponseMapper,
+      TransactionDetailsMapper transactionDetailsMapper,
       ComputeVerifiedMobilePayment computeVerifiedMobilePayment) {
     return new MpbsVerificationService(
         mock(),
         mock(),
         mobilePaymentService,
-        externalResponseMapper,
+        transactionDetailsMapper,
         mock(),
         mock(),
         unverifiedMobilePaymentHandlerMock,
-        computeVerifiedMobilePayment);
+        computeVerifiedMobilePayment,
+        new CollectionUtils());
   }
 
   @Test
@@ -62,7 +64,7 @@ class MpbsVerificationTest {
         initMpbsVerificationService(
             unverifiedMobilePaymentHandlerMock,
             mobilePaymentServiceMock,
-            externalResponseMapper,
+            transactionDetailsMapper,
             computeVerifiedMobilePaymentMock);
 
     var mbpsPending = someMpbs("pending", now(), null);
@@ -77,7 +79,7 @@ class MpbsVerificationTest {
     when(mobilePaymentServiceMock.findAllTransactionByMpbs(anyList()))
         .thenReturn(List.of(correspondingMockTransactionsFromVerifiedMpbs));
     TransactionDetails transactionsFromVerifiedMpbs =
-        externalResponseMapper.toRestMobileTransactionDetails(
+        transactionDetailsMapper.toRestMobileTransactionDetails(
             correspondingMockTransactionsFromVerifiedMpbs);
     when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(
             mpbsVerified, transactionsFromVerifiedMpbs))
@@ -108,7 +110,7 @@ class MpbsVerificationTest {
             new UnverifiedMobilePaymentHandler(
                 mock(), new FailedMobilePaymentNotification(eventProducerMock)),
             mobilePaymentServiceMock,
-            externalResponseMapper,
+            transactionDetailsMapper,
             computeVerifiedMobilePaymentMock);
 
     var pendingCreationDatetime = now().minus(1, DAYS);
@@ -129,7 +131,7 @@ class MpbsVerificationTest {
         .thenReturn(List.of(correspondingMockTransactionsFromVerifiedMpbs));
     when(computeVerifiedMobilePaymentMock.saveTheVerifiedMpbs(
             mpbsVerified,
-            externalResponseMapper.toRestMobileTransactionDetails(
+            transactionDetailsMapper.toRestMobileTransactionDetails(
                 correspondingMockTransactionsFromVerifiedMpbs)))
         .thenReturn(fakeComputedVerifiedMpbs);
 

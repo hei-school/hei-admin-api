@@ -26,15 +26,16 @@ import org.apache.poi.ss.usermodel.WorkbookFactory;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import school.hei.haapi.endpoint.rest.model.MpbsStatus;
-import school.hei.haapi.http.mapper.ExternalResponseMapper;
+import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
-import school.hei.haapi.model.Mpbs.Mpbs;
-import school.hei.haapi.model.Mpbs.MpbsVerification;
 import school.hei.haapi.model.exception.NoRemainingAmountFee;
+import school.hei.haapi.model.mpbs.Mpbs;
+import school.hei.haapi.model.mpbs.MpbsVerification;
 import school.hei.haapi.repository.MpbsRepository;
 import school.hei.haapi.repository.MpbsVerificationRepository;
 import school.hei.haapi.service.aws.FileService;
+import school.hei.haapi.service.utils.CollectionUtils;
 
 @Service
 @AllArgsConstructor
@@ -43,11 +44,12 @@ public class MpbsVerificationService {
   private final MpbsVerificationRepository repository;
   private final MpbsRepository mpbsRepository;
   private final MobilePaymentService mobilePaymentService;
-  private final ExternalResponseMapper externalResponseMapper;
+  private final TransactionDetailsMapper transactionDetailsMapper;
   private final MultipartFileConverter multipartFileConverter;
   private final FileService fileService;
   private final UnverifiedMobilePaymentHandler unverifiedMobilePaymentHandler;
   private final ComputeVerifiedMobilePayment computeVerifiedMobilePayment;
+  private final CollectionUtils collectionUtils;
 
   public List<MpbsVerification> findAllByStudentIdAndFeeId(String studentId, String feeId) {
     return repository.findAllByStudentIdAndFeeId(studentId, feeId);
@@ -100,7 +102,7 @@ public class MpbsVerificationService {
 
       try {
         TransactionDetails transactionDetails =
-            externalResponseMapper.toExternalTransactionDetails(lastTransactionDetails);
+            transactionDetailsMapper.toExternalTransactionDetails(lastTransactionDetails);
         log.info("mapped transaction details = {}", transactionDetails);
 
         verifiedMpbs.add(
@@ -203,7 +205,11 @@ public class MpbsVerificationService {
         log.info("Unverified mobile transaction psp id {}", ref);
       }
     }
-    mobilePaymentService.saveAll(transactions);
+    mobilePaymentService.saveAll(
+        collectionUtils
+            .filterDistinctByField(transactions, MobileTransactionDetails::getPspTransactionRef)
+            .stream()
+            .toList());
     log.info("Verification done...");
     return transactions.stream()
         .map(MobileTransactionDetails::getPspTransactionRef)
@@ -219,6 +225,6 @@ public class MpbsVerificationService {
   }
 
   public List<TransactionDetails> fetchThenSaveTransactionDetailsDaily() {
-    return mobilePaymentService.fetchThenSaveTransactionDetails();
+    return mobilePaymentService.fetchTransactionDetails();
   }
 }

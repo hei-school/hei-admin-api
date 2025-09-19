@@ -6,7 +6,7 @@ import school.hei.haapi.endpoint.rest.model.MpbsVerification;
 @Component
 public class MpbsVerificationMapper {
 
-  public MpbsVerification toRest(school.hei.haapi.model.Mpbs.MpbsVerification domain) {
+  public MpbsVerification toRest(school.hei.haapi.model.mpbs.MpbsVerification domain) {
     if (domain == null) {
       return null;
     }

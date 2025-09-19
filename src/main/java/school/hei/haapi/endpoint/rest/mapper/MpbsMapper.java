@@ -17,7 +17,7 @@ public class MpbsMapper {
   private final UserService userService;
   private final FeeService feeService;
 
-  public Mpbs toRest(school.hei.haapi.model.Mpbs.Mpbs domain) {
+  public Mpbs toRest(school.hei.haapi.model.mpbs.Mpbs domain) {
     return new Mpbs()
         .id(domain.getId())
         .studentId(domain.getStudent().getId())
@@ -32,8 +32,8 @@ public class MpbsMapper {
         .status(domain.getStatus());
   }
 
-  public school.hei.haapi.model.Mpbs.Mpbs toDomain(CrupdateMpbs rest) {
-    school.hei.haapi.model.Mpbs.Mpbs domain = new school.hei.haapi.model.Mpbs.Mpbs();
+  public school.hei.haapi.model.mpbs.Mpbs toDomain(CrupdateMpbs rest) {
+    school.hei.haapi.model.mpbs.Mpbs domain = new school.hei.haapi.model.mpbs.Mpbs();
 
     domain.setId(rest.getId());
     domain.setStudent(userService.findById(rest.getStudentId()));

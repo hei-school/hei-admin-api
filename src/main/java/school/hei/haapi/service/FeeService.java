@@ -35,12 +35,12 @@ import school.hei.haapi.endpoint.rest.model.PaymentFrequency;
 import school.hei.haapi.model.BoundedPageSize;
 import school.hei.haapi.model.Fee;
 import school.hei.haapi.model.FeeTemplate;
-import school.hei.haapi.model.Mpbs.Mpbs;
 import school.hei.haapi.model.PageFromOne;
 import school.hei.haapi.model.User;
 import school.hei.haapi.model.exception.ApiException;
 import school.hei.haapi.model.exception.NoRemainingAmountFee;
 import school.hei.haapi.model.exception.NotFoundException;
+import school.hei.haapi.model.mpbs.Mpbs;
 import school.hei.haapi.model.validator.FeeValidator;
 import school.hei.haapi.model.validator.UpdateFeeValidator;
 import school.hei.haapi.repository.FeeRepository;
@@ -291,9 +291,6 @@ public class FeeService {
                   + fee.getId()
                   + " is going to be updated from UNPAID to "
                   + fee.getStatus());
-          /*if (PAID.equals(modifiedFee.getStatus())) {
-            paidFees.add(modifiedFee);
-          } else*/
           if (LATE.equals(modifiedFee.getStatus())) {
             lateFees.add(modifiedFee);
           }
@@ -318,7 +315,7 @@ public class FeeService {
         .build();
   }
 
-  public UnpaidFeesReminder toUnpaidFeesReminder(Fee fee) {
+  private UnpaidFeesReminder toUnpaidFeesReminder(Fee fee) {
     return UnpaidFeesReminder.builder()
         .user(UnpaidFeesReminder.UnpaidFeesUser.from(fee.getStudent()))
         .remainingAmount(fee.getRemainingAmount())
@@ -326,7 +323,7 @@ public class FeeService {
         .build();
   }
 
-  public StudentsWithOverdueFeesReminder toStudentsWithOverdueFeesReminder(List<Fee> fees) {
+  private static StudentsWithOverdueFeesReminder toStudentsWithOverdueFeesReminder(List<Fee> fees) {
     return StudentsWithOverdueFeesReminder.builder()
         .id(String.valueOf(randomUUID()))
         .students(
@@ -340,11 +337,15 @@ public class FeeService {
   public void sendLateFeesEmail() {
     List<Fee> lateFees = feeRepository.findAllByStatus(LATE);
     log.info("Late fees size: " + lateFees.size());
-    lateFees.forEach(
-        fee -> {
-          eventProducer.accept(List.of(toLateFeeEvent(fee)));
-          log.info("Late Fee with id." + fee.getId() + " is sent to Queue");
-        });
+    List<PojaEvent> lateFeeEvents =
+        lateFees.stream()
+            .map(
+                lateFee -> {
+                  log.info("Late Fee with id." + lateFee.getId() + " is sent to Queue");
+                  return (PojaEvent) toLateFeeEvent(lateFee);
+                })
+            .toList();
+    eventProducer.accept(lateFeeEvents);
   }
 
   public void sendUnpaidFeesEmail() {
@@ -352,11 +353,15 @@ public class FeeService {
         feeRepository.getUnpaidFeesForTheMonthSpecified(
             Instant.now().atZone(ZoneId.of("UTC+3")).getMonthValue());
     log.info("Unpaid fees size: {}", unpaidFees.size());
-    unpaidFees.forEach(
-        unpaidFee -> {
-          eventProducer.accept(List.of(toUnpaidFeesReminder(unpaidFee)));
-          log.info("Unpaid fee with id.{} is sent to Queue", unpaidFee.getId());
-        });
+    List<PojaEvent> unpaidFeeEvents =
+        unpaidFees.stream()
+            .map(
+                unpaidFee -> {
+                  log.info("Unpaid fee with id.{} is sent to Queue", unpaidFee.getId());
+                  return (PojaEvent) toUnpaidFeesReminder(unpaidFee);
+                })
+            .toList();
+    eventProducer.accept(unpaidFeeEvents);
   }
 
   public Fee pendFeeForMpbs(Fee fee) {

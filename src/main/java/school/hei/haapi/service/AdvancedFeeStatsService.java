@@ -177,7 +177,7 @@ public class AdvancedFeeStatsService {
     feeStats.setThirdGradeCount(pendingFeesStats.getThirdGrade());
     feeStats.setUnknownGradeCount(pendingFeesStats.getUnknownGrade());
     feeStats.setWorkStudyCount(pendingFeesStats.getWorkStudy());
-    feeStats.setRemedialFeesCount(pendingFeesStats.getRemedialFeesCount().longValue());
+    feeStats.setRemedialFeesCount(pendingFeesStats.getRetakeExamFeesCount().longValue());
     feeStats.setMonthlyCount(pendingFeesStats.getMonthly());
     feeStats.setYearlyCount(pendingFeesStats.getYearly());
     feeStats.setUpdateDatetime(now());
@@ -190,7 +190,7 @@ public class AdvancedFeeStatsService {
     feeStats.setThirdGradeCount(lateFeesStats.getThirdGrade());
     feeStats.setUnknownGradeCount(lateFeesStats.getUnknownGrade());
     feeStats.setWorkStudyCount(lateFeesStats.getWorkStudy());
-    feeStats.setRemedialFeesCount(lateFeesStats.getRemedialFeesCount().longValue());
+    feeStats.setRemedialFeesCount(lateFeesStats.getRetakeExamFeesCount().longValue());
     feeStats.setMonthlyCount(lateFeesStats.getMonthly());
     feeStats.setYearlyCount(lateFeesStats.getYearly());
     feeStats.setUpdateDatetime(now());
@@ -203,7 +203,7 @@ public class AdvancedFeeStatsService {
     feeStats.setThirdGradeCount(paidFeesStats.getThirdGrade());
     feeStats.setUnknownGradeCount(paidFeesStats.getUnknownGrade());
     feeStats.setWorkStudyCount(paidFeesStats.getWorkStudy());
-    feeStats.setRemedialFeesCount(paidFeesStats.getRemedialFeesCount().longValue());
+    feeStats.setRemedialFeesCount(paidFeesStats.getRetakeExamFeesCount().longValue());
     feeStats.setMonthlyCount(paidFeesStats.getMonthly());
     feeStats.setYearlyCount(paidFeesStats.getYearly());
     feeStats.setUnknownFrequencyCount(paidFeesStats.getUnknownFrequency());
@@ -232,7 +232,7 @@ public class AdvancedFeeStatsService {
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
     return new LateFeesStats()
-        .remedialFeesCount(BigDecimal.valueOf(countRemedialFees(lateFees)))
+        .retakeExamFeesCount(BigDecimal.valueOf(countRemedialFees(lateFees)))
         .workStudy(feeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
@@ -251,7 +251,7 @@ public class AdvancedFeeStatsService {
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
     Map<PaymentType, Long> feesCountByPaymentType = countFeesByPaymentType(tuitionFees);
     return new PaidFeesStats()
-        .remedialFeesCount(BigDecimal.valueOf(countRemedialFees(paidFees)))
+        .retakeExamFeesCount(BigDecimal.valueOf(countRemedialFees(paidFees)))
         .workStudy(feeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))
@@ -271,7 +271,7 @@ public class AdvancedFeeStatsService {
     List<Fee> tuitionFees = feesByType.getOrDefault(TUITION, List.of());
     Map<FeeFrequency, Long> feesCountByPaymentFrequency = countFeesByPaymentFrequency(tuitionFees);
     return new PendingFeesStats()
-        .remedialFeesCount(BigDecimal.valueOf(countRemedialFees(pendingFees)))
+        .retakeExamFeesCount(BigDecimal.valueOf(countRemedialFees(pendingFees)))
         .workStudy(feeCountByCategory.get(WORK_FEES))
         .monthly(feesCountByPaymentFrequency.get(MONTHLY))
         .yearly(feesCountByPaymentFrequency.get(YEARLY))

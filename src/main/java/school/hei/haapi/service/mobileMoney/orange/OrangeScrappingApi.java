@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.MobileMoneyType;
 import school.hei.haapi.http.mapper.ExternalExceptionMapper;
-import school.hei.haapi.http.mapper.ExternalResponseMapper;
+import school.hei.haapi.http.mapper.TransactionDetailsMapper;
 import school.hei.haapi.http.model.OrangeDailyTransactionScrappingDetails;
 import school.hei.haapi.http.model.TransactionDetails;
 import school.hei.haapi.model.MobileTransactionDetails;
@@ -29,14 +29,14 @@ import school.hei.haapi.service.mobileMoney.MobileMoneyApi;
 class OrangeScrappingApi implements MobileMoneyApi {
   private final ObjectMapper objectMapper;
   private final ExternalExceptionMapper exceptionMapper;
-  private final ExternalResponseMapper responseMapper;
+  private final TransactionDetailsMapper responseMapper;
   private final MobileTransactionDetailsRepository mobileTransactionDetailsRepository;
   private final String baseUrl;
 
   OrangeScrappingApi(
       ObjectMapper objectMapper,
       ExternalExceptionMapper exceptionMapper,
-      ExternalResponseMapper responseMapper,
+      TransactionDetailsMapper responseMapper,
       MobileTransactionDetailsRepository mobileTransactionDetailsRepository,
       @Value("${ORANGE_SCRAPPER_BASEURL}") String baseUrl) {
     this.objectMapper = objectMapper;
@@ -69,7 +69,7 @@ class OrangeScrappingApi implements MobileMoneyApi {
   }
 
   private List<TransactionDetails> mapTransactions(OrangeDailyTransactionScrappingDetails a) {
-    var mappedResponseList = a.getTransactions().stream().map(responseMapper::from).toList();
+    var mappedResponseList = a.getTransactions().stream().map(responseMapper::toModel).toList();
 
     // store the collected data ...
     var savedResponseList =
