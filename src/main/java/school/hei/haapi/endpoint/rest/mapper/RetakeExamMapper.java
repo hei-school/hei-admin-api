@@ -2,7 +2,6 @@ package school.hei.haapi.endpoint.rest.mapper;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import school.hei.haapi.endpoint.rest.model.CrupdateRetakeExam;
 import school.hei.haapi.endpoint.rest.model.RetakeExam;
@@ -17,11 +16,11 @@ import school.hei.haapi.service.UserService;
 @Component
 @AllArgsConstructor
 public class RetakeExamMapper {
-  @Autowired CourseMapper courseMapper;
-  @Autowired RetakeExamSessionMapper retakeExamSessionMapper;
-  @Autowired UserService userService;
-  @Autowired CourseService courseService;
-  @Autowired private RetakeExamSessionService retakeExamSessionService;
+  private final CourseMapper courseMapper;
+  private final RetakeExamSessionMapper retakeExamSessionMapper;
+  private final UserService userService;
+  private final CourseService courseService;
+  private final RetakeExamSessionService retakeExamSessionService;
   private final UserMapper userMapper;
 
   public school.hei.haapi.model.RetakeExam toDomainCrupDate(CrupdateRetakeExam crupdateRetakeExam) {
