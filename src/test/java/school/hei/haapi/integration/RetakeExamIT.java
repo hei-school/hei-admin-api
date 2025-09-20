@@ -11,6 +11,7 @@ import static org.mockito.Mockito.when;
 import static school.hei.haapi.endpoint.rest.model.ResultOverviewStatus.INVALIDATED;
 import static school.hei.haapi.endpoint.rest.model.StudentLevel.L1;
 import static school.hei.haapi.integration.StudentIT.student1;
+import static school.hei.haapi.integration.conf.TestUtils.ADMIN1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.STUDENT1_TOKEN;
 import static school.hei.haapi.integration.conf.TestUtils.course1;
 import static school.hei.haapi.integration.conf.TestUtils.setUpCasdoor;
@@ -69,7 +70,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void get_course_need_retake_by_student_ok() throws ApiException {
+  void get_course_need_retake_by_student_ok() throws ApiException {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
@@ -81,7 +82,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void student_create_retake_exam_ok() throws ApiException {
+  void student_create_retake_exam_ok() throws ApiException {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
     var retakeExam = new CrupdateRetakeExam();
@@ -90,12 +91,25 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
     retakeExam.setSessionId(session1().getId());
 
     var retakeExamsCreated = api.createOrUpdateRetakeExam(session1().getId(), List.of(retakeExam));
-
     assertNotNull(retakeExamsCreated);
     assertEquals(1, retakeExamsCreated.size());
     var retakeExamCreated = retakeExamsCreated.getFirst();
     assertEquals(retakeExam.getSessionId(), retakeExamCreated.getSession().getId());
     assertEquals(retakeExam.getCourseId(), retakeExamCreated.getCourse().getId());
     assertEquals(retakeExam.getStudentId(), retakeExamCreated.getStudentIdentifier().getId());
+  }
+
+  @Test
+  void admin_read_all_retake_exams_by_session_ok() throws ApiException {
+    ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
+    RetakeExamApi api = new RetakeExamApi(apiClient);
+
+    var retakeExams =
+        api.getRetakeExamBySessionId(session1().getId(), null, null, null, null, null, null, null);
+
+    assertNotNull(retakeExams);
+    assertEquals(3, retakeExams.size());
+    assertEquals(
+        "session1", Objects.requireNonNull(retakeExams.getFirst().getSession()).getTitle());
   }
 }

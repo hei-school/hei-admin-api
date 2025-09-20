@@ -30,8 +30,8 @@ public class ExamDao {
       String courseCode,
       String teacherId,
       String groupRef,
-      Instant examinationDateStart,
-      Instant examinationDateEnd) {
+      Instant from,
+      Instant to) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Exam> query = builder.createQuery(Exam.class);
     Root<Exam> root = query.from(Exam.class);
@@ -61,8 +61,7 @@ public class ExamDao {
       predicates.add(
           builder.like(builder.lower(groupJoin.get("ref")), "%" + groupRef.toLowerCase() + "%"));
     }
-    addExaminationDateRangePredicates(
-        examinationDateStart, examinationDateEnd, predicates, builder, root);
+    addExaminationDateRangePredicates(from, to, predicates, builder, root);
     query
         .distinct(true)
         .where(predicates.toArray(new Predicate[0]))
@@ -75,20 +74,17 @@ public class ExamDao {
   }
 
   private static void addExaminationDateRangePredicates(
-      Instant examinationDateStart,
-      Instant examinationDateEnd,
+      Instant from,
+      Instant to,
       ArrayList<Predicate> predicates,
       CriteriaBuilder builder,
       Root<Exam> root) {
-    if (examinationDateStart != null && examinationDateEnd != null) {
-      predicates.add(
-          builder.between(root.get("examinationDate"), examinationDateStart, examinationDateEnd));
-    } else if (examinationDateStart == null && examinationDateEnd != null) {
-      predicates.add(
-          builder.between(root.get("examinationDate"), Instant.now(), examinationDateEnd));
-    } else if (examinationDateEnd == null && examinationDateStart != null) {
-      predicates.add(
-          builder.between(root.get("examinationDate"), examinationDateStart, Instant.now()));
+    if (from != null && to != null) {
+      predicates.add(builder.between(root.get("examinationDate"), from, to));
+    } else if (from == null && to != null) {
+      predicates.add(builder.between(root.get("examinationDate"), Instant.now(), to));
+    } else if (to == null && from != null) {
+      predicates.add(builder.between(root.get("examinationDate"), from, Instant.now()));
     }
   }
 }
