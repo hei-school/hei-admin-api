@@ -18,13 +18,11 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import lombok.ToString;
 
 @Entity
 @Table(name = "\"retake_exam_session\"")
 @Getter
 @Setter
-@ToString
 @Builder
 @AllArgsConstructor
 @NoArgsConstructor
@@ -34,6 +32,7 @@ public class RetakeExamSession implements Serializable {
   @GeneratedValue(strategy = IDENTITY)
   private String id;
 
+  private String title;
   private Instant dateFrom;
   private Instant dateTo;
 

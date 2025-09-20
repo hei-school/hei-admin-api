@@ -247,6 +247,9 @@ public class SecurityConf {
                     antMatcher(PUT, "/organizers"),
                     antMatcher(POST, "/organizers/*/picture/raw"),
                     antMatcher(PUT, "/students/*/courses"),
+                    antMatcher(GET, "/retake_exam_sessions"),
+                    antMatcher(PUT, "/retake_exam_sessions"),
+                    antMatcher(GET, "/retake_exam_sessions/*/retakeExams"),
                     antMatcher(PUT, "/retake_exam_sessions/*/retakeExams"),
                     antMatcher(GET, "/students/*/sessions/*/retakeExams"),
                     nonAccessibleBySuspendedUserPath)),
@@ -738,6 +741,14 @@ public class SecurityConf {
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
                     .requestMatchers(PUT, "/exams")
                     .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/retake_exam_sessions")
+                    .hasAnyRole(
+                        TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
+                    .requestMatchers(PUT, "/retake_exam_sessions")
+                    .hasAnyRole(TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole())
+                    .requestMatchers(GET, "/retake_exam_sessions/*/retakeExams")
+                    .hasAnyRole(
+                        TEACHER.getRole(), MANAGER.getRole(), ADMIN.getRole(), STUDENT.getRole())
                     .requestMatchers(PUT, "/retake_exam_sessions/*/retakeExams")
                     .hasAnyRole(
                         MANAGER.getRole(), TEACHER.getRole(), ADMIN.getRole(), STUDENT.getRole())

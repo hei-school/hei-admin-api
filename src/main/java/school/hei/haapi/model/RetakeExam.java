@@ -37,8 +37,8 @@ public class RetakeExam implements Serializable {
   @JsonManagedReference
   private RetakeExamSession session;
 
-  @ManyToOne(optional = true)
-  @JoinColumn(name = "course_id", nullable = false)
+  @ManyToOne
+  @JoinColumn(name = "course_id", nullable = false, updatable = false)
   private Course course;
 
   @ManyToOne
