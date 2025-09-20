@@ -70,7 +70,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void get_course_need_retake_by_student_ok() throws ApiException {
+  void get_course_need_retake_by_student_ok() throws ApiException {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
@@ -82,7 +82,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void student_create_retake_exam_ok() throws ApiException {
+  void student_create_retake_exam_ok() throws ApiException {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
     var retakeExam = new CrupdateRetakeExam();
@@ -100,7 +100,7 @@ public class RetakeExamIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void admin_read_all_retake_exams_by_session_ok() throws ApiException {
+  void admin_read_all_retake_exams_by_session_ok() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 

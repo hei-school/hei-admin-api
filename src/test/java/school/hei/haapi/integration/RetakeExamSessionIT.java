@@ -42,7 +42,7 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void read_all_retake_exam_by_student_ok() throws ApiException {
+  void read_all_retake_exam_by_student_ok() throws ApiException {
     ApiClient apiClient = anApiClient(STUDENT1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
@@ -53,7 +53,7 @@ public class RetakeExamSessionIT extends FacadeITMockedThirdParties {
   }
 
   @Test
-  public void save_retake_exam_session_by_admin() throws ApiException {
+  void save_retake_exam_session_by_admin() throws ApiException {
     ApiClient apiClient = anApiClient(ADMIN1_TOKEN);
     RetakeExamApi api = new RetakeExamApi(apiClient);
 
