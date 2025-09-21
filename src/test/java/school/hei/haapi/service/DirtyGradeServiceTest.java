@@ -173,7 +173,7 @@ class DirtyGradeServiceTest extends FacadeITMockedThirdParties {
 
     var examGrades =
         examParticipantService.getExamParticipantsGrade(
-            exam1Prog1.getId(), new PageFromOne(1), new BoundedPageSize(15), studentAxel.getRef());
+            exam1Prog1.getId(), null, null, studentAxel.getRef());
 
     assertEquals(1, examGrades.size());
     var studentGrade = examGrades.getFirst();
