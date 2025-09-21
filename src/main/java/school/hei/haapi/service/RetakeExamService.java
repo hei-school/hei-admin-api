@@ -10,7 +10,6 @@ import lombok.AllArgsConstructor;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Component;
-import org.springframework.web.bind.annotation.PathVariable;
 import school.hei.haapi.endpoint.rest.mapper.CourseMapper;
 import school.hei.haapi.endpoint.rest.mapper.RetakeExamMapper;
 import school.hei.haapi.endpoint.rest.model.Course;
@@ -38,7 +37,7 @@ public class RetakeExamService {
   private final RetakeExamDao retakeExamDao;
 
   public List<RetakeExam> crupdateRetakeExams(
-      @PathVariable String sessionId, List<CrupdateRetakeExam> crupdateRetakeExams) {
+      String sessionId, List<CrupdateRetakeExam> crupdateRetakeExams) {
     RetakeExamSession retakeExamSession = retakeExamSessionService.getById(sessionId);
     if (retakeExamSession != null) {
       crupdateRetakeExams.forEach(
