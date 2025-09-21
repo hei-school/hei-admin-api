@@ -6,8 +6,10 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import jakarta.validation.constraints.NotNull;
+import java.util.ArrayList;
 import java.util.List;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -23,12 +25,22 @@ public class GradeDao {
   private final EntityManager entityManager;
 
   public List<Grade> getGradesByExamId(String examId, @NotNull Pageable pageable) {
+    return getGradesByExamId(examId, null, pageable);
+  }
+
+  public List<Grade> getGradesByExamId(
+      String examId, String studentRef, @NotNull Pageable pageable) {
     CriteriaBuilder builder = entityManager.getCriteriaBuilder();
     CriteriaQuery<Grade> query = builder.createQuery(Grade.class);
     Root<Grade> root = query.from(Grade.class);
+    List<Predicate> predicates = new ArrayList<>();
 
-    query.where(builder.equal(root.get("exam").get("id"), examId));
+    predicates.add(builder.equal(root.get("exam").get("id"), examId));
+    if (studentRef != null) {
+      predicates.add(builder.equal(root.get("student").get("ref"), studentRef));
+    }
 
+    query.where(predicates.toArray(new Predicate[0]));
     if (pageable.isUnpaged()) {
       return entityManager.createQuery(query).getResultList();
     }
