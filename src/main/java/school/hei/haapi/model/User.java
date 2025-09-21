@@ -3,6 +3,7 @@ package school.hei.haapi.model;
 import static jakarta.persistence.EnumType.STRING;
 import static jakarta.persistence.FetchType.LAZY;
 import static jakarta.persistence.GenerationType.IDENTITY;
+import static java.util.Comparator.comparing;
 import static org.hibernate.type.SqlTypes.NAMED_ENUM;
 import static school.hei.haapi.model.GroupFlow.GroupFlowType.JOIN;
 import static school.hei.haapi.model.User.Status.*;
@@ -25,7 +26,6 @@ import jakarta.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.time.Instant;
 import java.time.LocalDate;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
@@ -242,7 +242,7 @@ public class User implements Serializable {
     var lastGroupFlow =
         this.getGroupFlows().stream()
             .filter(groupFlow -> JOIN.equals(groupFlow.getGroupFlowType()))
-            .max(Comparator.comparing(GroupFlow::getFlowDatetime));
+            .max(comparing(GroupFlow::getFlowDatetime));
     return lastGroupFlow.map(GroupFlow::getGroup);
   }
 
@@ -251,8 +251,8 @@ public class User implements Serializable {
         .filter(
             groupFlow ->
                 JOIN.equals(groupFlow.getGroupFlowType())
-                    && instant.isBefore(groupFlow.getFlowDatetime()))
-        .max(Comparator.comparing(GroupFlow::getFlowDatetime))
+                    && instant.isAfter(groupFlow.getFlowDatetime()))
+        .max(comparing(GroupFlow::getFlowDatetime))
         .map(GroupFlow::getGroup);
   }
 
