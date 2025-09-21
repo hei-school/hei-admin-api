@@ -114,7 +114,7 @@ public class CourseResultService {
     if (studentGrades.isEmpty()) {
       return courseResult.status(CourseResultStatus.IN_PROGRESS);
     } else if (studentGrades.size() < examsOfTheCourse.size()) {
-      return courseResult.status(CourseResultStatus.INCOMPLETE);
+      return courseResult.status(CourseResultStatus.IN_PROGRESS);
     } else if (TEN.compareTo(courseResult.getWeightedAverage()) > 0) {
       return courseResult.status(CourseResultStatus.INCOMPLETE);
     } else {

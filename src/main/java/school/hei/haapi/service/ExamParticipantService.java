@@ -1,6 +1,5 @@
 package school.hei.haapi.service;
 
-
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.AllArgsConstructor;
